@@ -12,6 +12,7 @@ import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIImage;
 import com.oddlabs.tt.gui.GUIObject;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.MenuButton;
 import com.oddlabs.tt.input.GameAction;
@@ -37,7 +38,9 @@ import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.awt.Desktop;
 import java.net.InetAddress;
+import java.net.URI;
 import java.util.ResourceBundle;
 
 public abstract class Menu extends CameraDelegate<Camera> {
@@ -49,6 +52,8 @@ public abstract class Menu extends CameraDelegate<Camera> {
     private static final int overlay_image_width = 800;
     private static final int overlay_image_height = 600;
     private static final String overlay_texture_name = "/textures/gui/mainmenu";
+    private static final String discord_texture_name = "/textures/gui/discord";
+    private static final String github_texture_name = "/textures/gui/github";
 
     private static final ResourceBundle bundle = ResourceBundle.getBundle(MainMenu.class.getName());
 
@@ -63,6 +68,8 @@ public abstract class Menu extends CameraDelegate<Camera> {
 
     private @Nullable GUIImage overlay;
     private @Nullable GUIImage logo;
+    private @Nullable GUIImage discord;
+    private @Nullable GUIImage github;
 
     protected Menu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Camera camera) {
         super(gui_root, camera);
@@ -92,6 +99,25 @@ public abstract class Menu extends CameraDelegate<Camera> {
         logo = new GUIImage(logoWidth, logoHeight, 0f, 0f, 347f / 512f, 206f / 256f, logo_file);
         logo.setPos(0, screen_height - logoHeight);
         addChild(logo);
+
+        // Discord and GitHub buttons in bottom-right corner
+        github = new GUIImage(76, 76, 0f, 0f, 1f, 1f, github_texture_name, true);
+        github.setPos(screen_width - github.getWidth() - 20, github.getHeight() / 2 + 4);
+        github.addMouseClickListener((_, _, _, _) -> openURL(Settings.GITHUB_URL));
+        addChild(github);
+
+        discord = new GUIImage(80, 80, 0f, 0f, 1f, 1f, discord_texture_name, true);
+        discord.setPos(screen_width - discord.getWidth() - 20 - github.getWidth() - 20, discord.getHeight() / 2);
+        discord.addMouseClickListener((_, _, _, _) -> openURL(Settings.DISCORD_URL));
+        addChild(discord);
+    }
+
+    private static void openURL(@NonNull String url) {
+        try {
+            Desktop.getDesktop().browse(new URI(url));
+        } catch (Exception e) {
+            System.err.println("Failed to open URL: " + e.getMessage());
+        }
     }
 
     final void addDefaultOptionsButton() {
@@ -167,6 +193,15 @@ public abstract class Menu extends CameraDelegate<Camera> {
 
         logo.setDim(logoWidth, logoHeight);
         logo.setPos(0, height - logoHeight);
+
+        // Reposition Discord/GitHub buttons on resize
+        if (github != null) {
+            github.setPos(width - github.getWidth() - 20, github.getHeight() / 2 + 4);
+        }
+        if (discord != null) {
+            discord.setPos(width - discord.getWidth() - 20 - (github != null ? github.getWidth() + 20 : 0), discord.getHeight() / 2);
+        }
+
         GUIObject child = getLastChild();
         while (child != null) {
             if (child instanceof MenuButton) {

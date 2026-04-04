@@ -24,69 +24,73 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public final class Settings implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+	@Serial
+	private static final long serialVersionUID = 1L;
 
-    private static Settings settings;
+	private static Settings settings;
 
-    // event logging
-    private static final Logger logger = Logger.getLogger(Settings.class.getName());
-    public transient @NonNull Path last_event_log_dir = Path.of("");
-    public int last_revision = -1;
-    public boolean crashed = false;
+	// event logging
+	private static final Logger logger = Logger.getLogger(Settings.class.getName());
+	public transient @NonNull Path last_event_log_dir = Path.of("");
+	public int last_revision = -1;
+	public boolean crashed = false;
 
-    // network
-    public @NonNull String username = "";
-    public @NonNull String pw_digest = "";
-    public boolean remember_login = false;
+	// network
+	public @NonNull String username = "";
+	public @NonNull String pw_digest = "";
+	public boolean remember_login = false;
 
-    public int graphic_detail = Globals.DETAIL_NORMAL;
+	public int graphic_detail = Globals.DETAIL_NORMAL;
 
-    // sound
-    public boolean play_music = true;
-    public boolean play_sfx = true;
+	// sound
+	public boolean play_music = true;
+	public boolean play_sfx = true;
     public boolean headphone_mode = false;
-    public float music_gain = .5f;
-    public float sound_gain = 1f;
+	public float music_gain = .5f;
+	public float sound_gain = 1f;
 
-    // language
-    public @NonNull String language = "default";
+	// language
+	public @NonNull String language = "default";
 
-    // window
-    public int view_width = -1;
-    public int view_height = -1;
-    public int view_freq = -1;
+	// window
+	public int view_width = -1;
+	public int view_height = -1;
+	public int view_freq = -1;
 
-    public int new_view_width = view_width;
-    public int new_view_height = view_height;
-    public int new_view_freq = view_freq;
-    public int new_view_samples = 4;
+	public int new_view_width = view_width;
+	public int new_view_height = view_height;
+	public int new_view_freq = view_freq;
+	public int new_view_samples = 4;
 
-    public boolean fullscreen = true;
-    public final boolean vsync = true;
-    public int view_samples = 4;
+	public boolean fullscreen = true;
+	public final boolean vsync = true;
+	public int view_samples = 4;
 //	public int view_bpp = 32;
 
-    // control
-    public boolean invert_camera_pitch = false;
-    public boolean aggressive_units = false;
+	// control
+	public boolean invert_camera_pitch = false;
+	public boolean aggressive_units = false;
 
-    public float mapmode_delay = .5f;
-    public float tooltip_delay = .5f;
+	public float mapmode_delay = .5f;
+	public float tooltip_delay = .5f;
     public float ui_scale = 0.0f; // 0.0 = 100% (Scale 1.0), 1.0 = Max Scale
-    private final boolean developer_mode = Boolean.getBoolean("com.oddlabs.tt.developer");
-    public boolean has_native_campaign = developer_mode;
+	private final boolean developer_mode = Boolean.getBoolean("com.oddlabs.tt.developer");
+	public boolean has_native_campaign = developer_mode;
 
-    public final boolean save_event_log = true;
-    public boolean generate_dummy_worlds = false;
-    public boolean first_run = true;
+	public final boolean save_event_log = true;
+	public boolean generate_dummy_worlds = false;
+	public boolean first_run = true;
 
-    public boolean warning_no_sound = true;
+	public boolean warning_no_sound = true;
 
-    // Multiplay is currently unavailable with this fork
-    public final boolean hide_multiplayer = true;
+	// Multiplay is currently unavailable with this fork
+	public final boolean hide_multiplayer = true;
 
-    public final int frame_grab_milliseconds_per_frame = 40;
+	// Community links
+	public static final String DISCORD_URL = "https://discord.gg/TribalTrouble";
+	public static final String GITHUB_URL = "https://github.com/OmarAMokhtar/tribaltrouble";
+
+	public final int frame_grab_milliseconds_per_frame = 40;
 
     // Accessibility
     public int cvd_mode = 0; // 0=None, 1=Protanopia, 2=Deuteranopia, 3=Tritanopia
@@ -95,263 +99,263 @@ public final class Settings implements Serializable {
     public float contrast_intensity = 0.5f;
     public boolean team_stencil = false;
 
-    public static final Vector4f[] DEFAULT_TEAM_COLOURS = {
-            Color.argb4v(0xFFFFBF00), /* Orange */
-            Color.argb4v(0xFF007FFF), /* Royal Blue */
-            Color.argb4v(0xFFFF0040), /* Red */
-            Color.argb4v(0xFF00FFBF), /* Teal */
-            Color.argb4v(0xFFBF00FF), /* Purple */
-            Color.argb4v(0xFFBFFF00) /* Lime */
-    };
+	public static final Vector4f[] DEFAULT_TEAM_COLOURS = {
+			Color.argb4v(0xFFFFBF00), /* Orange */
+			Color.argb4v(0xFF007FFF), /* Royal Blue */
+			Color.argb4v(0xFFFF0040), /* Red */
+			Color.argb4v(0xFF00FFBF), /* Teal */
+			Color.argb4v(0xFFBF00FF), /* Purple */
+			Color.argb4v(0xFFBFFF00) /* Lime */
+	};
 
-    public Vector4f @NonNull [] team_colours = new Vector4f[DEFAULT_TEAM_COLOURS.length];
+	public Vector4f @NonNull [] team_colours = new Vector4f[DEFAULT_TEAM_COLOURS.length];
 
-    public Settings() {
-        for (int i = 0; i < DEFAULT_TEAM_COLOURS.length; i++) {
-            team_colours[i] = new Vector4f(DEFAULT_TEAM_COLOURS[i]);
-        }
-    }
+	public Settings() {
+		for (int i = 0; i < DEFAULT_TEAM_COLOURS.length; i++) {
+			team_colours[i] = new Vector4f(DEFAULT_TEAM_COLOURS[i]);
+		}
+	}
 
-    public static void setSettings(Settings new_settings) {
-        settings = new_settings;
-    }
+	public static void setSettings(Settings new_settings) {
+		settings = new_settings;
+	}
 
-    public static Settings getSettings() {
-        return settings;
-    }
+	public static Settings getSettings() {
+		return settings;
+	}
 
-    public boolean inDeveloperMode() {
-        return developer_mode;
-    }
+	public boolean inDeveloperMode() {
+		return developer_mode;
+	}
 
-    public void save() {
-        if (LocalEventQueue.getQueue().getDeterministic().isPlayback())
-            return;
-        Settings defaults = new Settings();
-        Properties props = new Properties();
+	public void save() {
+		if (LocalEventQueue.getQueue().getDeterministic().isPlayback())
+			return;
+		Settings defaults = new Settings();
+		Properties props = new Properties();
 
-        setProperty(props, "last_event_log_dir", last_event_log_dir, defaults.last_event_log_dir);
-        setProperty(props, "last_revision", last_revision, defaults.last_revision);
-        setProperty(props, "crashed", crashed, defaults.crashed);
-        setProperty(props, "username", username, defaults.username);
-        setProperty(props, "pw_digest", pw_digest, defaults.pw_digest);
-        setProperty(props, "remember_login", remember_login, defaults.remember_login);
-        setProperty(props, "graphic_detail", graphic_detail, defaults.graphic_detail);
-        setProperty(props, "play_music", play_music, defaults.play_music);
-        setProperty(props, "play_sfx", play_sfx, defaults.play_sfx);
+		setProperty(props, "last_event_log_dir", last_event_log_dir, defaults.last_event_log_dir);
+		setProperty(props, "last_revision", last_revision, defaults.last_revision);
+		setProperty(props, "crashed", crashed, defaults.crashed);
+		setProperty(props, "username", username, defaults.username);
+		setProperty(props, "pw_digest", pw_digest, defaults.pw_digest);
+		setProperty(props, "remember_login", remember_login, defaults.remember_login);
+		setProperty(props, "graphic_detail", graphic_detail, defaults.graphic_detail);
+		setProperty(props, "play_music", play_music, defaults.play_music);
+		setProperty(props, "play_sfx", play_sfx, defaults.play_sfx);
         setProperty(props, "headphone_mode", headphone_mode, defaults.headphone_mode);
-        setProperty(props, "music_gain", music_gain, defaults.music_gain);
-        setProperty(props, "sound_gain", sound_gain, defaults.sound_gain);
-        setProperty(props, "language", language, defaults.language);
-        setProperty(props, "view_width", view_width, defaults.view_width);
-        setProperty(props, "view_height", view_height, defaults.view_height);
-        setProperty(props, "view_freq", view_freq, defaults.view_freq);
-        setProperty(props, "new_view_width", new_view_width, defaults.new_view_width);
-        setProperty(props, "new_view_height", new_view_height, defaults.new_view_height);
-        setProperty(props, "new_view_freq", new_view_freq, defaults.new_view_freq);
-        setProperty(props, "new_view_samples", new_view_samples, defaults.new_view_samples);
-        setProperty(props, "fullscreen", fullscreen, defaults.fullscreen);
-        setProperty(props, "view_samples", view_samples, defaults.view_samples);
-        setProperty(props, "invert_camera_pitch", invert_camera_pitch, defaults.invert_camera_pitch);
-        setProperty(props, "aggressive_units", aggressive_units, defaults.aggressive_units);
-        setProperty(props, "mapmode_delay", mapmode_delay, defaults.mapmode_delay);
-        setProperty(props, "tooltip_delay", tooltip_delay, defaults.tooltip_delay);
+		setProperty(props, "music_gain", music_gain, defaults.music_gain);
+		setProperty(props, "sound_gain", sound_gain, defaults.sound_gain);
+		setProperty(props, "language", language, defaults.language);
+		setProperty(props, "view_width", view_width, defaults.view_width);
+		setProperty(props, "view_height", view_height, defaults.view_height);
+		setProperty(props, "view_freq", view_freq, defaults.view_freq);
+		setProperty(props, "new_view_width", new_view_width, defaults.new_view_width);
+		setProperty(props, "new_view_height", new_view_height, defaults.new_view_height);
+		setProperty(props, "new_view_freq", new_view_freq, defaults.new_view_freq);
+		setProperty(props, "new_view_samples", new_view_samples, defaults.new_view_samples);
+		setProperty(props, "fullscreen", fullscreen, defaults.fullscreen);
+		setProperty(props, "view_samples", view_samples, defaults.view_samples);
+		setProperty(props, "invert_camera_pitch", invert_camera_pitch, defaults.invert_camera_pitch);
+		setProperty(props, "aggressive_units", aggressive_units, defaults.aggressive_units);
+		setProperty(props, "mapmode_delay", mapmode_delay, defaults.mapmode_delay);
+		setProperty(props, "tooltip_delay", tooltip_delay, defaults.tooltip_delay);
         setProperty(props, "ui_scale", ui_scale, defaults.ui_scale);
-        setProperty(props, "first_run", first_run, defaults.first_run);
-        setProperty(props, "warning_no_sound", warning_no_sound, defaults.warning_no_sound);
-
+		setProperty(props, "first_run", first_run, defaults.first_run);
+		setProperty(props, "warning_no_sound", warning_no_sound, defaults.warning_no_sound);
+        
         setProperty(props, "cvd_mode", cvd_mode, defaults.cvd_mode);
         setProperty(props, "cvd_intensity", cvd_intensity, defaults.cvd_intensity);
         setProperty(props, "high_contrast", high_contrast, defaults.high_contrast);
         setProperty(props, "contrast_intensity", contrast_intensity, defaults.contrast_intensity);
         setProperty(props, "team_stencil", team_stencil, defaults.team_stencil);
-        setProperty(props, "team_colours", team_colours, defaults.team_colours);
+		setProperty(props, "team_colours", team_colours, defaults.team_colours);
+		
+		Renderer.getLocalInput().getInputManager().saveBindings(props);
 
-        Renderer.getLocalInput().getInputManager().saveBindings(props);
-
-        Path settings_file = Renderer.getLocalInput().getGameDir().resolve(Globals.SETTINGS_FILE_NAME);
-        try (OutputStream out = Files.newOutputStream(settings_file)) {
-            props.store(out, Instant.now().toString());
+		Path settings_file = Renderer.getLocalInput().getGameDir().resolve(Globals.SETTINGS_FILE_NAME);
+		try (OutputStream out = Files.newOutputStream(settings_file)) {
+			props.store(out, Instant.now().toString());
         } catch (IOException e) {
-            logger.warning("Failed to write settings to " + settings_file + " exception: " + e);
-        }
-    }
+			logger.warning("Failed to write settings to " + settings_file + " exception: " + e);
+		}
+	}
+	
+	public void load(@NonNull Path game_dir) {
+		Properties props = new Properties();
+		Path settings_file = game_dir.resolve(Globals.SETTINGS_FILE_NAME);
+		if (!Files.exists(settings_file)) {
+			return;
+		}
+		try (InputStream in = Files.newInputStream(settings_file)) {
+			props.load(in);
+		} catch (IOException _) {
+			logger.warning("WARNING: Could not read settings from " + settings_file + ". Using defaults.");
+			return;
+		}
 
-    public void load(@NonNull Path game_dir) {
-        Properties props = new Properties();
-        Path settings_file = game_dir.resolve(Globals.SETTINGS_FILE_NAME);
-        if (!Files.exists(settings_file)) {
-            return;
-        }
-        try (InputStream in = Files.newInputStream(settings_file)) {
-            props.load(in);
-        } catch (IOException _) {
-            logger.warning("WARNING: Could not read settings from " + settings_file + ". Using defaults.");
-            return;
-        }
-
-        last_event_log_dir = getPath(props, "last_event_log_dir", last_event_log_dir);
-        last_revision = getInt(props, "last_revision", last_revision);
-        crashed = getBoolean(props, "crashed", crashed);
-        username = props.getProperty("username", username);
-        pw_digest = props.getProperty("pw_digest", pw_digest);
-        remember_login = getBoolean(props, "remember_login", remember_login);
-        graphic_detail = getInt(props, "graphic_detail", graphic_detail);
-        play_music = getBoolean(props, "play_music", play_music);
-        play_sfx = getBoolean(props, "play_sfx", play_sfx);
+		last_event_log_dir = getPath(props, "last_event_log_dir", last_event_log_dir);
+		last_revision = getInt(props, "last_revision", last_revision);
+		crashed = getBoolean(props, "crashed", crashed);
+		username = props.getProperty("username", username);
+		pw_digest = props.getProperty("pw_digest", pw_digest);
+		remember_login = getBoolean(props, "remember_login", remember_login);
+		graphic_detail = getInt(props, "graphic_detail", graphic_detail);
+		play_music = getBoolean(props, "play_music", play_music);
+		play_sfx = getBoolean(props, "play_sfx", play_sfx);
         headphone_mode = getBoolean(props, "headphone_mode", headphone_mode);
-        music_gain = getFloat(props, "music_gain", music_gain);
-        sound_gain = getFloat(props, "sound_gain", sound_gain);
-        language = props.getProperty("language", language);
-        view_width = getInt(props, "view_width", view_width);
-        view_height = getInt(props, "view_height", view_height);
-        view_freq = getInt(props, "view_freq", view_freq);
-        new_view_width = getInt(props, "new_view_width", new_view_width);
-        new_view_height = getInt(props, "new_view_height", new_view_height);
-        new_view_freq = getInt(props, "new_view_freq", new_view_freq);
-        new_view_samples = getInt(props, "new_view_samples", new_view_samples);
-        fullscreen = getBoolean(props, "fullscreen", fullscreen);
-        view_samples = getInt(props, "view_samples", view_samples);
-        invert_camera_pitch = getBoolean(props, "invert_camera_pitch", invert_camera_pitch);
-        aggressive_units = getBoolean(props, "aggressive_units", aggressive_units);
-        mapmode_delay = getFloat(props, "mapmode_delay", mapmode_delay);
-        tooltip_delay = getFloat(props, "tooltip_delay", tooltip_delay);
+		music_gain = getFloat(props, "music_gain", music_gain);
+		sound_gain = getFloat(props, "sound_gain", sound_gain);
+		language = props.getProperty("language", language);
+		view_width = getInt(props, "view_width", view_width);
+		view_height = getInt(props, "view_height", view_height);
+		view_freq = getInt(props, "view_freq", view_freq);
+		new_view_width = getInt(props, "new_view_width", new_view_width);
+		new_view_height = getInt(props, "new_view_height", new_view_height);
+		new_view_freq = getInt(props, "new_view_freq", new_view_freq);
+		new_view_samples = getInt(props, "new_view_samples", new_view_samples);
+		fullscreen = getBoolean(props, "fullscreen", fullscreen);
+		view_samples = getInt(props, "view_samples", view_samples);
+		invert_camera_pitch = getBoolean(props, "invert_camera_pitch", invert_camera_pitch);
+		aggressive_units = getBoolean(props, "aggressive_units", aggressive_units);
+		mapmode_delay = getFloat(props, "mapmode_delay", mapmode_delay);
+		tooltip_delay = getFloat(props, "tooltip_delay", tooltip_delay);
         ui_scale = getFloat(props, "ui_scale", ui_scale);
-        first_run = getBoolean(props, "first_run", first_run);
-        warning_no_sound = getBoolean(props, "warning_no_sound", warning_no_sound);
-
+		first_run = getBoolean(props, "first_run", first_run);
+		warning_no_sound = getBoolean(props, "warning_no_sound", warning_no_sound);
+        
         cvd_mode = getInt(props, "cvd_mode", cvd_mode);
         cvd_intensity = getFloat(props, "cvd_intensity", cvd_intensity);
         high_contrast = getBoolean(props, "high_contrast", high_contrast);
         contrast_intensity = getFloat(props, "contrast_intensity", contrast_intensity);
         team_stencil = getBoolean(props, "team_stencil", team_stencil);
-        team_colours = getColours(props, "team_colours", team_colours);
+		team_colours = getColours(props, "team_colours", team_colours);
+		
+		Renderer.getLocalInput().getInputManager().loadBindings(props);
+	}
 
-        Renderer.getLocalInput().getInputManager().loadBindings(props);
-    }
+	// --- Save Helpers ---
+	private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull Path value, Path defaultValue) {
+		if (!value.equals(defaultValue)) {
+			props.setProperty(key, value.toString());
+		}
+	}
 
-    // --- Save Helpers ---
-    private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull Path value, Path defaultValue) {
-        if (!value.equals(defaultValue)) {
-            props.setProperty(key, value.toString());
-        }
-    }
+	private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull String value, String defaultValue) {
+		if (!value.equals(defaultValue)) {
+			props.setProperty(key, value);
+		}
+	}
 
-    private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull String value, String defaultValue) {
-        if (!value.equals(defaultValue)) {
-            props.setProperty(key, value);
-        }
-    }
+	private void setProperty(@NonNull Properties props, @NonNull String key, int value, int defaultValue) {
+		if (value != defaultValue) {
+			props.setProperty(key, String.valueOf(value));
+		}
+	}
 
-    private void setProperty(@NonNull Properties props, @NonNull String key, int value, int defaultValue) {
-        if (value != defaultValue) {
-            props.setProperty(key, String.valueOf(value));
-        }
-    }
+	private void setProperty(@NonNull Properties props, @NonNull String key, float value, float defaultValue) {
+		if (value != defaultValue) {
+			props.setProperty(key, String.valueOf(value));
+		}
+	}
 
-    private void setProperty(@NonNull Properties props, @NonNull String key, float value, float defaultValue) {
-        if (value != defaultValue) {
-            props.setProperty(key, String.valueOf(value));
-        }
-    }
+	private void setProperty(@NonNull Properties props, @NonNull String key, boolean value, boolean defaultValue) {
+		if (value != defaultValue) {
+			props.setProperty(key, String.valueOf(value));
+		}
+	}
 
-    private void setProperty(@NonNull Properties props, @NonNull String key, boolean value, boolean defaultValue) {
-        if (value != defaultValue) {
-            props.setProperty(key, String.valueOf(value));
-        }
-    }
+	private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull Vector4fc @NonNull[] value, @NonNull Vector4fc @NonNull[] defaultValue) {
+		if (!Arrays.equals(value, defaultValue)) {
+			String colors = Arrays.stream(value)
+							.mapToInt(Color::argbi)
+							.mapToObj(Integer::toHexString)
+							.collect(Collectors.joining(","));
 
-    private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull Vector4fc @NonNull [] value, @NonNull Vector4fc @NonNull [] defaultValue) {
-        if (!Arrays.equals(value, defaultValue)) {
-            String colors = Arrays.stream(value)
-                    .mapToInt(Color::argbi)
-                    .mapToObj(Integer::toHexString)
-                    .collect(Collectors.joining(","));
+			props.setProperty(key, colors);
+		}
+	}
 
-            props.setProperty(key, colors);
-        }
-    }
+	// --- Load Helpers ---
+	private boolean getBoolean(@NonNull Properties props, @NonNull String key, boolean defaultValue) {
+		String value = props.getProperty(key);
+		if (value == null) {
+			return defaultValue;
+		}
+		// Boolean.parseBoolean is robust and doesn't throw exceptions
+		return Boolean.parseBoolean(value);
+	}
 
-    // --- Load Helpers ---
-    private boolean getBoolean(@NonNull Properties props, @NonNull String key, boolean defaultValue) {
-        String value = props.getProperty(key);
-        if (value == null) {
-            return defaultValue;
-        }
-        // Boolean.parseBoolean is robust and doesn't throw exceptions
-        return Boolean.parseBoolean(value);
-    }
+	private int getInt(@NonNull Properties props, @NonNull String key, int defaultValue) {
+		String value = props.getProperty(key);
+		if (value == null) {
+			return defaultValue;
+		}
+		try {
+			return Integer.parseInt(value);
+		} catch (NumberFormatException _) {
+			logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+			return defaultValue;
+		}
+	}
 
-    private int getInt(@NonNull Properties props, @NonNull String key, int defaultValue) {
-        String value = props.getProperty(key);
-        if (value == null) {
-            return defaultValue;
-        }
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException _) {
-            logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
-            return defaultValue;
-        }
-    }
+	private float getFloat(@NonNull Properties props, @NonNull String key, float defaultValue) {
+		String value = props.getProperty(key);
+		if (value == null) {
+			return defaultValue;
+		}
+		try {
+			return Float.parseFloat(value);
+		} catch (NumberFormatException _) {
+			logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+			return defaultValue;
+		}
+	}
 
-    private float getFloat(@NonNull Properties props, @NonNull String key, float defaultValue) {
-        String value = props.getProperty(key);
-        if (value == null) {
-            return defaultValue;
-        }
-        try {
-            return Float.parseFloat(value);
-        } catch (NumberFormatException _) {
-            logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
-            return defaultValue;
-        }
-    }
+	private static Path getPath(@NonNull Properties props, @NonNull String key, Path defaultValue) {
+		String value = props.getProperty(key);
+		if (value == null || value.isEmpty()) {
+			return defaultValue;
+		}
+		try {
+			return Path.of(value);
+		} catch (InvalidPathException _) {
+			logger.warning("Invalid path for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+			return defaultValue;
+		}
+	}
+	
+	private static Vector4f @NonNull [] getColours(@NonNull Properties props, @NonNull String key, Vector4f @NonNull[] defaultValue) {
+		String value = props.getProperty(key);
+		if (value == null) {
+			return defaultValue;
+		}
+		try {
+			String[] hexStrings = value.split(",");
+			Vector4f[] result = new Vector4f[DEFAULT_TEAM_COLOURS.length];
+			for (int i = 0; i < DEFAULT_TEAM_COLOURS.length; i++) {
+				result[i] = new Vector4f(DEFAULT_TEAM_COLOURS[i]);
+			}
+			for (int i = 0; i < Math.min(DEFAULT_TEAM_COLOURS.length, hexStrings.length); i++) {
+				int argb = (int) Long.parseLong(hexStrings[i], 16);
+				result[i] = Color.argb4v(argb);
+			}
+			return result;
+		} catch (Exception e) {
+			logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value. Error: " + e);
+			return defaultValue;
+		}
+	}
 
-    private static Path getPath(@NonNull Properties props, @NonNull String key, Path defaultValue) {
-        String value = props.getProperty(key);
-        if (value == null || value.isEmpty()) {
-            return defaultValue;
-        }
-        try {
-            return Path.of(value);
-        } catch (InvalidPathException _) {
-            logger.warning("Invalid path for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
-            return defaultValue;
-        }
-    }
-
-    private static Vector4f @NonNull [] getColours(@NonNull Properties props, @NonNull String key, Vector4f @NonNull [] defaultValue) {
-        String value = props.getProperty(key);
-        if (value == null) {
-            return defaultValue;
-        }
-        try {
-            String[] hexStrings = value.split(",");
-            Vector4f[] result = new Vector4f[DEFAULT_TEAM_COLOURS.length];
-            for (int i = 0; i < DEFAULT_TEAM_COLOURS.length; i++) {
-                result[i] = new Vector4f(DEFAULT_TEAM_COLOURS[i]);
-            }
-            for (int i = 0; i < Math.min(DEFAULT_TEAM_COLOURS.length, hexStrings.length); i++) {
-                int argb = (int) Long.parseLong(hexStrings[i], 16);
-                result[i] = Color.argb4v(argb);
-            }
-            return result;
-        } catch (Exception e) {
-            logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value. Error: " + e);
-            return defaultValue;
-        }
-    }
-
-    @Serial
+	@Serial
     private void writeObject(@NonNull ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-        out.writeObject(last_event_log_dir.toString());
-    }
+		out.defaultWriteObject();
+		out.writeObject(last_event_log_dir.toString());
+	}
 
-    @Serial
+	@Serial
     private void readObject(@NonNull ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        last_event_log_dir = Path.of((String) in.readObject());
-    }
+		in.defaultReadObject();
+		last_event_log_dir = Path.of((String) in.readObject());
+	}
 }
