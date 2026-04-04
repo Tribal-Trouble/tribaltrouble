@@ -59,6 +59,19 @@ Build all modules:
 gradle build
 ```
 
+Repository Configuration
+------------------------
+To ensure that formatting-only commits do not clutter `git blame` results, this repository includes a `.gitconfig` 
+file. For security reasons, Git does not automatically load configuration from the repository root.
+
+To apply these settings to your local clone, run the following command once from the project root:
+
+```bash
+git config --local include.path ../.gitconfig
+```
+
+This will configure Git to respect the `.git-blame-ignore-revs` file and any other shared project settings.
+
 Common tasks:
 
 - `gradle clean` - Clean all build outputs
