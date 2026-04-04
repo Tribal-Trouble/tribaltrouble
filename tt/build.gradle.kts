@@ -74,10 +74,10 @@ val stageDist by tasks.registering(Sync::class) {
     from(tasks.jar)
     from(configurations.runtimeClasspath)
 
-    from(layout.buildDirectory.dir("textures")) {
+    from(project(":assets").layout.buildDirectory.dir("textures")) {
         into("textures")
     }
-    from(layout.buildDirectory.dir("geometry")) {
+    from(project(":assets").layout.buildDirectory.dir("geometry")) {
         into("geometry")
     }
     from(layout.buildDirectory.file("revision_number"))
