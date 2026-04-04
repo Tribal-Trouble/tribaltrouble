@@ -7,6 +7,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -20,7 +21,7 @@ public final class Wave {
     private final int sample_rate;
 
     public Wave(@NonNull URL file) throws UnsupportedAudioFileException, IOException {
-        try (AudioInputStream ais = AudioSystem.getAudioInputStream(file.openStream())) {
+        try (AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(file.openStream()))) {
             AudioFormat audio_format = ais.getFormat();
             format = getFormat(audio_format.getChannels(), audio_format.getSampleSizeInBits());
 
