@@ -421,7 +421,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		Connection wrapped_connection = (Connection)conn.getWrappedConnection();
 		matchmaking_login_interface.setLocalRemoteAddress(wrapped_connection.getLocalAddress());
 		IO.println("wrapped_connection.getLocalAddress() = " + wrapped_connection.getLocalAddress());
-		int revision = Renderer.getLocalInput().getRevision();
+		int revision = com.oddlabs.util.Compatibility.API_VERSION;
 		if (!Renderer.isRegistered())
 			matchmaking_login_interface.loginAsGuest(revision);
 		else if (login_details != null)

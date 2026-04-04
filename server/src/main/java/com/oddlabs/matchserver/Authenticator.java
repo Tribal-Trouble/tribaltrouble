@@ -140,9 +140,8 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
 	}
 
 	private boolean revisionOK(int revision) {
-		if (revision < DBInterface.getSettingsInt("revision")) {
+		if (revision != com.oddlabs.util.Compatibility.API_VERSION) {
 			client_interface.loginError(MatchmakingClientInterface.USER_ERROR_VERSION_TOO_OLD);
-			System.out.println("revision = " + revision + " | DBInterface.getSettingsInt(revision) = " + DBInterface.getSettingsInt("revision"));
 			return false;
 		} else
 			return true;
