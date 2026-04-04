@@ -11,22 +11,22 @@ Formatter will be added AFTER all porting is complete — keeps diffs clean duri
 ### Phase 1 — Foundation (DONE)
 1. ~~**CI/CD + Build**~~ — GitHub Actions workflows, gradle setup, Steam deploy steps, Mac/Linux packaging. Server compile fixed (DBUtils, Authenticator, Client imports). Windows package tested and working. Formatter deferred to after porting.
 
-### Phase 2 — Small Fixes
-2. **Remove registration** (#45) — remove registration file requirement
-3. **API version** (#52) — client+server API version check
-4. **Pitch angle fix** (#38) — camera snap on middle mouse. Verify if still needed on Bondolo's base
-5. **Remove Oddlabs loading screen** (#126) — remove loading screen reference
-6. **Fix close button** (#146) — small UI fix
-7. **DeploySpinner fix** (#159) — fix constructor mismatch
+### Phase 2 — Small Fixes (DONE)
+2. ~~**Remove registration**~~ (#45) — removed reg key validation from server, pass null for reg keys
+3. ~~**API version**~~ (#52) — added Compatibility.API_VERSION, replaced DB revision check
+4. ~~**Pitch angle fix**~~ (#38) — fixed camera snap by centering cursor on first-person entry
+5. ~~**Remove Oddlabs loading screen**~~ (#126) — replaced oddlabs logo texture
+6. ~~**Fix close button**~~ (#146) — reset GLFW close flag after reading
+- **Bondolo bug fix: high-DPI cursor offset** — Bondolo's LWJGL3InputProvider multiplied cursor positions by content scale, but GLFW already reports screen coords. This double-scaled on Windows with >100% scaling. Fixed by using glfwGetWindowSize (screen coords) instead of getHeight() (framebuffer pixels) for cursor Y inversion.
 
 ### Phase 3 — UI / Input Features
-8. **Discord/GitHub buttons** (#32) — buttons on main menu, needs GUIImage clickable
-9. **Cursor changes** (#41, #78) — bind cursor to window + hardware cursor setting
-10. **EditLine text selection** (#46) — keyboard selection, copy/paste/cut in text fields
+7. **Discord/GitHub buttons** (#32) — buttons on main menu, needs GUIImage clickable
+8. **Cursor changes** (#41, #78) — bind cursor to window + hardware cursor setting
+9. **EditLine text selection** (#46) — keyboard selection, copy/paste/cut in text fields
 
 ### Phase 4 — Gameplay Features
-11. **Enormous map size** (from #93) — add SIZE_ENORMOUS to TerrainMenu, Landscape, WordsEncoding. Separate from player count changes
-12. **Gatherer count** (#153) — show gatherer count per resource (Maxenor)
+10. **Enormous map size** (from #93) — add SIZE_ENORMOUS to TerrainMenu, Landscape, WordsEncoding. Separate from player count changes
+11. **Gatherer count + DeploySpinner fix** (#153, #159) — show gatherer count per resource (Maxenor) + fix DeploySpinner constructor
 13. **Countdown before game** (#135) — countdown before multiplayer start (Maxenor)
 14. **Compass indicator** (#147) — shared directional reference
 
