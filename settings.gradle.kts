@@ -16,7 +16,4 @@ pluginManagement {
     }
 }
 
-include("assets", "common")
-// server and servlet excluded - have compilation errors
-// include("server", "servlet")
-include("tools", "tt")
+include("assets", "common", "tools", "tt", "server")

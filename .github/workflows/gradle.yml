@@ -1,0 +1,175 @@
+name: Gradle Build + Publish
+
+on:
+  push:
+    branches: [ "port/bondolo-clean" ]
+  pull_request:
+    branches: [ "port/bondolo-clean" ]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 26
+      uses: actions/setup-java@v4
+      with:
+        java-version: '26-ea'
+        distribution: 'temurin'
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Build Linux AppImage
+      run: ./gradlew :tt:packageLinux
+    - name: Upload Linux AppImage
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-appimage
+        path: tt/build/dist/linux/TribalTrouble-x86_64.AppImage
+    - name: Upload Linux Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-package
+        path: tt/build/dist/linux/TribalTrouble.AppDir
+
+  build-server:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 26
+      uses: actions/setup-java@v4
+      with:
+        java-version: '26-ea'
+        distribution: 'temurin'
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Build Server Distribution
+      run: ./gradlew :server:installDist
+    - name: Upload server
+      uses: actions/upload-artifact@v4
+      with:
+        name: server
+        path: server/build/install/server/
+
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 26
+      uses: actions/setup-java@v4
+      with:
+        java-version: '26-ea'
+        distribution: 'temurin'
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Build Windows Package
+      run: ./gradlew :tt:packageWindows
+    - name: Upload files
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows
+        path: tt/build/dist/windows/
+
+  build-mac-x86:
+    runs-on: macos-15-intel
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 26
+      uses: actions/setup-java@v4
+      with:
+        java-version: '26-ea'
+        distribution: 'temurin'
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Build mac binaries
+      run: ./gradlew :tt:packageMacX86
+    - name: Upload files
+      uses: actions/upload-artifact@v4
+      with:
+        name: mac-x86
+        path: tt/build/dist/macosx-x86/
+
+  build-mac-arm64:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 26
+      uses: actions/setup-java@v4
+      with:
+        java-version: '26-ea'
+        distribution: 'temurin'
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Build mac binaries
+      run: ./gradlew :tt:packageMacArm64
+    - name: Upload files
+      uses: actions/upload-artifact@v4
+      with:
+        name: mac-arm64
+        path: tt/build/dist/macosx-arm64/
+
+  build-mac-x86-app:
+    if: github.ref == 'refs/heads/steam'
+    runs-on: macos-15-intel
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 26
+      uses: actions/setup-java@v4
+      with:
+        java-version: '26-ea'
+        distribution: 'temurin'
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Build mac binaries
+      run: ./gradlew :tt:packageMacX86App
+    - name: Upload files
+      uses: actions/upload-artifact@v4
+      with:
+        name: mac-x86-app
+        path: tt/build/dist/macosx-x86-app/
+
+  deploy-to-steam:
+    if: github.ref == 'refs/heads/steam'
+    needs: [build-mac-arm64, build-mac-x86-app, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download Windows Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: windows
+        path: tt/build/dist/windows/
+    - name: Download Mac x86 Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: mac-x86-app
+        path: tt/build/dist/macosx-x86-app/
+    - name: Download Mac arm64 Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: mac-arm64
+        path: tt/build/dist/macosx-arm64/
+    - name: Download Linux Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: linux-package
+        path: tt/build/dist/linux/
+    - name: Upload to steam
+      uses: game-ci/steam-deploy@v3
+      with:
+        username: ${{ vars.STEAM_USER }}
+        configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
+        appId: ${{ vars.STEAM_APP_ID }}
+        buildDescription: v1.2.3
+        firstDepotIdOverride: 3945722
+        rootPath: tt/build/dist/
+        depot1Path: windows
+        depot2Path: macosx-arm64
+        depot3Path: macosx-x86-app
+        depot4Path: linux
+        releaseBranch: prerelease
