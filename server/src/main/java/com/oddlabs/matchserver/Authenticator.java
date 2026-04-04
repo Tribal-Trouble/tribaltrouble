@@ -11,193 +11,157 @@ import com.oddlabs.net.AbstractConnection;
 import com.oddlabs.net.ConnectionInterface;
 import com.oddlabs.net.IllegalARMIEventException;
 import com.oddlabs.net.SecureConnection;
-import com.oddlabs.registration.RegistrationInfo;
-import com.oddlabs.registration.RegistrationKey;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.security.SignedObject;
 
 public final class Authenticator implements MatchmakingServerLoginInterface, ConnectionInterface {
-    private static int guest_postfix = 1;
+	private static int guest_postfix = 1;
+	
+	private final SecureConnection conn;
+	private final MatchmakingClientInterface client_interface;
+	private final MatchmakingServer server;
+	private final InetAddress remote_address;
+	private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(MatchmakingServerLoginInterface.class);
+	private final int host_id;
+	private InetAddress local_remote_address;
 
-    private final SecureConnection conn;
-    private final MatchmakingClientInterface client_interface;
-    private final MatchmakingServer server;
-    private final InetAddress remote_address;
-    private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(MatchmakingServerLoginInterface.class);
-    private final int host_id;
-    private InetAddress local_remote_address;
+	public Authenticator(MatchmakingServer server, SecureConnection conn, InetAddress remote_address, int host_id) {
+		this.conn = conn;
+		this.server = server;
+		this.remote_address = remote_address;
+		this.client_interface = (MatchmakingClientInterface)ARMIEvent.createProxy(conn, MatchmakingClientInterface.class);
+		this.host_id = host_id;
+		conn.setConnectionInterface(this);
+	}
 
-    public Authenticator(MatchmakingServer server, SecureConnection conn, InetAddress remote_address, int host_id) {
-        this.conn = conn;
-        this.server = server;
-        this.remote_address = remote_address;
-        this.client_interface = (MatchmakingClientInterface) ARMIEvent.createProxy(conn, MatchmakingClientInterface.class);
-        this.host_id = host_id;
-        conn.setConnectionInterface(this);
-    }
+	public void handle(Object sender, ARMIEvent event) {
+		try {
+			event.execute(interface_methods, this);
+		} catch (IllegalARMIEventException e) {
+			error(e);
+		}
+	}
 
-    public void handle(Object sender, ARMIEvent event) {
-        try {
-            event.execute(interface_methods, this);
-        } catch (IllegalARMIEventException e) {
-            error(e);
-        }
-    }
+	public void writeBufferDrained(AbstractConnection conn) {
+	}
 
-    public void writeBufferDrained(AbstractConnection conn) {
-    }
+	public void error(AbstractConnection conn, IOException e) {
+		error(e);
+	}
+	
+	private void error(Exception e) {
+		close();
+		MatchmakingServer.getLogger().warning("Exception e = " + e);
+	}
 
-    public void error(AbstractConnection conn, IOException e) {
-        error(e);
-    }
+	public void connected(AbstractConnection conn) {
+	}
 
-    private void error(Exception e) {
-        close();
-        MatchmakingServer.getLogger().warning("Exception e = " + e);
-    }
+	public void setLocalRemoteAddress(InetAddress local_remote_address) {
+		this.local_remote_address = local_remote_address;
+	}
 
-    public void connected(AbstractConnection conn) {
-    }
+	public static void checkUsername(String name) throws InvalidUsernameException {
+		int min_username_length = DBInterface.getSettingsInt("min_username_length");
+		if (name.length() < min_username_length)
+			throw new InvalidUsernameException(MatchmakingClientInterface.USERNAME_ERROR_TOO_SHORT);
 
-    public void setLocalRemoteAddress(InetAddress local_remote_address) {
-        this.local_remote_address = local_remote_address;
-    }
+		int max_username_length = DBInterface.getSettingsInt("max_username_length");
+		if (name.length() > max_username_length)
+			throw new InvalidUsernameException(MatchmakingClientInterface.USERNAME_ERROR_TOO_LONG);
 
-    public static void checkUsername(String name) throws InvalidUsernameException {
-        int min_username_length = DBInterface.getSettingsInt("min_username_length");
-        if (name.length() < min_username_length)
-            throw new InvalidUsernameException(MatchmakingClientInterface.USERNAME_ERROR_TOO_SHORT);
+		String allowed_chars = DBInterface.getSetting("allowed_chars");
+		for (int i = 0; i < name.length(); i++) {
+			char c = name.charAt(i);
+			if (allowed_chars.indexOf(c) == -1)
+				throw new InvalidUsernameException(MatchmakingClientInterface.USERNAME_ERROR_INVALID_CHARACTERS);
+		}
+	}
 
-        int max_username_length = DBInterface.getSettingsInt("max_username_length");
-        if (name.length() > max_username_length)
-            throw new InvalidUsernameException(MatchmakingClientInterface.USERNAME_ERROR_TOO_LONG);
+	public void createUser(Login login, LoginDetails login_details, SignedObject reg_key, int revision) {
+		// Registration key is no longer required — kept in signature for older client compat
+		if (login == null || !login.isValid()) {
+			close();
+			return;
+		}
 
-        String allowed_chars = DBInterface.getSetting("allowed_chars");
-        for (int i = 0; i < name.length(); i++) {
-            char c = name.charAt(i);
-            if (allowed_chars.indexOf(c) == -1)
-                throw new InvalidUsernameException(MatchmakingClientInterface.USERNAME_ERROR_INVALID_CHARACTERS);
-        }
-    }
+		if (!revisionOK(revision)) {
+			return;
+		}
 
-    public void createUser(Login login, LoginDetails login_details, SignedObject reg_key, int revision) {
-        String reg_key_encoded = checkKey(reg_key);
-        if (login == null || !login.isValid() || reg_key_encoded == null) {
-            close();
-            return;
-        }
+		try {
+			checkUsername(login.getUsername());
+		} catch (InvalidUsernameException e) {
+			client_interface.loginError(e.getErrorCode());
+			return;
+		}
 
-        // check revision
-        if (!revisionOK(revision)) {
-            return;
-        }
+		if (login_details == null || !login_details.isValid()) {
+			client_interface.loginError(MatchmakingClientInterface.USER_ERROR_INVALID_EMAIL);
+			return;
+		}
 
-        try {
-            checkUsername(login.getUsername());
-        } catch (InvalidUsernameException e) {
-            client_interface.loginError(e.getErrorCode());
-            return;
-        }
+		if (DBInterface.usernameExists(login.getUsername())) {
+			client_interface.loginError(MatchmakingClientInterface.USERNAME_ERROR_ALREADY_EXISTS);
+			return;
+		}
 
-        if (login_details == null || !login_details.isValid()) {
-            client_interface.loginError(MatchmakingClientInterface.USER_ERROR_INVALID_EMAIL);
-            return;
-        }
+		DBInterface.createUser(login, login_details, null);
+		MatchmakingServer.getLogger().info("Created user " + login.getUsername() + " with email address " + login_details.getEmail());
+		doLogin(login.getUsername(), revision);
+	}
 
-        try {
-            if (DBInterface.getRegKeyUsername(reg_key_encoded) != null) {
-                client_interface.loginError(MatchmakingClientInterface.USERNAME_ERROR_TOO_MANY);
-                return;
-            }
-        } catch (IllegalArgumentException e) {
-            close();
-            return;
-        }
+	public void login(Login login, SignedObject reg_key, int revision) {
+		// Registration key is no longer required — kept in signature for older client compat
+		if (login == null || !login.isValid()) {
+			close();
+			return;
+		}
 
-        if (DBInterface.usernameExists(login.getUsername())) {
-            client_interface.loginError(MatchmakingClientInterface.USERNAME_ERROR_ALREADY_EXISTS);
-            return;
-        }
+		if (!revisionOK(revision)) {
+			return;
+		}
 
-        DBInterface.createUser(login, login_details, reg_key_encoded);
-        MatchmakingServer.getLogger().info("Created user " + login.getUsername() + " with email address " + login_details.getEmail() + " with key " + reg_key_encoded);
-        doLogin(login.getUsername(), reg_key_encoded, revision);
-    }
+		String username = login.getUsername().trim();
+		if (!DBInterface.queryUser(username, login.getPasswordDigest())) {
+			client_interface.loginError(MatchmakingClientInterface.USER_ERROR_NO_SUCH_USER);
+			return;
+		}
 
-    public void login(Login login, SignedObject reg_key, int revision) {
-        String reg_key_encoded = checkKey(reg_key);
-        if (login == null || !login.isValid() || reg_key_encoded == null) {
-            close();
-            return;
-        }
+		doLogin(username, revision);
+	}
 
-        if (!revisionOK(revision)) {
-            return;
-        }
+	public void loginAsGuest(int revision) {
+		if (revisionOK(revision)) {
+			String username = "Guest" + guest_postfix++; 
+			doLogin(username, revision);
+		}
+	}
 
-        try {
-            DBInterface.getRegKeyUsername(reg_key_encoded);
-        } catch (IllegalArgumentException e) {
-            close();
-            return;
-        }
-        String username = login.getUsername().trim();
-        if (!DBInterface.queryUser(username, login.getPasswordDigest())) {
-            client_interface.loginError(MatchmakingClientInterface.USER_ERROR_NO_SUCH_USER);
-            return;
-        }
+	private boolean revisionOK(int revision) {
+		if (revision < DBInterface.getSettingsInt("revision")) {
+			client_interface.loginError(MatchmakingClientInterface.USER_ERROR_VERSION_TOO_OLD);
+			System.out.println("revision = " + revision + " | DBInterface.getSettingsInt(revision) = " + DBInterface.getSettingsInt("revision"));
+			return false;
+		} else
+			return true;
+	}
 
-        doLogin(username, reg_key_encoded, revision);
-    }
+	private void doLogin(String username, int revision) {
+		if (local_remote_address != null) {
+			client_interface.loginOK(username, new TunnelAddress(getHostID(), remote_address, local_remote_address));
+			server.loginClient(remote_address, local_remote_address, username, conn.getWrappedConnectionAndShutdown(), revision, host_id);
+		} else {
+			error(new IllegalStateException("Client didnt set local_remote_address"));
+		}
+	}
+	
+	public int getHostID() {
+		return host_id;
+	}
 
-    public void loginAsGuest(int revision) {
-        if (revisionOK(revision)) {
-            String username = "Guest" + guest_postfix++;
-            doLogin(username, null, revision);
-        }
-    }
-
-    private boolean revisionOK(int revision) {
-        if (revision < DBInterface.getSettingsInt("revision")) {
-            client_interface.loginError(MatchmakingClientInterface.USER_ERROR_VERSION_TOO_OLD);
-            System.out.println("revision = " + revision + " | DBInterface.getSettingsInt(revision) = " + DBInterface.getSettingsInt("revision"));
-            return false;
-        } else
-            return true;
-    }
-
-    private String checkKey(SignedObject reg_key) {
-        String reg_code = null;
-        if (reg_key != null) {
-            try {
-                if (RegistrationKey.verify(server.getPublicRegKey(), reg_key)) {
-                    // This cast should not fail, because we signed it and the signature checked out ok
-                    RegistrationInfo reg_info = (RegistrationInfo) reg_key.getObject();
-                    reg_code = RegistrationKey.encode(reg_info.getKey());
-                }
-            } catch (Exception e) {
-                MatchmakingServer.getLogger().warning("Could not verify signature because of: " + e.getMessage());
-            }
-        }
-        return reg_code;
-    }
-
-    private void doLogin(String username, String reg_key_encoded, int revision) {
-        if (local_remote_address != null) {
-            client_interface.loginOK(username, new TunnelAddress(getHostID(), remote_address, local_remote_address));
-            server.loginClient(remote_address, local_remote_address, username, conn.getWrappedConnectionAndShutdown(), reg_key_encoded, revision, host_id);
-        } else {
-            error(new IllegalStateException("Client didnt set local_remote_address"));
-        }
-    }
-
-    public int getHostID() {
-        return host_id;
-    }
-
-    private void close() {
-        conn.close();
-    }
+	private void close() {
+		conn.close();
+	}
 }
