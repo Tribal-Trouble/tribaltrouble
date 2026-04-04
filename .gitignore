@@ -250,6 +250,7 @@ gradle-app.setting
 # End of https://www.toptal.com/developers/gitignore/api/osx,java,linux,windows,netbeans,intellij,gradle
 
 .idea/
+.vs/
 *.iml
 /common/src/main/resources/fonts/Impact.ttf
 /common/src/main/resources/fonts/Tahoma.ttf
