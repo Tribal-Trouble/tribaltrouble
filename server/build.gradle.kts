@@ -47,7 +47,8 @@ tasks.installDist {
         }
 
         root.resolve("start-all").apply {
-            writeText("""
+            writeText(
+                """
                 |#!/bin/bash
                 |SCRIPT_DIR=${'$'}(cd "${'$'}(dirname "${'$'}0")" && pwd)
                 |echo "Starting matchmaker..."
@@ -56,19 +57,22 @@ tasks.installDist {
                 |"${'$'}SCRIPT_DIR/bin/router" &
                 |echo "Both servers started. PIDs: matchmaker=${'$'}!, router=${'$'}!"
                 |wait
-            """.trimMargin() + "\n")
+            """.trimMargin() + "\n"
+            )
             setExecutable(true)
         }
 
         root.resolve("start-all.bat").apply {
-            writeText("""
+            writeText(
+                """
                 |@echo off
                 |echo Starting matchmaker...
                 |start "" "%~dp0bin\matchmaker.bat"
                 |echo Starting router...
                 |start "" "%~dp0bin\router.bat"
                 |echo Both servers started.
-            """.trimMargin() + "\r\n")
+            """.trimMargin() + "\r\n"
+            )
         }
     }
 }

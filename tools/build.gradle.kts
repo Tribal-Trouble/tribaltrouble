@@ -12,7 +12,8 @@ lwjgl {
     implementation(
         Module.CORE,
         Module.OPENGL,
-        Module.STB)
+        Module.STB
+    )
 }
 
 dependencies {

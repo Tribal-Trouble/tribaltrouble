@@ -1,3 +1,5 @@
-DROP DATABASE oddlabs;
-DROP USER matchservlet;
+DROP
+DATABASE oddlabs;
+DROP
+USER matchservlet;
 

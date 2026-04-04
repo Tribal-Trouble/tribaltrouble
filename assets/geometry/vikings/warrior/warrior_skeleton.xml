@@ -1,81 +1,125 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
 <!DOCTYPE skeleton [
-	<!ELEMENT skeleton   (bones, init_pose)>
-	<!ELEMENT bones      (bone+)>
-	<!ELEMENT init_pose  (transform+)>
-	<!ELEMENT bone        EMPTY>
-	<!ELEMENT transform   EMPTY>
-	<!ATTLIST transform name CDATA #REQUIRED>
-	<!ATTLIST transform m00 CDATA #REQUIRED>
-	<!ATTLIST transform m01 CDATA #REQUIRED>
-	<!ATTLIST transform m02 CDATA #REQUIRED>
-	<!ATTLIST transform m03 CDATA #REQUIRED>
-	<!ATTLIST transform m10 CDATA #REQUIRED>
-	<!ATTLIST transform m11 CDATA #REQUIRED>
-	<!ATTLIST transform m12 CDATA #REQUIRED>
-	<!ATTLIST transform m13 CDATA #REQUIRED>
-	<!ATTLIST transform m20 CDATA #REQUIRED>
-	<!ATTLIST transform m21 CDATA #REQUIRED>
-	<!ATTLIST transform m22 CDATA #REQUIRED>
-	<!ATTLIST transform m23 CDATA #REQUIRED>
-	<!ATTLIST transform m30 CDATA #REQUIRED>
-	<!ATTLIST transform m31 CDATA #REQUIRED>
-	<!ATTLIST transform m32 CDATA #REQUIRED>
-	<!ATTLIST transform m33 CDATA #REQUIRED>
-	<!ATTLIST bone name CDATA #REQUIRED>
-	<!ATTLIST bone parent CDATA #REQUIRED>
-]>
+        <!ELEMENT skeleton   (bones, init_pose)>
+        <!ELEMENT bones      (bone+)>
+        <!ELEMENT init_pose  (transform+)>
+        <!ELEMENT bone        EMPTY>
+        <!ELEMENT transform   EMPTY>
+        <!ATTLIST transform name CDATA #REQUIRED>
+        <!ATTLIST transform m00 CDATA #REQUIRED>
+        <!ATTLIST transform m01 CDATA #REQUIRED>
+        <!ATTLIST transform m02 CDATA #REQUIRED>
+        <!ATTLIST transform m03 CDATA #REQUIRED>
+        <!ATTLIST transform m10 CDATA #REQUIRED>
+        <!ATTLIST transform m11 CDATA #REQUIRED>
+        <!ATTLIST transform m12 CDATA #REQUIRED>
+        <!ATTLIST transform m13 CDATA #REQUIRED>
+        <!ATTLIST transform m20 CDATA #REQUIRED>
+        <!ATTLIST transform m21 CDATA #REQUIRED>
+        <!ATTLIST transform m22 CDATA #REQUIRED>
+        <!ATTLIST transform m23 CDATA #REQUIRED>
+        <!ATTLIST transform m30 CDATA #REQUIRED>
+        <!ATTLIST transform m31 CDATA #REQUIRED>
+        <!ATTLIST transform m32 CDATA #REQUIRED>
+        <!ATTLIST transform m33 CDATA #REQUIRED>
+        <!ATTLIST bone name CDATA #REQUIRED>
+        <!ATTLIST bone parent CDATA #REQUIRED>
+        ]>
 
 <skeleton>
-	<bones>
-		<bone name="warrior  Head" parent="warrior  Neck"/>
-		<bone name="warrior  L Calf" parent="warrior  L Thigh"/>
-		<bone name="warrior  L Clavicle" parent="warrior  Neck"/>
-		<bone name="warrior  L Foot" parent="warrior  L Calf"/>
-		<bone name="warrior  L Forearm" parent="warrior  L UpperArm"/>
-		<bone name="warrior  L Hand" parent="warrior  L Forearm"/>
-		<bone name="warrior  L Thigh" parent="warrior  Spine"/>
-		<bone name="warrior  L Toe0" parent="warrior  L Foot"/>
-		<bone name="warrior  L UpperArm" parent="warrior  L Clavicle"/>
-		<bone name="warrior  Neck" parent="warrior  Spine1"/>
-		<bone name="warrior  Pelvis" parent=""/>
-		<bone name="warrior  Ponytail1" parent="warrior  Head"/>
-		<bone name="warrior  Prop1" parent="warrior  R Hand"/>
-		<bone name="warrior  R Calf" parent="warrior  R Thigh"/>
-		<bone name="warrior  R Clavicle" parent="warrior  Neck"/>
-		<bone name="warrior  R Foot" parent="warrior  R Calf"/>
-		<bone name="warrior  R Forearm" parent="warrior  R UpperArm"/>
-		<bone name="warrior  R Hand" parent="warrior  R Forearm"/>
-		<bone name="warrior  R Thigh" parent="warrior  Spine"/>
-		<bone name="warrior  R Toe0" parent="warrior  R Foot"/>
-		<bone name="warrior  R UpperArm" parent="warrior  R Clavicle"/>
-		<bone name="warrior  Spine" parent="warrior  Pelvis"/>
-		<bone name="warrior  Spine1" parent="warrior  Spine"/>
-	</bones>
-	<init_pose>
-		<transform name="warrior  Head" m00="0" m01="1.34309e-06" m02="1" m03="0" m10="-1.40269e-06" m11="-1" m12="1.34309e-06" m13="0" m20="1" m21="-1.40269e-06" m22="0" m23="0" m30="0" m31="-0.075396" m32="1.47513" m33="1"/>
-		<transform name="warrior  L Calf" m00="-3.23791e-07" m01="0.222029" m02="-0.97504" m03="0" m10="1.42193e-06" m11="-0.97504" m12="-0.222029" m13="0" m20="-1" m21="-1.45833e-06" m22="0" m23="0" m30="0.272192" m31="-0.125933" m32="0.326133" m33="1"/>
-		<transform name="warrior  L Clavicle" m00="1" m01="1.37091e-06" m02="0" m03="0" m10="-1.37091e-06" m11="1" m12="0" m13="0" m20="0" m21="0" m22="1" m23="0" m30="0.0458008" m31="0.026117" m32="1.37361" m33="1"/>
-		<transform name="warrior  L Foot" m00="0" m01="0" m02="-1" m03="0" m10="1.37091e-06" m11="-1" m12="0" m13="0" m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="0.272192" m31="-0.0910212" m32="0.172816" m33="1"/>
-		<transform name="warrior  L Forearm" m00="0.998282" m01="-0.0542865" m02="-0.0220485" m03="0" m10="0.050111" m11="0.986026" m12="-0.158876" m13="0" m20="0.0303652" m21="0.157499" m22="0.987052" m23="0" m30="0.544033" m31="0.0148438" m32="1.36668" m33="1"/>
-		<transform name="warrior  L Hand" m00="0.998282" m01="-0.0542865" m02="-0.0220485" m03="0" m10="-0.0546394" m11="-0.998382" m12="-0.0157321" m13="0" m20="-0.0211588" m21="0.0169098" m22="-0.999633" m23="0" m30="0.745054" m31="0.00391232" m32="1.36224" m33="1"/>
-		<transform name="warrior  L Thigh" m00="1.41451e-07" m01="-0.0969954" m02="-0.995285" m03="0" m10="1.45145e-06" m11="-0.995285" m12="0.0969954" m13="0" m20="-1" m21="-1.45833e-06" m22="0" m23="0" m30="0.272192" m31="-0.101933" m32="0.572408" m33="1"/>
-		<transform name="warrior  L Toe0" m00="1.37091e-06" m01="-1" m02="0" m03="0" m10="0" m11="0" m12="1" m13="0" m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="0.272192" m31="-0.316148" m32="0.000193516" m33="1"/>
-		<transform name="warrior  L UpperArm" m00="0.998915" m01="-0.0396537" m02="-0.0244029" m03="0" m10="0.0352969" m11="0.986723" m12="-0.158532" m13="0" m20="0.0303652" m21="0.157499" m22="0.987052" m23="0" m30="0.260043" m31="0.0261173" m32="1.37361" m33="1"/>
-		<transform name="warrior  Neck" m00="9.70149e-07" m01="-0.70767" m02="0.706544" m03="0" m10="-1.80499e-06" m11="-0.706544" m12="-0.70767" m13="0" m20="1" m21="-5.88762e-07" m22="-1.96279e-06" m23="0" m30="-1.75655e-07" m31="0.0261977" m32="1.37369" m33="1"/>
-		<transform name="warrior  Pelvis" m00="-1.3868e-06" m01="0" m02="1" m03="0" m10="2.75771e-06" m11="-1" m12="0" m13="0" m20="1" m21="2.75771e-06" m22="1.3868e-06" m23="0" m30="0" m31="-0.101933" m32="0.572408" m33="1"/>
-		<transform name="warrior  Ponytail1" m00="1.36437e-06" m01="-0.995228" m02="-0.0975722" m03="0" m10="-2.90736e-06" m11="0.0975722" m12="-0.995228" m13="0" m20="1" m21="1.64153e-06" m22="-2.76037e-06" m23="0" m30="4.53034e-05" m31="-0.323273" m32="1.91357" m33="1"/>
-		<transform name="warrior  Prop1" m00="0.109224" m01="-0.993178" m02="-0.04084" m03="0" m10="0.993803" m11="0.108256" m12="0.0252068" m13="0" m20="-0.0206137" m21="-0.0433401" m22="0.998848" m23="0" m30="-0.962679" m31="-0.0309933" m32="1.1033" m33="1"/>
-		<transform name="warrior  R Calf" m00="-3.23791e-07" m01="0.222029" m02="-0.97504" m03="0" m10="1.42193e-06" m11="-0.97504" m12="-0.222029" m13="0" m20="-1" m21="-1.45833e-06" m22="0" m23="0" m30="-0.272192" m31="-0.125934" m32="0.326133" m33="1"/>
-		<transform name="warrior  R Clavicle" m00="-1" m01="-1.37091e-06" m02="0" m03="0" m10="-1.37091e-06" m11="1" m12="0" m13="0" m20="0" m21="0" m22="-1" m23="0" m30="-0.0458012" m31="0.0261169" m32="1.37361" m33="1"/>
-		<transform name="warrior  R Foot" m00="0" m01="0" m02="-1" m03="0" m10="1.37091e-06" m11="-1" m12="0" m13="0" m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="-0.272192" m31="-0.0910219" m32="0.172816" m33="1"/>
-		<transform name="warrior  R Forearm" m00="-0.998282" m01="-0.0542894" m02="-0.0220485" m03="0" m10="-0.0501139" m11="0.986026" m12="-0.158876" m13="0" m20="0.0303657" m21="-0.157498" m22="-0.987052" m23="0" m30="-0.544034" m31="0.0148422" m32="1.36668" m33="1"/>
-		<transform name="warrior  R Hand" m00="-0.998282" m01="-0.0542894" m02="-0.0220485" m03="0" m10="0.0546423" m11="-0.998382" m12="-0.0157321" m13="0" m20="-0.0211587" m21="-0.0169098" m22="0.999633" m23="0" m30="-0.745054" m31="0.0039102" m32="1.36224" m33="1"/>
-		<transform name="warrior  R Thigh" m00="1.41451e-07" m01="-0.0969954" m02="-0.995285" m03="0" m10="1.45145e-06" m11="-0.995285" m12="0.0969954" m13="0" m20="-1" m21="-1.45833e-06" m22="0" m23="0" m30="-0.272192" m31="-0.101933" m32="0.572408" m33="1"/>
-		<transform name="warrior  R Toe0" m00="1.37091e-06" m01="-1" m02="0" m03="0" m10="0" m11="0" m12="1" m13="0" m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="-0.272192" m31="-0.316149" m32="0.000193516" m33="1"/>
-		<transform name="warrior  R UpperArm" m00="-0.998915" m01="-0.0396566" m02="-0.0244029" m03="0" m10="-0.0352998" m11="0.986723" m12="-0.158532" m13="0" m20="0.0303657" m21="-0.157498" m22="-0.987052" m23="0" m30="-0.260043" m31="0.0261166" m32="1.37361" m33="1"/>
-		<transform name="warrior  Spine" m00="0" m01="-0.000796318" m02="1" m03="0" m10="-1.40269e-06" m11="-1" m12="-0.000796318" m13="0" m20="1" m21="-1.40269e-06" m22="0" m23="0" m30="-1.75789e-07" m31="0.026295" m32="0.899961" m33="1"/>
-		<transform name="warrior  Spine1" m00="0" m01="-0.000796318" m02="1" m03="0" m10="-1.40269e-06" m11="-1" m12="-0.000796318" m13="0" m20="1" m21="-1.40269e-06" m22="0" m23="0" m30="-1.75818e-07" m31="0.0263161" m32="1.12356" m33="1"/>
-	</init_pose>
+    <bones>
+        <bone name="warrior  Head" parent="warrior  Neck"/>
+        <bone name="warrior  L Calf" parent="warrior  L Thigh"/>
+        <bone name="warrior  L Clavicle" parent="warrior  Neck"/>
+        <bone name="warrior  L Foot" parent="warrior  L Calf"/>
+        <bone name="warrior  L Forearm" parent="warrior  L UpperArm"/>
+        <bone name="warrior  L Hand" parent="warrior  L Forearm"/>
+        <bone name="warrior  L Thigh" parent="warrior  Spine"/>
+        <bone name="warrior  L Toe0" parent="warrior  L Foot"/>
+        <bone name="warrior  L UpperArm" parent="warrior  L Clavicle"/>
+        <bone name="warrior  Neck" parent="warrior  Spine1"/>
+        <bone name="warrior  Pelvis" parent=""/>
+        <bone name="warrior  Ponytail1" parent="warrior  Head"/>
+        <bone name="warrior  Prop1" parent="warrior  R Hand"/>
+        <bone name="warrior  R Calf" parent="warrior  R Thigh"/>
+        <bone name="warrior  R Clavicle" parent="warrior  Neck"/>
+        <bone name="warrior  R Foot" parent="warrior  R Calf"/>
+        <bone name="warrior  R Forearm" parent="warrior  R UpperArm"/>
+        <bone name="warrior  R Hand" parent="warrior  R Forearm"/>
+        <bone name="warrior  R Thigh" parent="warrior  Spine"/>
+        <bone name="warrior  R Toe0" parent="warrior  R Foot"/>
+        <bone name="warrior  R UpperArm" parent="warrior  R Clavicle"/>
+        <bone name="warrior  Spine" parent="warrior  Pelvis"/>
+        <bone name="warrior  Spine1" parent="warrior  Spine"/>
+    </bones>
+    <init_pose>
+        <transform name="warrior  Head" m00="0" m01="1.34309e-06" m02="1" m03="0" m10="-1.40269e-06" m11="-1"
+                   m12="1.34309e-06" m13="0" m20="1" m21="-1.40269e-06" m22="0" m23="0" m30="0" m31="-0.075396"
+                   m32="1.47513" m33="1"/>
+        <transform name="warrior  L Calf" m00="-3.23791e-07" m01="0.222029" m02="-0.97504" m03="0" m10="1.42193e-06"
+                   m11="-0.97504" m12="-0.222029" m13="0" m20="-1" m21="-1.45833e-06" m22="0" m23="0" m30="0.272192"
+                   m31="-0.125933" m32="0.326133" m33="1"/>
+        <transform name="warrior  L Clavicle" m00="1" m01="1.37091e-06" m02="0" m03="0" m10="-1.37091e-06" m11="1"
+                   m12="0" m13="0" m20="0" m21="0" m22="1" m23="0" m30="0.0458008" m31="0.026117" m32="1.37361"
+                   m33="1"/>
+        <transform name="warrior  L Foot" m00="0" m01="0" m02="-1" m03="0" m10="1.37091e-06" m11="-1" m12="0" m13="0"
+                   m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="0.272192" m31="-0.0910212" m32="0.172816" m33="1"/>
+        <transform name="warrior  L Forearm" m00="0.998282" m01="-0.0542865" m02="-0.0220485" m03="0" m10="0.050111"
+                   m11="0.986026" m12="-0.158876" m13="0" m20="0.0303652" m21="0.157499" m22="0.987052" m23="0"
+                   m30="0.544033" m31="0.0148438" m32="1.36668" m33="1"/>
+        <transform name="warrior  L Hand" m00="0.998282" m01="-0.0542865" m02="-0.0220485" m03="0" m10="-0.0546394"
+                   m11="-0.998382" m12="-0.0157321" m13="0" m20="-0.0211588" m21="0.0169098" m22="-0.999633" m23="0"
+                   m30="0.745054" m31="0.00391232" m32="1.36224" m33="1"/>
+        <transform name="warrior  L Thigh" m00="1.41451e-07" m01="-0.0969954" m02="-0.995285" m03="0" m10="1.45145e-06"
+                   m11="-0.995285" m12="0.0969954" m13="0" m20="-1" m21="-1.45833e-06" m22="0" m23="0" m30="0.272192"
+                   m31="-0.101933" m32="0.572408" m33="1"/>
+        <transform name="warrior  L Toe0" m00="1.37091e-06" m01="-1" m02="0" m03="0" m10="0" m11="0" m12="1" m13="0"
+                   m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="0.272192" m31="-0.316148" m32="0.000193516"
+                   m33="1"/>
+        <transform name="warrior  L UpperArm" m00="0.998915" m01="-0.0396537" m02="-0.0244029" m03="0" m10="0.0352969"
+                   m11="0.986723" m12="-0.158532" m13="0" m20="0.0303652" m21="0.157499" m22="0.987052" m23="0"
+                   m30="0.260043" m31="0.0261173" m32="1.37361" m33="1"/>
+        <transform name="warrior  Neck" m00="9.70149e-07" m01="-0.70767" m02="0.706544" m03="0" m10="-1.80499e-06"
+                   m11="-0.706544" m12="-0.70767" m13="0" m20="1" m21="-5.88762e-07" m22="-1.96279e-06" m23="0"
+                   m30="-1.75655e-07" m31="0.0261977" m32="1.37369" m33="1"/>
+        <transform name="warrior  Pelvis" m00="-1.3868e-06" m01="0" m02="1" m03="0" m10="2.75771e-06" m11="-1" m12="0"
+                   m13="0" m20="1" m21="2.75771e-06" m22="1.3868e-06" m23="0" m30="0" m31="-0.101933" m32="0.572408"
+                   m33="1"/>
+        <transform name="warrior  Ponytail1" m00="1.36437e-06" m01="-0.995228" m02="-0.0975722" m03="0"
+                   m10="-2.90736e-06" m11="0.0975722" m12="-0.995228" m13="0" m20="1" m21="1.64153e-06"
+                   m22="-2.76037e-06" m23="0" m30="4.53034e-05" m31="-0.323273" m32="1.91357" m33="1"/>
+        <transform name="warrior  Prop1" m00="0.109224" m01="-0.993178" m02="-0.04084" m03="0" m10="0.993803"
+                   m11="0.108256" m12="0.0252068" m13="0" m20="-0.0206137" m21="-0.0433401" m22="0.998848" m23="0"
+                   m30="-0.962679" m31="-0.0309933" m32="1.1033" m33="1"/>
+        <transform name="warrior  R Calf" m00="-3.23791e-07" m01="0.222029" m02="-0.97504" m03="0" m10="1.42193e-06"
+                   m11="-0.97504" m12="-0.222029" m13="0" m20="-1" m21="-1.45833e-06" m22="0" m23="0" m30="-0.272192"
+                   m31="-0.125934" m32="0.326133" m33="1"/>
+        <transform name="warrior  R Clavicle" m00="-1" m01="-1.37091e-06" m02="0" m03="0" m10="-1.37091e-06" m11="1"
+                   m12="0" m13="0" m20="0" m21="0" m22="-1" m23="0" m30="-0.0458012" m31="0.0261169" m32="1.37361"
+                   m33="1"/>
+        <transform name="warrior  R Foot" m00="0" m01="0" m02="-1" m03="0" m10="1.37091e-06" m11="-1" m12="0" m13="0"
+                   m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="-0.272192" m31="-0.0910219" m32="0.172816" m33="1"/>
+        <transform name="warrior  R Forearm" m00="-0.998282" m01="-0.0542894" m02="-0.0220485" m03="0" m10="-0.0501139"
+                   m11="0.986026" m12="-0.158876" m13="0" m20="0.0303657" m21="-0.157498" m22="-0.987052" m23="0"
+                   m30="-0.544034" m31="0.0148422" m32="1.36668" m33="1"/>
+        <transform name="warrior  R Hand" m00="-0.998282" m01="-0.0542894" m02="-0.0220485" m03="0" m10="0.0546423"
+                   m11="-0.998382" m12="-0.0157321" m13="0" m20="-0.0211587" m21="-0.0169098" m22="0.999633" m23="0"
+                   m30="-0.745054" m31="0.0039102" m32="1.36224" m33="1"/>
+        <transform name="warrior  R Thigh" m00="1.41451e-07" m01="-0.0969954" m02="-0.995285" m03="0" m10="1.45145e-06"
+                   m11="-0.995285" m12="0.0969954" m13="0" m20="-1" m21="-1.45833e-06" m22="0" m23="0" m30="-0.272192"
+                   m31="-0.101933" m32="0.572408" m33="1"/>
+        <transform name="warrior  R Toe0" m00="1.37091e-06" m01="-1" m02="0" m03="0" m10="0" m11="0" m12="1" m13="0"
+                   m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="-0.272192" m31="-0.316149" m32="0.000193516"
+                   m33="1"/>
+        <transform name="warrior  R UpperArm" m00="-0.998915" m01="-0.0396566" m02="-0.0244029" m03="0" m10="-0.0352998"
+                   m11="0.986723" m12="-0.158532" m13="0" m20="0.0303657" m21="-0.157498" m22="-0.987052" m23="0"
+                   m30="-0.260043" m31="0.0261166" m32="1.37361" m33="1"/>
+        <transform name="warrior  Spine" m00="0" m01="-0.000796318" m02="1" m03="0" m10="-1.40269e-06" m11="-1"
+                   m12="-0.000796318" m13="0" m20="1" m21="-1.40269e-06" m22="0" m23="0" m30="-1.75789e-07"
+                   m31="0.026295" m32="0.899961" m33="1"/>
+        <transform name="warrior  Spine1" m00="0" m01="-0.000796318" m02="1" m03="0" m10="-1.40269e-06" m11="-1"
+                   m12="-0.000796318" m13="0" m20="1" m21="-1.40269e-06" m22="0" m23="0" m30="-1.75818e-07"
+                   m31="0.0263161" m32="1.12356" m33="1"/>
+    </init_pose>
 </skeleton>

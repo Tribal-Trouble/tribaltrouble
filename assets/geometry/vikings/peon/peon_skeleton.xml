@@ -1,91 +1,142 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
 <!DOCTYPE skeleton [
-	<!ELEMENT skeleton   (bones, init_pose)>
-	<!ELEMENT bones      (bone+)>
-	<!ELEMENT init_pose  (transform+)>
-	<!ELEMENT bone        EMPTY>
-	<!ELEMENT transform   EMPTY>
-	<!ATTLIST transform name CDATA #REQUIRED>
-	<!ATTLIST transform m00 CDATA #REQUIRED>
-	<!ATTLIST transform m01 CDATA #REQUIRED>
-	<!ATTLIST transform m02 CDATA #REQUIRED>
-	<!ATTLIST transform m03 CDATA #REQUIRED>
-	<!ATTLIST transform m10 CDATA #REQUIRED>
-	<!ATTLIST transform m11 CDATA #REQUIRED>
-	<!ATTLIST transform m12 CDATA #REQUIRED>
-	<!ATTLIST transform m13 CDATA #REQUIRED>
-	<!ATTLIST transform m20 CDATA #REQUIRED>
-	<!ATTLIST transform m21 CDATA #REQUIRED>
-	<!ATTLIST transform m22 CDATA #REQUIRED>
-	<!ATTLIST transform m23 CDATA #REQUIRED>
-	<!ATTLIST transform m30 CDATA #REQUIRED>
-	<!ATTLIST transform m31 CDATA #REQUIRED>
-	<!ATTLIST transform m32 CDATA #REQUIRED>
-	<!ATTLIST transform m33 CDATA #REQUIRED>
-	<!ATTLIST bone name CDATA #REQUIRED>
-	<!ATTLIST bone parent CDATA #REQUIRED>
-]>
+        <!ELEMENT skeleton   (bones, init_pose)>
+        <!ELEMENT bones      (bone+)>
+        <!ELEMENT init_pose  (transform+)>
+        <!ELEMENT bone        EMPTY>
+        <!ELEMENT transform   EMPTY>
+        <!ATTLIST transform name CDATA #REQUIRED>
+        <!ATTLIST transform m00 CDATA #REQUIRED>
+        <!ATTLIST transform m01 CDATA #REQUIRED>
+        <!ATTLIST transform m02 CDATA #REQUIRED>
+        <!ATTLIST transform m03 CDATA #REQUIRED>
+        <!ATTLIST transform m10 CDATA #REQUIRED>
+        <!ATTLIST transform m11 CDATA #REQUIRED>
+        <!ATTLIST transform m12 CDATA #REQUIRED>
+        <!ATTLIST transform m13 CDATA #REQUIRED>
+        <!ATTLIST transform m20 CDATA #REQUIRED>
+        <!ATTLIST transform m21 CDATA #REQUIRED>
+        <!ATTLIST transform m22 CDATA #REQUIRED>
+        <!ATTLIST transform m23 CDATA #REQUIRED>
+        <!ATTLIST transform m30 CDATA #REQUIRED>
+        <!ATTLIST transform m31 CDATA #REQUIRED>
+        <!ATTLIST transform m32 CDATA #REQUIRED>
+        <!ATTLIST transform m33 CDATA #REQUIRED>
+        <!ATTLIST bone name CDATA #REQUIRED>
+        <!ATTLIST bone parent CDATA #REQUIRED>
+        ]>
 
 <skeleton>
-	<bones>
-		<bone name="peon Head" parent="peon Neck"/>
-		<bone name="peon L Calf" parent="peon L Thigh"/>
-		<bone name="peon L Clavicle" parent="peon Neck"/>
-		<bone name="peon L Finger01" parent="peon L Hand"/>
-		<bone name="peon L Finger1" parent="peon L Hand"/>
-		<bone name="peon L Finger11" parent="peon L Finger1"/>
-		<bone name="peon L Foot" parent="peon L Calf"/>
-		<bone name="peon L Forearm" parent="peon L UpperArm"/>
-		<bone name="peon L Hand" parent="peon L Forearm"/>
-		<bone name="peon L Thigh" parent="peon Spine"/>
-		<bone name="peon L Toe0" parent="peon L Foot"/>
-		<bone name="peon L UpperArm" parent="peon L Clavicle"/>
-		<bone name="peon Neck" parent="peon Spine2"/>
-		<bone name="peon Pelvis" parent=""/>
-		<bone name="peon Ponytail1" parent="peon Head"/>
-		<bone name="peon Ponytail2" parent="peon Head"/>
-		<bone name="peon Prop1" parent="peon R Hand"/>
-		<bone name="peon R Calf" parent="peon R Thigh"/>
-		<bone name="peon R Clavicle" parent="peon Neck"/>
-		<bone name="peon R Foot" parent="peon R Calf"/>
-		<bone name="peon R Forearm" parent="peon R UpperArm"/>
-		<bone name="peon R Hand" parent="peon R Forearm"/>
-		<bone name="peon R Thigh" parent="peon Spine"/>
-		<bone name="peon R Toe0" parent="peon R Foot"/>
-		<bone name="peon R UpperArm" parent="peon R Clavicle"/>
-		<bone name="peon Spine" parent="peon Pelvis"/>
-		<bone name="peon Spine1" parent="peon Spine"/>
-		<bone name="peon Spine2" parent="peon Spine1"/>
-	</bones>
-	<init_pose>
-		<transform name="peon Head" m00="0" m01="1.34309e-06" m02="1" m03="0" m10="-1.40269e-06" m11="-1" m12="1.34309e-06" m13="0" m20="1" m21="-1.40269e-06" m22="0" m23="0" m30="-0.00333908" m31="-0.0700456" m32="1.21054" m33="1"/>
-		<transform name="peon L Calf" m00="-0.0549756" m01="0.176704" m02="-0.982728" m03="0" m10="-0.00833287" m11="-0.984263" m12="-0.176514" m13="0" m20="-0.998453" m21="-0.001515" m22="0.0555829" m23="0" m30="0.132628" m31="-0.00929981" m32="0.244114" m33="1"/>
-		<transform name="peon L Clavicle" m00="1" m01="1.3785e-06" m02="0" m03="0" m10="-1.35008e-06" m11="0.984808" m12="0.173648" m13="0" m20="2.81767e-07" m21="-0.173648" m22="0.984808" m23="0" m30="0.00424463" m31="-0.00672316" m32="1.13507" m33="1"/>
-		<transform name="peon L Finger01" m00="0.536357" m01="-0.578439" m02="0.614597" m03="0" m10="0.146794" m11="-0.653168" m12="-0.742847" m13="0" m20="0.831127" m21="0.488651" m22="-0.26542" m23="0" m30="0.594099" m31="-0.0447777" m32="1.34429" m33="1"/>
-		<transform name="peon L Finger1" m00="0.998968" m01="0.034618" m02="-0.0293849" m03="0" m10="0.0341204" m11="-0.999268" m12="-0.0172717" m13="0" m20="-0.0299613" m21="0.0162512" m22="-0.999419" m23="0" m30="0.669393" m31="-0.00917431" m32="1.11441" m33="1"/>
-		<transform name="peon L Finger11" m00="0.668262" m01="-0.743232" m02="-0.0321191" m03="0" m10="-0.743322" m11="-0.668836" m12="0.0114081" m13="0" m20="-0.0299613" m21="0.0162512" m22="-0.999419" m23="0" m30="0.744809" m31="-0.00656084" m32="1.11219" m33="1"/>
-		<transform name="peon L Foot" m00="0" m01="0" m02="-1" m03="0" m10="1.37091e-06" m11="-1" m12="0" m13="0" m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="0.125762" m31="0.0127673" m32="0.121389" m33="1"/>
-		<transform name="peon L Forearm" m00="0.998141" m01="-0.0526057" m02="-0.0307784" m03="0" m10="0.0470663" m11="0.986136" m12="-0.159124" m13="0" m20="0.0387225" m21="0.157379" m22="0.986779" m23="0" m30="0.266731" m31="-0.00406044" m32="1.12656" m33="1"/>
-		<transform name="peon L Hand" m00="0.998968" m01="0.034618" m02="-0.0293849" m03="0" m10="0.0340965" m11="-0.999255" m12="-0.0180675" m13="0" m20="-0.0299884" m21="0.017047" m22="-0.999405" m23="0" m30="0.485002" m31="-0.0155641" m32="1.11983" m33="1"/>
-		<transform name="peon L Thigh" m00="-0.0554923" m01="-0.0360357" m02="-0.997809" m03="0" m10="0.00351465" m11="-0.999349" m12="0.0358959" m13="0" m20="-0.998453" m21="-0.001515" m22="0.0555829" m23="0" m30="0.144378" m31="-0.00166939" m32="0.455396" m33="1"/>
-		<transform name="peon L Toe0" m00="1.37091e-06" m01="-1" m02="0" m03="0" m10="0" m11="0" m12="1" m13="0" m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="0.125762" m31="-0.106435" m32="0.00326997" m33="1"/>
-		<transform name="peon L UpperArm" m00="0.999065" m01="0.0129075" m02="-0.0412632" m03="0" m10="-0.0192308" m11="0.987454" m12="-0.156732" m13="0" m20="0.0387225" m21="0.157379" m22="0.986779" m23="0" m30="0.0606373" m31="-0.00672308" m32="1.13507" m33="1"/>
-		<transform name="peon Neck" m00="8.82038e-07" m01="-0.643397" m02="0.765532" m03="0" m10="-1.72413e-06" m11="-0.765532" m12="-0.643397" m13="0" m20="1" m21="-7.52374e-07" m22="-1.78453e-06" m23="0" m30="-0.00333917" m31="-0.0066631" m32="1.13512" m33="1"/>
-		<transform name="peon Pelvis" m00="-1.3868e-06" m01="0" m02="1" m03="0" m10="2.75771e-06" m11="-1" m12="0" m13="0" m20="1" m21="2.75771e-06" m22="1.3868e-06" m23="0" m30="-0.00333915" m31="-0.00166957" m32="0.455396" m33="1"/>
-		<transform name="peon Ponytail1" m00="0.906308" m01="0.0143958" m02="-0.422374" m03="0" m10="-0.000724213" m11="0.999471" m12="0.032511" m13="0" m20="0.422618" m21="-0.0291591" m22="0.905839" m23="0" m30="0.0436455" m31="-0.11839" m32="1.47761" m33="1"/>
-		<transform name="peon Ponytail2" m00="-0.906308" m01="0.0143933" m02="-0.422374" m03="0" m10="0.000719128" m11="0.999471" m12="0.032516" m13="0" m20="0.422618" m21="0.0291658" m22="-0.905838" m23="0" m30="-0.0503238" m31="-0.11839" m32="1.47761" m33="1"/>
-		<transform name="peon Prop1" m00="1.3487e-06" m01="-1" m02="0" m03="0" m10="1" m11="1.3487e-06" m12="0" m13="0" m20="0" m21="0" m22="1" m23="0" m30="-0.62219" m31="-0.0511278" m32="0.900291" m33="1"/>
-		<transform name="peon R Calf" m00="0.0549751" m01="0.176704" m02="-0.982728" m03="0" m10="0.00833574" m11="-0.984263" m12="-0.176514" m13="0" m20="-0.998453" m21="0.00151209" m22="-0.0555829" m23="0" m30="-0.139306" m31="-0.00930018" m32="0.244114" m33="1"/>
-		<transform name="peon R Clavicle" m00="-1" m01="-1.36332e-06" m02="0" m03="0" m10="-1.35008e-06" m11="0.984808" m12="0.173648" m13="0" m20="-1.94344e-07" m21="0.173648" m22="-0.984808" m23="0" m30="-0.010923" m31="-0.00672318" m32="1.13507" m33="1"/>
-		<transform name="peon R Foot" m00="0" m01="0" m02="-1" m03="0" m10="1.37091e-06" m11="-1" m12="0" m13="0" m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="-0.132441" m31="0.012767" m32="0.121389" m33="1"/>
-		<transform name="peon R Forearm" m00="-0.998329" m01="-0.0406121" m02="-0.0410993" m03="0" m10="-0.0336006" m11="0.98673" m12="-0.158853" m13="0" m20="0.0470052" m21="-0.157207" m22="-0.986446" m23="0" m30="-0.273368" m31="-0.00668358" m32="1.12525" m33="1"/>
-		<transform name="peon R Hand" m00="-0.999149" m01="0.0087321" m02="-0.0403163" m03="0" m10="-0.00802533" m11="-0.999812" m12="-0.0176593" m13="0" m20="-0.0404629" m21="-0.0173207" m22="0.999031" m23="0" m30="-0.491681" m31="-0.0155646" m32="1.11626" m33="1"/>
-		<transform name="peon R Thigh" m00="0.0554924" m01="-0.0360356" m02="-0.997809" m03="0" m10="-0.00351174" m11="-0.999349" m12="0.0358959" m13="0" m20="-0.998453" m21="0.00151209" m22="-0.0555829" m23="0" m30="-0.151056" m31="-0.0016698" m32="0.455396" m33="1"/>
-		<transform name="peon R Toe0" m00="1.37091e-06" m01="-1" m02="0" m03="0" m10="0" m11="0" m12="1" m13="0" m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="-0.13244" m31="-0.106435" m32="0.00326997" m33="1"/>
-		<transform name="peon R UpperArm" m00="-0.998865" m01="0.000192355" m02="-0.0476277" m03="0" m10="0.00767713" m11="0.987566" m12="-0.157019" m13="0" m20="0.0470052" m21="-0.157207" m22="-0.986446" m23="0" m30="-0.0673156" m31="-0.00672326" m32="1.13507" m33="1"/>
-		<transform name="peon Spine" m00="0" m01="-0.000796318" m02="1" m03="0" m10="-1.40269e-06" m11="-1" m12="-0.000796318" m13="0" m20="1" m21="-1.40269e-06" m22="0" m23="0" m30="-0.00333921" m31="0.0235102" m32="0.631975" m33="1"/>
-		<transform name="peon Spine1" m00="0" m01="-0.000796318" m02="1" m03="0" m10="-1.40269e-06" m11="-1" m12="-0.000796318" m13="0" m20="1" m21="-1.40269e-06" m22="0" m23="0" m30="-0.00333921" m31="0.0235101" m32="0.798168" m33="1"/>
-		<transform name="peon Spine2" m00="2.3913e-07" m01="-0.174432" m02="0.984669" m03="0" m10="-1.42371e-06" m11="-0.984669" m12="-0.174432" m13="0" m20="1" m21="-1.36017e-06" m22="-4.83805e-07" m23="0" m30="-0.00333921" m31="0.0235137" m32="0.964385" m33="1"/>
-	</init_pose>
+    <bones>
+        <bone name="peon Head" parent="peon Neck"/>
+        <bone name="peon L Calf" parent="peon L Thigh"/>
+        <bone name="peon L Clavicle" parent="peon Neck"/>
+        <bone name="peon L Finger01" parent="peon L Hand"/>
+        <bone name="peon L Finger1" parent="peon L Hand"/>
+        <bone name="peon L Finger11" parent="peon L Finger1"/>
+        <bone name="peon L Foot" parent="peon L Calf"/>
+        <bone name="peon L Forearm" parent="peon L UpperArm"/>
+        <bone name="peon L Hand" parent="peon L Forearm"/>
+        <bone name="peon L Thigh" parent="peon Spine"/>
+        <bone name="peon L Toe0" parent="peon L Foot"/>
+        <bone name="peon L UpperArm" parent="peon L Clavicle"/>
+        <bone name="peon Neck" parent="peon Spine2"/>
+        <bone name="peon Pelvis" parent=""/>
+        <bone name="peon Ponytail1" parent="peon Head"/>
+        <bone name="peon Ponytail2" parent="peon Head"/>
+        <bone name="peon Prop1" parent="peon R Hand"/>
+        <bone name="peon R Calf" parent="peon R Thigh"/>
+        <bone name="peon R Clavicle" parent="peon Neck"/>
+        <bone name="peon R Foot" parent="peon R Calf"/>
+        <bone name="peon R Forearm" parent="peon R UpperArm"/>
+        <bone name="peon R Hand" parent="peon R Forearm"/>
+        <bone name="peon R Thigh" parent="peon Spine"/>
+        <bone name="peon R Toe0" parent="peon R Foot"/>
+        <bone name="peon R UpperArm" parent="peon R Clavicle"/>
+        <bone name="peon Spine" parent="peon Pelvis"/>
+        <bone name="peon Spine1" parent="peon Spine"/>
+        <bone name="peon Spine2" parent="peon Spine1"/>
+    </bones>
+    <init_pose>
+        <transform name="peon Head" m00="0" m01="1.34309e-06" m02="1" m03="0" m10="-1.40269e-06" m11="-1"
+                   m12="1.34309e-06" m13="0" m20="1" m21="-1.40269e-06" m22="0" m23="0" m30="-0.00333908"
+                   m31="-0.0700456" m32="1.21054" m33="1"/>
+        <transform name="peon L Calf" m00="-0.0549756" m01="0.176704" m02="-0.982728" m03="0" m10="-0.00833287"
+                   m11="-0.984263" m12="-0.176514" m13="0" m20="-0.998453" m21="-0.001515" m22="0.0555829" m23="0"
+                   m30="0.132628" m31="-0.00929981" m32="0.244114" m33="1"/>
+        <transform name="peon L Clavicle" m00="1" m01="1.3785e-06" m02="0" m03="0" m10="-1.35008e-06" m11="0.984808"
+                   m12="0.173648" m13="0" m20="2.81767e-07" m21="-0.173648" m22="0.984808" m23="0" m30="0.00424463"
+                   m31="-0.00672316" m32="1.13507" m33="1"/>
+        <transform name="peon L Finger01" m00="0.536357" m01="-0.578439" m02="0.614597" m03="0" m10="0.146794"
+                   m11="-0.653168" m12="-0.742847" m13="0" m20="0.831127" m21="0.488651" m22="-0.26542" m23="0"
+                   m30="0.594099" m31="-0.0447777" m32="1.34429" m33="1"/>
+        <transform name="peon L Finger1" m00="0.998968" m01="0.034618" m02="-0.0293849" m03="0" m10="0.0341204"
+                   m11="-0.999268" m12="-0.0172717" m13="0" m20="-0.0299613" m21="0.0162512" m22="-0.999419" m23="0"
+                   m30="0.669393" m31="-0.00917431" m32="1.11441" m33="1"/>
+        <transform name="peon L Finger11" m00="0.668262" m01="-0.743232" m02="-0.0321191" m03="0" m10="-0.743322"
+                   m11="-0.668836" m12="0.0114081" m13="0" m20="-0.0299613" m21="0.0162512" m22="-0.999419" m23="0"
+                   m30="0.744809" m31="-0.00656084" m32="1.11219" m33="1"/>
+        <transform name="peon L Foot" m00="0" m01="0" m02="-1" m03="0" m10="1.37091e-06" m11="-1" m12="0" m13="0"
+                   m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="0.125762" m31="0.0127673" m32="0.121389" m33="1"/>
+        <transform name="peon L Forearm" m00="0.998141" m01="-0.0526057" m02="-0.0307784" m03="0" m10="0.0470663"
+                   m11="0.986136" m12="-0.159124" m13="0" m20="0.0387225" m21="0.157379" m22="0.986779" m23="0"
+                   m30="0.266731" m31="-0.00406044" m32="1.12656" m33="1"/>
+        <transform name="peon L Hand" m00="0.998968" m01="0.034618" m02="-0.0293849" m03="0" m10="0.0340965"
+                   m11="-0.999255" m12="-0.0180675" m13="0" m20="-0.0299884" m21="0.017047" m22="-0.999405" m23="0"
+                   m30="0.485002" m31="-0.0155641" m32="1.11983" m33="1"/>
+        <transform name="peon L Thigh" m00="-0.0554923" m01="-0.0360357" m02="-0.997809" m03="0" m10="0.00351465"
+                   m11="-0.999349" m12="0.0358959" m13="0" m20="-0.998453" m21="-0.001515" m22="0.0555829" m23="0"
+                   m30="0.144378" m31="-0.00166939" m32="0.455396" m33="1"/>
+        <transform name="peon L Toe0" m00="1.37091e-06" m01="-1" m02="0" m03="0" m10="0" m11="0" m12="1" m13="0"
+                   m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="0.125762" m31="-0.106435" m32="0.00326997" m33="1"/>
+        <transform name="peon L UpperArm" m00="0.999065" m01="0.0129075" m02="-0.0412632" m03="0" m10="-0.0192308"
+                   m11="0.987454" m12="-0.156732" m13="0" m20="0.0387225" m21="0.157379" m22="0.986779" m23="0"
+                   m30="0.0606373" m31="-0.00672308" m32="1.13507" m33="1"/>
+        <transform name="peon Neck" m00="8.82038e-07" m01="-0.643397" m02="0.765532" m03="0" m10="-1.72413e-06"
+                   m11="-0.765532" m12="-0.643397" m13="0" m20="1" m21="-7.52374e-07" m22="-1.78453e-06" m23="0"
+                   m30="-0.00333917" m31="-0.0066631" m32="1.13512" m33="1"/>
+        <transform name="peon Pelvis" m00="-1.3868e-06" m01="0" m02="1" m03="0" m10="2.75771e-06" m11="-1" m12="0"
+                   m13="0" m20="1" m21="2.75771e-06" m22="1.3868e-06" m23="0" m30="-0.00333915" m31="-0.00166957"
+                   m32="0.455396" m33="1"/>
+        <transform name="peon Ponytail1" m00="0.906308" m01="0.0143958" m02="-0.422374" m03="0" m10="-0.000724213"
+                   m11="0.999471" m12="0.032511" m13="0" m20="0.422618" m21="-0.0291591" m22="0.905839" m23="0"
+                   m30="0.0436455" m31="-0.11839" m32="1.47761" m33="1"/>
+        <transform name="peon Ponytail2" m00="-0.906308" m01="0.0143933" m02="-0.422374" m03="0" m10="0.000719128"
+                   m11="0.999471" m12="0.032516" m13="0" m20="0.422618" m21="0.0291658" m22="-0.905838" m23="0"
+                   m30="-0.0503238" m31="-0.11839" m32="1.47761" m33="1"/>
+        <transform name="peon Prop1" m00="1.3487e-06" m01="-1" m02="0" m03="0" m10="1" m11="1.3487e-06" m12="0" m13="0"
+                   m20="0" m21="0" m22="1" m23="0" m30="-0.62219" m31="-0.0511278" m32="0.900291" m33="1"/>
+        <transform name="peon R Calf" m00="0.0549751" m01="0.176704" m02="-0.982728" m03="0" m10="0.00833574"
+                   m11="-0.984263" m12="-0.176514" m13="0" m20="-0.998453" m21="0.00151209" m22="-0.0555829" m23="0"
+                   m30="-0.139306" m31="-0.00930018" m32="0.244114" m33="1"/>
+        <transform name="peon R Clavicle" m00="-1" m01="-1.36332e-06" m02="0" m03="0" m10="-1.35008e-06" m11="0.984808"
+                   m12="0.173648" m13="0" m20="-1.94344e-07" m21="0.173648" m22="-0.984808" m23="0" m30="-0.010923"
+                   m31="-0.00672318" m32="1.13507" m33="1"/>
+        <transform name="peon R Foot" m00="0" m01="0" m02="-1" m03="0" m10="1.37091e-06" m11="-1" m12="0" m13="0"
+                   m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="-0.132441" m31="0.012767" m32="0.121389" m33="1"/>
+        <transform name="peon R Forearm" m00="-0.998329" m01="-0.0406121" m02="-0.0410993" m03="0" m10="-0.0336006"
+                   m11="0.98673" m12="-0.158853" m13="0" m20="0.0470052" m21="-0.157207" m22="-0.986446" m23="0"
+                   m30="-0.273368" m31="-0.00668358" m32="1.12525" m33="1"/>
+        <transform name="peon R Hand" m00="-0.999149" m01="0.0087321" m02="-0.0403163" m03="0" m10="-0.00802533"
+                   m11="-0.999812" m12="-0.0176593" m13="0" m20="-0.0404629" m21="-0.0173207" m22="0.999031" m23="0"
+                   m30="-0.491681" m31="-0.0155646" m32="1.11626" m33="1"/>
+        <transform name="peon R Thigh" m00="0.0554924" m01="-0.0360356" m02="-0.997809" m03="0" m10="-0.00351174"
+                   m11="-0.999349" m12="0.0358959" m13="0" m20="-0.998453" m21="0.00151209" m22="-0.0555829" m23="0"
+                   m30="-0.151056" m31="-0.0016698" m32="0.455396" m33="1"/>
+        <transform name="peon R Toe0" m00="1.37091e-06" m01="-1" m02="0" m03="0" m10="0" m11="0" m12="1" m13="0"
+                   m20="-1" m21="-1.37091e-06" m22="0" m23="0" m30="-0.13244" m31="-0.106435" m32="0.00326997" m33="1"/>
+        <transform name="peon R UpperArm" m00="-0.998865" m01="0.000192355" m02="-0.0476277" m03="0" m10="0.00767713"
+                   m11="0.987566" m12="-0.157019" m13="0" m20="0.0470052" m21="-0.157207" m22="-0.986446" m23="0"
+                   m30="-0.0673156" m31="-0.00672326" m32="1.13507" m33="1"/>
+        <transform name="peon Spine" m00="0" m01="-0.000796318" m02="1" m03="0" m10="-1.40269e-06" m11="-1"
+                   m12="-0.000796318" m13="0" m20="1" m21="-1.40269e-06" m22="0" m23="0" m30="-0.00333921"
+                   m31="0.0235102" m32="0.631975" m33="1"/>
+        <transform name="peon Spine1" m00="0" m01="-0.000796318" m02="1" m03="0" m10="-1.40269e-06" m11="-1"
+                   m12="-0.000796318" m13="0" m20="1" m21="-1.40269e-06" m22="0" m23="0" m30="-0.00333921"
+                   m31="0.0235101" m32="0.798168" m33="1"/>
+        <transform name="peon Spine2" m00="2.3913e-07" m01="-0.174432" m02="0.984669" m03="0" m10="-1.42371e-06"
+                   m11="-0.984669" m12="-0.174432" m13="0" m20="1" m21="-1.36017e-06" m22="-4.83805e-07" m23="0"
+                   m30="-0.00333921" m31="0.0235137" m32="0.964385" m33="1"/>
+    </init_pose>
 </skeleton>

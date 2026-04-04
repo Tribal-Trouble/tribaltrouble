@@ -13,7 +13,8 @@ lwjgl {
         Module.OPENAL,
         Module.OPENGL,
         Module.STB,
-        Module.TINYFD)
+        Module.TINYFD
+    )
 }
 
 application {
