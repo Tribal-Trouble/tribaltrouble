@@ -47,31 +47,31 @@ public final class InputManager {
         def(GameAction.CAMERA_PAN_RIGHT, Key.RIGHT);
         def(GameAction.CAMERA_PAN_UP, Key.UP);
         def(GameAction.CAMERA_PAN_DOWN, Key.DOWN);
-        
+
         def(GameAction.CAMERA_PITCH_UP, Key.HOME);
         def(GameAction.CAMERA_PITCH_UP, Key.NUMPAD8);
         def(GameAction.CAMERA_PITCH_UP, Key.UP, Modifier.ALT);
-        
+
         def(GameAction.CAMERA_PITCH_DOWN, Key.END);
         def(GameAction.CAMERA_PITCH_DOWN, Key.NUMPAD2);
         def(GameAction.CAMERA_PITCH_DOWN, Key.DOWN, Modifier.ALT);
-        
+
         def(GameAction.CAMERA_ROTATE_RIGHT, Key.INSERT);
         def(GameAction.CAMERA_ROTATE_RIGHT, Key.NUMPAD6);
         def(GameAction.CAMERA_ROTATE_RIGHT, Key.RIGHT, Modifier.ALT);
-        
+
         def(GameAction.CAMERA_ROTATE_LEFT, Key.DELETE);
         def(GameAction.CAMERA_ROTATE_LEFT, Key.NUMPAD4);
         def(GameAction.CAMERA_ROTATE_LEFT, Key.LEFT, Modifier.ALT);
-        
+
         def(GameAction.CAMERA_ZOOM_IN, Key.PAGE_UP);
         def(GameAction.CAMERA_ZOOM_IN, Key.NUMPAD9);
         def(GameAction.CAMERA_ZOOM_OUT, Key.PAGE_DOWN);
         def(GameAction.CAMERA_ZOOM_OUT, Key.NUMPAD3);
-        
+
         def(GameAction.CAMERA_MAP_MODE, Key.SPACE);
         def(GameAction.CAMERA_MAP_MODE, Key.NUMPAD5);
-        
+
         def(GameAction.CAMERA_FIRST_PERSON, Key.F);
         def(GameAction.CAMERA_ZOOM_MODE, Key.Z);
 
@@ -83,14 +83,14 @@ public final class InputManager {
         def(GameAction.UI_FOCUS_PREV, Key.TAB, Modifier.SHIFT);
         def(GameAction.UI_NEXT_PANEL, Key.TAB, Modifier.CONTROL);
         def(GameAction.UI_PREV_PANEL, Key.TAB, Modifier.SHIFT, Modifier.CONTROL);
-        
+
         def(GameAction.UI_NAV_UP, Key.UP);
         def(GameAction.UI_NAV_DOWN, Key.DOWN);
         def(GameAction.UI_NAV_LEFT, Key.LEFT);
         def(GameAction.UI_NAV_RIGHT, Key.RIGHT);
         def(GameAction.UI_NAV_HOME, Key.HOME);
         def(GameAction.UI_NAV_END, Key.END);
-        
+
         // Shift + Nav (Treat as Nav for now to prevent text insertion fallthrough)
         def(GameAction.UI_NAV_UP, Key.UP, Modifier.SHIFT);
         def(GameAction.UI_NAV_DOWN, Key.DOWN, Modifier.SHIFT);
@@ -116,7 +116,7 @@ public final class InputManager {
         def(GameAction.UNIT_NEXT_IDLE, Key.N);
         def(GameAction.UNIT_SET_RALLY, Key.R);
         def(GameAction.GAMEPLAY_BACK, Key.BACK);
-        
+
         // Army Shortcuts (0-9)
         def(GameAction.ARMY_SELECT_0, Key.KEY_0);
         def(GameAction.ARMY_SELECT_1, Key.KEY_1);
@@ -128,7 +128,7 @@ public final class InputManager {
         def(GameAction.ARMY_SELECT_7, Key.KEY_7);
         def(GameAction.ARMY_SELECT_8, Key.KEY_8);
         def(GameAction.ARMY_SELECT_9, Key.KEY_9);
-        
+
         def(GameAction.ARMY_CREATE_0, Key.KEY_0, Modifier.CONTROL);
         def(GameAction.ARMY_CREATE_1, Key.KEY_1, Modifier.CONTROL);
         def(GameAction.ARMY_CREATE_2, Key.KEY_2, Modifier.CONTROL);
@@ -145,28 +145,28 @@ public final class InputManager {
         def(GameAction.PROD_HARVEST, Key.G);
         def(GameAction.PROD_ARMY, Key.A);
         def(GameAction.PROD_TRANSPORT, Key.T);
-        
+
         // Resources
         def(GameAction.RES_TREE, Key.W);
         def(GameAction.RES_TREE_DEC, Key.W, Modifier.SHIFT);
         def(GameAction.RES_TREE_BATCH, Key.W, Modifier.CONTROL);
         def(GameAction.RES_TREE_BATCH_DEC, Key.W, Modifier.SHIFT, Modifier.CONTROL);
-        
+
         def(GameAction.RES_ROCK, Key.R);
         def(GameAction.RES_ROCK_DEC, Key.R, Modifier.SHIFT);
         def(GameAction.RES_ROCK_BATCH, Key.R, Modifier.CONTROL);
         def(GameAction.RES_ROCK_BATCH_DEC, Key.R, Modifier.SHIFT, Modifier.CONTROL);
-        
+
         def(GameAction.RES_IRON, Key.I);
         def(GameAction.RES_IRON_DEC, Key.I, Modifier.SHIFT);
         def(GameAction.RES_IRON_BATCH, Key.I, Modifier.CONTROL);
         def(GameAction.RES_IRON_BATCH_DEC, Key.I, Modifier.SHIFT, Modifier.CONTROL);
-        
+
         def(GameAction.RES_CHICKEN, Key.C);
         def(GameAction.RES_CHICKEN_DEC, Key.C, Modifier.SHIFT);
         def(GameAction.RES_CHICKEN_BATCH, Key.C, Modifier.CONTROL);
         def(GameAction.RES_CHICKEN_BATCH_DEC, Key.C, Modifier.SHIFT, Modifier.CONTROL);
-        
+
         // Units
         def(GameAction.TRAIN_PEON, Key.P);
         def(GameAction.TRAIN_PEON_DEC, Key.P, Modifier.SHIFT);
@@ -174,18 +174,18 @@ public final class InputManager {
         def(GameAction.TRAIN_PEON_BATCH_DEC, Key.P, Modifier.SHIFT, Modifier.CONTROL);
 
         def(GameAction.TRAIN_CHIEFTAIN, Key.C);
-        
+
         // Magic
         def(GameAction.MAGIC_1, Key.S);
         def(GameAction.MAGIC_2, Key.C);
-        
+
         // Misc
         def(GameAction.GAME_SPEED_UP, Key.EQUALS, Modifier.SHIFT);
         def(GameAction.GAME_SPEED_UP, Key.ADD); // Numpad +
         def(GameAction.GAME_SPEED_DOWN, Key.MINUS); // -
         def(GameAction.GAME_SPEED_DOWN, Key.SUBTRACT); // Numpad -
         def(GameAction.NOTIFICATION_JUMP, Key.TAB);
-        
+
         // Cheats
         def(GameAction.CHEAT_1, Key.F1);
         def(GameAction.CHEAT_2, Key.F2);
@@ -196,7 +196,7 @@ public final class InputManager {
         def(GameAction.CHEAT_7, Key.F7);
         def(GameAction.CHEAT_8, Key.F8);
         def(GameAction.CHEAT_9, Key.F9);
-        
+
         // Debug
         def(GameAction.DEBUG_PRINT_INFO, Key.I, Modifier.CONTROL);
         def(GameAction.DEBUG_KILL_SELECTED, Key.K, Modifier.CONTROL);
@@ -222,7 +222,7 @@ public final class InputManager {
     private static void def(@NonNull GameAction action, @NonNull Key key, @NonNull Modifier @NonNull ... modifiers) {
         Set<Modifier> modSet = EnumSet.noneOf(Modifier.class);
         Collections.addAll(modSet, modifiers);
-        DEFAULT_BINDINGS.computeIfAbsent(action, k -> new CopyOnWriteArraySet<>()) 
+        DEFAULT_BINDINGS.computeIfAbsent(action, k -> new CopyOnWriteArraySet<>())
                 .add(new InputBinding(key, modSet, action));
     }
 
@@ -275,7 +275,7 @@ public final class InputManager {
         for (GameAction action : GameAction.values()) {
             Set<InputBinding> current = currentMap.get(action);
             Set<InputBinding> defaults = DEFAULT_BINDINGS.get(action);
-            
+
             // Only save if different from defaults
             if (current != null && !Objects.equals(current, defaults)) {
                 props.setProperty("key_binding." + action.name(), serializeBindings(current));
@@ -334,14 +334,14 @@ public final class InputManager {
         String patternStr = "\\\"(" + "(\\w+)" + ")\\\"" + "\\s*:\\s*" + "(\\[[^\\]]*\\])";
         Pattern p = Pattern.compile(patternStr);
         Matcher m = p.matcher(json);
-        
+
         List<InputBinding> newBindings = new ArrayList<>();
         boolean foundAny = false;
 
         while (m.find()) {
             String actionName = m.group(1);
             String arrayContent = m.group(2);
-            
+
             try {
                 GameAction action = GameAction.valueOf(actionName);
                 Set<InputBinding> parsed = parseBindings(arrayContent, action);
@@ -353,7 +353,7 @@ public final class InputManager {
                 logger.warning("Failed to import bindings for " + actionName);
             }
         }
-        
+
         if (foundAny) {
             bindings.clear();
             bindings.addAll(newBindings);
@@ -365,11 +365,11 @@ public final class InputManager {
     private @NonNull String serializeBindings(@NonNull Collection<InputBinding> set) {
         return set.stream()
                 .map(b -> "{\"key\":\"" + b.key().name() + "\"" +
-                                 (b.shift() ? ", \"shift\":true" : "") +
-                                 (b.control() ? ", \"control\":true" : "") +
-                                 (b.alt() ? ", \"alt\":true" : "") +
-                                 (b.meta() ? ", \"meta\":true" : "") +
-                                 "}")
+                        (b.shift() ? ", \"shift\":true" : "") +
+                        (b.control() ? ", \"control\":true" : "") +
+                        (b.alt() ? ", \"alt\":true" : "") +
+                        (b.meta() ? ", \"meta\":true" : "") +
+                        "}")
                 .collect(Collectors.joining(", ", "[", "]"));
     }
 
@@ -377,12 +377,12 @@ public final class InputManager {
         Set<InputBinding> set = new CopyOnWriteArraySet<>();
         String trimmed = json.trim();
         if (trimmed.length() < 2 || !trimmed.startsWith("[") || !trimmed.endsWith("]")) return set;
-        
+
         String content = trimmed.substring(1, trimmed.length() - 1);
         if (content.isBlank()) return set;
 
         String[] parts = content.split("(?<=})" + "\\s*,\\s*" + "(?=\\{)");
-        
+
         for (String part : parts) {
             InputBinding b = parseBindingObject(part, action);
             if (b != null) set.add(b);
@@ -395,32 +395,40 @@ public final class InputManager {
         String inner = content.trim();
         if (inner.startsWith("{")) inner = inner.substring(1);
         if (inner.endsWith("}")) inner = inner.substring(0, inner.length() - 1);
-        
+
         String[] pairs = inner.split(",");
         Key key = Key.KEY_UNKNOWN;
         Set<Modifier> modifiers = EnumSet.noneOf(Modifier.class);
-        
+
         for (String pair : pairs) {
             // Split by : or =
             String[] kv = pair.split("[:=]");
             if (kv.length != 2) continue;
             String k = unquote(kv[0].trim());
             String v = unquote(kv[1].trim());
-            
+
             try {
                 switch (k) {
                     case "key" -> key = Key.valueOf(v);
-                    case "shift" -> { if (Boolean.parseBoolean(v)) modifiers.add(Modifier.SHIFT); }
-                    case "control" -> { if (Boolean.parseBoolean(v)) modifiers.add(Modifier.CONTROL); }
-                    case "alt" -> { if (Boolean.parseBoolean(v)) modifiers.add(Modifier.ALT); }
-                    case "meta" -> { if (Boolean.parseBoolean(v)) modifiers.add(Modifier.META); }
+                    case "shift" -> {
+                        if (Boolean.parseBoolean(v)) modifiers.add(Modifier.SHIFT);
+                    }
+                    case "control" -> {
+                        if (Boolean.parseBoolean(v)) modifiers.add(Modifier.CONTROL);
+                    }
+                    case "alt" -> {
+                        if (Boolean.parseBoolean(v)) modifiers.add(Modifier.ALT);
+                    }
+                    case "meta" -> {
+                        if (Boolean.parseBoolean(v)) modifiers.add(Modifier.META);
+                    }
                 }
             } catch (Exception e) {
                 // Ignore invalid keys
                 logger.warning("ignoring " + k + ": " + v);
             }
         }
-        
+
         if (key != Key.KEY_UNKNOWN) {
             return new InputBinding(key, modifiers, action);
         }
@@ -443,7 +451,7 @@ public final class InputManager {
         }
         return actions;
     }
-    
+
     // Called by LocalInput or InputState to update polling state
     public void updateState(@NonNull KeyboardEvent event, boolean pressed) {
         if (pressed) {
@@ -459,7 +467,7 @@ public final class InputManager {
             }
         }
     }
-    
+
     public boolean isActive(@NonNull GameAction action) {
         return activeActions.contains(action);
     }

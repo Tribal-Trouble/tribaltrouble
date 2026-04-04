@@ -237,7 +237,7 @@ public final class WorldViewer implements Animated, AutoCloseable {
                 if (player.getRace().getChieftainAI() instanceof VikingChieftainAI)
                     chieftain = new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null, player.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN), Utils.getBundleString(bundle, "chieftain_name"), false);
                 else if (player.getRace().getChieftainAI() instanceof NativeChieftainAI)
-                        chieftain = new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null, player.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN), Utils.getBundleString(bundle, "native_chieftain_name"), false);
+                    chieftain = new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null, player.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN), Utils.getBundleString(bundle, "native_chieftain_name"), false);
                 else
                     throw new RuntimeException("Unknown chieftain AI");
                 chieftain.increaseMagicEnergy(0, 1000);

@@ -6,5 +6,5 @@ import org.jspecify.annotations.NonNull;
 
 @FunctionalInterface
 public interface LoadCallback {
-	UIRenderer load(@NonNull GUIRoot gui_root);
+    UIRenderer load(@NonNull GUIRoot gui_root);
 }

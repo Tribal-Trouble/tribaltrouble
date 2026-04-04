@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 /**
  * A class with associated native state which is not reclaimed automatically by the garbage collector.
+ *
  * @param <R> The native state type
  */
 public abstract class NativeResource<R extends NativeResource.NativeState> implements AutoCloseable {
@@ -26,6 +27,7 @@ public abstract class NativeResource<R extends NativeResource.NativeState> imple
     /**
      * Adds an OpenGL cleanup task to a queue to be processed on the GL thread.
      * This is used to avoid "No OpenGL context found" errors when cleanup is triggered by the Cleaner.
+     *
      * @param task The Runnable task to execute on the GL thread for cleanup.
      */
     public static void addGLCleanupTask(@NonNull Runnable task) {

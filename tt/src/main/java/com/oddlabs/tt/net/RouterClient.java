@@ -19,56 +19,56 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public final class RouterClient implements ConnectionInterface {
-	private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(RouterClientInterface.class);
-	private final @NonNull AbstractConnection connection;
-	private final @NonNull GameInterface game_interface;
-	private final RouterHandler router_handler;
+    private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(RouterClientInterface.class);
+    private final @NonNull AbstractConnection connection;
+    private final @NonNull GameInterface game_interface;
+    private final RouterHandler router_handler;
 
-	public RouterClient(@NonNull NetworkSelector network, RouterHandler router_handler, int port) {
-		this.router_handler = router_handler;
-		this.connection = new Connection(network, new InetSocketAddress(Utils.getLoopbackAddress(), port), this);
-		this.game_interface = (GameInterface)ARMIEvent.createProxy(connection, GameInterface.class);
-	}
+    public RouterClient(@NonNull NetworkSelector network, RouterHandler router_handler, int port) {
+        this.router_handler = router_handler;
+        this.connection = new Connection(network, new InetSocketAddress(Utils.getLoopbackAddress(), port), this);
+        this.game_interface = (GameInterface) ARMIEvent.createProxy(connection, GameInterface.class);
+    }
 
-	public RouterClient(@NonNull NetworkSelector network, String address, RouterHandler router_handler) {
-		this.router_handler = router_handler;
-		this.connection = new Connection(network, address, RouterInterface.PORT, this);
-		this.game_interface = (GameInterface)ARMIEvent.createProxy(connection, GameInterface.class);
-	}
+    public RouterClient(@NonNull NetworkSelector network, String address, RouterHandler router_handler) {
+        this.router_handler = router_handler;
+        this.connection = new Connection(network, address, RouterInterface.PORT, this);
+        this.game_interface = (GameInterface) ARMIEvent.createProxy(connection, GameInterface.class);
+    }
 
-	public void connect(SessionID session_id, SessionInfo session_info, int client_id) {
-		RouterInterface router_interface = (RouterInterface)ARMIEvent.createProxy(connection, RouterInterface.class);
-		router_interface.login(session_id, session_info, client_id);
-	}
+    public void connect(SessionID session_id, SessionInfo session_info, int client_id) {
+        RouterInterface router_interface = (RouterInterface) ARMIEvent.createProxy(connection, RouterInterface.class);
+        router_interface.login(session_id, session_info, client_id);
+    }
 
-	public @NonNull GameInterface getInterface() {
-		return game_interface;
-	}
-	
-	@Override
-	public void handle(Object sender, @NonNull ARMIEvent armi_event) {
-		try {
-			armi_event.execute(interface_methods, router_handler);
-		} catch (IllegalARMIEventException e) {
-			close();
-			router_handler.routerFailed(e);
-		}
-	}
+    public @NonNull GameInterface getInterface() {
+        return game_interface;
+    }
 
-	@Override
-	public void writeBufferDrained(AbstractConnection conn) {
-	}
+    @Override
+    public void handle(Object sender, @NonNull ARMIEvent armi_event) {
+        try {
+            armi_event.execute(interface_methods, router_handler);
+        } catch (IllegalARMIEventException e) {
+            close();
+            router_handler.routerFailed(e);
+        }
+    }
 
-	@Override
-	public void connected(AbstractConnection conn) {
-	}
+    @Override
+    public void writeBufferDrained(AbstractConnection conn) {
+    }
 
-	@Override
-	public void error(AbstractConnection conn, IOException e) {
-		router_handler.routerFailed(e);
-	}
+    @Override
+    public void connected(AbstractConnection conn) {
+    }
 
-	public void close() {
-		connection.close();
-	}
+    @Override
+    public void error(AbstractConnection conn, IOException e) {
+        router_handler.routerFailed(e);
+    }
+
+    public void close() {
+        connection.close();
+    }
 }

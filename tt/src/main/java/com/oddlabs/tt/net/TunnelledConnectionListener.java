@@ -15,47 +15,47 @@ import java.util.LinkedList;
 import java.util.List;
 
 public final class TunnelledConnectionListener extends AbstractConnectionListener {
-	private final List<TunnelledConnection> incoming_connections = new LinkedList<>();
-	private boolean open = true;
+    private final List<TunnelledConnection> incoming_connections = new LinkedList<>();
+    private boolean open = true;
 
-	public TunnelledConnectionListener(ConnectionListenerInterface listener_interface) {
-		super(listener_interface);
-		Network.getMatchmakingClient().registerTunnelledListener(this);
-	}
+    public TunnelledConnectionListener(ConnectionListenerInterface listener_interface) {
+        super(listener_interface);
+        Network.getMatchmakingClient().registerTunnelledListener(this);
+    }
 
-	public void requestTunnelledConnection(@NonNull HostSequenceID address, InetAddress inet_address, InetAddress local_address, Profile profile) {
-		TunnelledConnection conn = new TunnelledConnection(address, null);
-		incoming_connections.add(conn);
-		notifyIncomingConnection(new TunnelIdentifier(profile, new TunnelAddress(address.getHostID(), inet_address, local_address)));
-	}
-	
-	private TunnelledConnection getNextTunnel() {
-		return incoming_connections.removeFirst();
-	}
+    public void requestTunnelledConnection(@NonNull HostSequenceID address, InetAddress inet_address, InetAddress local_address, Profile profile) {
+        TunnelledConnection conn = new TunnelledConnection(address, null);
+        incoming_connections.add(conn);
+        notifyIncomingConnection(new TunnelIdentifier(profile, new TunnelAddress(address.getHostID(), inet_address, local_address)));
+    }
 
-	@Override
-	protected @NonNull AbstractConnection doAcceptConnection(ConnectionInterface connection_interface) {
-		TunnelledConnection conn = getNextTunnel();
-		conn.setConnectionInterface(connection_interface);
-		conn.accept();
-		return conn;
-	}
-	
-	@Override
-	public void rejectConnection() {
-		getNextTunnel().close();
-	}
+    private TunnelledConnection getNextTunnel() {
+        return incoming_connections.removeFirst();
+    }
 
-	public void connectionClosed() {
-		open = false;
-		notifyError(new ClosedChannelException());
-	}
+    @Override
+    protected @NonNull AbstractConnection doAcceptConnection(ConnectionInterface connection_interface) {
+        TunnelledConnection conn = getNextTunnel();
+        conn.setConnectionInterface(connection_interface);
+        conn.accept();
+        return conn;
+    }
 
-	@Override
-	public void close() {
-		if (open) {
-			Network.getMatchmakingClient().unregisterTunnelledListener(this);
-			open = false;
-		}
-	}
+    @Override
+    public void rejectConnection() {
+        getNextTunnel().close();
+    }
+
+    public void connectionClosed() {
+        open = false;
+        notifyError(new ClosedChannelException());
+    }
+
+    @Override
+    public void close() {
+        if (open) {
+            Network.getMatchmakingClient().unregisterTunnelledListener(this);
+            open = false;
+        }
+    }
 }

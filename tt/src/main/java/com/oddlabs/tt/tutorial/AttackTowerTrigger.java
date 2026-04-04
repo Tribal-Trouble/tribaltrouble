@@ -9,26 +9,26 @@ import com.oddlabs.tt.player.Player;
 import org.jspecify.annotations.NonNull;
 
 public final class AttackTowerTrigger extends TutorialTrigger {
-	private static final int NUM_UNITS = 12;
-	
-	private final @NonNull Building tower;
-	private final @NonNull Player ai;
-	
-	public AttackTowerTrigger(@NonNull Building tower) {
-		super(.1f, 0f, "attack_tower");
-		this.ai = tower.getOwner().getWorld().getPlayers()[1];
-		this.tower = tower;
-		Selectable<?>[] units = Selectable.newArray(NUM_UNITS);
-		for (int i = 0; i < units.length; i++) {
+    private static final int NUM_UNITS = 12;
+
+    private final @NonNull Building tower;
+    private final @NonNull Player ai;
+
+    public AttackTowerTrigger(@NonNull Building tower) {
+        super(.1f, 0f, "attack_tower");
+        this.ai = tower.getOwner().getWorld().getPlayers()[1];
+        this.tower = tower;
+        Selectable<?>[] units = Selectable.newArray(NUM_UNITS);
+        for (int i = 0; i < units.length; i++) {
             units[i] = new Unit(ai, tower.getPositionX() - 50, tower.getPositionY() - 50, null, ai.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
         }
-		ai.setTarget(units, tower, Action.ATTACK, false);
-	}
+        ai.setTarget(units, tower, Action.ATTACK, false);
+    }
 
-	@Override
-	public void run(@NonNull Tutorial tutorial) {
-		if (ai.getUnitCountContainer().getNumSupplies() == 0) {
-			tutorial.next(new RepairTowerTrigger(tower));
-		}
-	}
+    @Override
+    public void run(@NonNull Tutorial tutorial) {
+        if (ai.getUnitCountContainer().getNumSupplies() == 0) {
+            tutorial.next(new RepairTowerTrigger(tower));
+        }
+    }
 }

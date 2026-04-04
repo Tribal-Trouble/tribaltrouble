@@ -43,16 +43,22 @@ public final class EmitterRenderer implements AutoCloseable {
     private final VertexArray vao = new VertexArray();
     private int vbo_offset = 0;
 
-    private record BatchKey(@NonNull Texture texture, int srcBlend, int dstBlend) {}
-    private record BatchEntry<P extends Particle>(@NonNull Emitter<P> emitter, @NonNull List<@NonNull P> particles) {}
-    /** LinkedHashMap so that insertion order matches drawing order. Better sorting may be needed. */
+    private record BatchKey(@NonNull Texture texture, int srcBlend, int dstBlend) {
+    }
+
+    private record BatchEntry<P extends Particle>(@NonNull Emitter<P> emitter, @NonNull List<@NonNull P> particles) {
+    }
+
+    /**
+     * LinkedHashMap so that insertion order matches drawing order. Better sorting may be needed.
+     */
     private final Map<@NonNull BatchKey, @NonNull List<@NonNull BatchEntry<?>>> batches = new LinkedHashMap<>();
 
     public EmitterRenderer() {
         int floatsPerParticle = VERTEX_LAYOUT.getStride() / Float.BYTES;
         particle_buffer = Objects.requireNonNull(BufferUtils.createFloatBuffer(MAX_PARTICLES * floatsPerParticle));
         particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
-        
+
         vao.bind();
         particle_vbo.makeCurrent();
         VERTEX_LAYOUT.bind(shader);
@@ -61,7 +67,7 @@ public final class EmitterRenderer implements AutoCloseable {
 
     public void render(@NonNull RenderContext context, @NonNull RenderQueues render_queues, @NonNull Queue<? extends Emitter<?>> emitters, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         if (emitters.isEmpty()) return;
-        
+
         vao.bind();
         try (var _ = shader.use();
              var _ = context.withBlendMode(BlendMode.ALPHA);
@@ -102,7 +108,7 @@ public final class EmitterRenderer implements AutoCloseable {
         TextureKey[] textures = emitter.getTextures();
         List<@NonNull P>[] particles = emitter.getParticles();
         SpriteKey[] sprite_renderers = emitter.getSpriteRenderers();
-        
+
         if (textures != null) {
             for (int j = 0; j < particles.length; j++) {
                 if (particles[j].isEmpty()) continue;
@@ -154,20 +160,20 @@ public final class EmitterRenderer implements AutoCloseable {
         }
         return particleCount;
     }
-    
+
     private void flush(int particleCount) {
         if (particleCount == 0) return;
         particle_buffer.flip();
-        
+
         if (vbo_offset + particleCount > MAX_PARTICLES) {
             particle_vbo.orphan();
             vbo_offset = 0;
         }
-        
+
         int floatsPerParticle = VERTEX_LAYOUT.getStride() / Float.BYTES;
         particle_vbo.putSubData(vbo_offset * floatsPerParticle, particle_buffer);
         GL11.glDrawArrays(GL11.GL_POINTS, vbo_offset, particleCount);
-        
+
         vbo_offset += particleCount;
     }
 

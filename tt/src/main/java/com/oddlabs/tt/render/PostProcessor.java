@@ -40,20 +40,20 @@ public final class PostProcessor implements AutoCloseable {
         this.vao.bind();
 
         float[] quadVertices = {
-            -1.0f, -1.0f,
-             1.0f, -1.0f,
-            -1.0f,  1.0f,
-             1.0f,  1.0f
+                -1.0f, -1.0f,
+                1.0f, -1.0f,
+                -1.0f, 1.0f,
+                1.0f, 1.0f
         };
         FloatBuffer buffer = BufferUtils.createFloatBuffer(quadVertices.length).put(quadVertices).flip();
         this.quadVBO = new FloatVBO(GL15.GL_STATIC_DRAW, buffer);
-        
+
         int posLoc = shader.getAttributeLocation(PostProcessShader.Attributes.POSITION);
         if (posLoc >= 0) {
             org.lwjgl.opengl.GL20.glEnableVertexAttribArray(posLoc);
             quadVBO.vertexAttribPointer(posLoc, 2, 0, 0);
         }
-        
+
         this.vao.unbind();
     }
 
@@ -76,15 +76,15 @@ public final class PostProcessor implements AutoCloseable {
     public void renderComposite(@NonNull RenderContext context, @NonNull Consumer<@NonNull RenderContext> guiRenderCallback) {
         // 1. Render GUI into the Scene FBO (on top of the 3D scene)
         bindSceneFBO();
-        
+
         // Use glBlendFunci to set different blend modes for different draw buffers.
         // Buffer 0 (Color): GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
         // Buffer 1 (Mask): GL_ONE, GL_ZERO (Overwrite)
         GL40.glBlendFunci(0, GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL40.glBlendFunci(1, GL11.GL_ONE, GL11.GL_ZERO);
-        
+
         guiRenderCallback.accept(context);
-        
+
         unbindSceneFBO();
 
         // 2. Composite the FBO to the screen with Post-Processing (CVD, High Contrast, Team Stencil)
@@ -92,11 +92,11 @@ public final class PostProcessor implements AutoCloseable {
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
         GL11.glViewport(0, 0, currentWidth, currentHeight);
         context.clear(true, true);
-        
+
         try (var _ = shader.use();
              var _ = context.withDepthMode(DepthMode.NONE);
              var _ = context.withCullMode(CullMode.NONE)) {
-             
+
             Settings settings = Settings.getSettings();
             shader.setUniform(PostProcessShader.Uniforms.CVD_MODE, settings.cvd_mode);
             shader.setUniform(PostProcessShader.Uniforms.CVD_INTENSITY, settings.cvd_intensity);

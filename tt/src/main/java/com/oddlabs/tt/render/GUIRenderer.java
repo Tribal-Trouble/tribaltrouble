@@ -45,12 +45,12 @@ public final class GUIRenderer {
     private final @NonNull VertexArray vao;
     private final int vbo;
     private final @NonNull ByteBuffer vertexBuffer;
-    
+
     // Texture batching state
     private final Texture[] currentTextures = new Texture[MAX_TEXTURES];
     private int textureCount = 0;
     private int quadCount = 0;
-    
+
     private @Nullable RenderContext currentContext;
 
     public GUIRenderer() {
@@ -106,7 +106,7 @@ public final class GUIRenderer {
 
             projectionMatrix.identity().ortho(0, width, 0, height, -1, 1);
             shader.setUniformMatrix4(GUIShader.Uniforms.PROJECTION_MATRIX, false, projectionMatrix);
-            
+
             // Set texture unit indices [0, 1, ... 7]
             int[] units = new int[MAX_TEXTURES];
             for (int i = 0; i < MAX_TEXTURES; i++) units[i] = i;
@@ -154,55 +154,55 @@ public final class GUIRenderer {
         float texIndex = getTextureIndex(texture);
         putQuad(x, y, w, h, u1, v1, u2, v2, texIndex, Color.abgri(tint));
     }
-    
+
     private float getTextureIndex(@NonNull Texture texture) {
         for (int i = 0; i < textureCount; i++) {
             if (currentTextures[i].getHandle() == texture.getHandle()) {
                 return (float) i;
             }
         }
-        
+
         if (textureCount >= MAX_TEXTURES) {
             flush();
             return getTextureIndex(texture); // Try again in empty batch
         }
-        
+
         currentTextures[textureCount] = texture;
         return (float) textureCount++;
     }
 
     private void putQuad(float x, float y, float w, float h, float u1, float v1, float u2, float v2, float texIndex, int color) {
         Matrix4f mat = matrixStack.current();
-        
+
         // Transform vertices on CPU
         float x1 = x;
         float y1 = y;
         float x2 = x + w;
         float y2 = y + h;
-        
+
         // P1 (x1, y1)
         vertexBuffer.putFloat(mat.m00() * x1 + mat.m10() * y1 + mat.m30())
-                    .putFloat(mat.m01() * x1 + mat.m11() * y1 + mat.m31())
-                    .putFloat(mat.m02() * x1 + mat.m12() * y1 + mat.m32())
-                    .putInt(color).putFloat(u1).putFloat(v1).putFloat(texIndex);
+                .putFloat(mat.m01() * x1 + mat.m11() * y1 + mat.m31())
+                .putFloat(mat.m02() * x1 + mat.m12() * y1 + mat.m32())
+                .putInt(color).putFloat(u1).putFloat(v1).putFloat(texIndex);
 
         // P2 (x2, y1)
         vertexBuffer.putFloat(mat.m00() * x2 + mat.m10() * y1 + mat.m30())
-                    .putFloat(mat.m01() * x2 + mat.m11() * y1 + mat.m31())
-                    .putFloat(mat.m02() * x2 + mat.m12() * y1 + mat.m32())
-                    .putInt(color).putFloat(u2).putFloat(v1).putFloat(texIndex);
+                .putFloat(mat.m01() * x2 + mat.m11() * y1 + mat.m31())
+                .putFloat(mat.m02() * x2 + mat.m12() * y1 + mat.m32())
+                .putInt(color).putFloat(u2).putFloat(v1).putFloat(texIndex);
 
         // P3 (x2, y2)
         vertexBuffer.putFloat(mat.m00() * x2 + mat.m10() * y2 + mat.m30())
-                    .putFloat(mat.m01() * x2 + mat.m11() * y2 + mat.m31())
-                    .putFloat(mat.m02() * x2 + mat.m12() * y2 + mat.m32())
-                    .putInt(color).putFloat(u2).putFloat(v2).putFloat(texIndex);
+                .putFloat(mat.m01() * x2 + mat.m11() * y2 + mat.m31())
+                .putFloat(mat.m02() * x2 + mat.m12() * y2 + mat.m32())
+                .putInt(color).putFloat(u2).putFloat(v2).putFloat(texIndex);
 
         // P4 (x1, y2)
         vertexBuffer.putFloat(mat.m00() * x1 + mat.m10() * y2 + mat.m30())
-                    .putFloat(mat.m01() * x1 + mat.m11() * y2 + mat.m31())
-                    .putFloat(mat.m02() * x1 + mat.m12() * y2 + mat.m32())
-                    .putInt(color).putFloat(u1).putFloat(v2).putFloat(texIndex);
+                .putFloat(mat.m01() * x1 + mat.m11() * y2 + mat.m31())
+                .putFloat(mat.m02() * x1 + mat.m12() * y2 + mat.m32())
+                .putInt(color).putFloat(u1).putFloat(v2).putFloat(texIndex);
 
         quadCount++;
     }
@@ -211,7 +211,7 @@ public final class GUIRenderer {
         if (quadCount == 0) return;
 
         shader.setUniformMatrix4(GUIShader.Uniforms.MODEL_VIEW_MATRIX, false, IDENTITY_MATRIX);
-        
+
         // Bind all active textures
         for (int i = 0; i < textureCount; i++) {
             if (currentContext != null) {

@@ -45,39 +45,39 @@ public final class OpenALAudio extends NativeResource<OpenALAudio.Buffers> imple
     }
 
     OpenALAudio(@NonNull URL file) throws IOException {
-		this(1);
-		try {
-			Wave wave = new Wave(file);
+        this(1);
+        try {
+            Wave wave = new Wave(file);
             AL10.alBufferData(getBuffer(), wave.getFormat(), wave.getData(), wave.getSampleRate());
-		} catch (UnsupportedAudioFileException e) {
-			// Assume it's an ogg vorbis file
-			loadOGG(file, getBuffer());
-		}
-	}
+        } catch (UnsupportedAudioFileException e) {
+            // Assume it's an ogg vorbis file
+            loadOGG(file, getBuffer());
+        }
+    }
 
-	private static void loadOGG(@NonNull URL file, int bufferId) throws IOException {
+    private static void loadOGG(@NonNull URL file, int bufferId) throws IOException {
         ByteBuffer vorbisData = Utils.ioResourceToByteBuffer(file);
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer channels = stack.mallocInt(1);
             IntBuffer sampleRate = stack.mallocInt(1);
-            
+
             ShortBuffer pcm = STBVorbis.stb_vorbis_decode_memory(vorbisData, channels, sampleRate);
             if (pcm == null) {
                 throw new IOException("Failed to decode OGG Vorbis: " + file);
             }
-            
+
             int format = Wave.getFormat(channels.get(0), 16);
             AL10.alBufferData(bufferId, format, pcm, sampleRate.get(0));
-            
+
             LibCStdlib.free(pcm);
         }
-	}
+    }
 
-	public @NonNull IntBuffer getBuffers() {
-		return state.al_buffers;
-	}
+    public @NonNull IntBuffer getBuffers() {
+        return state.al_buffers;
+    }
 
-	public int getBuffer() {
-		return state.al_buffers.get(0);
-	}
+    public int getBuffer() {
+        return state.al_buffers.get(0);
+    }
 }

@@ -49,7 +49,7 @@ public final class SelectionArmy extends Army {
             if (abilities.hasAbilities(Abilities.BUILD))
                 num_builders++;
             else if (abilities.hasAbilities(Abilities.MAGIC))
-                    chieftain = (Unit) s;
+                chieftain = (Unit) s;
             if (s instanceof Building building1) {
                 building = building1;
             } else {

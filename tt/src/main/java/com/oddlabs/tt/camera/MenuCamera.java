@@ -33,10 +33,10 @@ public final class MenuCamera extends Camera {
     }
 
     private void updatePos(float t) {
-        center_angle = (center_angle + ANGLE_DELTA*t)%(2*(float)Math.PI);
-        getState().setCurrentX(centerX + RADIUS*(float)Math.cos(center_angle));
-        getState().setCurrentY(centerY + RADIUS*(float)Math.sin(center_angle));
-        getState().setCurrentHorizAngle((float)Math.PI*.925f + center_angle);
+        center_angle = (center_angle + ANGLE_DELTA * t) % (2 * (float) Math.PI);
+        getState().setCurrentX(centerX + RADIUS * (float) Math.cos(center_angle));
+        getState().setCurrentY(centerY + RADIUS * (float) Math.sin(center_angle));
+        getState().setCurrentHorizAngle((float) Math.PI * .925f + center_angle);
         getState().setCurrentZ(LANDSCAPE_OFFSET);
     }
 

@@ -62,18 +62,18 @@ public class GraphicsPanel extends Panel {
         updateScaleLabel();
         group_ui_scale.addChild(label_pct);
 
-        int initialValue = Math.clamp((long)(Settings.getSettings().ui_scale * 1000), 0, 1000);
+        int initialValue = Math.clamp((long) (Settings.getSettings().ui_scale * 1000), 0, 1000);
 
         Slider slider_ui_scale = new Slider(150, 0, 1000, initialValue);
         group_ui_scale.addChild(slider_ui_scale);
-        
+
         slider_ui_scale.addValueListener(value -> {
             Settings.getSettings().ui_scale = value / 1000f;
             updateScaleLabel();
         });
-        
-        slider_ui_scale.addReleaseListener(() -> 
-            gui_root.displayChanged(Renderer.getRenderer().getWindow().getWidth(), Renderer.getRenderer().getWindow().getHeight())
+
+        slider_ui_scale.addReleaseListener(() ->
+                gui_root.displayChanged(Renderer.getRenderer().getWindow().getWidth(), Renderer.getRenderer().getWindow().getHeight())
         );
 
         label_ui_scale.place();
@@ -156,12 +156,12 @@ public class GraphicsPanel extends Panel {
         group_fullscreen.place(group_ui_scale, BOTTOM_LEFT);
         compileCanvas();
     }
-    
+
     public void updateScaleLabel() {
         int w = Renderer.getRenderer().getWindow().getWidth();
         int h = Renderer.getRenderer().getWindow().getHeight();
 
         float scale = GUIRoot.calculateEffectiveScale(w, h);
-        label_pct.setText(String.format("%d%%", (int)(scale * 100)));
+        label_pct.setText(String.format("%d%%", (int) (scale * 100)));
     }
 }

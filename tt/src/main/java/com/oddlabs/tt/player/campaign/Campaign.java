@@ -16,90 +16,93 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public abstract class Campaign {
-	private static final ResourceBundle bundle = ResourceBundle.getBundle(Campaign.class.getName());
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(Campaign.class.getName());
 
-	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
-		return Utils.getBundleString(bundle, key, args);
-	}
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+        return Utils.getBundleString(bundle, key, args);
+    }
 
-	private final CampaignState state;
-	private CampaignState[] campaign_states; // for saving
+    private final CampaignState state;
+    private CampaignState[] campaign_states; // for saving
 
-	public Campaign(CampaignState state) {
-		this.state = state;
-	}
+    public Campaign(CampaignState state) {
+        this.state = state;
+    }
 
-	public final CampaignState getState() {
-		return state;
-	}
+    public final CampaignState getState() {
+        return state;
+    }
 
-	public final void pushDelegate(@NonNull NetworkSelector network, @NonNull GUI gui) {
-		final GUIRoot gui_root = gui.newFade();
-		gui_root.pushDelegate(new CampaignMapForm(network, gui_root, Campaign.this));
-	}
+    public final void pushDelegate(@NonNull NetworkSelector network, @NonNull GUI gui) {
+        final GUIRoot gui_root = gui.newFade();
+        gui_root.pushDelegate(new CampaignMapForm(network, gui_root, Campaign.this));
+    }
 
-	public void defeated(@NonNull WorldViewer viewer, @NonNull String game_over_message) {
-		GUIRoot gui_root = viewer.getGUIRoot();
-		new GameOverDelayTrigger(viewer, gui_root.getDelegate().getCamera(), game_over_message);
-		doDefeated();
-	}
+    public void defeated(@NonNull WorldViewer viewer, @NonNull String game_over_message) {
+        GUIRoot gui_root = viewer.getGUIRoot();
+        new GameOverDelayTrigger(viewer, gui_root.getDelegate().getCamera(), game_over_message);
+        doDefeated();
+    }
 
-	public final void doDefeated() {
-		state.setCurrentIsland(state.getPrevIsland());
-	}
+    public final void doDefeated() {
+        state.setCurrentIsland(state.getPrevIsland());
+    }
 
-	public final void victory(final @NonNull WorldViewer viewer) {
-		GUIRoot gui_root = viewer.getGUIRoot();
-		new GameOverDelayTrigger(viewer, gui_root.getDelegate().getCamera(), i18n("island_complete"));
-		LoadCampaignBox.loadSavegames(
-				new DeterministicSerializerLoopbackInterface<CampaignState[]>() {
-					@Override
-					public void loadSucceeded(CampaignState[] campaign_states) {
-						Campaign.this.campaign_states = campaign_states;
-						doSave(viewer);
-					}
+    public final void victory(final @NonNull WorldViewer viewer) {
+        GUIRoot gui_root = viewer.getGUIRoot();
+        new GameOverDelayTrigger(viewer, gui_root.getDelegate().getCamera(), i18n("island_complete"));
+        LoadCampaignBox.loadSavegames(
+                new DeterministicSerializerLoopbackInterface<CampaignState[]>() {
+                    @Override
+                    public void loadSucceeded(CampaignState[] campaign_states) {
+                        Campaign.this.campaign_states = campaign_states;
+                        doSave(viewer);
+                    }
 
-					@Override
-					public void saveSucceeded() {
-					}
+                    @Override
+                    public void saveSucceeded() {
+                    }
 
-					@Override
-					public void failed(@NonNull Throwable e) {
-						doFailed(e, viewer);
-					}
-				});
-	}
+                    @Override
+                    public void failed(@NonNull Throwable e) {
+                        doFailed(e, viewer);
+                    }
+                });
+    }
 
-	private void doSave(final @NonNull WorldViewer viewer) {
-		for (int i = 0; i < campaign_states.length; i++) {
-			if (campaign_states[i].getName().equals(getState().getName())) {
-				campaign_states[i] = getState();
-			}
-		}
-		LoadCampaignBox.saveSavegames(campaign_states,
-				new DeterministicSerializerLoopbackInterface<CampaignState[]>() {
-					@Override
-					public void loadSucceeded(CampaignState[] object) {
-					}
+    private void doSave(final @NonNull WorldViewer viewer) {
+        for (int i = 0; i < campaign_states.length; i++) {
+            if (campaign_states[i].getName().equals(getState().getName())) {
+                campaign_states[i] = getState();
+            }
+        }
+        LoadCampaignBox.saveSavegames(campaign_states,
+                new DeterministicSerializerLoopbackInterface<CampaignState[]>() {
+                    @Override
+                    public void loadSucceeded(CampaignState[] object) {
+                    }
 
-					@Override
-					public void saveSucceeded() {
-					}
+                    @Override
+                    public void saveSucceeded() {
+                    }
 
-					@Override
-					public void failed(@NonNull Throwable e) {
-						doFailed(e, viewer);
-					}
-				});
-	}
+                    @Override
+                    public void failed(@NonNull Throwable e) {
+                        doFailed(e, viewer);
+                    }
+                });
+    }
 
-	private void doFailed(@NonNull Throwable e, @NonNull WorldViewer viewer) {
-		String failed_message = i18n("failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
-		viewer.getGUIRoot().addModalForm(new MessageForm(failed_message));
-	}
+    private void doFailed(@NonNull Throwable e, @NonNull WorldViewer viewer) {
+        String failed_message = i18n("failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
+        viewer.getGUIRoot().addModalForm(new MessageForm(failed_message));
+    }
 
-	public abstract CampaignIcons getIcons();
-	public abstract void islandChosen(NetworkSelector network, GUIRoot gui_root, int number);
-	public abstract CharSequence getCurrentObjective();
-	public abstract void startIsland(NetworkSelector network, GUIRoot gui_root, int number);
+    public abstract CampaignIcons getIcons();
+
+    public abstract void islandChosen(NetworkSelector network, GUIRoot gui_root, int number);
+
+    public abstract CharSequence getCurrentObjective();
+
+    public abstract void startIsland(NetworkSelector network, GUIRoot gui_root, int number);
 }

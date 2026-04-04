@@ -22,79 +22,79 @@ import java.util.ResourceBundle;
 import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 
 public final class TutorialOverDelegate extends CameraDelegate<StaticCamera> implements Updatable<TimerAnimation> {
-	private static final float DELAY = 1f;
-	private static final ResourceBundle bundle = ResourceBundle.getBundle(TutorialOverDelegate.class.getName());
+    private static final float DELAY = 1f;
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(TutorialOverDelegate.class.getName());
 
-	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
-		return Utils.getBundleString(bundle, key, args);
-	}
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+        return Utils.getBundleString(bundle, key, args);
+    }
 
-	private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);
-	private final @NonNull Group group_buttons;
-	private final @NonNull TutorialInGameInfo tutorial_info;
-	private final @NonNull WorldViewer viewer;
+    private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);
+    private final @NonNull Group group_buttons;
+    private final @NonNull TutorialInGameInfo tutorial_info;
+    private final @NonNull WorldViewer viewer;
 
-	public TutorialOverDelegate(final @NonNull WorldViewer viewer, @NonNull TutorialInGameInfo tutorial_info, @NonNull Camera old_camera, int tutorial_number) {
-		super(viewer.getGUIRoot(), new StaticCamera(old_camera.getState()));
-		this.viewer = viewer;
-		this.tutorial_info = tutorial_info;
+    public TutorialOverDelegate(final @NonNull WorldViewer viewer, @NonNull TutorialInGameInfo tutorial_info, @NonNull Camera old_camera, int tutorial_number) {
+        super(viewer.getGUIRoot(), new StaticCamera(old_camera.getState()));
+        this.viewer = viewer;
+        this.tutorial_info = tutorial_info;
 
-		setDim(getGUIRoot().getWidth(), getGUIRoot().getHeight());
-		String tutorial_completed_str = i18n("tutorial_completed", tutorial_number);
-		Label label = new Label(tutorial_completed_str, Skin.getSkin().getHeadlineFont());
-		addChild(label);
-		label.setPos((getWidth() - label.getWidth())/2, (getHeight() - label.getHeight())*2/3);
+        setDim(getGUIRoot().getWidth(), getGUIRoot().getHeight());
+        String tutorial_completed_str = i18n("tutorial_completed", tutorial_number);
+        Label label = new Label(tutorial_completed_str, Skin.getSkin().getHeadlineFont());
+        addChild(label);
+        label.setPos((getWidth() - label.getWidth()) / 2, (getHeight() - label.getHeight()) * 2 / 3);
 
-		group_buttons = new Group();
-		HorizButton button_next = new HorizButton(i18n("next_tutorial"), 170);
-		button_next.addMouseClickListener(new StartTutorialListener(tutorial_number + 1));
-		HorizButton button_restart = new HorizButton(i18n("restart_tutorial"), 170);
-		button_restart.addMouseClickListener(new StartTutorialListener(tutorial_number));
-		HorizButton button_end = new HorizButton(i18n("main_menu"), 170);
-		button_end.addMouseClickListener( (_, _, _, _) -> {
-                    viewer.close();
-                    TutorialOverDelegate.this.setDisabled(true);
-                });
+        group_buttons = new Group();
+        HorizButton button_next = new HorizButton(i18n("next_tutorial"), 170);
+        button_next.addMouseClickListener(new StartTutorialListener(tutorial_number + 1));
+        HorizButton button_restart = new HorizButton(i18n("restart_tutorial"), 170);
+        button_restart.addMouseClickListener(new StartTutorialListener(tutorial_number));
+        HorizButton button_end = new HorizButton(i18n("main_menu"), 170);
+        button_end.addMouseClickListener((_, _, _, _) -> {
+            viewer.close();
+            TutorialOverDelegate.this.setDisabled(true);
+        });
 
-		if (tutorial_number < TutorialForm.NUM_TUTORIALS)
-			group_buttons.addChild(button_next);
-		group_buttons.addChild(button_end);
-		group_buttons.addChild(button_restart);
+        if (tutorial_number < TutorialForm.NUM_TUTORIALS)
+            group_buttons.addChild(button_next);
+        group_buttons.addChild(button_end);
+        group_buttons.addChild(button_restart);
 
-		button_end.place();
-		button_restart.place(button_end, LEFT_MID);
+        button_end.place();
+        button_restart.place(button_end, LEFT_MID);
 
-		if (tutorial_number < TutorialForm.NUM_TUTORIALS)
-			button_next.place(button_restart, LEFT_MID);
-		group_buttons.compileCanvas();
-		group_buttons.setPos((getWidth() - group_buttons.getWidth())/2, (getHeight() - group_buttons.getHeight())*1/3);
+        if (tutorial_number < TutorialForm.NUM_TUTORIALS)
+            button_next.place(button_restart, LEFT_MID);
+        group_buttons.compileCanvas();
+        group_buttons.setPos((getWidth() - group_buttons.getWidth()) / 2, (getHeight() - group_buttons.getHeight()) * 1 / 3);
 
-		delay_timer.start();
-	}
+        delay_timer.start();
+    }
 
-	@Override
-	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-		renderBackgroundAlpha(renderer);
-	}
+    @Override
+    protected void renderGeometry(@NonNull GUIRenderer renderer) {
+        renderBackgroundAlpha(renderer);
+    }
 
-	@Override
-	public void update(@NonNull TimerAnimation anim) {
-		addChild(group_buttons);
-		delay_timer.stop();
-	}
+    @Override
+    public void update(@NonNull TimerAnimation anim) {
+        addChild(group_buttons);
+        delay_timer.stop();
+    }
 
-	private final class StartTutorialListener implements MouseClickListener {
-		private final int tutorial_number;
+    private final class StartTutorialListener implements MouseClickListener {
+        private final int tutorial_number;
 
-		public StartTutorialListener(int tutorial_number) {
-			this.tutorial_number = tutorial_number;
-		}
+        public StartTutorialListener(int tutorial_number) {
+            this.tutorial_number = tutorial_number;
+        }
 
-		@Override
-		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
-			if (tutorial_info.setNextTutorial(viewer.getGUIRoot(), tutorial_number))
-				viewer.close();
-		}
-	}
+        @Override
+        public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
+            if (tutorial_info.setNextTutorial(viewer.getGUIRoot(), tutorial_number))
+                viewer.close();
+        }
+    }
 
 }

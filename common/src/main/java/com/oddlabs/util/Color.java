@@ -4,7 +4,9 @@ import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
-/** Converts integer colors to/from floating-point representations for OpenGL. */
+/**
+ * Converts integer colors to/from floating-point representations for OpenGL.
+ */
 public final class Color {
     public static final int TRANSPARENT_INT = 0x00_00_00_00;
     public static final int BLACK_INT = 0xFF_00_00_00;
@@ -19,7 +21,9 @@ public final class Color {
     public static final Vector4fc WHITE = argb4v(WHITE_INT);
     public static final Vector4fc TRANSPARENT = argb4v(TRANSPARENT_INT);
 
-    /** The normalization factor for converting 8-bit color components to/from floats. */
+    /**
+     * The normalization factor for converting 8-bit color components to/from floats.
+     */
     private static final float NORMALIZE_8_BIT = 255.0f;
 
     private Color() {
@@ -41,10 +45,10 @@ public final class Color {
      * @return A 32-bit packed integer in AARRGGBB format
      */
     public static int argbi(float a, float r, float g, float b) {
-        return argbi((byte)(a * NORMALIZE_8_BIT),
-                (byte)(r * NORMALIZE_8_BIT),
-                (byte)(g * NORMALIZE_8_BIT),
-                (byte)(b * NORMALIZE_8_BIT));
+        return argbi((byte) (a * NORMALIZE_8_BIT),
+                (byte) (r * NORMALIZE_8_BIT),
+                (byte) (g * NORMALIZE_8_BIT),
+                (byte) (b * NORMALIZE_8_BIT));
     }
 
     /**
@@ -69,7 +73,7 @@ public final class Color {
     public static int abgri(float a, float b, float g, float r) {
         return ((int) (a * NORMALIZE_8_BIT) << 24) |
                 ((int) (b * NORMALIZE_8_BIT) << 16) |
-                ((int) (g * NORMALIZE_8_BIT) << 8)  |
+                ((int) (g * NORMALIZE_8_BIT) << 8) |
                 ((int) (r * NORMALIZE_8_BIT));
     }
 
@@ -82,23 +86,23 @@ public final class Color {
      */
     public static @NonNull Vector4f argb4v(int color) {
         return new Vector4f(
-            ((color >> 16) & 0xFF) / NORMALIZE_8_BIT,
-            ((color >> 8) & 0xFF) / NORMALIZE_8_BIT,
-            (color & 0xFF) / NORMALIZE_8_BIT,
-            ((color >> 24) & 0xFF) / NORMALIZE_8_BIT);
+                ((color >> 16) & 0xFF) / NORMALIZE_8_BIT,
+                ((color >> 8) & 0xFF) / NORMALIZE_8_BIT,
+                (color & 0xFF) / NORMALIZE_8_BIT,
+                ((color >> 24) & 0xFF) / NORMALIZE_8_BIT);
     }
 
     /**
      * Converts a 32-bit RGBA integer (0xRRGGBBAA) to a {@link Vector4fc}.
-     * 
+     *
      * @param color The 32-bit RGBA integer color.
      * @return A new {@link Vector4f} with components (r, g, b, a), normalized to [0.0, 1.0].
      */
     public static @NonNull Vector4f rgba4v(int color) {
         return new Vector4f(
-            ((color >> 24) & 0xFF) / NORMALIZE_8_BIT,
-            ((color >> 16) & 0xFF) / NORMALIZE_8_BIT,
-            ((color >> 8) & 0xFF) / NORMALIZE_8_BIT,
-            (color & 0xFF) / NORMALIZE_8_BIT);
+                ((color >> 24) & 0xFF) / NORMALIZE_8_BIT,
+                ((color >> 16) & 0xFF) / NORMALIZE_8_BIT,
+                ((color >> 8) & 0xFF) / NORMALIZE_8_BIT,
+                (color & 0xFF) / NORMALIZE_8_BIT);
     }
 }

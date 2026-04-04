@@ -21,7 +21,7 @@ public final class SonicBlastEffect extends Element<SonicBlastEffect> {
         this.duration = duration;
         this.time = 0;
         this.dead = false;
-        
+
         setPosition(position.x, position.y);
         setPositionZ(position.z);
         updateBounds();
@@ -35,7 +35,7 @@ public final class SonicBlastEffect extends Element<SonicBlastEffect> {
             remove();
         }
     }
-    
+
     public void abort() {
         if (!dead) {
             dead = true;
@@ -45,8 +45,8 @@ public final class SonicBlastEffect extends Element<SonicBlastEffect> {
 
     private void updateBounds() {
         setBounds(position.x - maxRadius, position.x + maxRadius,
-                  position.y - maxRadius, position.y + maxRadius,
-                  position.z - 1, position.z + 1);
+                position.y - maxRadius, position.y + maxRadius,
+                position.z - 1, position.z + 1);
     }
 
     public @NonNull Vector3f getPosition() {
@@ -82,7 +82,7 @@ public final class SonicBlastEffect extends Element<SonicBlastEffect> {
     protected @NonNull SonicBlastEffect self() {
         return this;
     }
-    
+
     @Override
     public void remove() {
         super.remove();

@@ -7,8 +7,8 @@ import org.jspecify.annotations.NonNull;
 public record TunnelIdentifier(Profile profile, TunnelAddress address) {
 
 
-	@Override
-	public @NonNull String toString() {
-		return "profile: " + profile + " tunnel address: " + address;
-	}
+    @Override
+    public @NonNull String toString() {
+        return "profile: " + profile + " tunnel address: " + address;
+    }
 }

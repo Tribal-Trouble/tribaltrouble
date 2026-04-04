@@ -9,32 +9,32 @@ import org.jspecify.annotations.Nullable;
 
 public final class BuildingFinder implements FinderFilter<Building> {
     private final @NonNull Player owner;
-	private final int abilities;
+    private final int abilities;
 
-	public BuildingFinder(@NonNull Player owner, int abilities) {
-		this.owner = owner;
-		this.abilities = abilities;
-	}
+    public BuildingFinder(@NonNull Player owner, int abilities) {
+        this.owner = owner;
+        this.abilities = abilities;
+    }
 
-	@Override
-	public @Nullable Building getOccupantFromRegion(@NonNull Region region, boolean one_region) {
-		return region.getObjects(Building.class).stream()
+    @Override
+    public @Nullable Building getOccupantFromRegion(@NonNull Region region, boolean one_region) {
+        return region.getObjects(Building.class).stream()
                 .filter(this::accept)
                 .findFirst()
                 .orElse(null);
-	}
+    }
 
-	@Override
-	public @Nullable Building getBest() {
-		return null;
-	}
+    @Override
+    public @Nullable Building getBest() {
+        return null;
+    }
 
-	private boolean accept(@NonNull Building building) {
-		return building.getOwner() == owner && building.getAbilities().hasAbilities(abilities);
-	}
+    private boolean accept(@NonNull Building building) {
+        return building.getOwner() == owner && building.getAbilities().hasAbilities(abilities);
+    }
 
-	@Override
-	public boolean acceptOccupant(@NonNull Occupant occ) {
+    @Override
+    public boolean acceptOccupant(@NonNull Occupant occ) {
         return occ instanceof Building building && accept(building);
-	}
+    }
 }

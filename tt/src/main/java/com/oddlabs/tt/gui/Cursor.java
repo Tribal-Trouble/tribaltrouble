@@ -10,9 +10,13 @@ import org.lwjgl.system.MemoryUtil;
 
 import static org.lwjgl.glfw.GLFW.glfwCreateCursor;
 import static org.lwjgl.glfw.GLFW.glfwDestroyCursor;
-/** GLFW Cursor */
+
+/**
+ * GLFW Cursor
+ */
 public final class Cursor extends NativeResource<Cursor.NativeCursor> {
     public static final Cursor NULL_CURSOR = new Cursor(MemoryUtil.NULL);
+
     static final class NativeCursor extends NativeResource.NativeState {
         private final long cursor;
 
@@ -20,11 +24,12 @@ public final class Cursor extends NativeResource<Cursor.NativeCursor> {
             this.cursor = cursor;
         }
 
-        /** Create a new cursor instance from an image
+        /**
+         * Create a new cursor instance from an image
          *
          * @param image source cursor image
-         * @param xHot x location from top left of cursor hot spot
-         * @param yHot y location from top left of cursor hot spot
+         * @param xHot  x location from top left of cursor hot spot
+         * @param yHot  y location from top left of cursor hot spot
          */
         NativeCursor(@NonNull GLImage image, int xHot, int yHot) {
             int width = image.getWidth();
@@ -53,11 +58,12 @@ public final class Cursor extends NativeResource<Cursor.NativeCursor> {
         super(new NativeCursor(nativeCursor));
     }
 
-    /** Create a new cursor instance from an image
+    /**
+     * Create a new cursor instance from an image
      *
      * @param image source cursor image
-     * @param xHot x location from top left of cursor hot spot
-     * @param yHot y location from top left of cursor hot spot
+     * @param xHot  x location from top left of cursor hot spot
+     * @param yHot  y location from top left of cursor hot spot
      */
     public Cursor(@NonNull GLImage image, int xHot, int yHot) {
         super(new NativeCursor(image, xHot, yHot));
@@ -70,6 +76,6 @@ public final class Cursor extends NativeResource<Cursor.NativeCursor> {
     }
 
     public long getCursor() {
-		return state.cursor;
-	}
+        return state.cursor;
+    }
 }

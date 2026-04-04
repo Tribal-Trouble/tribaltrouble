@@ -15,7 +15,7 @@ public final class InputEvent {
     private final boolean altDown;
     private final boolean metaDown;
     private final int clicks;
-    
+
     // Legacy support: We still track the physical key for low-level logic (e.g. EditLine raw keys)
     private final @Nullable Key keyCode;
 
@@ -66,7 +66,9 @@ public final class InputEvent {
         return clicks;
     }
 
-    /** Returns the physical key code, if this event originated from a keyboard. */
+    /**
+     * Returns the physical key code, if this event originated from a keyboard.
+     */
     public @Nullable Key getKeyCode() {
         return keyCode;
     }
@@ -83,21 +85,27 @@ public final class InputEvent {
         return consumed;
     }
 
-    /** Marks the physical event as fully handled, stopping further propagation. */
+    /**
+     * Marks the physical event as fully handled, stopping further propagation.
+     */
     public void consume() {
         this.consumed = true;
     }
 
-    /** @return true if there are unconsumed actions */
+    /**
+     * @return true if there are unconsumed actions
+     */
     public boolean hasActions() {
         return !actions.isEmpty();
     }
-    
+
     public boolean hasAction(@NonNull GameAction action) {
         return actions.contains(action);
     }
-    
-    /** Removes a specific logical action from this event, but allows propagation to continue. */
+
+    /**
+     * Removes a specific logical action from this event, but allows propagation to continue.
+     */
     public boolean consumeAction(@NonNull GameAction action) {
         return actions.remove(action);
     }

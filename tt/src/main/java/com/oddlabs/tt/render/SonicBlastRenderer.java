@@ -19,7 +19,7 @@ import java.nio.FloatBuffer;
 import java.util.Queue;
 
 public final class SonicBlastRenderer implements AutoCloseable {
-    private static final  VertexLayout<SonicBlastShader.Attribute> LAYOUT = new VertexLayout<>(
+    private static final VertexLayout<SonicBlastShader.Attribute> LAYOUT = new VertexLayout<>(
             SonicBlastShader.Attribute.POSITION,
             SonicBlastShader.Attribute.TEX_COORD
     );
@@ -29,19 +29,19 @@ public final class SonicBlastRenderer implements AutoCloseable {
 
     public SonicBlastRenderer() {
         shader = new SonicBlastShader();
-        
+
         // Create a simple quad centered at 0,0 on XY plane, scaled to 1x1
         FloatBuffer buffer = BufferUtils.createFloatBuffer(4 * 5); // 4 verts * (3 pos + 2 uv)
         float s = 0.5f;
         // Pos (x,y,z), UV (u,v)
         buffer.put(-s).put(-s).put(0).put(0).put(0);
-        buffer.put( s).put(-s).put(0).put(1).put(0);
-        buffer.put(-s).put( s).put(0).put(0).put(1);
-        buffer.put( s).put( s).put(0).put(1).put(1);
+        buffer.put(s).put(-s).put(0).put(1).put(0);
+        buffer.put(-s).put(s).put(0).put(0).put(1);
+        buffer.put(s).put(s).put(0).put(1).put(1);
         buffer.flip();
 
         vbo = new FloatVBO(GL15.GL_STATIC_DRAW, buffer);
-        
+
         vao.bind();
         vbo.makeCurrent();
         LAYOUT.bind(shader);
@@ -64,12 +64,12 @@ public final class SonicBlastRenderer implements AutoCloseable {
                 if (effect.isDead()) continue;
 
                 modelViewStack.push();
-                
+
                 float x = effect.getPositionX();
                 float y = effect.getPositionY();
                 float z = effect.getPositionZ();
                 // Visual radius is 20% larger than damage radius ("felt but no damage")
-                float visualRadius = effect.getMaxRadius() * 1.2f; 
+                float visualRadius = effect.getMaxRadius() * 1.2f;
                 float r = visualRadius * 2.0f; // Quad size (diameter)
 
                 // Position and scale the quad to be parallel to the ground
@@ -85,7 +85,7 @@ public final class SonicBlastRenderer implements AutoCloseable {
 
                 modelViewStack.pop();
             }
-            
+
             vao.unbind();
             context.setActiveTexture(0);
         }

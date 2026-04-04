@@ -5,7 +5,6 @@ import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.procedural.GeneratorHalos;
 import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.Resources;
-import org.jspecify.annotations.NonNull;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;

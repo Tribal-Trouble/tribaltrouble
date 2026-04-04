@@ -49,12 +49,12 @@ public final class LocalInput implements AutoCloseable {
         }
         pointerInput = new PointerInput(inputProvider, this);
     }
-    
+
     public void poll(@NonNull GUIRoot root) {
         pointerInput.poll(root);
         keyboardInput.poll(inputProvider, this, root);
     }
-    
+
     public void checkMagicKeys() {
         keyboardInput.checkMagicKeys(inputProvider);
     }
@@ -180,7 +180,7 @@ public final class LocalInput implements AutoCloseable {
     public @NonNull InputManager getInputManager() {
         return inputManager;
     }
-    
+
     public @NonNull KeyboardInput getKeyboardInput() {
         return keyboardInput;
     }

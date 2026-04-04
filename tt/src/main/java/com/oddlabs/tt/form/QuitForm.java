@@ -18,10 +18,10 @@ public final class QuitForm extends QuestionForm {
         return Utils.getBundleString(bundle, key, args);
     }
 
-	public QuitForm(final GUIRoot gui_root) {
-		super(i18n(PeerHub.isWaitingForAck() ? "confirm_quit_waiting_for_ack" : "confirm_quit"),
-                 (_, _, _, _) -> Renderer.shutdown());
-	}
+    public QuitForm(final GUIRoot gui_root) {
+        super(i18n(PeerHub.isWaitingForAck() ? "confirm_quit_waiting_for_ack" : "confirm_quit"),
+                (_, _, _, _) -> Renderer.shutdown());
+    }
 
     @Override
     public void handleInput(@NonNull InputEvent event) {

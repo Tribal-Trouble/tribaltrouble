@@ -4,35 +4,35 @@ import com.oddlabs.tt.landscape.World;
 import org.jspecify.annotations.NonNull;
 
 public final class RubberSupplyManager extends SupplyManager {
-	private static final float SLEEP_TICKS = 60;
-	private static final int MAX_NUM_GROUPS = 3;
+    private static final float SLEEP_TICKS = 60;
+    private static final int MAX_NUM_GROUPS = 3;
 
-	private int current_groups = 0;
-	
-	public RubberSupplyManager(@NonNull World world) {
-		super(world);
-	}
+    private int current_groups = 0;
 
-	@Override
-	protected float getSleepTime() {
-		return SLEEP_TICKS;
-	}
+    public RubberSupplyManager(@NonNull World world) {
+        super(world);
+    }
 
-	@Override
-	protected boolean shouldSpawn() {
-		return current_groups < MAX_NUM_GROUPS;
-	}
+    @Override
+    protected float getSleepTime() {
+        return SLEEP_TICKS;
+    }
 
-	@Override
-	protected void insertSupply() {
-		new RubberGroup(getWorld());
-	}
+    @Override
+    protected boolean shouldSpawn() {
+        return current_groups < MAX_NUM_GROUPS;
+    }
 
-	public void newGroup() {
-		current_groups++;
-	}
+    @Override
+    protected void insertSupply() {
+        new RubberGroup(getWorld());
+    }
 
-	public void emptyGroup() {
-		current_groups--;
-	}
+    public void newGroup() {
+        current_groups++;
+    }
+
+    public void emptyGroup() {
+        current_groups--;
+    }
 }

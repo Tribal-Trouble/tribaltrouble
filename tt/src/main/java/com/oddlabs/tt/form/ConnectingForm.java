@@ -23,80 +23,81 @@ import java.util.ResourceBundle;
 import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
 
 public final class ConnectingForm extends Form implements ConfigurationListener {
-	private static final ResourceBundle bundle = ResourceBundle.getBundle(ConnectingForm.class.getName());
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(ConnectingForm.class.getName());
 
-	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
-		return Utils.getBundleString(bundle, key, args);
-	}
-	private final SelectGameMenu owner;
-	private final boolean multiplayer;
-	private final GUIRoot gui_root;
-	private final GameNetwork game_network;
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+        return Utils.getBundleString(bundle, key, args);
+    }
 
-	public ConnectingForm(GameNetwork game_network, GUIRoot gui_root, SelectGameMenu owner, boolean multiplayer) {
-		this.game_network = game_network;
-		this.gui_root = gui_root;
-		this.owner = owner;
-		this.multiplayer = multiplayer;
+    private final SelectGameMenu owner;
+    private final boolean multiplayer;
+    private final GUIRoot gui_root;
+    private final GameNetwork game_network;
 
-		Label info_label =  new Label(i18n(multiplayer ? "connecting" : "starting"), Skin.getSkin().getHeadlineFont());
+    public ConnectingForm(GameNetwork game_network, GUIRoot gui_root, SelectGameMenu owner, boolean multiplayer) {
+        this.game_network = game_network;
+        this.gui_root = gui_root;
+        this.owner = owner;
+        this.multiplayer = multiplayer;
+
+        Label info_label = new Label(i18n(multiplayer ? "connecting" : "starting"), Skin.getSkin().getHeadlineFont());
         addChild(info_label);
-		HorizButton cancel_button = new CancelButton(120);
-		addChild(cancel_button);
-		cancel_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
+        HorizButton cancel_button = new CancelButton(120);
+        addChild(cancel_button);
+        cancel_button.addMouseClickListener((_, _, _, _) -> this.cancel());
 
-		// Place objects
-		info_label.place();
-		cancel_button.place(info_label, BOTTOM_MID);
+        // Place objects
+        info_label.place();
+        cancel_button.place(info_label, BOTTOM_MID);
 
-		// headline
-		compileCanvas();
-		centerPos();
-	}
+        // headline
+        compileCanvas();
+        centerPos();
+    }
 
-	@Override
-	public void connected(@NonNull Client client, @NonNull Game game, WorldGenerator generator, int player_slot) {
-		if (multiplayer) {
-			Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
-			random.nextFloat(); // first one always in same area
-			int race = (int)(random.nextFloat()*(RacesResources.getNumRaces() - 1) + .5f);
-			int team = player_slot;
-			if (game.isRated())
-				team = player_slot%2;
-			client.getServerInterface().setPlayerSlot(player_slot, PlayerSlot.HUMAN, race, team, false, PlayerSlot.AI_NONE);
-			remove();
-			owner.createGameMenu(game_network, game, generator, player_slot);
+    @Override
+    public void connected(@NonNull Client client, @NonNull Game game, WorldGenerator generator, int player_slot) {
+        if (multiplayer) {
+            Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
+            random.nextFloat(); // first one always in same area
+            int race = (int) (random.nextFloat() * (RacesResources.getNumRaces() - 1) + .5f);
+            int team = player_slot;
+            if (game.isRated())
+                team = player_slot % 2;
+            client.getServerInterface().setPlayerSlot(player_slot, PlayerSlot.HUMAN, race, team, false, PlayerSlot.AI_NONE);
+            remove();
+            owner.createGameMenu(game_network, game, generator, player_slot);
 //			GameMenu panel = new GameMenu(owner, game, generator, player_slot);
 //			owner.setGameMenu(panel);
 //			Network.setConfigurationListener(panel);
-		} else {
-			assert player_slot == 0: "player_slot must be 0";
-		}
-	}
+        } else {
+            assert player_slot == 0 : "player_slot must be 0";
+        }
+    }
 
-	public void chat(int player_slot, String chat) {
-	}
+    public void chat(int player_slot, String chat) {
+    }
 
-	@Override
-	public void setPlayers(PlayerSlot[] players) {
-		assert !multiplayer;
-	}
+    @Override
+    public void setPlayers(PlayerSlot[] players) {
+        assert !multiplayer;
+    }
 
-	@Override
-	public void connectionLost() {
-		remove();
-		gui_root.addModalForm(new MessageForm(i18n("connection_lost")));
-	}
+    @Override
+    public void connectionLost() {
+        remove();
+        gui_root.addModalForm(new MessageForm(i18n("connection_lost")));
+    }
 
-	@Override
-	public void gameStarted() {
-		remove();
+    @Override
+    public void gameStarted() {
+        remove();
 //		main_menu.remove();
-		assert !multiplayer;
-	}
+        assert !multiplayer;
+    }
 
-	@Override
-	protected void doCancel() {
-		game_network.close();
-	}
+    @Override
+    protected void doCancel() {
+        game_network.close();
+    }
 }

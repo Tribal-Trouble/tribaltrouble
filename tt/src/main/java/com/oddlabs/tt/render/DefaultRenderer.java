@@ -56,7 +56,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     private final @NonNull InstancedSpriteRenderer treeSpriteRenderer = new InstancedSpriteRenderer();
     private final @NonNull PostProcessor postProcessor;
     private final @Nullable Cheat cheat;
-    
+
     private final GlobalUniforms globalUniforms = new GlobalUniforms();
     private final Vector3f sunDirection = new Vector3f(-1f, 0f, 1f).normalize();
     private final Vector3f globalAmbient = new Vector3f(0.4f, 0.4f, 0.45f); // Sky
@@ -187,7 +187,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         emitterRenderer.debugRender(element_renderer.getRenderState().getEmitterQueue());
         tree_renderer.debugRender(tree_renderer.getRenderLists(), tree_renderer.getRespondRenderLists());
 
-        if (Globals.isBoundsEnabled(BoundingMode.REGIONS)) world.getUnitGrid().debugRenderRegions(frustum_state.getCurrentX(), frustum_state.getCurrentY());
+        if (Globals.isBoundsEnabled(BoundingMode.REGIONS))
+            world.getUnitGrid().debugRenderRegions(frustum_state.getCurrentX(), frustum_state.getCurrentY());
         if (Globals.isBoundsEnabled(BoundingMode.OCCUPATION)) picker.debugRender();
         if (Globals.isBoundsEnabled(BoundingMode.UNIT_GRID)) {
             world.getUnitGrid().debugRender(frustum_state.getCurrentX(), frustum_state.getCurrentY());
@@ -215,7 +216,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
             postProcessor.bindSceneFBO();
             context.clear(true, true);
         }
-        
+
         // Update Global UBO
         globalUniforms.update(frustum_state, sunDirection, globalAmbient, groundAmbient, LocalEventQueue.getQueue().getTime());
         context.updateGlobalState(globalUniforms.getBuffer());
@@ -260,7 +261,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
         if (Globals.process_trees) {
             tree_renderer.render(context, frustum_state, modelViewStack, projectionStack);
-        }        
+        }
         if (Globals.process_misc) {
             render_queues.renderAll(context, frustum_state, projectionStack);
 

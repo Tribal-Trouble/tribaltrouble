@@ -8,7 +8,7 @@ public record UnitInfo(boolean hasQuarters,
                        int numRockWarriors,
                        int numIronWarriors,
                        int numRubberWarriors) {
-	public UnitInfo() {
-		this(false, false, 0, false, 0, 0, 0, 0);
-	}
+    public UnitInfo() {
+        this(false, false, 0, false, 0, 0, 0, 0);
+    }
 }

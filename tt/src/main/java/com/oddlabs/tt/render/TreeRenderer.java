@@ -34,7 +34,7 @@ public final class TreeRenderer extends TreePicker implements SceneRenderer {
         if (!state.inNoDetailMode()) {
             wave_animation.setTime(LocalEventQueue.getQueue().getTime());
         }
-        
+
         if (!Globals.draw_trees || (cheat != null && !cheat.draw_trees)) {
             // Just clear lists if not drawing
             clearLists();
@@ -43,9 +43,9 @@ public final class TreeRenderer extends TreePicker implements SceneRenderer {
 
         List<TreeSupply>[] render_lists = getRenderLists();
         List<TreeSupply>[] respond_render_lists = getRespondRenderLists();
-        
+
         AbstractTreeGroup.TreeType[] ordinals = AbstractTreeGroup.TreeType.values();
-        
+
         for (int i = 0; i < render_lists.length; i++) {
             renderList(getTrees().get(ordinals[i]), render_lists[i], false);
         }
@@ -54,7 +54,7 @@ public final class TreeRenderer extends TreePicker implements SceneRenderer {
                 renderList(getTrees().get(ordinals[i]), respond_render_lists[i], true);
         }
     }
-    
+
     private void clearLists() {
         for (List<TreeSupply> list : getRenderLists()) list.clear();
         for (List<TreeSupply> list : getRespondRenderLists()) list.clear();
@@ -76,7 +76,7 @@ public final class TreeRenderer extends TreePicker implements SceneRenderer {
     private void renderList(@NonNull Tree tree, @NonNull List<TreeSupply> render_list, boolean respond) {
         SpriteList crownList = tree.crown();
         SpriteList trunkList = tree.trunk();
-        
+
         for (TreeSupply supply : render_list) {
             prepareMatrix(supply);
             // Render Crown (Sprite 0). Blend = false, DepthWrite = true for opaque trees.

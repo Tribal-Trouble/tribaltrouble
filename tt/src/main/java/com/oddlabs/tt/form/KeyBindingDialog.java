@@ -33,17 +33,17 @@ public class KeyBindingDialog extends Form {
         this.guiRoot = guiRoot;
         this.action = action;
         this.onBindingChosen = onBindingChosen;
-        
+
         String actionName;
         try {
             actionName = AbstractOptionsMenu.i18n("action." + action.name());
         } catch (Exception e) {
             actionName = action.name();
         }
-        
+
         LabelBox info_label = new LabelBox("Press key for: " + actionName, Skin.getSkin().getEditFont(), 300);
         addChild(info_label);
-        
+
         Group button_group = new Group();
         addChild(button_group);
 
@@ -60,11 +60,11 @@ public class KeyBindingDialog extends Form {
             remove();
         });
         button_group.addChild(reset_button);
-        
+
         HorizButton cancel_button = new CancelButton(80);
         cancel_button.addMouseClickListener((_, _, _, _) -> cancel());
         button_group.addChild(cancel_button);
-        
+
         // Place objects
         info_label.place();
         clear_button.place();
@@ -72,7 +72,7 @@ public class KeyBindingDialog extends Form {
         cancel_button.place(reset_button, RIGHT_MID);
         button_group.compileCanvas();
         button_group.place(info_label, BOTTOM_MID);
-        
+
         compileCanvas();
         centerPos();
         setCanFocus(true);
@@ -82,7 +82,7 @@ public class KeyBindingDialog extends Form {
     public void handleInput(@NonNull InputEvent event) {
         if (event.getPhase() == InputPhase.PRESSED) {
             Key key = event.getKeyCode();
-            
+
             if (event.hasAction(GameAction.GLOBAL_QUIT)) {
                 guiRoot.addModalForm(new QuitForm(guiRoot));
                 event.consume();
@@ -90,7 +90,7 @@ public class KeyBindingDialog extends Form {
             }
 
             boolean isModifierKey = (key == Key.LSHIFT || key == Key.RSHIFT || key == Key.LCONTROL || key == Key.RCONTROL || key == Key.LALT || key == Key.RALT || key == Key.LSUPER || key == Key.RSUPER);
-            
+
             if (!isModifierKey && key != null && key != Key.KEY_UNKNOWN) {
                 var modifiers = EnumSet.noneOf(Modifier.class);
                 if (event.isShiftDown()) modifiers.add(Modifier.SHIFT);
@@ -103,7 +103,7 @@ public class KeyBindingDialog extends Form {
                 event.consume();
                 return;
             }
-            
+
             // Consume all pressed events to prevent bleed-through
             event.consume();
             return;

@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import org.jspecify.annotations.NonNull;
 
 record ScrollBarData(@NonNull Vertical scrollBar,
-					 @NonNull ModeIconQuads scrollDownButtonPressed,
+                     @NonNull ModeIconQuads scrollDownButtonPressed,
                      @NonNull ModeIconQuads scrollDownButtonUnpressed,
                      @NonNull ModeIconQuads scrollDownArrow,
                      @NonNull ModeIconQuads scrollUpButtonPressed,

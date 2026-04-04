@@ -23,7 +23,9 @@ import static com.oddlabs.tt.util.GLUtils.checkGLError;
 
 public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program> implements Shader {
     private static final Logger logger = Logger.getLogger(ShaderProgram.class.getSimpleName());
-    /** the currently active shader or null */
+    /**
+     * the currently active shader or null
+     */
     private static final AtomicReference<@Nullable ShaderProgram> inUse = new AtomicReference<>();
 
     static final class Program extends NativeResource.NativeState {
@@ -47,7 +49,9 @@ public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program
             }
         }
 
-        /** complete linking after (optionally) setting up shader layouts */
+        /**
+         * complete linking after (optionally) setting up shader layouts
+         */
         void link() {
             bindStandardAttributes();
             GL20.glLinkProgram(programId);
@@ -80,12 +84,12 @@ public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program
     public ShaderProgram(@NonNull String vertexSource, @NonNull String fragmentSource) throws IllegalArgumentException {
         this(vertexSource, fragmentSource, null);
     }
-    
+
     public ShaderProgram(@NonNull String vertexSource, @NonNull String fragmentSource, @Nullable String geometrySource) throws IllegalArgumentException {
         super(new Program(
-            compileShader(GL20.GL_VERTEX_SHADER, vertexSource), 
-            compileShader(GL20.GL_FRAGMENT_SHADER, fragmentSource),
-            geometrySource != null ? compileShader(GL32.GL_GEOMETRY_SHADER, geometrySource) : 0
+                compileShader(GL20.GL_VERTEX_SHADER, vertexSource),
+                compileShader(GL20.GL_FRAGMENT_SHADER, fragmentSource),
+                geometrySource != null ? compileShader(GL32.GL_GEOMETRY_SHADER, geometrySource) : 0
         ));
     }
 
@@ -93,7 +97,9 @@ public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program
         GL30.glBindFragDataLocation(state.programId, colorNumber, name);
     }
 
-    /** complete linking after (optionally) setting up shader layouts */
+    /**
+     * complete linking after (optionally) setting up shader layouts
+     */
     protected void link() {
         state.link();
     }

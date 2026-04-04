@@ -9,43 +9,43 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class GeneratorIron extends TextureGenerator {
-	private static final int TEXTURE_SIZE = 128;
+    private static final int TEXTURE_SIZE = 128;
 
-	@Override
-	public Texture @NonNull [] generate() {
-		int seed = Globals.LANDSCAPE_SEED;
-		
-		Channel rock_bump = new Voronoi(TEXTURE_SIZE, 8, 8, 1, 1f, seed).getDistance(-1f, 0f, 0f).multiply(.49f);
-		rock_bump.channelAdd(new Voronoi(TEXTURE_SIZE, 8, 8, 1, 1f, seed+1).getDistance(-1f, 0f, 0f).multiply(.49f));
-		Channel noise = new Midpoint(TEXTURE_SIZE, 7, .4f, seed).toChannel();
-		Channel noise2 = new Midpoint(TEXTURE_SIZE, 3, .45f, seed).toChannel();
-		rock_bump.channelAdd(noise.copy().multiply(.02f));
-		Layer rock = noise.copy().dynamicRange(.5f, .75f).toLayer();
-		Channel rustAlpha = noise2.copy().gamma2().invert();
-		Layer rust = new Layer(new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(.4f), new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(.15f), new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(0f), rustAlpha);
-		rock.layerBlend(rust);
-		rock.bump(rock_bump, TEXTURE_SIZE/256f, 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f).gamma(.5f).dynamicRange(0f, .75f);
-		// rock.bumpSpecular(rock_bump, 1f, 0f, 1f, 0f, .1f, .1f, .1f, 1); // Removed baked specular
-		Channel stainAlpha = noise2.copy().gamma(.75f).rotate(90);
-		Layer stain = new Layer(noise2.copy().multiply(.4f), noise2.copy().multiply(.15f), noise2.copy().multiply(0f), stainAlpha);
-		stain.bump(noise2.copy(), 8f, 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f);
-		rock.layerBlend(stain);
-		
-		Channel specular = new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(0.65f).channelSubtract(rustAlpha).channelSubtract(stainAlpha).clip();
+    @Override
+    public Texture @NonNull [] generate() {
+        int seed = Globals.LANDSCAPE_SEED;
 
-		if (Landscape.DEBUG) new GLIntImage(rock).saveAsPNG("generator_iron");
-		
-		Layer normalMapLayer = rock_bump.toNormalMap(2.5f, specular);
-		if (Landscape.DEBUG) new GLIntImage(normalMapLayer).saveAsPNG("generator_iron_normal");
-		
-		return new Texture[]{
-			new Texture(new GLIntImage(rock), GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT),
-			new Texture(new GLIntImage(normalMapLayer), GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT)
-			};
-	}
-	
-	@Override
-	public int hashCode() {
-		return TEXTURE_SIZE;
-	}
+        Channel rock_bump = new Voronoi(TEXTURE_SIZE, 8, 8, 1, 1f, seed).getDistance(-1f, 0f, 0f).multiply(.49f);
+        rock_bump.channelAdd(new Voronoi(TEXTURE_SIZE, 8, 8, 1, 1f, seed + 1).getDistance(-1f, 0f, 0f).multiply(.49f));
+        Channel noise = new Midpoint(TEXTURE_SIZE, 7, .4f, seed).toChannel();
+        Channel noise2 = new Midpoint(TEXTURE_SIZE, 3, .45f, seed).toChannel();
+        rock_bump.channelAdd(noise.copy().multiply(.02f));
+        Layer rock = noise.copy().dynamicRange(.5f, .75f).toLayer();
+        Channel rustAlpha = noise2.copy().gamma2().invert();
+        Layer rust = new Layer(new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(.4f), new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(.15f), new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(0f), rustAlpha);
+        rock.layerBlend(rust);
+        rock.bump(rock_bump, TEXTURE_SIZE / 256f, 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f).gamma(.5f).dynamicRange(0f, .75f);
+        // rock.bumpSpecular(rock_bump, 1f, 0f, 1f, 0f, .1f, .1f, .1f, 1); // Removed baked specular
+        Channel stainAlpha = noise2.copy().gamma(.75f).rotate(90);
+        Layer stain = new Layer(noise2.copy().multiply(.4f), noise2.copy().multiply(.15f), noise2.copy().multiply(0f), stainAlpha);
+        stain.bump(noise2.copy(), 8f, 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f);
+        rock.layerBlend(stain);
+
+        Channel specular = new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(0.65f).channelSubtract(rustAlpha).channelSubtract(stainAlpha).clip();
+
+        if (Landscape.DEBUG) new GLIntImage(rock).saveAsPNG("generator_iron");
+
+        Layer normalMapLayer = rock_bump.toNormalMap(2.5f, specular);
+        if (Landscape.DEBUG) new GLIntImage(normalMapLayer).saveAsPNG("generator_iron_normal");
+
+        return new Texture[]{
+                new Texture(new GLIntImage(rock), GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT),
+                new Texture(new GLIntImage(normalMapLayer), GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT)
+        };
+    }
+
+    @Override
+    public int hashCode() {
+        return TEXTURE_SIZE;
+    }
 }

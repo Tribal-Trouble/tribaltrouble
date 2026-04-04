@@ -22,6 +22,7 @@ import static org.lwjgl.openal.EXTEfx.AL_AUXILIARY_SEND_FILTER;
 
 public final class OpenALAudioSource extends NativeResource<OpenALAudioSource.Source> implements AudioSource {
     private static final Logger logger = Logger.getLogger(OpenALAudioSource.class.getSimpleName());
+
     static final class Source extends NativeResource.NativeState {
 
         final int sourceId;

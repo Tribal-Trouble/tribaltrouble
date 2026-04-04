@@ -28,8 +28,6 @@ import com.oddlabs.tt.render.state.DepthMode;
 import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -75,8 +73,8 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
         }
     }
 
-	@Override
-	public void handleInput(@NonNull InputEvent event) {
+    @Override
+    public void handleInput(@NonNull InputEvent event) {
         if (event.consumeAction(GameAction.UI_ACTIVATE)) {
             if (event.getPhase() == InputPhase.RELEASED) {
                 placeObject();
@@ -85,16 +83,16 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
             return;
         }
 
-		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
-			if (event.consumeAction(GameAction.UI_CANCEL)) {
-				pop();
-				event.consume();
-				return;
-			}
-		}
+        if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+            if (event.consumeAction(GameAction.UI_CANCEL)) {
+                pop();
+                event.consume();
+                return;
+            }
+        }
 
-		super.handleInput(event);
-	}
+        super.handleInput(event);
+    }
 
     @Override
     public void mousePressed(@NonNull MouseButton button, int x, int y) {
@@ -120,7 +118,7 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
         BuildingSiteScanFilter filter = new BuildingSiteScanFilter(unit_grid, getTemplate(), GRID_RADIUS, false);
         unit_grid.scan(filter, placing_center_grid_x, placing_center_grid_y);
         List<LandscapeTarget> target_list = filter.getResult();
-        
+
         RenderContext context = Renderer.getRenderer().getRenderContext();
         site_renderer.renderSites(context, renderer, modelViewStack, projectionStack, target_list, center_x, center_y, 2 * GRID_RADIUS);
         com.oddlabs.tt.util.GLUtils.checkGLError("Placing: After renderSites");
@@ -129,7 +127,7 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
         Sprite sprite = built_renderer.getSpriteList().getSprite(0);
 
         try (var _ = spriteShader.use()) {
-            
+
             spriteShader.setUniform(SpriteShader.Uniforms.DESATURATE, 0.5f);
             sprite.setupShaderUniforms(context, spriteShader, 0, false);
             spriteShader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, true);

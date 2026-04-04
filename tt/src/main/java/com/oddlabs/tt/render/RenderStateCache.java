@@ -9,22 +9,22 @@ import java.util.List;
  * Caches render state objects for reuse.
  */
 final class RenderStateCache<RS extends LODObject> {
-	private final @NonNull RenderStateFactory<RS> factory;
-	private final List<@NonNull RS> cache = new ArrayList<>();
-	private int current_index;
+    private final @NonNull RenderStateFactory<RS> factory;
+    private final List<@NonNull RS> cache = new ArrayList<>();
+    private int current_index;
 
-	RenderStateCache(@NonNull RenderStateFactory<@NonNull RS> factory) {
-		this.factory = factory;
-	}
+    RenderStateCache(@NonNull RenderStateFactory<@NonNull RS> factory) {
+        this.factory = factory;
+    }
 
-	void clear() {
-		current_index = 0;
-	}
+    void clear() {
+        current_index = 0;
+    }
 
-	@NonNull RS get() {
-		if (current_index == cache.size()) {
-			cache.add(factory.create());
-		}
-		return cache.get(current_index++);
-	}
+    @NonNull RS get() {
+        if (current_index == cache.size()) {
+            cache.add(factory.create());
+        }
+        return cache.get(current_index++);
+    }
 }

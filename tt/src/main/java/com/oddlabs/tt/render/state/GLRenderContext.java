@@ -13,19 +13,20 @@ import java.util.logging.Logger;
 
 public final class GLRenderContext implements RenderContext {
     private static final Logger logger = Logger.getLogger(GLRenderContext.class.getName());
-    private static final ScopedState NO_OP = () -> {};
+    private static final ScopedState NO_OP = () -> {
+    };
 
     private @NonNull BlendMode currentBlend = BlendMode.NONE;
     private @NonNull DepthMode currentDepth = DepthMode.NONE;
     private @NonNull CullMode currentCull = CullMode.NONE;
     private int currentDepthFunc = GL11.GL_LEQUAL;
     private boolean scissorEnabled = false;
-    
+
     private boolean maskR = true, maskG = true, maskB = true, maskA = true;
-    
+
     private int activeTextureUnit = -1;
     private final int[] boundTextures = new int[8];
-    
+
     private int globalUbo = 0;
     private static final int GLOBAL_UBO_BINDING = 0;
 
@@ -59,19 +60,19 @@ public final class GLRenderContext implements RenderContext {
         currentDepthFunc = -1;
         scissorEnabled = false; // We can't know for sure, but usually we start disabled
         GL11.glDisable(GL11.GL_SCISSOR_TEST); // Ensure consistent start
-        
+
         maskR = maskG = maskB = maskA = true;
-        
+
         activeTextureUnit = -1;
         Arrays.fill(boundTextures, -1);
     }
-    
+
     @Override
     public void applyDefaults() {
         reset();
 
         GL11.glFrontFace(GL11.GL_CCW);
-        
+
         // Culling
         setCullMode(CullMode.BACK); // Implies Enable CULL_FACE, CULL_BACK
 
@@ -104,17 +105,17 @@ public final class GLRenderContext implements RenderContext {
 
         // Blend
         setBlendMode(BlendMode.ALPHA);
-        
+
         // Clear State
         clearColor(0f, 0f, 0f, 0f);
         GL11.glClearDepth(1.0);
         clear(true, false);
     }
-    
+
     @Override
     public void validate() {
         // ... verify blend, depth test, depth mask, cull face ...
-        
+
         // Verify Depth Func
         int glDepthFunc = GL11.glGetInteger(GL11.GL_DEPTH_FUNC);
         if (glDepthFunc != currentDepthFunc) {
@@ -142,9 +143,9 @@ public final class GLRenderContext implements RenderContext {
     @Override
     public void setTexture(int unit, int textureHandle) {
         if (unit < 0 || unit >= boundTextures.length) return;
-        
+
         setActiveTexture(unit);
-        
+
         if (boundTextures[unit] != textureHandle) {
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureHandle);
             boundTextures[unit] = textureHandle;
@@ -181,7 +182,7 @@ public final class GLRenderContext implements RenderContext {
             // Log error instead of crashing to allow recovery
             logger.severe("glDepthFunc produced error: " + error + " (0x" + Integer.toHexString(error) + ")");
             logger.severe("Invalid depth func value: " + func);
-            
+
             // Do NOT update currentDepthFunc if the call failed, GL state didn't change.
             return;
         }

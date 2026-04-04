@@ -71,10 +71,10 @@ public final class FBO implements AutoCloseable {
         if (colorTexture != null) attachTexture(GL30.GL_COLOR_ATTACHMENT0, colorTexture);
         if (maskTexture != null) attachTexture(GL30.GL_COLOR_ATTACHMENT1, maskTexture);
         if (depthTexture != null) attachTexture(GL30.GL_DEPTH_ATTACHMENT, depthTexture);
-        
+
         // Restore draw buffers state after resize/rebind
         GL30.glDrawBuffers(new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1});
-        
+
         checkStatus();
         unbind();
     }

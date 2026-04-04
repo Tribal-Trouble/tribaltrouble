@@ -15,181 +15,187 @@ import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 
 public abstract class ThrowingWeapon extends Accessories implements Animated {
-	/** Multiplier for projectile arc exaggeration. */
-	private static final float GRAVITY_MULTIPLIER = 3.0f;
-	private static final float GRAVITY = -GRAVITY_MULTIPLIER*9.82f;
-	private static final float NO_DETAIL_SIZE = .5f;
+    /**
+     * Multiplier for projectile arc exaggeration.
+     */
+    private static final float GRAVITY_MULTIPLIER = 3.0f;
+    private static final float GRAVITY = -GRAVITY_MULTIPLIER * 9.82f;
+    private static final float NO_DETAIL_SIZE = .5f;
 
-	private static final float OFFSET_X = 1.316f;
-	private static final float OFFSET_Y = -.347f;
-	private static final float OFFSET_Z = 1.382f;
+    private static final float OFFSET_X = 1.316f;
+    private static final float OFFSET_Y = -.347f;
+    private static final float OFFSET_Z = 1.382f;
 
-	private final @NonNull AbstractAudioPlayer audio_player;
-	private final @NonNull Audio @NonNull [] hit_sounds;
-	private final @NonNull Player owner;
-	private final boolean hit;
+    private final @NonNull AbstractAudioPlayer audio_player;
+    private final @NonNull Audio @NonNull [] hit_sounds;
+    private final @NonNull Player owner;
+    private final boolean hit;
 
-	private @NonNull Selectable<?> target;
-	private float start_x;
-	private float start_y;
-	private float end_x;
-	private float end_y;
-	private float dir_x;
-	private float dir_y;
-	private float time_limit;
-	private float time;
-	private float z_speed;
-	/** absolute height in the world */
-	private float current_z;
-	/**  rendering offset */
-	private float deterministic_z;
+    private @NonNull Selectable<?> target;
+    private float start_x;
+    private float start_y;
+    private float end_x;
+    private float end_y;
+    private float dir_x;
+    private float dir_y;
+    private float time_limit;
+    private float time;
+    private float z_speed;
+    /**
+     * absolute height in the world
+     */
+    private float current_z;
+    /**
+     * rendering offset
+     */
+    private float deterministic_z;
 
-	public ThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target, @NonNull SpriteKey sprite_renderer, @NonNull Audio throw_sound, @NonNull Audio @NonNull [] hit_sounds) {
-		super(target.getOwner().getWorld(), sprite_renderer);
-		this.hit = hit;
-		this.hit_sounds = hit_sounds;
+    public ThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target, @NonNull SpriteKey sprite_renderer, @NonNull Audio throw_sound, @NonNull Audio @NonNull [] hit_sounds) {
+        super(target.getOwner().getWorld(), sprite_renderer);
+        this.hit = hit;
+        this.hit_sounds = hit_sounds;
 
-		owner = src.getOwner();
+        owner = src.getOwner();
 
-		setPosition(src.getPositionX() + OFFSET_X*src.getDirectionX() - OFFSET_Y*src.getDirectionY(), src.getPositionY() + OFFSET_X*src.getDirectionY() - OFFSET_Y*src.getDirectionX());
-		deterministic_z = OFFSET_Z + src.getMountOffset();
-		current_z = owner.getWorld().getHeightMap().getNearestHeight(getPositionX(), getPositionY()) + deterministic_z;
+        setPosition(src.getPositionX() + OFFSET_X * src.getDirectionX() - OFFSET_Y * src.getDirectionY(), src.getPositionY() + OFFSET_X * src.getDirectionY() - OFFSET_Y * src.getDirectionX());
+        deterministic_z = OFFSET_Z + src.getMountOffset();
+        current_z = owner.getWorld().getHeightMap().getNearestHeight(getPositionX(), getPositionY()) + deterministic_z;
 
-		setTarget(target);
+        setTarget(target);
 
-		reinsert();
-		audio_player = target.getOwner().getWorld().getAudio().newAudio(new AudioParameters<>(
-			throw_sound,
-			getPositionX(),
-			getPositionY(),
-			getPositionZ(),
-			AudioPlayer.AUDIO_RANK_WEAPON_ATTACK,
-			AudioPlayer.AUDIO_DISTANCE_WEAPON_ATTACK,
-			AudioPlayer.AUDIO_GAIN_WEAPON_ATTACK,
-			AudioPlayer.AUDIO_RADIUS_WEAPON_ATTACK,
-			target.getOwner().getWorld().getRandom().nextFloat()*.2f + .9f));
-		target.getOwner().getWorld().getAnimationManagerGameTime().registerAnimation(this);
+        reinsert();
+        audio_player = target.getOwner().getWorld().getAudio().newAudio(new AudioParameters<>(
+                throw_sound,
+                getPositionX(),
+                getPositionY(),
+                getPositionZ(),
+                AudioPlayer.AUDIO_RANK_WEAPON_ATTACK,
+                AudioPlayer.AUDIO_DISTANCE_WEAPON_ATTACK,
+                AudioPlayer.AUDIO_GAIN_WEAPON_ATTACK,
+                AudioPlayer.AUDIO_RADIUS_WEAPON_ATTACK,
+                target.getOwner().getWorld().getRandom().nextFloat() * .2f + .9f));
+        target.getOwner().getWorld().getAnimationManagerGameTime().registerAnimation(this);
 
-		// stats
-		src.getOwner().weaponThrown();
-	}
+        // stats
+        src.getOwner().weaponThrown();
+    }
 
-	@Override
-	public @NonNull String toString() {
-		return "ThrowingWeapon: start_x = " + start_x + " | start_y = " + start_y + " | end_x = " + end_x + " | end_y = " + end_y + " | target = " + target + "  "  + super.toString();
-	}
+    @Override
+    public @NonNull String toString() {
+        return "ThrowingWeapon: start_x = " + start_x + " | start_y = " + start_y + " | end_x = " + end_x + " | end_y = " + end_y + " | target = " + target + "  " + super.toString();
+    }
 
-	protected final void setTarget(@NonNull Selectable<?> target) {
-		this.target = target;
-		updateDirection();
-		calcNumUpdatesAndZSpeed();
-	}
+    protected final void setTarget(@NonNull Selectable<?> target) {
+        this.target = target;
+        updateDirection();
+        calcNumUpdatesAndZSpeed();
+    }
 
-	private void calcNumUpdatesAndZSpeed() {
-		start_x = getPositionX();
-		start_y = getPositionY();
-		updateTarget();
-		float dx = end_x - start_x;
-		float dy = end_y - start_y;
-		float len = (float)Math.sqrt(dx*dx + dy*dy);
-		time_limit = (len/getMetersPerSecond()) * getLoftFactor();
-		time = 0;
-		// current_z is already set to absolute start height
-		float dest_z = owner.getWorld().getHeightMap().getNearestHeight(end_x, end_y) + target.getHitOffsetZ();
-		float dest_vec_z = dest_z - current_z;
-		z_speed = (dest_vec_z)/time_limit - GRAVITY*time_limit/2f;
-	}
+    private void calcNumUpdatesAndZSpeed() {
+        start_x = getPositionX();
+        start_y = getPositionY();
+        updateTarget();
+        float dx = end_x - start_x;
+        float dy = end_y - start_y;
+        float len = (float) Math.sqrt(dx * dx + dy * dy);
+        time_limit = (len / getMetersPerSecond()) * getLoftFactor();
+        time = 0;
+        // current_z is already set to absolute start height
+        float dest_z = owner.getWorld().getHeightMap().getNearestHeight(end_x, end_y) + target.getHitOffsetZ();
+        float dest_vec_z = dest_z - current_z;
+        z_speed = (dest_vec_z) / time_limit - GRAVITY * time_limit / 2f;
+    }
 
-	protected abstract float getMetersPerSecond();
-	
-	protected abstract float getLoftFactor();
+    protected abstract float getMetersPerSecond();
 
-	private void updateTarget() {
-		end_x = target.getPositionX();
-		end_y = target.getPositionY();
-	}
+    protected abstract float getLoftFactor();
 
-	private void updateDirection() {
-		float dx = target.getPositionX() - getPositionX();
-		float dy = target.getPositionY() - getPositionY();
-		float len = Math.max((float)Math.sqrt(dx*dx + dy*dy), .01f);
-		float len_inv = 1f/len;
-		dir_x = dx*len_inv;
-		dir_y = dy*len_inv;
-		setDirection(dir_x, dir_y);
-	}
+    private void updateTarget() {
+        end_x = target.getPositionX();
+        end_y = target.getPositionY();
+    }
 
-	@Override
-	public final void updateChecksum(@NonNull StateChecksum checksum) {
-		checksum.update(time);
-	}
+    private void updateDirection() {
+        float dx = target.getPositionX() - getPositionX();
+        float dy = target.getPositionY() - getPositionY();
+        float len = Math.max((float) Math.sqrt(dx * dx + dy * dy), .01f);
+        float len_inv = 1f / len;
+        dir_x = dx * len_inv;
+        dir_y = dy * len_inv;
+        setDirection(dir_x, dir_y);
+    }
 
-	@Override
-	public final float getOffsetZ() {
-		return deterministic_z;
-	}
+    @Override
+    public final void updateChecksum(@NonNull StateChecksum checksum) {
+        checksum.update(time);
+    }
 
-	@Override
-	public void animate(float t) {
-		if (time >= time_limit) {
-			hitTarget(hit, owner, target);
-			return;
-		}
+    @Override
+    public final float getOffsetZ() {
+        return deterministic_z;
+    }
 
-		if (hit) {
-			updateTarget();
-		}
-		time += t;
-		float progress = time/time_limit;
+    @Override
+    public void animate(float t) {
+        if (time >= time_limit) {
+            hitTarget(hit, owner, target);
+            return;
+        }
 
-		float x;
-		float y;
-		if (progress < 1f) {
-			x = start_x + (end_x - start_x)*progress;
-			y = start_y + (end_y - start_y)*progress;
-		} else {
-			x = end_x;
-			y = end_y;
-		}
-		
-		current_z += z_speed*t;
-		z_speed += GRAVITY*t;
-		
-		setPosition(x, y);
-		deterministic_z = current_z - owner.getWorld().getHeightMap().getNearestHeight(x, y);
+        if (hit) {
+            updateTarget();
+        }
+        time += t;
+        float progress = time / time_limit;
 
-		reinsert();
-		audio_player.setPos(getPositionX(), getPositionY(), getPositionZ() + getOffsetZ());
-	}
+        float x;
+        float y;
+        if (progress < 1f) {
+            x = start_x + (end_x - start_x) * progress;
+            y = start_y + (end_y - start_y) * progress;
+        } else {
+            x = end_x;
+            y = end_y;
+        }
 
-	protected void hitTarget(boolean hit, @NonNull Player owner, @NonNull Selectable<?> target) {
-		owner.getWorld().getAnimationManagerGameTime().removeAnimation(this);
-		audio_player.stop();
-		remove();
-		if (hit)
-			damageTarget(target);
-	}
+        current_z += z_speed * t;
+        z_speed += GRAVITY * t;
 
-	protected final void damageTarget(@NonNull Selectable<?> target) {
-		if (target instanceof Unit) {
-			owner.getWorld().getAudio().newAudio(new AudioParameters<>(hit_sounds[owner.getWorld().getRandom().nextInt(hit_sounds.length)], target.getPositionX(), target.getPositionY(), target.getPositionZ(),
-					AudioPlayer.AUDIO_RANK_DEATH,
-					AudioPlayer.AUDIO_DISTANCE_DEATH,
-					AudioPlayer.AUDIO_GAIN_DEATH,
-					AudioPlayer.AUDIO_RADIUS_DEATH,
-					1f + (owner.getWorld().getRandom().nextFloat() - .5f)*((UnitTemplate)target.getTemplate()).getDeathPitch()));
-		}
-		target.hit(getDamage(), dir_x, dir_y, owner);
-	}
+        setPosition(x, y);
+        deterministic_z = current_z - owner.getWorld().getHeightMap().getNearestHeight(x, y);
 
-	protected abstract int getDamage();
+        reinsert();
+        audio_player.setPos(getPositionX(), getPositionY(), getPositionZ() + getOffsetZ());
+    }
 
-	public final float getZSpeed() {
-		return z_speed;
-	}
+    protected void hitTarget(boolean hit, @NonNull Player owner, @NonNull Selectable<?> target) {
+        owner.getWorld().getAnimationManagerGameTime().removeAnimation(this);
+        audio_player.stop();
+        remove();
+        if (hit)
+            damageTarget(target);
+    }
 
-	@Override
-	public final float getNoDetailSize() {
-		return NO_DETAIL_SIZE;
-	}
+    protected final void damageTarget(@NonNull Selectable<?> target) {
+        if (target instanceof Unit) {
+            owner.getWorld().getAudio().newAudio(new AudioParameters<>(hit_sounds[owner.getWorld().getRandom().nextInt(hit_sounds.length)], target.getPositionX(), target.getPositionY(), target.getPositionZ(),
+                    AudioPlayer.AUDIO_RANK_DEATH,
+                    AudioPlayer.AUDIO_DISTANCE_DEATH,
+                    AudioPlayer.AUDIO_GAIN_DEATH,
+                    AudioPlayer.AUDIO_RADIUS_DEATH,
+                    1f + (owner.getWorld().getRandom().nextFloat() - .5f) * ((UnitTemplate) target.getTemplate()).getDeathPitch()));
+        }
+        target.hit(getDamage(), dir_x, dir_y, owner);
+    }
+
+    protected abstract int getDamage();
+
+    public final float getZSpeed() {
+        return z_speed;
+    }
+
+    @Override
+    public final float getNoDetailSize() {
+        return NO_DETAIL_SIZE;
+    }
 }

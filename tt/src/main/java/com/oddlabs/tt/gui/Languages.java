@@ -3,23 +3,23 @@ package com.oddlabs.tt.gui;
 import org.jspecify.annotations.NonNull;
 
 public final class Languages {
-	private static final String[][] languages = new String[][]{{"en", "English"}, {"da", "Dansk"}, {"de", "Deutsch"}, {"es","Español"}, {"it", "Italiano"}};
+    private static final String[][] languages = new String[][]{{"en", "English"}, {"da", "Dansk"}, {"de", "Deutsch"}, {"es", "Español"}, {"it", "Italiano"}};
 
-	public static boolean hasLanguage(@NonNull String language) {
+    public static boolean hasLanguage(@NonNull String language) {
         for (String[] aLanguage : languages) {
             if (aLanguage[0].equals(language)) {
                 return true;
             }
         }
-		return false;
-	}
+        return false;
+    }
 
-	public static  @NonNull String  @NonNull [] @NonNull [] getLanguages() {
-		return languages;
-	}
+    public static @NonNull String @NonNull [] @NonNull [] getLanguages() {
+        return languages;
+    }
 
-	public static @NonNull IconQuad @NonNull [] getFlags() {
-		IconQuad[] flags = {Skin.getSkin().getFlagEn(), Skin.getSkin().getFlagDa(), Skin.getSkin().getFlagDe(), Skin.getSkin().getFlagEs(), Skin.getSkin().getFlagIt()};
-		return flags;
-	}
+    public static @NonNull IconQuad @NonNull [] getFlags() {
+        IconQuad[] flags = {Skin.getSkin().getFlagEn(), Skin.getSkin().getFlagDa(), Skin.getSkin().getFlagDe(), Skin.getSkin().getFlagEs(), Skin.getSkin().getFlagIt()};
+        return flags;
+    }
 }

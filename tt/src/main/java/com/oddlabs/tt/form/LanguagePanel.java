@@ -47,9 +47,9 @@ public class LanguagePanel extends Panel {
             }
         }
 
-        Row<Locale,IconLabel> selectedLanguage = null;
+        Row<Locale, IconLabel> selectedLanguage = null;
         IconLabel label = new IconLabel(Skin.getSkin().getFlagDefault(), new Label(AbstractOptionsMenu.i18n("system_default"), Skin.getSkin().getMultiColumnComboBoxData().font()));
-        Row<Locale,IconLabel> row = new Row<>(new IconLabel[]{label}, Renderer.getRenderer().getDefaultLocale());
+        Row<Locale, IconLabel> row = new Row<>(new IconLabel[]{label}, Renderer.getRenderer().getDefaultLocale());
         language_list_box.addRow(row);
         if (Settings.getSettings().language.equals("default"))
             selectedLanguage = row;

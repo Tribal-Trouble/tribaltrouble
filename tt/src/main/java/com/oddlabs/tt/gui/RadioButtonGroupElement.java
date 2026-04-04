@@ -3,27 +3,27 @@ package com.oddlabs.tt.gui;
 import org.jspecify.annotations.NonNull;
 
 public abstract class RadioButtonGroupElement extends GUIObject {
-	private boolean marked = false;
+    private boolean marked = false;
 
-	private final @NonNull RadioButtonGroup group;
+    private final @NonNull RadioButtonGroup group;
 
-	public RadioButtonGroupElement(boolean marked, @NonNull RadioButtonGroup group) {
-		this.group = group;
-		group.add(this);
-		if (marked)
-			group.mark(this);
-	}
+    public RadioButtonGroupElement(boolean marked, @NonNull RadioButtonGroup group) {
+        this.group = group;
+        group.add(this);
+        if (marked)
+            group.mark(this);
+    }
 
-	public final boolean isMarked() {
-		return marked;
-	}
+    public final boolean isMarked() {
+        return marked;
+    }
 
-	protected final void setMarked(boolean marked) {
-		this.marked = marked;
-	}
+    protected final void setMarked(boolean marked) {
+        this.marked = marked;
+    }
 
-	@Override
-	protected void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
-		group.mark(this);
-	}
+    @Override
+    protected void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
+        group.mark(this);
+    }
 }

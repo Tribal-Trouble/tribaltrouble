@@ -5,52 +5,74 @@ import org.jspecify.annotations.NonNull;
 
 public interface Window extends AutoCloseable {
     void create(@NonNull SerializableDisplayMode mode, boolean fullscreen);
+
     void close();
+
     void update();
+
     void pollEvents();
-    
+
     boolean isOpen();
+
     boolean isCloseRequested();
+
     void setCloseRequested(boolean value);
+
     boolean isActive();
+
     boolean isVisible();
+
     boolean isIconified();
+
     boolean wasResized();
-    
+
     int getWidth();
+
     int getHeight();
-    
+
     void setTitle(String title);
+
     void setVSyncEnabled(boolean enabled);
+
     void setFullscreen(boolean fullscreen) throws Exception;
-    
-    @NonNull SerializableDisplayMode @NonNull[] getAvailableDisplayModes();
+
+    @NonNull SerializableDisplayMode @NonNull [] getAvailableDisplayModes();
+
     @NonNull SerializableDisplayMode getDisplayMode();
+
     void setDisplayMode(@NonNull SerializableDisplayMode mode) throws Exception;
-    
+
     void setIcon(java.nio.file.Path imagePath);
+
     void restore();
+
     void minimize();
+
     void show();
+
     void focus();
+
     void makeCurrent() throws Exception;
-    
+
     boolean isFullscreen();
 
     /**
      * Returns the physical size of the monitor in millimeters.
+     *
      * @return int array [widthMM, heightMM]
      */
     int[] getMonitorPhysicalSize();
 
     /**
      * Returns the content scale of the monitor.
+     *
      * @return float array [xScale, yScale]
      */
     float[] getMonitorContentScale();
 
     /**
      * Returns the content scale of the window.
+     *
      * @return float array [xScale, yScale]
      */
     float[] getWindowContentScale();

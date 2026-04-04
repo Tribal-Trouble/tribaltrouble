@@ -13,37 +13,37 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class InstantHitFactory extends WeaponFactory {
-	private final @NonNull Audio @NonNull [] sounds;
+    private final @NonNull Audio @NonNull [] sounds;
 
-	public InstantHitFactory(float hit_chance, float range, float release_ratio, @NonNull Audio @NonNull[] sounds) {
-		super(hit_chance, range, release_ratio);
-		this.sounds = sounds;
-	}
+    public InstantHitFactory(float hit_chance, float range, float release_ratio, @NonNull Audio @NonNull [] sounds) {
+        super(hit_chance, range, release_ratio);
+        this.sounds = sounds;
+    }
 
-	@Override
-	protected void doAttack(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target) {
-		int damage = 1;
-		if (target instanceof Building && target.getTemplate().getAbilities().hasAbilities(Abilities.ATTACK))
-			damage = 6;
-		else if (!hit)
-			return;
-		float dx = target.getPositionX() - src.getPositionX();
-		float dy = target.getPositionY() - src.getPositionY();
-		float dir_len_inv = 1f/(float)Math.sqrt(dx*dx + dy*dy);
-		if (target instanceof Unit) {
-			World world = src.getOwner().getWorld();
-			world.getAudio().newAudio(new AudioParameters<>(sounds[world.getRandom().nextInt(sounds.length)], target.getPositionX(), target.getPositionY(), target.getPositionZ(),
-					AudioPlayer.AUDIO_RANK_DEATH,
-					AudioPlayer.AUDIO_DISTANCE_DEATH,
-					AudioPlayer.AUDIO_GAIN_DEATH,
-					AudioPlayer.AUDIO_RADIUS_DEATH,
-					1f + (world.getRandom().nextFloat() - .5f)*((UnitTemplate)target.getTemplate()).getDeathPitch()));
-		}
-		target.hit(damage, dx*dir_len_inv, dy*dir_len_inv, src.getOwner());
-	}
+    @Override
+    protected void doAttack(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target) {
+        int damage = 1;
+        if (target instanceof Building && target.getTemplate().getAbilities().hasAbilities(Abilities.ATTACK))
+            damage = 6;
+        else if (!hit)
+            return;
+        float dx = target.getPositionX() - src.getPositionX();
+        float dy = target.getPositionY() - src.getPositionY();
+        float dir_len_inv = 1f / (float) Math.sqrt(dx * dx + dy * dy);
+        if (target instanceof Unit) {
+            World world = src.getOwner().getWorld();
+            world.getAudio().newAudio(new AudioParameters<>(sounds[world.getRandom().nextInt(sounds.length)], target.getPositionX(), target.getPositionY(), target.getPositionZ(),
+                    AudioPlayer.AUDIO_RANK_DEATH,
+                    AudioPlayer.AUDIO_DISTANCE_DEATH,
+                    AudioPlayer.AUDIO_GAIN_DEATH,
+                    AudioPlayer.AUDIO_RADIUS_DEATH,
+                    1f + (world.getRandom().nextFloat() - .5f) * ((UnitTemplate) target.getTemplate()).getDeathPitch()));
+        }
+        target.hit(damage, dx * dir_len_inv, dy * dir_len_inv, src.getOwner());
+    }
 
-	@Override
-	public @Nullable Class<? extends ThrowingWeapon> getType() {
-		return null;
-	}
+    @Override
+    public @Nullable Class<? extends ThrowingWeapon> getType() {
+        return null;
+    }
 }

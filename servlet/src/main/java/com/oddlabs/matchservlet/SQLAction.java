@@ -5,5 +5,5 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 interface SQLAction {
-	void run() throws SQLException, ServletException, IOException;
+    void run() throws SQLException, ServletException, IOException;
 }

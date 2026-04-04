@@ -26,7 +26,8 @@ import java.util.stream.Stream;
  */
 public final class TextureProcessor {
 
-    private TextureProcessor() {}
+    private TextureProcessor() {
+    }
 
     /**
      * Processes a single file to a specific output file.
@@ -56,13 +57,13 @@ public final class TextureProcessor {
             // copy input to workDir to have a clean, known name
             Path inputCopy = workDir.resolve("input.png");
             Files.copy(infile, inputCopy);
-            
+
             // Step 0: Check for alpha to know whether to look for BC1 or BC3
             Layer source = loadFile(infile);
             boolean hasAlpha = source.a != null;
-            
+
             Path tempKtx2 = workDir.resolve("input.ktx2");
-            
+
             // Step 1: Compress to .ktx2
             List<String> compressCmd = new ArrayList<>();
             compressCmd.add(basisuPath);
@@ -70,8 +71,8 @@ public final class TextureProcessor {
             compressCmd.add(inputCopy.toAbsolutePath().toString());
             compressCmd.add("-output_file");
             compressCmd.add(tempKtx2.toAbsolutePath().toString());
-            compressCmd.add("-ktx2"); 
-            
+            compressCmd.add("-ktx2");
+
             boolean mipmaps = false;
             boolean flip = false;
             for (int i = 0; i < operations.size(); i++) {
@@ -85,13 +86,13 @@ public final class TextureProcessor {
                 compressCmd.add("-mipmap");
             }
             // basisu defaults to no mipmaps, so we don't need -no_mipmap (which is invalid)
-            
+
             if (flip) compressCmd.add("-y_flip");
-            
+
             // Use quality 1 (ETC1S) which transcodes reliably to BC1/BC3
             compressCmd.add("-comp_level");
-            compressCmd.add("1"); 
-            
+            compressCmd.add("1");
+
             execute(compressCmd, workDir);
 
             // Step 2: Unpack to standard DDS. 
@@ -101,9 +102,9 @@ public final class TextureProcessor {
             unpackCmd.add("-unpack");
             unpackCmd.add("-file");
             unpackCmd.add(tempKtx2.toAbsolutePath().toString());
-            
+
             execute(unpackCmd, workDir);
-            
+
             // Find the produced .dds (BC1 or BC3)
             String targetSuffix = hasAlpha ? "BC3_RGBA" : "BC1_RGB";
             Path unpackedDds = null;
@@ -113,21 +114,21 @@ public final class TextureProcessor {
                     return name.endsWith(".dds") && name.contains(targetSuffix);
                 }).findFirst().orElse(null);
             }
-            
+
             if (unpackedDds == null) {
                 // Fallback: search for ANY .dds in the work directory
                 try (Stream<Path> s = Files.list(workDir)) {
                     unpackedDds = s.filter(p -> p.toString().endsWith(".dds")).findFirst().orElse(null);
                 }
             }
-            
+
             if (unpackedDds == null || !Files.exists(unpackedDds)) {
                 throw new IOException("Basisu failed to create any DDS output in " + workDir);
             }
-            
+
             Files.createDirectories(outfile.getParent());
             Files.move(unpackedDds, outfile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            
+
         } finally {
             deleteDirectory(workDir);
         }
@@ -149,8 +150,8 @@ public final class TextureProcessor {
 
     private static void execute(@NonNull List<String> command, @NonNull Path workingDir) throws IOException {
         Process process = new ProcessBuilder(command)
-            .directory(workingDir.toFile())
-            .start();
+                .directory(workingDir.toFile())
+                .start();
         try {
             int exitCode = process.waitFor();
             if (exitCode != 0) {

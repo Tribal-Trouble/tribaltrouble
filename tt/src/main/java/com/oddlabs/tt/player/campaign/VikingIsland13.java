@@ -25,83 +25,84 @@ import java.util.ResourceBundle;
 import java.util.stream.IntStream;
 
 public final class VikingIsland13 extends Island {
-	private static final  ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland13.class.getName());
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland13.class.getName());
 
-	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
-		return Utils.getBundleString(bundle, key, args);
-	}
-	private final int minutes = 15;
-	private final CounterLabel counter = new CounterLabel(minutes*60f, Skin.getSkin().getHeadlineFont(), true);
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+        return Utils.getBundleString(bundle, key, args);
+    }
 
-	private boolean alive;
-	
-	public VikingIsland13(@NonNull Campaign campaign) {
-		super(campaign);
-	}
+    private final int minutes = 15;
+    private final CounterLabel counter = new CounterLabel(minutes * 60f, Skin.getSkin().getHeadlineFont(), true);
 
-	@Override
-	public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-		String[] ai_names = IntStream.range(0,6)
-				.mapToObj(i -> i18n( "name" + i))
-				.toArray(String[]::new);
-		// gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
-		GameNetwork game_network = startNewGame(network, gui_root, 512, Landscape.TerrainType.NATIVE, 1f, 1f, .8f, 16, 13, VikingCampaign.MAX_UNITS, ai_names);
-		game_network.getClient().getServerInterface().setPlayerSlot(0,
-				PlayerSlot.HUMAN,
-				RacesResources.RACE_VIKINGS,
-				0,
-				true,
-				PlayerSlot.AI_NONE);
-		game_network.getClient().setUnitInfo(0,
-				new UnitInfo(false, false, 0, true,
-					getCampaign().getState().getNumPeons(),
-					getCampaign().getState().getNumRockWarriors(),
-					getCampaign().getState().getNumIronWarriors(),
-					getCampaign().getState().getNumRubberWarriors()));
-		game_network.getClient().getServerInterface().setPlayerSlot(2,
-				PlayerSlot.AI,
-				RacesResources.RACE_NATIVES,
-				1,
-				true,
-				PlayerSlot.AI_PASSIVE_CAMPAIGN);
-		game_network.getClient().setUnitInfo(2, new UnitInfo(true, true, 0, false, 0, 10, 30, 0));
-		game_network.getClient().getServerInterface().startServer();
-	}
+    private boolean alive;
 
-	@Override
-	protected void start() {
-		alive = true;
-		counter.start(getViewer().getWorld().getAnimationManagerGameTime());
-		counter.setPos(0, 0);
-		getViewer().getGUIRoot().addChild(counter);
+    public VikingIsland13(@NonNull Campaign campaign) {
+        super(campaign);
+    }
 
-		Runnable runnable;
-		final Player local_player = getViewer().getLocalPlayer();
-		final Player enemy = getViewer().getWorld().getPlayers()[1];
+    @Override
+    public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
+        String[] ai_names = IntStream.range(0, 6)
+                .mapToObj(i -> i18n("name" + i))
+                .toArray(String[]::new);
+        // gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
+        GameNetwork game_network = startNewGame(network, gui_root, 512, Landscape.TerrainType.NATIVE, 1f, 1f, .8f, 16, 13, VikingCampaign.MAX_UNITS, ai_names);
+        game_network.getClient().getServerInterface().setPlayerSlot(0,
+                PlayerSlot.HUMAN,
+                RacesResources.RACE_VIKINGS,
+                0,
+                true,
+                PlayerSlot.AI_NONE);
+        game_network.getClient().setUnitInfo(0,
+                new UnitInfo(false, false, 0, true,
+                        getCampaign().getState().getNumPeons(),
+                        getCampaign().getState().getNumRockWarriors(),
+                        getCampaign().getState().getNumIronWarriors(),
+                        getCampaign().getState().getNumRubberWarriors()));
+        game_network.getClient().getServerInterface().setPlayerSlot(2,
+                PlayerSlot.AI,
+                RacesResources.RACE_NATIVES,
+                1,
+                true,
+                PlayerSlot.AI_PASSIVE_CAMPAIGN);
+        game_network.getClient().setUnitInfo(2, new UnitInfo(true, true, 0, false, 0, 10, 30, 0));
+        game_network.getClient().getServerInterface().startServer();
+    }
 
-		// Introduction
-		runnable = () -> {
-                    String stay_alive_dialog = i18n("dialog0", minutes);
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header0"),
-                            stay_alive_dialog,
-                            getCampaign().getIcons().getFaces()[0],
-                            Origin.AT_START);
-                    addModalForm(dialog);
-                };
+    @Override
+    protected void start() {
+        alive = true;
+        counter.start(getViewer().getWorld().getAnimationManagerGameTime());
+        counter.setPos(0, 0);
+        getViewer().getGUIRoot().addChild(counter);
 
-		new GameStartedTrigger(getViewer().getWorld(), runnable);
-		// Winner prize
-		runnable = () -> {
-                    getCampaign().getState().setIslandState(13, CampaignState.ISLAND_COMPLETED);
-                    getCampaign().getState().setIslandState(12, CampaignState.ISLAND_AVAILABLE);
-                    getCampaign().getState().setIslandState(14, CampaignState.ISLAND_AVAILABLE);
-                    if (isAlive()) {
-                        removeCounter();
-                    }
-                    getCampaign().victory(getViewer());
-                };
-		// Winning condition
-		new TimeTrigger(getViewer().getWorld(), minutes*60f, runnable);
+        Runnable runnable;
+        final Player local_player = getViewer().getLocalPlayer();
+        final Player enemy = getViewer().getWorld().getPlayers()[1];
+
+        // Introduction
+        runnable = () -> {
+            String stay_alive_dialog = i18n("dialog0", minutes);
+            CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header0"),
+                    stay_alive_dialog,
+                    getCampaign().getIcons().getFaces()[0],
+                    Origin.AT_START);
+            addModalForm(dialog);
+        };
+
+        new GameStartedTrigger(getViewer().getWorld(), runnable);
+        // Winner prize
+        runnable = () -> {
+            getCampaign().getState().setIslandState(13, CampaignState.ISLAND_COMPLETED);
+            getCampaign().getState().setIslandState(12, CampaignState.ISLAND_AVAILABLE);
+            getCampaign().getState().setIslandState(14, CampaignState.ISLAND_AVAILABLE);
+            if (isAlive()) {
+                removeCounter();
+            }
+            getCampaign().victory(getViewer());
+        };
+        // Winning condition
+        new TimeTrigger(getViewer().getWorld(), minutes * 60f, runnable);
 /*
 // done by DefeatTrigger in super
 		// Remove counter if defeated
@@ -112,170 +113,170 @@ public final class VikingIsland13 extends Island {
 		};
 		new DefeatTrigger(getCampaign(), local_player.getChieftain(), runnable);
 */
-		// Insert native towers
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 167, 60);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 171, 55);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 160, 60);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 142, 70);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 135, 72);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 130, 74);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 125, 76);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 120, 71);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 115, 67);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 95, 68);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 93, 63);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 92, 57);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 90, 52);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 96, 38);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 99, 34);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 105, 24);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 164, 51);
-		insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 103, 57);
+        // Insert native towers
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 167, 60);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 171, 55);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 160, 60);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 142, 70);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 135, 72);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 130, 74);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 125, 76);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 120, 71);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 115, 67);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 95, 68);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 93, 63);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 92, 57);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 90, 52);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 96, 38);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 99, 34);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 105, 24);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 164, 51);
+        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 103, 57);
 
-		final int attack1;
-		final int attack2;
-		final int attack3;
-		final int attack4;
-		final int attack5;
-		final int attack6;
-		switch (getCampaign().getState().getDifficulty()) {
-			case CampaignState.DIFFICULTY_EASY:
-				attack1 = 5;
-				attack2 = 15;
-				attack3 = 20;
-				attack4 = 35;
-				attack5 = 35;
-				attack6 = 35;
-				break;
-			case CampaignState.DIFFICULTY_NORMAL:
-				attack1 = 10;
-				attack2 = 30;
-				attack3 = 40;
-				attack4 = 70;
-				attack5 = 70;
-				attack6 = 70;
-				break;
-			case CampaignState.DIFFICULTY_HARD:
-				attack1 = 20;
-				attack2 = 60;
-				attack3 = 80;
-				attack4 = 90;
-				attack5 = 90;
-				attack6 = 90;
-				break;
-			default:
-				throw new RuntimeException();
-		}
+        final int attack1;
+        final int attack2;
+        final int attack3;
+        final int attack4;
+        final int attack5;
+        final int attack6;
+        switch (getCampaign().getState().getDifficulty()) {
+            case CampaignState.DIFFICULTY_EASY:
+                attack1 = 5;
+                attack2 = 15;
+                attack3 = 20;
+                attack4 = 35;
+                attack5 = 35;
+                attack6 = 35;
+                break;
+            case CampaignState.DIFFICULTY_NORMAL:
+                attack1 = 10;
+                attack2 = 30;
+                attack3 = 40;
+                attack4 = 70;
+                attack5 = 70;
+                attack6 = 70;
+                break;
+            case CampaignState.DIFFICULTY_HARD:
+                attack1 = 20;
+                attack2 = 60;
+                attack3 = 80;
+                attack4 = 90;
+                attack5 = 90;
+                attack6 = 90;
+                break;
+            default:
+                throw new RuntimeException();
+        }
 
-		// Fill native armory with units and weapons
-		refillArmory(enemy);
+        // Fill native armory with units and weapons
+        refillArmory(enemy);
 
-		// Attack1
-		runnable = () -> {
-                    Building armory = local_player.getArmory();
-                    Unit chieftain = local_player.getChieftain();
-                    if (armory != null && !armory.isDead()) {
-                        attack(enemy, armory, attack1);
-                    } else if (chieftain != null && !chieftain.isDead()) {
-                        attack(enemy, chieftain, attack1);
-                    }
-                    refillArmory(enemy);
-                    deploy(enemy, attack2);
-                };
-		new TimeTrigger(getViewer().getWorld(), 3.5f*60f, runnable);
+        // Attack1
+        runnable = () -> {
+            Building armory = local_player.getArmory();
+            Unit chieftain = local_player.getChieftain();
+            if (armory != null && !armory.isDead()) {
+                attack(enemy, armory, attack1);
+            } else if (chieftain != null && !chieftain.isDead()) {
+                attack(enemy, chieftain, attack1);
+            }
+            refillArmory(enemy);
+            deploy(enemy, attack2);
+        };
+        new TimeTrigger(getViewer().getWorld(), 3.5f * 60f, runnable);
 
-		// Attack2
-		runnable = () -> {
-                    Building armory = local_player.getArmory();
-                    Unit chieftain = local_player.getChieftain();
-                    if (armory != null && !armory.isDead()) {
-                        attack(enemy, armory, attack2);
-                    } else if (chieftain != null && !chieftain.isDead()) {
-                        attack(enemy, chieftain, attack2);
-                    }
-                    refillArmory(enemy);
-                    deploy(enemy, attack3);
-                };
-		new TimeTrigger(getViewer().getWorld(), 4.5f*60f, runnable);
+        // Attack2
+        runnable = () -> {
+            Building armory = local_player.getArmory();
+            Unit chieftain = local_player.getChieftain();
+            if (armory != null && !armory.isDead()) {
+                attack(enemy, armory, attack2);
+            } else if (chieftain != null && !chieftain.isDead()) {
+                attack(enemy, chieftain, attack2);
+            }
+            refillArmory(enemy);
+            deploy(enemy, attack3);
+        };
+        new TimeTrigger(getViewer().getWorld(), 4.5f * 60f, runnable);
 
-		// Attack3
-		runnable = () -> {
-                    Building armory = local_player.getArmory();
-                    Unit chieftain = local_player.getChieftain();
-                    if (armory != null && !armory.isDead()) {
-                        attack(enemy, armory, attack3);
-                    } else if (chieftain != null && !chieftain.isDead()) {
-                        attack(enemy, chieftain, attack3);
-                    }
-                    refillArmory(enemy);
-                    deploy(enemy, attack4);
-                };
-		new TimeTrigger(getViewer().getWorld(), 6*60f, runnable);
+        // Attack3
+        runnable = () -> {
+            Building armory = local_player.getArmory();
+            Unit chieftain = local_player.getChieftain();
+            if (armory != null && !armory.isDead()) {
+                attack(enemy, armory, attack3);
+            } else if (chieftain != null && !chieftain.isDead()) {
+                attack(enemy, chieftain, attack3);
+            }
+            refillArmory(enemy);
+            deploy(enemy, attack4);
+        };
+        new TimeTrigger(getViewer().getWorld(), 6 * 60f, runnable);
 
-		// Attack4
-		runnable = () -> {
-                    Building armory = local_player.getArmory();
-                    Unit chieftain = local_player.getChieftain();
-                    if (armory != null && !armory.isDead()) {
-                        attack(enemy, armory, attack4);
-                    } else if (chieftain != null && !chieftain.isDead()) {
-                        attack(enemy, chieftain, attack4);
-                    }
-                    refillArmory(enemy);
-                    deploy(enemy, attack5);
-                };
-		new TimeTrigger(getViewer().getWorld(), 9*60f, runnable);
+        // Attack4
+        runnable = () -> {
+            Building armory = local_player.getArmory();
+            Unit chieftain = local_player.getChieftain();
+            if (armory != null && !armory.isDead()) {
+                attack(enemy, armory, attack4);
+            } else if (chieftain != null && !chieftain.isDead()) {
+                attack(enemy, chieftain, attack4);
+            }
+            refillArmory(enemy);
+            deploy(enemy, attack5);
+        };
+        new TimeTrigger(getViewer().getWorld(), 9 * 60f, runnable);
 
-		// Attack5
-		runnable = () -> {
-                    Building armory = local_player.getArmory();
-                    Unit chieftain = local_player.getChieftain();
-                    if (armory != null && !armory.isDead()) {
-                        attack(enemy, armory, attack5);
-                    } else if (chieftain != null && !chieftain.isDead()) {
-                        attack(enemy, chieftain, attack5);
-                    }
-                    refillArmory(enemy);
-                    deploy(enemy, attack6);
-                };
-		new TimeTrigger(getViewer().getWorld(), 11*60f, runnable);
+        // Attack5
+        runnable = () -> {
+            Building armory = local_player.getArmory();
+            Unit chieftain = local_player.getChieftain();
+            if (armory != null && !armory.isDead()) {
+                attack(enemy, armory, attack5);
+            } else if (chieftain != null && !chieftain.isDead()) {
+                attack(enemy, chieftain, attack5);
+            }
+            refillArmory(enemy);
+            deploy(enemy, attack6);
+        };
+        new TimeTrigger(getViewer().getWorld(), 11 * 60f, runnable);
 
-		// Attack6
-		runnable = () -> {
-                    Building armory = local_player.getArmory();
-                    Unit chieftain = local_player.getChieftain();
-                    if (armory != null && !armory.isDead()) {
-                        attack(enemy, armory, attack6);
-                    } else if (chieftain != null && !chieftain.isDead()) {
-                        attack(enemy, chieftain, attack6);
-                    }
-                    refillArmory(enemy);
-                };
-		new TimeTrigger(getViewer().getWorld(), 12.5f*60f, runnable);
-	}
+        // Attack6
+        runnable = () -> {
+            Building armory = local_player.getArmory();
+            Unit chieftain = local_player.getChieftain();
+            if (armory != null && !armory.isDead()) {
+                attack(enemy, armory, attack6);
+            } else if (chieftain != null && !chieftain.isDead()) {
+                attack(enemy, chieftain, attack6);
+            }
+            refillArmory(enemy);
+        };
+        new TimeTrigger(getViewer().getWorld(), 12.5f * 60f, runnable);
+    }
 
-	private boolean isAlive() {
-		return alive;
-	}
+    private boolean isAlive() {
+        return alive;
+    }
 
-	public void removeCounter() {
-		alive = false;
-		counter.stop();
-		counter.remove();
-	}
+    public void removeCounter() {
+        alive = false;
+        counter.stop();
+        counter.remove();
+    }
 
-	@Override
-	public @NonNull CharSequence getHeader() {
-		return i18n("header");
-	}
+    @Override
+    public @NonNull CharSequence getHeader() {
+        return i18n("header");
+    }
 
-	@Override
-	public @NonNull CharSequence getDescription() {
-		return i18n("description");
-	}
+    @Override
+    public @NonNull CharSequence getDescription() {
+        return i18n("description");
+    }
 
-	@Override
-	public @NonNull CharSequence getCurrentObjective() {
-		return i18n("objective", minutes);
-	}
+    @Override
+    public @NonNull CharSequence getCurrentObjective() {
+        return i18n("objective", minutes);
+    }
 }

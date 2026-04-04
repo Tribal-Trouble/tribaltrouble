@@ -8,8 +8,8 @@ import org.lwjgl.opengl.GL11;
  * This shader handles basic model-view-projection transformation,
  * vertex colors, and texture modulation.
  */
- public final class GUIShader extends ShaderProgram {
-    
+public final class GUIShader extends ShaderProgram {
+
     /**
      * The vertex shader source code for UI rendering.
      */

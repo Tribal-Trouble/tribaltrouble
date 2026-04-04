@@ -12,8 +12,8 @@ import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
 public final class VikingCampaign extends Campaign {
-	public static final int MAX_UNITS = 46;
-	private static final int[] INITIAL_STATES = new int[]{
+    public static final int MAX_UNITS = 46;
+    private static final int[] INITIAL_STATES = new int[]{
 /*
 		CampaignState.ISLAND_AVAILABLE,
 		CampaignState.ISLAND_AVAILABLE,
@@ -31,84 +31,84 @@ public final class VikingCampaign extends Campaign {
 		CampaignState.ISLAND_AVAILABLE,
 		CampaignState.ISLAND_AVAILABLE};
 */
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_UNAVAILABLE,
-		CampaignState.ISLAND_UNAVAILABLE,
-		CampaignState.ISLAND_UNAVAILABLE,
-		CampaignState.ISLAND_UNAVAILABLE,
-		CampaignState.ISLAND_UNAVAILABLE,
-		CampaignState.ISLAND_UNAVAILABLE,
-		CampaignState.ISLAND_UNAVAILABLE,
-		CampaignState.ISLAND_UNAVAILABLE,
-		CampaignState.ISLAND_UNAVAILABLE,
-		CampaignState.ISLAND_HIDDEN,
-		CampaignState.ISLAND_UNAVAILABLE,
-		CampaignState.ISLAND_UNAVAILABLE,
-		CampaignState.ISLAND_UNAVAILABLE,
-		CampaignState.ISLAND_UNAVAILABLE};
+            CampaignState.ISLAND_AVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_HIDDEN,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE};
 
-	private final @NonNull Island @NonNull [] islands;
+    private final @NonNull Island @NonNull [] islands;
 
-	public VikingCampaign(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-		this(network, gui_root, new CampaignState(INITIAL_STATES));
-	}
+    public VikingCampaign(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
+        this(network, gui_root, new CampaignState(INITIAL_STATES));
+    }
 
-	public VikingCampaign(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, CampaignState campaign_state) {
-		super(campaign_state);
-		islands = new Island[VikingCampaignIcons.getIcons().getNumIslands()];
-		islands[0] = new VikingIsland0(this);
-		islands[1] = new VikingIsland1(this);
-		islands[2] = new VikingIsland2(this);
-		islands[3] = new VikingIsland3(this);
-		islands[4] = new VikingIsland4(this);
-		islands[5] = new VikingIsland5(this);
-		islands[6] = new VikingIsland6(this);
-		islands[7] = new VikingIsland7(this);
-		islands[8] = new VikingIsland8(this);
-		islands[9] = new VikingIsland9(this);
-		islands[10] = new VikingIsland10(this);
-		islands[11] = new VikingIsland11(this);
-		islands[12] = new VikingIsland12(this);
-		islands[13] = new VikingIsland13(this);
-		islands[14] = new VikingIsland14(this);
-		if (getState().getCurrentIsland() == -1) {
-			startIsland(network, gui_root, 0);
-		}
-	}
+    public VikingCampaign(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, CampaignState campaign_state) {
+        super(campaign_state);
+        islands = new Island[VikingCampaignIcons.getIcons().getNumIslands()];
+        islands[0] = new VikingIsland0(this);
+        islands[1] = new VikingIsland1(this);
+        islands[2] = new VikingIsland2(this);
+        islands[3] = new VikingIsland3(this);
+        islands[4] = new VikingIsland4(this);
+        islands[5] = new VikingIsland5(this);
+        islands[6] = new VikingIsland6(this);
+        islands[7] = new VikingIsland7(this);
+        islands[8] = new VikingIsland8(this);
+        islands[9] = new VikingIsland9(this);
+        islands[10] = new VikingIsland10(this);
+        islands[11] = new VikingIsland11(this);
+        islands[12] = new VikingIsland12(this);
+        islands[13] = new VikingIsland13(this);
+        islands[14] = new VikingIsland14(this);
+        if (getState().getCurrentIsland() == -1) {
+            startIsland(network, gui_root, 0);
+        }
+    }
 
-	@Override
-	public @NonNull CampaignIcons getIcons() {
-		return VikingCampaignIcons.getIcons();
-	}
+    @Override
+    public @NonNull CampaignIcons getIcons() {
+        return VikingCampaignIcons.getIcons();
+    }
 
-	@Override
-	public void islandChosen(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
-		Form dialog = new CampaignDialogForm(islands[number].getHeader(),
-				islands[number].getDescription(),
-				null,
-				Origin.AT_START,
-				() -> startIsland(network, gui_root, number), true);
-		gui_root.addModalForm(dialog);
-	}
+    @Override
+    public void islandChosen(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
+        Form dialog = new CampaignDialogForm(islands[number].getHeader(),
+                islands[number].getDescription(),
+                null,
+                Origin.AT_START,
+                () -> startIsland(network, gui_root, number), true);
+        gui_root.addModalForm(dialog);
+    }
 
-	@Override
-	public @NonNull CharSequence getCurrentObjective() {
-		if (getState().getCurrentIsland() != -1) {
-			return islands[getState().getCurrentIsland()].getCurrentObjective();
-		}
-		throw new IllegalStateException("No current island");
-	}
+    @Override
+    public @NonNull CharSequence getCurrentObjective() {
+        if (getState().getCurrentIsland() != -1) {
+            return islands[getState().getCurrentIsland()].getCurrentObjective();
+        }
+        throw new IllegalStateException("No current island");
+    }
 
-	@Override
-	public void defeated(@NonNull WorldViewer viewer, @NonNull String game_over_message) {
-		if (getState().getCurrentIsland() == 13)
-			((VikingIsland13)islands[13]).removeCounter();
-		super.defeated(viewer, game_over_message);
-	}
+    @Override
+    public void defeated(@NonNull WorldViewer viewer, @NonNull String game_over_message) {
+        if (getState().getCurrentIsland() == 13)
+            ((VikingIsland13) islands[13]).removeCounter();
+        super.defeated(viewer, game_over_message);
+    }
 
-	@Override
-	public void startIsland(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
-		getState().setCurrentIsland(number);
-		islands[number].chosen(network, gui_root);
-	}
+    @Override
+    public void startIsland(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
+        getState().setCurrentIsland(number);
+        islands[number].chosen(network, gui_root);
+    }
 }

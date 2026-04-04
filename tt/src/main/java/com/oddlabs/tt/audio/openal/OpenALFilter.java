@@ -13,7 +13,7 @@ import static org.lwjgl.openal.EXTEfx.alFilteri;
 import static org.lwjgl.openal.EXTEfx.alGenFilters;
 
 public final class OpenALFilter extends NativeResource<OpenALFilter.FilterState> {
-    
+
     static final class FilterState extends NativeResource.NativeState {
         final int filterId;
 

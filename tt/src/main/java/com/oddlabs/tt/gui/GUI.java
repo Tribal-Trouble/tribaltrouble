@@ -78,11 +78,11 @@ public final class GUI implements Animated {
         Matrix4f modelView = new Matrix4f();
         var guiRoot = getGUIRoot();
         CameraState camera = guiRoot.getDelegate().getCamera().getState();
-        
+
         var renderer_instance = Renderer.getRenderer();
         var window = renderer_instance.getWindow();
         RenderContext context = renderer_instance.getRenderContext();
-        
+
         camera.setView(guiRoot.multProjection(proj.identity()), window.getWidth(), window.getHeight());
         modelView.set(camera.getModelView());
 
@@ -98,7 +98,7 @@ public final class GUI implements Animated {
 
         if (renderer != null)
             renderer.render(context, ambient, frustum_state, current_root);
-        
+
         if (renderer != null) {
             renderer.endFrame(context, this::renderGUI);
         } else {

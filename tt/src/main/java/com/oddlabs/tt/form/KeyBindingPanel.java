@@ -43,13 +43,13 @@ public class KeyBindingPanel extends Panel {
         this.gui_root = gui_root;
 
         ColumnInfo[] infos = new ColumnInfo[]{
-            new ColumnInfo(AbstractOptionsMenu.i18n("column_action"), COL_ACTION_WIDTH),
-            new ColumnInfo(AbstractOptionsMenu.i18n("column_bindings"), COL_BINDINGS_WIDTH)
+                new ColumnInfo(AbstractOptionsMenu.i18n("column_action"), COL_ACTION_WIDTH),
+                new ColumnInfo(AbstractOptionsMenu.i18n("column_bindings"), COL_BINDINGS_WIDTH)
         };
-        
+
         list_box = new MultiColumnComboBox<>(gui_root, infos, 300, false);
         addChild(list_box);
-        
+
         updateList();
 
         list_box.addRowListener(new RowListener<>() {
@@ -65,22 +65,22 @@ public class KeyBindingPanel extends Panel {
         // Buttons
         Group button_group = new Group();
         addChild(button_group);
-        
+
         HorizButton btn_reset = new HorizButton(AbstractOptionsMenu.i18n("btn_reset_all"), 100);
-        btn_reset.addMouseClickListener((_,_,_,_) -> gui_root.addModalForm(new QuestionForm(AbstractOptionsMenu.i18n("confirm_reset_all"), (_, _, _, _) -> {
+        btn_reset.addMouseClickListener((_, _, _, _) -> gui_root.addModalForm(new QuestionForm(AbstractOptionsMenu.i18n("confirm_reset_all"), (_, _, _, _) -> {
             Renderer.getLocalInput().getInputManager().resetToDefaults();
             updateList();
         })));
         button_group.addChild(btn_reset);
-        
+
         HorizButton btn_save = new HorizButton(AbstractOptionsMenu.i18n("btn_save_bindings"), 100);
-        btn_save.addMouseClickListener((_,_,_,_) -> saveMappings());
+        btn_save.addMouseClickListener((_, _, _, _) -> saveMappings());
         button_group.addChild(btn_save);
-        
+
         HorizButton btn_load = new HorizButton(AbstractOptionsMenu.i18n("btn_load_bindings"), 100);
-        btn_load.addMouseClickListener((_,_,_,_) -> loadMappings());
+        btn_load.addMouseClickListener((_, _, _, _) -> loadMappings());
         button_group.addChild(btn_load);
-        
+
         btn_reset.place();
         btn_save.place(btn_reset, RIGHT_MID);
         btn_load.place(btn_save, RIGHT_MID);
@@ -88,7 +88,7 @@ public class KeyBindingPanel extends Panel {
 
         list_box.place();
         button_group.place(list_box, BOTTOM_LEFT);
-        
+
         compileCanvas();
     }
 
@@ -107,10 +107,10 @@ public class KeyBindingPanel extends Panel {
             } catch (Exception e) {
                 name = action.name();
             }
-            
+
             List<InputBinding> bindings = Renderer.getLocalInput().getInputManager().getBindings(action);
             Label l2;
-            
+
             if (bindings.isEmpty()) {
                 l2 = new InvertedLabel(AbstractOptionsMenu.i18n("unassigned"), Skin.getSkin().getMultiColumnComboBoxData().font(), COL_BINDINGS_WIDTH);
             } else {
@@ -132,12 +132,12 @@ public class KeyBindingPanel extends Panel {
                 }).collect(Collectors.joining(", "));
                 l2 = new Label(bindingStr, Skin.getSkin().getMultiColumnComboBoxData().font());
             }
-            
+
             Label l1 = new SortedLabel(name, action.ordinal(), Skin.getSkin().getMultiColumnComboBoxData().font());
             list_box.addRow(new Row<>(new Label[]{l1, l2}, action));
         }
     }
-    
+
     private void saveMappings() {
         boolean wasFullscreen = Settings.getSettings().fullscreen;
         if (wasFullscreen) {
@@ -158,7 +158,7 @@ public class KeyBindingPanel extends Panel {
             Renderer.getRenderer().toggleFullscreen();
         }
     }
-    
+
     private void loadMappings() {
         boolean wasFullscreen = Settings.getSettings().fullscreen;
         if (wasFullscreen) {

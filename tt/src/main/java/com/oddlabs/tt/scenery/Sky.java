@@ -95,7 +95,7 @@ public final class Sky implements SceneRenderer, AutoCloseable {
     // Cloud animation state
     private final float[] innerOffset = new float[2];
     private final float[] outerOffset = new float[2];
-    
+
     // Inner layer state
     private float innerDirection = 0f;
     private float innerSpeed = SKYDOME_SPEED_INNER[0] * 0.01f;
@@ -133,7 +133,7 @@ public final class Sky implements SceneRenderer, AutoCloseable {
              var _ = context.withBlendMode(BlendMode.NONE);
              var _ = context.withDepthMode(DepthMode.READ_WRITE);
              var _ = context.withCullMode(CullMode.BACK)) {
-            
+
             skyShader.setUniformMatrix4(SkyShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
             skyShader.setUniform(SkyShader.Uniforms.SKY_COLOR, color.get(0), color.get(1), color.get(2), color.get(3));
 
@@ -175,7 +175,7 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         innerTimeSinceChange += dt;
         if (innerTimeSinceChange > innerChangeInterval) {
             innerTimeSinceChange = 0f;
-            innerChangeInterval = 30f + (float) random.nextGaussian() * 10f; 
+            innerChangeInterval = 30f + (float) random.nextGaussian() * 10f;
             float dirChange = (float) random.nextGaussian() * 10f;
             targetInnerDirection += (float) Math.toRadians(dirChange);
             float speedChange = innerSpeed * (float) random.nextGaussian() * 0.1f;
@@ -183,14 +183,14 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         }
         innerDirection += (targetInnerDirection - innerDirection) * dt * 0.2f;
         innerSpeed += (targetInnerSpeed - innerSpeed) * dt * 0.2f;
-        
+
         innerOffset[0] += (float) Math.cos(innerDirection) * innerSpeed * dt;
         innerOffset[1] += (float) Math.sin(innerDirection) * innerSpeed * dt;
 
         outerTimeSinceChange += dt;
         if (outerTimeSinceChange > outerChangeInterval) {
             outerTimeSinceChange = 0f;
-            outerChangeInterval = 40f + (float) random.nextGaussian() * 15f; 
+            outerChangeInterval = 40f + (float) random.nextGaussian() * 15f;
             float dirChange = (float) random.nextGaussian() * 8f;
             targetOuterDirection += (float) Math.toRadians(dirChange);
             float speedChange = outerSpeed * (float) random.nextGaussian() * 0.1f;
@@ -220,7 +220,7 @@ public final class Sky implements SceneRenderer, AutoCloseable {
              var _ = context.withBlendMode(BlendMode.NONE);
              var _ = context.withDepthMode(DepthMode.READ_WRITE);
              var _ = context.withCullMode(CullMode.BACK)) {
-            
+
             seaBottomShader.setUniformMatrix4(SeaBottomShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
 
             var seaColor = switch (terrain) {
@@ -255,7 +255,7 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         this.color = tex_env_color[terrain.ordinal()].get(BufferUtils.createFloatBuffer(4)).rewind();
         TextureGenerator clouds_desc = new GeneratorClouds(terrain);
         clouds = Resources.findResource(clouds_desc);
-        
+
         // Create interleaved VBO for the sky
         int num_vertices_sky = subdiv_axis * (subdiv_height - 1) + 1;
         int stride = (3 + 3 + 2 + 2 + 3) * Float.BYTES; // pos, norm, uv0, uv1, color
@@ -355,7 +355,7 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         float h_angle_inc = ((float) java.lang.Math.PI / 2) / (subdiv_height - 1);
         float a_angle_inc = (float) java.lang.Math.PI * 2 / subdiv_axis;
         float offset_angle = a_angle_inc / 2f;
-        
+
         Vector4f skydome_default_color = new Vector4f(
                 (float) Math.pow(SKYDOME_GRADIENT[terrain.ordinal()].x(), SKYDOME_DEFAULT_COLOR),
                 (float) Math.pow(SKYDOME_GRADIENT[terrain.ordinal()].y(), SKYDOME_DEFAULT_COLOR),
@@ -385,7 +385,7 @@ public final class Sky implements SceneRenderer, AutoCloseable {
             for (int j = 0; j < subdiv_axis; j++) {
                 x = (float) java.lang.Math.cos(START_ANGLE + a_angle_inc * j + offset_angle * i) * r;
                 y = (float) java.lang.Math.sin(START_ANGLE + a_angle_inc * j + offset_angle * i) * r;
-                
+
                 buffer.put(x + origin_x).put(y + origin_y).put(z + origin_z); // Position
                 float inv_len = 1.0f / (float) Math.sqrt(x * x + y * y + z * z);
                 buffer.put(x * inv_len).put(y * inv_len).put(z * inv_len); // Normal
@@ -425,7 +425,7 @@ public final class Sky implements SceneRenderer, AutoCloseable {
     private @NonNull ShortVBO makeSkyFanIndices() {
         int size = subdiv_axis + 2;
         ShortBuffer temp = Objects.requireNonNull(BufferUtils.createShortBuffer(size));
-        temp.put(0, (short) (sky_vbo.capacity() / ( (3 + 3 + 2 + 2 + 3) * Float.BYTES) - 1));
+        temp.put(0, (short) (sky_vbo.capacity() / ((3 + 3 + 2 + 2 + 3) * Float.BYTES) - 1));
         for (int i = 0; i < subdiv_axis; i++) {
             temp.put(i + 1, (short) ((subdiv_height - 1) * subdiv_axis - i - 1));
         }
@@ -452,20 +452,20 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         int gridUnitsPerWorld = heightmap.getGridUnitsPerWorld();
         int size = 4 * gridUnitsPerWorld;
         SkyStitchVertex[] result = new SkyStitchVertex[size];
-        
+
         int metersPerUnit = HeightMap.METERS_PER_UNIT_GRID;
         int metersPerWorld = heightmap.getMetersPerWorld();
 
         for (int i = 0; i < gridUnitsPerWorld; i++) {
             int index = i;
             result[index] = new SkyStitchVertex(heightmap, index, 0, 0, i * metersPerUnit);
-            
+
             index = i + gridUnitsPerWorld;
             result[index] = new SkyStitchVertex(heightmap, index, 0, i * metersPerUnit, metersPerWorld);
-            
+
             index = i + gridUnitsPerWorld * 2;
             result[index] = new SkyStitchVertex(heightmap, index, 0, metersPerWorld, metersPerWorld - i * metersPerUnit);
-            
+
             index = i + gridUnitsPerWorld * 3;
             result[index] = new SkyStitchVertex(heightmap, index, 0, metersPerWorld - i * metersPerUnit, 0);
         }

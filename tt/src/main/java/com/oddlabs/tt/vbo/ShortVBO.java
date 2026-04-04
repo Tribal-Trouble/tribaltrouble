@@ -11,21 +11,21 @@ import java.nio.ShortBuffer;
 
 public final class ShortVBO extends VBO {
 
-	public ShortVBO(int usage, int size) {
-		super(GL15.GL_ELEMENT_ARRAY_BUFFER, usage, size * Short.BYTES);
-	}
+    public ShortVBO(int usage, int size) {
+        super(GL15.GL_ELEMENT_ARRAY_BUFFER, usage, size * Short.BYTES);
+    }
 
-	public ShortVBO(int usage, @NonNull ShortBuffer initial_data) {
-		this(usage, initial_data.remaining());
-		put(initial_data);
-	}
+    public ShortVBO(int usage, @NonNull ShortBuffer initial_data) {
+        this(usage, initial_data.remaining());
+        put(initial_data);
+    }
 
-	private static void registerTrianglesRendered(int mode, int count) {
-		int num_triangles = getNumTriangles(mode, count);
-		Renderer.registerTrianglesRendered(num_triangles);
-	}
+    private static void registerTrianglesRendered(int mode, int count) {
+        int num_triangles = getNumTriangles(mode, count);
+        Renderer.registerTrianglesRendered(num_triangles);
+    }
 
-	private static int getNumTriangles(int mode, int count) {
+    private static int getNumTriangles(int mode, int count) {
         return switch (mode) {
             case GL11.GL_TRIANGLES -> count / 3;
             case GL11.GL_QUADS -> count >> 2;
@@ -36,32 +36,32 @@ public final class ShortVBO extends VBO {
             case GL11.GL_LINE_STRIP -> (count - 1) * 2;
             default -> throw new RuntimeException("Unknown primitive type: 0x" + Integer.toHexString(mode));
         };
-	}
+    }
 
-	public void put(@NonNull ShortBuffer buffer) {
+    public void put(@NonNull ShortBuffer buffer) {
         makeCurrent();
         GL15.glBufferSubData(getTarget(), 0, buffer);
         buffer.position(buffer.limit());
-	}
+    }
 
-	public void put(short @NonNull [] buffer) {
-		put(Utils.toBuffer(buffer));
-	}
+    public void put(short @NonNull [] buffer) {
+        put(Utils.toBuffer(buffer));
+    }
 
-	public void drawElements(int mode, int count, int index) {
-		registerTrianglesRendered(mode, count);
+    public void drawElements(int mode, int count, int index) {
+        registerTrianglesRendered(mode, count);
         makeCurrent();
-        GL11.glDrawElements(mode, count, GL11.GL_UNSIGNED_SHORT, index<<1);
-	}
+        GL11.glDrawElements(mode, count, GL11.GL_UNSIGNED_SHORT, index << 1);
+    }
 
     public void drawElementsInstanced(int mode, int count, int index, int primcount) {
         registerTrianglesRendered(mode, count * primcount);
         makeCurrent();
-        GL31.glDrawElementsInstanced(mode, count, GL11.GL_UNSIGNED_SHORT, index<<1, primcount);
+        GL31.glDrawElementsInstanced(mode, count, GL11.GL_UNSIGNED_SHORT, index << 1, primcount);
     }
 
-	@Override
-	public int capacity() {
-		return getSize() / Short.BYTES;
-	}
+    @Override
+    public int capacity() {
+        return getSize() / Short.BYTES;
+    }
 }

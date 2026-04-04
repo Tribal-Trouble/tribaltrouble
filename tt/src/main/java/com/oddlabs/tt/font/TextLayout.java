@@ -8,7 +8,8 @@ import java.util.List;
 
 public final class TextLayout {
 
-    public record Line(CharSequence content, int startIndex) {}
+    public record Line(CharSequence content, int startIndex) {
+    }
 
     private final @NonNull Font font;
     private final @NonNull CharSequence text;

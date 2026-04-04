@@ -6,8 +6,11 @@ import org.jspecify.annotations.NonNull;
 import java.io.Serializable;
 
 public interface WorldGenerator extends Serializable {
-	@NonNull WorldInfo generate(int num_players, int initial_unit_count, float random_start_pos);
-	Landscape.@NonNull TerrainType getTerrainType();
-	int getMetersPerWorld();
-	@NonNull FogInfo getFogInfo();
+    @NonNull WorldInfo generate(int num_players, int initial_unit_count, float random_start_pos);
+
+    Landscape.@NonNull TerrainType getTerrainType();
+
+    int getMetersPerWorld();
+
+    @NonNull FogInfo getFogInfo();
 }

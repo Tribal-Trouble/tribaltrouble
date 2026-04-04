@@ -6,22 +6,22 @@ import com.oddlabs.tt.player.Player;
 import org.jspecify.annotations.NonNull;
 
 public final class SupplyTrigger extends TutorialTrigger {
-	private static final int TREE = 20;
-	private static final int ROCK = 10;
+    private static final int TREE = 20;
+    private static final int ROCK = 10;
 
-	public SupplyTrigger(@NonNull Player player) {
-		super(.5f, 0f, "supply", new Object[]{TREE, ROCK});
-		player.enableHarvesting(true);
-	}
+    public SupplyTrigger(@NonNull Player player) {
+        super(.5f, 0f, "supply", new Object[]{TREE, ROCK});
+        player.enableHarvesting(true);
+    }
 
-	@Override
-	protected void run(@NonNull Tutorial tutorial) {
-		for (var s : tutorial.getViewer().getSelection().getCurrentSelection().getSet()) {
-			if (s instanceof Building armory && s.getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
-				if (armory.getSupplyContainer(com.oddlabs.tt.model.RockSupply.class).getNumSupplies() >= ROCK &&
-						armory.getSupplyContainer(com.oddlabs.tt.landscape.TreeSupply.class).getNumSupplies() >= TREE)
-					tutorial.next(new BuildMenuTrigger(tutorial.getViewer().getLocalPlayer()));
-			}
-		}
-	}
+    @Override
+    protected void run(@NonNull Tutorial tutorial) {
+        for (var s : tutorial.getViewer().getSelection().getCurrentSelection().getSet()) {
+            if (s instanceof Building armory && s.getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
+                if (armory.getSupplyContainer(com.oddlabs.tt.model.RockSupply.class).getNumSupplies() >= ROCK &&
+                        armory.getSupplyContainer(com.oddlabs.tt.landscape.TreeSupply.class).getNumSupplies() >= TREE)
+                    tutorial.next(new BuildMenuTrigger(tutorial.getViewer().getLocalPlayer()));
+            }
+        }
+    }
 }

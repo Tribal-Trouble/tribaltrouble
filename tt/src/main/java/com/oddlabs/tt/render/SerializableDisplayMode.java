@@ -9,14 +9,13 @@ public final class SerializableDisplayMode implements Serializable, Comparable<S
 
     private static final SerializableDisplayMode DEFAULT_MODE = new SerializableDisplayMode(0, 0, 0, 0);
 
-	@Serial
-	private static final long serialVersionUID = 1;
+    @Serial
+    private static final long serialVersionUID = 1;
 
     private final int width;
     private final int height;
     private final int freq;
     private final int bpp;
-
 
 
     public SerializableDisplayMode(int width, int height, int bpp, int freq) {
@@ -40,12 +39,12 @@ public final class SerializableDisplayMode implements Serializable, Comparable<S
         return getDistanceFromBestMode(this) < getDistanceFromBestMode(o)
                 ? -1
                 : getDistanceFromBestMode(this) > getDistanceFromBestMode(o)
-                    ? 1
-                    : bpp_dist1 < bpp_dist2
-                        ? -1
-                        : bpp_dist1 > bpp_dist2
-                            ? 1
-                            : Integer.compare(freq_dist1, freq_dist2);
+                  ? 1
+                  : bpp_dist1 < bpp_dist2
+                    ? -1
+                    : bpp_dist1 > bpp_dist2
+                      ? 1
+                      : Integer.compare(freq_dist1, freq_dist2);
     }
 
     private static int getDistanceFromBestMode(@NonNull SerializableDisplayMode mode) {

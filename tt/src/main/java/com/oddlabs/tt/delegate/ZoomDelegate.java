@@ -11,77 +11,77 @@ import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
 public class ZoomDelegate extends InGameDelegate {
-	private static final float ZOOM_FACTOR_CORRECTION = .25f;
+    private static final float ZOOM_FACTOR_CORRECTION = .25f;
 
-	private final int start_x;
-	private final int start_y;
+    private final int start_x;
+    private final int start_y;
     private final int physical_start_x;
     private final int physical_start_y;
 
-	private final GameCamera game_camera;
+    private final GameCamera game_camera;
 
-	private boolean done = false;
+    private boolean done = false;
 
-	public ZoomDelegate(@NonNull WorldViewer viewer, GameCamera camera) {
-		super(viewer, camera);
-		game_camera = camera;
-		var localInput = Renderer.getLocalInput();
+    public ZoomDelegate(@NonNull WorldViewer viewer, GameCamera camera) {
+        super(viewer, camera);
+        game_camera = camera;
+        var localInput = Renderer.getLocalInput();
         physical_start_x = localInput.getMouseX();
         physical_start_y = localInput.getMouseY();
         float scale = viewer.getGUIRoot().getGlobalScale();
-		start_x = Math.round(physical_start_x / scale);
-		start_y = Math.round(physical_start_y / scale);
-	}
+        start_x = Math.round(physical_start_x / scale);
+        start_y = Math.round(physical_start_y / scale);
+    }
 
-	private void release() {
-		done = true;
-	}
+    private void release() {
+        done = true;
+    }
 
-	@Override
-	public final void doRemove() {
-		super.doRemove();
-		if (!done) {
-			release();
-		}
-	}
+    @Override
+    public final void doRemove() {
+        super.doRemove();
+        if (!done) {
+            release();
+        }
+    }
 
-	@Override
-	public void handleInput(@NonNull InputEvent event) {
-		if (!done && event.getPhase() == InputPhase.RELEASED && event.consumeAction(GameAction.CAMERA_ZOOM_MODE)) {
-			pop();
-		}
-		event.consume();
-	}
+    @Override
+    public void handleInput(@NonNull InputEvent event) {
+        if (!done && event.getPhase() == InputPhase.RELEASED && event.consumeAction(GameAction.CAMERA_ZOOM_MODE)) {
+            pop();
+        }
+        event.consume();
+    }
 
-	@Override
-	public void mouseScrolled(int amount) {
-	}
+    @Override
+    public void mouseScrolled(int amount) {
+    }
 
-	@Override
-	public void mouseMoved(int x, int y) {
-		if (!done) {
-			int dy = y - start_y;
+    @Override
+    public void mouseMoved(int x, int y) {
+        if (!done) {
+            int dy = y - start_y;
 
-			float zoom_factor = dy*ZOOM_FACTOR_CORRECTION;
-			game_camera.zoom(zoom_factor);
-			Renderer.getLocalInput().getPointerInput().setCursorPosition(physical_start_x, physical_start_y);
-		}
-	}
+            float zoom_factor = dy * ZOOM_FACTOR_CORRECTION;
+            game_camera.zoom(zoom_factor);
+            Renderer.getLocalInput().getPointerInput().setCursorPosition(physical_start_x, physical_start_y);
+        }
+    }
 
-	@Override
-	public void mouseDragged (@NonNull MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
-	}
+    @Override
+    public void mouseDragged(@NonNull MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
+    }
 
-	@Override
-	public void mousePressed (@NonNull MouseButton button, int x, int y) {
-	}
+    @Override
+    public void mousePressed(@NonNull MouseButton button, int x, int y) {
+    }
 
-	@Override
-	public void mouseReleased (@NonNull MouseButton button, int x, int y) {
-	}
+    @Override
+    public void mouseReleased(@NonNull MouseButton button, int x, int y) {
+    }
 
-	@Override
-	protected @NonNull CursorType getCursorType() {
-		return CursorType.NULL;
-	}
+    @Override
+    protected @NonNull CursorType getCursorType() {
+        return CursorType.NULL;
+    }
 }

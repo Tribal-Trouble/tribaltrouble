@@ -23,20 +23,20 @@ public interface Shader {
     String COLOR = "in_Color";
 
     String GLOBAL_STATE_BLOCK = """
-        layout(std140) uniform GlobalState {
-            mat4 u_projectionMatrix;
-            mat4 u_viewMatrix;
-            vec3 u_lightDirection;
-            vec3 u_globalAmbient;
-            vec3 u_groundAmbient;
-            vec4 u_fogColor;
-            vec3 u_fogParams;
-            float u_cameraHeight;
-            float u_fogHeightFactor;
-            float u_globalTime;
-            int u_fogMode;
-        };
-        """;
+            layout(std140) uniform GlobalState {
+                mat4 u_projectionMatrix;
+                mat4 u_viewMatrix;
+                vec3 u_lightDirection;
+                vec3 u_globalAmbient;
+                vec3 u_groundAmbient;
+                vec4 u_fogColor;
+                vec3 u_fogParams;
+                float u_cameraHeight;
+                float u_fogHeightFactor;
+                float u_globalTime;
+                int u_fogMode;
+            };
+            """;
 
     boolean inUse();
 

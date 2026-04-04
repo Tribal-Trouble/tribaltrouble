@@ -37,41 +37,41 @@ public abstract class VBO extends NativeResource<VBO.Buffer> {
         }
     }
 
-	private final int target;
-	private final int size;
+    private final int target;
+    private final int size;
 
-	private static void makeCurrent(int target, int handle) {
-		GL15.glBindBuffer(target, handle);
-	}
+    private static void makeCurrent(int target, int handle) {
+        GL15.glBindBuffer(target, handle);
+    }
 
-	public static void releaseAll() {
-		makeCurrent(GL15.GL_ARRAY_BUFFER, 0);
-		releaseIndexVBO();
-	}
+    public static void releaseAll() {
+        makeCurrent(GL15.GL_ARRAY_BUFFER, 0);
+        releaseIndexVBO();
+    }
 
-	public static void releaseIndexVBO() {
-	    makeCurrent(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-	}
+    public static void releaseIndexVBO() {
+        makeCurrent(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
 
-	public final void makeCurrent() {
-		makeCurrent(target, state.handle);
-	}
+    public final void makeCurrent() {
+        makeCurrent(target, state.handle);
+    }
 
-	public VBO(int target, int usage, int size) {
+    public VBO(int target, int usage, int size) {
         super(new Buffer(target, usage, size));
-		this.target = target;
-		this.size = size;
-	}
+        this.target = target;
+        this.size = size;
+    }
 
-	protected final int getTarget() {
-		return target;
-	}
+    protected final int getTarget() {
+        return target;
+    }
 
-	protected final int getSize() {
-		return size;
-	}
+    protected final int getSize() {
+        return size;
+    }
 
-	public abstract int capacity();
+    public abstract int capacity();
 
     public int getHandle() {
         return state.handle;

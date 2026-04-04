@@ -19,54 +19,54 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class Stun implements Magic {
-	private final float hit_radius;
-	private final float stun_time_closest;
-	private final float stun_time_farthest;
-	private final @NonNull Player owner;
-	private final float start_x;
-	private final float start_y;
-	private final @NonNull RandomVelocityEmitter emitter;
-	private final @NonNull AbstractAudioPlayer sound;
+    private final float hit_radius;
+    private final float stun_time_closest;
+    private final float stun_time_farthest;
+    private final @NonNull Player owner;
+    private final float start_x;
+    private final float start_y;
+    private final @NonNull RandomVelocityEmitter emitter;
+    private final @NonNull AbstractAudioPlayer sound;
 
-	private final @NonNull Iterable<? extends Selectable<?>> target_list;
+    private final @NonNull Iterable<? extends Selectable<?>> target_list;
 
-	public Stun(float offset_x, float offset_y, float offset_z, float hit_radius, float stun_time_closest, float stun_time_farthest, @NonNull Unit src) {
-		this.hit_radius = hit_radius;
-		this.stun_time_closest = stun_time_closest;
-		this.stun_time_farthest = stun_time_farthest;
-		this.owner = src.getOwner();
+    public Stun(float offset_x, float offset_y, float offset_z, float hit_radius, float stun_time_closest, float stun_time_farthest, @NonNull Unit src) {
+        this.hit_radius = hit_radius;
+        this.stun_time_closest = stun_time_closest;
+        this.stun_time_farthest = stun_time_farthest;
+        this.owner = src.getOwner();
 
-		start_x = src.getPositionX() + offset_x*src.getDirectionX() - offset_y*(-src.getDirectionY());
-		start_y = src.getPositionY() + offset_x*src.getDirectionY() + offset_y*src.getDirectionX();
-		float z = src.getPositionZ() + offset_z;
-		float alpha = 12f;
-		float energy = 4f;
-		emitter = new RandomVelocityEmitter(owner.getWorld(), new Vector3f(start_x, start_y, z), 0f, 0f,
-				.001f, .001f, .5f, (float)Math.PI,
-				-1, 35f,
-				new Vector3f(0f, 0f, 6f), new Vector3f(0f, 0f, -2f),
-				new Vector4f(1f, 1f, 1f, alpha), new Vector4f(0f, 0f, 0f, -alpha/energy),
-				new Vector3f(.3f, .3f, .3f), new Vector3f(.025f, .025f, .025f), energy, 1f,
-				GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
-				owner.getWorld().getRacesResources().getNoteTextures(),
-				owner.getWorld().getAnimationManagerGameTime());
-		
-		var filter = new FindOccupantFilter<>(src.getPositionX(), src.getPositionY(), hit_radius, src, Selectable.genericClass());
+        start_x = src.getPositionX() + offset_x * src.getDirectionX() - offset_y * (-src.getDirectionY());
+        start_y = src.getPositionY() + offset_x * src.getDirectionY() + offset_y * src.getDirectionX();
+        float z = src.getPositionZ() + offset_z;
+        float alpha = 12f;
+        float energy = 4f;
+        emitter = new RandomVelocityEmitter(owner.getWorld(), new Vector3f(start_x, start_y, z), 0f, 0f,
+                .001f, .001f, .5f, (float) Math.PI,
+                -1, 35f,
+                new Vector3f(0f, 0f, 6f), new Vector3f(0f, 0f, -2f),
+                new Vector4f(1f, 1f, 1f, alpha), new Vector4f(0f, 0f, 0f, -alpha / energy),
+                new Vector3f(.3f, .3f, .3f), new Vector3f(.025f, .025f, .025f), energy, 1f,
+                GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
+                owner.getWorld().getRacesResources().getNoteTextures(),
+                owner.getWorld().getAnimationManagerGameTime());
+
+        var filter = new FindOccupantFilter<>(src.getPositionX(), src.getPositionY(), hit_radius, src, Selectable.genericClass());
 //		FindOccupantFilter filter = new FindOccupantFilter(src.getPositionX(), src.getPositionY(), hit_radius, src, Unit.class);
-		UnitGrid unit_grid = owner.getWorld().getUnitGrid();
-		unit_grid.scan(filter, UnitGrid.toGridCoordinate(src.getPositionX()), UnitGrid.toGridCoordinate(src.getPositionY()));
-		target_list = filter.getResult();
+        UnitGrid unit_grid = owner.getWorld().getUnitGrid();
+        unit_grid.scan(filter, UnitGrid.toGridCoordinate(src.getPositionX()), UnitGrid.toGridCoordinate(src.getPositionY()));
+        target_list = filter.getResult();
 
-		sound = owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getStunSound(owner.getWorld().getRandom()), start_x, start_y, z,
+        sound = owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getStunSound(owner.getWorld().getRandom()), start_x, start_y, z,
                 AudioPlayer.AUDIO_RANK_MAGIC,
                 AudioPlayer.AUDIO_DISTANCE_MAGIC,
                 AudioPlayer.AUDIO_GAIN_STUN_LUR,
                 AudioPlayer.AUDIO_RADIUS_STUN_LUR,
                 1f));
-	}
+    }
 
-	@Override
-	public void animate(float t) {
+    @Override
+    public void animate(float t) {
         for (Selectable<?> selectable : target_list) {
             Unit unit = null;
             if (selectable instanceof Unit unit1) {
@@ -92,21 +92,21 @@ public final class Stun implements Magic {
                 unit.stun(time);
             }
         }
-		interrupt();
-	}
+        interrupt();
+    }
 
-	private float calculateValueFromCurrentRadius(float current_radius, float max, float min) {
-		float base_factor = 6f/7f;
-		float error = (float)Math.pow(base_factor, hit_radius);
-		float factor = (float)Math.pow(base_factor, current_radius);
-		float result = (max - min + error)*factor + min - error;
-		return result;
-	}
+    private float calculateValueFromCurrentRadius(float current_radius, float max, float min) {
+        float base_factor = 6f / 7f;
+        float error = (float) Math.pow(base_factor, hit_radius);
+        float factor = (float) Math.pow(base_factor, current_radius);
+        float result = (max - min + error) * factor + min - error;
+        return result;
+    }
 
     @Override
-	public void interrupt() {
+    public void interrupt() {
         emitter.done();
         sound.stop(.3f, Settings.getSettings().sound_gain);
         owner.getWorld().getAnimationManagerGameTime().removeAnimation(this);
-	}
+    }
 }

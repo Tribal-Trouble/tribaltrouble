@@ -31,20 +31,20 @@ public final class GlobalUniforms {
             float time
     ) {
         buffer.clear();
-        
+
         // 0: mat4 projection (64)
         camera.getProjectionMatrix().get(0, buffer);
-        
+
         // 64: mat4 view (64)
         camera.getModelView().get(64, buffer);
-        
+
         // 128: vec3 lightDir (16 aligned)
         buffer.position(128);
         buffer.putFloat(lightDir.x());
         buffer.putFloat(lightDir.y());
         buffer.putFloat(lightDir.z());
         buffer.putFloat(0f); // padding
-        
+
         // 144: vec3 skyAmbient (16 aligned)
         buffer.putFloat(skyAmbient.x());
         buffer.putFloat(skyAmbient.y());
@@ -56,7 +56,7 @@ public final class GlobalUniforms {
         buffer.putFloat(groundAmbient.y());
         buffer.putFloat(groundAmbient.z());
         buffer.putFloat(0f); // padding
-        
+
         // 176: vec4 fogColor (16)
         FogInfo fog = camera.getFog();
         Vector4fc color = fog.getColor();
@@ -64,13 +64,13 @@ public final class GlobalUniforms {
         buffer.putFloat(color.y());
         buffer.putFloat(color.z());
         buffer.putFloat(color.w());
-        
+
         // 192: vec3 fogParams (16 aligned)
         // 204: float cameraHeight (4) -- Packed tightly after vec3
         // 208: float fogHeightFactor (4)
         // 212: float globalTime (4)
         // 216: int fogMode (4)
-        
+
         int mode = -1;
         float hf = 0f;
         float ch = camera.getCurrentZ();
@@ -100,12 +100,12 @@ public final class GlobalUniforms {
         buffer.putFloat(p2);
         buffer.putFloat(p3);
         // NO padding here; vec3 takes 12 bytes, next float starts at 12 bytes offset (align 4)
-        
+
         buffer.putFloat(ch);
         buffer.putFloat(hf);
         buffer.putFloat(time);
         buffer.putInt(mode);
-        
+
         buffer.position(224); // End of data (220 used, pad to 224 for 16-byte alignment)
     }
 }

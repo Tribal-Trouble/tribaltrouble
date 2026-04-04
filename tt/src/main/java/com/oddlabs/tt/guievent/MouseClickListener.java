@@ -5,5 +5,5 @@ import org.jspecify.annotations.NonNull;
 
 @FunctionalInterface
 public interface MouseClickListener extends EventListener {
-	void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks);
+    void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks);
 }

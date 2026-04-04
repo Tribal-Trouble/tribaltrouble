@@ -45,9 +45,15 @@ final class ParticleModelState implements ModelState<Particle> {
 
         // 2. Apply the inverse of the camera's rotation to face the camera
         // We can copy the transposed upper 3x3 of the view matrix to achieve this
-        dest.m00(viewMatrix.m00()); dest.m01(viewMatrix.m10()); dest.m02(viewMatrix.m20());
-        dest.m10(viewMatrix.m01()); dest.m11(viewMatrix.m11()); dest.m12(viewMatrix.m21());
-        dest.m20(viewMatrix.m02()); dest.m21(viewMatrix.m12()); dest.m22(viewMatrix.m22());
+        dest.m00(viewMatrix.m00());
+        dest.m01(viewMatrix.m10());
+        dest.m02(viewMatrix.m20());
+        dest.m10(viewMatrix.m01());
+        dest.m11(viewMatrix.m11());
+        dest.m12(viewMatrix.m21());
+        dest.m20(viewMatrix.m02());
+        dest.m21(viewMatrix.m12());
+        dest.m22(viewMatrix.m22());
 
         // 3. Scale the particle
         dest.scale(particle.getRadiusX(), particle.getRadiusY(), particle.getRadiusZ());

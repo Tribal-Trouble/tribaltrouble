@@ -29,11 +29,11 @@ public final class DecalRenderer implements AutoCloseable {
     private final @NonNull FloatVBO meshVBO;
     private final @NonNull ShortVBO meshIBO;
     private final @NonNull FloatVBO instanceVBO;
-    
+
     private static final int MAX_INSTANCES = 1024;
     private static final int FLOATS_PER_INSTANCE = 2 + 1 + 4; // Pos(2) + Size(1) + Color(4)
     private final @NonNull FloatBuffer instanceBuffer;
-    
+
     private int instanceCount = 0;
     private @Nullable Texture currentTexture;
 
@@ -71,7 +71,7 @@ public final class DecalRenderer implements AutoCloseable {
                 short topRight = (short) (topLeft + 1);
                 short bottomLeft = (short) ((y + 1) * GRID_SIZE + x);
                 short bottomRight = (short) (bottomLeft + 1);
-                
+
                 indices.put(topLeft).put(bottomLeft).put(topRight);
                 indices.put(topRight).put(bottomLeft).put(bottomRight);
             }
@@ -85,7 +85,7 @@ public final class DecalRenderer implements AutoCloseable {
 
         // Instance Attributes
         int stride = FLOATS_PER_INSTANCE * Float.BYTES;
-        
+
         // in_InstancePos (Loc 4, 2 floats)
         GL20.glEnableVertexAttribArray(4);
         GL20.glVertexAttribPointer(4, 2, GL11.GL_FLOAT, false, stride, 0);
@@ -106,12 +106,12 @@ public final class DecalRenderer implements AutoCloseable {
 
     public @NonNull ScopedState setup(@NonNull RenderContext context, @NonNull LandscapeRenderer landscape, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         var shaderUseState = shader.use();
-        
+
         shader.setUniformMatrix4(DecalShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
-        
+
         shader.setUniform(DecalShader.Uniforms.WORLD_SIZE, (float) landscape.getHeightMap().getMetersPerWorld());
         shader.setUniform(DecalShader.Uniforms.DEPTH_BIAS, 0.05f);
-        
+
         context.setTexture(1, landscape.getHeightMap().getHeightTexture());
         shader.setUniform(DecalShader.Uniforms.HEIGHT_MAP, 1);
 
@@ -123,7 +123,7 @@ public final class DecalRenderer implements AutoCloseable {
         // Bias to prevent Z-fighting with terrain
         GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
         GL11.glPolygonOffset(-16.0f, -32.0f);
-        
+
         // Disable writing to Mask Buffer (Attachment 1) since DecalShader doesn't output to it
         GL11.glDrawBuffer(GL30.GL_COLOR_ATTACHMENT0);
 
@@ -131,11 +131,11 @@ public final class DecalRenderer implements AutoCloseable {
             flush(context);
             shaderUseState.close();
             GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
-            
+
             cull.close();
             depth.close();
             blend.close();
-            
+
             // Restore draw buffers (Color + Mask)
             try (org.lwjgl.system.MemoryStack stack = org.lwjgl.system.MemoryStack.stackPush()) {
                 java.nio.IntBuffer buffers = stack.mallocInt(2);
@@ -179,7 +179,7 @@ public final class DecalRenderer implements AutoCloseable {
         instanceBuffer.clear(); // Reset for writing
 
         GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, INDEX_COUNT, GL11.GL_UNSIGNED_SHORT, 0, instanceCount);
-        
+
         vao.unbind();
         instanceCount = 0;
     }

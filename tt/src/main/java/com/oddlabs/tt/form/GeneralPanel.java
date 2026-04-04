@@ -23,7 +23,7 @@ import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 public class GeneralPanel extends Panel {
     private static final int SLIDER_WIDTH = 270;
     private static final int MAX_VALUE = 20;
-    
+
     private final PulldownMenu<Void> pm_gamespeed = new PulldownMenu<>();
 
     public GeneralPanel(@NonNull GUIRoot gui_root, @NonNull IntConsumer onGamespeedChange) {
@@ -56,9 +56,9 @@ public class GeneralPanel extends Panel {
         group_mapmode.addChild(label_mapmode_none);
         Label label_mapmode_high = new Label(AbstractOptionsMenu.i18n("delay_high"), Skin.getSkin().getEditFont());
         group_mapmode.addChild(label_mapmode_high);
-        Slider slider_mapmode = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, (int)(Settings.getSettings().mapmode_delay * MAX_VALUE));
+        Slider slider_mapmode = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, (int) (Settings.getSettings().mapmode_delay * MAX_VALUE));
         group_mapmode.addChild(slider_mapmode);
-        slider_mapmode.addValueListener(value -> Settings.getSettings().mapmode_delay = (float)value/(MAX_VALUE));
+        slider_mapmode.addValueListener(value -> Settings.getSettings().mapmode_delay = (float) value / (MAX_VALUE));
         label_mapmode_headline.place();
         label_mapmode_none.place(label_mapmode_headline, BOTTOM_LEFT);
         slider_mapmode.place(label_mapmode_none, RIGHT_MID);
@@ -74,10 +74,10 @@ public class GeneralPanel extends Panel {
         group_tooltip.addChild(label_tooltip_none);
         Label label_tooltip_high = new Label(AbstractOptionsMenu.i18n("delay_high"), Skin.getSkin().getEditFont());
         group_tooltip.addChild(label_tooltip_high);
-        Slider slider_tooltip = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, (int)(Settings.getSettings().tooltip_delay * MAX_VALUE));
+        Slider slider_tooltip = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, (int) (Settings.getSettings().tooltip_delay * MAX_VALUE));
         group_tooltip.addChild(slider_tooltip);
         slider_tooltip.addValueListener(value -> {
-            Settings.getSettings().tooltip_delay = (float)value/(MAX_VALUE);
+            Settings.getSettings().tooltip_delay = (float) value / (MAX_VALUE);
             gui_root.setToolTipTimer();
         });
         label_tooltip_headline.place();
@@ -91,13 +91,13 @@ public class GeneralPanel extends Panel {
         addChild(group_gamespeed);
         Label label_gamespeed = new Label(AbstractOptionsMenu.i18n("gamespeed"), Skin.getSkin().getEditFont());
         group_gamespeed.addChild(label_gamespeed);
-        
+
         pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_PAUSE)));
         pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_SLOW)));
         pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_NORMAL)));
         pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_FAST)));
         pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_LUDICROUS)));
-        
+
         PulldownButton<Void> pb_gamespeed = new PulldownButton<>(gui_root, pm_gamespeed, 150);
         pm_gamespeed.addItemChosenListener((_, item_index) -> onGamespeedChange.accept(item_index));
         group_gamespeed.addChild(pb_gamespeed);
@@ -113,7 +113,7 @@ public class GeneralPanel extends Panel {
         group_aggressive_units.place(group_invert_camera, BOTTOM_LEFT);
         compileCanvas();
     }
-    
+
     public void chooseGamespeed(int speed) {
         pm_gamespeed.chooseItem(speed);
     }

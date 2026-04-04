@@ -17,11 +17,12 @@ public final class GameOverTrigger implements Animated {
 
     private final int @NonNull [] teams;
     private final boolean @NonNull [] dead_tribes;
-    private static final  ResourceBundle bundle = ResourceBundle.getBundle(GameOverTrigger.class.getName());
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(GameOverTrigger.class.getName());
 
-	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
-		return Utils.getBundleString(bundle, key, args);
-	}
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+        return Utils.getBundleString(bundle, key, args);
+    }
+
     private final @NonNull WorldViewer viewer;
 
     public GameOverTrigger(@NonNull WorldViewer viewer) {
@@ -50,10 +51,9 @@ public final class GameOverTrigger implements Animated {
                         String defeat_message = i18n("defeat_message", current.getPlayerInfo().getName());
                         viewer.getPeerHub().receiveChat(PeerHub.SYSTEM_NAME, defeat_message, false);
                     }
-                } else
-                    if (local_player.isEnemy(current)) {
-                        enemy_alive = true;
-                    }
+                } else if (local_player.isEnemy(current)) {
+                    enemy_alive = true;
+                }
             }
         }
         if (!enemy_alive) {

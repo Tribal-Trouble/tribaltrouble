@@ -29,14 +29,14 @@ final class CampaignMapMenu extends Form {
     CampaignMapMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
         this.network = network;
         this.gui_root = gui_root;
-        
+
         initBackground();
-        
+
         addResumeButton();
         addOptionsButton();
         addAbortButton();
         addExitButton();
-        
+
         layoutButtons();
         setFocus();
     }
@@ -44,8 +44,8 @@ final class CampaignMapMenu extends Form {
     private void initBackground() {
         int width = gui_root.getWidth();
         int height = gui_root.getHeight();
-        
-        overlay = new GUIImage(width, height, 0f, 0f, 800f/1024f, 600f/1024f, "/textures/gui/mainmenu");
+
+        overlay = new GUIImage(width, height, 0f, 0f, 800f / 1024f, 600f / 1024f, "/textures/gui/mainmenu");
         overlay.setPos(0, 0);
         addChild(overlay);
 
@@ -53,7 +53,7 @@ final class CampaignMapMenu extends Form {
         float heightScale = height / 600f;
         int logoHeight = (int) (206f * heightScale);
         int logoWidth = (int) (347f * heightScale);
-        
+
         logo = new GUIImage(logoWidth, logoHeight, 0f, 0f, 347f / 512f, 206f / 256f, logo_file);
         logo.setPos(0, height - logoHeight);
         addChild(logo);
@@ -108,11 +108,11 @@ final class CampaignMapMenu extends Form {
         int width = gui_root.getWidth();
         int height = gui_root.getHeight();
         setDim(width, height);
-        
+
         if (overlay != null) {
             overlay.setDim(width, height);
         }
-        
+
         if (logo != null) {
             float heightScale = height / 600f;
             int logoHeight = (int) (206f * heightScale);
@@ -120,7 +120,7 @@ final class CampaignMapMenu extends Form {
             logo.setDim(logoWidth, logoHeight);
             logo.setPos(0, height - logoHeight);
         }
-        
+
         int x = 15;
         int y = getHeight() - (int) (190f * getHeight() / 600f);
 

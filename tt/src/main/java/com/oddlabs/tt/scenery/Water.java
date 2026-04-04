@@ -44,7 +44,7 @@ public final class Water implements AutoCloseable {
     private final @NonNull WaterShader waterShader;
     private final @NonNull VertexArray skyWaterVao;
     private final @NonNull PatchMesh patchMesh;
-    
+
     // Non-final to allow resizing
     private @NonNull FloatVBO instanceVBO;
     private @NonNull FloatBuffer instanceBuffer;
@@ -101,12 +101,12 @@ public final class Water implements AutoCloseable {
              var _ = context.withCullMode(CullMode.NONE)) {
 
             context.setBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            
+
             waterShader.setUniformMatrix4(WaterShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
-            
+
             waterShader.setUniform(WaterShader.Uniforms.SCROLL_OFFSET_0, scrollOffset0[0], scrollOffset0[1]);
             waterShader.setUniform(WaterShader.Uniforms.SCROLL_OFFSET_1, scrollOffset1[0], scrollOffset1[1]);
-            
+
             waterShader.setUniform(WaterShader.Uniforms.CAMERA_POS, state.getCurrentX(), state.getCurrentY(), state.getCurrentZ());
 
             context.setTexture(0, ocean[0]);
@@ -128,14 +128,14 @@ public final class Water implements AutoCloseable {
             skyWaterVao.bind();
             sky.getWaterIndices().drawElements(GL11.GL_TRIANGLES, sky.getWaterIndices().capacity(), 0);
             skyWaterVao.unbind();
-            
+
             // Render Instanced Water Patches. u_waterHeight = seaLevel.
             if (!visiblePatches.isEmpty()) {
                 waterShader.setUniform(WaterShader.Uniforms.WATER_HEIGHT, heightMap.getSeaLevelMeters());
                 instanceBuffer.clear();
                 int count = 0;
                 float patchSize = heightMap.getMetersPerPatch();
-                
+
                 for (LandscapeLeaf leaf : visiblePatches) {
                     if (heightMap.isBelowSeaLevel(leaf.getPatchX(), leaf.getPatchY())) {
                         if (instanceBuffer.remaining() < 2) {
@@ -150,42 +150,42 @@ public final class Water implements AutoCloseable {
                         count++;
                     }
                 }
-                
+
                 if (count > 0) {
                     instanceBuffer.flip();
-                    
+
                     int requiredBytes = count * 2 * Float.BYTES;
                     if (instanceVBO.capacity() < requiredBytes) {
                         instanceVBO.close();
                         instanceVBO = new FloatVBO(GL15.GL_STREAM_DRAW, Math.max(instanceVBO.capacity() * 2, requiredBytes));
                     }
-                    
+
                     instanceVBO.makeCurrent();
                     GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, instanceBuffer);
-                    
+
                     patchMesh.bind();
-                    
+
                     // Setup instance attribute (Location 4: in_InstanceOffset)
                     int offsetLoc = 4;
                     GL20.glEnableVertexAttribArray(offsetLoc);
                     GL20.glVertexAttribPointer(offsetLoc, 2, GL11.GL_FLOAT, false, 0, 0);
                     GL33.glVertexAttribDivisor(offsetLoc, 1);
-                    
+
                     patchMesh.drawInstanced(count);
-                    
+
                     // Cleanup
                     GL33.glVertexAttribDivisor(offsetLoc, 0);
                     GL20.glDisableVertexAttribArray(offsetLoc);
-                    
+
                     patchMesh.unbind();
                     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
                 }
             }
-            
+
             context.setActiveTexture(0);
         }
     }
-    
+
     private void updateAnimation() {
         float currentTime = LocalEventQueue.getQueue().getTime();
         float dt = currentTime - lastTime;
@@ -195,7 +195,7 @@ public final class Water implements AutoCloseable {
         timeSinceChange += dt;
         if (timeSinceChange > changeInterval) {
             timeSinceChange = 0f;
-            
+
             float mean = 17.5f;
             float stdDev = 5.0f;
             float gaussianValue = (float) random.nextGaussian();
@@ -216,14 +216,14 @@ public final class Water implements AutoCloseable {
 
         scrollOffset0[0] += dx;
         scrollOffset0[1] += dy;
-        
+
         // Move the second layer in a different direction (e.g., 90 degrees offset)
         // and slightly slower to create interference patterns.
         float flowDirection2 = flowDirection + (float) Math.toRadians(90f);
         float dx2 = (float) Math.cos(flowDirection2) * flowSpeed * 0.7f * dt;
         float dy2 = (float) Math.sin(flowDirection2) * flowSpeed * 0.7f * dt;
 
-        scrollOffset1[0] += dx2; 
+        scrollOffset1[0] += dx2;
         scrollOffset1[1] += dy2;
     }
 

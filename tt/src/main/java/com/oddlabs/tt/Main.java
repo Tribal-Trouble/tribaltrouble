@@ -17,7 +17,7 @@ public final class Main {
         return Utils.getBundleString(bundle, key, args);
     }
 
-	public static void fail(@NonNull Throwable t) {
+    public static void fail(@NonNull Throwable t) {
         logger.log(Level.SEVERE, "Critical Failure", t);
 
         if (!Boolean.getBoolean("com.oddlabs.tt.developer")) {
@@ -35,24 +35,24 @@ public final class Main {
             logger.log(Level.SEVERE, error + ": " + error_msg);
             TinyFileDialogs.tinyfd_messageBox(error, error_msg.replace("\"", "\\\""), "ok", "error", 1);
         }
-	}
+    }
 
-	public static void shutdown(int status) {
+    public static void shutdown(int status) {
         Renderer.getRenderer().close();
         logger.info("Exiting");
-		System.exit(status);
-	}
+        System.exit(status);
+    }
 
     static void main(@NonNull String @NonNull ... args) {
         int status = 1;
-		try {
+        try {
             logger.info("Starting game....");
-			Renderer.getRenderer().run(args);
+            Renderer.getRenderer().run(args);
             status = 0;
-		} catch (Throwable t) {
-			fail(t);
-		} finally {
-			shutdown(status);
-		}
-	}
+        } catch (Throwable t) {
+            fail(t);
+        } finally {
+            shutdown(status);
+        }
+    }
 }

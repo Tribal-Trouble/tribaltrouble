@@ -16,62 +16,62 @@ import org.jspecify.annotations.NonNull;
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 
 final class CampaignInGameInfo implements InGameInfo {
-	private final Campaign campaign;
+    private final Campaign campaign;
 
-	public CampaignInGameInfo(Campaign campaign) {
-		this.campaign = campaign;
-	}
+    public CampaignInGameInfo(Campaign campaign) {
+        this.campaign = campaign;
+    }
 
-	@Override
-	public boolean isRated() {
-		return false;
-	}
+    @Override
+    public boolean isRated() {
+        return false;
+    }
 
-	@Override
-	public boolean isMultiplayer() {
-		return false;
-	}
+    @Override
+    public boolean isMultiplayer() {
+        return false;
+    }
 
-	@Override
-	public float getRandomStartPosition() {
-		return 0f;
-	}
+    @Override
+    public float getRandomStartPosition() {
+        return 0f;
+    }
 
-	@Override
-	public void addGUI(@NonNull WorldViewer viewer, @NonNull InGameMainMenu menu, @NonNull Group game_infos) {
-		menu.addAbortButton(Menu.i18n("end_game"));
-		int screen_width = viewer.getGUIRoot().getWidth();
-		LabelBox label_objective = new LabelBox(Menu.i18n("objective"), Skin.getSkin().getEditFont(), screen_width/2);
-		LabelBox label_description = new LabelBox(campaign.getCurrentObjective(), Skin.getSkin().getEditFont(), screen_width/2);
-		game_infos.addChild(label_objective);
-		game_infos.addChild(label_description);
-		label_objective.place();
-		label_description.place(label_objective, BOTTOM_LEFT);
-		game_infos.compileCanvas();
-	}
+    @Override
+    public void addGUI(@NonNull WorldViewer viewer, @NonNull InGameMainMenu menu, @NonNull Group game_infos) {
+        menu.addAbortButton(Menu.i18n("end_game"));
+        int screen_width = viewer.getGUIRoot().getWidth();
+        LabelBox label_objective = new LabelBox(Menu.i18n("objective"), Skin.getSkin().getEditFont(), screen_width / 2);
+        LabelBox label_description = new LabelBox(campaign.getCurrentObjective(), Skin.getSkin().getEditFont(), screen_width / 2);
+        game_infos.addChild(label_objective);
+        game_infos.addChild(label_description);
+        label_objective.place();
+        label_description.place(label_objective, BOTTOM_LEFT);
+        game_infos.compileCanvas();
+    }
 
-	@Override
-	public void addGameOverGUI(WorldViewer viewer, final @NonNull GameStatsDelegate delegate, int header_y, @NonNull Group group) {
-		HorizButton button_ok = new OKButton(150);
-		button_ok.addMouseClickListener( (_, _, _, _) -> delegate.startMenu());
+    @Override
+    public void addGameOverGUI(WorldViewer viewer, final @NonNull GameStatsDelegate delegate, int header_y, @NonNull Group group) {
+        HorizButton button_ok = new OKButton(150);
+        button_ok.addMouseClickListener((_, _, _, _) -> delegate.startMenu());
 
-		group.addChild(button_ok);
-		button_ok.place();
-	}
+        group.addChild(button_ok);
+        button_ok.place();
+    }
 
-	@Override
-	public void close(@NonNull WorldViewer viewer) {
-		if (campaign.getState().getIslandState(0) != CampaignState.ISLAND_COMPLETED) {
-			Renderer.startMenu(viewer.getNetwork(), viewer.getGUIRoot().getGUI());
-		} else {
-			campaign.pushDelegate(viewer.getNetwork(), viewer.getGUIRoot().getGUI());
-		}
+    @Override
+    public void close(@NonNull WorldViewer viewer) {
+        if (campaign.getState().getIslandState(0) != CampaignState.ISLAND_COMPLETED) {
+            Renderer.startMenu(viewer.getNetwork(), viewer.getGUIRoot().getGUI());
+        } else {
+            campaign.pushDelegate(viewer.getNetwork(), viewer.getGUIRoot().getGUI());
+        }
 
-	}
+    }
 
-	@Override
-	public void abort(@NonNull WorldViewer viewer) {
-		viewer.getGUIRoot().pushDelegate(new GameStatsDelegate(viewer, viewer.getGUIRoot().getDelegate().getCamera(), Menu.i18n("game_aborted")));
-		campaign.doDefeated();
-	}
+    @Override
+    public void abort(@NonNull WorldViewer viewer) {
+        viewer.getGUIRoot().pushDelegate(new GameStatsDelegate(viewer, viewer.getGUIRoot().getDelegate().getCamera(), Menu.i18n("game_aborted")));
+        campaign.doDefeated();
+    }
 }

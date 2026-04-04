@@ -7,27 +7,27 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FinderTrackerAlgorithm;
 
 public final class TransferUnitController extends Controller {
-	private final Unit unit;
-	private FinderTrackerAlgorithm<Building> building_tracker;
+    private final Unit unit;
+    private FinderTrackerAlgorithm<Building> building_tracker;
 
-	public TransferUnitController(Unit unit) {
-		super(1);
-		this.unit = unit;
-	}
+    public TransferUnitController(Unit unit) {
+        super(1);
+        this.unit = unit;
+    }
 
-	@Override
-	public void decide() {
-		if (building_tracker != null && building_tracker.getOccupant() != null && unit.isCloseEnough(0f, building_tracker.getOccupant())) {
-			Building building = building_tracker.getOccupant();
-			if (building.getUnitContainer().canEnter(unit))
-				building.getUnitContainer().enter(unit);
-			else
-				unit.popController();
-		} else if (!shouldGiveUp(0)) {
-			building_tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new BuildingFinder(unit.getOwner(), Abilities.SUPPLY_CONTAINER));
-			unit.setBehaviour(new WalkBehaviour(unit, building_tracker, false));
-		} else {
-			unit.popController();
-		}
-	}
+    @Override
+    public void decide() {
+        if (building_tracker != null && building_tracker.getOccupant() != null && unit.isCloseEnough(0f, building_tracker.getOccupant())) {
+            Building building = building_tracker.getOccupant();
+            if (building.getUnitContainer().canEnter(unit))
+                building.getUnitContainer().enter(unit);
+            else
+                unit.popController();
+        } else if (!shouldGiveUp(0)) {
+            building_tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new BuildingFinder(unit.getOwner(), Abilities.SUPPLY_CONTAINER));
+            unit.setBehaviour(new WalkBehaviour(unit, building_tracker, false));
+        } else {
+            unit.popController();
+        }
+    }
 }

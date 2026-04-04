@@ -47,7 +47,7 @@ public final class PatchMesh {
         }
         indices.flip();
         ibo = new ShortVBO(GL15.GL_STATIC_DRAW, indices);
-        
+
         vao.bind();
         vbo.makeCurrent();
         ibo.makeCurrent();
@@ -71,7 +71,7 @@ public final class PatchMesh {
     public void unbind() {
         vao.unbind();
     }
-    
+
     public void delete() {
         vbo.close();
         ibo.close();

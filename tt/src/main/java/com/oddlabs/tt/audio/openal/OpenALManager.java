@@ -38,7 +38,7 @@ import static org.lwjgl.openal.SOFTHRTF.alcResetDeviceSOFT;
 public final class OpenALManager extends AudioManager {
     private static final Logger logger = Logger.getLogger(OpenALManager.class.getName());
     private static final int MAX_NUM_SOURCES = 32;
-    
+
     private final @NonNull ALData data;
     private final EFXManager efxManager = new EFXManager();
 
@@ -72,14 +72,14 @@ public final class OpenALManager extends AudioManager {
         if (device == 0) {
             throw new IllegalStateException("Failed to open default OpenAL device");
         }
-        
+
         int[] attributes = {0};
         if (alcIsExtensionPresent(device, "ALC_SOFT_HRTF")) {
-             attributes = new int[] { 
-                 ALC_HRTF_SOFT, 
-                 Settings.getSettings().headphone_mode ? ALC_TRUE : ALC_FALSE, 
-                 0 
-             };
+            attributes = new int[]{
+                    ALC_HRTF_SOFT,
+                    Settings.getSettings().headphone_mode ? ALC_TRUE : ALC_FALSE,
+                    0
+            };
         }
 
         long context = alcCreateContext(device, attributes);
@@ -87,20 +87,20 @@ public final class OpenALManager extends AudioManager {
             alcCloseDevice(device);
             throw new IllegalStateException("Failed to create OpenAL context");
         }
-        
+
         alcMakeContextCurrent(context);
-        
+
         ALCCapabilities alcCapabilities = ALC.createCapabilities(device);
         AL.createCapabilities(alcCapabilities);
-        
+
         return new ALData(device, context);
     }
-    
+
     @Override
     public boolean isHRTFSupported() {
         return alcIsExtensionPresent(data.device, "ALC_SOFT_HRTF");
     }
-    
+
     public void setHeadphoneMode(boolean enabled) {
         if (isHRTFSupported()) {
             int[] attrs = {ALC_HRTF_SOFT, enabled ? ALC_TRUE : ALC_FALSE, 0};
@@ -170,13 +170,14 @@ public final class OpenALManager extends AudioManager {
             data.close();
         }
     }
-    
+
     public @NonNull EFXManager getEfxManager() {
         return efxManager;
     }
 
     /**
      * Checks for OpenAL errors and logs them
+     *
      * @param message A descriptive message for the context of the OpenAL call.
      */
     public static void checkALError(@NonNull String message) {

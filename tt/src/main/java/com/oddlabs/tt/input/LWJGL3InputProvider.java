@@ -71,7 +71,7 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
     public void initCallbacks() {
         this.windowHandle = window.getHandle();
         if (windowHandle == MemoryUtil.NULL) {
-             throw new IllegalStateException("Window handle is NULL. Window might not be created yet.");
+            throw new IllegalStateException("Window handle is NULL. Window might not be created yet.");
         }
 
         glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> {
@@ -96,26 +96,26 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
         });
 
         glfwSetCursorPosCallback(windowHandle, (window, xpos, ypos) -> {
-             float[] scale = this.window.getWindowContentScale();
-             this.mouseX = xpos * scale[0];
-             this.mouseY = this.window.getHeight() - (ypos * scale[1]) - 1; // Invert Y for OpenGL coords and scale
-             synchronized (mouseEvents) {
-                 mouseEvents.add(new MouseEvent(-1, false, (int)mouseX, (int)mouseY, 0));
-             }
+            float[] scale = this.window.getWindowContentScale();
+            this.mouseX = xpos * scale[0];
+            this.mouseY = this.window.getHeight() - (ypos * scale[1]) - 1; // Invert Y for OpenGL coords and scale
+            synchronized (mouseEvents) {
+                mouseEvents.add(new MouseEvent(-1, false, (int) mouseX, (int) mouseY, 0));
+            }
         });
 
         glfwSetMouseButtonCallback(windowHandle, (window, button, action, mods) -> {
-             synchronized (mouseEvents) {
-                 mouseEvents.add(new MouseEvent(button, action == GLFW_PRESS, (int)mouseX, (int)mouseY, 0));
-             }
+            synchronized (mouseEvents) {
+                mouseEvents.add(new MouseEvent(button, action == GLFW_PRESS, (int) mouseX, (int) mouseY, 0));
+            }
         });
 
         glfwSetScrollCallback(windowHandle, (window, xoffset, yoffset) -> {
-             synchronized (mouseEvents) {
-                 // wheel delta usually 120 per click in legacy? Or just +/- 1? LWJGL2 dWheel was usually +/- 120.
-                 // GLFW gives floats. Let's say 120 * offset.
-                 mouseEvents.add(new MouseEvent(-1, false, (int)mouseX, (int)mouseY, (int)(yoffset * 120)));
-             }
+            synchronized (mouseEvents) {
+                // wheel delta usually 120 per click in legacy? Or just +/- 1? LWJGL2 dWheel was usually +/- 120.
+                // GLFW gives floats. Let's say 120 * offset.
+                mouseEvents.add(new MouseEvent(-1, false, (int) mouseX, (int) mouseY, (int) (yoffset * 120)));
+            }
         });
     }
 
@@ -199,22 +199,22 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
 
     @Override
     public int getEventX() {
-        return currentMouseEvent != null ? currentMouseEvent.x() : (int)mouseX;
+        return currentMouseEvent != null ? currentMouseEvent.x() : (int) mouseX;
     }
 
     @Override
     public int getEventY() {
-        return currentMouseEvent != null ? currentMouseEvent.y() : (int)mouseY;
+        return currentMouseEvent != null ? currentMouseEvent.y() : (int) mouseY;
     }
 
     @Override
     public int getMouseX() {
-        return (int)mouseX;
+        return (int) mouseX;
     }
 
     @Override
     public int getMouseY() {
-        return (int)mouseY;
+        return (int) mouseY;
     }
 
     @Override
@@ -229,8 +229,8 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
         // Y inversion: pixelY = height - screenY * scale - 1
         // screenY * scale = height - pixelY - 1
         // screenY = (height - pixelY - 1) / scale
-        double screenX = x / (double)scale[0];
-        double screenY = (this.window.getHeight() - y - 1) / (double)scale[1];
+        double screenX = x / (double) scale[0];
+        double screenY = (this.window.getHeight() - y - 1) / (double) scale[1];
         glfwSetCursorPos(windowHandle, screenX, screenY);
     }
 

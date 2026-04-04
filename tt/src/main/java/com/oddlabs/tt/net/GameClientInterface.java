@@ -4,8 +4,11 @@ import com.oddlabs.matchmaking.Game;
 import com.oddlabs.tt.resource.WorldGenerator;
 
 public interface GameClientInterface {
-	void setWorldGeneratorAndPlayerSlot(Game game, WorldGenerator generator, short player_slot);
-	void setPlayers(PlayerSlot[] players);
-	void startGame(int session_id);
-	void chat(int player_slot, String chat);
+    void setWorldGeneratorAndPlayerSlot(Game game, WorldGenerator generator, short player_slot);
+
+    void setPlayers(PlayerSlot[] players);
+
+    void startGame(int session_id);
+
+    void chat(int player_slot, String chat);
 }

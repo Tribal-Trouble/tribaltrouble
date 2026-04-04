@@ -6,60 +6,60 @@ import com.oddlabs.tt.font.Font;
 import org.jspecify.annotations.NonNull;
 
 public final class CounterLabel extends Label implements Animated {
-	private static final String colon = ":";
-	private final float initial_seconds;
-	private final boolean render_seconds;
-	private AnimationManager manager;
-	private float seconds;
+    private static final String colon = ":";
+    private final float initial_seconds;
+    private final boolean render_seconds;
+    private AnimationManager manager;
+    private float seconds;
 
-	public CounterLabel(float seconds, @NonNull Font font, boolean render_seconds) {
-		super("", font, 300);
-		this.render_seconds = render_seconds;
-		initial_seconds = seconds;
-		setTime(initial_seconds);
-	}
+    public CounterLabel(float seconds, @NonNull Font font, boolean render_seconds) {
+        super("", font, 300);
+        this.render_seconds = render_seconds;
+        initial_seconds = seconds;
+        setTime(initial_seconds);
+    }
 
-	public void start(@NonNull AnimationManager manager) {
-		this.manager = manager;
-		setTime(initial_seconds);
-		manager.registerAnimation(this);
-	}
+    public void start(@NonNull AnimationManager manager) {
+        this.manager = manager;
+        setTime(initial_seconds);
+        manager.registerAnimation(this);
+    }
 
-	public void stop() {
-		if (manager != null)
-			manager.removeAnimation(this);
-	}
+    public void stop() {
+        if (manager != null)
+            manager.removeAnimation(this);
+    }
 
-	private void setTime(float seconds) {
-		this.seconds = seconds;
-		int rest_seconds = ((int)seconds)%60;
-		int minutes = (((int)seconds)/60)%60;
-		int hours = (((int)seconds)/60)/60;
-		if (!render_seconds && seconds > 0) {
-			minutes++;
-			if (minutes == 60) {
-				hours++;
-				minutes = 0;
-			}
-		}
-		clear();
-		append(hours);
-		append(colon);
-		if (minutes < 10)
-			append(0);
-		append(minutes);
-		if (render_seconds) {
-			append(colon);
-			if (rest_seconds < 10)
-				append(0);
-			append(rest_seconds);
-		}
-	}
+    private void setTime(float seconds) {
+        this.seconds = seconds;
+        int rest_seconds = ((int) seconds) % 60;
+        int minutes = (((int) seconds) / 60) % 60;
+        int hours = (((int) seconds) / 60) / 60;
+        if (!render_seconds && seconds > 0) {
+            minutes++;
+            if (minutes == 60) {
+                hours++;
+                minutes = 0;
+            }
+        }
+        clear();
+        append(hours);
+        append(colon);
+        if (minutes < 10)
+            append(0);
+        append(minutes);
+        if (render_seconds) {
+            append(colon);
+            if (rest_seconds < 10)
+                append(0);
+            append(rest_seconds);
+        }
+    }
 
-	@Override
-	public void animate(float t) {
-		setTime(seconds - t);
-	}
+    @Override
+    public void animate(float t) {
+        setTime(seconds - t);
+    }
 
 }
 

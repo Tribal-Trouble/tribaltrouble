@@ -68,35 +68,35 @@ public final class MapCamera extends Camera {
         float dx = target[0] - original_camera_state.getTargetX();
         float dy = target[1] - original_camera_state.getTargetY();
         float dz = getHeightMap().getNearestHeight(target[0], target[1]) - original_camera_state.getTargetZ();
-        distance_to_landscape = (float)Math.sqrt(dx*dx + dy*dy + dz*dz);
+        distance_to_landscape = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
 
         setSmoothnessFactor(SMOOTHNESS_FACTOR);
     }
 
     @Override
     public void doAnimate(float t) {
-        float factor = t*1000f/Math.max(t*1000f, Settings.getSettings().mapmode_delay*MAP_TIME_FACTOR);
+        float factor = t * 1000f / Math.max(t * 1000f, Settings.getSettings().mapmode_delay * MAP_TIME_FACTOR);
         float dx;
         float dy;
         float dz;
         float da;
-        float map_x = getHeightMap().getMetersPerWorld()/2;
-        float map_y = getHeightMap().getMetersPerWorld()/2;
-        float map_z = getHeightMap().getMetersPerWorld()*MAP_Z_FACTOR;
+        float map_x = getHeightMap().getMetersPerWorld() / 2;
+        float map_y = getHeightMap().getMetersPerWorld() / 2;
+        float map_z = getHeightMap().getMetersPerWorld() * MAP_Z_FACTOR;
         float start_z = original_camera_state.getTargetZ();
 
         // Calculate transition progress (0.0 = at start, 1.0 = at map)
         float current_z = getState().getTargetZ();
         float total_dist = map_z - start_z;
-        float progress = (Math.abs(total_dist) > 0.001f) 
-                ? Math.clamp((current_z - start_z) / total_dist, 0f, 1f) 
+        float progress = (Math.abs(total_dist) > 0.001f)
+                ? Math.clamp((current_z - start_z) / total_dist, 0f, 1f)
                 : 1f;
 
         // Base organic fog pulse (sum of sines for non-predictable period)
         fogTime += t;
-        float pulse = (float) (Math.sin(fogTime * 0.4125f) * 0.5 + 
-                               Math.sin(fogTime * 0.8625f) * 0.3 + 
-                               Math.sin(fogTime * 1.7625f) * 0.2);
+        float pulse = (float) (Math.sin(fogTime * 0.4125f) * 0.5 +
+                Math.sin(fogTime * 0.8625f) * 0.3 +
+                Math.sin(fogTime * 1.7625f) * 0.2);
         float baseDensity = 0.30f + pulse * 0.12f;
 
         // Apply transition
@@ -107,7 +107,7 @@ public final class MapCamera extends Camera {
         } else {
             float fade = (progress - 0.25f) / 0.75f;
             // Radius shrinks from 1.5x to 1.0x as we ascend
-            float radiusScale = 1.5f - (0.5f * fade); 
+            float radiusScale = 1.5f - (0.5f * fade);
             getState().setFog(new RadialFogInfo(Color.WHITE, baseDensity * fade, radiusScale));
         }
 
@@ -183,14 +183,14 @@ public final class MapCamera extends Camera {
             //	float old_dir_x = (float)Math.cos(getHorizAngle())*radius;
             //	float old_dir_y = (float)Math.sin(getHorizAngle())*radius;
             //	float old_dir_z = (float)Math.sin(getVertAngle());
-            float radius = (float)Math.cos(original_camera_state.getTargetVertAngle());
-            float old_dir_x = (float)Math.cos(getState().getHorizAngle())*radius;
-            float old_dir_y = (float)Math.sin(getState().getHorizAngle())*radius;
-            float old_dir_z = (float)Math.sin(original_camera_state.getTargetVertAngle());
+            float radius = (float) Math.cos(original_camera_state.getTargetVertAngle());
+            float old_dir_x = (float) Math.cos(getState().getHorizAngle()) * radius;
+            float old_dir_y = (float) Math.sin(getState().getHorizAngle()) * radius;
+            float old_dir_z = (float) Math.sin(original_camera_state.getTargetVertAngle());
             // Adjust the position of the original camera.
-            original_camera_state.setTargetX(x - old_dir_x*distance_to_landscape);
-            original_camera_state.setTargetY(y - old_dir_y*distance_to_landscape);
-            original_camera_state.setTargetZ(getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_landscape);
+            original_camera_state.setTargetX(x - old_dir_x * distance_to_landscape);
+            original_camera_state.setTargetY(y - old_dir_y * distance_to_landscape);
+            original_camera_state.setTargetZ(getHeightMap().getNearestHeight(x, y) - old_dir_z * distance_to_landscape);
             changeMode(MapMode.FROM_MAP);
         }
     }

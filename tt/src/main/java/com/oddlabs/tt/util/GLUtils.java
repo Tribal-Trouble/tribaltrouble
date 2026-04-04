@@ -15,21 +15,21 @@ import java.util.logging.Logger;
 
 public final class GLUtils {
     private static final Logger logger = Logger.getLogger(GLUtils.class.getSimpleName());
-	public static final String SCREENSHOT_DEFAULT = "screenshot";
+    public static final String SCREENSHOT_DEFAULT = "screenshot";
 
-	public static @NonNull String takeScreenshot(@NonNull String filename) {
-		if (filename.isEmpty()) {
-			int i = 0;
-			File file;
-			do {
-				filename = SCREENSHOT_DEFAULT + "000000";
-				String number = ""+i;
-				filename = System.getProperty("user.home") + File.separator + filename.substring(0, filename.length() - number.length()) + number + ".bmp";
-				file = new File(filename);
-				i++;
-			} while (file.exists());
-		}
-        
+    public static @NonNull String takeScreenshot(@NonNull String filename) {
+        if (filename.isEmpty()) {
+            int i = 0;
+            File file;
+            do {
+                filename = SCREENSHOT_DEFAULT + "000000";
+                String number = "" + i;
+                filename = System.getProperty("user.home") + File.separator + filename.substring(0, filename.length() - number.length()) + number + ".bmp";
+                file = new File(filename);
+                i++;
+            } while (file.exists());
+        }
+
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer int_buf = stack.mallocInt(16);
             GL11.glGetIntegerv(GL11.GL_VIEWPORT, int_buf);
@@ -38,13 +38,13 @@ public final class GLUtils {
             int height = int_buf.get(3) - int_buf.get(1);
             GLImage pixel_data = new GLIntImage(width, height, GL11.GL_RGBA);
             GL11.glReadPixels(int_buf.get(0), int_buf.get(1), int_buf.get(2), int_buf.get(3), pixel_data.getGLFormat(), pixel_data.getGLType(), pixel_data.getPixels());
-            com.oddlabs.util.Utils.flip(pixel_data.getPixels(), width*4, height);
+            com.oddlabs.util.Utils.flip(pixel_data.getPixels(), width * 4, height);
             pixel_data.saveAsBMP(filename);
         }
-		return filename;
-	}
+        return filename;
+    }
 
-	public static void saveTexture(int mipmap_level, @NonNull String filename) {
+    public static void saveTexture(int mipmap_level, @NonNull String filename) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer int_buf = stack.mallocInt(16);
             GL11.glGetTexLevelParameteriv(GL11.GL_TEXTURE_2D, mipmap_level, GL11.GL_TEXTURE_WIDTH, int_buf);
@@ -53,14 +53,15 @@ public final class GLUtils {
             int height = int_buf.get(0);
             GLImage pixel_data = new GLIntImage(width, height, GL11.GL_RGBA);
             GL11.glGetTexImage(GL11.GL_TEXTURE_2D, mipmap_level, pixel_data.getGLFormat(), pixel_data.getGLType(), pixel_data.getPixels());
-    //		swizzleColors(pixel_data.getPixels());
-            com.oddlabs.util.Utils.flip(pixel_data.getPixels(), width*4, height);
+            //		swizzleColors(pixel_data.getPixels());
+            com.oddlabs.util.Utils.flip(pixel_data.getPixels(), width * 4, height);
             pixel_data.saveAsPNG(filename);
         }
-	}
+    }
 
     /**
      * Checks for OpenGL errors and logs them.
+     *
      * @param message A descriptive message for the context of the OpenGL call.
      * @return A list of error codes found.
      */
@@ -76,6 +77,7 @@ public final class GLUtils {
 
     /**
      * Checks for OpenGL errors and throws an OpenGLException if any are found.
+     *
      * @param message A descriptive message for the context.
      * @throws OpenGLException if any OpenGL errors were detected.
      */
@@ -88,6 +90,7 @@ public final class GLUtils {
 
     /**
      * Converts an OpenGL error code to a descriptive string.
+     *
      * @param error The OpenGL error code.
      * @return A string representation of the error.
      */

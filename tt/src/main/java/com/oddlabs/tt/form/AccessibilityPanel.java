@@ -35,7 +35,7 @@ public class AccessibilityPanel extends Panel {
 
         CheckBox cb_high_contrast = new CheckBox(Settings.getSettings().high_contrast, AbstractOptionsMenu.i18n("high_contrast"), AbstractOptionsMenu.i18n("high_contrast_tip"));
         group_contrast.addChild(cb_high_contrast);
-        
+
         Label label_contrast_intensity = new Label(AbstractOptionsMenu.i18n("contrast_intensity"), Skin.getSkin().getEditFont());
         group_contrast.addChild(label_contrast_intensity);
 
@@ -43,9 +43,9 @@ public class AccessibilityPanel extends Panel {
         group_contrast.addChild(label_contrast_low);
         Label label_contrast_high = new Label(AbstractOptionsMenu.i18n("high"), Skin.getSkin().getEditFont());
         group_contrast.addChild(label_contrast_high);
-        
+
         // Support up to 2.0 intensity (40 steps)
-        Slider slider_contrast = new Slider(SLIDER_WIDTH, 0, 2 * MAX_VALUE, (int)(Settings.getSettings().contrast_intensity * MAX_VALUE));
+        Slider slider_contrast = new Slider(SLIDER_WIDTH, 0, 2 * MAX_VALUE, (int) (Settings.getSettings().contrast_intensity * MAX_VALUE));
         slider_contrast.setDisabled(!Settings.getSettings().high_contrast);
         group_contrast.addChild(slider_contrast);
 
@@ -54,7 +54,7 @@ public class AccessibilityPanel extends Panel {
             slider_contrast.setDisabled(!marked);
         });
 
-        slider_contrast.addValueListener(value -> Settings.getSettings().contrast_intensity = (float)value / MAX_VALUE);
+        slider_contrast.addValueListener(value -> Settings.getSettings().contrast_intensity = (float) value / MAX_VALUE);
 
         cb_high_contrast.place();
         label_contrast_intensity.place(cb_high_contrast, BOTTOM_LEFT);
@@ -86,7 +86,7 @@ public class AccessibilityPanel extends Panel {
         group_cvd.addChild(label_cvd_high);
 
         // Support up to 2.0 intensity (40 steps)
-        Slider slider_cvd = new Slider(SLIDER_WIDTH, 0, 2 * MAX_VALUE, (int)(Settings.getSettings().cvd_intensity * MAX_VALUE));
+        Slider slider_cvd = new Slider(SLIDER_WIDTH, 0, 2 * MAX_VALUE, (int) (Settings.getSettings().cvd_intensity * MAX_VALUE));
         slider_cvd.setDisabled(Settings.getSettings().cvd_mode == 0);
         group_cvd.addChild(slider_cvd);
 
@@ -94,7 +94,7 @@ public class AccessibilityPanel extends Panel {
             Settings.getSettings().cvd_mode = index;
             slider_cvd.setDisabled(index == 0);
         });
-        slider_cvd.addValueListener(value -> Settings.getSettings().cvd_intensity = (float)value / MAX_VALUE);
+        slider_cvd.addValueListener(value -> Settings.getSettings().cvd_intensity = (float) value / MAX_VALUE);
 
         label_cvd.place();
         pb_cvd.place(label_cvd, RIGHT_MID);
@@ -124,11 +124,19 @@ public class AccessibilityPanel extends Panel {
         // Color Preview Box
         class ColorBox extends GUIObject {
             private final Vector4f color = new Vector4f(Color.WHITE);
-            public ColorBox() { setDim(20, 20); }
-            @Override protected void renderGeometry(@NonNull GUIRenderer renderer) {
+
+            public ColorBox() {
+                setDim(20, 20);
+            }
+
+            @Override
+            protected void renderGeometry(@NonNull GUIRenderer renderer) {
                 renderer.drawColoredQuad(0, 0, getWidth(), getHeight(), color);
             }
-            public void setColor(Vector4fc c) { this.color.set(c); }
+
+            public void setColor(Vector4fc c) {
+                this.color.set(c);
+            }
         }
         ColorBox colorBox = new ColorBox();
         group_team_colours.addChild(colorBox);
@@ -136,7 +144,7 @@ public class AccessibilityPanel extends Panel {
         // Hue Slider (Color Ramp)
         Slider slider_hue = new Slider(SLIDER_WIDTH, 0, 360, 0);
         group_team_colours.addChild(slider_hue);
-        
+
         // Reset Button
         HorizButton button_reset = new HorizButton(AbstractOptionsMenu.i18n("reset"), 100);
         group_team_colours.addChild(button_reset);
@@ -149,17 +157,17 @@ public class AccessibilityPanel extends Panel {
             Vector4f newColor = Color.argb4v((0xFF << 24) | (rgb & 0xFFFFFF));
             Settings.getSettings().team_colours[teamIndex] = newColor;
             colorBox.setColor(newColor);
-            
+
             // Update the pulldown item color
             pm_team.getItem(teamIndex).setLabelColor(newColor);
             pb_team.setLabelColor(newColor);
         };
-        
+
         Runnable refreshUI = () -> {
             int index = pm_team.getChosenItemIndex();
             Vector4fc currentColor = Settings.getSettings().team_colours[index];
-            float[] hsb = java.awt.Color.RGBtoHSB((int)(currentColor.x() * 255), (int)(currentColor.y() * 255), (int)(currentColor.z() * 255), null);
-            slider_hue.setValue((int)(hsb[0] * 360));
+            float[] hsb = java.awt.Color.RGBtoHSB((int) (currentColor.x() * 255), (int) (currentColor.y() * 255), (int) (currentColor.z() * 255), null);
+            slider_hue.setValue((int) (hsb[0] * 360));
             colorBox.setColor(currentColor);
         };
 
@@ -167,7 +175,7 @@ public class AccessibilityPanel extends Panel {
         refreshUI.run();
 
         slider_hue.addValueListener(_ -> updateColor.run());
-        
+
         button_reset.addMouseClickListener((_, _, _, _) -> {
             int index = pm_team.getChosenItemIndex();
             Settings.getSettings().team_colours[index] = new Vector4f(Settings.DEFAULT_TEAM_COLOURS[index]);
@@ -193,7 +201,7 @@ public class AccessibilityPanel extends Panel {
         group_contrast.place();
         group_cvd.place(group_contrast, BOTTOM_LEFT);
         group_team_colours.place(group_cvd, BOTTOM_LEFT);
-        
+
         compileCanvas();
     }
 }

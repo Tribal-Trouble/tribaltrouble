@@ -25,7 +25,7 @@ public final class OGGStream implements AutoCloseable {
     // Temp buffer for reading samples (4096 samples * 2 channels usually)
     private final @NonNull ShortBuffer pcmBuffer;
 
-	public OGGStream(@NonNull URL file) throws IOException {
+    public OGGStream(@NonNull URL file) throws IOException {
         byte[] bytes = readAllBytes(file);
         vorbisData = BufferUtils.createByteBuffer(bytes.length);
         vorbisData.put(bytes);
@@ -43,10 +43,10 @@ public final class OGGStream implements AutoCloseable {
             this.channels = info.channels();
             this.sampleRate = info.sample_rate();
         }
-        
+
         // Allocate reasonable chunk size (e.g. 4096 frames)
         pcmBuffer = BufferUtils.createShortBuffer(4096 * channels);
-	}
+    }
 
     private static byte[] readAllBytes(@NonNull URL url) throws IOException {
         try (InputStream is = url.openStream();
@@ -60,23 +60,23 @@ public final class OGGStream implements AutoCloseable {
         }
     }
 
-	public int getChannels() {
-		return channels;
-	}
+    public int getChannels() {
+        return channels;
+    }
 
-	public int getRate() {
-		return sampleRate;
-	}
+    public int getRate() {
+        return sampleRate;
+    }
 
-	public int read(@NonNull ByteBufferOutputStream output) {
+    public int read(@NonNull ByteBufferOutputStream output) {
         int samplesRead = STBVorbis.stb_vorbis_get_samples_short_interleaved(decoder, channels, pcmBuffer);
-        
+
         if (samplesRead > 0) {
             int totalSamples = samplesRead * channels;
             // Write to output stream
             // ByteBufferOutputStream writes bytes. We need to convert shorts to bytes in Native Order.
             boolean littleEndian = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
-            
+
             for (int i = 0; i < totalSamples; i++) {
                 short val = pcmBuffer.get(i);
                 if (littleEndian) {
@@ -89,12 +89,13 @@ public final class OGGStream implements AutoCloseable {
             }
             return totalSamples * 2; // bytes written
         }
-        
-		return 0;
-	}
+
+        return 0;
+    }
 
     /**
      * Decodes samples directly into the provided ShortBuffer.
+     *
      * @param buffer Destination buffer. Must be direct.
      * @return The number of short values written to the buffer.
      */

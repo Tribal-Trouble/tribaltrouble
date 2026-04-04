@@ -7,7 +7,7 @@ public class Quad implements Serializable {
     @Serial
     private static final long serialVersionUID = 1;
 
-	protected final float u1;
+    protected final float u1;
     protected final float v1;
     protected final float u2;
     protected final float v2;

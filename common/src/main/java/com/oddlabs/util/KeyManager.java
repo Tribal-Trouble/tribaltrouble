@@ -34,173 +34,174 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 
 public final class KeyManager {
-	private static final int KEY_SIZE = 1024;
-	public static final String AGREEMENT_ALGORITHM = "DH";
-	private static final String PASSWORD_ALGORITHM = "PBEWithMD5AndDES";
+    private static final int KEY_SIZE = 1024;
+    public static final String AGREEMENT_ALGORITHM = "DH";
+    private static final String PASSWORD_ALGORITHM = "PBEWithMD5AndDES";
 
-	public static AlgorithmParameterSpec generateParameterSpec() throws GeneralSecurityException {
-		AlgorithmParameterGenerator paramGen = AlgorithmParameterGenerator.getInstance(AGREEMENT_ALGORITHM);
-		paramGen.init(KEY_SIZE);
-		AlgorithmParameters params = paramGen.generateParameters();
-		return params.getParameterSpec(DHParameterSpec.class);
-	}
+    public static AlgorithmParameterSpec generateParameterSpec() throws GeneralSecurityException {
+        AlgorithmParameterGenerator paramGen = AlgorithmParameterGenerator.getInstance(AGREEMENT_ALGORITHM);
+        paramGen.init(KEY_SIZE);
+        AlgorithmParameters params = paramGen.generateParameters();
+        return params.getParameterSpec(DHParameterSpec.class);
+    }
 
-	public static KeyPair generateInitialKeyPair(AlgorithmParameterSpec param_spec) {
-		try {
-			KeyPairGenerator key_pair_gen = KeyPairGenerator.getInstance(AGREEMENT_ALGORITHM);
-			key_pair_gen.initialize(param_spec);
-			KeyPair key_pair = key_pair_gen.generateKeyPair();
-			return key_pair;
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    public static KeyPair generateInitialKeyPair(AlgorithmParameterSpec param_spec) {
+        try {
+            KeyPairGenerator key_pair_gen = KeyPairGenerator.getInstance(AGREEMENT_ALGORITHM);
+            key_pair_gen.initialize(param_spec);
+            KeyPair key_pair = key_pair_gen.generateKeyPair();
+            return key_pair;
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	public static @NonNull Cipher createCipher(int cipher_mode, @NonNull KeyAgreement key_agreement, PublicKey public_key) throws InvalidKeyException, IOException, InvalidAlgorithmParameterException {
-		try {
-			key_agreement.doPhase(public_key, true);
-			SecretKey secret_key = key_agreement.generateSecret("DESede");
-			Cipher cipher = Cipher.getInstance("DESede/ECB/PKCS5Padding");
-			cipher.init(cipher_mode, secret_key);
-			return cipher;
-		} catch (NoSuchPaddingException | NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    public static @NonNull Cipher createCipher(int cipher_mode, @NonNull KeyAgreement key_agreement, PublicKey public_key) throws InvalidKeyException, IOException, InvalidAlgorithmParameterException {
+        try {
+            key_agreement.doPhase(public_key, true);
+            SecretKey secret_key = key_agreement.generateSecret("DESede");
+            Cipher cipher = Cipher.getInstance("DESede/ECB/PKCS5Padding");
+            cipher.init(cipher_mode, secret_key);
+            return cipher;
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	public static PrivateKey readPrivateKey(byte @NonNull [] encoded_private_key, @NonNull String algorithm) throws InvalidKeySpecException {
-		try {
-			KeyFactory key_factory = KeyFactory.getInstance(algorithm);
-			KeySpec key_spec = new PKCS8EncodedKeySpec(encoded_private_key);
-			return key_factory.generatePrivate(key_spec);
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    public static PrivateKey readPrivateKey(byte @NonNull [] encoded_private_key, @NonNull String algorithm) throws InvalidKeySpecException {
+        try {
+            KeyFactory key_factory = KeyFactory.getInstance(algorithm);
+            KeySpec key_spec = new PKCS8EncodedKeySpec(encoded_private_key);
+            return key_factory.generatePrivate(key_spec);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	public static PublicKey readPublicKey(byte @NonNull [] encoded_public_key, @NonNull String algorithm) throws InvalidKeySpecException {
-		try {
-			KeyFactory key_factory = KeyFactory.getInstance(algorithm);
-			KeySpec key_spec = new X509EncodedKeySpec(encoded_public_key);
-			return key_factory.generatePublic(key_spec);
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    public static PublicKey readPublicKey(byte @NonNull [] encoded_public_key, @NonNull String algorithm) throws InvalidKeySpecException {
+        try {
+            KeyFactory key_factory = KeyFactory.getInstance(algorithm);
+            KeySpec key_spec = new X509EncodedKeySpec(encoded_public_key);
+            return key_factory.generatePublic(key_spec);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	public static @NonNull KeyAgreement generateAgreement(PrivateKey private_key) {
-		try {
-			KeyAgreement key_agreement = KeyAgreement.getInstance(AGREEMENT_ALGORITHM);
-			key_agreement.init(private_key);
-			return key_agreement;
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    public static @NonNull KeyAgreement generateAgreement(PrivateKey private_key) {
+        try {
+            KeyAgreement key_agreement = KeyAgreement.getInstance(AGREEMENT_ALGORITHM);
+            key_agreement.init(private_key);
+            return key_agreement;
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	public static KeyPair generateKeyPairFromKey(PublicKey public_key) throws InvalidKeyException {
-		if (!(public_key instanceof DHPublicKey))
-			throw new InvalidKeyException("Not a public key");
-		try {
-			KeyPairGenerator key_pair_gen = KeyPairGenerator.getInstance(AGREEMENT_ALGORITHM);
-			AlgorithmParameterSpec dh_param_spec = ((DHKey)public_key).getParams();
-			key_pair_gen.initialize(dh_param_spec);
-			return key_pair_gen.generateKeyPair();
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    public static KeyPair generateKeyPairFromKey(PublicKey public_key) throws InvalidKeyException {
+        if (!(public_key instanceof DHPublicKey))
+            throw new InvalidKeyException("Not a public key");
+        try {
+            KeyPairGenerator key_pair_gen = KeyPairGenerator.getInstance(AGREEMENT_ALGORITHM);
+            AlgorithmParameterSpec dh_param_spec = ((DHKey) public_key).getParams();
+            key_pair_gen.initialize(dh_param_spec);
+            return key_pair_gen.generateKeyPair();
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	public static @NonNull Cipher createPasswordCipherFromPassword(char[] password, int mode) throws IOException, GeneralSecurityException {
-		PBEKeySpec pbeKeySpec;
-		PBEParameterSpec pbeParamSpec;
-		SecretKeyFactory keyFac;
+    public static @NonNull Cipher createPasswordCipherFromPassword(char[] password, int mode) throws IOException, GeneralSecurityException {
+        PBEKeySpec pbeKeySpec;
+        PBEParameterSpec pbeParamSpec;
+        SecretKeyFactory keyFac;
 
-		// Salt
-		byte[] salt = {
-			(byte)0xc7, (byte)0x73, (byte)0x21, (byte)0x8c,
-			(byte)0x7e, (byte)0xc8, (byte)0xee, (byte)0x99
-		};
+        // Salt
+        byte[] salt = {
+                (byte) 0xc7, (byte) 0x73, (byte) 0x21, (byte) 0x8c,
+                (byte) 0x7e, (byte) 0xc8, (byte) 0xee, (byte) 0x99
+        };
 
-		// Iteration count
-		int count = 20;
+        // Iteration count
+        int count = 20;
 
-		// Create PBE parameter set
-		pbeParamSpec = new PBEParameterSpec(salt, count);
+        // Create PBE parameter set
+        pbeParamSpec = new PBEParameterSpec(salt, count);
 
-		// Prompt user for encryption password.
-		// Collect user password as char array (using the
-		// "readPasswd" method from above), and convert
-		// it into a SecretKey object, using a PBE key
-		// factory.
-		pbeKeySpec = new PBEKeySpec(password);
-		keyFac = SecretKeyFactory.getInstance(PASSWORD_ALGORITHM);
-		SecretKey pbeKey = keyFac.generateSecret(pbeKeySpec);
+        // Prompt user for encryption password.
+        // Collect user password as char array (using the
+        // "readPasswd" method from above), and convert
+        // it into a SecretKey object, using a PBE key
+        // factory.
+        pbeKeySpec = new PBEKeySpec(password);
+        keyFac = SecretKeyFactory.getInstance(PASSWORD_ALGORITHM);
+        SecretKey pbeKey = keyFac.generateSecret(pbeKeySpec);
 
-		// Create PBE Cipher
-		Cipher pbeCipher = Cipher.getInstance(PASSWORD_ALGORITHM);
+        // Create PBE Cipher
+        Cipher pbeCipher = Cipher.getInstance(PASSWORD_ALGORITHM);
 
-		// Initialize PBE Cipher with key and parameters
-		pbeCipher.init(mode, pbeKey, pbeParamSpec);
-		return pbeCipher;
-	}
+        // Initialize PBE Cipher with key and parameters
+        pbeCipher.init(mode, pbeKey, pbeParamSpec);
+        return pbeCipher;
+    }
 
-	public static @NonNull Cipher createPasswordCipher(String pass_prompt, int mode) throws IOException, GeneralSecurityException {
-		return createPasswordCipherFromPassword(readPassword(pass_prompt, System.in), mode);
-	}
+    public static @NonNull Cipher createPasswordCipher(String pass_prompt, int mode) throws IOException, GeneralSecurityException {
+        return createPasswordCipherFromPassword(readPassword(pass_prompt, System.in), mode);
+    }
 
-	/**
-	 * Reads user password from given input stream.
-	 */
-	public static char[] readPassword(String pass_prompt, @NonNull InputStream in) throws IOException {
-		char[] lineBuffer;
-		char[] buf;
-		buf = lineBuffer = new char[128];
+    /**
+     * Reads user password from given input stream.
+     */
+    public static char[] readPassword(String pass_prompt, @NonNull InputStream in) throws IOException {
+        char[] lineBuffer;
+        char[] buf;
+        buf = lineBuffer = new char[128];
 
-		int room = buf.length;
-		int offset = 0;
-		int c;
+        int room = buf.length;
+        int offset = 0;
+        int c;
 
-		IO.print(pass_prompt);
-		System.out.flush();
-loop:   while (true) {
-			switch (c = in.read()) {
-				case -1: 
-				case '\n':
-					break loop;
+        IO.print(pass_prompt);
+        System.out.flush();
+        loop:
+        while (true) {
+            switch (c = in.read()) {
+                case -1:
+                case '\n':
+                    break loop;
 
-				case '\r':
-					int c2 = in.read();
-					if ((c2 != '\n') && (c2 != -1)) {
-						if (!(in instanceof PushbackInputStream)) {
-							in = new PushbackInputStream(in);
-						}
-						((PushbackInputStream)in).unread(c2);
-					} else 
-						break loop;
+                case '\r':
+                    int c2 = in.read();
+                    if ((c2 != '\n') && (c2 != -1)) {
+                        if (!(in instanceof PushbackInputStream)) {
+                            in = new PushbackInputStream(in);
+                        }
+                        ((PushbackInputStream) in).unread(c2);
+                    } else
+                        break loop;
 
-				default:
-					if (--room < 0) {
-						buf = new char[offset + 128];
-						room = buf.length - offset - 1;
-						System.arraycopy(lineBuffer, 0, buf, 0, offset);
-						Arrays.fill(lineBuffer, ' ');
-						lineBuffer = buf;
-					}
-					buf[offset++] = (char) c;
-					break;
-			}
-		}
+                default:
+                    if (--room < 0) {
+                        buf = new char[offset + 128];
+                        room = buf.length - offset - 1;
+                        System.arraycopy(lineBuffer, 0, buf, 0, offset);
+                        Arrays.fill(lineBuffer, ' ');
+                        lineBuffer = buf;
+                    }
+                    buf[offset++] = (char) c;
+                    break;
+            }
+        }
 
-		if (offset == 0) {
-			return null;
-		}
+        if (offset == 0) {
+            return null;
+        }
 
-		char[] ret = new char[offset];
-		System.arraycopy(buf, 0, ret, 0, offset);
-		Arrays.fill(buf, ' ');
-		return ret;
-	}
+        char[] ret = new char[offset];
+        System.arraycopy(buf, 0, ret, 0, offset);
+        Arrays.fill(buf, ' ');
+        return ret;
+    }
 
     private KeyManager() {
     }

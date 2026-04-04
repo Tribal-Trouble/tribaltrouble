@@ -6,13 +6,19 @@ import org.jspecify.annotations.NonNull;
 public class FogInfo {
 
     public enum Mode {
-        /** No fog should be applied. */
+        /**
+         * No fog should be applied.
+         */
         NONE,
-        /** Standard distance-based fog (linear, exp, exp2). */
+        /**
+         * Standard distance-based fog (linear, exp, exp2).
+         */
         LINEAR,
         EXP,
         EXP2,
-        /** Screen-space radial fog for map view. */
+        /**
+         * Screen-space radial fog for map view.
+         */
         RADIAL
     }
 

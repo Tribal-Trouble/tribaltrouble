@@ -45,7 +45,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
     public void add(@NonNull SpriteList spriteList, int spriteIndex, int animation, float animTicks, int texIndex, boolean respond, boolean blend, boolean depthWrite, boolean depthTest, @NonNull Matrix4f modelMatrix, @NonNull Vector4fc color, @NonNull Vector4fc decalColor) {
         Sprite sprite = spriteList.getSprite(spriteIndex);
         Sprite.FrameState frameState = sprite.getAnimationState(animation, animTicks);
-        
+
         BatchKey key = new BatchKey(spriteList, spriteIndex, texIndex, respond, blend, depthWrite, depthTest);
         RenderBatch batch = batches.computeIfAbsent(key, RenderBatch::new);
         batch.addInstance(frameState.pos1(), frameState.norm1(), frameState.pos2(), frameState.norm2(), frameState.tween(), modelMatrix, color, decalColor);
@@ -89,7 +89,9 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
         whiteTexture.close();
     }
 
-    private record BatchKey(@NonNull SpriteList spriteList, int spriteIndex, int texIndex, boolean respond, boolean blend, boolean depthWrite, boolean depthTest) {}
+    private record BatchKey(@NonNull SpriteList spriteList, int spriteIndex, int texIndex, boolean respond,
+                            boolean blend, boolean depthWrite, boolean depthTest) {
+    }
 
     private static class RenderState {
         int boundTBO = -1;
@@ -104,7 +106,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
         private int capacity = 128;
 
         // mat4 (16) + color (4) + decalColor (4) + pos1(1) + norm1(1) + pos2(1) + norm2(1) + tween (1)
-        private static final int FLOATS_PER_INSTANCE = 16 + 4 + 4 + 1 + 1 + 1 + 1 + 1; 
+        private static final int FLOATS_PER_INSTANCE = 16 + 4 + 4 + 1 + 1 + 1 + 1 + 1;
 
         RenderBatch(@NonNull BatchKey key) {
             this.key = key;
@@ -117,9 +119,9 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             SpriteList spriteList = key.spriteList;
             ShortVBO ibo = spriteList.getIndices();
             FloatVBO texCoordVBO = spriteList.getTexcoords();
-            
+
             ibo.makeCurrent();
-            
+
             texCoordVBO.makeCurrent();
             GL20.glEnableVertexAttribArray(2); // TexCoord
             Sprite sprite = spriteList.getSprite(key.spriteIndex);
@@ -133,15 +135,15 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
         private void setupInstanceAttributes() {
             vbo.makeCurrent();
             int instanceStride = FLOATS_PER_INSTANCE * Float.BYTES;
-            
+
             // Model Matrix (Locations 4-7)
             for (int i = 0; i < 4; i++) {
                 int loc = 4 + i;
                 GL20.glEnableVertexAttribArray(loc);
-                GL20.glVertexAttribPointer(loc, 4, GL11.GL_FLOAT, false, instanceStride, (long)i * 4 * Float.BYTES);
+                GL20.glVertexAttribPointer(loc, 4, GL11.GL_FLOAT, false, instanceStride, (long) i * 4 * Float.BYTES);
                 GL33.glVertexAttribDivisor(loc, 1);
             }
-            
+
             // Color (Location 8)
             int colorLoc = 8;
             GL20.glEnableVertexAttribArray(colorLoc);
@@ -153,28 +155,28 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             GL20.glEnableVertexAttribArray(decalColorLoc);
             GL20.glVertexAttribPointer(decalColorLoc, 4, GL11.GL_FLOAT, false, instanceStride, 20 * Float.BYTES);
             GL33.glVertexAttribDivisor(decalColorLoc, 1);
-            
+
             // Animation Offsets & Tween (Locations 10, 11, 12, 13, 14)
             int pos1Loc = 10;
             GL20.glEnableVertexAttribArray(pos1Loc);
             GL20.glVertexAttribPointer(pos1Loc, 1, GL11.GL_FLOAT, false, instanceStride, 24 * Float.BYTES);
             GL33.glVertexAttribDivisor(pos1Loc, 1);
-            
+
             int norm1Loc = 11;
             GL20.glEnableVertexAttribArray(norm1Loc);
             GL20.glVertexAttribPointer(norm1Loc, 1, GL11.GL_FLOAT, false, instanceStride, 25 * Float.BYTES);
             GL33.glVertexAttribDivisor(norm1Loc, 1);
-            
+
             int pos2Loc = 12;
             GL20.glEnableVertexAttribArray(pos2Loc);
             GL20.glVertexAttribPointer(pos2Loc, 1, GL11.GL_FLOAT, false, instanceStride, 26 * Float.BYTES);
             GL33.glVertexAttribDivisor(pos2Loc, 1);
-            
+
             int norm2Loc = 13;
             GL20.glEnableVertexAttribArray(norm2Loc);
             GL20.glVertexAttribPointer(norm2Loc, 1, GL11.GL_FLOAT, false, instanceStride, 27 * Float.BYTES);
             GL33.glVertexAttribDivisor(norm2Loc, 1);
-            
+
             int tweenLoc = 14;
             GL20.glEnableVertexAttribArray(tweenLoc);
             GL20.glVertexAttribPointer(tweenLoc, 1, GL11.GL_FLOAT, false, instanceStride, 28 * Float.BYTES);
@@ -188,18 +190,18 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                 instanceBuffer.flip();
                 newBuffer.put(instanceBuffer);
                 instanceBuffer = newBuffer;
-                
+
                 vbo.close();
                 vbo = new FloatVBO(GL15.GL_STREAM_DRAW, newCapacity * FLOATS_PER_INSTANCE);
-                
+
                 // Rebind VAO to update VBO binding point
                 vao.bind();
                 setupInstanceAttributes();
                 vao.unbind();
-                
+
                 capacity = newCapacity;
             }
-            
+
             modelMatrix.get(instanceBuffer);
             instanceBuffer.position(instanceBuffer.position() + 16);
             color.get(instanceBuffer);
@@ -211,7 +213,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             instanceBuffer.put(pos2);
             instanceBuffer.put(norm2);
             instanceBuffer.put(tween);
-            
+
             totalInstances++;
         }
 
@@ -221,19 +223,19 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             Sprite sprite = key.spriteList.getSprite(key.spriteIndex);
 
             setupTextures(context, shader, sprite, whiteTexture, state);
-            
+
             // Upload data
             vbo.makeCurrent();
             instanceBuffer.flip();
             GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, instanceBuffer);
-            
+
             // Bind TBO
             if (state.boundTBO != key.spriteList.getTBOTextureHandle()) {
                 context.setActiveTexture(5);
                 GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, key.spriteList.getTBOTextureHandle());
                 state.boundTBO = key.spriteList.getTBOTextureHandle();
             }
-            
+
             vao.bind();
 
             if (key.respond) {
@@ -268,27 +270,27 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                 }
                 draw(sprite);
             }
-            
+
             vao.unbind();
         }
 
         private void draw(Sprite sprite) {
             // Use glDrawElementsInstanced
-            GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, sprite.getTriangleCount() * 3, GL11.GL_UNSIGNED_SHORT, (long)sprite.indices_offset * Short.BYTES, totalInstances);
+            GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, sprite.getTriangleCount() * 3, GL11.GL_UNSIGNED_SHORT, (long) sprite.indices_offset * Short.BYTES, totalInstances);
         }
-        
+
         private void setupTextures(@NonNull RenderContext context, @NonNull InstancedSpriteShader shader, @NonNull Sprite sprite, Texture whiteTexture, @NonNull RenderState state) {
-             Texture texture = (sprite.textures.length > key.texIndex && sprite.textures[key.texIndex].length > 0 && sprite.textures[key.texIndex][0] != null) 
+            Texture texture = (sprite.textures.length > key.texIndex && sprite.textures[key.texIndex].length > 0 && sprite.textures[key.texIndex][0] != null)
                     ? sprite.textures[key.texIndex][0] : whiteTexture;
-            
+
             context.setTexture(0, texture);
             shader.setUniform(InstancedSpriteShader.Uniforms.TEXTURE_0, 0);
-            
+
             boolean useLighting = Globals.draw_light && sprite.lighted;
             shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_LIGHTING, useLighting);
             shader.setUniform(InstancedSpriteShader.Uniforms.REPLACE_MODE, !useLighting && !sprite.modulate_color);
             shader.setUniform(InstancedSpriteShader.Uniforms.DESATURATE, key.respond ? 0.5f : 0.0f);
-            
+
             if (sprite.modulate_color) {
                 shader.setUniform(InstancedSpriteShader.Uniforms.MODULATE_COLOR, true);
                 shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_TEAM_COLOR, false);

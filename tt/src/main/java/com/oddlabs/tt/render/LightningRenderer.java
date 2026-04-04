@@ -13,7 +13,6 @@ import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
-import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
@@ -141,7 +140,7 @@ public final class LightningRenderer implements AutoCloseable {
         particle_buffer.clear();
         Deque<StretchParticle> particles = lightning.getParticles();
         int particleCount = 0;
-        
+
         for (StretchParticle particle : particles) {
             if (particleCount >= MAX_PARTICLES) {
                 flush(particleCount);
@@ -153,19 +152,19 @@ public final class LightningRenderer implements AutoCloseable {
         }
         flush(particleCount);
     }
-    
+
     private void flush(int count) {
         if (count == 0) return;
         particle_buffer.flip();
-        
+
         if (vbo_offset + count > MAX_PARTICLES) {
             particle_vbo.orphan();
             vbo_offset = 0;
         }
-        
+
         particle_vbo.putSubData(vbo_offset * VERTICES_PER_PARTICLE * FLOATS_PER_VERTEX, particle_buffer);
         GL11.glDrawElements(GL11.GL_TRIANGLES, count * INDICES_PER_PARTICLE, GL11.GL_UNSIGNED_SHORT, (long) vbo_offset * INDICES_PER_PARTICLE * Short.BYTES);
-        
+
         vbo_offset += count;
     }
 

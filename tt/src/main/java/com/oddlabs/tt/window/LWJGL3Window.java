@@ -100,7 +100,7 @@ public final class LWJGL3Window implements Window {
             // Reconfigure existing window
             long monitor = fullscreen ? glfwGetPrimaryMonitor() : MemoryUtil.NULL;
             int refreshRate = fullscreen ? mode.getFrequency() : GLFW_DONT_CARE;
-            
+
             if (fullscreen) {
                 glfwSetWindowMonitor(windowHandle, monitor, 0, 0, mode.getWidth(), mode.getHeight(), refreshRate);
             } else {
@@ -113,13 +113,13 @@ public final class LWJGL3Window implements Window {
                     glfwSetWindowMonitor(windowHandle, MemoryUtil.NULL, x, y, mode.getWidth(), mode.getHeight(), refreshRate);
                 }
             }
-            
+
             if (!fullscreen) {
                 glfwSetWindowSize(windowHandle, mode.getWidth(), mode.getHeight());
             }
-            
+
             glfwSetWindowSizeLimits(windowHandle, 800, 600, GLFW_DONT_CARE, GLFW_DONT_CARE);
-            
+
             return;
         }
 
@@ -127,7 +127,7 @@ public final class LWJGL3Window implements Window {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
-        
+
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
             glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
         }
@@ -136,7 +136,7 @@ public final class LWJGL3Window implements Window {
         if (settings != null && settings.view_samples > 0) {
             glfwWindowHint(GLFW_SAMPLES, settings.view_samples);
         }
-        
+
         // Request an OpenGL 4.1 Core Profile context
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -166,13 +166,13 @@ public final class LWJGL3Window implements Window {
                 );
             }
         }
-        
+
         // Setup callbacks
         glfwSetFramebufferSizeCallback(windowHandle, (_, _, _) -> this.resized = true);
 
         glfwMakeContextCurrent(windowHandle);
         GL.createCapabilities();
-        
+
         glfwShowWindow(windowHandle);
     }
 
@@ -241,7 +241,7 @@ public final class LWJGL3Window implements Window {
     @Override
     public void setIcon(@NonNull Path imagePath) {
         if (windowHandle == MemoryUtil.NULL) return;
-        
+
         String os = System.getProperty("os.name").toLowerCase();
         if (os.contains("mac")) {
             return;
@@ -266,7 +266,7 @@ public final class LWJGL3Window implements Window {
             icons.pixels(image);
 
             glfwSetWindowIcon(windowHandle, icons);
-            
+
             STBImage.stbi_image_free(image);
         }
     }
@@ -335,7 +335,7 @@ public final class LWJGL3Window implements Window {
             return new SerializableDisplayMode[0];
         }
         GLFWVidMode.Buffer modes = glfwGetVideoModes(monitor);
-        
+
         if (modes == null) return new SerializableDisplayMode[0];
 
         return modes.stream()
@@ -359,9 +359,9 @@ public final class LWJGL3Window implements Window {
     @Override
     public @NonNull SerializableDisplayMode getDisplayMode() {
         ensureGLFW();
-        
+
         int width, height;
-        
+
         if (windowHandle != MemoryUtil.NULL) {
             width = getWidth();
             height = getHeight();
@@ -373,19 +373,19 @@ public final class LWJGL3Window implements Window {
 
         long monitor = windowHandle != MemoryUtil.NULL ? glfwGetWindowMonitor(windowHandle) : MemoryUtil.NULL;
         if (monitor == MemoryUtil.NULL) monitor = glfwGetPrimaryMonitor();
-        
+
         GLFWVidMode vidmode = glfwGetVideoMode(monitor);
         int freq = 60;
         int bpp = 32;
-        
+
         if (vidmode != null) {
             freq = vidmode.refreshRate();
             bpp = vidmode.redBits() + vidmode.greenBits() + vidmode.blueBits();
             if (bpp == 24) bpp = 32;
         }
-        
+
         SerializableDisplayMode current = new SerializableDisplayMode(width, height, bpp, freq);
-        
+
         // Try to match with available modes to ensure exact equality (for UI selection)
         try {
             for (SerializableDisplayMode m : getAvailableDisplayModes()) {
@@ -403,15 +403,15 @@ public final class LWJGL3Window implements Window {
             e.printStackTrace();
         }
 
-         try {
-             SerializableDisplayMode[] available = getAvailableDisplayModes();
-             if (available.length > 0) {
-                 return available[0];
-             }
-         } catch (Exception e) {
-             e.printStackTrace();
-         }
-         return new SerializableDisplayMode(1280, 1024, 32, 60);
+        try {
+            SerializableDisplayMode[] available = getAvailableDisplayModes();
+            if (available.length > 0) {
+                return available[0];
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new SerializableDisplayMode(1280, 1024, 32, 60);
     }
 
     @Override
@@ -423,7 +423,7 @@ public final class LWJGL3Window implements Window {
     public void makeCurrent() throws Exception {
         glfwMakeContextCurrent(windowHandle);
     }
-    
+
     public long getHandle() {
         return windowHandle;
     }

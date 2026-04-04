@@ -16,83 +16,83 @@ import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
 public final class InGameMainMenu extends Menu {
-	private final @NonNull WorldViewer viewer;
+    private final @NonNull WorldViewer viewer;
 
-	private Group game_infos;
+    private Group game_infos;
 
-	public InGameMainMenu(@NonNull WorldViewer viewer, @NonNull Camera camera) {
-		super(viewer.getNetwork(), viewer.getGUIRoot(), camera);
-		this.viewer = viewer;
-		reload();
-	}
+    public InGameMainMenu(@NonNull WorldViewer viewer, @NonNull Camera camera) {
+        super(viewer.getNetwork(), viewer.getGUIRoot(), camera);
+        this.viewer = viewer;
+        reload();
+    }
 
-	@Override
-	protected void doAdd() {
-		super.doAdd();
-		viewer.setPaused(true);
-	}
+    @Override
+    protected void doAdd() {
+        super.doAdd();
+        viewer.setPaused(true);
+    }
 
-	@Override
-	protected void doRemove() {
-		super.doRemove();
-		viewer.setPaused(false);
-	}
+    @Override
+    protected void doRemove() {
+        super.doRemove();
+        viewer.setPaused(false);
+    }
 
-	public void addAbortButton(@NonNull String abort_text) {
-		MenuButton abort = new MenuButton(abort_text, COLOR_NORMAL, COLOR_ACTIVE);
-		addChild(abort);
-		abort.addMouseClickListener(new AbortListener());
-	}
+    public void addAbortButton(@NonNull String abort_text) {
+        MenuButton abort = new MenuButton(abort_text, COLOR_NORMAL, COLOR_ACTIVE);
+        addChild(abort);
+        abort.addMouseClickListener(new AbortListener());
+    }
 
-	@Override
-	protected void addButtons() {
-		addResumeButton();
+    @Override
+    protected void addButtons() {
+        addResumeButton();
 
-		addOptionsButton(() -> new InGameOptionsMenu(getGUIRoot(), viewer));
+        addOptionsButton(() -> new InGameOptionsMenu(getGUIRoot(), viewer));
 
-		game_infos = new Group(false);
-		viewer.addGUI(this, game_infos);
-		addChild(game_infos);
+        game_infos = new Group(false);
+        viewer.addGUI(this, game_infos);
+        addChild(game_infos);
 
-		addExitButton();
-	}
+        addExitButton();
+    }
 
-	@Override
-	public void displayChangedNotify(int width, int height) {
-		super.displayChangedNotify(width, height);
-		if (game_infos != null)
-			game_infos.setPos((width - game_infos.getWidth())/2, (height - game_infos.getHeight())/2);
-	}
+    @Override
+    public void displayChangedNotify(int width, int height) {
+        super.displayChangedNotify(width, height);
+        if (game_infos != null)
+            game_infos.setPos((width - game_infos.getWidth()) / 2, (height - game_infos.getHeight()) / 2);
+    }
 
-	@Override
-	public void handleInput(@NonNull InputEvent event) {
-		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
-			if (event.consumeAction(GameAction.UI_CANCEL)) {
-				pop();
-				event.consume();
-				return;
-			}
-		}
-		super.handleInput(event);
-	}
+    @Override
+    public void handleInput(@NonNull InputEvent event) {
+        if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+            if (event.consumeAction(GameAction.UI_CANCEL)) {
+                pop();
+                event.consume();
+                return;
+            }
+        }
+        super.handleInput(event);
+    }
 
-	@Override
-	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-		super.renderGeometry(renderer);
-		renderBackgroundAlpha(renderer);
-	}
+    @Override
+    protected void renderGeometry(@NonNull GUIRenderer renderer) {
+        super.renderGeometry(renderer);
+        renderBackgroundAlpha(renderer);
+    }
 
-	private final class AbortListener implements MouseClickListener {
-		@Override
-		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
-			setMenuCentered(new QuestionForm(Menu.i18n("end_game_confirm"), new ActionAbortListener()));
-		}
-	}
+    private final class AbortListener implements MouseClickListener {
+        @Override
+        public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
+            setMenuCentered(new QuestionForm(Menu.i18n("end_game_confirm"), new ActionAbortListener()));
+        }
+    }
 
-	private final class ActionAbortListener implements MouseClickListener {
-		@Override
-		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
-			viewer.abort();
-		}
-	}
+    private final class ActionAbortListener implements MouseClickListener {
+        @Override
+        public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
+            viewer.abort();
+        }
+    }
 }

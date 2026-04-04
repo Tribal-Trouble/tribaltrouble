@@ -8,6 +8,8 @@ import org.jspecify.annotations.NonNull;
  */
 @FunctionalInterface
 public interface Animated {
-	void animate(float t);
-	default void updateChecksum(@NonNull StateChecksum checksum) {}
+    void animate(float t);
+
+    default void updateChecksum(@NonNull StateChecksum checksum) {
+    }
 }

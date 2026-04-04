@@ -69,7 +69,9 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     private float anim_speed;
     private float anim_time;
     private int path_penalty;
-    /** unit is in a tower */
+    /**
+     * unit is in a tower
+     */
     private boolean mounted;
     private float mount_offset = 0;
     private Building mounted_building;
@@ -102,10 +104,9 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         if (!getAbilities().hasAbilities(Abilities.MAGIC)) {
             int result = getOwner().getUnitCountContainer().increaseSupply(1);
             assert (result == 1) : "No room for new unit in player unit container.";
-        } else
-            if (notify_by_chieftain) {
-                owner.getWorld().getNotificationListener().newSelectableNotification(this);
-            }
+        } else if (notify_by_chieftain) {
+            owner.getWorld().getNotificationListener().newSelectableNotification(this);
+        }
         if (rally_point != null) {
             Target unit_target;
             if (rally_point instanceof LandscapeTarget) {
@@ -164,16 +165,16 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         Target reserved_target = unit_grid.findGridTargets(UnitGrid.toGridCoordinate(x), UnitGrid.toGridCoordinate(y), 1, grid_targets_only)[0];
         setGridPosition(reserved_target.getGridX(), reserved_target.getGridY());
         setPosition(reserved_target.getPositionX(), reserved_target.getPositionY());
-        
+
         // Orient initially towards world center
         float center = getOwner().getWorld().getHeightMap().getMetersPerWorld() / 2f;
         float dx = center - reserved_target.getPositionX();
         float dy = center - reserved_target.getPositionY();
-        float len = (float)Math.sqrt(dx*dx + dy*dy);
+        float len = (float) Math.sqrt(dx * dx + dy * dy);
         if (len > 0) {
-            setDirection(dx/len, dy/len);
+            setDirection(dx / len, dy / len);
         }
-        
+
         occupy();
         reinsert();
     }
@@ -191,13 +192,13 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         range_bonus += amount;
     }
 
-	@Override
-	public final AttackScanFilter.@NonNull Priority getAttackPriority() {
+    @Override
+    public final AttackScanFilter.@NonNull Priority getAttackPriority() {
         assert !isDead();
         return getAbilities().hasAbilities(Abilities.BUILD)
-				? AttackScanFilter.Priority.PEON
-				: AttackScanFilter.Priority.WARRIOR;
-	}
+                ? AttackScanFilter.Priority.PEON
+                : AttackScanFilter.Priority.WARRIOR;
+    }
 
     @Override
     public final void visit(@NonNull ToolTipVisitor visitor) {
@@ -382,16 +383,15 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         super.hit(damage, direction_x, direction_y, owner);
         if (mounted) {
             mounted_building.hit(damage, direction_x, direction_y, owner);
-        } else
-            if (!isDead()) {
-                hit_points = Math.clamp(hit_points - damage, 0, getTemplate().getMaxHitPoints());
-                if (hit_points == 0) {
-                    // stats
-                    owner.unitKilled();
-                    getOwner().unitLost();
+        } else if (!isDead()) {
+            hit_points = Math.clamp(hit_points - damage, 0, getTemplate().getMaxHitPoints());
+            if (hit_points == 0) {
+                // stats
+                owner.unitKilled();
+                getOwner().unitLost();
 
-                    pushController(new DieController(this));
-                    forceDecide();
+                pushController(new DieController(this));
+                forceDecide();
                     /*
 				new AudioPlayer(getPositionX(), getPositionY(), getPositionZ(),
 						RacesResources.getUnitHitSound(),
@@ -401,16 +401,16 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
 						AudioPlayer.AUDIO_RADIUS_DEATH,
 						1f + (World.getRandom().nextFloat() - .5f)*getUnitTemplate().getDeathPitch());
                      */
-                    getOwner().getWorld().getAudio().newAudio(new AudioParameters<>(getTemplate().getDeathSound(), getPositionX(), getPositionY(), getPositionZ(),
-                            AudioPlayer.AUDIO_RANK_DEATH,
-                            AudioPlayer.AUDIO_DISTANCE_DEATH,
-                            AudioPlayer.AUDIO_GAIN_DEATH,
-                            AudioPlayer.AUDIO_RADIUS_DEATH,
-                            1f + (getOwner().getWorld().getRandom().nextFloat() - .5f) * getTemplate().getDeathPitch()));
-                    setDirection(-direction_x, -direction_y);
-                    removeDying();
-                }
+                getOwner().getWorld().getAudio().newAudio(new AudioParameters<>(getTemplate().getDeathSound(), getPositionX(), getPositionY(), getPositionZ(),
+                        AudioPlayer.AUDIO_RANK_DEATH,
+                        AudioPlayer.AUDIO_DISTANCE_DEATH,
+                        AudioPlayer.AUDIO_GAIN_DEATH,
+                        AudioPlayer.AUDIO_RADIUS_DEATH,
+                        1f + (getOwner().getWorld().getRandom().nextFloat() - .5f) * getTemplate().getDeathPitch()));
+                setDirection(-direction_x, -direction_y);
+                removeDying();
             }
+        }
     }
 
     public final void stun(float time) {
@@ -492,21 +492,17 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
             case DEFAULT:
                 if (canBuild(target)) {
                     pushController(new PlaceBuildingController(this, (Building) target));
-                } else
-                    if (canGather(target)) {
-                        pushController(new GatherController(this, (Supply) target, ((Supply) target).getClass()));
-                    } else
-                        if (canRepair(target, false)) {
-                            pushController(new RepairController(this, (Building) target));
-                        } else
-                            if (canEnter(target)) {
-                                pushController(new EnterController(this, (Building) target));
-                            } else
-                                if (canAttack(target, false)) {
-                                    pushController(new HuntController(this, (Selectable<?>) target));
-                                } else {
-                                    walkToTarget(target, aggressive);
-                                }
+                } else if (canGather(target)) {
+                    pushController(new GatherController(this, (Supply) target, ((Supply) target).getClass()));
+                } else if (canRepair(target, false)) {
+                    pushController(new RepairController(this, (Building) target));
+                } else if (canEnter(target)) {
+                    pushController(new EnterController(this, (Building) target));
+                } else if (canAttack(target, false)) {
+                    pushController(new HuntController(this, (Selectable<?>) target));
+                } else {
+                    walkToTarget(target, aggressive);
+                }
                 break;
             case MOVE:
                 if (canEnter(target)) {
@@ -533,19 +529,19 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
                 pushController(new DefendController(this, target));
                 break;
             default:
-				IO.println("Invalid action: " + action);
+                IO.println("Invalid action: " + action);
                 break;
         }
     }
 
     public final void printDebugInfo() {
-		IO.println("-----------------------------------");
-		IO.println("Primary Controller = " + getPrimaryController());
+        IO.println("-----------------------------------");
+        IO.println("Primary Controller = " + getPrimaryController());
         if (getAbilities().hasAbilities(Abilities.MAGIC)) {
-			IO.println("Hit Points = " + hit_points);
-			IO.println("Magic Energy 0 = " + magic_energy[0]);
-			IO.println("Magic Energy 1 = " + magic_energy[1]);
-			IO.println("Controller = " + getPrimaryController());
+            IO.println("Hit Points = " + hit_points);
+            IO.println("Magic Energy 0 = " + magic_energy[0]);
+            IO.println("Magic Energy 1 = " + magic_energy[1]);
+            IO.println("Controller = " + getPrimaryController());
         }
     }
 
@@ -619,23 +615,23 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         float x = getPositionX();
         float y = getPositionY();
         var hm = getOwner().getWorld().getHeightMap();
-        
+
         float h_center = hm.getNearestHeight(x, y);
         float h_max = h_center;
-        
+
         // Axis-aligned
         h_max = Math.max(h_max, hm.getNearestHeight(x + r, y));
         h_max = Math.max(h_max, hm.getNearestHeight(x - r, y));
         h_max = Math.max(h_max, hm.getNearestHeight(x, y + r));
         h_max = Math.max(h_max, hm.getNearestHeight(x, y - r));
-        
+
         // Diagonals (approx 0.707 * r)
         float d = r * 0.707f;
         h_max = Math.max(h_max, hm.getNearestHeight(x + d, y + d));
         h_max = Math.max(h_max, hm.getNearestHeight(x - d, y + d));
         h_max = Math.max(h_max, hm.getNearestHeight(x + d, y - d));
         h_max = Math.max(h_max, hm.getNearestHeight(x - d, y - d));
-        
+
         return Math.max(0f, h_max - h_center);
     }
 

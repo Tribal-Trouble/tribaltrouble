@@ -4,7 +4,7 @@ import java.util.ArrayDeque;
 
 public final class QueueArray extends ArrayDeque<RegionBuilderNode> {
 
-	public QueueArray(int size) {
-		super(size);
-	}
+    public QueueArray(int size) {
+        super(size);
+    }
 }

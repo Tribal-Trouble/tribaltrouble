@@ -8,35 +8,35 @@ import com.oddlabs.tt.render.SpriteKey;
 import org.jspecify.annotations.NonNull;
 
 public abstract class RotatingThrowingWeapon extends ThrowingWeapon {
-	private float angle = 0;
+    private float angle = 0;
 
-	public RotatingThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target, @NonNull SpriteKey sprite_renderer, @NonNull Audio throw_sound, Audio @NonNull [] hit_sounds) {
-		super(hit, src, target, sprite_renderer, throw_sound, hit_sounds);
-	}
+    public RotatingThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target, @NonNull SpriteKey sprite_renderer, @NonNull Audio throw_sound, Audio @NonNull [] hit_sounds) {
+        super(hit, src, target, sprite_renderer, throw_sound, hit_sounds);
+    }
 
-	private void setAngle(float angle) {
-		this.angle = angle;
-	}
+    private void setAngle(float angle) {
+        this.angle = angle;
+    }
 
-	public final float getAngle() {
-		return angle;
-	}
+    public final float getAngle() {
+        return angle;
+    }
 
-	@Override
-	public final void animate(float t) {
-		super.animate(t);
-		setAngle(getAngle() + getAngleVelocity()*t);
-	}
+    @Override
+    public final void animate(float t) {
+        super.animate(t);
+        setAngle(getAngle() + getAngleVelocity() * t);
+    }
 
-	protected abstract float getAngleVelocity();
+    protected abstract float getAngleVelocity();
 
-	@Override
-	protected float getLoftFactor() {
-		return 1.01f;
-	}
+    @Override
+    protected float getLoftFactor() {
+        return 1.01f;
+    }
 
-	@Override
-	public final void visit(@NonNull ElementVisitor visitor) {
-		visitor.visitRotatingThrowingWeapon(this);
-	}
+    @Override
+    public final void visit(@NonNull ElementVisitor visitor) {
+        visitor.visitRotatingThrowingWeapon(this);
+    }
 }

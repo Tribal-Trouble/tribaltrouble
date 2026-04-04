@@ -63,11 +63,12 @@ public final class RefillerList implements AutoCloseable {
                 while (!finished) {
                     synchronized (RefillerList.this) {
                         if (ALC10.alcGetCurrentContext() != MemoryUtil.NULL) {
-                            for (QueuedAudioPlayer player: players) try {
-                                player.refill();
-                            } catch (IOException _) {
-                                System.err.println("Refill failed for " + player);
-                            }
+                            for (QueuedAudioPlayer player : players)
+                                try {
+                                    player.refill();
+                                } catch (IOException _) {
+                                    System.err.println("Refill failed for " + player);
+                                }
                         }
                         while (players.isEmpty() && !finished) try {
                             RefillerList.this.wait();

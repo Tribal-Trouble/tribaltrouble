@@ -17,77 +17,77 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class LogoScreen extends CameraDelegate<StaticCamera> implements Updatable<TimerAnimation> {
-	private static final float DELAY = 4f;
-	private static final int overlay_texture_width = 1024;
-	private static final int overlay_texture_height = 1024;
-	private static final int overlay_image_width = 800;
-	private static final int overlay_image_height = 600;
+    private static final float DELAY = 4f;
+    private static final int overlay_texture_width = 1024;
+    private static final int overlay_texture_height = 1024;
+    private static final int overlay_image_width = 800;
+    private static final int overlay_image_height = 600;
 
-	private final @Nullable GUIIcon overlay;
-	private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);
-	private final @NonNull GUIRoot client_root;
-	private final Fadable fadable;
-	private final UIRenderer renderer;
-	private boolean fade_started = false;
-	
-	public LogoScreen(@NonNull GUIRoot gui_root, @Nullable Texture logo, Fadable fadable, @NonNull GUIRoot client_root, UIRenderer renderer) {
-		super(gui_root, new StaticCamera(new CameraState()));
-		this.client_root = client_root;
-		this.fadable = fadable;
-		this.renderer = renderer;
-		setCanFocus(true);
-		setFocusCycle(true);
+    private final @Nullable GUIIcon overlay;
+    private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);
+    private final @NonNull GUIRoot client_root;
+    private final Fadable fadable;
+    private final UIRenderer renderer;
+    private boolean fade_started = false;
 
-		if (logo != null) { 
-			overlay = new GUIIcon(new IconQuad(0f, 0f, (float)overlay_image_width/overlay_texture_width, (float)overlay_image_height/overlay_texture_height, getGUIRoot().getWidth(), getGUIRoot().getHeight(), logo));
-			overlay.setPos(0, 0);
-			addChild(overlay);
-		} else {
-			overlay = null;
+    public LogoScreen(@NonNull GUIRoot gui_root, @Nullable Texture logo, Fadable fadable, @NonNull GUIRoot client_root, UIRenderer renderer) {
+        super(gui_root, new StaticCamera(new CameraState()));
+        this.client_root = client_root;
+        this.fadable = fadable;
+        this.renderer = renderer;
+        setCanFocus(true);
+        setFocusCycle(true);
+
+        if (logo != null) {
+            overlay = new GUIIcon(new IconQuad(0f, 0f, (float) overlay_image_width / overlay_texture_width, (float) overlay_image_height / overlay_texture_height, getGUIRoot().getWidth(), getGUIRoot().getHeight(), logo));
+            overlay.setPos(0, 0);
+            addChild(overlay);
+        } else {
+            overlay = null;
         }
 
-		delay_timer.start();
-		gui_root.pushDelegate(this);
-	}
+        delay_timer.start();
+        gui_root.pushDelegate(this);
+    }
 
-	@Override
-	public void displayChangedNotify(int width, int height) {
-		setDim(width, height);
-		if (overlay != null)
-			overlay.setDim(width, height);
-	}
+    @Override
+    public void displayChangedNotify(int width, int height) {
+        setDim(width, height);
+        if (overlay != null)
+            overlay.setDim(width, height);
+    }
 
-	@Override
-	public void update(@NonNull TimerAnimation anim) {
-		delay_timer.stop();
-		fade();
-	}
+    @Override
+    public void update(@NonNull TimerAnimation anim) {
+        delay_timer.stop();
+        fade();
+    }
 
-	public void fade() {
-		if (!fade_started) {
-			fade_started = true;
-			getGUIRoot().getGUI().newFade(fadable, client_root, renderer);
-		}
-	}
+    public void fade() {
+        if (!fade_started) {
+            fade_started = true;
+            getGUIRoot().getGUI().newFade(fadable, client_root, renderer);
+        }
+    }
 
-	public void switchImage(GUIRoot gui_root) {
-		pop();
-	}
+    public void switchImage(GUIRoot gui_root) {
+        pop();
+    }
 
-	public void fadingDone(GUIRoot gui_root) {
-	}
-	
-	@Override
-	public void handleInput(@NonNull InputEvent event) {
-		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
-			fade();
-			event.consume();
-		}
-		super.handleInput(event);
-	}
+    public void fadingDone(GUIRoot gui_root) {
+    }
 
-	@Override
-	protected void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
-		fade();
-	}
+    @Override
+    public void handleInput(@NonNull InputEvent event) {
+        if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+            fade();
+            event.consume();
+        }
+        super.handleInput(event);
+    }
+
+    @Override
+    protected void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
+        fade();
+    }
 }

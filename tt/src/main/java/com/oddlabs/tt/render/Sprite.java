@@ -28,7 +28,7 @@ public final class Sprite {
     static final int TEXTURE_BUMP = 2;
     private static final String GENERATOR_STRING = "Generator:";
 
-    final Texture@NonNull [] @NonNull [] textures;
+    final Texture @NonNull [] @NonNull [] textures;
     private final int num_triangles;
     private final int num_vertices;
     private final float @Nullable [] clear_color;
@@ -44,7 +44,9 @@ public final class Sprite {
     final int indices_offset;
     final int texcoords_offset;
 
-    /** Dummy constructor for creating a simple quad sprite. */
+    /**
+     * Dummy constructor for creating a simple quad sprite.
+     */
     Sprite(int num_vertices, int num_triangles, int indices_offset, boolean modulate_color) {
         this.textures = new Texture[0][0];
         this.num_vertices = num_vertices;
@@ -108,7 +110,7 @@ public final class Sprite {
             if (diffuseAndBump.length > 1) {
                 textures[i][TEXTURE_BUMP] = diffuseAndBump[1];
             }
-            
+
             textures[i][TEXTURE_TEAM] = texture_names[i][TEXTURE_TEAM] != null
                     ? getTextureForName(texture_names[i][1], Globals.COMPRESSED_RGB_FORMAT, mipmap_cutoff, max_alpha)[0]
                     : null;
@@ -133,7 +135,7 @@ public final class Sprite {
         Vector4f v = new Vector4f();
         Vector4f n = new Vector4f();
         Vector4f temp = new Vector4f();
-        
+
         try (org.lwjgl.system.MemoryStack stack = org.lwjgl.system.MemoryStack.stackPush()) {
             FloatBuffer matrix_buffer = stack.mallocFloat(16);
             matrix_buffer.put(15, 1f);
@@ -147,10 +149,10 @@ public final class Sprite {
                     for (int bone = 0; bone < num_bones; bone++) {
                         int offset = bone * 12;
                         frame_bones[bone].set(
-                            frame_animation[offset + 0], frame_animation[offset + 4], frame_animation[offset + 8], 0.0f,
-                            frame_animation[offset + 1], frame_animation[offset + 5], frame_animation[offset + 9], 0.0f,
-                            frame_animation[offset + 2], frame_animation[offset + 6], frame_animation[offset + 10], 0.0f,
-                            frame_animation[offset + 3], frame_animation[offset + 7], frame_animation[offset + 11], 1.0f
+                                frame_animation[offset + 0], frame_animation[offset + 4], frame_animation[offset + 8], 0.0f,
+                                frame_animation[offset + 1], frame_animation[offset + 5], frame_animation[offset + 9], 0.0f,
+                                frame_animation[offset + 2], frame_animation[offset + 6], frame_animation[offset + 10], 0.0f,
+                                frame_animation[offset + 3], frame_animation[offset + 7], frame_animation[offset + 11], 1.0f
                         );
                     }
                     float[] frame_normals = tmp_normals[anim][frame];
@@ -186,9 +188,9 @@ public final class Sprite {
                             result_nz += temp.z * weight;
                         }
                         float vec_len_inv = 1f / (float) Math.sqrt(result_nx * result_nx + result_ny * result_ny + result_nz * result_nz);
-                            result_nx *= vec_len_inv;
-                            result_ny *= vec_len_inv;
-                            result_nz *= vec_len_inv;
+                        result_nx *= vec_len_inv;
+                        result_ny *= vec_len_inv;
+                        result_nz *= vec_len_inv;
                         frame_normals[vertex * 3 + 0] = result_nx;
                         frame_normals[vertex * 3 + 1] = result_ny;
                         frame_normals[vertex * 3 + 2] = result_nz;
@@ -226,14 +228,14 @@ public final class Sprite {
             if (lowerName.contains("leaf") || lowerName.contains("plant") || lowerName.contains("crown") || lowerName.contains("branch") || lowerName.contains("foliage") || lowerName.contains("bush")) {
                 wrapMode = GL12.GL_CLAMP_TO_EDGE;
             }
-            return new Texture[] { Resources.findResource(new TextureFile("/textures/models/" + texture_name, color_format, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, wrapMode, wrapMode, mipmap_cutoff, 100000, 0.1f, max_alpha)) };
+            return new Texture[]{Resources.findResource(new TextureFile("/textures/models/" + texture_name, color_format, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, wrapMode, wrapMode, mipmap_cutoff, 100000, 0.1f, max_alpha))};
         }
     }
 
     public boolean hasTeamDecal() {
         return textures.length > 0 && textures[0].length > TEXTURE_TEAM && textures[0][TEXTURE_TEAM] != null;
     }
-    
+
     public boolean hasBumpMap(int tex_index) {
         return textures.length > tex_index && textures[tex_index].length > TEXTURE_BUMP && textures[tex_index][TEXTURE_BUMP] != null;
     }
@@ -265,7 +267,7 @@ public final class Sprite {
                 shader.setUniform(SpriteShader.Uniforms.ENABLE_TEAM_COLOR, false);
             }
         }
-        
+
         if (hasBumpMap(tex_index)) {
             shader.setUniform(SpriteShader.Uniforms.ENABLE_NORMAL_MAP, true);
             context.setTexture(2, textures[tex_index][TEXTURE_BUMP]);
@@ -314,7 +316,8 @@ public final class Sprite {
         return num_vertices;
     }
 
-    public record FrameState(int pos1, int norm1, int pos2, int norm2, float tween) {}
+    public record FrameState(int pos1, int norm1, int pos2, int norm2, float tween) {
+    }
 
     public @NonNull FrameState getAnimationState(int animation, float anim_ticks) {
         if (cpw_array == null) {
@@ -329,11 +332,11 @@ public final class Sprite {
         float anim_position = anim_ticks * cpw_array[animation];
         int len = animation_length_array[animation];
         float exactFrame = anim_position * len;
-        
+
         int frame1 = (int) exactFrame;
         int frame2 = frame1 + 1;
         float tween = exactFrame - frame1;
-        
+
         if (type_array[animation] == AnimationInfo.AnimationType.LOOP) {
             frame1 %= len;
             frame2 %= len;
@@ -341,21 +344,21 @@ public final class Sprite {
             frame1 = Math.min(frame1, len - 1);
             frame2 = Math.min(frame2, len - 1);
         }
-        
+
         // Calculate offsets in Texels (floats / 3)
         // Layout: [Pos (3N)] [Norm (3N)] per frame.
         // Frame stride: 6N floats.
         // Base: buffer_indices[animation] (floats)
-        
+
         int baseTexelOffset = buffer_indices[animation] / 3;
         int frameStrideTexels = num_vertices * 2; // 6N floats / 3 = 2N texels
-        
+
         int pos1 = baseTexelOffset + frame1 * frameStrideTexels;
         int norm1 = pos1 + num_vertices;
-        
+
         int pos2 = baseTexelOffset + frame2 * frameStrideTexels;
         int norm2 = pos2 + num_vertices;
-        
+
         return new FrameState(pos1, norm1, pos2, norm2, tween);
     }
 

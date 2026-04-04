@@ -7,35 +7,36 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class MagicBehaviour implements Behaviour {
-	private enum MagicState {
-		PREPARING,
-		CASTING,
-		ENDING
-	}
+    private enum MagicState {
+        PREPARING,
+        CASTING,
+        ENDING
+    }
 
-	private final @NonNull Unit unit;
-	private final @NonNull MagicFactory magic_factory;
-	private final @NonNull MagicController controller;
-	private @Nullable Magic magic;
+    private final @NonNull Unit unit;
+    private final @NonNull MagicFactory magic_factory;
+    private final @NonNull MagicController controller;
+    private @Nullable Magic magic;
 
-	private float anim_time;
-	private @NonNull MagicState state = MagicState.PREPARING;
+    private float anim_time;
+    private @NonNull MagicState state = MagicState.PREPARING;
 
-	public MagicBehaviour(@NonNull Unit unit, @NonNull MagicFactory magic_factory, @NonNull MagicController controller) {
-		this.unit = unit;
-		this.magic_factory = magic_factory;
-		this.controller = controller;
+    public MagicBehaviour(@NonNull Unit unit, @NonNull MagicFactory magic_factory, @NonNull MagicController controller) {
+        this.unit = unit;
+        this.magic_factory = magic_factory;
+        this.controller = controller;
         anim_time = magic_factory.getSecondsPerInit();
-        unit.switchAnimation(1f/magic_factory.getSecondsPerAnim(), Unit.Animation.MAGIC);	}
+        unit.switchAnimation(1f / magic_factory.getSecondsPerAnim(), Unit.Animation.MAGIC);
+    }
 
-	@Override
-	public boolean isBlocking() {
-		return true;
-	}
+    @Override
+    public boolean isBlocking() {
+        return true;
+    }
 
-	@Override
-	public @NonNull State animate(float t) {
-		anim_time -= t;
+    @Override
+    public @NonNull State animate(float t) {
+        anim_time -= t;
         return switch (state) {
             case PREPARING -> {
                 if (anim_time <= 0) {
@@ -62,11 +63,11 @@ public final class MagicBehaviour implements Behaviour {
                 }
             }
         };
-	}
+    }
 
-	@Override
-	public void forceInterrupted() {
-		if (magic != null)
-			magic.interrupt();
-	}
+    @Override
+    public void forceInterrupted() {
+        if (magic != null)
+            magic.interrupt();
+    }
 }

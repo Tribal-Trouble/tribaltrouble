@@ -66,7 +66,7 @@ public final class EFXManager {
             // Configure slot
             alAuxiliaryEffectSloti(effectSlot, AL_EFFECTSLOT_AUXILIARY_SEND_AUTO, 1);
             OpenALManager.checkALError("alAuxiliaryEffectSloti SEND_AUTO");
-            
+
             supported = true;
             logger.info("OpenAL EFX initialized successfully.");
         } catch (Exception e) {
@@ -104,7 +104,7 @@ public final class EFXManager {
         alAuxiliaryEffectSloti(effectSlot, AL_EFFECTSLOT_EFFECT, reverbEffect);
         OpenALManager.checkALError("alAuxiliaryEffectSloti AL_EFFECTSLOT_EFFECT");
     }
-    
+
     // Helper to set EAX Reverb properties (simplified subset)
     private void setEAXReverb(float density, float diffusion, float gain, float gainHF, float decayTime, float reflectionsGain, float reflectionsDelay, float lateReverbDelay, float airAbsorption) {
         alEffectf(reverbEffect, AL_EAXREVERB_DENSITY, density);
@@ -127,7 +127,7 @@ public final class EFXManager {
     public boolean isSupported() {
         return supported;
     }
-    
+
     public void cleanup() {
         if (supported) {
             alDeleteEffects(reverbEffect);
@@ -137,6 +137,7 @@ public final class EFXManager {
 
     /**
      * Checks if the OpenAL EFX extension is supported.
+     *
      * @param device The OpenAL device.
      * @return True if EFX is supported, false otherwise.
      */

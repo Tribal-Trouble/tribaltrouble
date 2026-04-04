@@ -5,22 +5,22 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
 
 public final class GeometryErrorHandler implements ErrorHandler {
-	@Override
+    @Override
     public void fatalError(SAXParseException exception) {
-		// ignore fatal errors (an exception is guaranteed)
-	}
+        // ignore fatal errors (an exception is guaranteed)
+    }
 
-	// treat validation errors as fatal
+    // treat validation errors as fatal
     @Override
-	public void error(@NonNull SAXParseException e) throws SAXParseException {
-		throw e;
-	}
+    public void error(@NonNull SAXParseException e) throws SAXParseException {
+        throw e;
+    }
 
-	// dump warnings too
+    // dump warnings too
     @Override
-	public void warning(@NonNull SAXParseException err) {
-		IO.println("** Warning, line " + err.getLineNumber() + ", uri " + err.getSystemId());
-		IO.println("   " + err.getMessage());
-	}
+    public void warning(@NonNull SAXParseException err) {
+        IO.println("** Warning, line " + err.getLineNumber() + ", uri " + err.getSystemId());
+        IO.println("   " + err.getMessage());
+    }
 }
 

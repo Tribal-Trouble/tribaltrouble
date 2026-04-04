@@ -7,74 +7,74 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class PulldownItem<T> extends ButtonObject {
-	private final @NonNull Label label;
-	private final @Nullable T attachment;
+    private final @NonNull Label label;
+    private final @Nullable T attachment;
 
-	public PulldownItem(@NonNull String label_str) {
-		this(label_str, null);
-	}
-	
-	public PulldownItem(@NonNull String label_str, @Nullable T attachment) {
-		super(Skin.getSkin().getPulldownData().font());
-		this.attachment = attachment;
-		PulldownData data = Skin.getSkin().getPulldownData();
-		label = new Label(label_str, data.font(), 0, Origin.AT_START);
-		addChild(label);
-		setDim(0, label.getHeight());
-	}
+    public PulldownItem(@NonNull String label_str) {
+        this(label_str, null);
+    }
 
-	public @Nullable T getAttachment() {
-		return attachment;
-	}
-	
-	public int getTextHeight() {
-		return label.getHeight();
-	}
+    public PulldownItem(@NonNull String label_str, @Nullable T attachment) {
+        super(Skin.getSkin().getPulldownData().font());
+        this.attachment = attachment;
+        PulldownData data = Skin.getSkin().getPulldownData();
+        label = new Label(label_str, data.font(), 0, Origin.AT_START);
+        addChild(label);
+        setDim(0, label.getHeight());
+    }
 
-	public int getTextWidth() {
+    public @Nullable T getAttachment() {
+        return attachment;
+    }
+
+    public int getTextHeight() {
+        return label.getHeight();
+    }
+
+    public int getTextWidth() {
 //		return label.getWidth();
-		return label.getTextWidth();
-	}
+        return label.getTextWidth();
+    }
 
-	@Override
-	public @NonNull PulldownItem<T> setDim(int width, int height) {
-		super.setDim(width, height);
-		Box item = Skin.getSkin().getPulldownData().pulldownItem();
-		label.setDim(getWidth() - item.getLeftOffset() - item.getRightOffset(), label.getHeight());
-		label.setPos(item.getLeftOffset(), (getHeight() - label.getHeight())/2);
-		return this;
-	}
+    @Override
+    public @NonNull PulldownItem<T> setDim(int width, int height) {
+        super.setDim(width, height);
+        Box item = Skin.getSkin().getPulldownData().pulldownItem();
+        label.setDim(getWidth() - item.getLeftOffset() - item.getRightOffset(), label.getHeight());
+        label.setPos(item.getLeftOffset(), (getHeight() - label.getHeight()) / 2);
+        return this;
+    }
 
-	@Override
-	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-		Box item = Skin.getSkin().getPulldownData().pulldownItem();
-		ModeIconQuads.Mode skinMode = isDisabled()
+    @Override
+    protected void renderGeometry(@NonNull GUIRenderer renderer) {
+        Box item = Skin.getSkin().getPulldownData().pulldownItem();
+        ModeIconQuads.Mode skinMode = isDisabled()
                 ? ModeIconQuads.Mode.NORMAL
                 : isActive() || isHovered()
-                    ? ModeIconQuads.Mode.ACTIVE
-                    : ModeIconQuads.Mode.NORMAL;
+                  ? ModeIconQuads.Mode.ACTIVE
+                  : ModeIconQuads.Mode.NORMAL;
         item.render(renderer, 0f, 0f, getWidth(), getHeight(), skinMode);
-	}
+    }
 
-	public void setLabelString(@NonNull CharSequence label_str) {
-		label.set(label_str);
-	}
+    public void setLabelString(@NonNull CharSequence label_str) {
+        label.set(label_str);
+    }
 
-	public @NonNull CharSequence getLabelString() {
-		return label;
-	}
+    public @NonNull CharSequence getLabelString() {
+        return label;
+    }
 
-	public @NonNull Vector4fc getLabelColor() {
-		return label.getColor();
-	}
+    public @NonNull Vector4fc getLabelColor() {
+        return label.getColor();
+    }
 
     public void setLabelColor(@NonNull Vector4fc color) {
         label.setColor(color);
     }
 
-	@Override
-	protected void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
-            // Prevent super.mouseClicked from being called to avoid infinite loop.
+    @Override
+    protected void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
+        // Prevent super.mouseClicked from being called to avoid infinite loop.
 
-	}
+    }
 }

@@ -57,7 +57,7 @@ public enum GameAction {
     UNIT_NEXT_IDLE,
     UNIT_SET_RALLY,
     GAMEPLAY_BACK,
-    
+
     // Army Shortcuts
     ARMY_SELECT_0,
     ARMY_SELECT_1,
@@ -69,7 +69,7 @@ public enum GameAction {
     ARMY_SELECT_7,
     ARMY_SELECT_8,
     ARMY_SELECT_9,
-    
+
     ARMY_CREATE_0,
     ARMY_CREATE_1,
     ARMY_CREATE_2,
@@ -86,28 +86,28 @@ public enum GameAction {
     PROD_HARVEST,
     PROD_ARMY,
     PROD_TRANSPORT,
-    
+
     // Resource Specific
     RES_TREE,
     RES_TREE_DEC,
     RES_TREE_BATCH,
     RES_TREE_BATCH_DEC,
-    
+
     RES_ROCK,
     RES_ROCK_DEC,
     RES_ROCK_BATCH,
     RES_ROCK_BATCH_DEC,
-    
+
     RES_IRON,
     RES_IRON_DEC,
     RES_IRON_BATCH,
     RES_IRON_BATCH_DEC,
-    
+
     RES_CHICKEN,
     RES_CHICKEN_DEC,
     RES_CHICKEN_BATCH,
     RES_CHICKEN_BATCH_DEC,
-    
+
     // Unit Specific
     TRAIN_PEON,
     TRAIN_PEON_DEC,
@@ -115,16 +115,16 @@ public enum GameAction {
     TRAIN_PEON_BATCH_DEC,
 
     TRAIN_CHIEFTAIN,
-    
+
     // Magic
     MAGIC_1,
     MAGIC_2,
-    
+
     // Misc
     GAME_SPEED_UP,
     GAME_SPEED_DOWN,
     NOTIFICATION_JUMP,
-    
+
     // Cheats
     CHEAT_1,
     CHEAT_2,
@@ -135,7 +135,7 @@ public enum GameAction {
     CHEAT_7,
     CHEAT_8,
     CHEAT_9,
-    
+
     DEBUG_PRINT_INFO,
     DEBUG_KILL_SELECTED,
     DEBUG_TOGGLE_LIGHT,

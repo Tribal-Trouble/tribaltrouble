@@ -84,11 +84,11 @@ public abstract class Menu extends CameraDelegate<Camera> {
         addChild(overlay);
 
         String logo_file = i18n("logo_file");
-        
+
         float heightScale = screen_height / 600f;
         int logoHeight = (int) (206f * heightScale);
         int logoWidth = (int) (347f * heightScale);
-        
+
         logo = new GUIImage(logoWidth, logoHeight, 0f, 0f, 347f / 512f, 206f / 256f, logo_file);
         logo.setPos(0, screen_height - logoHeight);
         addChild(logo);
@@ -100,13 +100,13 @@ public abstract class Menu extends CameraDelegate<Camera> {
 
     final void addOptionsButton(@NonNull FormFactory<?> factory) {
         MenuButton options = new MenuButton(i18n("options"), COLOR_NORMAL, COLOR_ACTIVE);
-        options.addMouseClickListener((_,_,_,_) -> setMenuCentered(factory.create()));
+        options.addMouseClickListener((_, _, _, _) -> setMenuCentered(factory.create()));
         addChild(options);
     }
 
     final void addExitButton() {
         MenuButton exit = new MenuButton(i18n("quit"), COLOR_NORMAL, COLOR_ACTIVE);
-        exit.addMouseClickListener((_,_,_,_) -> setMenuCentered(new QuitForm(getGUIRoot())));
+        exit.addMouseClickListener((_, _, _, _) -> setMenuCentered(new QuitForm(getGUIRoot())));
         addChild(exit);
     }
 
@@ -119,37 +119,37 @@ public abstract class Menu extends CameraDelegate<Camera> {
         displayChangedNotify(getGUIRoot().getWidth(), getGUIRoot().getHeight());
     }
 
-	@Override
-	public void handleInput(@NonNull InputEvent event) {
-		if ((event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) && event.hasActions()) {
-			if (event.consumeAction(GameAction.UI_CANCEL)) {
-				event.consume(); // Menu usually swallows escape
-				return;
-			}
-			if (event.consumeAction(GameAction.UI_FOCUS_NEXT)) {
-				switchFocus(FocusDirection.FORWARD);
-				event.consume();
-				return;
-			}
-			if (event.consumeAction(GameAction.UI_FOCUS_PREV)) {
-				switchFocus(FocusDirection.BACKWARD);
-				event.consume();
-				return;
-			}
-			if (event.consumeAction(GameAction.UI_NAV_UP)) {
-				focusPrior();
-				event.consume();
-				return;
-			}
-			if (event.consumeAction(GameAction.UI_NAV_DOWN)) {
-				focusNext();
-				event.consume();
-				return;
-			}
-		}
-		
-		super.handleInput(event);
-	}
+    @Override
+    public void handleInput(@NonNull InputEvent event) {
+        if ((event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) && event.hasActions()) {
+            if (event.consumeAction(GameAction.UI_CANCEL)) {
+                event.consume(); // Menu usually swallows escape
+                return;
+            }
+            if (event.consumeAction(GameAction.UI_FOCUS_NEXT)) {
+                switchFocus(FocusDirection.FORWARD);
+                event.consume();
+                return;
+            }
+            if (event.consumeAction(GameAction.UI_FOCUS_PREV)) {
+                switchFocus(FocusDirection.BACKWARD);
+                event.consume();
+                return;
+            }
+            if (event.consumeAction(GameAction.UI_NAV_UP)) {
+                focusPrior();
+                event.consume();
+                return;
+            }
+            if (event.consumeAction(GameAction.UI_NAV_DOWN)) {
+                focusNext();
+                event.consume();
+                return;
+            }
+        }
+
+        super.handleInput(event);
+    }
 
     @Override
     public void displayChangedNotify(int width, int height) {
@@ -159,12 +159,12 @@ public abstract class Menu extends CameraDelegate<Camera> {
         int x = 15;
 
         overlay.setDim(width, height);
-        
+
         // Maintain aspect ratio based on height
         float heightScale = height / 600f;
         int logoHeight = (int) (206f * heightScale);
         int logoWidth = (int) (347f * heightScale);
-        
+
         logo.setDim(logoWidth, logoHeight);
         logo.setPos(0, height - logoHeight);
         GUIObject child = getLastChild();
@@ -241,10 +241,10 @@ public abstract class Menu extends CameraDelegate<Camera> {
         current_menu.setPos(MENU_X, (getGUIRoot().getHeight() - current_menu.getHeight()) * 2 / 3);
     }
 
-	protected final void addResumeButton() {
+    protected final void addResumeButton() {
         MenuButton resume = new MenuButton(i18n("resume"), COLOR_NORMAL, COLOR_ACTIVE);
         addChild(resume);
-        resume.addMouseClickListener( (_, _, _, _) -> pop());
+        resume.addMouseClickListener((_, _, _, _) -> pop());
     }
 
     public static void completeGameSetupHack(@NonNull WorldViewer world_viewer) {

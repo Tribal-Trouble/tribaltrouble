@@ -12,7 +12,7 @@ abstract class ShadowRenderer {
 
     protected @NonNull ScopedState setupShadows(@NonNull RenderContext context, @NonNull LandscapeRenderer renderer, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         var decalState = decalRenderer.setup(context, renderer, modelViewStack, projectionStack);
-        
+
         return () -> {
             decalState.close();
             currentTexture = null;
@@ -35,7 +35,7 @@ abstract class ShadowRenderer {
             decalRenderer.draw(context, currentTexture, f_x, f_y, shadow_size, r, g, b, a);
         }
     }
-    
+
     public void close() {
         decalRenderer.close();
     }

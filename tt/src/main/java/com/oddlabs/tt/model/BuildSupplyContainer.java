@@ -1,22 +1,22 @@
 package com.oddlabs.tt.model;
 
 public abstract class BuildSupplyContainer extends SupplyContainer {
-	private int num_orders = 0;
+    private int num_orders = 0;
 
-	public BuildSupplyContainer(int max_supply_count) {
-		super(max_supply_count);
-	}
+    public BuildSupplyContainer(int max_supply_count) {
+        super(max_supply_count);
+    }
 
-	public void orderSupply(int amount) {
-		orderSupply(amount, amount);
-	}
-	
-	protected final void orderSupply(int amount, int orders) {
-		increaseSupply(amount);
-		num_orders += orders;
-	}
+    public void orderSupply(int amount) {
+        orderSupply(amount, amount);
+    }
 
-	public final int getNumOrders() {
-		return num_orders;
-	}
+    protected final void orderSupply(int amount, int orders) {
+        increaseSupply(amount);
+        num_orders += orders;
+    }
+
+    public final int getNumOrders() {
+        return num_orders;
+    }
 }

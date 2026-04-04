@@ -25,79 +25,79 @@ import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 
 public final class MapcodeForm extends Form {
-	private static final int BUTTON_WIDTH = 100;
-	private static final ResourceBundle bundle = ResourceBundle.getBundle(MapcodeForm.class.getName());
+    private static final int BUTTON_WIDTH = 100;
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(MapcodeForm.class.getName());
 
-	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
-		return Utils.getBundleString(bundle, key, args);
-	}
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+        return Utils.getBundleString(bundle, key, args);
+    }
 
-	private final TerrainMenu menu;
+    private final TerrainMenu menu;
 
-	private final @NonNull EditLine editline_seed;
+    private final @NonNull EditLine editline_seed;
 
-	public MapcodeForm(TerrainMenu menu) {
-		this.menu = menu;
-		Label label_seed = new Label(i18n("map_code"), Skin.getSkin().getEditFont());
-		editline_seed = new EditLine(200, 12, RegistrationKey.CHAR_TO_WORD + RegistrationKey.LOWER_CASE_CHARS, Origin.AT_START) {
-			@Override
-			protected boolean insert(int index, char key) {
-				return super.insert(index, Character.toUpperCase(key));
-			}
+    public MapcodeForm(TerrainMenu menu) {
+        this.menu = menu;
+        Label label_seed = new Label(i18n("map_code"), Skin.getSkin().getEditFont());
+        editline_seed = new EditLine(200, 12, RegistrationKey.CHAR_TO_WORD + RegistrationKey.LOWER_CASE_CHARS, Origin.AT_START) {
+            @Override
+            protected boolean insert(int index, char key) {
+                return super.insert(index, Character.toUpperCase(key));
+            }
 
-			@Override
-			public void append(@NonNull CharSequence text) {
-				var shifted = text.toString().toUpperCase();
-				super.append(shifted);
-			}
-		};
-		editline_seed.addEnterListener( _ -> done());
+            @Override
+            public void append(@NonNull CharSequence text) {
+                var shifted = text.toString().toUpperCase();
+                super.append(shifted);
+            }
+        };
+        editline_seed.addEnterListener(_ -> done());
 
-		HorizButton button_ok = new OKButton(BUTTON_WIDTH);
-		button_ok.addMouseClickListener((_, _, _, _) -> done());
-		HorizButton button_cancel = new CancelButton(BUTTON_WIDTH);
-		button_cancel.addMouseClickListener(( _,  _,  _,  _) -> this.cancel());
-		HorizButton button_rand = new HorizButton(i18n("randomize"), BUTTON_WIDTH);
-		button_rand.addMouseClickListener(new RandButtonListener());
+        HorizButton button_ok = new OKButton(BUTTON_WIDTH);
+        button_ok.addMouseClickListener((_, _, _, _) -> done());
+        HorizButton button_cancel = new CancelButton(BUTTON_WIDTH);
+        button_cancel.addMouseClickListener((_, _, _, _) -> this.cancel());
+        HorizButton button_rand = new HorizButton(i18n("randomize"), BUTTON_WIDTH);
+        button_rand.addMouseClickListener(new RandButtonListener());
 
-		addChild(label_seed);
-		addChild(editline_seed);
-		addChild(button_ok);
-		addChild(button_cancel);
-		addChild(button_rand);
-		label_seed.place();
-		editline_seed.place(label_seed, RIGHT_MID);
-		button_cancel.place(editline_seed, BOTTOM_RIGHT);
-		button_ok.place(button_cancel, LEFT_MID);
-		button_rand.place(button_ok, LEFT_MID);
-		compileCanvas();
-		centerPos();
-	}
+        addChild(label_seed);
+        addChild(editline_seed);
+        addChild(button_ok);
+        addChild(button_cancel);
+        addChild(button_rand);
+        label_seed.place();
+        editline_seed.place(label_seed, RIGHT_MID);
+        button_cancel.place(editline_seed, BOTTOM_RIGHT);
+        button_ok.place(button_cancel, LEFT_MID);
+        button_rand.place(button_ok, LEFT_MID);
+        compileCanvas();
+        centerPos();
+    }
 
-	@Override
-	public void setFocus(@NonNull FocusDirection direction) {
-		if (direction == FocusDirection.BACKWARD) {
-			super.setFocus(direction);
-		} else {
-			editline_seed.setFocus(direction);
-		}
-	}
+    @Override
+    public void setFocus(@NonNull FocusDirection direction) {
+        if (direction == FocusDirection.BACKWARD) {
+            super.setFocus(direction);
+        } else {
+            editline_seed.setFocus(direction);
+        }
+    }
 
-	private void done() {
-		remove();
-		menu.parseMapcode(editline_seed.getContents());
-		menu.setFocus();
-	}
+    private void done() {
+        remove();
+        menu.parseMapcode(editline_seed.getContents());
+        menu.setFocus();
+    }
 
-	private final class RandButtonListener implements MouseClickListener {
-		@Override
-		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
-			Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick()*LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
-			random.nextInt();
-			BigInteger rand_int = new BigInteger(60, random);
-			String rand_string = RegistrationKey.createString(rand_int);
-			editline_seed.clear();
-			editline_seed.append(rand_string);
-		}
-	}
+    private final class RandButtonListener implements MouseClickListener {
+        @Override
+        public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
+            Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
+            random.nextInt();
+            BigInteger rand_int = new BigInteger(60, random);
+            String rand_string = RegistrationKey.createString(rand_int);
+            editline_seed.clear();
+            editline_seed.append(rand_string);
+        }
+    }
 }

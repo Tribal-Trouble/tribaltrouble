@@ -8,101 +8,101 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 public final class GameSession implements Serializable {
-	@Serial
-	private static final long serialVersionUID = 2768150608081852612L;
+    @Serial
+    private static final long serialVersionUID = 2768150608081852612L;
 
-	public static final int MIN_WINS_FOR_RANKING = 5;
-	
-	public static final int WIN = 0;
-	public static final int LOSE = 1;
+    public static final int MIN_WINS_FOR_RANKING = 5;
 
-	private final int session_id;
-	private final Participant[] participants;
-	private final boolean rated;
+    public static final int WIN = 0;
+    public static final int LOSE = 1;
 
-	public GameSession(int session_id, Participant[] participants, boolean rated) {
-		this.session_id = session_id;
-		this.participants = participants;
-		this.rated = rated;
-	}
+    private final int session_id;
+    private final Participant[] participants;
+    private final boolean rated;
 
-	private boolean validateTeams() {
-		boolean[] teams = new boolean[MatchmakingServerInterface.MAX_PLAYERS];
-		int team_count = 0;
-            for (Participant p : participants) {
-                if (!p.validate())
-                    return false;
-                if (!teams[p.getTeam()]) {
-                    teams[p.getTeam()] = true;
-                    team_count++;
+    public GameSession(int session_id, Participant[] participants, boolean rated) {
+        this.session_id = session_id;
+        this.participants = participants;
+        this.rated = rated;
+    }
+
+    private boolean validateTeams() {
+        boolean[] teams = new boolean[MatchmakingServerInterface.MAX_PLAYERS];
+        int team_count = 0;
+        for (Participant p : participants) {
+            if (!p.validate())
+                return false;
+            if (!teams[p.getTeam()]) {
+                teams[p.getTeam()] = true;
+                team_count++;
+            }
+        }
+        return team_count >= MatchmakingServerInterface.MIN_PLAYERS;
+    }
+
+    @Override
+    public int hashCode() {
+        return session_id;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+        if (!(other instanceof GameSession other_game))
+            return false;
+        return other_game.session_id == session_id && Arrays.equals(other_game.participants, participants) && rated == other_game.rated;
+    }
+
+    public boolean validate() {
+        return participants != null && participants.length <= MatchmakingServerInterface.MAX_PLAYERS && participants.length >= MatchmakingServerInterface.MIN_PLAYERS &&
+                validateTeams();
+    }
+
+    public int getID() {
+        return session_id;
+    }
+
+    public Participant[] getParticipants() {
+        return participants;
+    }
+
+    public boolean isRated() {
+        return rated;
+    }
+
+    public static int[][] calculateMatchPoints(int @NonNull [] player_ratings, int @NonNull [] player_teams) {
+        assert player_ratings.length == player_teams.length;
+        int num_players = player_ratings.length;
+
+        int[] team_ratings = new int[2];
+        int[] team_sizes = new int[2];
+
+        for (int i = 0; i < num_players; i++) {
+            int team = player_teams[i];
+            assert team < 2 : "Participant on team " + team;
+            team_sizes[team]++;
+            team_ratings[team] += player_ratings[i];
+        }
+        int[][] result = new int[num_players][2];
+        if (team_sizes[0] > 0 && team_sizes[1] > 0) {
+            final int K = 16 * num_players;
+            float E0 = 1f / (1f + (float) Math.pow(10d, (team_ratings[1] - team_ratings[0]) / 400f));
+            float E1 = 1f / (1f + (float) Math.pow(10d, (team_ratings[0] - team_ratings[1]) / 400f));
+            int team_0_wins = Math.round(K * (1 - E0));
+            int team_1_looses = Math.round(K * (0 - E1));
+            int team_0_looses = Math.round(K * (0 - E0));
+            int team_1_wins = Math.round(K * (1 - E1));
+            for (int i = 0; i < num_players; i++) {
+                int team_size = team_sizes[player_teams[i]];
+                if (player_teams[i] == 0) {
+                    result[i][WIN] = team_0_wins / team_size;
+                    result[i][LOSE] = team_0_looses / team_size;
+                } else {
+                    result[i][WIN] = team_1_wins / team_size;
+                    result[i][LOSE] = team_1_looses / team_size;
                 }
             }
-		return team_count >= MatchmakingServerInterface.MIN_PLAYERS;
-	}
-	
-	@Override
-	public int hashCode() {
-		return session_id;
-	}
-	
-	@Override
-	public boolean equals(@Nullable Object other) {
-		if (!(other instanceof GameSession other_game))
-			return false;
-        return other_game.session_id == session_id && Arrays.equals(other_game.participants, participants) && rated == other_game.rated;
-	}
-	
-	public boolean validate() {
-		return participants != null && participants.length <= MatchmakingServerInterface.MAX_PLAYERS && participants.length >= MatchmakingServerInterface.MIN_PLAYERS &&
-			validateTeams();
-	}
-
-	public int getID() {
-		return session_id;
-	}
-	
-	public Participant[] getParticipants() {
-		return participants;
-	}
-
-	public boolean isRated() {
-		return rated;
-	}
-
-	public static int[][] calculateMatchPoints(int @NonNull [] player_ratings, int @NonNull [] player_teams) {
-		assert player_ratings.length == player_teams.length;
-		int num_players = player_ratings.length;
-
-		int[] team_ratings = new int[2];
-		int[] team_sizes = new int[2];
-
-		for (int i = 0; i < num_players; i++) {
-			int team = player_teams[i];
-			assert team < 2: "Participant on team " + team;
-			team_sizes[team]++;
-			team_ratings[team] += player_ratings[i];
-		}
-		int[][] result = new int[num_players][2];
-		if (team_sizes[0] > 0 && team_sizes[1] > 0) {
-			final int K = 16*num_players;
-			float E0 = 1f/(1f + (float)Math.pow(10d, (team_ratings[1] - team_ratings[0])/400f));
-			float E1 = 1f/(1f + (float)Math.pow(10d, (team_ratings[0] - team_ratings[1])/400f));
-			int team_0_wins = Math.round(K*(1 - E0));
-			int team_1_looses = Math.round(K*(0 - E1));
-			int team_0_looses = Math.round(K*(0 - E0));
-			int team_1_wins = Math.round(K*(1 - E1));
-			for (int i = 0; i < num_players; i++) {
-				int team_size = team_sizes[player_teams[i]];
-				if (player_teams[i] == 0) {
-					result[i][WIN] = team_0_wins/team_size;
-					result[i][LOSE] = team_0_looses/team_size;
-				} else {
-					result[i][WIN] = team_1_wins/team_size;
-					result[i][LOSE] = team_1_looses/team_size;
-				}
-			}
-		}
-		return result;
-	}
+        }
+        return result;
+    }
 
 }

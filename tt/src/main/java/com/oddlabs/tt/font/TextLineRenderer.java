@@ -23,7 +23,9 @@ public final class TextLineRenderer {
         }
     }
 
-    /** Render a single line of text with the provided renderer using the provided font, location and color. The text will be clipped to the specified left and right bounds. */
+    /**
+     * Render a single line of text with the provided renderer using the provided font, location and color. The text will be clipped to the specified left and right bounds.
+     */
     public static float render(@NonNull GUIRenderer renderer, @NonNull Font font, @NonNull CharSequence text,
                                float x, float y, float clipLeft, float clipRight,
                                @NonNull Vector4fc color) {

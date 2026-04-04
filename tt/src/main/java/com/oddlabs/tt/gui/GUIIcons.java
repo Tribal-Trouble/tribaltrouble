@@ -196,10 +196,10 @@ public class GUIIcons {
                             int srcG = (pixelColor >>> 8) & 0xFF;
                             int srcB = pixelColor & 0xFF;
 
-                            int outR = (int)((srcR * srcAf) / outAf);
-                            int outG = (int)((srcG * srcAf) / outAf);
-                            int outB = (int)((srcB * srcAf) / outAf);
-                            int outA = (int)(outAf * 255);
+                            int outR = (int) ((srcR * srcAf) / outAf);
+                            int outG = (int) ((srcG * srcAf) / outAf);
+                            int outB = (int) ((srcB * srcAf) / outAf);
+                            int outA = (int) (outAf * 255);
 
                             finalColor = (outA << 24) | (outR << 16) | (outG << 8) | outB;
                         }

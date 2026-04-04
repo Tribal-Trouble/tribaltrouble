@@ -12,77 +12,77 @@ import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
 public class FirstPersonDelegate extends InGameDelegate {
-	private final boolean key_pressed;
-	private final int created_tick;
+    private final boolean key_pressed;
+    private final int created_tick;
 
-	private boolean done = false;
+    private boolean done = false;
 
-	public FirstPersonDelegate(@NonNull WorldViewer viewer, @NonNull CameraState camera_state, boolean key_pressed) {
-		super(viewer, new FirstPersonCamera(viewer, viewer.getWorld().getHeightMap(), camera_state));
-		this.key_pressed = key_pressed;
-		created_tick = LocalEventQueue.getQueue().getManager().getTick();
-	}
+    public FirstPersonDelegate(@NonNull WorldViewer viewer, @NonNull CameraState camera_state, boolean key_pressed) {
+        super(viewer, new FirstPersonCamera(viewer, viewer.getWorld().getHeightMap(), camera_state));
+        this.key_pressed = key_pressed;
+        created_tick = LocalEventQueue.getQueue().getManager().getTick();
+    }
 
-	private void release() {
-		done = true;
-	}
+    private void release() {
+        done = true;
+    }
 
-	@Override
-	public final void doRemove() {
-		super.doRemove();
-		if (!done) {
-			release();
-		}
-	}
+    @Override
+    public final void doRemove() {
+        super.doRemove();
+        if (!done) {
+            release();
+        }
+    }
 
-	@Override
-	public void handleInput(@NonNull InputEvent event) {
-		super.handleInput(event);
-		if (event.isConsumed()) return;
+    @Override
+    public void handleInput(@NonNull InputEvent event) {
+        super.handleInput(event);
+        if (event.isConsumed()) return;
 
-		if (event.getPhase() == InputPhase.RELEASED) {
-			if (key_pressed && !done) {
-				if (event.consumeAction(GameAction.CAMERA_FIRST_PERSON)) {
-					pop();
-				}
-			}
-		}
-		// Consume everything (modal-ish behavior for first person control)
-		event.consume();
-	}
+        if (event.getPhase() == InputPhase.RELEASED) {
+            if (key_pressed && !done) {
+                if (event.consumeAction(GameAction.CAMERA_FIRST_PERSON)) {
+                    pop();
+                }
+            }
+        }
+        // Consume everything (modal-ish behavior for first person control)
+        event.consume();
+    }
 
-	@Override
-	public void mouseScrolled(int amount) {
-	}
+    @Override
+    public void mouseScrolled(int amount) {
+    }
 
-	@Override
-	public void mouseMoved(int x, int y) {
-		if (!done)
-			getCamera().mouseMoved(x, y);
-	}
+    @Override
+    public void mouseMoved(int x, int y) {
+        if (!done)
+            getCamera().mouseMoved(x, y);
+    }
 
-	@Override
-	public void mouseDragged (@NonNull MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
-		if (created_tick == LocalEventQueue.getQueue().getManager().getTick())
-			return;
-		if ((button == MouseButton.MIDDLE || key_pressed) && !done && getGUIRoot().getModalDelegate() == null) {
-			getCamera().mouseMoved(x, y);
-		}
-	}
+    @Override
+    public void mouseDragged(@NonNull MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
+        if (created_tick == LocalEventQueue.getQueue().getManager().getTick())
+            return;
+        if ((button == MouseButton.MIDDLE || key_pressed) && !done && getGUIRoot().getModalDelegate() == null) {
+            getCamera().mouseMoved(x, y);
+        }
+    }
 
-	@Override
-	public void mousePressed (@NonNull MouseButton button, int x, int y) {
-	}
+    @Override
+    public void mousePressed(@NonNull MouseButton button, int x, int y) {
+    }
 
-	@Override
-	public void mouseReleased (@NonNull MouseButton button, int x, int y) {
-		if (button == MouseButton.MIDDLE && !key_pressed && !done) {
-			pop();
-		}
-	}
+    @Override
+    public void mouseReleased(@NonNull MouseButton button, int x, int y) {
+        if (button == MouseButton.MIDDLE && !key_pressed && !done) {
+            pop();
+        }
+    }
 
-	@Override
-	protected @NonNull CursorType getCursorType() {
-		return CursorType.NULL;
-	}
+    @Override
+    protected @NonNull CursorType getCursorType() {
+        return CursorType.NULL;
+    }
 }

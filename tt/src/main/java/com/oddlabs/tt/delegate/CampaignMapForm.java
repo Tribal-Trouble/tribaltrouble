@@ -31,84 +31,86 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/** presents campaign map allowing island selection */
+/**
+ * presents campaign map allowing island selection
+ */
 public final class CampaignMapForm extends CameraDelegate<StaticCamera> implements Animated {
-	private static final float BASE_WIDTH = 800f;
-	private static final float BASE_HEIGHT = 600f;
-	private static final ResourceBundle bundle = ResourceBundle.getBundle(CampaignMapForm.class.getName());
+    private static final float BASE_WIDTH = 800f;
+    private static final float BASE_HEIGHT = 600f;
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(CampaignMapForm.class.getName());
 
-	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
-		return Utils.getBundleString(bundle, key, args);
-	}
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+        return Utils.getBundleString(bundle, key, args);
+    }
 
     private final float scale_x;
     private final float scale_y;
 
-	private final @NonNull Campaign campaign;
-	private final @NonNull NetworkSelector network;
+    private final @NonNull Campaign campaign;
+    private final @NonNull NetworkSelector network;
     private final List<MapIslandButton> islandButtons = new ArrayList<>();
     private boolean initialFocusSet = false;
-    
+
     private float flicker_time;
     private final Vector4f mapColor = new Vector4f(1f, 1f, 1f, 1f);
 
-	public CampaignMapForm(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Campaign campaign) {
-		super(gui_root, new StaticCamera(new CameraState()));
-		this.campaign = campaign;
-		this.network = network;
+    public CampaignMapForm(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Campaign campaign) {
+        super(gui_root, new StaticCamera(new CameraState()));
+        this.campaign = campaign;
+        this.network = network;
 
-		this.scale_x = gui_root.getWidth() / BASE_WIDTH;
-		this.scale_y = gui_root.getHeight() / BASE_HEIGHT;
+        this.scale_x = gui_root.getWidth() / BASE_WIDTH;
+        this.scale_y = gui_root.getHeight() / BASE_HEIGHT;
 
-		switch (campaign.getState().getRace()) {
-			case CampaignState.RACE_VIKINGS -> {
-				if (campaign.getState().getIslandState(10) != CampaignState.ISLAND_HIDDEN) {
-					addChild(campaign.getIcons().getHiddenRoutes()[0]);
-					addChild(campaign.getIcons().getHiddenRoutes()[1]);
-				}
+        switch (campaign.getState().getRace()) {
+            case CampaignState.RACE_VIKINGS -> {
+                if (campaign.getState().getIslandState(10) != CampaignState.ISLAND_HIDDEN) {
+                    addChild(campaign.getIcons().getHiddenRoutes()[0]);
+                    addChild(campaign.getIcons().getHiddenRoutes()[1]);
+                }
 
-				if (campaign.getState().getCurrentIsland() == 14) {
-					final Runnable runnable_menu = () -> closeCampaign(network, gui_root.getGUI());
-					final Runnable runnable_next = () -> {
-						CampaignDialogForm dialog = new CampaignDialogForm(i18n("native_campaign_opened_header"),
-								i18n("native_campaign_opened"),
-								null,
-								Origin.AT_START,
-								runnable_menu);
-						gui_root.addModalForm(dialog);
-					};
-					CampaignDialogForm dialog = new CampaignDialogForm(i18n("viking_header"),
-							i18n("viking_campaign_completed"),
-							campaign.getIcons().getFaces()[0],
-							Origin.AT_START,
-							runnable_next);
-					gui_root.addModalForm(dialog);
-					Settings.getSettings().has_native_campaign = true;
-				}
-			}
+                if (campaign.getState().getCurrentIsland() == 14) {
+                    final Runnable runnable_menu = () -> closeCampaign(network, gui_root.getGUI());
+                    final Runnable runnable_next = () -> {
+                        CampaignDialogForm dialog = new CampaignDialogForm(i18n("native_campaign_opened_header"),
+                                i18n("native_campaign_opened"),
+                                null,
+                                Origin.AT_START,
+                                runnable_menu);
+                        gui_root.addModalForm(dialog);
+                    };
+                    CampaignDialogForm dialog = new CampaignDialogForm(i18n("viking_header"),
+                            i18n("viking_campaign_completed"),
+                            campaign.getIcons().getFaces()[0],
+                            Origin.AT_START,
+                            runnable_next);
+                    gui_root.addModalForm(dialog);
+                    Settings.getSettings().has_native_campaign = true;
+                }
+            }
 
-			case CampaignState.RACE_NATIVES -> {
-				if (campaign.getState().getIslandState(7) != CampaignState.ISLAND_HIDDEN) {
-				addChild(campaign.getIcons().getHiddenRoutes()[0]);
-				}
+            case CampaignState.RACE_NATIVES -> {
+                if (campaign.getState().getIslandState(7) != CampaignState.ISLAND_HIDDEN) {
+                    addChild(campaign.getIcons().getHiddenRoutes()[0]);
+                }
 
-				if (campaign.getState().getCurrentIsland() == 7) {
-					Runnable runnable = () -> closeCampaign(network, gui_root.getGUI());
-					CampaignDialogForm dialog = new CampaignDialogForm(i18n("native_header"),
-							i18n("native_campaign_completed"),
-							campaign.getIcons().getFaces()[0],
-							Origin.AT_START,
-							runnable);
-					gui_root.addModalForm(dialog);
-				}
-			}
-		}
+                if (campaign.getState().getCurrentIsland() == 7) {
+                    Runnable runnable = () -> closeCampaign(network, gui_root.getGUI());
+                    CampaignDialogForm dialog = new CampaignDialogForm(i18n("native_header"),
+                            i18n("native_campaign_completed"),
+                            campaign.getIcons().getFaces()[0],
+                            Origin.AT_START,
+                            runnable);
+                    gui_root.addModalForm(dialog);
+                }
+            }
+        }
 
-		// Islands
-		for (int i = 0; i < campaign.getIcons().getNumIslands(); i++) {
-			MapIslandData data = campaign.getIcons().getMapIslandData(i);
-			int state = campaign.getState().getIslandState(i);
-			GUIObject island = switch (state) {
+        // Islands
+        for (int i = 0; i < campaign.getIcons().getNumIslands(); i++) {
+            MapIslandData data = campaign.getIcons().getMapIslandData(i);
+            int state = campaign.getState().getIslandState(i);
+            GUIObject island = switch (state) {
                 case CampaignState.ISLAND_AVAILABLE -> {
                     final int index = i;
                     MapIslandButton button = new MapIslandButton(data.button(), "", index);
@@ -118,12 +120,12 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
                     if (campaign.getState().getCurrentIsland() == i) {
                         button.setFocus();
                     }
-					yield button;
+                    yield button;
                 }
                 case CampaignState.ISLAND_SEMI_AVAILABLE, CampaignState.ISLAND_UNAVAILABLE -> {
                     GUIObject icon = new GUIIcon(data.button().quad(ModeIconQuads.Mode.DISABLED));
                     addChild(icon);
-					yield icon;
+                    yield icon;
                 }
                 case CampaignState.ISLAND_COMPLETED -> {
                     GUIObject icon = new GUIIcon(data.button().quad(ModeIconQuads.Mode.NORMAL));
@@ -137,26 +139,26 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
                         boat.setPos(data.pinX(), data.pinY());
                         addChild(boat);
                     }
-					yield icon;
+                    yield icon;
                 }
                 case CampaignState.ISLAND_HIDDEN -> null;
                 default -> throw new IllegalArgumentException("Unexpected island state: " + state);
             };
-			if (island != null)
-				island.setPos(data.x(), data.y());
-		}
-        
-        setFocus();
-	}
+            if (island != null)
+                island.setPos(data.x(), data.y());
+        }
 
-	@Override
-	public void setFocus(@NonNull FocusDirection direction) {
-		if (direction == FocusDirection.BACKWARD) {
-			super.setFocus(direction);
-		} else {
-			setFocus();
-		}
-	}
+        setFocus();
+    }
+
+    @Override
+    public void setFocus(@NonNull FocusDirection direction) {
+        if (direction == FocusDirection.BACKWARD) {
+            super.setFocus(direction);
+        } else {
+            setFocus();
+        }
+    }
 
     @Override
     public void setFocus() {
@@ -189,8 +191,8 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
         toFocus.setFocus();
     }
 
-	@Override
-	public void handleInput(@NonNull InputEvent event) {
+    @Override
+    public void handleInput(@NonNull InputEvent event) {
         if (!event.isConsumed() && event.getPhase() == InputPhase.PRESSED) {
             int dx = 0;
             int dy = 0;
@@ -221,15 +223,15 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
             }
         }
 
-		if (event.getPhase() == InputPhase.PRESSED) {
-			if (event.consumeAction(GameAction.GLOBAL_MENU) || event.consumeAction(GameAction.UI_CANCEL)) {
-				getGUIRoot().addModalForm(new CampaignMapMenu(network, getGUIRoot()));
-				event.consume();
-				return;
-			}
-		}
-		super.handleInput(event);
-	}
+        if (event.getPhase() == InputPhase.PRESSED) {
+            if (event.consumeAction(GameAction.GLOBAL_MENU) || event.consumeAction(GameAction.UI_CANCEL)) {
+                getGUIRoot().addModalForm(new CampaignMapMenu(network, getGUIRoot()));
+                event.consume();
+                return;
+            }
+        }
+        super.handleInput(event);
+    }
 
     private void navigate(int dx, int dy) {
         if (islandButtons.isEmpty()) return;
@@ -260,7 +262,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
             else if (dx > 0) inDir = cdx > 1 && Math.abs(cdy) < Math.abs(cdx) * 2;
 
             if (inDir) {
-                float distSq = cdx*cdx + cdy*cdy;
+                float distSq = cdx * cdx + cdy * cdy;
                 if (distSq < bestScore) {
                     bestScore = distSq;
                     best = candidate;
@@ -273,14 +275,14 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
         }
     }
 
-	public static void closeCampaign(@NonNull NetworkSelector network, @NonNull GUI gui) {
-		Renderer.startMenu(network, gui);
-	}
+    public static void closeCampaign(@NonNull NetworkSelector network, @NonNull GUI gui) {
+        Renderer.startMenu(network, gui);
+    }
 
-	@Override
-	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-		renderer.drawIcon(campaign.getIcons().getMap(), 0f, 0f, mapColor);
-	}
+    @Override
+    protected void renderGeometry(@NonNull GUIRenderer renderer) {
+        renderer.drawIcon(campaign.getIcons().getMap(), 0f, 0f, mapColor);
+    }
 
     @Override
     protected void doAdd() {

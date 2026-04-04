@@ -6,17 +6,17 @@ import com.oddlabs.tt.player.Player;
 import org.jspecify.annotations.NonNull;
 
 public final class MoveUnitTrigger extends TutorialTrigger {
-	public MoveUnitTrigger(@NonNull Player local_player) {
-		super(1f, 2f, "move_unit");
-		local_player.enableMoving(true);
-	}
+    public MoveUnitTrigger(@NonNull Player local_player) {
+        super(1f, 2f, "move_unit");
+        local_player.enableMoving(true);
+    }
 
-	@Override
-	protected void run(@NonNull Tutorial tutorial) {
-		for (var s : tutorial.getViewer().getSelection().getCurrentSelection().getSet()) {
-			if (s.getPrimaryController() instanceof WalkController) {
-				tutorial.done(TutorialForm.TUTORIAL_CAMERA);
-			}
-		}
-	}
+    @Override
+    protected void run(@NonNull Tutorial tutorial) {
+        for (var s : tutorial.getViewer().getSelection().getCurrentSelection().getSet()) {
+            if (s.getPrimaryController() instanceof WalkController) {
+                tutorial.done(TutorialForm.TUTORIAL_CAMERA);
+            }
+        }
+    }
 }

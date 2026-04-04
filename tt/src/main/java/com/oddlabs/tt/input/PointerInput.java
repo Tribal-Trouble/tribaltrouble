@@ -18,11 +18,11 @@ import java.util.Map;
 import java.util.Set;
 
 public final class PointerInput {
-	private final Set<@NonNull MouseButton> buttons = EnumSet.noneOf(MouseButton.class);
-	private short last_x;
-	private short last_y;
-	private @NonNull Cursor active_cursor = Cursor.NULL_CURSOR;
-	private @Nullable MouseButton drag_button = null;
+    private final Set<@NonNull MouseButton> buttons = EnumSet.noneOf(MouseButton.class);
+    private short last_x;
+    private short last_y;
+    private @NonNull Cursor active_cursor = Cursor.NULL_CURSOR;
+    private @Nullable MouseButton drag_button = null;
 
     private final @NonNull InputProvider<?> inputProvider;
     private final @NonNull LocalInput localInput;
@@ -50,90 +50,91 @@ public final class PointerInput {
             setActiveCursor(c);
         }
     }
-	public void setActiveCursor(@NonNull Cursor cursor) {
-		if (cursor != Cursor.NULL_CURSOR && inputProvider.isGrabbed()) {
-			inputProvider.setGrabbed(false);
-			resetCursorPos();
-		} else if (cursor == Cursor.NULL_CURSOR && !inputProvider.isGrabbed()) {
-			inputProvider.setGrabbed(true);
-			resetCursorPos();
-		}
-		if (active_cursor != cursor) {
-			doSetActiveCursor(cursor);
-		}
-	}
 
-	public void setCursorPosition(int x, int y) {
-		if (!LocalEventQueue.getQueue().getDeterministic().isPlayback())
-			inputProvider.setCursorPosition(x, y);
-	}
+    public void setActiveCursor(@NonNull Cursor cursor) {
+        if (cursor != Cursor.NULL_CURSOR && inputProvider.isGrabbed()) {
+            inputProvider.setGrabbed(false);
+            resetCursorPos();
+        } else if (cursor == Cursor.NULL_CURSOR && !inputProvider.isGrabbed()) {
+            inputProvider.setGrabbed(true);
+            resetCursorPos();
+        }
+        if (active_cursor != cursor) {
+            doSetActiveCursor(cursor);
+        }
+    }
 
-	private void resetCursorPos() {
-		setCursorPosition(localInput.getMouseX(), localInput.getMouseY());
-		// clear event queue
-		while (inputProvider.nextMouseEvent())
+    public void setCursorPosition(int x, int y) {
+        if (!LocalEventQueue.getQueue().getDeterministic().isPlayback())
+            inputProvider.setCursorPosition(x, y);
+    }
+
+    private void resetCursorPos() {
+        setCursorPosition(localInput.getMouseX(), localInput.getMouseY());
+        // clear event queue
+        while (inputProvider.nextMouseEvent())
             ;
-	}
+    }
 
-	private void doSetActiveCursor(@NonNull Cursor cursor) {
-		active_cursor = cursor;
+    private void doSetActiveCursor(@NonNull Cursor cursor) {
+        active_cursor = cursor;
         //noinspection unchecked
         InputProvider<Long> provider = (InputProvider<Long>) inputProvider;
-        
+
         var useCursor = LocalEventQueue.getQueue().getDeterministic().isPlayback()
                 ? debug_cursor : cursor;
         provider.setNativeCursor(useCursor.getCursor());
     }
 
-	public void deletingCursor(@NonNull Cursor cursor) {
-		if (active_cursor == cursor) {
-			doSetActiveCursor(Cursor.NULL_CURSOR);
-		}
-	}
+    public void deletingCursor(@NonNull Cursor cursor) {
+        if (active_cursor == cursor) {
+            doSetActiveCursor(Cursor.NULL_CURSOR);
+        }
+    }
 
-	private void updateMouse(@NonNull GUIRoot gui_root, int x, int y, int dz) {
-		if (x != last_x || y != last_y) {
-			last_x = (short)x;
-			last_y = (short)y;
-			if (drag_button != null && buttons.contains(drag_button)) {
-				localInput.mouseDragged(gui_root, drag_button, last_x, last_y);
-			} else {
-				localInput.mouseMoved(gui_root, last_x, last_y);
-			}
-		}
-		if (dz != 0)
-			localInput.mouseScrolled(gui_root, dz);
-	}
+    private void updateMouse(@NonNull GUIRoot gui_root, int x, int y, int dz) {
+        if (x != last_x || y != last_y) {
+            last_x = (short) x;
+            last_y = (short) y;
+            if (drag_button != null && buttons.contains(drag_button)) {
+                localInput.mouseDragged(gui_root, drag_button, last_x, last_y);
+            } else {
+                localInput.mouseMoved(gui_root, last_x, last_y);
+            }
+        }
+        if (dz != 0)
+            localInput.mouseScrolled(gui_root, dz);
+    }
 
-	public void poll(@NonNull GUIRoot gui_root) {
-		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
-		inputProvider.pollMouse();
-		int accum_x = last_x;
-		int accum_y = last_y;
-		int accum_dz = 0;
-		while (deterministic.log(inputProvider.nextMouseEvent())) {
-			accum_x = deterministic.log(inputProvider.getEventX());
-			accum_y = deterministic.log(inputProvider.getEventY());
-			accum_dz += deterministic.log(inputProvider.getEventDWheel());
-			MouseButton button = MouseButton.fromInt(deterministic.log(inputProvider.getEventButton()));
-			if (button != null) {
-				updateMouse(gui_root, accum_x, accum_y, accum_dz);
-				accum_dz = 0;
-				if (deterministic.log(inputProvider.getEventButtonState())) {
+    public void poll(@NonNull GUIRoot gui_root) {
+        Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
+        inputProvider.pollMouse();
+        int accum_x = last_x;
+        int accum_y = last_y;
+        int accum_dz = 0;
+        while (deterministic.log(inputProvider.nextMouseEvent())) {
+            accum_x = deterministic.log(inputProvider.getEventX());
+            accum_y = deterministic.log(inputProvider.getEventY());
+            accum_dz += deterministic.log(inputProvider.getEventDWheel());
+            MouseButton button = MouseButton.fromInt(deterministic.log(inputProvider.getEventButton()));
+            if (button != null) {
+                updateMouse(gui_root, accum_x, accum_y, accum_dz);
+                accum_dz = 0;
+                if (deterministic.log(inputProvider.getEventButtonState())) {
                     if (buttons.add(button)) {
-						if (drag_button == null) {
-							drag_button = button;
-						}
-						localInput.mousePressed(gui_root, button);
-					}
+                        if (drag_button == null) {
+                            drag_button = button;
+                        }
+                        localInput.mousePressed(gui_root, button);
+                    }
                 } else {
                     if (buttons.remove(button)) {
-						drag_button = null;
-						localInput.mouseReleased(gui_root, button);
-					}
+                        drag_button = null;
+                        localInput.mouseReleased(gui_root, button);
+                    }
                 }
-			}
-		}
-		updateMouse(gui_root, accum_x, accum_y, accum_dz);
-	}
+            }
+        }
+        updateMouse(gui_root, accum_x, accum_y, accum_dz);
+    }
 }

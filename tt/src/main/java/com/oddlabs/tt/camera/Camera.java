@@ -55,7 +55,7 @@ public abstract class Camera implements Animated {
     }
 
     protected final @Nullable HeightMap getHeightMap() {
-            return heightmap;
+        return heightmap;
     }
 
     protected final void setSmoothnessFactor(float f) {
@@ -77,14 +77,14 @@ public abstract class Camera implements Animated {
     protected abstract void doAnimate(float delta_t);
 
     protected final void checkPosition() {
-        int mid = heightmap.getMetersPerWorld()/2;
+        int mid = heightmap.getMetersPerWorld() / 2;
         float dx = (state.getTargetX() - mid);
         float dy = (state.getTargetY() - mid);
-        float squared_dist = dx*dx + dy*dy;
-        if (squared_dist > heightmap.getMetersPerWorld()*heightmap.getMetersPerWorld()) {
-                float scale = heightmap.getMetersPerWorld()/(float)Math.sqrt(squared_dist);
-                state.setTargetX(dx*scale + mid);
-                state.setTargetY(dy*scale + mid);
+        float squared_dist = dx * dx + dy * dy;
+        if (squared_dist > heightmap.getMetersPerWorld() * heightmap.getMetersPerWorld()) {
+            float scale = heightmap.getMetersPerWorld() / (float) Math.sqrt(squared_dist);
+            state.setTargetX(dx * scale + mid);
+            state.setTargetY(dy * scale + mid);
         }
         if (!bounce(state.getTargetX(), state.getTargetY(), state.getTargetZ(), state.getWidth(), state.getHeight())) {
             if (state.getTargetZ() > GameCamera.MAX_Z)
@@ -101,15 +101,15 @@ public abstract class Camera implements Animated {
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
                 float fovy = Globals.FOV;
-                float aspect = (float)width / height;
+                float aspect = (float) width / height;
                 float zNear = Globals.VIEW_MIN;
                 float zFar = Globals.VIEW_MAX;
-                proj.setPerspective((float)Math.toRadians(fovy), aspect, zNear, zFar);
+                proj.setPerspective((float) Math.toRadians(fovy), aspect, zNear, zFar);
                 tmp_camera.set(state);
                 tmp_camera.setTargetView(proj);
 
                 Matrix4f combinedMatrix = new Matrix4f(proj).mul(tmp_camera.getModelView());
-                unproject(i*width, j*height, 0f, tmp_camera.getModelView(), combinedMatrix);
+                unproject(i * width, j * height, 0f, tmp_camera.getModelView(), combinedMatrix);
                 float hit_x = hit_result_array[0];
                 float hit_y = hit_result_array[1];
                 float hit_z = hit_result_array[2];
@@ -117,27 +117,27 @@ public abstract class Camera implements Animated {
                 float dx1 = hit_x - x;
                 float dy1 = hit_y - y;
                 float dz1 = hit_z - z;
-                float inv_length = LANDSCAPE_OFFSET/(float)Math.sqrt(dx1*dx1 + dy1*dy1 + dz1*dz1);
+                float inv_length = LANDSCAPE_OFFSET / (float) Math.sqrt(dx1 * dx1 + dy1 * dy1 + dz1 * dz1);
                 dx1 *= inv_length;
                 dy1 *= inv_length;
                 dz1 *= inv_length;
 
                 float min_height = Math.max(heightmap.getNearestHeight(x + dx1, y + dy1),
-                                heightmap.getSeaLevelMeters());
+                        heightmap.getSeaLevelMeters());
                 hit_z = z + dz1;
                 if (hit_z < min_height) {
-                        bounced = true;
-                        z = z + min_height - hit_z;
+                    bounced = true;
+                    z = z + min_height - hit_z;
                 }
             }
         }
         float min_height = heightmap.getNearestHeight(x, y) + GROUND_CLEARANCE;
         if (z < min_height) {
-                bounced = true;
-                z = min_height;
+            bounced = true;
+            z = min_height;
         }
         if (bounced)
-                state.setTargetZ(z);
+            state.setTargetZ(z);
         return bounced;
     }
 
@@ -159,11 +159,11 @@ public abstract class Camera implements Animated {
     }
 
     public final void disable() {
-            LocalEventQueue.getQueue().getHighPrecisionManager().removeAnimation(this);
+        LocalEventQueue.getQueue().getHighPrecisionManager().removeAnimation(this);
     }
 
     public void enable() {
-            LocalEventQueue.getQueue().getHighPrecisionManager().registerAnimation(this);
+        LocalEventQueue.getQueue().getHighPrecisionManager().registerAnimation(this);
     }
 
     public void handleInput(@NonNull InputEvent event) {

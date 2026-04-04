@@ -4,8 +4,8 @@ import com.oddlabs.procedural.Channel;
 
 public final class Main {
 
-	void main() throws Exception {
-		long time = System.currentTimeMillis();
+    void main() throws Exception {
+        long time = System.currentTimeMillis();
 		
 		/*
 		int seed = 42;
@@ -66,27 +66,27 @@ public final class Main {
 		Layer sonic = new Layer(sonic_color, sonic_color, sonic_color, sonic_alpha_final);
 		sonic.toGLIntImage().saveAsPNG("generator_sonic");
 		*/
-		
-		// thunder & lightning!
+
+        // thunder & lightning!
 		/*
 		Channel greyscale = new Gradient(128, 128, new float[][]{{0f, 0f}, {.47f, .25f}, {.5f, 1f}, {.53f, .25f}, {1f, 0f}}, Gradient.HORIZONTAL, Gradient.SMOOTH).toChannel();
 		Layer color = new Layer(greyscale.copy(), greyscale.copy(), new Channel(128, 128).fill(1f), greyscale.copy());
 		color.toGLIntImage().saveAsPNG("lightning");
 		*/
-		
-		Voronoi voronoi = new Voronoi(512, 8, 8, 1, 1f, 42, true);
-		Channel hitpoint = voronoi.getHitpoint();
-		//Channel distance = voronoi.getDistance(-1f, 1f, 0f);
-		//Channel height = distance.channelMultiply(hitpoint);
-		//height.erode(16f/512f, 64);
-		Channel hitpoint2 = hitpoint.copy().erodeThermal(16f/512f, 64);
-		Channel noise = new Midpoint(512, 3, 0.25f, 42).toChannel().contrast(4f);
-		
-		Channel height = hitpoint.channelMultiply(noise.copy()).channelAdd(hitpoint2.channelMultiply(noise.invert()));
-		
-		height.toLayer().saveAsPNG("test_voronoi");
+
+        Voronoi voronoi = new Voronoi(512, 8, 8, 1, 1f, 42, true);
+        Channel hitpoint = voronoi.getHitpoint();
+        //Channel distance = voronoi.getDistance(-1f, 1f, 0f);
+        //Channel height = distance.channelMultiply(hitpoint);
+        //height.erode(16f/512f, 64);
+        Channel hitpoint2 = hitpoint.copy().erodeThermal(16f / 512f, 64);
+        Channel noise = new Midpoint(512, 3, 0.25f, 42).toChannel().contrast(4f);
+
+        Channel height = hitpoint.channelMultiply(noise.copy()).channelAdd(hitpoint2.channelMultiply(noise.invert()));
+
+        height.toLayer().saveAsPNG("test_voronoi");
 
 
-		IO.println("******** Time taken: " + ((System.currentTimeMillis() - time) / 1000f) + " seconds");
-	}
+        IO.println("******** Time taken: " + ((System.currentTimeMillis() - time) / 1000f) + " seconds");
+    }
 }
