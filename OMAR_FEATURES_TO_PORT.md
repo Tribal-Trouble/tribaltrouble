@@ -1,14 +1,15 @@
 # Omar's Features to Port onto Bondolo's Base
 
 Features from OmarAMokhtar/tribaltrouble merged PRs + open PRs + contributor PRs.
-Starting from Bondolo's `bondolo_formatted` branch, porting features on top.
+Starting from Bondolo's `bondolo/master` branch (`port/bondolo-clean`), porting features on top.
+Formatter will be added AFTER all porting is complete — keeps diffs clean during port.
 
 ---
 
 ## Porting Order
 
-### Phase 1 — Foundation
-1. **CI/CD + Build** — GitHub Actions workflows, gradle setup, Steam deploy steps, Mac/Linux packaging, auto-formatter CI (#57, #87, #104, #124, #125, #150, #151, #152, #17, #73, #33)
+### Phase 1 — Foundation (DONE)
+1. ~~**CI/CD + Build**~~ — GitHub Actions workflows, gradle setup, Steam deploy steps, Mac/Linux packaging. Server compile fixed (DBUtils, Authenticator, Client imports). Windows package tested and working. Formatter deferred to after porting.
 
 ### Phase 2 — Small Fixes
 2. **Remove registration** (#45) — remove registration file requirement
@@ -40,6 +41,9 @@ Starting from Bondolo's `bondolo_formatted` branch, porting features on top.
 18. **Steam integration** (#119, #127, #128, #143, #131) — Steamworks4j, achievements, stats, login, arm64 support
 19. **Spectator mode** (#55, #154) — live game spectating, event streaming, catch-up logic
 20. **More players** (#79, #93, #84) — dynamic player count, ScrollableGroup, UI for >6 players. LAST — most invasive
+
+### Phase 8 — Final Polish
+21. **Formatter + CI guard** — add google-java-format to gradle, format entire codebase, add formatCheck to CI workflow as PR gate
 
 ---
 
