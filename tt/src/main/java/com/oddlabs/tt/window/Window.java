@@ -26,9 +26,36 @@ public interface Window extends AutoCloseable {
 
     boolean wasResized();
 
+    /**
+     * Returns the physical framebuffer width in pixels. This is the size used for
+     * OpenGL viewport and buffer allocations.
+     *
+     * @return int width in pixels
+     */
     int getWidth();
 
+    /**
+     * Returns the physical framebuffer height in pixels.
+     *
+     * @return int height in pixels
+     */
     int getHeight();
+
+    /**
+     * Returns the logical window width in screen coordinates.
+     * Screen coordinates are used for window positioning and cursor input.
+     * On high-DPI displays (e.g. Retina), this may be smaller than the framebuffer width.
+     *
+     * @return int width in screen coordinates
+     */
+    int getLogicalWidth();
+
+    /**
+     * Returns the logical window height in screen coordinates.
+     *
+     * @return int height in screen coordinates
+     */
+    int getLogicalHeight();
 
     void setTitle(String title);
 

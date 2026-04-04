@@ -291,6 +291,10 @@ public final class LWJGL3Window implements Window {
         glfwFocusWindow(windowHandle);
     }
 
+    /**
+     * Returns the physical framebuffer width in pixels.
+     * Uses {@code glfwGetFramebufferSize}.
+     */
     @Override
     public int getWidth() {
         assert windowHandle != MemoryUtil.NULL;
@@ -300,12 +304,42 @@ public final class LWJGL3Window implements Window {
         return w[0];
     }
 
+    /**
+     * Returns the physical framebuffer height in pixels.
+     * Uses {@code glfwGetFramebufferSize}.
+     */
     @Override
     public int getHeight() {
         assert windowHandle != MemoryUtil.NULL;
         int[] w = new int[1];
         int[] h = new int[1];
         glfwGetFramebufferSize(windowHandle, w, h);
+        return h[0];
+    }
+
+    /**
+     * Returns the logical window width in screen coordinates.
+     * Uses {@code glfwGetWindowSize}.
+     */
+    @Override
+    public int getLogicalWidth() {
+        assert windowHandle != MemoryUtil.NULL;
+        int[] w = new int[1];
+        int[] h = new int[1];
+        org.lwjgl.glfw.GLFW.glfwGetWindowSize(windowHandle, w, h);
+        return w[0];
+    }
+
+    /**
+     * Returns the logical window height in screen coordinates.
+     * Uses {@code glfwGetWindowSize}.
+     */
+    @Override
+    public int getLogicalHeight() {
+        assert windowHandle != MemoryUtil.NULL;
+        int[] w = new int[1];
+        int[] h = new int[1];
+        org.lwjgl.glfw.GLFW.glfwGetWindowSize(windowHandle, w, h);
         return h[0];
     }
 

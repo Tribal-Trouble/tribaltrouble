@@ -96,9 +96,18 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
         });
 
         glfwSetCursorPosCallback(windowHandle, (window, xpos, ypos) -> {
-            float[] scale = this.window.getWindowContentScale();
-            this.mouseX = xpos * scale[0];
-            this.mouseY = this.window.getHeight() - (ypos * scale[1]) - 1; // Invert Y for OpenGL coords and scale
+            // GLFW cursor positions are in screen coordinates (logical).
+            // We need to scale them to physical framebuffer pixels for the game engine.
+            int fw = this.window.getWidth();
+            int fh = this.window.getHeight();
+            int lw = this.window.getLogicalWidth();
+            int lh = this.window.getLogicalHeight();
+
+            double scaleX = (double) fw / lw;
+            double scaleY = (double) fh / lh;
+
+            this.mouseX = xpos * scaleX;
+            this.mouseY = fh - (ypos * scaleY) - 1; // Invert Y in physical pixel space
             synchronized (mouseEvents) {
                 mouseEvents.add(new MouseEvent(-1, false, (int) mouseX, (int) mouseY, 0));
             }
@@ -224,13 +233,17 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
 
     @Override
     public void setCursorPosition(int x, int y) {
-        float[] scale = this.window.getWindowContentScale();
-        // Convert OpenGL pixels back to screen coordinates
-        // Y inversion: pixelY = height - screenY * scale - 1
-        // screenY * scale = height - pixelY - 1
-        // screenY = (height - pixelY - 1) / scale
-        double screenX = x / (double) scale[0];
-        double screenY = (this.window.getHeight() - y - 1) / (double) scale[1];
+        // Invert Y and scale back from physical game coordinates to GLFW screen coordinates (logical)
+        int fw = window.getWidth();
+        int fh = window.getHeight();
+        int lw = window.getLogicalWidth();
+        int lh = window.getLogicalHeight();
+
+        double scaleX = (double) fw / lw;
+        double scaleY = (double) fh / lh;
+
+        double screenX = x / scaleX;
+        double screenY = (fh - y - 1) / scaleY;
         glfwSetCursorPos(windowHandle, screenX, screenY);
     }
 
