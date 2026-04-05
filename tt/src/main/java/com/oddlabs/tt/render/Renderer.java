@@ -558,13 +558,19 @@ public final class Renderer implements AutoCloseable {
                 }
                 wasActive = isActive;
 
-                if (window.isVisible() && isActive) {
-                    runGameLoop(network, gui);
-                    AudioManager.getManager().masterGain(1f);
+                // Always run simulation and network to avoid freezing multiplayer
+                runGameLoop(network, gui);
+
+                if (isActive) {
                     if (reset_keyboard) {
                         reset_keyboard = false;
                         Renderer.getLocalInput().resetKeyboard();
                     }
+                } else {
+                    reset_keyboard = true;
+                }
+
+                if (!window.isIconified()) {
                     if (!first_frame) {
                         window.update();
                     }
@@ -597,9 +603,7 @@ public final class Renderer implements AutoCloseable {
                     if (grab_frames && movie_recording_started)
                         GLUtils.takeScreenshot("");
                 } else {
-                    AnimationManager.freezeTime();
-                    reset_keyboard = true;
-                    AudioManager.getManager().masterGain(0f);
+                    // Minimized: throttle to save CPU since we can't render anyway
                     try {
                         TimeUnit.MILLISECONDS.sleep(10);
                     } catch (InterruptedException e) {
