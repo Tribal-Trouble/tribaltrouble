@@ -67,6 +67,8 @@ Formatter will be added AFTER all porting is complete — keeps diffs clean duri
 
 19. **Formatter + CI guard** — add google-java-format to gradle, format entire codebase, add formatCheck to CI workflow
     as PR gate
+20. **Modernize server DB layer** — refactor DBInterface.java to use try-with-resources for all PreparedStatement/
+    Connection/ResultSet handling. Replace manual finally blocks with auto-closeable patterns.
 
 ### Phase 8 — Assets (non-code)
 
