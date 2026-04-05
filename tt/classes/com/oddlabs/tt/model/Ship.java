@@ -2,6 +2,7 @@ package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.audio.AudioPlayer;
+import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.behaviour.GatherController;
@@ -40,8 +41,9 @@ public final strictfp class Ship extends Building implements Movable {
     public static final int RENDER_HALFBUILT = 1;
     public static final int RENDER_BUILT = 2;
 
-    private static final int PLACING_BORDER = 1;
     private static final int MAX_SUPPLY_COUNT = 200;
+    private static final float OCCUPY_LENGTH_CELLS = 6f;
+    private static final float OCCUPY_WIDTH_CELLS = 2f;
 
     public static final Cost COST_ROCK_WEAPON =
             new Cost(new Class[] {TreeSupply.class, RockSupply.class}, new int[] {2, 1});
@@ -795,21 +797,102 @@ public final strictfp class Ship extends Building implements Movable {
         visitor.visitBuilding(this);
     }
 
+    private boolean isInsideOrientedFootprint(
+            int grid_x,
+            int grid_y,
+            float center_x,
+            float center_y,
+            float dir_x,
+            float dir_y,
+            float half_length_meters,
+            float half_width_meters) {
+        float cell_x = UnitGrid.coordinateFromGrid(grid_x);
+        float cell_y = UnitGrid.coordinateFromGrid(grid_y);
+        float rel_x = cell_x - center_x;
+        float rel_y = cell_y - center_y;
+
+        float along = rel_x * dir_x + rel_y * dir_y;
+        float side = rel_x * (-dir_y) + rel_y * dir_x;
+
+        return StrictMath.abs(along) <= half_length_meters
+                && StrictMath.abs(side) <= half_width_meters;
+    }
+
     public final void occupy() {
         UnitGrid grid = getUnitGrid();
-        Region region = grid.getRegion(getGridX(), getGridY(), getLayer());
-        if (region == null) {
-            setLayer(UnitGrid.SEA);
-            region = grid.getRegion(getGridX(), getGridY(), UnitGrid.SEA);
+
+        float center_x = getPositionX();
+        float center_y = getPositionY();
+        float dir_x = getDirectionX();
+        float dir_y = getDirectionY();
+        float dir_len = (float) StrictMath.sqrt(dir_x * dir_x + dir_y * dir_y);
+        if (dir_len > 0.0001f) {
+            dir_x /= dir_len;
+            dir_y /= dir_len;
+        } else {
+            dir_x = 1.0f;
+            dir_y = 0.0f;
         }
-        if (region != null) {
-            region.registerObject(Building.class, this);
+
+        float half_length_meters = OCCUPY_LENGTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
+        float half_width_meters = OCCUPY_WIDTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
+        float half_diagonal_meters =
+                (float)
+                        StrictMath.sqrt(
+                                half_length_meters * half_length_meters
+                                        + half_width_meters * half_width_meters);
+        int radius_cells =
+                (int) StrictMath.ceil(half_diagonal_meters / HeightMap.METERS_PER_UNIT_GRID) + 1;
+        int grid_size = grid.getGridSize();
+        int start_x = StrictMath.max(0, getGridX() - radius_cells);
+        int end_x = StrictMath.min(grid_size - 1, getGridX() + radius_cells);
+        int start_y = StrictMath.max(0, getGridY() - radius_cells);
+        int end_y = StrictMath.min(grid_size - 1, getGridY() + radius_cells);
+
+        boolean found_land = false;
+
+        for (int y = start_y; y <= end_y && !found_land; y++) {
+            for (int x = start_x; x <= end_x && !found_land; x++) {
+                if (isInsideOrientedFootprint(
+                        x,
+                        y,
+                        center_x,
+                        center_y,
+                        dir_x,
+                        dir_y,
+                        half_length_meters,
+                        half_width_meters)) {
+                    Region region = grid.getRegion(x, y, UnitGrid.LAND);
+                    if (region != null) {
+                        found_land = true;
+                        setLayer(UnitGrid.LAND);
+                        region.registerObject(Building.class, this);
+                    }
+                }
+            }
         }
-        int size = getBuildingTemplate().getPlacingSize() * 2 - 1;
-        for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
-            for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
-                grid.occupyGrid(
-                        getGridX() - size / 2 + x, getGridY() - size / 2 + y, this, getLayer());
+
+        if (!found_land) {
+            Region region = grid.getRegion(getGridX(), getGridY(), UnitGrid.SEA);
+            if (region != null) {
+                setLayer(UnitGrid.SEA);
+                region.registerObject(Building.class, this);
+            }
+        }
+
+        for (int y = start_y; y <= end_y; y++) {
+            for (int x = start_x; x <= end_x; x++) {
+                if (isInsideOrientedFootprint(
+                        x,
+                        y,
+                        center_x,
+                        center_y,
+                        dir_x,
+                        dir_y,
+                        half_length_meters,
+                        half_width_meters)) {
+                    grid.occupyGrid(x, y, this, getLayer());
+                }
             }
         }
     }
@@ -820,11 +903,48 @@ public final strictfp class Ship extends Building implements Movable {
         if (region != null) {
             region.unregisterObject(Building.class, this);
         }
-        int size = getBuildingTemplate().getPlacingSize() * 2 - 1;
-        for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
-            for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
-                grid.freeGrid(
-                        getGridX() - size / 2 + x, getGridY() - size / 2 + y, this, getLayer());
+
+        float center_x = getPositionX();
+        float center_y = getPositionY();
+        float dir_x = getDirectionX();
+        float dir_y = getDirectionY();
+        float dir_len = (float) StrictMath.sqrt(dir_x * dir_x + dir_y * dir_y);
+        if (dir_len > 0.0001f) {
+            dir_x /= dir_len;
+            dir_y /= dir_len;
+        } else {
+            dir_x = 1.0f;
+            dir_y = 0.0f;
+        }
+
+        float half_length_meters = OCCUPY_LENGTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
+        float half_width_meters = OCCUPY_WIDTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
+        float half_diagonal_meters =
+                (float)
+                        StrictMath.sqrt(
+                                half_length_meters * half_length_meters
+                                        + half_width_meters * half_width_meters);
+        int radius_cells =
+                (int) StrictMath.ceil(half_diagonal_meters / HeightMap.METERS_PER_UNIT_GRID) + 1;
+        int grid_size = grid.getGridSize();
+        int start_x = StrictMath.max(0, getGridX() - radius_cells);
+        int end_x = StrictMath.min(grid_size - 1, getGridX() + radius_cells);
+        int start_y = StrictMath.max(0, getGridY() - radius_cells);
+        int end_y = StrictMath.min(grid_size - 1, getGridY() + radius_cells);
+
+        for (int y = start_y; y <= end_y; y++) {
+            for (int x = start_x; x <= end_x; x++) {
+                if (isInsideOrientedFootprint(
+                        x,
+                        y,
+                        center_x,
+                        center_y,
+                        dir_x,
+                        dir_y,
+                        half_length_meters,
+                        half_width_meters)) {
+                    grid.freeGrid(x, y, this, getLayer());
+                }
             }
         }
     }
