@@ -10,6 +10,8 @@ import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PulldownButton;
 import com.oddlabs.tt.gui.PulldownItem;
 import com.oddlabs.tt.gui.PulldownMenu;
+import com.oddlabs.tt.gui.EditLine;
+import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.Slider;
 import com.oddlabs.tt.util.ServerMessageBundler;
@@ -114,6 +116,39 @@ public class GeneralPanel extends Panel {
         cb_show_compass.place();
         group_show_compass.compileCanvas();
 
+        // Multiplayer domain
+        Group group_domain = new Group();
+        addChild(group_domain);
+        Label label_domain = new Label(AbstractOptionsMenu.i18n("multiplayer_domain"), Skin.getSkin().getEditFont());
+        group_domain.addChild(label_domain);
+        Label label_domain_updated = new Label("", Skin.getSkin().getEditFont(), 100);
+        group_domain.addChild(label_domain_updated);
+        EditLine editline_domain = new EditLine(200, 250);
+        editline_domain.set(Settings.getSettings().getDomainName());
+        group_domain.addChild(editline_domain);
+        HorizButton btn_update_domain = new HorizButton(AbstractOptionsMenu.i18n("domain_update"), 130);
+        btn_update_domain.addMouseClickListener((_, _, _, _) -> {
+            String domain = editline_domain.getContents();
+            if (!domain.isEmpty()) {
+                Settings.getSettings().setDomain(domain);
+                label_domain_updated.set(AbstractOptionsMenu.i18n("domain_updated"));
+            }
+        });
+        group_domain.addChild(btn_update_domain);
+        HorizButton btn_reset_domain = new HorizButton(AbstractOptionsMenu.i18n("domain_reset"), 130);
+        btn_reset_domain.addMouseClickListener((_, _, _, _) -> {
+            editline_domain.set(Settings.OFFICIAL_DOMAIN);
+            Settings.getSettings().setDomain(Settings.OFFICIAL_DOMAIN);
+            label_domain_updated.set("");
+        });
+        group_domain.addChild(btn_reset_domain);
+        label_domain.place();
+        editline_domain.place(label_domain, BOTTOM_LEFT);
+        label_domain_updated.place(editline_domain, RIGHT_MID);
+        btn_update_domain.place(editline_domain, BOTTOM_LEFT);
+        btn_reset_domain.place(btn_update_domain, RIGHT_MID);
+        group_domain.compileCanvas();
+
         // Placement
         group_gamespeed.place();
         group_mapmode.place(group_gamespeed, BOTTOM_LEFT);
@@ -121,6 +156,7 @@ public class GeneralPanel extends Panel {
         group_invert_camera.place(group_tooltip, BOTTOM_LEFT);
         group_aggressive_units.place(group_invert_camera, BOTTOM_LEFT);
         group_show_compass.place(group_aggressive_units, BOTTOM_LEFT);
+        group_domain.place(group_show_compass, BOTTOM_LEFT);
         compileCanvas();
     }
 

@@ -12,6 +12,7 @@ import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.player.Player;
@@ -34,7 +35,6 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 public final class PeerHub implements Animated, RouterHandler {
-    private static final String ROUTER_ADDRESS = "127.0.0.1";
     public static final ResourceBundle bundle = ResourceBundle.getBundle(PeerHub.class.getName());
 
     private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
@@ -98,7 +98,7 @@ public final class PeerHub implements Animated, RouterHandler {
             this.router_client = new RouterClient(network, this, router.getPort());
         } else {
             this.router = null;
-            this.router_client = new RouterClient(network, ROUTER_ADDRESS, this);
+            this.router_client = new RouterClient(network, Settings.getSettings().getRouterAddress(), this);
         }
         for (short i = 0; i < players.length; i++) {
             Player player = players[i];
