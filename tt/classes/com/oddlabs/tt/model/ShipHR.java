@@ -124,7 +124,7 @@ public final strictfp class ShipHR {
             for (int i = UPPER_DECK_START; i < UPPER_DECK_START + NUM_UPPER_DECK; i++) {
                 if (units[i] == null) {
                     units[i] = unit;
-                    unit.increaseRange(16f);
+                    unit.increaseRange(8f);
                     return allocations[i];
                 }
             }
@@ -148,6 +148,9 @@ public final strictfp class ShipHR {
             if (unit != null && unit.getUnitTemplate() == template) {
                 unit.setReference(null);
                 unit.unmount();
+                if (unit.isWarrior()) {
+                    unit.increaseRange(-8f);
+                }
                 units[i] = null;
                 return unit;
             }

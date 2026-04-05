@@ -32,7 +32,10 @@ import com.oddlabs.util.Vector4f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 public final strictfp class Ship extends Building implements Movable {
     private static final float REMOVE_DELAY = 1f / 10f;
@@ -42,8 +45,8 @@ public final strictfp class Ship extends Building implements Movable {
     public static final int RENDER_BUILT = 2;
 
     private static final int MAX_SUPPLY_COUNT = 200;
-    private static final float OCCUPY_LENGTH_CELLS = 6f;
-    private static final float OCCUPY_WIDTH_CELLS = 2f;
+    private static final float OCCUPY_LENGTH_CELLS = 10f;
+    private static final float OCCUPY_WIDTH_CELLS = 3f;
 
     public static final Cost COST_ROCK_WEAPON =
             new Cost(new Class[] {TreeSupply.class, RockSupply.class}, new int[] {2, 1});
@@ -87,6 +90,7 @@ public final strictfp class Ship extends Building implements Movable {
     private static final float DAMAGED_PARTICLE_ALPHA = 3f;
 
     private final Map supply_containers = new HashMap();
+    private final Set registered_regions = new HashSet();
     private final ShipDeployContainer[] deploy_containers = new ShipDeployContainer[12];
     private final LinearEmitter damaged_emitter;
     private final LinearEmitter production_emitter;
@@ -818,9 +822,22 @@ public final strictfp class Ship extends Building implements Movable {
                 && StrictMath.abs(side) <= half_width_meters;
     }
 
+    private void registerRegion(Region region) {
+        if (region != null && registered_regions.add(region)) {
+            region.registerObject(Building.class, this);
+        }
+    }
+
+    private void unregisterRegions() {
+        for (Iterator it = registered_regions.iterator(); it.hasNext(); ) {
+            Region region = (Region) it.next();
+            region.unregisterObject(Building.class, this);
+        }
+        registered_regions.clear();
+    }
+
     public final void occupy() {
         UnitGrid grid = getUnitGrid();
-
         float center_x = getPositionX();
         float center_y = getPositionY();
         float dir_x = getDirectionX();
@@ -851,58 +868,38 @@ public final strictfp class Ship extends Building implements Movable {
 
         boolean found_land = false;
 
-        for (int y = start_y; y <= end_y && !found_land; y++) {
-            for (int x = start_x; x <= end_x && !found_land; x++) {
-                if (isInsideOrientedFootprint(
-                        x,
-                        y,
-                        center_x,
-                        center_y,
-                        dir_x,
-                        dir_y,
-                        half_length_meters,
-                        half_width_meters)) {
-                    Region region = grid.getRegion(x, y, UnitGrid.LAND);
-                    if (region != null) {
-                        found_land = true;
-                        setLayer(UnitGrid.LAND);
-                        region.registerObject(Building.class, this);
+        if (!isMoving()) {
+            for (int y = start_y; y <= end_y; y++) {
+                for (int x = start_x; x <= end_x; x++) {
+                    if (isInsideOrientedFootprint(
+                            x,
+                            y,
+                            center_x,
+                            center_y,
+                            dir_x,
+                            dir_y,
+                            half_length_meters,
+                            half_width_meters)) {
+                        Region region = grid.getRegion(x, y, UnitGrid.LAND);
+                        if (region != null) {
+                            found_land = true;
+                            grid.occupyGrid(x, y, this, getLayer());
+                            setLayer(UnitGrid.LAND);
+                            registerRegion(region);
+                        }
                     }
                 }
             }
         }
 
         if (!found_land) {
-            Region region = grid.getRegion(getGridX(), getGridY(), UnitGrid.SEA);
-            if (region != null) {
-                setLayer(UnitGrid.SEA);
-                region.registerObject(Building.class, this);
-            }
-        }
-
-        for (int y = start_y; y <= end_y; y++) {
-            for (int x = start_x; x <= end_x; x++) {
-                if (isInsideOrientedFootprint(
-                        x,
-                        y,
-                        center_x,
-                        center_y,
-                        dir_x,
-                        dir_y,
-                        half_length_meters,
-                        half_width_meters)) {
-                    grid.occupyGrid(x, y, this, getLayer());
-                }
-            }
+            setLayer(UnitGrid.SEA);
         }
     }
 
     public final void free() {
         UnitGrid grid = getUnitGrid();
-        Region region = grid.getRegion(getGridX(), getGridY(), getLayer());
-        if (region != null) {
-            region.unregisterObject(Building.class, this);
-        }
+        unregisterRegions();
 
         float center_x = getPositionX();
         float center_y = getPositionY();
@@ -1041,13 +1038,10 @@ public final strictfp class Ship extends Building implements Movable {
     public final void endTrip() {
         forceDecide();
         clearControllerStack();
-        if (getUnitGrid().getRegion(getGridX(), getGridY(), UnitGrid.LAND) != null) {
-            free();
-            setLayer(UnitGrid.LAND);
-            updateBounds();
-            reregister();
-            occupy();
-        }
+        free();
+        updateBounds();
+        reregister();
+        occupy();
     }
 
     public final void setPosition(float x, float y) {

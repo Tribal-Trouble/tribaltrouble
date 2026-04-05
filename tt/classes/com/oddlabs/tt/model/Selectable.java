@@ -113,16 +113,14 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 
     private static final boolean isAdjacent(
             UnitGrid unit_grid, int grid_x, int grid_y, Occupant occ, int layer) {
-        int t_x = occ.getGridX();
-        int t_y = occ.getGridY();
-        int dx = 0;
-        int dy = 0;
-        if (t_x > grid_x) dx = 1;
-        else if (t_x < grid_x) dx = -1;
-        if (t_y > grid_y) dy = 1;
-        else if (t_y < grid_y) dy = -1;
-        // assert dx != 0 || dy != 0 : "occ = " + occ;
-        return unit_grid.getOccupant(grid_x + dx, grid_y + dy, layer) == occ;
+        for (int x = grid_x - 1; x <= grid_x + 1; x++) {
+            for (int y = grid_y - 1; y <= grid_y + 1; y++) {
+                if (unit_grid.getOccupant(x, y, layer) == occ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public final boolean isCloseEnough(float max_dist, Target target, int layer) {

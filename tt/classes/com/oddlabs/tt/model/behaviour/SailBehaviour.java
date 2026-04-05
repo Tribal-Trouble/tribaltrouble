@@ -10,8 +10,6 @@ import com.oddlabs.tt.util.Target;
 import com.oddlabs.util.Vector2f;
 import com.oddlabs.util.Vector4f;
 
-import org.lwjgl.opengl.GL11;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -993,6 +991,10 @@ public final strictfp class SailBehaviour implements Behaviour {
     }
 
     public final int animate(float t) {
+        if (ship.isDead()) {
+            return Selectable.DONE;
+        }
+
         ship.setLayer(UnitGrid.SEA);
 
         // Check if destination is reached
@@ -1033,7 +1035,12 @@ public final strictfp class SailBehaviour implements Behaviour {
             return Selectable.INTERRUPTIBLE;
         }
 
-        float speed = ship.getShipHR().countRowers() * SHIP_SPEED;
+        int rowers = ship.getShipHR().countRowers();
+        if (rowers == 0) {
+            ship.endTrip();
+            return Selectable.INTERRUPTIBLE;
+        }
+        float speed = rowers * SHIP_SPEED;
         float remaining_distance = speed * t;
 
         while (remaining_distance > 0.0f && trajectorySegmentIndex < trajectory.size()) {
