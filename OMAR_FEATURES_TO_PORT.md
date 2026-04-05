@@ -22,17 +22,18 @@ Formatter will be added AFTER all porting is complete — keeps diffs clean duri
 5. ~~**Remove Oddlabs loading screen**~~ (#126) — replaced oddlabs logo texture
 6. ~~**Fix close button**~~ (#146) — reset GLFW close flag after reading
 
-- **Bondolo bug fix: high-DPI cursor offset** — Bondolo's LWJGL3InputProvider multiplied cursor positions by content
-  scale, but GLFW already reports screen coords. This double-scaled on Windows with >100% scaling. Fixed by using
-  glfwGetWindowSize (screen coords) instead of getHeight() (framebuffer pixels) for cursor Y inversion.
+- **Bondolo bug fix: high-DPI cursor offset** — fixed by Bondolo (commit a7a66a9e), included via rebase. Added
+  getLogicalWidth/getLogicalHeight to Window interface for proper screen-coord to framebuffer-pixel mapping.
 
-### Phase 3 — UI / Input Features
+### Phase 3 — UI / Input Features (DONE)
 
 7. ~~**Discord/GitHub buttons**~~ (#32) — added clickable GUIImage with target cursor, Discord/GitHub buttons on main
    menu, URLs in Settings.java
 8. ~~**Cursor changes**~~ (#41, #78) — skipped, Bondolo already uses hardware cursor. Software cursor not needed for
    now. Revisit if we need to confine the cursor to the screen for windowed mode or something.
-9. **EditLine text selection** (#46) — keyboard selection, copy/paste/cut in text fields
+9. ~~**EditLine text selection**~~ (#46) — added selection, clipboard, word jump. Separated into
+   handleClipboardInput/handleSelectionNavigation/handleSelectionReplacement to keep Bondolo's base nav untouched.
+   Also fixed: Space key submitting form instead of typing; global keybinds (Ctrl+A etc.) firing while typing in text fields.
 
 ### Phase 4 — Gameplay Features
 
