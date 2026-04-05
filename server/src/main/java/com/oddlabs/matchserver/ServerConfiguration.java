@@ -12,6 +12,7 @@ public final class ServerConfiguration {
     public static final String DB_CONNECTION = "DB_CONNECTION";
     public static final String DB_USER = "DB_USER";
     public static final String SQL_PASS = "SQL_PASS";
+    public static final String WEBSITE_DOMAIN = "WEBSITE_DOMAIN";
 
     private static ServerConfiguration instance;
 
