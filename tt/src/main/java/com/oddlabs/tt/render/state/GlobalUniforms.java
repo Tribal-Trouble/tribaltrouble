@@ -5,6 +5,8 @@ import com.oddlabs.tt.render.shader.FogShader;
 import com.oddlabs.tt.resource.DistanceFogInfo;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.RadialFogInfo;
+import org.joml.Matrix4fc;
+import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
@@ -39,10 +41,17 @@ public final class GlobalUniforms {
         camera.getModelView().get(64, buffer);
 
         // 128: vec3 lightDir (16 aligned)
+        // The original FFP code set the light direction via glLightfv(GL_LIGHT0, GL_POSITION),
+        // which automatically multiplied by the current modelview matrix, placing it in view space.
+        // Shaders compute normals in view space, so we must do the same transform here.
+        Matrix4fc viewMatrix = camera.getModelView();
+        Vector3f viewLightDir = new Vector3f();
+        viewMatrix.transformDirection(lightDir, viewLightDir);
+        viewLightDir.normalize();
         buffer.position(128);
-        buffer.putFloat(lightDir.x());
-        buffer.putFloat(lightDir.y());
-        buffer.putFloat(lightDir.z());
+        buffer.putFloat(viewLightDir.x);
+        buffer.putFloat(viewLightDir.y);
+        buffer.putFloat(viewLightDir.z);
         buffer.putFloat(0f); // padding
 
         // 144: vec3 skyAmbient (16 aligned)
