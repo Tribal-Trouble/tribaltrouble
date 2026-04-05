@@ -1,14 +1,9 @@
 package com.oddlabs.matchmaking;
 
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
 
 public final class GameSession implements Serializable {
-    @Serial
     private static final long serialVersionUID = 2768150608081852612L;
 
     public static final int MIN_WINS_FOR_RANKING = 5;
@@ -17,21 +12,29 @@ public final class GameSession implements Serializable {
     public static final int LOSE = 1;
 
     private final int session_id;
+
+    /** Human participants in the game */
     private final Participant[] participants;
+
+    /** All participants in the game including AI */
+    private final GamePlayer[] playerInfo;
+
     private final boolean rated;
 
-    public GameSession(int session_id, Participant[] participants, boolean rated) {
+    public GameSession(
+            int session_id, Participant[] participants, boolean rated, GamePlayer[] playerInfo) {
         this.session_id = session_id;
         this.participants = participants;
         this.rated = rated;
+        this.playerInfo = playerInfo;
     }
 
-    private boolean validateTeams() {
+    private final boolean validateTeams() {
         boolean[] teams = new boolean[MatchmakingServerInterface.MAX_PLAYERS];
         int team_count = 0;
-        for (Participant p : participants) {
-            if (!p.validate())
-                return false;
+        for (int i = 0; i < participants.length; i++) {
+            Participant p = participants[i];
+            if (!p.validate()) return false;
             if (!teams[p.getTeam()]) {
                 teams[p.getTeam()] = true;
                 team_count++;
@@ -40,36 +43,50 @@ public final class GameSession implements Serializable {
         return team_count >= MatchmakingServerInterface.MIN_PLAYERS;
     }
 
-    @Override
-    public int hashCode() {
+    public final int hashCode() {
         return session_id;
     }
 
-    @Override
-    public boolean equals(@Nullable Object other) {
-        if (!(other instanceof GameSession other_game))
-            return false;
-        return other_game.session_id == session_id && Arrays.equals(other_game.participants, participants) && rated == other_game.rated;
+    public final boolean equals(Object other) {
+        if (!(other instanceof GameSession)) return false;
+        GameSession other_game = (GameSession) other;
+        return other_game.session_id == session_id
+                && Arrays.equals(other_game.participants, participants)
+                && rated == other_game.rated;
     }
 
-    public boolean validate() {
-        return participants != null && participants.length <= MatchmakingServerInterface.MAX_PLAYERS && participants.length >= MatchmakingServerInterface.MIN_PLAYERS &&
-                validateTeams();
+    public final boolean validate() {
+        return participants != null
+                && participants.length <= MatchmakingServerInterface.MAX_PLAYERS
+                && participants.length >= MatchmakingServerInterface.MIN_PLAYERS
+                && validateTeams();
     }
 
-    public int getID() {
+    public final int getID() {
         return session_id;
     }
 
-    public Participant[] getParticipants() {
+    /*
+     * Gets only the human participants of the game session
+     */
+    public final Participant[] getParticipants() {
         return participants;
     }
 
-    public boolean isRated() {
+    /**
+     * Gets the player info for each player slot in the game session (including AI players).
+     *
+     * @return the player info
+     */
+    public final GamePlayer[] getPlayerInfo() {
+        return playerInfo;
+    }
+
+    public final boolean isRated() {
         return rated;
     }
 
-    public static int[][] calculateMatchPoints(int @NonNull [] player_ratings, int @NonNull [] player_teams) {
+    public static final int[][] calculateMatchPoints(int[] player_ratings, int[] player_teams) {
         assert player_ratings.length == player_teams.length;
         int num_players = player_ratings.length;
 
@@ -85,12 +102,24 @@ public final class GameSession implements Serializable {
         int[][] result = new int[num_players][2];
         if (team_sizes[0] > 0 && team_sizes[1] > 0) {
             final int K = 16 * num_players;
-            float E0 = 1f / (1f + (float) Math.pow(10d, (team_ratings[1] - team_ratings[0]) / 400f));
-            float E1 = 1f / (1f + (float) Math.pow(10d, (team_ratings[0] - team_ratings[1]) / 400f));
-            int team_0_wins = Math.round(K * (1 - E0));
-            int team_1_looses = Math.round(K * (0 - E1));
-            int team_0_looses = Math.round(K * (0 - E0));
-            int team_1_wins = Math.round(K * (1 - E1));
+            float E0 =
+                    1f
+                            / (1f
+                                    + (float)
+                                            StrictMath.pow(
+                                                    10d,
+                                                    (team_ratings[1] - team_ratings[0]) / 400f));
+            float E1 =
+                    1f
+                            / (1f
+                                    + (float)
+                                            StrictMath.pow(
+                                                    10d,
+                                                    (team_ratings[0] - team_ratings[1]) / 400f));
+            int team_0_wins = StrictMath.round(K * (1 - E0));
+            int team_1_looses = StrictMath.round(K * (0 - E1));
+            int team_0_looses = StrictMath.round(K * (0 - E0));
+            int team_1_wins = StrictMath.round(K * (1 - E1));
             for (int i = 0; i < num_players; i++) {
                 int team_size = team_sizes[player_teams[i]];
                 if (player_teams[i] == 0) {
@@ -104,5 +133,4 @@ public final class GameSession implements Serializable {
         }
         return result;
     }
-
 }
