@@ -89,6 +89,17 @@ Formatter will be added AFTER all porting is complete — keeps diffs clean duri
 
 ---
 
+## Bugs Found During Porting
+
+| Issue | Description | Trigger |
+|-------|-------------|---------|
+| FBO zero-size crash | `PostProcessor.resize()` passes 0 width/height to `Texture`/`FBO.resize()` | Minimizing the game window |
+| Lobby user list | `ChatRoom.join()` had `sendUsers()` side effect that fired before client was ready | Fixed (ca0ebc2f) |
+| Camera snap on map zoom | Camera does a fast scroll instead of teleporting when clicking map mode location | Clicking a location on the overhead map |
+| Game loop pauses when unfocused | Game loop only runs when window is active — freezes multiplayer for all players on alt-tab | Alt-tabbing or losing window focus |
+
+---
+
 ## Reference: All PRs by Category
 
 ### Gameplay
