@@ -7,24 +7,31 @@ import com.codedisaster.steamworks.SteamException;
 import com.codedisaster.steamworks.SteamFriends;
 import com.codedisaster.steamworks.SteamFriendsCallback;
 import com.codedisaster.steamworks.SteamID;
+import com.codedisaster.steamworks.SteamLeaderboardEntriesHandle;
+import com.codedisaster.steamworks.SteamLeaderboardHandle;
+import com.codedisaster.steamworks.SteamResult;
 import com.codedisaster.steamworks.SteamUser;
 import com.codedisaster.steamworks.SteamUserCallback;
+import com.codedisaster.steamworks.SteamUserStats;
+import com.codedisaster.steamworks.SteamUserStatsCallback;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class SteamManager implements SteamUserCallback, SteamFriendsCallback {
+public final class SteamManager implements SteamUserCallback, SteamFriendsCallback, SteamUserStatsCallback {
     private static final Logger logger = Logger.getLogger(SteamManager.class.getName());
     private static @Nullable SteamManager instance;
 
     private final SteamUser steamUser;
     private final SteamFriends steamFriends;
+    private final SteamUserStats steamUserStats;
 
     private SteamManager() {
         steamUser = new SteamUser(this);
         steamFriends = new SteamFriends(this);
+        steamUserStats = new SteamUserStats(this);
     }
 
     public static @Nullable SteamManager getInstance() {
@@ -47,8 +54,21 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
         }
     }
 
+    public static void unlockAchievement(String achievementId) {
+        if (instance == null) return;
+        if (instance.steamUserStats.isAchieved(achievementId, false)) return;
+
+        if (instance.steamUserStats.setAchievement(achievementId)) {
+            logger.info("Achievement unlocked: " + achievementId);
+            instance.steamUserStats.storeStats();
+        } else {
+            logger.warning("Failed to unlock achievement: " + achievementId);
+        }
+    }
+
     public static void shutdown() {
         if (instance != null) {
+            instance.steamUserStats.dispose();
             instance.steamUser.dispose();
             instance.steamFriends.dispose();
             instance = null;
@@ -118,5 +138,42 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
 
     @Override
     public void onGameServerChangeRequested(String server, String password) {
+    }
+
+    // SteamUserStatsCallback
+    @Override
+    public void onUserStatsReceived(long gameId, SteamID steamIDUser, SteamResult result) {
+    }
+
+    @Override
+    public void onUserStatsStored(long gameId, SteamResult result) {
+    }
+
+    @Override
+    public void onUserStatsUnloaded(SteamID steamIDUser) {
+    }
+
+    @Override
+    public void onUserAchievementStored(long gameId, boolean groupAchievement, String achievementName, int curProgress, int maxProgress) {
+    }
+
+    @Override
+    public void onLeaderboardFindResult(SteamLeaderboardHandle leaderboard, boolean found) {
+    }
+
+    @Override
+    public void onLeaderboardScoresDownloaded(SteamLeaderboardHandle leaderboard, SteamLeaderboardEntriesHandle entries, int numEntries) {
+    }
+
+    @Override
+    public void onLeaderboardScoreUploaded(boolean success, SteamLeaderboardHandle leaderboard, int score, boolean scoreChanged, int globalRankNew, int globalRankPrevious) {
+    }
+
+    @Override
+    public void onNumberOfCurrentPlayersReceived(boolean success, int players) {
+    }
+
+    @Override
+    public void onGlobalStatsReceived(long gameId, SteamResult result) {
     }
 }

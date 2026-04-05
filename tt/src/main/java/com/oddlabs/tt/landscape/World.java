@@ -57,6 +57,7 @@ public final class World {
 
     private int global_checksum;
     private int gamespeed;
+    private int map_size;
 
     public static @NonNull LandscapeResources loadCommon(@NonNull RenderQueues queues) {
         LandscapeResources landscape_resources = new LandscapeResources(queues);
@@ -111,6 +112,10 @@ public final class World {
         return gamespeed;
     }
 
+    public int getMapSize() {
+        return map_size;
+    }
+
     public float getSecondsPerTick() {
         return GAMESPEEDS[gamespeed];
     }
@@ -157,6 +162,7 @@ public final class World {
         this.max_unit_count = world_params.getMaxUnitCount();
         this.notification_listener = notification_listener;
         this.gamespeed = world_params.getInitialGameSpeed();
+        this.map_size = world_params.getMapSize();
         long time_start = System.currentTimeMillis();
 
         world = new HeightMap(this, world_info.meters_per_world(), world_info.sea_level_meters(), world_info.texels_per_colormap(), world_info.chunks_per_colormap(), world_info.heightmap(), world_info.trees(), world_info.access_grid(), world_info.build_grid());

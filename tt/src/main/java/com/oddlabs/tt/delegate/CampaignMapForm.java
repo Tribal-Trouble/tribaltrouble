@@ -23,6 +23,8 @@ import com.oddlabs.tt.player.campaign.Campaign;
 import com.oddlabs.tt.player.campaign.CampaignState;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.steam.SteamAchievementNames;
+import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.util.Utils;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
@@ -84,6 +86,11 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
                             campaign.getIcons().getFaces()[0],
                             Origin.AT_START,
                             runnable_next);
+                    if (campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_NORMAL) {
+                        SteamManager.unlockAchievement(SteamAchievementNames.COMPLETE_VIKING_CAMPAIGN_NORMAL);
+                    } else if (campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_HARD) {
+                        SteamManager.unlockAchievement(SteamAchievementNames.COMPLETE_VIKING_CAMPAIGN_HARD);
+                    }
                     gui_root.addModalForm(dialog);
                     Settings.getSettings().has_native_campaign = true;
                 }
@@ -101,6 +108,11 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
                             campaign.getIcons().getFaces()[0],
                             Origin.AT_START,
                             runnable);
+                    if (campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_NORMAL) {
+                        SteamManager.unlockAchievement(SteamAchievementNames.COMPLETE_NATIVE_CAMPAIGN_NORMAL);
+                    } else if (campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_HARD) {
+                        SteamManager.unlockAchievement(SteamAchievementNames.COMPLETE_NATIVE_CAMPAIGN_HARD);
+                    }
                     gui_root.addModalForm(dialog);
                 }
             }

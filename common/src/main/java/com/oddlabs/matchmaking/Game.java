@@ -9,6 +9,8 @@ public final class Game implements Serializable {
     @Serial
     private static final long serialVersionUID = 3;
 
+    // Map size not applicable (tutorials, campaigns use fixed terrain sizes)
+    public static final int SIZE_NONE = -1;
     public static final int SIZE_SMALL = 0;
     public static final int SIZE_MEDIUM = 1;
     public static final int SIZE_LARGE = 2;

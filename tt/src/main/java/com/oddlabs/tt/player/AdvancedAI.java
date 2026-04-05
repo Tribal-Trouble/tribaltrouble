@@ -63,6 +63,10 @@ public final class AdvancedAI extends AI {
         this.difficulty = difficulty;
     }
 
+    public int getDifficulty() {
+        return difficulty;
+    }
+
     @Override
     public void animate(float t) {
         if (!shouldDoAction(t))

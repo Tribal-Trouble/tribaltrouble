@@ -1,11 +1,15 @@
 package com.oddlabs.tt.trigger;
 
+import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.net.PeerHub;
+import com.oddlabs.tt.player.AdvancedAI;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
+import com.oddlabs.tt.steam.SteamAchievementNames;
+import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
@@ -57,11 +61,53 @@ public final class GameOverTrigger implements Animated {
             }
         }
         if (!enemy_alive) {
+            tryUnlockAchievements(local_player, players);
             doGameWon();
             return;
         }
         if (countTeams(players) < 2) {
             stop();
+        }
+    }
+
+    private void tryUnlockAchievements(@NonNull Player local_player, Player @NonNull [] players) {
+        if (SteamManager.getInstance() == null) return;
+        // Ludicrous speed only
+        if (viewer.getWorld().getGamespeed() != 4) return;
+
+        int ai_team = -1;
+        boolean is_player_alone = true;
+        boolean all_hards_same_team = true;
+        int hard_ais_on_same_team = 0;
+        int current_player_team = local_player.getPlayerInfo().getTeam();
+
+        for (Player current : players) {
+            if (current != local_player && current.getPlayerInfo().getTeam() == current_player_team) {
+                is_player_alone = false;
+                break;
+            }
+
+            if (current != local_player
+                    && current.getAI() instanceof AdvancedAI ai
+                    && ai.getDifficulty() == AdvancedAI.DIFFICULTY_HARD) {
+                if (ai_team == -1) {
+                    ai_team = current.getPlayerInfo().getTeam();
+                    hard_ais_on_same_team++;
+                } else if (current.getPlayerInfo().getTeam() == ai_team) {
+                    hard_ais_on_same_team++;
+                } else {
+                    all_hards_same_team = false;
+                }
+            }
+        }
+
+        if (!is_player_alone || !all_hards_same_team) return;
+
+        int map_size = viewer.getWorld().getMapSize();
+        if (hard_ais_on_same_team >= 3 && map_size == Game.SIZE_SMALL) {
+            SteamManager.unlockAchievement(SteamAchievementNames.BEAT_3_HARDS_ON_SMALL);
+        } else if (hard_ais_on_same_team >= 5 && map_size == Game.SIZE_MEDIUM) {
+            SteamManager.unlockAchievement(SteamAchievementNames.BEAT_5_HARDS_ON_MEDIUM);
         }
     }
 

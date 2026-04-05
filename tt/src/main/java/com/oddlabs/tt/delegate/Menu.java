@@ -299,10 +299,10 @@ public abstract class Menu extends CameraDelegate<Camera> {
         }
     }
 
-    public final @NonNull GameNetwork joinGame(@NonNull NetworkSelector network, GUI gui, int host_id, boolean rated, int gamespeed, @NonNull String map_code, SelectGameMenu owner, float random_start_pos, int max_unit_count) {
+    public final @NonNull GameNetwork joinGame(@NonNull NetworkSelector network, GUI gui, int host_id, boolean rated, int gamespeed, @NonNull String map_code, SelectGameMenu owner, float random_start_pos, int max_unit_count, int map_size) {
         GUIRoot gui_root = getGUIRoot();
         Client client = new Client(null, network, gui, host_id, new WorldParameters(gamespeed, map_code, Player.INITIAL_UNIT_COUNT,
-                max_unit_count),
+                max_unit_count, map_size),
                 new MultiplayerInGameInfo(random_start_pos, rated),
                 new DefaultWorldInitAction());
         GameNetwork game_network = new GameNetwork(null, client);
