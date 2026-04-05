@@ -272,7 +272,12 @@ public final class GUIRoot extends GUIObject {
         if (event.getPhase() == InputPhase.PRESSED) {
             boolean consumed = false;
 
-            if (event.hasActions()) {
+            // Skip global keybinds when a text field is focused so that
+            // Ctrl+A/C/V/X reach the text field instead of triggering game actions.
+            boolean textFieldFocused = current_gui_object instanceof TextField
+                    || global_focus instanceof TextField;
+
+            if (event.hasActions() && !textFieldFocused) {
                 if (event.consumeAction(GameAction.GLOBAL_SCREENSHOT)) {
                     String filename = GLUtils.takeScreenshot("");
                     info_printer.print(i18n("screenshot_message", filename));
