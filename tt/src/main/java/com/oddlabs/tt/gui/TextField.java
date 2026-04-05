@@ -11,7 +11,7 @@ import org.jspecify.annotations.NonNull;
 public abstract class TextField extends GUIObject implements CharSequence {
     private final @NonNull StringBuilder text;
     private final @NonNull Font font;
-    private final int max_chars;
+    protected final int max_chars;
 
     public TextField(@NonNull Font font, int max_chars) {
         this("", font, max_chars);

@@ -19,6 +19,10 @@ import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -30,6 +34,8 @@ public class EditLine extends TextField implements Clipped {
 
     private int offset_x;
     private int index;
+    private int selectionStart = -1;
+    private int selectionEnd = -1;
 
     private long errorFlashStart = 0;
     private static final Audio ERROR_SOUND = Resources.findResource(new AudioFile("/sfx/chicken_peck.ogg"));
@@ -91,6 +97,7 @@ public class EditLine extends TextField implements Clipped {
             int cursorX = getRenderedWidth(displayText.subSequence(0, render_index));
             Index.renderIndex(renderer, box.getLeftOffset() + offset_x + cursorX, box.getBottomOffset(), getFont(), Color.WHITE);
         }
+        renderSelectionHighlight(renderer, displayText, box, offset_x);
     }
 
     @Override
@@ -122,6 +129,21 @@ public class EditLine extends TextField implements Clipped {
         }
 
         if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+            // Try selection/clipboard shortcuts first
+            if (handleClipboardInput(event) || handleSelectionNavigation(event)) {
+                correctOffsetX();
+                event.consume();
+                return;
+            }
+
+            // If there's a selection and the user types/deletes, handle it before basic nav
+            if (handleSelectionReplacement(event)) {
+                correctOffsetX();
+                event.consume();
+                return;
+            }
+
+            // Basic navigation and editing (Bondolo's original logic)
             boolean consumed = true;
 
             if (event.consumeAction(GameAction.UI_NAV_LEFT)) {
@@ -214,6 +236,7 @@ public class EditLine extends TextField implements Clipped {
     public final void clear() {
         super.clear();
         index = 0;
+        clearSelection();
         correctOffsetX();
     }
 
@@ -226,6 +249,7 @@ public class EditLine extends TextField implements Clipped {
     protected void focusNotify(boolean focus) {
         if (focus)
             index = getText().length();
+        clearSelection();
     }
 
     @Override
@@ -255,6 +279,7 @@ public class EditLine extends TextField implements Clipped {
                 }
             }
             index = bestIndex;
+            clearSelection();
             correctOffsetX();
         }
     }
@@ -273,4 +298,230 @@ public class EditLine extends TextField implements Clipped {
     public final void addEnterListener(@NonNull EnterListener listener) {
         enter_listeners.add(listener);
     }
+
+    //region Selection Input Handling
+
+    /** Handle Ctrl+C/V/X/A clipboard shortcuts. Returns true if handled. */
+    private boolean handleClipboardInput(@NonNull InputEvent event) {
+        boolean ctrl = event.isControlDown() || event.isMetaDown();
+        if (!ctrl) return false;
+
+        if (event.getKeyCode() == Key.A) {
+            selectionStart = 0;
+            selectionEnd = getText().length();
+            index = selectionEnd;
+            return true;
+        } else if (event.getKeyCode() == Key.C) {
+            copyToClipboard();
+            return true;
+        } else if (event.getKeyCode() == Key.V) {
+            pasteFromClipboard();
+            return true;
+        } else if (event.getKeyCode() == Key.X) {
+            cutToClipboard();
+            return true;
+        }
+        return false;
+    }
+
+    /** Handle shift+arrow selection and ctrl+arrow word jump. Returns true if handled. */
+    private boolean handleSelectionNavigation(@NonNull InputEvent event) {
+        boolean shift = event.isShiftDown();
+        boolean ctrl = event.isControlDown() || event.isMetaDown();
+
+        // Only handle shift-navigation or ctrl+arrow word jumps here
+        if (!shift && !ctrl) return false;
+
+        int oldIndex = index;
+
+        // Word jumping uses raw key codes intentionally — Ctrl+Left/Right is a universal
+        // OS text editing convention and should not be rebindable via GameAction bindings.
+        if (ctrl && event.getKeyCode() == Key.LEFT) {
+            index = wordBoundaryLeft(index);
+            updateSelection(shift, oldIndex);
+            return true;
+        } else if (ctrl && event.getKeyCode() == Key.RIGHT) {
+            index = wordBoundaryRight(index);
+            updateSelection(shift, oldIndex);
+            return true;
+        } else if (shift && event.consumeAction(GameAction.UI_NAV_LEFT)) {
+            if (index > 0) index--;
+            updateSelection(true, oldIndex);
+            return true;
+        } else if (shift && event.consumeAction(GameAction.UI_NAV_RIGHT)) {
+            if (index < getText().length()) index++;
+            updateSelection(true, oldIndex);
+            return true;
+        } else if (shift && event.consumeAction(GameAction.UI_NAV_HOME)) {
+            index = 0;
+            updateSelection(true, oldIndex);
+            return true;
+        } else if (shift && event.consumeAction(GameAction.UI_NAV_END)) {
+            index = getText().length();
+            updateSelection(true, oldIndex);
+            return true;
+        }
+        return false;
+    }
+
+    /** If there's an active selection and the user types, backspaces, or deletes,
+     *  replace/delete the selection. Returns true if handled, false to fall through
+     *  to basic navigation. */
+    private boolean handleSelectionReplacement(@NonNull InputEvent event) {
+        if (!hasSelection()) return false;
+
+        if (event.hasAction(GameAction.UI_BACKSPACE) || event.hasAction(GameAction.UI_DELETE)) {
+            event.consumeAction(GameAction.UI_BACKSPACE);
+            event.consumeAction(GameAction.UI_DELETE);
+            deleteSelection();
+            return true;
+        }
+
+        if (!event.isControlDown() && !event.isMetaDown() && !event.isAltDown()) {
+            char c = event.getCharacter();
+            if (c != 0 && !Character.isISOControl(c)) {
+                deleteSelection();
+                boolean result = insert(index, c);
+                if (!result) triggerError();
+                return true;
+            }
+        }
+
+        // Arrow keys with selection but no shift — jump to selection edge and clear
+        if (!event.isShiftDown()) {
+            if (event.hasAction(GameAction.UI_NAV_LEFT) || event.hasAction(GameAction.UI_NAV_HOME)) {
+                event.consumeAction(GameAction.UI_NAV_LEFT);
+                event.consumeAction(GameAction.UI_NAV_HOME);
+                index = Math.min(selectionStart, selectionEnd);
+                clearSelection();
+                return true;
+            }
+            if (event.hasAction(GameAction.UI_NAV_RIGHT) || event.hasAction(GameAction.UI_NAV_END)) {
+                event.consumeAction(GameAction.UI_NAV_RIGHT);
+                event.consumeAction(GameAction.UI_NAV_END);
+                index = Math.max(selectionStart, selectionEnd);
+                clearSelection();
+                return true;
+            }
+            clearSelection();
+        }
+        return false;
+    }
+
+    //endregion
+
+    //region Selection Rendering
+
+    private void renderSelectionHighlight(@NonNull GUIRenderer renderer, @NonNull CharSequence displayText, @NonNull Box box, int offset_x) {
+        if (!hasSelection()) return;
+        int selStartX = getRenderedWidth(displayText.subSequence(0, selectionStart));
+        int selEndX = getRenderedWidth(displayText.subSequence(0, selectionEnd));
+        int highlightLeft = Math.max(box.getLeftOffset() + offset_x + Math.min(selStartX, selEndX), box.getLeftOffset() + 1);
+        int highlightRight = Math.min(box.getLeftOffset() + offset_x + Math.max(selStartX, selEndX), getWidth() - box.getRightOffset() - 1);
+        if (highlightRight > highlightLeft) {
+            renderer.drawColoredQuad(highlightLeft, box.getBottomOffset(), highlightRight - highlightLeft, getFont().getHeight(), new Vector4f(0.3f, 0.5f, 1.0f, 0.4f));
+        }
+    }
+
+    //endregion
+
+    //region Selection State & Clipboard
+
+    private boolean hasSelection() {
+        return selectionStart != -1 && selectionEnd != -1 && selectionStart != selectionEnd;
+    }
+
+    private void clearSelection() {
+        selectionStart = -1;
+        selectionEnd = -1;
+    }
+
+    private boolean deleteSelection() {
+        if (!hasSelection()) return false;
+        int start = Math.min(selectionStart, selectionEnd);
+        int end = Math.max(selectionStart, selectionEnd);
+        String contents = getContents();
+        String newContent = contents.substring(0, start) + contents.substring(end);
+        set(newContent);
+        index = start;
+        clearSelection();
+        return true;
+    }
+
+    private void updateSelection(boolean shiftDown, int oldIndex) {
+        if (shiftDown) {
+            if (selectionStart == -1) {
+                selectionStart = oldIndex;
+                selectionEnd = index;
+            } else {
+                if (oldIndex == selectionStart) {
+                    selectionStart = index;
+                } else {
+                    selectionEnd = index;
+                }
+            }
+            if (selectionStart > selectionEnd) {
+                int tmp = selectionStart;
+                selectionStart = selectionEnd;
+                selectionEnd = tmp;
+            }
+        } else {
+            clearSelection();
+        }
+    }
+
+    private void copyToClipboard() {
+        if (!hasSelection()) return;
+        String selectedText = getContents().substring(
+                Math.min(selectionStart, selectionEnd),
+                Math.max(selectionStart, selectionEnd));
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(new StringSelection(selectedText), null);
+    }
+
+    private void pasteFromClipboard() {
+        try {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            String text = (String) clipboard.getData(DataFlavor.stringFlavor);
+            if (text == null || text.isEmpty()) return;
+
+            for (char c : text.toCharArray()) {
+                if (!isAllowed(c)) return;
+            }
+
+            deleteSelection();
+
+            String contents = getContents();
+            String newContent = contents.substring(0, index) + text + contents.substring(index);
+            if (max_chars != -1 && newContent.length() > max_chars) return;
+            set(newContent);
+            index = Math.min(index + text.length(), newContent.length());
+        } catch (Exception e) {
+            System.err.println("Error accessing clipboard: " + e.getMessage());
+        }
+    }
+
+    private void cutToClipboard() {
+        if (!hasSelection()) return;
+        copyToClipboard();
+        deleteSelection();
+    }
+
+    private int wordBoundaryLeft(int pos) {
+        String contents = getContents();
+        int i = pos - 1;
+        while (i > 0 && contents.charAt(i) == ' ') i--;
+        while (i > 0 && contents.charAt(i - 1) != ' ') i--;
+        return Math.max(0, i);
+    }
+
+    private int wordBoundaryRight(int pos) {
+        String contents = getContents();
+        int i = pos;
+        while (i < contents.length() && contents.charAt(i) == ' ') i++;
+        while (i < contents.length() && contents.charAt(i) != ' ') i++;
+        return i;
+    }
+
+    //endregion
 }
