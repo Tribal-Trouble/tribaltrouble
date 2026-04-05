@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public final strictfp class SailBehaviour implements Behaviour {
-    private static final float SHIP_SPEED = 2.0f;
+    private static final float SHIP_SPEED = 0.2f;
     private static final float DESTINATION_THRESHOLD = 2.0f;
     private static final int NO_COLLISION = 0;
     private static final int RESOLVABLE_COLLISION = 1;
