@@ -4,6 +4,7 @@ import com.oddlabs.event.Deterministic;
 import com.oddlabs.net.MonotoneTimeManager;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.form.QuitForm;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
@@ -178,6 +179,7 @@ public final class AnimationManager {
                 execution_time -= ANIMATION_MILLISECONDS_PER_TICK;
                 checksum_millisecond_counter += ANIMATION_MILLISECONDS_PER_TICK;
                 if (checksum_millisecond_counter >= ANIMATION_MILLISECONDS_PER_CHECKSUM) {
+                    SteamManager.runCallbacks();
                     checksum_millisecond_counter -= ANIMATION_MILLISECONDS_PER_CHECKSUM;
                     int checksum = LocalEventQueue.getQueue().computeChecksum();
                     int logged_checksum = deterministic.log(checksum);

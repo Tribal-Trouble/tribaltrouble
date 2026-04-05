@@ -35,6 +35,12 @@ application {
 dependencies {
     implementation(project(":common"))
     implementation(project(":assets"))
+    implementation("com.code-disaster.steamworks4j:steamworks4j:1.10.0")
+}
+
+// steamworks4j lacks module-info, so it stays on the classpath as the unnamed module.
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.addAll(listOf("--add-reads", "com.oddlabs.tt=ALL-UNNAMED"))
 }
 
 // --- Revision ---

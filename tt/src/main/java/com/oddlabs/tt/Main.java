@@ -1,6 +1,7 @@
 package com.oddlabs.tt;
 
 import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
@@ -38,6 +39,7 @@ public final class Main {
     }
 
     public static void shutdown(int status) {
+        SteamManager.shutdown();
         Renderer.getRenderer().close();
         logger.info("Exiting");
         System.exit(status);
@@ -46,6 +48,7 @@ public final class Main {
     static void main(@NonNull String @NonNull ... args) {
         int status = 1;
         try {
+            SteamManager.init();
             logger.info("Starting game....");
             Renderer.getRenderer().run(args);
             status = 0;

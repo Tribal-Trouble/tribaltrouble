@@ -252,8 +252,9 @@ gradle-app.setting
 .idea/
 .vs/
 *.iml
-server/server.properties
+**/server.properties
 server/logs/
 /common/src/main/resources/fonts/Impact.ttf
 /common/src/main/resources/fonts/Tahoma.ttf
 /.gradle_local/
+**/steam_appid.txt
