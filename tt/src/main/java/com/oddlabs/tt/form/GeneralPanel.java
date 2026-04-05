@@ -105,12 +105,22 @@ public class GeneralPanel extends Panel {
         pb_gamespeed.place(label_gamespeed, RIGHT_MID);
         group_gamespeed.compileCanvas();
 
+        // Show compass
+        Group group_show_compass = new Group();
+        addChild(group_show_compass);
+        CheckBox cb_show_compass = new CheckBox(Settings.getSettings().show_compass, AbstractOptionsMenu.i18n("show_compass"), AbstractOptionsMenu.i18n("show_compass_tip"));
+        cb_show_compass.addCheckBoxListener(marked -> Settings.getSettings().show_compass = marked);
+        group_show_compass.addChild(cb_show_compass);
+        cb_show_compass.place();
+        group_show_compass.compileCanvas();
+
         // Placement
         group_gamespeed.place();
         group_mapmode.place(group_gamespeed, BOTTOM_LEFT);
         group_tooltip.place(group_mapmode, BOTTOM_LEFT);
         group_invert_camera.place(group_tooltip, BOTTOM_LEFT);
         group_aggressive_units.place(group_invert_camera, BOTTOM_LEFT);
+        group_show_compass.place(group_aggressive_units, BOTTOM_LEFT);
         compileCanvas();
     }
 

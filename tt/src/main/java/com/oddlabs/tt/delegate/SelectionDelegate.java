@@ -20,6 +20,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.UnitTemplate;
 import com.oddlabs.tt.model.behaviour.IdleController;
+import com.oddlabs.tt.render.CompassRenderer;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
@@ -502,6 +503,12 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     @Override
     public void render2D(@NonNull GUIRenderer renderer) {
+        if (com.oddlabs.tt.global.Settings.getSettings().show_compass && getCamera() != null) {
+            float horizAngle = getCamera().getState().getHorizAngle();
+            CompassRenderer.render(renderer, Skin.getSkin().getEditFont(),
+                    horizAngle, getGUIRoot().getWidth(), getGUIRoot().getHeight());
+        }
+
         if (selection) {
             float minX = Math.min(selection_x1, selection_x2);
             float minY = Math.min(selection_y1, selection_y2);

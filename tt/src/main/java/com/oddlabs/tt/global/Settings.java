@@ -70,6 +70,7 @@ public final class Settings implements Serializable {
     // control
     public boolean invert_camera_pitch = false;
     public boolean aggressive_units = false;
+    public boolean show_compass = true;
 
     public float mapmode_delay = .5f;
     public float tooltip_delay = .5f;
@@ -158,6 +159,7 @@ public final class Settings implements Serializable {
         setProperty(props, "view_samples", view_samples, defaults.view_samples);
         setProperty(props, "invert_camera_pitch", invert_camera_pitch, defaults.invert_camera_pitch);
         setProperty(props, "aggressive_units", aggressive_units, defaults.aggressive_units);
+        setProperty(props, "show_compass", show_compass, defaults.show_compass);
         setProperty(props, "mapmode_delay", mapmode_delay, defaults.mapmode_delay);
         setProperty(props, "tooltip_delay", tooltip_delay, defaults.tooltip_delay);
         setProperty(props, "ui_scale", ui_scale, defaults.ui_scale);
@@ -218,6 +220,7 @@ public final class Settings implements Serializable {
         view_samples = getInt(props, "view_samples", view_samples);
         invert_camera_pitch = getBoolean(props, "invert_camera_pitch", invert_camera_pitch);
         aggressive_units = getBoolean(props, "aggressive_units", aggressive_units);
+        show_compass = getBoolean(props, "show_compass", show_compass);
         mapmode_delay = getFloat(props, "mapmode_delay", mapmode_delay);
         tooltip_delay = getFloat(props, "tooltip_delay", tooltip_delay);
         ui_scale = getFloat(props, "ui_scale", ui_scale);
