@@ -2,6 +2,7 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.Menu;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.Form;
@@ -157,7 +158,7 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
         } else if (e instanceof InvalidClassException) {
         } else {
             logger.log(Level.SEVERE, "Load failed", e);
-            String failed_message = i18n("failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
+            String failed_message = i18n("failed_message", Globals.getSavegamesFileName(), e.getMessage());
             gui_root.addModalForm(new MessageForm(failed_message));
         }
     }

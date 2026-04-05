@@ -1,5 +1,6 @@
 package com.oddlabs.tt.global;
 
+import com.oddlabs.tt.steam.SteamManager;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -17,7 +18,25 @@ public final class Globals {
     public static final boolean[] INSERT_PLANTS = new boolean[]{false, true, true};
 
     public static final String GAME_NAME = "TribalTrouble";
-    public static final Path SETTINGS_FILE_NAME = Path.of("settings");
+    private static final String SETTINGS_FILE_NAME = "settings";
+
+    private static final String SAVEGAMES_FILE_NAME = "savegames";
+
+    public static @NonNull Path getSettingsFileName() {
+        return steamPrefixed(SETTINGS_FILE_NAME);
+    }
+
+    public static @NonNull Path getSavegamesFileName() {
+        return steamPrefixed(SAVEGAMES_FILE_NAME);
+    }
+
+    private static @NonNull Path steamPrefixed(@NonNull String name) {
+        SteamManager steam = SteamManager.getInstance();
+        if (steam != null) {
+            return Path.of(steam.getAccountID() + "." + name);
+        }
+        return Path.of(name);
+    }
 
     public static boolean run_ai = true;
 

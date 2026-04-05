@@ -33,6 +33,7 @@ import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.state.GLRenderContext;
 import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.FogInfo;
+import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.resource.IslandGenerator;
 import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.tt.resource.Resources;
@@ -251,6 +252,25 @@ public final class Renderer implements AutoCloseable {
         return getPropertyPath("user.home");
     }
 
+    private static @Nullable Path getSteamSaveDir() {
+        if (SteamManager.getInstance() == null) return null;
+        try {
+            java.security.CodeSource codeSource = Renderer.class.getProtectionDomain().getCodeSource();
+            if (codeSource != null) {
+                Path jarPath = Path.of(codeSource.getLocation().toURI());
+                Path appDir = jarPath.getParent();
+                if (appDir != null) {
+                    Path saveDir = appDir.resolve("save_data");
+                    Files.createDirectories(saveDir);
+                    return saveDir;
+                }
+            }
+        } catch (Exception e) {
+            logger.warning("Failed to resolve Steam save path, falling back to default: " + e.getMessage());
+        }
+        return null;
+    }
+
     private static boolean isUsable(@Nullable Path path) {
         if (path == null) return false;
         try {
@@ -279,6 +299,13 @@ public final class Renderer implements AutoCloseable {
         Path dataDir = null;
         Path logDir = null;
         boolean portable = false;
+
+        // 0. Steam Mode — save data next to the install for Steam Cloud sync
+        Path steamDir = getSteamSaveDir();
+        if (steamDir != null) {
+            dataDir = steamDir;
+            portable = true;
+        }
 
         // 1. Check for Portable Mode (CWD)
         // If a game directory exists in the current working directory, use it.

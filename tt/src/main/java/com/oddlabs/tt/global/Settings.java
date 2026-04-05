@@ -195,7 +195,7 @@ public final class Settings implements Serializable {
 
         Renderer.getLocalInput().getInputManager().saveBindings(props);
 
-        Path settings_file = Renderer.getLocalInput().getGameDir().resolve(Globals.SETTINGS_FILE_NAME);
+        Path settings_file = Renderer.getLocalInput().getGameDir().resolve(Globals.getSettingsFileName());
         try (OutputStream out = Files.newOutputStream(settings_file)) {
             props.store(out, Instant.now().toString());
         } catch (IOException e) {
@@ -205,7 +205,7 @@ public final class Settings implements Serializable {
 
     public void load(@NonNull Path game_dir) {
         Properties props = new Properties();
-        Path settings_file = game_dir.resolve(Globals.SETTINGS_FILE_NAME);
+        Path settings_file = game_dir.resolve(Globals.getSettingsFileName());
         if (!Files.exists(settings_file)) {
             return;
         }

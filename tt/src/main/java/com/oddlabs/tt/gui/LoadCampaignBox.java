@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.form.MessageForm;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.player.campaign.CampaignState;
@@ -22,8 +23,6 @@ import java.util.logging.Logger;
 
 public final class LoadCampaignBox extends GUIObject implements DeterministicSerializerLoopbackInterface<CampaignState[]> {
     private static final Logger logger = Logger.getLogger(LoadCampaignBox.class.getSimpleName());
-    public static final Path SAVEGAMES_FILE_NAME = Path.of("savegames");
-
     private static final int WIDTH_NAME = 210;
     private static final int WIDTH_RACE = 70;
     private static final int WIDTH_DIFFICULTY = 130;
@@ -58,7 +57,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
     }
 
     private static @NonNull Path getSaveSavegamesFile() {
-        return Renderer.getLocalInput().getGameDir().resolve(SAVEGAMES_FILE_NAME);
+        return Renderer.getLocalInput().getGameDir().resolve(Globals.getSavegamesFileName());
     }
 
     public static <T> void loadSavegames(@NonNull DeterministicSerializerLoopbackInterface<T> callback) {
@@ -67,7 +66,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 
     private static @NonNull Path getLoadSavegamesFile() {
         Path file = getSaveSavegamesFile();
-        return !Files.isReadable(file) ? Utils.getInstallDir().resolve(SAVEGAMES_FILE_NAME) : file;
+        return !Files.isReadable(file) ? Utils.getInstallDir().resolve(Globals.getSavegamesFileName()) : file;
     }
 
     @Override
@@ -126,10 +125,10 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
         logger.log(Level.SEVERE, "Failed to load savegames", e);
         if (e instanceof FileNotFoundException || e instanceof NoSuchFileException) {
         } else if (e instanceof InvalidClassException) {
-            String invalid_message = i18n("invalid_message", SAVEGAMES_FILE_NAME);
+            String invalid_message = i18n("invalid_message", Globals.getSavegamesFileName());
             gui_root.addModalForm(new MessageForm(invalid_message));
         } else {
-            String failed_message = i18n("failed_message", SAVEGAMES_FILE_NAME, e.getMessage());
+            String failed_message = i18n("failed_message", Globals.getSavegamesFileName(), e.getMessage());
             gui_root.addModalForm(new MessageForm(failed_message));
         }
     }

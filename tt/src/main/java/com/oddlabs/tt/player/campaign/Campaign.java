@@ -2,6 +2,7 @@ package com.oddlabs.tt.player.campaign;
 
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.CampaignMapForm;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.form.MessageForm;
 import com.oddlabs.tt.gui.CampaignIcons;
 import com.oddlabs.tt.gui.GUI;
@@ -94,7 +95,7 @@ public abstract class Campaign {
     }
 
     private void doFailed(@NonNull Throwable e, @NonNull WorldViewer viewer) {
-        String failed_message = i18n("failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
+        String failed_message = i18n("failed_message", Globals.getSavegamesFileName(), e.getMessage());
         viewer.getGUIRoot().addModalForm(new MessageForm(failed_message));
     }
 
