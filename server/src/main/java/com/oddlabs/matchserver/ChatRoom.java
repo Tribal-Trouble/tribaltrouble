@@ -63,7 +63,6 @@ public final class ChatRoom {
             return false;
         }
         users.add(client);
-        sendUsers();
         return true;
     }
 

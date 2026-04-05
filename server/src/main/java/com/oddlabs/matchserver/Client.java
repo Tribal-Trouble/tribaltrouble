@@ -504,6 +504,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
                     MatchmakingServer.getLogger().info(getProfile().getNick() + " joined chat room, name = " + room.getName());
                     current_room = room;
                     client_interface.joiningChatRoom(current_room.getName());
+                    room.sendUsers();
                     client_interface.receiveChatRoomMessage("Server", "Welcome to the Tribal Trouble multiplayer server. Please keep a proper tone while playing online: All activity in the chatrooms and the game is logged and any abusive behavior will result in the immediate banning from the multiplayer server at Oddlabs' discretion.");
                 } else {
                     client_interface.error(MatchmakingClientInterface.CHAT_ERROR_TOO_MANY_USERS);
