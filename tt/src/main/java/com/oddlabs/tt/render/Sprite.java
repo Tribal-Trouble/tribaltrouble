@@ -250,6 +250,7 @@ public final class Sprite {
 
         boolean useLighting = Globals.draw_light && lighted;
         shader.setUniform(SpriteShader.Uniforms.ENABLE_LIGHTING, useLighting);
+        shader.setUniform(SpriteShader.Uniforms.CLASSIC_LIGHTING, Globals.classic_lighting);
         shader.setUniform(SpriteShader.Uniforms.REPLACE_MODE, !useLighting && !modulate_color);
 
         if (modulate_color) {

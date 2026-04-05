@@ -60,6 +60,7 @@ public final class Globals {
     public static boolean draw_light = true;
     public static boolean draw_plants = true;
     public static boolean draw_debug_maps = false;
+    public static boolean classic_lighting = true;
 
     public static final boolean line_mode = false;
     public static boolean clear_frame_buffer = false;

@@ -288,6 +288,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
 
             boolean useLighting = Globals.draw_light && sprite.lighted;
             shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_LIGHTING, useLighting);
+            shader.setUniform(InstancedSpriteShader.Uniforms.CLASSIC_LIGHTING, Globals.classic_lighting);
             shader.setUniform(InstancedSpriteShader.Uniforms.REPLACE_MODE, !useLighting && !sprite.modulate_color);
             shader.setUniform(InstancedSpriteShader.Uniforms.DESATURATE, key.respond ? 0.5f : 0.0f);
 

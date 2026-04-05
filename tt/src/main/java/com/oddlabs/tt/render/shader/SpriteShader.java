@@ -21,6 +21,8 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
         String DESATURATE = "u_desaturate";
         String ALPHA_TEST_VALUE = "u_alphaTestValue";
 
+        String CLASSIC_LIGHTING = "u_classicLighting";
+
         // Fog Uniforms
         String FOG_HEIGHT_FACTOR = FogShader.FOG_HEIGHT_FACTOR;
     }
@@ -50,16 +52,25 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
                             out float v_fogDist;
                             out vec3 v_viewPosition;
                             out vec3 v_viewNormal;
-                            
+                            out vec3 v_lightIntensity;
+
                             void main() {
                                 vec4 viewPosition = u_modelViewMatrix * vec4(in_Position, 1.0);
                                 gl_Position = u_projectionMatrix * viewPosition;
                                 v_texCoord0 = in_TexCoord;
                                 v_color = u_color;
                                 v_fogDist = length(viewPosition.xyz);
-                            
+
                                 v_viewPosition = viewPosition.xyz;
                                 v_viewNormal = normalize((u_modelViewMatrix * vec4(in_Normal, 0.0)).xyz);
+
+                                if (u_enableLighting) {
+                                    vec3 lightDir = normalize(u_lightDirection);
+                                    float diff = max(dot(v_viewNormal, lightDir), 0.0);
+                                    v_lightIntensity = u_globalAmbient + vec3(diff);
+                                } else {
+                                    v_lightIntensity = vec3(1.0);
+                                }
                             }
                             """;
 
@@ -80,65 +91,68 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
                             uniform bool u_enableLighting;
                             uniform bool u_modulateColor;
                             uniform bool u_replaceMode;
+                            uniform bool u_classicLighting;
                             uniform vec4 u_decalColor;
                             uniform float u_desaturate;
                             uniform float u_alphaTestValue;
-                            
+
                             in vec2 v_texCoord0;
                             in vec4 v_color;
                             in float v_fogDist;
                             in vec3 v_viewPosition;
                             in vec3 v_viewNormal;
-                            
+                            in vec3 v_lightIntensity;
+
                             layout(location = 0) out vec4 out_FragColor;
                             layout(location = 1) out vec4 out_MaskColor;
-                            
+
                             void main() {
                                 vec4 base = texture(u_texture0, v_texCoord0);
                                 out_MaskColor = vec4(0.0);
-                            
+
                                 if (u_desaturate > 0.0) {
                                     base.rgb = mix(base.rgb, vec3(1.0), u_desaturate);
                                 }
-                            
+
                                 vec4 finalColor;
                                 if (u_replaceMode) {
                                     finalColor = base;
                                 } else if (u_modulateColor) {
                                     finalColor = v_color * base;
                                 } else {
-                                    // Apply lighting
-                                    vec3 normal = normalize(v_viewNormal);
-                                    float specularStrength = 0.0;
-                            
-                                    if (u_enableNormalMap) {
-                                        vec4 normalMapVal = texture(u_normalMap, v_texCoord0);
-                                        normal = perturbNormal(normal, normalize(v_viewPosition), v_texCoord0, normalMapVal.rgb);
-                                        specularStrength = normalMapVal.a;
+                                    vec3 lightIntensity;
+                                    if (u_classicLighting) {
+                                        lightIntensity = clamp(v_lightIntensity, 0.0, 1.0);
+                                    } else {
+                                        vec3 normal = normalize(v_viewNormal);
+                                        float specularStrength = 0.0;
+                                        if (u_enableNormalMap) {
+                                            vec4 normalMapVal = texture(u_normalMap, v_texCoord0);
+                                            normal = perturbNormal(normal, normalize(v_viewPosition), v_texCoord0, normalMapVal.rgb);
+                                            specularStrength = normalMapVal.a;
+                                        }
+                                        if (u_enableLighting) {
+                                            lightIntensity = calculateLighting(normal, v_viewPosition, specularStrength);
+                                        } else {
+                                            lightIntensity = vec3(1.0);
+                                        }
                                     }
-                            
-                                    vec3 lightIntensity = vec3(1.0);
-                                    if (u_enableLighting) {
-                                        lightIntensity = calculateLighting(normal, v_viewPosition, specularStrength);
-                                    }
-                            
+
                                     finalColor = vec4(v_color.rgb * base.rgb * lightIntensity, v_color.a * base.a);
-                            
+
                                     if (u_enableTeamColor) {
                                         vec4 tex1 = texture(u_texture1, v_texCoord0);
-                                        // Mix decal color
                                         vec3 mixedColor = mix(finalColor.rgb, u_decalColor.rgb * lightIntensity, tex1.rgb);
                                         finalColor.rgb = mixedColor;
-                            
-                                        // Write to Mask Buffer (Team Color)
+
                                         if (base.a > 0.1) {
                                             out_MaskColor = u_decalColor;
                                         }
                                     }
                                 }
-                            
+
                                 if (finalColor.a <= u_alphaTestValue) discard;
-                            
+
                                 float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
                                 out_FragColor = vec4(mix(u_fogColor.rgb, finalColor.rgb, fogFactor), finalColor.a);
                             }
