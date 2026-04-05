@@ -1,7 +1,9 @@
 package com.oddlabs.tt.net;
 
+import com.oddlabs.matchmaking.GamePlayer;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.Participant;
+import com.oddlabs.matchmaking.PlayerTypes;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.router.SessionID;
 import com.oddlabs.tt.animation.AnimationManager;
@@ -64,8 +66,9 @@ final class WorldStarter implements LoadCallback {
         if (initial_action != null)
             initial_action.run(viewer);
         Participant[] participants = getParticipants(viewer, player_slots);
+        GamePlayer[] gamePlayers = getGamePlayers(viewer, player_slots);
         if (Network.getMatchmakingClient().isConnected()) {
-            GameSession game_session = new GameSession(session_id, participants, ingame_info.isRated(), null);
+            GameSession game_session = new GameSession(session_id, participants, ingame_info.isRated(), gamePlayers);
             Network.getMatchmakingClient().getInterface().gameStartedNotify(game_session);
         }
         IO.println("PeerHub created (session_id = " + session_id + ") Player list:");
@@ -76,19 +79,34 @@ final class WorldStarter implements LoadCallback {
         List<Participant> participant_list = new ArrayList<>();
         Player[] players = viewer.getWorld().getPlayers();
         for (short i = 0; i < players.length; i++) {
-            Player player = players[i];
             if (player_slots[i].getType() != PlayerSlot.HUMAN)
                 continue;
-            int host_id;
-            if (player_slots[i].getAddress() != null)
-                host_id = player_slots[i].getAddress().getHostID();
-            else
-                host_id = -1;
-            Participant p = new Participant(host_id, player.getPlayerInfo().getName(), player.getPlayerInfo().getTeam(), player.getPlayerInfo().getRace());
-            participant_list.add(p);
+            Player player = players[i];
+            int host_id = player_slots[i].getAddress() != null ? player_slots[i].getAddress().getHostID() : -1;
+            participant_list.add(new Participant(host_id, player.getPlayerInfo().getName(), player.getPlayerInfo().getTeam(), player.getPlayerInfo().getRace()));
         }
-        Participant[] participants = new Participant[participant_list.size()];
-        participant_list.toArray(participants);
-        return participants;
+        return participant_list.toArray(new Participant[0]);
+    }
+
+    private static @NonNull GamePlayer @NonNull [] getGamePlayers(@NonNull WorldViewer viewer, @NonNull PlayerSlot @NonNull [] player_slots) {
+        Player[] players = viewer.getWorld().getPlayers();
+        GamePlayer[] gamePlayers = new GamePlayer[players.length];
+        for (short i = 0; i < players.length; i++) {
+            Player player = players[i];
+            PlayerTypes playerType = mapPlayerType(player_slots[i]);
+            String name = player_slots[i].getType() == PlayerSlot.HUMAN ? player.getPlayerInfo().getName() : null;
+            gamePlayers[i] = new GamePlayer(name, player.getPlayerInfo().getTeam(), player.getPlayerInfo().getRace(), playerType);
+        }
+        return gamePlayers;
+    }
+
+    private static @NonNull PlayerTypes mapPlayerType(@NonNull PlayerSlot slot) {
+        if (slot.getType() == PlayerSlot.HUMAN) return PlayerTypes.Human;
+        return switch (slot.getAIDifficulty()) {
+            case PlayerSlot.AI_EASY -> PlayerTypes.AIEasy;
+            case PlayerSlot.AI_NORMAL -> PlayerTypes.AINormal;
+            case PlayerSlot.AI_HARD -> PlayerTypes.AIHard;
+            default -> PlayerTypes.None;
+        };
     }
 }
