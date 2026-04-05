@@ -9,6 +9,7 @@ import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.GUIRenderer;
@@ -113,7 +114,8 @@ public class EditLine extends TextField implements Clipped {
     @Override
     protected void handleInput(@NonNull InputEvent event) {
         if (event.getPhase() == InputPhase.RELEASED) {
-            if (event.consumeAction(GameAction.UI_ACTIVATE)) {
+            // Only submit on Enter, not Space — both are mapped to UI_ACTIVATE
+            if (event.getKeyCode() == Key.RETURN && event.consumeAction(GameAction.UI_ACTIVATE)) {
                 enterPressedAll();
                 return;
             }
