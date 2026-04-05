@@ -6,6 +6,20 @@ Formatter will be added AFTER all porting is complete — keeps diffs clean duri
 
 ---
 
+## Attribution
+
+Before merging, do an interactive rebase to add proper co-author attribution to commits
+based on who contributed the original work being ported. Use `Co-Authored-By` trailers.
+
+| Contributor | GitHub | Work |
+|-------------|--------|------|
+| OmarAMokhtar | @OmarAMokhtar | Original fork maintainer, most features |
+| Maxenor | @Maxenor | Countdown before game (#135), gatherer count (#153) |
+| Bondolo | @bondolo | Base branch, LWJGL3 migration, rendering modernization |
+| RcubDev | @RcubDev | Porting, rework, server setup, bug fixes |
+
+---
+
 ## Porting Order
 
 ### Phase 1 — Foundation (DONE)
