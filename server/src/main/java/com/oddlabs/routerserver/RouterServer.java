@@ -4,6 +4,7 @@ import com.oddlabs.event.Deterministic;
 import com.oddlabs.event.NotDeterministic;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.router.Router;
+import com.oddlabs.matchserver.ServerConfiguration;
 import com.oddlabs.util.DBUtils;
 
 import java.util.logging.FileHandler;
@@ -57,7 +58,11 @@ public final class RouterServer {
 
     private static void postPanic() {
         try {
-            DBUtils.initConnection("jdbc:mysql://localhost/oddlabs", "matchmaker", "U46TawOp");
+            ServerConfiguration config = ServerConfiguration.getInstance();
+            DBUtils.initConnection(
+                    config.get(ServerConfiguration.DB_CONNECTION, "jdbc:mysql://localhost/oddlabs"),
+                    config.get(ServerConfiguration.DB_USER, "matchmaker"),
+                    config.get(ServerConfiguration.SQL_PASS, ""));
             DBUtils.postHermesMessage("elias, xar, jacob, thufir: Router crashed!");
         } catch (Throwable t) {
             logger.throwing("Router", "postPanic", t);

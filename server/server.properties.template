@@ -1,11 +1,3 @@
+DB_CONNECTION=jdbc:mysql://localhost/oddlabs
+DB_USER=matchmaker
 SQL_PASS=
-DISCORD_BOT_TOKEN=
-DISCORD_SERVER_ID=
-WEBSITE_DOMAIN=tribaltrouble.org
-
-# Steam API configuration for auth ticket validation
-STEAM_WEB_API_KEY=
-STEAM_APP_ID=
-
-# Authentication modes
-STEAM_ONLY_AUTH=false
