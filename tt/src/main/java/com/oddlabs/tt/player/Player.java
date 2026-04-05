@@ -18,6 +18,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.SupplyContainer;
 import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.model.behaviour.GatherController;
 import com.oddlabs.tt.model.behaviour.NullController;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
@@ -385,6 +386,51 @@ public final class Player implements PlayerInterface {
     public void deployUnits(@NonNull Building building, @NonNull DeployType type, int num_units) {
         if (isValid(building))
             building.deployUnits(type, num_units);
+    }
+
+    public int getGathererCount(@NonNull Class<? extends Supply> supply_type) {
+        int count = 0;
+        for (Selectable<?> s : units.getSet()) {
+            if (s instanceof Unit && s.getPrimaryController() instanceof GatherController<?> gather) {
+                if (gather.getSupplyType() == supply_type) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    @Override
+    public void recallGatherers(@NonNull Building building, @NonNull Class<? extends Supply> supply_type, int amount) {
+        if (!isValid(building)) return;
+
+        float bx = building.getPositionX();
+        float by = building.getPositionY();
+
+        for (int i = 0; i < amount; i++) {
+            Unit nearest = null;
+            float nearest_dist_sq = Float.MAX_VALUE;
+
+            for (Selectable<?> s : units.getSet()) {
+                if (s instanceof Unit unit && s.getPrimaryController() instanceof GatherController<?> gather) {
+                    if (gather.getSupplyType() == supply_type) {
+                        float dx = s.getPositionX() - bx;
+                        float dy = s.getPositionY() - by;
+                        float dist_sq = dx * dx + dy * dy;
+                        if (dist_sq < nearest_dist_sq) {
+                            nearest_dist_sq = dist_sq;
+                            nearest = unit;
+                        }
+                    }
+                }
+            }
+
+            if (nearest != null) {
+                nearest.initTarget(building, Action.DEFAULT, false);
+            } else {
+                break;
+            }
+        }
     }
 
     @Override

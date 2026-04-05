@@ -4,6 +4,7 @@ import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
@@ -38,6 +39,8 @@ public interface PlayerInterface {
     void setRallyPoint(@NonNull Building building, int grid_x, int grid_y);
 
     void setLandscapeTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action, boolean aggressive);
+
+    void recallGatherers(@NonNull Building building, @NonNull Class<? extends Supply> supply_type, int amount);
 
     void setPreferredGamespeed(int speed);
 
