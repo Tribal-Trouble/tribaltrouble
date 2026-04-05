@@ -144,6 +144,11 @@ public final class Landscape {
                 height_scale = 64;
                 access_threshold = 0.025f;
             }
+            case 2048 -> {
+                size_multiplier = 64;
+                height_scale = 76;
+                access_threshold = 0.02f;
+            }
             default -> {
                 size_multiplier = 0;
                 assert false : "illegal meters_per_world";

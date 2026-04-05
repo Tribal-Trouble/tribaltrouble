@@ -58,7 +58,7 @@ import static com.oddlabs.tt.gui.Placement.TOP_LEFT;
 import static com.oddlabs.tt.gui.Placement.TOP_MID;
 
 public final class TerrainMenu extends Group {
-    private static final int[] SIZES = new int[]{256, 512, 1024};
+    private static final int[] SIZES = new int[]{256, 512, 1024, 2048};
 
     private static final int SLIDER_LENGTH = 250;
     private static final int BUTTON_WIDTH = 100;
@@ -67,7 +67,7 @@ public final class TerrainMenu extends Group {
     private static final String SEED_CARDINALITY = "40000";
     private static final int SLIDER_CARDINALITY = 11;
     private static final int TERRAIN_TYPE_CARDINALITY = 2;
-    private static final int SIZE_CARDINALITY = 3;
+    private static final int SIZE_CARDINALITY = 4;
     private static final int DIFFICULTY_CARDINALITY = 4;
     private static final int RACE_CARDINALITY = 2;
     private static final int TEAM_CARDINALITY = 6;
@@ -185,6 +185,7 @@ public final class TerrainMenu extends Group {
         pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_SMALL)));
         pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_MEDIUM)));
         pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_LARGE)));
+        pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_ENORMOUS)));
 
         var pb_size = new PulldownButton<>(gui_root, pulldown_size, 1, 150);
         group_size.addChild(pb_size);
