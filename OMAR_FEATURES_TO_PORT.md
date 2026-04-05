@@ -37,33 +37,41 @@ Formatter will be added AFTER all porting is complete — keeps diffs clean duri
 
 ### Phase 4 — Gameplay Features
 
-10. **Enormous map size** (from #93) — add SIZE_ENORMOUS to TerrainMenu, Landscape, WordsEncoding. Separate from player
-    count changes
+10. ~~**Enormous map size**~~ (from #93) — added SIZE_ENORMOUS (2048m) to Game, TerrainMenu, Landscape. Fixed
+    SIZE_CARDINALITY (Omar's was broken at 3, now 4) so map codes round-trip correctly. Bondolo's instanced sprite
+    rendering eliminates Omar's ShortVBO tree overflow — no tree rendering hack needed. Colormap texture chunking
+    already handled by existing code.
+14. ~~**Compass indicator**~~ (#147) — fully reworked from Omar's immediate-mode GL11 implementation. New
+    CompassRenderer uses Bondolo's batched GUIRenderer pipeline (drawColoredQuad + font texture rendering). Hooked
+    into SelectionDelegate.render2D(). Settings toggle + options menu checkbox with Omar's original i18n strings.
+
+### Phase 5 — Server / Discord
+
+13. **Countdown before game** (#135) — countdown before multiplayer start (Maxenor). Requires working server.
 11. **Gatherer count + DeploySpinner fix** (#153, #159) — show gatherer count per resource (Maxenor) + fix DeploySpinner
-    constructor
-13. **Countdown before game** (#135) — countdown before multiplayer start (Maxenor)
-14. **Compass indicator** (#147) — shared directional reference
-
-### Phase 5 — Assets
-
-15. **Seasonal assets** (#130) — Christmas hats
-16. **Updated models** (#102) — updated 3D models/geometry
-
-### Phase 6 — Server / Discord
-
-17. **Discord bot + server DB** (#82, #90, #106, #118, #120, #142) — Discord4j integration, bot commands, emoji roles,
+    constructor. Adds `recallGatherers()` to PlayerInterface (multiplayer protocol change) — needs server testing.
+15. **Discord bot + server DB** (#82, #90, #106, #118, #120, #142) — Discord4j integration, bot commands, emoji roles,
     GitHub notifications, DB connection fixes. Modernize DBInterface with try-with-resources
 
-### Phase 7 — Big Features (defer until base is solid)
+### Phase 6 — Big Features (defer until base is solid)
 
-18. **Steam integration** (#119, #127, #128, #143, #131) — Steamworks4j, achievements, stats, login, arm64 support
-19. **Spectator mode** (#55, #154) — live game spectating, event streaming, catch-up logic
-20. **More players** (#79, #93, #84) — dynamic player count, ScrollableGroup, UI for >6 players. LAST — most invasive
+16. **Steam integration** (#119, #127, #128, #143, #131) — Steamworks4j, achievements, stats, login, arm64 support.
+    Also includes Omar's save/settings file relocation: `<install>/save_data/` for Steam cloud sync,
+    per-user file prefixing (`<steamAccountId>.settings`, `<steamAccountId>.savegames`). Bondolo already has
+    sophisticated path resolution in `Renderer.setupPaths()` (portable mode, XDG, %APPDATA%) — Omar's Steam-specific
+    paths need to be integrated into that system rather than replacing it.
+17. **Spectator mode** (#55, #154) — live game spectating, event streaming, catch-up logic
+18. **More players** (#79, #93, #84) — dynamic player count, ScrollableGroup, UI for >6 players. LAST — most invasive
 
-### Phase 8 — Final Polish
+### Phase 7 — Final Polish
 
-21. **Formatter + CI guard** — add google-java-format to gradle, format entire codebase, add formatCheck to CI workflow
+19. **Formatter + CI guard** — add google-java-format to gradle, format entire codebase, add formatCheck to CI workflow
     as PR gate
+
+### Phase 8 — Assets (non-code)
+
+20. **Seasonal assets** (#130) — Christmas hats
+21. **Updated models** (#102) — updated 3D models/geometry
 
 ---
 
