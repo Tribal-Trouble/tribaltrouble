@@ -83,6 +83,7 @@ dependencies {
     implementation("commons-dbcp:commons-dbcp:1.2.1")
     implementation("commons-collections:commons-collections:3.1")
     implementation("com.mysql:mysql-connector-j:9.3.0")
+    implementation("com.discord4j:discord4j-core:3.2.6")
 }
 
 tasks.register<JavaExec>("runMatchmaker") {

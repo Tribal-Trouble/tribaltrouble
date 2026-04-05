@@ -9,6 +9,8 @@ import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.matchmaking.Participant;
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.matchmaking.RankingEntry;
+import com.oddlabs.matchserver.discord.DiscordBotService;
+import com.oddlabs.matchserver.discord.commands.RegisterProfileToDiscordUserCommand;
 import com.oddlabs.net.ARMIEvent;
 import com.oddlabs.net.ARMIInterfaceMethods;
 import com.oddlabs.net.AbstractConnection;
@@ -160,6 +162,10 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 
     public Profile getProfile() {
         return active_profile;
+    }
+
+    public static Map<String, Client> getActiveClients() {
+        return active_clients;
     }
 
     public void freeQuitStopNotify() {
@@ -480,6 +486,8 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
                 String formatted_message = getProfile().getNick() + " has created a game called \"" + current_game.getName() + "\".";
                 server.getChatLogger().info(formatted_message);
                 current_room.sendMessage("Server", formatted_message);
+                DiscordBotService.getInstance().getChatroomCoordinator()
+                        .ifPresent(coordinator -> coordinator.sendDiscordMessage(current_room, "Server", formatted_message));
             }
         }
     }
@@ -525,6 +533,10 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
             }
             Client client = (Client) active_clients.get(nick.toLowerCase());
             if (client != null) {
+                // Check for Discord profile registration response
+                if (getProfile().getNick().toLowerCase().equals(nick.toLowerCase())) {
+                    checkForRegisterProfileToDiscordResponse(nick, msg);
+                }
                 server.getChatLogger().info("To " + nick + ": " + formatChat(msg));
                 client.getClientInterface().receivePrivateMessage(getProfile().getNick(), msg);
                 if (client != this)
@@ -545,6 +557,15 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
         }
     }
 
+    private void checkForRegisterProfileToDiscordResponse(String nick, String msg) {
+        if (RegisterProfileToDiscordUserCommand.processingProfiles.containsKey(nick.toLowerCase())) {
+            String trimmed = msg.trim().toLowerCase();
+            if (trimmed.equals("/y") || trimmed.equals("/yes")) {
+                RegisterProfileToDiscordUserCommand.processingProfiles.get(nick.toLowerCase()).run();
+            }
+        }
+    }
+
     private String formatChat(String message) {
         return "<" + getProfile().getNick() + "> " + message;
     }
@@ -558,6 +579,8 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
             String formatted_message = formatChat(msg);
             server.getChatLogger().info(formatted_message);
             current_room.sendMessage(getProfile().getNick(), msg);
+            DiscordBotService.getInstance().getChatroomCoordinator()
+                    .ifPresent(coordinator -> coordinator.sendDiscordMessage(current_room, getProfile().getNick(), formatted_message));
         }
     }
 

@@ -9,6 +9,7 @@ import com.oddlabs.net.ConnectionListener;
 import com.oddlabs.net.ConnectionListenerInterface;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.net.SecureConnection;
+import com.oddlabs.matchserver.discord.DiscordBotService;
 import com.oddlabs.util.DBUtils;
 import com.oddlabs.util.KeyManager;
 
@@ -35,6 +36,12 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
     private final AlgorithmParameterSpec param_spec;
     private final NetworkSelector network;
     private final Map<Integer, Client> client_map = new HashMap<>();
+
+    /**
+     * Server tick timeout in milliseconds. 0 when no users online (block on network only).
+     * Set to 100ms when users are online to allow Discord message processing.
+     */
+    private int server_tick_timeout = 0;
 
     static {
         try {
@@ -67,7 +74,7 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
         DBInterface.clearOnlineProfiles();
         logger.info("Matchmaking server started.");
         while (true)
-            network.tickBlocking();
+            network.tickBlocking(server_tick_timeout);
     }
 
     public static Logger getLogger() {
@@ -103,6 +110,10 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
         online_users.put(username.toLowerCase(), client);
         client_map.put(client.getHostID(), client);
         logger.info(username + " logged in");
+        if (online_users.size() == 1) {
+            logger.info("A user is online, starting automatic server ticking.");
+            server_tick_timeout = 100;
+        }
     }
 
     public Client getClientFromID(int host_id) {
@@ -117,6 +128,10 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
     public void logoutClient(Client client) {
         online_users.remove(client.getUsername().toLowerCase());
         removeInstance(client.getHostID());
+        if (online_users.isEmpty()) {
+            logger.info("No users online, pausing automatic server ticking.");
+            server_tick_timeout = 0;
+        }
     }
 
     public void removeInstance(int instance_id) {
@@ -133,11 +148,38 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
 
     public static void main(String[] args) {
         try {
+            tryInitializeDiscordBot();
             new MatchmakingServer();
         } catch (Throwable t) {
             logger.throwing("MatchmakingServer", "main", t);
             postPanic();
             System.exit(1);
+        }
+    }
+
+    private static void tryInitializeDiscordBot() {
+        try {
+            String token = ServerConfiguration.getInstance().get(ServerConfiguration.DISCORD_BOT_TOKEN);
+            String serverIdAsString = ServerConfiguration.getInstance().get(ServerConfiguration.DISCORD_SERVER_ID);
+            if (token == null || token.isEmpty()) {
+                logger.info("No discord bot token found in server config. Skipping Discord bot initialization.");
+            } else if (serverIdAsString == null || serverIdAsString.isEmpty()) {
+                logger.info("No discord guild ID found in server config. Skipping Discord bot initialization.");
+            } else {
+                try {
+                    long serverId = Long.parseLong(serverIdAsString);
+                    if (serverId <= 0) {
+                        logger.log(Level.INFO, "Invalid discord guild ID (must be positive): {0}. Skipping Discord bot initialization.", serverIdAsString);
+                    } else {
+                        DiscordBotService.getInstance().initialize(token, serverId);
+                        logger.log(Level.INFO, "Discord bot initialized for server id: {0}", serverId);
+                    }
+                } catch (NumberFormatException e) {
+                    logger.log(Level.WARNING, "Invalid discord guild ID format: {0}, skipping Discord bot initialization.", serverIdAsString);
+                }
+            }
+        } catch (Exception e) {
+            logger.log(Level.INFO, "Failed to initialize Discord bot due to an exception.", e);
         }
     }
 }

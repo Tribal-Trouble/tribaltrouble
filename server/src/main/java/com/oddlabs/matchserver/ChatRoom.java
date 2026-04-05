@@ -2,6 +2,7 @@ package com.oddlabs.matchserver;
 
 import com.oddlabs.matchmaking.ChatRoomUser;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
+import com.oddlabs.matchserver.discord.DiscordBotService;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +18,8 @@ public final class ChatRoom {
 
     public ChatRoom(String name) {
         this.name = name;
+        DiscordBotService.getInstance().getChatroomCoordinator()
+                .ifPresent(x -> x.addChatroom(this));
     }
 
     public static Map<String, ChatRoom> getChatRooms() {
@@ -98,6 +101,8 @@ public final class ChatRoom {
         if (users.contains(client)) {
             users.remove(client);
             if (users.size() == 0) {
+                DiscordBotService.getInstance().getChatroomCoordinator()
+                        .ifPresent(x -> x.removeChatroom(this));
                 chat_rooms.remove(getName());
             } else {
                 sendUsers();

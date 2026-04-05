@@ -3,6 +3,7 @@ package com.oddlabs.matchserver;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.matchmaking.Participant;
+import com.oddlabs.matchserver.discord.DiscordEmbedCreator;
 
 import java.sql.SQLException;
 
@@ -92,6 +93,8 @@ public final class TimestampedGameSession {
                 start_timestamp = System.currentTimeMillis();
                 game_state = GAME_ALL_JOINED;
                 MatchmakingServer.getLogger().info("Game " + database_id + ": all joined game " + getParticipantStates());
+
+                DiscordEmbedCreator.SendGameStartedDiscordEmbed(session, database_id);
 
                 //saving rated player info (someone could lose and delete a profile before the game ends)
                 all_5_wins = true;
@@ -262,6 +265,7 @@ public final class TimestampedGameSession {
         if (winning_teams == 0) {
             MatchmakingServer.getLogger().info("Game " + database_id + ". No winning teams " + getParticipantStates());
             DBInterface.endGame(this, end_time, -1);
+            DiscordEmbedCreator.SendHumansLoseToBotsDiscordEmbed(session, database_id);
             game_ended = true;
             return; // last players disconnected
         }
@@ -288,6 +292,7 @@ public final class TimestampedGameSession {
                 }
                 MatchmakingServer.getLogger().warning("Game " + database_id + " was invalid. " + winning_teams + " winning teams. " + getParticipantStates());
                 DBInterface.endGame(this, end_time, -1);
+                DiscordEmbedCreator.SendInvalidatedGameDiscordEmbed(session, database_id);
                 game_ended = true;
                 return;
             }
@@ -298,10 +303,12 @@ public final class TimestampedGameSession {
         else {
             MatchmakingServer.getLogger().warning("Game " + database_id + ". No one lost. Playing agains AI " + getParticipantStates());
             DBInterface.endGame(this, end_time, -1);
+            DiscordEmbedCreator.SendHumansWinAgainstBotsDiscordEmbed(winning_team_index, session, database_id);
             game_ended = true;
             return;
         }
 
+        DiscordEmbedCreator.SendHumansWinAgainstOtherHumans(winning_team_index, session, database_id);
         DBInterface.endGame(this, end_time, winning_team_index);
         game_ended = true;
     }
