@@ -75,6 +75,10 @@ public final class PeerHub implements Animated, RouterHandler {
     private int paused;
     private boolean is_synchronized;
 
+    public boolean isSynchronized() {
+        return is_synchronized;
+    }
+
 //private int ignore_peer = -1;
 
     public PeerHub(@NonNull AnimationManager manager, boolean is_multiplayer, boolean is_rated, @NonNull Player local_player, PlayerSlot[] player_slots, @NonNull NetworkSelector network, GUIRoot gui_root, NotificationManager notification_manager, DistributableTable distributable_table, SessionID session_id, StallHandler stall_handler) {

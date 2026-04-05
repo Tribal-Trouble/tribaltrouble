@@ -291,7 +291,11 @@ public abstract class Menu extends CameraDelegate<Camera> {
         @Override
         public void run(@NonNull WorldViewer viewer) {
             new GameOverTrigger(viewer);
-            completeGameSetupHack(viewer);
+            if (viewer.isMultiplayer()) {
+                viewer.getGUIRoot().pushDelegate(new CountdownDelegate(viewer, viewer.getCamera()));
+            } else {
+                completeGameSetupHack(viewer);
+            }
         }
     }
 
