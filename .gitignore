@@ -253,6 +253,7 @@ gradle-app.setting
 .vs/
 *.iml
 server/server.properties
+server/logs/
 /common/src/main/resources/fonts/Impact.ttf
 /common/src/main/resources/fonts/Tahoma.ttf
 /.gradle_local/
