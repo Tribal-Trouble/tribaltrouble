@@ -88,7 +88,8 @@ public final class IslandGenerator implements WorldGenerator {
         // Texture[][] chunk_maps = blendTextures(chunks_per_colormap, blend_infos, alpha_size, Globals.STRUCTURE_SIZE, colormap_size/alpha_size);
 
         com.oddlabs.tt.landscape.LandscapeBaker baker = new com.oddlabs.tt.landscape.LandscapeBaker();
-        float textureScale = meters_per_world * Globals.LANDSCAPE_TEXTURE_SCALE;
+        // Original tiled structure textures at colormap_size/STRUCTURE_SIZE repeats.
+        float textureScale = (float) colormap_size / Globals.STRUCTURE_SIZE;
         WorldInfo.Maps maps = baker.bake(colormap_size, textureScale, blend_infos);
 
         ProgressForm.progress();

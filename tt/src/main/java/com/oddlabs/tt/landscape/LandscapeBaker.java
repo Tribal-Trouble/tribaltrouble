@@ -1,4 +1,11 @@
 package com.oddlabs.tt.landscape;
+import java.nio.IntBuffer;
+
+import org.jspecify.annotations.NonNull;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.system.MemoryStack;
 
 import com.oddlabs.tt.render.FBO;
 import com.oddlabs.tt.render.Texture;
@@ -7,16 +14,9 @@ import com.oddlabs.tt.resource.BlendInfo;
 import com.oddlabs.tt.resource.BlendLighting;
 import com.oddlabs.tt.resource.StructureBlend;
 import com.oddlabs.tt.resource.WorldInfo;
-import com.oddlabs.tt.vbo.QuadVBO;
-import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.system.MemoryStack;
-
-import java.nio.IntBuffer;
-
 import static com.oddlabs.tt.util.GLUtils.checkGLError;
+import com.oddlabs.tt.vbo.QuadVBO;
+
 
 public final class LandscapeBaker {
 
@@ -59,8 +59,8 @@ public final class LandscapeBaker {
                     out_Diffuse = mix(baseDiff, layerDiff, alpha);
                     out_Normal = mix(baseNorm, layerNorm, alpha);
                 } else { // Lighting Blend
-                    // Additive blend for highlights
-                    out_Diffuse = baseDiff + vec4(u_Color * alpha, 0.0);
+                    // Multiplicative-additive blend to match original glBlendFunc(GL_DST_COLOR, GL_ONE).
+                    out_Diffuse = baseDiff + baseDiff * vec4(u_Color * alpha, 0.0);
                     out_Normal = baseNorm;         // Keep normals
                 }
             }
@@ -141,7 +141,8 @@ public final class LandscapeBaker {
                             GL11.glBindTexture(GL11.GL_TEXTURE_2D, sb.getNormalMap().getHandle());
                         } else if (info instanceof BlendLighting bl) {
                             shader.setUniform("u_Mode", 1);
-                            shader.setUniform("u_Color", bl.getR(), bl.getG(), bl.getB());
+                            // g/b swap reproduces original bug in BlendLighting.java:23 — glColor3f(r, b, g)
+                            shader.setUniform("u_Color", bl.getR(), bl.getB(), bl.getG());
                         }
 
                         quad.render();
