@@ -58,6 +58,7 @@ import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwRestoreWindow;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowCloseCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowIcon;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowMonitor;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
@@ -77,7 +78,8 @@ public final class LWJGL3Window implements Window {
     private long windowHandle = MemoryUtil.NULL;
     private @NonNull String title = "Tribal Trouble";
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
-    private boolean resized = false;
+    private boolean resized;
+    private boolean closeRequested;
 
     public LWJGL3Window() {
     }
@@ -169,6 +171,10 @@ public final class LWJGL3Window implements Window {
 
         // Setup callbacks
         glfwSetFramebufferSizeCallback(windowHandle, (_, _, _) -> this.resized = true);
+        glfwSetWindowCloseCallback(windowHandle, (_) -> {
+            setCloseRequested(true);
+            glfwSetWindowShouldClose(windowHandle, false); // Cancel the actual close immediately
+        });
 
         glfwMakeContextCurrent(windowHandle);
         GL.createCapabilities();
@@ -206,14 +212,14 @@ public final class LWJGL3Window implements Window {
 
     @Override
     public boolean isCloseRequested() {
-        return glfwWindowShouldClose(windowHandle);
+        boolean r = closeRequested;
+        setCloseRequested(false);
+        return r;
     }
 
     @Override
     public void setCloseRequested(boolean value) {
-        if (windowHandle != MemoryUtil.NULL) {
-            glfwSetWindowShouldClose(windowHandle, value);
-        }
+        closeRequested = value;
     }
 
     @Override
