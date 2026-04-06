@@ -51,8 +51,8 @@ final class Icons {
     public static @NonNull Texture loadTexture(@NonNull String tex_file) {
         TextureFile file = new TextureFile(tex_file,
                 GL11.GL_RGBA,
-                GL11.GL_NEAREST,
-                GL11.GL_NEAREST,
+                GL11.GL_LINEAR,
+                GL11.GL_LINEAR,
                 GL12.GL_CLAMP_TO_EDGE,
                 GL12.GL_CLAMP_TO_EDGE);
         return Resources.findResource(file);
