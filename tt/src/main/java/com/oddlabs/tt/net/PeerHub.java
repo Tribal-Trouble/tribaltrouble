@@ -227,11 +227,11 @@ public final class PeerHub implements Animated, RouterHandler {
     }
 
     private int millisToTickCeil(int millis) {
-        return millisToTick(millis + AnimationManager.ANIMATION_MILLISECONDS_PER_TICK - 1);
+        return millisToTick(millis + (int) AnimationManager.ANIMATION_MILLISECONDS_PER_TICK - 1);
     }
 
     private int millisToTick(int millis) {
-        return millis / AnimationManager.ANIMATION_MILLISECONDS_PER_TICK - pause_ticks;
+        return (int) (millis / AnimationManager.ANIMATION_MILLISECONDS_PER_TICK) - pause_ticks;
     }
 
     @Override

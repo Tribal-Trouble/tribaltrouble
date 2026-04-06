@@ -494,7 +494,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 
     private boolean modalRelative(ModalDelegate modal_delegate) {
         return this == modal_delegate ||
-                getParent() != null && (getParent() == modal_delegate || getParent().modalRelative(modal_delegate));
+                (getParent() != null && (getParent() == modal_delegate || getParent().modalRelative(modal_delegate)));
     }
 
     protected @NonNull CursorType getCursorType() {

@@ -23,8 +23,8 @@ import java.util.logging.Logger;
 
 public final class AnimationManager {
     private static final Logger logger = Logger.getLogger(AnimationManager.class.getName());
-    public static final int ANIMATION_MILLISECONDS_PER_TICK = 20;
-    public static final int ANIMATION_MILLISECONDS_PER_PRECISION_TICK = ANIMATION_MILLISECONDS_PER_TICK / 5;
+    public static final long ANIMATION_MILLISECONDS_PER_TICK = 20L;
+    public static final long ANIMATION_MILLISECONDS_PER_PRECISION_TICK = ANIMATION_MILLISECONDS_PER_TICK / 5;
     public static final float ANIMATION_SECONDS_PER_TICK = ANIMATION_MILLISECONDS_PER_TICK / 1000f;
     public static final float ANIMATION_SECONDS_PER_PRECISION_TICK = ANIMATION_MILLISECONDS_PER_PRECISION_TICK / 1000f;
     private static final long ANIMATION_MILLISECONDS_PER_CHECKSUM = TimeUnit.SECONDS.toMillis(2);
@@ -38,7 +38,7 @@ public final class AnimationManager {
 
     private static long current_time;
     private static long last_frame_time;
-    private static int execution_time = 0;
+    private static long execution_time = 0;
     private static float execution_time_precision = 0;
     private static long time_warp;
     private static boolean time_stopped;

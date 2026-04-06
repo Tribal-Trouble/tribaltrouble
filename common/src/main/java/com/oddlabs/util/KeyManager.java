@@ -177,8 +177,8 @@ public final class KeyManager {
                             in = new PushbackInputStream(in);
                         }
                         ((PushbackInputStream) in).unread(c2);
-                    } else
-                        break loop;
+                    }
+                    break loop;
 
                 default:
                     if (--room < 0) {

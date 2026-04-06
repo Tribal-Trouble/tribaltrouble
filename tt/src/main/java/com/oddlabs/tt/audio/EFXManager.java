@@ -90,6 +90,9 @@ public final class EFXManager {
 
         // Apply presets (Tuned EAX Reverb parameters with Linear Gain [0.0 - 1.0])
         switch (type) {
+            case NONE -> {
+                // Already handled above, but exhaustive switch required.
+            }
             case GENERIC -> // Open Plains: Very light reverb, short decay
                     setEAXReverb(0.1f, 0.1f, 0.1f, 0.8f, 0.5f, 0.1f, 0.02f, 0.0f, 0.994f);
             case FOREST -> // Forest: Absorptive, very short decay, dampened

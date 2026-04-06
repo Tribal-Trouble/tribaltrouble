@@ -131,8 +131,8 @@ public final class AmbientAudio {
             }
 
             int meters_per_world = heightmap.getMetersPerWorld();
-            float dx = Math.abs(camera.getCurrentX() - meters_per_world / 2);
-            float dy = Math.abs(camera.getCurrentY() - meters_per_world / 2);
+            float dx = Math.abs(camera.getCurrentX() - meters_per_world / 2f);
+            float dy = Math.abs(camera.getCurrentY() - meters_per_world / 2f);
             float dr = 2f * (float) Math.sqrt(dx * dx + dy * dy) / meters_per_world;
 
             // update placement and gain of ambient forest source

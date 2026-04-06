@@ -283,7 +283,7 @@ public final class TerrainMenu extends Group {
         PulldownButton<Void>[] difficulty_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
         race_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
         team_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
-        Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
+        Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * (long) LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
         random.nextFloat();
         for (int i = 0; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
             difficulty_pulldown_menus[i] = new PulldownMenu<>();
@@ -559,7 +559,7 @@ public final class TerrainMenu extends Group {
     }
 
     private void randomize() {
-        Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
+        Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * (long) LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
         random.nextInt();
         BigInteger rand_int = new BigInteger(100, random);
         parseBigInteger(rand_int);

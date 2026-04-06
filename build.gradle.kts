@@ -32,20 +32,20 @@ subprojects {
         options.errorprone {
             option("NullAway:AnnotatedPackages", "com.oddlabs")
 
-            // Errorprone has decided it wants to throw a class cast exception
             disableAllChecks = false
 
-            disable( "NullAway", "IntLongMath", "MissingCasesInEnumSwitch", "ImmutableEnumChecker",
-                "NarrowingCompoundAssignment", "InstanceOfAndCastMatchWrongType",
+            disable( "NullAway", "IntLongMath", "ImmutableEnumChecker",
+                "NarrowingCompoundAssignment",
                 "TimeUnitConversionChecker", "UnusedNestedClass", "SameNameButDifferent", "AssignmentExpression",
-                "NullablePrimitive", "ObjectToString", "FallThrough", "ByteBufferBackingArray",
+                "NullablePrimitive", "ObjectToString", "ByteBufferBackingArray",
                 "InputStreamSlowMultibyteRead", "BadComparable", "CatchAndPrintStackTrace",
-                "ModifyCollectionInEnhancedForLoop", "StringCaseLocaleUsage", "IdentityBinaryExpression",
+                "ModifyCollectionInEnhancedForLoop", "StringCaseLocaleUsage",
                 "EqualsHashCode", "MissingSummary", "JavaUtilDate", "DoNotCallSuggester",
-                "MutablePublicArray", "InconsistentCapitalization", "OperatorPrecedence",
+                "MutablePublicArray", "InconsistentCapitalization",
                 "TypeParameterUnusedInFormals", "PatternMatchingInstanceof", "DefaultCharset", "EmptyCatch",
-                "MissingOverride", "NarrowCalculation", "EqualsUnsafeCast", "StatementSwitchToExpressionSwitch",
+                "MissingOverride",
                 "EnumOrdinal", "JdkObsolete", "UnnecessaryParentheses", "UnusedMethod", "UnusedVariable",
+                "StatementSwitchToExpressionSwitch",
                 "EffectivelyPrivate", "ArrayRecordComponent", "StringSplitter", "InterruptedInCatchBlock" )
         }
     }

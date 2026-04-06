@@ -137,8 +137,7 @@ final class SessionManager {
 
         @Override
         public boolean equals(Object other) {
-            Timeout other_session = (Timeout) other;
-            return compareTo(other_session) == 0;
+            return other instanceof Timeout other_session && compareTo(other_session) == 0;
         }
 
         @Override

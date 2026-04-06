@@ -124,7 +124,7 @@ public final class Sky implements SceneRenderer, AutoCloseable {
     private final Random random = new Random();
 
     public Sky(@NonNull LandscapeRenderer renderer, Landscape.@NonNull TerrainType terrain, @NonNull Texture detail) {
-        this(renderer, terrain, (float) (renderer.getHeightMap().getMetersPerWorld() * Math.sqrt(2) / 2), 6000f, 20, 20, SKYDOME_OUTER_UTILING, SKYDOME_OUTER_VTILING, SKYDOME_INNER_UTILING, SKYDOME_INNER_VTILING, renderer.getHeightMap().getMetersPerWorld() / 2, renderer.getHeightMap().getMetersPerWorld() / 2, SKYDOME_HEIGHT, detail);
+        this(renderer, terrain, (float) (renderer.getHeightMap().getMetersPerWorld() * Math.sqrt(2) / 2), 6000f, 20, 20, SKYDOME_OUTER_UTILING, SKYDOME_OUTER_VTILING, SKYDOME_INNER_UTILING, SKYDOME_INNER_VTILING, renderer.getHeightMap().getMetersPerWorld() / 2f, renderer.getHeightMap().getMetersPerWorld() / 2f, SKYDOME_HEIGHT, detail);
     }
 
     @Override

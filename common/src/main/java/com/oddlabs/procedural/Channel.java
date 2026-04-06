@@ -1262,11 +1262,7 @@ public final class Channel {
             fillcoords = tmp.findFirst(value);
             area_total += count;
         }
-        if (area_count == 0) {
-            return -1f;
-        } else {
-            return area_total / area_count;
-        }
+        return area_count == 0 ? -1f : (float) area_total / area_count;
     }
 
     public @NonNull Channel squareFit(float value, int size) {
@@ -1634,7 +1630,7 @@ public final class Channel {
             ifp1 = ip1;
             while (ifp1 < ip2) {
                 ifp2 = ifp1 << 1;
-                theta = isign * ((float) Math.PI * 2) / (ifp2 / ip1);
+                theta = isign * ((float) Math.PI * 2) / (ifp2 / (float) ip1);
                 wtemp = (float) Math.sin(0.5 * theta);
                 wpr = -2.0f * wtemp * wtemp;
                 wpi = (float) Math.sin(theta);

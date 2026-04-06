@@ -199,9 +199,9 @@ public abstract class GLImage {
 
                 // Weighted Color Accumulation (Bleed Fix)
                 if (a > 0) {
-                    r_acc += r * a;
-                    g_acc += g * a;
-                    b_acc += b * a;
+                    r_acc += (long) r * a;
+                    g_acc += (long) g * a;
+                    b_acc += (long) b * a;
                     weight_acc += a;
                 }
 
@@ -352,7 +352,7 @@ public abstract class GLImage {
                 dg = dpixel >>> 8 & 0xff;
                 db = dpixel & 0xff;
                 da = dpixel >>> 24;
-                putPixel(x + dx, y + dy, (((sa * sa + da * sa_inverse) / 255) << 24) + (((sr * sa + dr * sa_inverse) / 255) << 16) + ((sg * sa + dg * sa_inverse) / 255 << 8) + ((sb * sa + db * sa_inverse) / 255));
+                putPixel(x + dx, y + dy, (((sa * sa + da * sa_inverse) / 255) << 24) + (((sr * sa + dr * sa_inverse) / 255) << 16) + (((sg * sa + dg * sa_inverse) / 255) << 8) + ((sb * sa + db * sa_inverse) / 255));
 //				System.out.println("result dp " + Integer.toHexString(pixels[x+dy_loop]) + " sp " + Integer.toHexString(spixel) + " dp " + Integer.toHexString(dpixel) + " sa " + Integer.toHexString(sa) + " sa_inv " + Integer.toHexString(sa_inverse) + " sr " + Integer.toHexString(sr) + " sg " + Integer.toHexString(sg) + " sb " + Integer.toHexString(sb) + " dr " + Integer.toHexString(dr) + " dg " + Integer.toHexString(dg)  + " db " + Integer.toHexString(db) + " da " + Integer.toHexString(da));
             }
         }

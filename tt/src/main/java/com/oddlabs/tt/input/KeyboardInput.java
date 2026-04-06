@@ -167,6 +167,10 @@ public final class KeyboardInput {
                 case RSUPER:
                     right_meta_down = event_key_down;
                     break;
+                default:
+                    // Other keys are not tracked as dedicated boolean flags here.
+                    // They are processed into the actions set below.
+                    break;
             }
 
             if (checkMagicKey(event_key_down, event_key, false, repeat_event))

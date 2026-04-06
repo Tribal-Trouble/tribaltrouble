@@ -80,8 +80,8 @@ public final class MapCamera extends Camera {
         float dy;
         float dz;
         float da;
-        float map_x = getHeightMap().getMetersPerWorld() / 2;
-        float map_y = getHeightMap().getMetersPerWorld() / 2;
+        float map_x = getHeightMap().getMetersPerWorld() / 2f;
+        float map_y = getHeightMap().getMetersPerWorld() / 2f;
         float map_z = getHeightMap().getMetersPerWorld() * MAP_Z_FACTOR;
         float start_z = original_camera_state.getTargetZ();
 
