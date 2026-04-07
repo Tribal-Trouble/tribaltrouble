@@ -35,6 +35,18 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
     private final @NonNull NetworkSelector network;
 
     public MatchmakingConnectingForm(@NonNull NetworkSelector network, GUIRoot gui_root, Form parent_form, MainMenu main_menu, Login login, LoginDetails login_details) {
+        this(network, gui_root, parent_form, main_menu);
+        Network.getMatchmakingClient().login(network, login, login_details);
+    }
+
+    public MatchmakingConnectingForm(@NonNull NetworkSelector network, GUIRoot gui_root, Form parent_form, MainMenu main_menu, boolean steamLogin) {
+        this(network, gui_root, parent_form, main_menu);
+        if (steamLogin) {
+            Network.getMatchmakingClient().loginWithSteam(network);
+        }
+    }
+
+    private MatchmakingConnectingForm(@NonNull NetworkSelector network, GUIRoot gui_root, Form parent_form, MainMenu main_menu) {
         this.parent_form = parent_form;
         this.main_menu = main_menu;
         this.gui_root = gui_root;
@@ -53,7 +65,6 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
         compileCanvas();
         centerPos();
         Network.setMatchmakingListener(this);
-        Network.getMatchmakingClient().login(network, login, login_details);
     }
 
     @Override
@@ -106,6 +117,7 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
                     i18n("username_error_invalid_characters");
             case MatchmakingClientInterface.USERNAME_ERROR_TOO_LONG -> i18n("username_error_too_long");
             case MatchmakingClientInterface.USERNAME_ERROR_TOO_SHORT -> i18n("username_error_too_short");
+            case MatchmakingClientInterface.USER_ERROR_STEAM_REQUIRED -> "Steam login is required on this server.";
             default -> throw new RuntimeException("Unknown error code: " + error_code);
         };
         gui_root.addModalForm(new MessageForm(error_message));

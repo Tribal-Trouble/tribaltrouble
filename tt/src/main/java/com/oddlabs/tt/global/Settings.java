@@ -140,6 +140,18 @@ public final class Settings implements Serializable {
         return domain_name;
     }
 
+    public boolean isOfficialServer() {
+        if (OFFICIAL_DOMAIN.equals(domain_name)) {
+            return true;
+        }
+        // Also allow Steam auth on localhost if debug flag is enabled
+        if (Globals.debug_steam_auth_localhost
+                && ("localhost".equals(domain_name) || "local".equals(domain_name))) {
+            return true;
+        }
+        return false;
+    }
+
     public String getMatchmakingAddress() {
         return "matchmaking." + domain_name;
     }

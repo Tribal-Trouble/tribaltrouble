@@ -38,6 +38,9 @@ public final class Globals {
         return Path.of(name);
     }
 
+    // Debug flag to enable Steam auth on localhost server
+    public static boolean debug_steam_auth_localhost = true;
+
     public static boolean run_ai = true;
 
     public static int gamespeed = 2;

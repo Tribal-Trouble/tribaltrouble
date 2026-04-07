@@ -10,6 +10,8 @@ import com.oddlabs.matchmaking.RankingEntry;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.font.Font;
+import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.gui.ChatPanel;
 import com.oddlabs.tt.gui.ChatRoomInfo;
 import com.oddlabs.tt.gui.ColumnInfo;
@@ -236,7 +238,12 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         updateList(MatchmakingServerInterface.TYPE_RANKING_LIST);
 
         profiles_form = new ProfilesForm(gui_root, main_menu, this);
-        if (Network.getMatchmakingClient().getProfile() == null) {
+        if (Settings.getSettings().isOfficialServer() && SteamManager.getInstance() != null) {
+            // Steam users: profile was auto-created on login, set it directly
+            String nick = Network.getMatchmakingClient().getUsername();
+            Network.getMatchmakingClient().setProfile(nick);
+            main_menu.setMenuCentered(this);
+        } else if (Network.getMatchmakingClient().getProfile() == null) {
             main_menu.setMenuCentered(profiles_form);
             Network.getMatchmakingClient().requestProfiles();
         } else {

@@ -23,6 +23,7 @@ import com.oddlabs.tt.form.InfoForm;
 import com.oddlabs.tt.gui.ChatRoomInfo;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -64,6 +65,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 
     private Login login;
     private LoginDetails login_details;
+    private boolean steamLogin;
 
     MatchmakingClient() {
         this.chat_room_history = new ChatRoomHistory();
@@ -294,6 +296,15 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
     public void login(@NonNull NetworkSelector network, Login login, LoginDetails login_details) {
         this.login = login;
         this.login_details = login_details;
+        this.steamLogin = false;
+        open(network);
+        state = STATE_AWAITING_OK;
+    }
+
+    public void loginWithSteam(@NonNull NetworkSelector network) {
+        this.login = null;
+        this.login_details = null;
+        this.steamLogin = true;
         open(network);
         state = STATE_AWAITING_OK;
     }
@@ -421,12 +432,24 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         matchmaking_login_interface.setLocalRemoteAddress(wrapped_connection.getLocalAddress());
         IO.println("wrapped_connection.getLocalAddress() = " + wrapped_connection.getLocalAddress());
         int revision = com.oddlabs.util.Compatibility.API_VERSION;
-        if (!Renderer.isRegistered())
+
+        if (steamLogin) {
+            SteamManager steam = SteamManager.getInstance();
+            if (steam == null) {
+                loginError(MatchmakingClientInterface.USER_ERROR_NO_SUCH_USER);
+                return;
+            }
+            long accountId = steam.getAccountID();
+            String personaName = steam.getPersonaName();
+            byte[] authTicket = steam.getAuthSessionTicket();
+            matchmaking_login_interface.loginWithSteam(accountId, personaName, authTicket, revision);
+        } else if (!Renderer.isRegistered()) {
             matchmaking_login_interface.loginAsGuest(revision);
-        else if (login_details != null)
+        } else if (login_details != null) {
             matchmaking_login_interface.createUser(login, login_details, null, revision);
-        else
+        } else {
             matchmaking_login_interface.login(login, null, revision);
+        }
     }
 
     @Override

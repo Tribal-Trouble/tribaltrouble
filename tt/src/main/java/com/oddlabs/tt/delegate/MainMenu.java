@@ -4,6 +4,7 @@ import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.form.CampaignForm;
 import com.oddlabs.tt.form.LoginForm;
+import com.oddlabs.tt.form.MatchmakingConnectingForm;
 import com.oddlabs.tt.form.SelectGameMenu;
 import com.oddlabs.tt.form.TerrainMenuForm;
 import com.oddlabs.tt.form.TutorialForm;
@@ -11,6 +12,7 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.MenuButton;
 import com.oddlabs.tt.net.Network;
+import com.oddlabs.tt.steam.SteamManager;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -42,7 +44,11 @@ public final class MainMenu extends Menu {
                     new SelectGameMenu(getNetwork(), getGUIRoot(), MainMenu.this);
                 } else {
                     Network.getMatchmakingClient().close();
-                    new LoginForm(getNetwork(), getGUIRoot(), MainMenu.this);
+                    if (Settings.getSettings().isOfficialServer() && SteamManager.getInstance() != null) {
+                        new MatchmakingConnectingForm(getNetwork(), getGUIRoot(), null, MainMenu.this, true);
+                    } else {
+                        new LoginForm(getNetwork(), getGUIRoot(), MainMenu.this);
+                    }
                 }
             });
             addChild(multi_player);
