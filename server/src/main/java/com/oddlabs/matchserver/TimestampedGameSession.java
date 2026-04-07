@@ -334,8 +334,83 @@ public final class TimestampedGameSession {
             if (client != null)
                 client.updateProfile();
         }
+        updatePlayerStreaks(team_result);
+        updateSteamAchievements(team_result);
         if (session.isRated() && all_5_wins)
             rerateParticipants(server, team_result);
+    }
+
+    private void updatePlayerStreaks(int[] team_result) {
+        Participant[] participants = session.getParticipants();
+        for (int i = 0; i < participants.length; i++) {
+            String nick = participants[i].getNick();
+            int team = participants[i].getTeam();
+
+            try {
+                int[] streaks = DBInterface.getStreaks(nick);
+                int currentStreak = streaks[0];
+                int bestStreak = streaks[1];
+
+                if (team_result[team] == TEAM_WON) {
+                    currentStreak++;
+                    if (currentStreak > bestStreak) {
+                        bestStreak = currentStreak;
+                    }
+                } else if (team_result[team] == TEAM_LOST) {
+                    currentStreak = 0;
+                }
+
+                DBInterface.updateStreaks(nick, currentStreak, bestStreak);
+                MatchmakingServer.getLogger().info("Game " + database_id + ". Updated streaks for " + nick
+                        + " (currentStreak=" + currentStreak + ", bestStreak=" + bestStreak + ")");
+            } catch (SQLException e) {
+                MatchmakingServer.getLogger().warning("Game " + database_id
+                        + ". SQLException while updating streaks for " + nick + ": " + e.getMessage());
+            }
+        }
+    }
+
+    private void updateSteamAchievements(int[] team_result) {
+        if (!ServerConfiguration.getInstance().isSteamOnlyAuth()) {
+            return;
+        }
+
+        // Only count games with all human players (no AI)
+        if (session.getParticipants().length != session.getPlayerInfo().length) {
+            MatchmakingServer.getLogger().info("Game " + database_id
+                    + ". Skipping Steam achievements update - game includes AI players");
+            return;
+        }
+
+        Participant[] participants = session.getParticipants();
+        for (int i = 0; i < participants.length; i++) {
+            String nick = participants[i].getNick();
+
+            Long steamId = DBInterface.getSteamIdByNick(nick);
+            if (steamId == null) {
+                continue;
+            }
+
+            try {
+                int totalWins = DBInterface.getWins(nick);
+                int totalLosses = DBInterface.getIntField("losses", nick);
+                int[] streaks = DBInterface.getStreaks(nick);
+
+                boolean success = SteamAchievementService.updatePlayerStats(
+                        steamId, totalWins, totalLosses, streaks[0], streaks[1]);
+
+                if (success) {
+                    MatchmakingServer.getLogger().info("Game " + database_id
+                            + ". Updated Steam achievements for " + nick);
+                } else {
+                    MatchmakingServer.getLogger().warning("Game " + database_id
+                            + ". Failed to update Steam achievements for " + nick);
+                }
+            } catch (SQLException e) {
+                MatchmakingServer.getLogger().warning("Game " + database_id
+                        + ". SQLException while reading stats for Steam achievements for " + nick + ": " + e.getMessage());
+            }
+        }
     }
 
     private void rerateParticipants(MatchmakingServer server, int[] team_result) {
