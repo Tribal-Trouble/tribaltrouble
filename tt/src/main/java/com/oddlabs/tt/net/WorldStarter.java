@@ -70,9 +70,29 @@ final class WorldStarter implements LoadCallback {
         if (Network.getMatchmakingClient().isConnected()) {
             GameSession game_session = new GameSession(session_id, participants, ingame_info.isRated(), gamePlayers);
             Network.getMatchmakingClient().getInterface().gameStartedNotify(game_session);
+            sendWorldParams(player_slots, corrected_unit_infos);
         }
         IO.println("PeerHub created (session_id = " + session_id + ") Player list:");
         return viewer.getRenderer();
+    }
+
+    private void sendWorldParams(PlayerSlot[] player_slots, UnitInfo[] unit_infos) {
+        try {
+            var baos = new java.io.ByteArrayOutputStream();
+            var oos = new java.io.ObjectOutputStream(baos);
+            oos.writeObject(generator);
+            oos.writeObject(world_params);
+            oos.writeObject(player_slots);
+            oos.writeObject(unit_infos);
+            oos.writeFloat(ingame_info.getRandomStartPosition());
+            oos.writeInt(session_id);
+            oos.close();
+            IO.println("sendWorldParams: serialized " + baos.size() + " bytes, sending to server");
+            Network.getMatchmakingClient().getInterface().updateWorldParams(baos.toByteArray());
+        } catch (Exception e) {
+            IO.println("Exception serializing world params: " + e);
+            e.printStackTrace();
+        }
     }
 
     private static @NonNull Participant @NonNull [] getParticipants(@NonNull WorldViewer viewer, @NonNull PlayerSlot @NonNull [] player_slots) {

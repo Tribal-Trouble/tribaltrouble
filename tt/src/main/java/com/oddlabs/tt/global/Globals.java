@@ -39,7 +39,7 @@ public final class Globals {
     }
 
     // Debug flag to enable Steam auth on localhost server
-    public static boolean debug_steam_auth_localhost = true;
+    public static boolean debug_steam_auth_localhost = false;
 
     public static boolean run_ai = true;
 

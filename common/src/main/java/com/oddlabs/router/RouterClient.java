@@ -21,6 +21,7 @@ final class RouterClient implements ConnectionInterface {
     private final Router router;
     private final List<Integer> checksums = new LinkedList<>();
     private int client_id;
+    private boolean is_spectator;
     private SessionManager.Timeout timeout;
     private Session session;
     private Interface current_interface;
@@ -30,9 +31,18 @@ final class RouterClient implements ConnectionInterface {
         this.connection = conn;
         this.logger = logger;
         this.client_interface = (RouterClientInterface) ARMIEvent.createProxy(conn, RouterClientInterface.class);
-        this.current_interface = new Interface(RouterInterface.class, (RouterInterface) (SessionID session_id, SessionInfo session_info, int client_id1) -> {
-            Session session1 = session_manager.get(session_id, session_info, client_id1);
-            doLogin(session1, session_info, client_id1);
+        this.current_interface = new Interface(RouterInterface.class, new RouterInterface() {
+            @Override
+            public void login(SessionID session_id, SessionInfo session_info, int client_id) {
+                Session session = session_manager.get(session_id, session_info, client_id);
+                doLogin(session, session_info, client_id);
+            }
+
+            @Override
+            public void loginSpectator(SessionID session_id) {
+                Session session = session_manager.getExistingSession(session_id);
+                doLoginSpectator(session);
+            }
         });
     }
 
@@ -98,6 +108,27 @@ final class RouterClient implements ConnectionInterface {
         logger.log(Level.INFO, "Player logged in: session = {0} client_id = {1}", new Object[]{session, client_id});
     }
 
+    private void doLoginSpectator(Session session) {
+        if (session == null) {
+            doError(false, new IOException("Session not available for spectating"));
+            return;
+        }
+        this.session = session;
+        this.is_spectator = true;
+        this.current_interface = new Interface(GameInterface.class, new GameInterface() {
+            @Override
+            public void checksum(int checksum) {}
+            @Override
+            public void relayEventTo(int client_id, ARMIEvent event) {}
+            @Override
+            public void relayGameStateEvent(ARMIEvent event) {}
+            @Override
+            public void relayEvent(ARMIEvent event) {}
+        });
+        session.addSpectator(this);
+        logger.info("Spectator logged in: session = " + session);
+    }
+
     private void doChecksum(int checksum) {
         checksums.add(checksum);
         session.checksum();
@@ -144,8 +175,12 @@ final class RouterClient implements ConnectionInterface {
         connection.close();
         if (session != null) {
             logger.log(Level.INFO, "Removing client: {0}", this);
-            session.removePlayer(this);
-            session.visit((RouterClient client) -> client.client_interface.playerDisconnected(client_id, checksum_error));
+            if (is_spectator) {
+                session.removeSpectator(this);
+            } else {
+                session.removePlayer(this);
+                session.visit((RouterClient client) -> client.client_interface.playerDisconnected(client_id, checksum_error));
+            }
         }
     }
 

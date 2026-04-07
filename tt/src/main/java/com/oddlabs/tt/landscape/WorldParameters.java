@@ -3,7 +3,12 @@ package com.oddlabs.tt.landscape;
 import com.oddlabs.matchmaking.Game;
 import org.jspecify.annotations.NonNull;
 
-public final class WorldParameters {
+import java.io.Serial;
+import java.io.Serializable;
+
+public final class WorldParameters implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private final @NonNull String map_code;
     private final int initial_unit_count;
     private final int max_unit_count;

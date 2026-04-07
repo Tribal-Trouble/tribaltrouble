@@ -18,6 +18,7 @@ final class Session {
     public final SessionID session_id;
     private final Logger logger;
     private final Set<RouterClient> players = new HashSet<>();
+    private final Set<RouterClient> spectators = new HashSet<>();
     private final SessionManager manager;
     private long initial_time;
 
@@ -41,16 +42,34 @@ final class Session {
 
     void removePlayer(RouterClient client) {
         players.remove(client);
-        if (getNumPlayers() == 0)
+        if (getNumPlayers() == 0) {
+            // Kick all spectators — game is over
+            for (var it = spectators.iterator(); it.hasNext(); ) {
+                RouterClient spectator = it.next();
+                it.remove();
+                spectator.doError(false, new IOException("Game ended"));
+            }
             manager.remove(this);
+        }
         checksum();
+    }
+
+    void addSpectator(RouterClient client) {
+        spectators.add(client);
+        client.getInterface().start();
+        manager.startTimeout(client);
+    }
+
+    void removeSpectator(RouterClient client) {
+        spectators.remove(client);
+        if (getNumPlayers() == 0) manager.remove(this);
     }
 
     void checksum() {
         final Map<Integer, Integer> checksum_to_count = new HashMap<>();
         final int[] best_checksum = new int[1];
         final boolean[] missing_checksum = new boolean[1];
-        visit(new SessionVisitor() {
+        visitPlayers(new SessionVisitor() {
             private int best_checksum_count = 0;
 
             @Override
@@ -76,7 +95,7 @@ final class Session {
         if (checksum_to_count.size() == 1)
             return;
         final List<RouterClient> clients_to_be_kicked = new ArrayList<>();
-        visit((RouterClient client) -> {
+        visitPlayers((RouterClient client) -> {
             Integer client_checksum;
             if (missing_checksum[0]) {
                 if (client.getChecksums().isEmpty())
@@ -110,7 +129,7 @@ final class Session {
 
     private void start() {
         this.started = true;
-        visit((RouterClient client) -> client.getInterface().start());
+        visitPlayers((RouterClient client) -> client.getInterface().start());
         this.initial_time = manager.start(this);
     }
 
@@ -122,8 +141,15 @@ final class Session {
         return started;
     }
 
-    void visit(@NonNull SessionVisitor visitor) {
+    void visitPlayers(@NonNull SessionVisitor visitor) {
         for (RouterClient client : players) {
+            visitor.visit(client);
+        }
+    }
+
+    void visit(@NonNull SessionVisitor visitor) {
+        visitPlayers(visitor);
+        for (RouterClient client : spectators) {
             visitor.visit(client);
         }
     }

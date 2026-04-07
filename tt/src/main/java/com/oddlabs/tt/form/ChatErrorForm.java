@@ -18,6 +18,7 @@ public final class ChatErrorForm extends MessageForm {
             case MatchmakingClientInterface.CHAT_ERROR_TOO_MANY_USERS -> "chat_error_too_many_users";
             case MatchmakingClientInterface.CHAT_ERROR_INVALID_NAME -> "chat_error_invalid_name";
             case MatchmakingClientInterface.CHAT_ERROR_NO_SUCH_NICK -> "chat_error_no_such_nick";
+            case MatchmakingClientInterface.CHAT_ERROR_SPECTATE_FAILED -> "chat_error_spectate_failed";
             default -> throw new IllegalArgumentException("Unknown error code: " + error_code);
         });
     }

@@ -59,6 +59,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 
     private Game current_game;
     private TimestampedGameSession current_session;
+    private TimestampedGameSession spectated_session;
     private @Nullable ChatRoom current_room;
 
     public Client(@NonNull MatchmakingServer server, AbstractConnection conn, InetAddress remote_address, InetAddress local_remote_address, String username, boolean guest, int revision, int host_id) {
@@ -184,6 +185,51 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
     public void updateSpectatorInfo(int tick, String info) {
         if (getGameSession() == null) return;
         getGameSession().updateSpectatorInfo(tick, info);
+    }
+
+    public void updateCommandEvent(int tick, int client_id, short event_size, byte[] event_data) {
+        if (getGameSession() == null) return;
+        getGameSession().updateCommandEvent(tick, client_id, event_size, event_data);
+    }
+
+    public void updateWorldParams(byte[] world_params_data) {
+        if (getGameSession() == null) {
+            MatchmakingServer.getLogger().warning("updateWorldParams: no game session for " + getUsername());
+            return;
+        }
+        getGameSession().updateWorldParams(world_params_data);
+    }
+
+    public void requestSpectate(String nick) {
+        Client target = (Client) active_clients.get(nick.toLowerCase());
+        if (target == null || !target.isPlaying()) {
+            getClientInterface().error(MatchmakingClientInterface.CHAT_ERROR_NO_SUCH_NICK);
+            return;
+        }
+        TimestampedGameSession game_session = target.getGameSession();
+        if (game_session == null) {
+            getClientInterface().error(MatchmakingClientInterface.CHAT_ERROR_NO_SUCH_NICK);
+            return;
+        }
+        MatchmakingServer.getLogger().info(getUsername() + " requested to spectate " + nick + " in game " + game_session.getDatabaseID());
+        byte[] world_params_data = game_session.getWorldParamsData();
+        if (world_params_data == null) {
+            MatchmakingServer.getLogger().warning("Game " + game_session.getDatabaseID() + ": no world params available for spectating");
+            getClientInterface().error(MatchmakingClientInterface.CHAT_ERROR_SPECTATE_FAILED);
+            return;
+        }
+        this.spectated_session = game_session;
+        getClientInterface().receiveSpectatorData(world_params_data);
+    }
+
+    public void requestSpectatorEventLog() {
+        if (spectated_session == null) return;
+        byte[] event_log_data = spectated_session.readEventLog();
+        int current_tick = spectated_session.getLastTick();
+        MatchmakingServer.getLogger().info("Sending spectator event log for game " + spectated_session.getDatabaseID()
+                + ": " + event_log_data.length + " bytes, tick=" + current_tick);
+        getClientInterface().receiveSpectatorEventLog(event_log_data, current_tick);
+        this.spectated_session = null;
     }
 
     public void gameQuitNotify(String nick) {

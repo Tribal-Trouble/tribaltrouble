@@ -2,6 +2,7 @@ package com.oddlabs.router;
 
 import com.oddlabs.net.MonotoneTimeManager;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +24,15 @@ final class SessionManager {
         this.time_manager = time_manager;
     }
 
+    @Nullable Session getExistingSession(SessionID session_id) {
+        Session session = id_to_session.get(session_id);
+        if (session == null || !session.isComplete()) {
+            logger.warning("Session not found or not started for spectator: " + session_id);
+            return null;
+        }
+        return session;
+    }
+
     @NonNull Session get(SessionID session_id, @NonNull SessionInfo session_info, int client_id) {
         Session session = id_to_session.get(session_id);
         if (session == null) {
@@ -30,7 +40,7 @@ final class SessionManager {
             id_to_session.put(session_id, session);
             logger.log(Level.INFO, "Creating session: {0}", session);
         } else {
-            if (!session.info.equals(session_info) || session.hasClient(client_id) || client_id >= session_info.num_participants)
+            if (session.isComplete() || !session.info.equals(session_info) || session.hasClient(client_id) || client_id >= session_info.num_participants)
                 throw new RuntimeException("SessionInfo mismatch " + session.info + " != " + session_info + " client_id = " + client_id);
         }
         return session;
@@ -78,7 +88,7 @@ final class SessionManager {
     }
 
     long start(@NonNull Session session) {
-        remove(session);
+        // Don't remove session here — spectators need to find it via getExistingSession()
         final long initial_time = time_manager.getMillis();
         session.visit((RouterClient client) -> {
             Timeout timeout = createTimeout(client, initial_time);
@@ -105,7 +115,7 @@ final class SessionManager {
     }
 
     public void startTimeout(@NonNull RouterClient client) {
-        unregister(client.getTimeout());
+        if (client.getTimeout() != null) unregister(client.getTimeout());
         long millis = time_manager.getMillis();
         Timeout timeout = createTimeout(client, millis);
         client.setTimeout(timeout);

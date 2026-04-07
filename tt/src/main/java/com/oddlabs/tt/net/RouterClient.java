@@ -41,6 +41,11 @@ public final class RouterClient implements ConnectionInterface {
         router_interface.login(session_id, session_info, client_id);
     }
 
+    public void connectSpectator(SessionID session_id) {
+        RouterInterface router_interface = (RouterInterface) ARMIEvent.createProxy(connection, RouterInterface.class);
+        router_interface.loginSpectator(session_id);
+    }
+
     public @NonNull GameInterface getInterface() {
         return game_interface;
     }

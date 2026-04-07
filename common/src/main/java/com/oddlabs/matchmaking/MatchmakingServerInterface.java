@@ -69,4 +69,12 @@ public interface MatchmakingServerInterface {
     void updateGameStatus(int tick, int[] status);
 
     void updateSpectatorInfo(int tick, String info);
+
+    void requestSpectate(String nick);
+
+    void updateCommandEvent(int tick, int client_id, short event_size, byte[] event_data);
+
+    void updateWorldParams(byte[] world_params_data);
+
+    void requestSpectatorEventLog();
 }

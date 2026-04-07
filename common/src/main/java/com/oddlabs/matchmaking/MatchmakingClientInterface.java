@@ -24,6 +24,7 @@ public interface MatchmakingClientInterface {
     int CHAT_ERROR_TOO_MANY_USERS = 10;
     int CHAT_ERROR_INVALID_NAME = 11;
     int CHAT_ERROR_NO_SUCH_NICK = 12;
+    int CHAT_ERROR_SPECTATE_FAILED = 14;
 
     void updateProfileList(Profile[] profiles, String last_profile_nick);
 
@@ -64,4 +65,8 @@ public interface MatchmakingClientInterface {
     void loginOK(String username, TunnelAddress address);
 
     void loginError(int error_code);
+
+    void receiveSpectatorData(byte[] world_params_data);
+
+    void receiveSpectatorEventLog(byte[] event_log_data, int current_tick);
 }

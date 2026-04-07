@@ -5,7 +5,10 @@ import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.matchmaking.Participant;
 import com.oddlabs.matchserver.discord.DiscordEmbedCreator;
 
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -51,6 +54,10 @@ public final class TimestampedGameSession {
     private boolean all_5_wins;
     private int[] player_ratings;
 
+    private File commandEventFile;
+    private DataOutputStream commandEventStream;
+    private byte[] worldParamsData;
+
     private FileWriter spectatorFileWriter;
     private final Set<Integer> spectatorTicksWritten = new HashSet<>();
     private boolean spectatorFileChecked;
@@ -73,8 +80,10 @@ public final class TimestampedGameSession {
             File spectatorDir = new File(dirPath);
             if (!spectatorDir.exists()) spectatorDir.mkdirs();
             spectatorFileWriter = new FileWriter(new File(spectatorDir, String.valueOf(database_id)));
+            commandEventFile = new File(spectatorDir, database_id + ".events");
+            commandEventStream = new DataOutputStream(new FileOutputStream(commandEventFile));
         } catch (IOException e) {
-            MatchmakingServer.getLogger().warning("Failed to create spectator file for game " + database_id + ": " + e.getMessage());
+            MatchmakingServer.getLogger().warning("Failed to create spectator files for game " + database_id + ": " + e.getMessage());
         }
     }
 
@@ -181,6 +190,47 @@ public final class TimestampedGameSession {
             }
         } catch (IOException e) {
             MatchmakingServer.getLogger().warning("Error writing spectator data for game " + database_id + ": " + e.getMessage());
+        }
+    }
+
+    public void updateWorldParams(byte[] data) {
+        this.worldParamsData = data;
+        MatchmakingServer.getLogger().info("Game " + database_id + ": world params stored (" + data.length + " bytes)");
+    }
+
+    public byte[] getWorldParamsData() {
+        return worldParamsData;
+    }
+
+    public int getLastTick() {
+        return last_tick;
+    }
+
+    public void updateCommandEvent(int tick, int client_id, short event_size, byte[] event_data) {
+        if (commandEventStream == null) return;
+        if (event_size <= 0 || event_size > event_data.length) return;
+        if (tick > last_tick) last_tick = tick;
+        try {
+            commandEventStream.writeInt(tick);
+            commandEventStream.writeInt(client_id);
+            commandEventStream.writeShort(event_size);
+            commandEventStream.write(event_data, 0, event_size);
+            commandEventStream.flush();
+        } catch (IOException e) {
+            MatchmakingServer.getLogger().warning("Error writing command event for game " + database_id + ": " + e.getMessage());
+        }
+    }
+
+    public byte[] readEventLog() {
+        if (commandEventFile == null || !commandEventFile.exists()) return new byte[0];
+        try {
+            if (commandEventStream != null) commandEventStream.flush();
+            try (FileInputStream fis = new FileInputStream(commandEventFile)) {
+                return fis.readAllBytes();
+            }
+        } catch (IOException e) {
+            MatchmakingServer.getLogger().warning("Error reading event log for game " + database_id + ": " + e.getMessage());
+            return new byte[0];
         }
     }
 
@@ -305,6 +355,7 @@ public final class TimestampedGameSession {
             DBInterface.endGame(this, end_time, -1);
             DiscordEmbedCreator.SendHumansLoseToBotsDiscordEmbed(session, database_id);
             game_ended = true;
+        closeSpectatorStreams();
             return; // last players disconnected
         }
 
@@ -332,6 +383,7 @@ public final class TimestampedGameSession {
                 DBInterface.endGame(this, end_time, -1);
                 DiscordEmbedCreator.SendInvalidatedGameDiscordEmbed(session, database_id);
                 game_ended = true;
+        closeSpectatorStreams();
                 return;
             }
         }
@@ -343,17 +395,29 @@ public final class TimestampedGameSession {
             DBInterface.endGame(this, end_time, -1);
             DiscordEmbedCreator.SendHumansWinAgainstBotsDiscordEmbed(winning_team_index, session, database_id);
             game_ended = true;
+        closeSpectatorStreams();
             return;
         }
 
         DiscordEmbedCreator.SendHumansWinAgainstOtherHumans(winning_team_index, session, database_id);
         DBInterface.endGame(this, end_time, winning_team_index);
         game_ended = true;
+        closeSpectatorStreams();
+    }
+
+    private void closeSpectatorStreams() {
+        try {
+            if (commandEventStream != null) commandEventStream.close();
+            if (spectatorFileWriter != null) spectatorFileWriter.close();
+        } catch (IOException e) {
+            MatchmakingServer.getLogger().warning("Error closing spectator streams for game " + database_id + ": " + e.getMessage());
+        }
     }
 
     protected void finalize() {
         if (!game_ended)
             DBInterface.endGame(this, System.currentTimeMillis(), -1);
+        closeSpectatorStreams();
     }
 
     private void teamWon(MatchmakingServer server, int[] team_result) {

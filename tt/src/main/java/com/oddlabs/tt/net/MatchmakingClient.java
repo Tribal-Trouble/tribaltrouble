@@ -48,6 +48,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
     private final @NonNull ChatRoomHistory chat_room_history;
     private final @NonNull InGameChatHistory in_game_chat_history;
     private @Nullable GUIRoot chat_gui_root;
+    private @Nullable NetworkSelector network;
     private int current_seq_id = 1;
     private @Nullable SecureConnection conn;
     private @Nullable MatchmakingServerInterface matchmaking_interface;
@@ -288,7 +289,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 
     private void open(@NonNull NetworkSelector network) {
         close();
-
+        this.network = network;
         this.conn = new SecureConnection(network.getDeterministic(), new Connection(network, Settings.getSettings().getMatchmakingAddress(), MatchmakingServerInterface.MATCHMAKING_SERVER_PORT, this), null);
         this.matchmaking_login_interface = (MatchmakingServerLoginInterface) ARMIEvent.createProxy(conn, MatchmakingServerLoginInterface.class);
     }
@@ -314,6 +315,45 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         close();
         MatchmakingListener listener = Network.getMatchmakingListener();
         listener.loginError(error_code);
+    }
+
+    public void requestSpectate(GUIRoot gui_root, String nick) {
+        this.chat_gui_root = gui_root;
+        getInterface().requestSpectate(nick);
+    }
+
+    @Override
+    public void receiveSpectatorData(byte[] world_params_data) {
+        if (chat_gui_root == null || network == null) return;
+        try {
+            var bais = new java.io.ByteArrayInputStream(world_params_data);
+            var ois = new java.io.ObjectInputStream(bais);
+            var generator = (com.oddlabs.tt.resource.WorldGenerator) ois.readObject();
+            var world_params = (com.oddlabs.tt.landscape.WorldParameters) ois.readObject();
+            var player_slots = (PlayerSlot[]) ois.readObject();
+            var unit_infos = (com.oddlabs.tt.player.UnitInfo[]) ois.readObject();
+            float random_start_position = ois.readFloat();
+            int session_id = ois.readInt();
+            ois.close();
+
+            var gui = chat_gui_root.getGUI();
+            com.oddlabs.tt.form.ProgressForm.setProgressForm(network, gui,
+                    new ReplayWorldStarter(network, session_id, generator, world_params,
+                            player_slots, unit_infos, (short) 0,
+                            new com.oddlabs.tt.viewer.SpectatorInGameInfo(random_start_position),
+                            new SpectatorWorldInitAction()));
+            chat_gui_root = null;
+        } catch (Exception e) {
+            IO.println("Failed to deserialize spectator data: " + e);
+            error(MatchmakingClientInterface.CHAT_ERROR_SPECTATE_FAILED);
+        }
+    }
+
+    @Override
+    public void receiveSpectatorEventLog(byte[] event_log_data, int current_tick) {
+        PeerHubSpectatorController controller = PeerHubSpectatorController.getInstance();
+        if (controller == null) return;
+        controller.fastForward(event_log_data, current_tick);
     }
 
     public @Nullable MatchmakingServerLoginInterface getLoginInterface() {
