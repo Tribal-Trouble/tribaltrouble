@@ -59,12 +59,14 @@ based on who contributed the original work being ported. Use `Co-Authored-By` tr
     CompassRenderer uses Bondolo's batched GUIRenderer pipeline (drawColoredQuad + font texture rendering). Hooked
     into SelectionDelegate.render2D(). Settings toggle + options menu checkbox with Omar's original i18n strings.
 
-### Phase 5 — Server / Discord
+### Phase 5 — Server / Discord (DONE)
 
-13. **Countdown before game** (#135) — countdown before multiplayer start (Maxenor). Requires working server.
-11. **Gatherer count + DeploySpinner fix** (#153, #159) — show gatherer count per resource (Maxenor) + fix DeploySpinner
-    constructor. Adds `recallGatherers()` to PlayerInterface (multiplayer protocol change) — needs server testing.
-15. **Discord bot + server DB** (#82, #90, #106, #118, #120, #142) — Discord4j integration, bot commands, emoji roles,
+13. ~~**Countdown before game**~~ (#135) — countdown before multiplayer start (Maxenor). Requires working server.
+11. ~~**Gatherer count + DeploySpinner fix**~~ (#153, #159) — show gatherer count per resource (Maxenor) + fix
+    DeploySpinner constructor. Added `getGathererCount()` and `recallGatherers()` to Player, `getDisplayCount()` hook
+    in IconSpinner, constructor params on DeploySpinner. Adapted to Bondolo's DeployType enum, Action enum, generics,
+    and pattern matching. Skipped `Building.deployTypeToGatherSupply()` since supply class passed directly via constructor.
+15. ~~**Discord bot + server DB**~~ (#82, #90, #106, #118, #120, #142) — Discord4j integration, bot commands, emoji roles,
     GitHub notifications, DB connection fixes. Modernize DBInterface with try-with-resources
 
 ### Phase 6 — Big Features (defer until base is solid)
