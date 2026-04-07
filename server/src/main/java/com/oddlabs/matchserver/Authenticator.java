@@ -91,6 +91,12 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
             return;
         }
 
+        if (ServerConfiguration.getInstance().isSteamOnlyAuth()) {
+            client_interface.loginError(MatchmakingClientInterface.USER_ERROR_STEAM_REQUIRED);
+            MatchmakingServer.getLogger().info("Username/password authentication disabled - Steam-only mode enabled");
+            return;
+        }
+
         try {
             checkUsername(login.getUsername());
         } catch (InvalidUsernameException e) {
@@ -124,6 +130,12 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
             return;
         }
 
+        if (ServerConfiguration.getInstance().isSteamOnlyAuth()) {
+            client_interface.loginError(MatchmakingClientInterface.USER_ERROR_STEAM_REQUIRED);
+            MatchmakingServer.getLogger().info("Username/password authentication disabled - Steam-only mode enabled");
+            return;
+        }
+
         String username = login.getUsername().trim();
         if (!DBInterface.queryUser(username, login.getPasswordDigest())) {
             client_interface.loginError(MatchmakingClientInterface.USER_ERROR_NO_SUCH_USER);
@@ -134,10 +146,40 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
     }
 
     public void loginAsGuest(int revision) {
-        if (revisionOK(revision)) {
-            String username = "Guest" + guest_postfix++;
-            doLogin(username, revision);
+        if (!revisionOK(revision)) {
+            return;
         }
+
+        if (ServerConfiguration.getInstance().isSteamOnlyAuth()) {
+            client_interface.loginError(MatchmakingClientInterface.USER_ERROR_STEAM_REQUIRED);
+            MatchmakingServer.getLogger().info("Guest authentication disabled - Steam-only mode enabled");
+            return;
+        }
+
+        String username = "Guest" + guest_postfix++;
+        doLogin(username, revision);
+    }
+
+    public void loginWithSteam(long steamAccountId, String personaName, byte[] authTicket, int revision) {
+        if (!revisionOK(revision)) return;
+
+        MatchmakingServer.getLogger().info("Steam login attempt: accountId=" + steamAccountId + " persona=" + personaName + " ticketLen=" + (authTicket != null ? authTicket.length : 0));
+
+        if (!SteamAuthValidator.validateTicket(steamAccountId, authTicket)) {
+            client_interface.loginError(MatchmakingClientInterface.USER_ERROR_NO_SUCH_USER);
+            MatchmakingServer.getLogger().warning("Steam auth ticket validation failed for account ID: " + steamAccountId);
+            return;
+        }
+
+        String nick = DBInterface.getOrCreateSteamProfile(steamAccountId, personaName);
+        if (nick == null) {
+            client_interface.loginError(MatchmakingClientInterface.USER_ERROR_NO_SUCH_USER);
+            MatchmakingServer.getLogger().warning("getOrCreateSteamProfile returned null for account ID: " + steamAccountId);
+            return;
+        }
+
+        MatchmakingServer.getLogger().info("Steam login success: " + nick);
+        doLogin(nick, revision);
     }
 
     private boolean revisionOK(int revision) {
