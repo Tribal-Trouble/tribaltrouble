@@ -84,6 +84,7 @@ dependencies {
     implementation("commons-collections:commons-collections:3.1")
     implementation("com.mysql:mysql-connector-j:9.3.0")
     implementation("com.discord4j:discord4j-core:3.2.6")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.3")
 }
 
 tasks.register<JavaExec>("runMatchmaker") {

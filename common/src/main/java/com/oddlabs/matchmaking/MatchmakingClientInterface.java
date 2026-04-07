@@ -19,6 +19,8 @@ public interface MatchmakingClientInterface {
     int USERNAME_ERROR_TOO_LONG = 5;
     int USERNAME_ERROR_TOO_SHORT = 6;
 
+    int USER_ERROR_STEAM_REQUIRED = 13;
+
     int CHAT_ERROR_TOO_MANY_USERS = 10;
     int CHAT_ERROR_INVALID_NAME = 11;
     int CHAT_ERROR_NO_SUCH_NICK = 12;
