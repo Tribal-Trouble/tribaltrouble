@@ -1,5 +1,6 @@
 package com.oddlabs.tt.viewer;
 
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.tt.delegate.GameStatsDelegate;
 import com.oddlabs.tt.delegate.InGameMainMenu;
 import com.oddlabs.tt.delegate.Menu;
@@ -91,7 +92,7 @@ public class DefaultInGameInfo implements InGameInfo {
             PlayerInfo player_info = player.getPlayerInfo();
             var color_floats = player.getColor();
             Vector4fc color = viewer.getPeerHub().isAlive(player) ? color_floats : new Vector4f(color_floats.x(), color_floats.y(), color_floats.z(), .25f);
-            Label name = new Label(player_info.getName(), Skin.getSkin().getHeadlineFont())
+            Label name = new Label(NickUtils.toDisplayName(player_info.getName()), Skin.getSkin().getHeadlineFont())
                     .setColor(color);
             String race_str = RacesResources.getRaceName(player_info.getRace());
             Label race = new Label(race_str, Skin.getSkin().getHeadlineFont())

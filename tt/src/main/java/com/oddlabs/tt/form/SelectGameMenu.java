@@ -1,6 +1,7 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.ChatRoomEntry;
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.GameHost;
 import com.oddlabs.matchmaking.GameSession;
@@ -392,7 +393,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
     private void updateRankingList(@NonNull RankingEntry ranking) {
         Row<RankingEntry, Label> row = new Row<>(new Label[]{
                 new IntegerLabel(ranking.getRanking(), Skin.getSkin().getMultiColumnComboBoxData().font()),
-                new Label(ranking.getName(), Skin.getSkin().getMultiColumnComboBoxData().font(), user_name_size),
+                new Label(NickUtils.toDisplayName(ranking.getName()), Skin.getSkin().getMultiColumnComboBoxData().font(), user_name_size),
                 new IntegerLabel(ranking.getRating(), Skin.getSkin().getMultiColumnComboBoxData().font()),
                 new IntegerLabel(ranking.getWins(), Skin.getSkin().getMultiColumnComboBoxData().font()),
                 new IntegerLabel(ranking.getLosses(), Skin.getSkin().getMultiColumnComboBoxData().font()),

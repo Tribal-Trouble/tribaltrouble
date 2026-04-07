@@ -1,6 +1,7 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.Game;
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.tt.event.LocalEventQueue;
@@ -288,7 +289,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
                         team_button.setDisabled(!canControlSlot(i));
                         break;
                     case PlayerSlot.HUMAN:
-                        String player_name = player_info.getName();
+                        String player_name = NickUtils.toDisplayName(player_info.getName());
                         new_human_names.add(player_name);
                         slot_button.getMenu().getItem(OPEN_INDEX).setLabelString(player_name);
                         slot_button.getMenu().chooseItem(OPEN_INDEX);

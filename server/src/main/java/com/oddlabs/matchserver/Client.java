@@ -6,6 +6,7 @@ import com.oddlabs.matchmaking.GameHost;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.MatchmakingClientInterface;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.Participant;
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.matchmaking.RankingEntry;
@@ -483,7 +484,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
             DBInterface.createGame(game, getProfile().getNick());
 
             if (current_room != null) {
-                String formatted_message = getProfile().getNick() + " has created a game called \"" + current_game.getName() + "\".";
+                String formatted_message = NickUtils.toDisplayName(getProfile().getNick()) + " has created a game called \"" + current_game.getName() + "\".";
                 server.getChatLogger().info(formatted_message);
                 current_room.sendMessage("Server", formatted_message);
                 DiscordBotService.getInstance().getChatroomCoordinator()
@@ -567,7 +568,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
     }
 
     private String formatChat(String message) {
-        return "<" + getProfile().getNick() + "> " + message;
+        return "<" + NickUtils.toDisplayName(getProfile().getNick()) + "> " + message;
     }
 
     public void sendMessageToRoom(String msg) {

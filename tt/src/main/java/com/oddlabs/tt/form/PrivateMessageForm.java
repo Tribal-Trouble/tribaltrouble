@@ -1,5 +1,6 @@
 package com.oddlabs.tt.form;
 
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.tt.gui.ButtonObject;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.EditLine;
@@ -41,7 +42,7 @@ public final class PrivateMessageForm extends Form {
         Label label_headline = new Label(i18n("private_message_caption"), Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
 
-        Label label_name = new Label(i18n("to", nick), Skin.getSkin().getEditFont());
+        Label label_name = new Label(i18n("to", NickUtils.toDisplayName(nick)), Skin.getSkin().getEditFont());
         editline_name = new EditLine(EDITLINE_WIDTH, 256);
         editline_name.addEnterListener(_ -> send());
 
