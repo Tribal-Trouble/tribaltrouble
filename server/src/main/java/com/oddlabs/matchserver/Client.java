@@ -181,6 +181,11 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
         getGameSession().updateGameStatus(tick, status);
     }
 
+    public void updateSpectatorInfo(int tick, String info) {
+        if (getGameSession() == null) return;
+        getGameSession().updateSpectatorInfo(tick, info);
+    }
+
     public void gameQuitNotify(String nick) {
         if (getGameSession() == null)
             return;

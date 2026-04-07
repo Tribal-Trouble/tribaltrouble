@@ -5,7 +5,12 @@ import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.matchmaking.Participant;
 import com.oddlabs.matchserver.discord.DiscordEmbedCreator;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class TimestampedGameSession {
     private static final long JOIN_MAX_TIME = 3 * 60 * 1000;
@@ -46,6 +51,10 @@ public final class TimestampedGameSession {
     private boolean all_5_wins;
     private int[] player_ratings;
 
+    private FileWriter spectatorFileWriter;
+    private final Set<Integer> spectatorTicksWritten = new HashSet<>();
+    private boolean spectatorFileChecked;
+
     public TimestampedGameSession(GameSession session, int database_id) {
         this.session = session;
         this.database_id = database_id;
@@ -57,6 +66,14 @@ public final class TimestampedGameSession {
         for (int i = 0; i < num_participants; i++)
             nicks += session.getParticipants()[i].getNick() + " ";
         MatchmakingServer.getLogger().info("Game " + database_id + " created. [" + nicks + "] " + getParticipantStates());
+
+        try {
+            File spectatorDir = new File("/var/games");
+            if (!spectatorDir.exists()) spectatorDir.mkdirs();
+            spectatorFileWriter = new FileWriter(new File(spectatorDir, String.valueOf(database_id)));
+        } catch (IOException e) {
+            MatchmakingServer.getLogger().warning("Failed to create spectator file for game " + database_id + ": " + e.getMessage());
+        }
     }
 
     private String getParticipantStates() {
@@ -143,6 +160,25 @@ public final class TimestampedGameSession {
                         return;
                     }
             }
+        }
+    }
+
+    public void updateSpectatorInfo(int tick, String info) {
+        if (spectatorFileWriter == null) {
+            if (!spectatorFileChecked) {
+                spectatorFileChecked = true;
+                MatchmakingServer.getLogger().warning("Spectator file writer not initialized for game " + database_id);
+            }
+            return;
+        }
+        try {
+            if (!spectatorTicksWritten.contains(tick)) {
+                spectatorFileWriter.write(info);
+                spectatorFileWriter.flush();
+                spectatorTicksWritten.add(tick);
+            }
+        } catch (IOException e) {
+            MatchmakingServer.getLogger().warning("Error writing spectator data for game " + database_id + ": " + e.getMessage());
         }
     }
 

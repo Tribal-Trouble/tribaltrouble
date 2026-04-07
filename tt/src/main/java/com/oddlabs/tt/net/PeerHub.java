@@ -14,7 +14,10 @@ import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.World;
+import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.util.StateChecksum;
@@ -47,6 +50,7 @@ public final class PeerHub implements Animated, RouterHandler {
     private static final int CLIENT_MAX_DELAY_MILLIS = 60;
     private static final float FREE_QUIT_TIME = 120f;
     private static final int TICKS_PER_STATUS_UPDATE = (int) (20 / AnimationManager.ANIMATION_SECONDS_PER_TICK);
+    private static final int TICKS_PER_SPECTATOR_UPDATE = 5;
     private static final int TICKS_PER_CHECKSUM = (int) (10 / AnimationManager.ANIMATION_SECONDS_PER_TICK);
 
     private static boolean waiting_for_ack = false;
@@ -74,6 +78,12 @@ public final class PeerHub implements Animated, RouterHandler {
     private int server_millis;
     private int paused;
     private boolean is_synchronized;
+
+    // Web spectator streaming state
+    private boolean sentMap;
+    private boolean sentInitInfo;
+    private boolean sentTrees;
+    private int mapRowsSent;
 
     public boolean isSynchronized() {
         return is_synchronized;
@@ -269,6 +279,13 @@ public final class PeerHub implements Animated, RouterHandler {
         if (getTick() % TICKS_PER_STATUS_UPDATE == 0 && Network.getMatchmakingClient().isConnected())
             sendStatusUpdate();
 
+        if (is_multiplayer && Network.getMatchmakingClient().isConnected()) {
+            if (!sentMap) sendMap();
+            if (!sentInitInfo) sendInitInfo();
+            if (!sentTrees) sendTrees();
+            if (getTick() % TICKS_PER_SPECTATOR_UPDATE == 0) sendSpectatorInfo();
+        }
+
         for (Peer peer : peer_index_to_peer) {
             if (peer != null) {
                 try {
@@ -289,6 +306,70 @@ public final class PeerHub implements Animated, RouterHandler {
         local_player.getWorld().getAnimationManagerGameTime().updateChecksum(checksum);
         local_player.getWorld().getAnimationManagerRealTime().updateChecksum(checksum);
         router_client.getInterface().checksum(checksum.getValue());
+    }
+
+    private void sendMap() {
+        HeightMap map = local_player.getWorld().getHeightMap();
+        int size = map.getGridUnitsPerWorld();
+        if (mapRowsSent < size) {
+            StringBuilder info = new StringBuilder("M ").append(mapRowsSent).append(' ');
+            for (int x = 0; x < size; x++) {
+                info.append(map.getHeight(x, mapRowsSent)).append(' ');
+            }
+            info.append('\n');
+            mapRowsSent++;
+            Network.getMatchmakingClient().getInterface().updateSpectatorInfo(-mapRowsSent, info.toString());
+        } else {
+            sentMap = true;
+        }
+    }
+
+    private void sendInitInfo() {
+        Player[] players = local_player.getWorld().getPlayers();
+        StringBuilder info = new StringBuilder("I ");
+        for (Player player : players) {
+            var color = player.getColor();
+            String name = player.getPlayerInfo().getName();
+            int race = player.getPlayerInfo().getRace();
+            int team = player.getPlayerInfo().getTeam();
+            info.append("NAME ").append(name).append(' ');
+            info.append("RACE ").append(race).append(' ');
+            info.append("TEAM ").append(team).append(' ');
+            info.append("COLOR ").append(color.x()).append(' ').append(color.y()).append(' ').append(color.z()).append(' ');
+        }
+        info.append('\n');
+        Network.getMatchmakingClient().getInterface().updateSpectatorInfo(-10001, info.toString());
+        sentInitInfo = true;
+    }
+
+    private void sendTrees() {
+        List<int[]> trees = local_player.getWorld().getTreePositions();
+        StringBuilder info = new StringBuilder("T ");
+        for (int[] pos : trees) {
+            info.append(pos[0]).append(' ').append(pos[1]).append(' ');
+        }
+        info.append('\n');
+        Network.getMatchmakingClient().getInterface().updateSpectatorInfo(-10000, info.toString());
+        sentTrees = true;
+    }
+
+    private void sendSpectatorInfo() {
+        int tick = getTick();
+        StringBuilder info = new StringBuilder().append(tick).append(' ');
+        Player[] players = local_player.getWorld().getPlayers();
+        for (int i = 0; i < players.length; i++) {
+            info.append("P ").append(i).append(' ');
+            for (var s : players[i].getUnits().getSet()) {
+                if (s instanceof Unit u) {
+                    info.append("U ").append(u.getGridX()).append(' ').append(u.getGridY()).append(' ');
+                } else if (s instanceof Building b) {
+                    info.append("B ").append(b.getGridX()).append(' ').append(b.getGridY()).append(' ')
+                            .append(b.getTemplate().getPlacingSize()).append(' ').append(b.getHitPoints()).append(' ');
+                }
+            }
+        }
+        info.append('\n');
+        Network.getMatchmakingClient().getInterface().updateSpectatorInfo(tick, info.toString());
     }
 
     public void setPaused(boolean p) {

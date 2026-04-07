@@ -18,6 +18,7 @@ import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.WorldInfo;
 import org.joml.Vector4fc;
+import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -50,6 +51,7 @@ public final class World {
     private final @NonNull UnitGrid unit_grid;
     private final @NonNull PatchGroup patch_root;
     private final @NonNull AbstractTreeGroup tree_root;
+    private final @NonNull List<int[]> treePositions;
     private final @NonNull AbstractElementNode<?> element_root;
     private final @Nullable RacesResources races_resources;
     private final @NonNull LandscapeResources landscape_resources;
@@ -181,6 +183,7 @@ public final class World {
         this.unit_grid = new UnitGrid(world);
         RegionBuilder.buildRegions(unit_grid, world_info.starting_locations()[0][0], world_info.starting_locations()[0][1]);
         this.patch_root = new PatchGroup(this);
+        this.treePositions = world_info.trees();
         this.tree_root = AbstractTreeGroup.newRoot(this, world_info.trees(), world_info.palm_trees(), terrain);
         this.element_root = AbstractElementNode.newRoot(world);
         AbstractElementNode.buildSupplies(this, world_info.iron(), world_info.rocks(), world_info.plants(), terrain);
@@ -192,6 +195,10 @@ public final class World {
 
     public @NonNull AbstractTreeGroup getTreeRoot() {
         return tree_root;
+    }
+
+    public @NonNull List<int[]> getTreePositions() {
+        return treePositions;
     }
 
     public @NonNull AbstractPatchGroup getPatchRoot() {

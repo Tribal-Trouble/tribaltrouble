@@ -2,31 +2,28 @@ package com.oddlabs.matchserver;
 
 import java.io.File;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
-public class WebsiteLinkHelper {
+public final class WebsiteLinkHelper {
+
     public static String getPlayerHighscoreUrl(String nick) {
-        String domain = ServerConfiguration.getInstance().get(ServerConfiguration.WEBSITE_DOMAIN);
-        if (domain == null) domain = "tribaltrouble.org";
-
-        try {
-            nick = URLEncoder.encode(nick, "UTF-8");
-        } catch (Exception e) {
-            // Fallback in case of error
-            nick = "";
-        }
-        return String.format("https://%s/#player#%s#0", domain, nick);
+        String domain = getDomain();
+        String encoded = URLEncoder.encode(nick, StandardCharsets.UTF_8);
+        return String.format("https://%s/#player#%s#0", domain, encoded);
     }
 
-    public static String getReplayUrl(int game_id) {
-        File spectatorFile = new File("/var/games/" + game_id);
-        boolean exists = spectatorFile.exists();
-        String domain = ServerConfiguration.getInstance().get(ServerConfiguration.WEBSITE_DOMAIN);
-        if (domain == null) domain = "tribaltrouble.org";
-        return exists ? String.format("https://%s/watch.html#%d", domain, game_id) : null;
+    public static String getReplayUrl(int gameId) {
+        File spectatorFile = new File("/var/games/" + gameId);
+        if (!spectatorFile.exists()) return null;
+        return String.format("https://%s/watch.html#%d", getDomain(), gameId);
     }
 
-    public static String getProfileLink(String display_text, String nick) {
-        String url = getPlayerHighscoreUrl(nick);
-        return String.format("[%s](%s)", display_text, url);
+    public static String getProfileLink(String displayText, String nick) {
+        return String.format("[%s](%s)", displayText, getPlayerHighscoreUrl(nick));
+    }
+
+    private static String getDomain() {
+        String domain = ServerConfiguration.getInstance().get(ServerConfiguration.WEBSITE_DOMAIN);
+        return domain != null ? domain : "tribaltrouble.org";
     }
 }

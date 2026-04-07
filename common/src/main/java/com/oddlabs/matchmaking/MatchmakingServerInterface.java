@@ -67,4 +67,6 @@ public interface MatchmakingServerInterface {
     void gameWonNotify();
 
     void updateGameStatus(int tick, int[] status);
+
+    void updateSpectatorInfo(int tick, String info);
 }
