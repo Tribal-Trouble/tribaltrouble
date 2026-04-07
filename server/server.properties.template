@@ -17,3 +17,6 @@ REACTION_ROLE_MESSAGE_ID=
 STEAM_WEB_API_KEY=
 STEAM_APP_ID=
 STEAM_ONLY_AUTH=false
+
+# Spectator data directory (defaults to /var/games if not set)
+SPECTATOR_DATA_DIR=/var/games

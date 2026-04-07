@@ -28,6 +28,7 @@ public final class ServerConfiguration {
     public static final String STEAM_WEB_API_KEY = "STEAM_WEB_API_KEY";
     public static final String STEAM_APP_ID = "STEAM_APP_ID";
     public static final String STEAM_ONLY_AUTH = "STEAM_ONLY_AUTH";
+    public static final String SPECTATOR_DATA_DIR = "SPECTATOR_DATA_DIR";
     /*
      * Key for emoji role mappings
      * Example JSON format for EMOJI_ROLE_MAPPINGS:

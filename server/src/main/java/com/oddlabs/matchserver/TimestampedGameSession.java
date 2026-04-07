@@ -68,7 +68,9 @@ public final class TimestampedGameSession {
         MatchmakingServer.getLogger().info("Game " + database_id + " created. [" + nicks + "] " + getParticipantStates());
 
         try {
-            File spectatorDir = new File("/var/games");
+            String dirPath = ServerConfiguration.getInstance().get(ServerConfiguration.SPECTATOR_DATA_DIR);
+            if (dirPath == null || dirPath.isEmpty()) dirPath = "/var/games";
+            File spectatorDir = new File(dirPath);
             if (!spectatorDir.exists()) spectatorDir.mkdirs();
             spectatorFileWriter = new FileWriter(new File(spectatorDir, String.valueOf(database_id)));
         } catch (IOException e) {

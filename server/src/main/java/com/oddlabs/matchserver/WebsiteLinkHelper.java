@@ -13,7 +13,9 @@ public final class WebsiteLinkHelper {
     }
 
     public static String getReplayUrl(int gameId) {
-        File spectatorFile = new File("/var/games/" + gameId);
+        String dirPath = ServerConfiguration.getInstance().get(ServerConfiguration.SPECTATOR_DATA_DIR);
+        if (dirPath == null || dirPath.isEmpty()) dirPath = "/var/games";
+        File spectatorFile = new File(dirPath, String.valueOf(gameId));
         if (!spectatorFile.exists()) return null;
         return String.format("https://%s/watch.html#%d", getDomain(), gameId);
     }
