@@ -268,8 +268,8 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         return panel;
     }
 
-    public void createGameMenu(@NonNull GameNetwork game_network, @NonNull Game game, WorldGenerator generator, int player_slot) {
-        game_panel = new GameMenu(game_network, gui_root, this, game, generator, player_slot, game_list_panel.getWidth(), game_list_panel.getHeight(), BUTTON_WIDTH);
+    public void createGameMenu(@NonNull GameNetwork game_network, @NonNull Game game, WorldGenerator generator, int player_slot, int player_count) {
+        game_panel = new GameMenu(game_network, gui_root, this, game, generator, player_slot, game_list_panel.getWidth(), game_list_panel.getHeight(), BUTTON_WIDTH, player_count);
         setGameMenu(game_panel);
         game_network.getClient().setConfigurationListener(game_panel);
     }

@@ -56,7 +56,7 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
     }
 
     @Override
-    public void connected(@NonNull Client client, @NonNull Game game, WorldGenerator generator, int player_slot) {
+    public void connected(@NonNull Client client, @NonNull Game game, WorldGenerator generator, int player_slot, int player_count) {
         if (multiplayer) {
             Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
             random.nextFloat(); // first one always in same area
@@ -66,7 +66,7 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
                 team = player_slot % 2;
             client.getServerInterface().setPlayerSlot(player_slot, PlayerSlot.HUMAN, race, team, false, PlayerSlot.AI_NONE);
             remove();
-            owner.createGameMenu(game_network, game, generator, player_slot);
+            owner.createGameMenu(game_network, game, generator, player_slot, player_count);
 //			GameMenu panel = new GameMenu(owner, game, generator, player_slot);
 //			owner.setGameMenu(panel);
 //			Network.setConfigurationListener(panel);

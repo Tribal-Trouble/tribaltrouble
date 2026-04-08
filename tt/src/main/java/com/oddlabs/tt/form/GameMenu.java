@@ -97,7 +97,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
     private boolean ready;
 
     @SuppressWarnings("unchecked")
-    public GameMenu(@NonNull GameNetwork game_network, GUIRoot gui_root, SelectGameMenu owner, @NonNull Game game, WorldGenerator generator, int player_slot, int compare_width, int compare_height, int button_width) {
+    public GameMenu(@NonNull GameNetwork game_network, GUIRoot gui_root, SelectGameMenu owner, @NonNull Game game, WorldGenerator generator, int player_slot, int compare_width, int compare_height, int button_width, int player_count) {
         super(i18n("game_caption"));
         this.game_network = game_network;
         this.owner = owner;
@@ -109,15 +109,15 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
         String tag = rated ? i18n("rated") + " " : "";
         Label game_name_label = new Label(i18n("game") + " " + tag + game.getName(), Skin.getSkin().getHeadlineFont());
 
-        slot_buttons = (PulldownButton<Void>[]) new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
-        race_buttons = (PulldownButton<Void>[]) new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
-        team_buttons = (PulldownButton<Void>[]) new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
-        ready_marks = new Diode[MatchmakingServerInterface.MAX_PLAYERS];
-        ratings = new Label[MatchmakingServerInterface.MAX_PLAYERS];
+        slot_buttons = (PulldownButton<Void>[]) new PulldownButton[player_count];
+        race_buttons = (PulldownButton<Void>[]) new PulldownButton[player_count];
+        team_buttons = (PulldownButton<Void>[]) new PulldownButton[player_count];
+        ready_marks = new Diode[player_count];
+        ratings = new Label[player_count];
         Group player_group = new Group();
         GUIObject previous = null;
-        for (int i = 0; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
-            previous = createPlayerPulldown(gui_root, player_group, previous, slot_buttons, race_buttons, team_buttons, ready_marks, ratings, i, MatchmakingServerInterface.MAX_PLAYERS);
+        for (int i = 0; i < player_count; i++) {
+            previous = createPlayerPulldown(gui_root, player_group, previous, slot_buttons, race_buttons, team_buttons, ready_marks, ratings, i, player_count);
         }
         player_group.compileCanvas();
         addChild(player_group);
@@ -230,7 +230,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
     }
 
     @Override
-    public void connected(Client client, Game game, WorldGenerator generator, int player_slot) {
+    public void connected(Client client, Game game, WorldGenerator generator, int player_slot, int player_count) {
         assert false;
     }
 

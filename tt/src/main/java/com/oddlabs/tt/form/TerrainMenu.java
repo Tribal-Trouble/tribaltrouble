@@ -102,6 +102,8 @@ public final class TerrainMenu extends Group {
     private final @NonNull PulldownMenu<Void> pm_gamespeed;
     private final @NonNull GUIRoot gui_root;
     private final @NonNull NetworkSelector network;
+    private static final int DEFAULT_PLAYER_COUNT = 6;
+    private int player_count = DEFAULT_PLAYER_COUNT;
     private int seed;
 
     static {
@@ -114,7 +116,7 @@ public final class TerrainMenu extends Group {
         max = max.multiply(new BigInteger(new byte[]{SIZE_CARDINALITY}));
         max = max.multiply(new BigInteger(new byte[]{RACE_CARDINALITY}));
         max = max.multiply(new BigInteger(new byte[]{TEAM_CARDINALITY}));
-        for (int i = 1; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
+        for (int i = 1; i < DEFAULT_PLAYER_COUNT; i++) {
             max = max.multiply(new BigInteger(new byte[]{DIFFICULTY_CARDINALITY}));
             max = max.multiply(new BigInteger(new byte[]{RACE_CARDINALITY}));
             max = max.multiply(new BigInteger(new byte[]{TEAM_CARDINALITY}));
@@ -278,16 +280,16 @@ public final class TerrainMenu extends Group {
 
         // races and teams
         Group group_race_team = new Group();
-        labels_players = new Label[MatchmakingServerInterface.MAX_PLAYERS];
-        difficulty_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
-        race_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
-        team_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
-        PulldownButton<Void>[] difficulty_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
-        race_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
-        team_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
+        labels_players = new Label[player_count];
+        difficulty_pulldown_menus = new PulldownMenu[player_count];
+        race_pulldown_menus = new PulldownMenu[player_count];
+        team_pulldown_menus = new PulldownMenu[player_count];
+        PulldownButton<Void>[] difficulty_pulldown_buttons = new PulldownButton[player_count];
+        race_pulldown_buttons = new PulldownButton[player_count];
+        team_pulldown_buttons = new PulldownButton[player_count];
         Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * (long) LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
         random.nextFloat();
-        for (int i = 0; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
+        for (int i = 0; i < player_count; i++) {
             difficulty_pulldown_menus[i] = new PulldownMenu<>();
             race_pulldown_menus[i] = new PulldownMenu<>();
             team_pulldown_menus[i] = new PulldownMenu<>();
@@ -311,7 +313,7 @@ public final class TerrainMenu extends Group {
 
             race_pulldown_buttons[i] = new PulldownButton<>(gui_root, race_pulldown_menus[i], 0, 115);
             group_race_team.addChild(race_pulldown_buttons[i]);
-            for (int j = 0; j < MatchmakingServerInterface.MAX_PLAYERS; j++) {
+            for (int j = 0; j < player_count; j++) {
                 String team_str = i18n("team", Integer.toString(j + 1));
                 PulldownItem<Void> pulldown_item_team = new PulldownItem<>(team_str);
                 team_pulldown_menus[i].addItem(pulldown_item_team);
@@ -415,7 +417,7 @@ public final class TerrainMenu extends Group {
         // set standard game
         pulldown_size.addItemChosenListener(new PulldownUpdateSizeListener());
         pm_terrain_type.addItemChosenListener(new PulldownUpdateTerrainListener());
-        for (int i = 0; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
+        for (int i = 0; i < player_count; i++) {
             difficulty_pulldown_menus[i].addItemChosenListener(new PulldownUpdateHardListener());
             if (i == 0) {
                 team_pulldown_menus[i].chooseItem(0);
@@ -460,7 +462,7 @@ public final class TerrainMenu extends Group {
         int player_team = team_pulldown_menus[0].getChosenItemIndex();
         result = result.add((new BigInteger(new byte[]{(byte) player_team})).multiply(max_val));
         max_val = max_val.multiply(new BigInteger(new byte[]{TEAM_CARDINALITY}));
-        for (int i = 1; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
+        for (int i = 1; i < DEFAULT_PLAYER_COUNT; i++) {
             int difficulty = difficulty_pulldown_menus[i].getChosenItemIndex();
             result = result.add((new BigInteger(new byte[]{(byte) difficulty})).multiply(max_val));
             max_val = max_val.multiply(new BigInteger(new byte[]{DIFFICULTY_CARDINALITY}));
@@ -487,7 +489,7 @@ public final class TerrainMenu extends Group {
 
     private void parseBigInteger(BigInteger result) {
         BigInteger max_val = MAX_VALUE;
-        for (int i = MatchmakingServerInterface.MAX_PLAYERS - 1; i >= 1; i--) {
+        for (int i = DEFAULT_PLAYER_COUNT - 1; i >= 1; i--) {
             result = result.mod(max_val);
             max_val = max_val.divide(new BigInteger(new byte[]{TEAM_CARDINALITY}));
             int team = result.divide(max_val).intValue();
@@ -638,7 +640,8 @@ public final class TerrainMenu extends Group {
                 vegetation_amount / (float) SLIDER_MAX_VALUE,
                 supplies_amount / (float) SLIDER_MAX_VALUE,
                 seed * seed,
-                ai_names);
+                ai_names,
+                player_count);
         game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN, race_pulldown_menus[0].getChosenItemIndex(), team_pulldown_menus[0].getChosenItemIndex(), !multiplayer, PlayerSlot.AI_NONE);
         if (!multiplayer) {
             for (int i = 1; i < race_pulldown_menus.length; i++) {
