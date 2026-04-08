@@ -1,5 +1,6 @@
 package com.oddlabs.tt.global;
 
+import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.util.Color;
@@ -103,14 +104,40 @@ public final class Settings implements Serializable {
     public float contrast_intensity = 0.5f;
     public boolean team_stencil = false;
 
-    public static final Vector4f[] DEFAULT_TEAM_COLOURS = {
-            Color.argb4v(0xFFFFBF00), /* Orange */
-            Color.argb4v(0xFF007FFF), /* Royal Blue */
-            Color.argb4v(0xFFFF0040), /* Red */
-            Color.argb4v(0xFF00FFBF), /* Teal */
-            Color.argb4v(0xFFBF00FF), /* Purple */
-            Color.argb4v(0xFFBFFF00) /* Lime */
-    };
+    public static final Vector4f[] DEFAULT_TEAM_COLOURS = generateDefaultColours();
+
+    private static Vector4f[] generateDefaultColours() {
+        // 18 hand-picked colours that are visually distinct on terrain
+        Vector4f[] handPicked = {
+                Color.argb4v(0xFFFFBF00), /*  0 Orange */
+                Color.argb4v(0xFF007FFF), /*  1 Royal Blue */
+                Color.argb4v(0xFFFF0040), /*  2 Red */
+                Color.argb4v(0xFF00FFBF), /*  3 Teal */
+                Color.argb4v(0xFFBF00FF), /*  4 Purple */
+                Color.argb4v(0xFFBFFF00), /*  5 Lime */
+                Color.argb4v(0xFFFFFF00), /*  6 Yellow */
+                Color.argb4v(0xFFFF69B4), /*  7 Hot Pink */
+                Color.argb4v(0xFF006400), /*  8 Dark Green */
+                Color.argb4v(0xFF8B0000), /*  9 Maroon */
+                Color.argb4v(0xFF00BFFF), /* 10 Sky Blue */
+                Color.argb4v(0xFFFFFFFF), /* 11 White */
+                Color.argb4v(0xFF000080), /* 12 Navy */
+                Color.argb4v(0xFFFF7F50), /* 13 Coral */
+                Color.argb4v(0xFFFFD700), /* 14 Gold */
+                Color.argb4v(0xFFFF00FF), /* 15 Magenta */
+                Color.argb4v(0xFF228B22), /* 16 Forest Green */
+                Color.argb4v(0xFF708090), /* 17 Slate */
+        };
+        // Fill remaining slots (18-31) with HSB-generated colours
+        Vector4f[] all = new Vector4f[MatchmakingServerInterface.MAX_PLAYERS];
+        System.arraycopy(handPicked, 0, all, 0, handPicked.length);
+        for (int i = handPicked.length; i < all.length; i++) {
+            float hue = (i - handPicked.length) / (float) (all.length - handPicked.length);
+            int rgb = java.awt.Color.HSBtoRGB(hue, 0.8f, 0.9f);
+            all[i] = Color.argb4v(0xFF000000 | (rgb & 0x00FFFFFF));
+        }
+        return all;
+    }
 
     public Vector4f @NonNull [] team_colours = new Vector4f[DEFAULT_TEAM_COLOURS.length];
 

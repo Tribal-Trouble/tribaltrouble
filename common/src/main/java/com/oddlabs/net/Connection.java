@@ -15,7 +15,7 @@ import java.util.List;
 
 
 public final class Connection extends AbstractConnection implements Handler, ConnectionPeerInterface {
-    public static final int BUFFER_SIZE = 16382;
+    public static final int BUFFER_SIZE = 65536;
     private static final short HEADER_SIZE = 2;
 
     private final ByteBuffer read_buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);

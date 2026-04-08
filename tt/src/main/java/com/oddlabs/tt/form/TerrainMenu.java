@@ -618,6 +618,10 @@ public final class TerrainMenu extends Group {
         int gametype;
         IO.println("hills = " + hills / (float) SLIDER_MAX_VALUE + " | vegetation_amount = " + vegetation_amount / (float) SLIDER_MAX_VALUE + " | supplies_amount = " + supplies_amount / (float) SLIDER_MAX_VALUE + " | seed = " + seed * seed);
         String ai_string = i18n("ai");
+        String[] ai_names = new String[MatchmakingServerInterface.MAX_PLAYERS];
+        for (int i = 0; i < ai_names.length; i++) {
+            ai_names[i] = ai_string + i;
+        }
         InGameInfo ingame_info = multiplayer ? new MultiplayerInGameInfo(game.getRandomStartPos(), game.isRated()) : new DefaultInGameInfo();
         GameNetwork game_network = Menu.startNewGame(network, gui_root,
                 menu,
@@ -634,7 +638,7 @@ public final class TerrainMenu extends Group {
                 vegetation_amount / (float) SLIDER_MAX_VALUE,
                 supplies_amount / (float) SLIDER_MAX_VALUE,
                 seed * seed,
-                new String[]{ai_string + "0", ai_string + "1", ai_string + "2", ai_string + "3", ai_string + "4", ai_string + "5"});
+                ai_names);
         game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN, race_pulldown_menus[0].getChosenItemIndex(), team_pulldown_menus[0].getChosenItemIndex(), !multiplayer, PlayerSlot.AI_NONE);
         if (!multiplayer) {
             for (int i = 1; i < race_pulldown_menus.length; i++) {

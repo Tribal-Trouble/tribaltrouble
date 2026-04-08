@@ -11,7 +11,7 @@ public interface MatchmakingServerInterface {
 
     int MATCHMAKING_SERVER_PORT = 33214;
 
-    int MAX_PLAYERS = 6;
+    int MAX_PLAYERS = 32;
     int MIN_PLAYERS = 1;
     int MIN_ROOM_NAME_LENGTH = 1;
     int MAX_ROOM_NAME_LENGTH = 20;
