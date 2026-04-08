@@ -1,6 +1,5 @@
 package com.oddlabs.tt.form;
 
-import com.oddlabs.registration.RegistrationKey;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.EditLine;
@@ -10,10 +9,10 @@ import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.OKButton;
-import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.util.Utils;
+import com.oddlabs.tt.util.WordsEncoding;
 import org.jspecify.annotations.NonNull;
 
 import java.math.BigInteger;
@@ -39,18 +38,7 @@ public final class MapcodeForm extends Form {
     public MapcodeForm(TerrainMenu menu) {
         this.menu = menu;
         Label label_seed = new Label(i18n("map_code"), Skin.getSkin().getEditFont());
-        editline_seed = new EditLine(200, 12, RegistrationKey.CHAR_TO_WORD + RegistrationKey.LOWER_CASE_CHARS, Origin.AT_START) {
-            @Override
-            protected boolean insert(int index, char key) {
-                return super.insert(index, Character.toUpperCase(key));
-            }
-
-            @Override
-            public void append(@NonNull CharSequence text) {
-                var shifted = text.toString().toUpperCase();
-                super.append(shifted);
-            }
-        };
+        editline_seed = new EditLine(400, 100);
         editline_seed.addEnterListener(_ -> done());
 
         HorizButton button_ok = new OKButton(BUTTON_WIDTH);
@@ -95,7 +83,7 @@ public final class MapcodeForm extends Form {
             Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * (long) LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
             random.nextInt();
             BigInteger rand_int = new BigInteger(60, random);
-            String rand_string = RegistrationKey.createString(rand_int);
+            String rand_string = WordsEncoding.encode(rand_int);
             editline_seed.clear();
             editline_seed.append(rand_string);
         }

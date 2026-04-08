@@ -41,6 +41,7 @@ import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
+import com.oddlabs.tt.util.WordsEncoding;
 import com.oddlabs.tt.viewer.DefaultInGameInfo;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.MultiplayerInGameInfo;
@@ -67,12 +68,15 @@ public final class TerrainMenu extends Group {
 
     private static final String SEED_CARDINALITY = "40000";
     private static final int SLIDER_CARDINALITY = 11;
-    private static final int TERRAIN_TYPE_CARDINALITY = 2;
-    private static final int SIZE_CARDINALITY = 4;
+    private static final int TERRAIN_TYPE_CARDINALITY = 4;
+    private static final int TERRAIN_TYPE_CARDINALITY_LEGACY = 2;
+    private static final int SIZE_CARDINALITY = 7;
+    private static final int SIZE_CARDINALITY_LEGACY = 4;
     private static final int DIFFICULTY_CARDINALITY = 4;
     private static final int RACE_CARDINALITY = 2;
     private static final int TEAM_CARDINALITY = 6;
     private static final @NonNull BigInteger MAX_VALUE;
+    private static final @NonNull BigInteger MAX_VALUE_LEGACY;
 
     private static final ResourceBundle bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
 
@@ -107,13 +111,14 @@ public final class TerrainMenu extends Group {
     private int seed;
 
     static {
+        // Legacy mapcode encoding (per-player settings, 6 players)
         BigInteger max = BigInteger.ONE;
         max = max.multiply(new BigInteger(SEED_CARDINALITY));
         max = max.multiply(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
         max = max.multiply(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
         max = max.multiply(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
-        max = max.multiply(new BigInteger(new byte[]{TERRAIN_TYPE_CARDINALITY}));
-        max = max.multiply(new BigInteger(new byte[]{SIZE_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[]{TERRAIN_TYPE_CARDINALITY_LEGACY}));
+        max = max.multiply(new BigInteger(new byte[]{SIZE_CARDINALITY_LEGACY}));
         max = max.multiply(new BigInteger(new byte[]{RACE_CARDINALITY}));
         max = max.multiply(new BigInteger(new byte[]{TEAM_CARDINALITY}));
         for (int i = 1; i < DEFAULT_PLAYER_COUNT; i++) {
@@ -121,6 +126,16 @@ public final class TerrainMenu extends Group {
             max = max.multiply(new BigInteger(new byte[]{RACE_CARDINALITY}));
             max = max.multiply(new BigInteger(new byte[]{TEAM_CARDINALITY}));
         }
+        MAX_VALUE_LEGACY = max;
+
+        // New word-based mapcode encoding (terrain-only, supports more sizes/types)
+        max = BigInteger.ONE;
+        max = max.multiply(new BigInteger(SEED_CARDINALITY));
+        max = max.multiply(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[]{TERRAIN_TYPE_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[]{SIZE_CARDINALITY}));
         MAX_VALUE = max;
     }
 
@@ -455,7 +470,32 @@ public final class TerrainMenu extends Group {
         max_val = max_val.multiply(new BigInteger(new byte[]{TERRAIN_TYPE_CARDINALITY}));
         int size = pulldown_size.getChosenItemIndex();
         result = result.add((new BigInteger(new byte[]{(byte) size})).multiply(max_val));
-        max_val = max_val.multiply(new BigInteger(new byte[]{SIZE_CARDINALITY}));
+
+        String code = WordsEncoding.encode(result);
+        label_mapcode.clear();
+        label_mapcode.append(code);
+    }
+
+    private void setMapcodeLegacy() {
+        BigInteger max_val = BigInteger.ONE;
+        BigInteger result = BigInteger.ZERO;
+        result = result.add((new BigInteger("" + seed)).multiply(max_val));
+        max_val = max_val.multiply(new BigInteger(SEED_CARDINALITY));
+        int hills = slider_hills.getValue();
+        result = result.add((new BigInteger(new byte[]{(byte) hills})).multiply(max_val));
+        max_val = max_val.multiply(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
+        int vegetation_amount = slider_vegetation.getValue();
+        result = result.add((new BigInteger(new byte[]{(byte) vegetation_amount})).multiply(max_val));
+        max_val = max_val.multiply(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
+        int supplies_amount = slider_supplies.getValue();
+        result = result.add((new BigInteger(new byte[]{(byte) supplies_amount})).multiply(max_val));
+        max_val = max_val.multiply(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
+        int terrain_type = pm_terrain_type.getChosenItemIndex();
+        result = result.add((new BigInteger(new byte[]{(byte) terrain_type})).multiply(max_val));
+        max_val = max_val.multiply(new BigInteger(new byte[]{TERRAIN_TYPE_CARDINALITY_LEGACY}));
+        int size = pulldown_size.getChosenItemIndex();
+        result = result.add((new BigInteger(new byte[]{(byte) size})).multiply(max_val));
+        max_val = max_val.multiply(new BigInteger(new byte[]{SIZE_CARDINALITY_LEGACY}));
         int player_race = race_pulldown_menus[0].getChosenItemIndex();
         result = result.add((new BigInteger(new byte[]{(byte) player_race})).multiply(max_val));
         max_val = max_val.multiply(new BigInteger(new byte[]{RACE_CARDINALITY}));
@@ -480,15 +520,59 @@ public final class TerrainMenu extends Group {
     }
 
     public void parseMapcode(@NonNull String text) {
-        String code = text.toUpperCase();
-        BigInteger result = RegistrationKey.parseBits(code);
-        parseBigInteger(result);
-        label_mapcode.clear();
-        label_mapcode.append(code);
+        if (text.indexOf(' ') == -1) {
+            // Legacy letter-based notation
+            String code = text.toUpperCase();
+            BigInteger result = RegistrationKey.parseBits(code);
+            parseBigIntegerLegacy(result);
+            label_mapcode.clear();
+            label_mapcode.append(code);
+        } else {
+            // New word-based notation
+            try {
+                BigInteger result = WordsEncoding.decode(text);
+                parseBigInteger(result);
+                label_mapcode.clear();
+                label_mapcode.append(text);
+            } catch (IllegalArgumentException _) {
+                // Invalid word code — ignore
+            }
+        }
     }
 
     private void parseBigInteger(BigInteger result) {
         BigInteger max_val = MAX_VALUE;
+        result = result.mod(max_val);
+        max_val = max_val.divide(new BigInteger(new byte[]{SIZE_CARDINALITY}));
+        int size = result.divide(max_val).intValue();
+        if (pulldown_size.getSize() > size) {
+            pulldown_size.chooseItem(size);
+        }
+        result = result.mod(max_val);
+        max_val = max_val.divide(new BigInteger(new byte[]{TERRAIN_TYPE_CARDINALITY}));
+        int terrain_type = result.divide(max_val).intValue();
+        if (pm_terrain_type.getSize() > terrain_type) {
+            pm_terrain_type.chooseItem(terrain_type);
+        }
+        result = result.mod(max_val);
+        max_val = max_val.divide(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
+        int supplies_amount = result.divide(max_val).intValue();
+        slider_supplies.setValue(supplies_amount);
+        result = result.mod(max_val);
+        max_val = max_val.divide(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
+        int vegetation_amount = result.divide(max_val).intValue();
+        slider_vegetation.setValue(vegetation_amount);
+        result = result.mod(max_val);
+        max_val = max_val.divide(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
+        int hills = result.divide(max_val).intValue();
+        slider_hills.setValue(hills);
+        result = result.mod(max_val);
+        max_val = max_val.divide(new BigInteger(SEED_CARDINALITY));
+        seed = result.divide(max_val).intValue();
+    }
+
+    private void parseBigIntegerLegacy(BigInteger result) {
+        BigInteger max_val = MAX_VALUE_LEGACY;
         for (int i = DEFAULT_PLAYER_COUNT - 1; i >= 1; i--) {
             result = result.mod(max_val);
             max_val = max_val.divide(new BigInteger(new byte[]{TEAM_CARDINALITY}));
@@ -521,11 +605,11 @@ public final class TerrainMenu extends Group {
         int player_race = result.divide(max_val).intValue();
         race_pulldown_menus[0].chooseItem(player_race);
         result = result.mod(max_val);
-        max_val = max_val.divide(new BigInteger(new byte[]{SIZE_CARDINALITY}));
+        max_val = max_val.divide(new BigInteger(new byte[]{SIZE_CARDINALITY_LEGACY}));
         int size = result.divide(max_val).intValue();
         pulldown_size.chooseItem(size);
         result = result.mod(max_val);
-        max_val = max_val.divide(new BigInteger(new byte[]{TERRAIN_TYPE_CARDINALITY}));
+        max_val = max_val.divide(new BigInteger(new byte[]{TERRAIN_TYPE_CARDINALITY_LEGACY}));
         int terrain_type = result.divide(max_val).intValue();
         pm_terrain_type.chooseItem(terrain_type);
         result = result.mod(max_val);
@@ -566,7 +650,7 @@ public final class TerrainMenu extends Group {
         Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * (long) LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
         random.nextInt();
         BigInteger rand_int = new BigInteger(100, random);
-        parseBigInteger(rand_int);
+        parseBigIntegerLegacy(rand_int);
         setMapcode();
     }
 
