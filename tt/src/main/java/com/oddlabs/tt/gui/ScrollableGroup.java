@@ -24,8 +24,11 @@ public class ScrollableGroup extends Group implements Scrollable {
 
     @Override
     public void compileCanvas() {
+        // Temporarily remove scrollbar so bounding box reflects content only
+        if (scroll_bar != null) removeChild(scroll_bar);
         super.compileCanvas(0, 0, 0, 0);
-        total_content_height = getHeight() - content_height + getStepHeight();
+        total_content_height = getHeight();
+        if (scroll_bar != null) addChild(scroll_bar);
 
         // Always reserve space for scrollbar width so parent Panel sizes correctly
         int scrollbar_width = scroll_bar != null ? scroll_bar.getWidth() : 0;

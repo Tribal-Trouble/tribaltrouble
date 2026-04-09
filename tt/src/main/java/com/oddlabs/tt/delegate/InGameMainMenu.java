@@ -50,7 +50,7 @@ public final class InGameMainMenu extends Menu {
 
         addOptionsButton(() -> new InGameOptionsMenu(getGUIRoot(), viewer));
 
-        game_infos = new Group(false);
+        game_infos = new Group(true);
         viewer.addGUI(this, game_infos);
         addChild(game_infos);
 
