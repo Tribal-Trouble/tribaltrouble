@@ -635,157 +635,127 @@ public final class DBInterface {
         }
     }
 
-    public static final void createGame(Game game, String nick) {
-        try {
-            Connection conn = DBUtils.createDatabaseConnection();
-            PreparedStatement stmt =
-                    conn.prepareStatement(
-                            "INSERT INTO games (time_create, name, rated, speed, size, hills,"
-                                + " trees, resources, mapcode, status) VALUES (?, ?, ?, ?, ?, ?, ?,"
-                                + " ?, ?, ?)",
-                            java.sql.Statement.RETURN_GENERATED_KEYS);
+    public static void createGame(Game game, String nick) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "INSERT INTO games (time_create, name, rated, speed, size, hills,"
+                             + " trees, resources, mapcode, status) VALUES (?, ?, ?, ?, ?, ?, ?,"
+                             + " ?, ?, ?)",
+                     java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+            stmt.setString(2, game.getName());
+            stmt.setString(3, game.isRated() ? "Y" : "N");
+            stmt.setString(4, String.valueOf(game.getGamespeed()));
+            stmt.setString(5, String.valueOf(game.getSize() + 1));
+            stmt.setInt(6, game.getHills());
+            stmt.setInt(7, game.getTrees());
+            stmt.setInt(8, game.getSupplies());
+            stmt.setString(9, game.getMapcode());
+            stmt.setString(10, "created");
 
-            try {
-                stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
-                stmt.setString(2, game.getName());
-                if (game.isRated()) stmt.setString(3, "Y");
-                else stmt.setString(3, "N");
-                stmt.setString(4, "" + game.getGamespeed());
-                stmt.setString(5, "" + (game.getSize() + 1));
-                stmt.setInt(6, game.getHills());
-                stmt.setInt(7, game.getTrees());
-                stmt.setInt(8, game.getSupplies());
-                stmt.setString(9, game.getMapcode());
-                stmt.setString(10, "created");
-
-                int row_count = stmt.executeUpdate();
-                ResultSet generatedKeys = stmt.getGeneratedKeys();
-                try {
-                    if (generatedKeys.next()) {
-                        int gameId = generatedKeys.getInt(1);
-                        // System.out.println("Game created with ID: " + gameId);
-                        game.setDatabaseID(gameId);
-                    }
-
-                } catch (SQLException e) {
-                    System.out.println("Exception(createGame - getGeneratedKeys): " + e);
-                    MatchmakingServer.getLogger()
-                            .throwing(DBInterface.class.getName(), "createGame", e);
-                    return;
-                } finally {
-                    generatedKeys.close();
+            stmt.executeUpdate();
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    game.setDatabaseID(generatedKeys.getInt(1));
                 }
-            } finally {
-                stmt.getConnection().close();
             }
         } catch (SQLException e) {
             System.out.println("Exception(createGame): " + e);
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "createGame", e);
-            return;
         }
     }
 
-    public static final GameDataModel getGame(int game_id, boolean get_player_data) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT"
-                                + " time_create,name,rated,speed,size,hills,trees,resources,mapcode,status,id,winner,time_stop,time_start"
-                                + " FROM games G WHERE G.id = ?");
-            try {
-                stmt.setInt(1, game_id);
-                ResultSet result = stmt.executeQuery();
-                try {
-                    if (result.next()) {
-                        GameDataModel gameData = new GameDataModel();
-                        gameData.setTimeCreate(result.getTimestamp("time_create"));
-                        gameData.setName(result.getString("name"));
-                        gameData.setRated(result.getString("rated"));
-                        int speed = result.getInt("speed");
-                        if (!result.wasNull()) {
-                            gameData.setSpeed(speed);
-                        }
-                        int size = result.getInt("size");
-                        if (!result.wasNull()) {
-                            gameData.setSize(size);
-                        }
-                        int hills = result.getInt("hills");
-                        if (!result.wasNull()) {
-                            gameData.setHills(hills);
-                        }
-                        int trees = result.getInt("trees");
-                        if (!result.wasNull()) {
-                            gameData.setTrees(trees);
-                        }
-                        int resources = result.getInt("resources");
-                        if (!result.wasNull()) {
-                            gameData.setResources(resources);
-                        }
-                        gameData.setMapcode(result.getString("mapcode"));
-                        gameData.setStatus(result.getString("status"));
-                        int id = result.getInt("id");
-                        if (!result.wasNull()) {
-                            gameData.setId(id);
-                        }
-                        int winner = result.getInt("winner");
-                        if (!result.wasNull()) {
-                            gameData.setWinner(winner);
-                        }
-                        gameData.setTimeStop(result.getTimestamp("time_stop"));
-                        gameData.setTimeStart(result.getTimestamp("time_start"));
-
-                        if (get_player_data) {
-                            System.out.println("Fetching player data for game ID: " + game_id);
-                            PreparedStatement game_players_stmt =
-                                    DBUtils.createStatement(
-                                            "SELECT * FROM game_players WHERE game_id = ?");
-                            game_players_stmt.setInt(1, game_id);
-                            ResultSet game_players_result = game_players_stmt.executeQuery();
-                            ArrayList<GamePlayerModel> nicks = new ArrayList<>();
-                            while (game_players_result.next()) {
-                                GamePlayerModel player =
-                                        new GamePlayerModel(
-                                                game_players_result.getString("nick"),
-                                                game_players_result.getString("race"),
-                                                game_players_result.getInt("team"));
-                                nicks.add(player);
-                            }
-                            com.oddlabs.matchmaking.Profile[] fetchedProfiles =
-                                    DBInterface.getProfilesByNick(
-                                            nicks.stream()
-                                                    .map(GamePlayerModel::getPlayerName)
-                                                    .toArray(String[]::new));
-                            System.out.println(
-                                    "Fetched "
-                                            + fetchedProfiles.length
-                                            + " profiles for game ID: "
-                                            + game_id);
-                            // Map nick to Profile
-                            java.util.Map<String, Profile> nickToProfile =
-                                    new java.util.HashMap<>();
-                            for (Profile pf : fetchedProfiles) {
-                                if (pf != null && pf.getNick() != null) {
-                                    nickToProfile.put(pf.getNick(), pf);
-                                }
-                            }
-
-                            // Map player names to their profiles
-                            for (GamePlayerModel player : nicks) {
-                                Profile profile = nickToProfile.get(player.getPlayerName());
-                                if (profile != null) {
-                                    player.setProfile(profile);
-                                }
-                            }
-                            game_players_result.close();
-                            game_players_stmt.getConnection().close();
-                        }
-                        return gameData;
+    public static GameDataModel getGame(int game_id, boolean get_player_data) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT time_create,name,rated,speed,size,hills,trees,resources,mapcode,"
+                             + "status,id,winner,time_stop,time_start FROM games G WHERE G.id = ?")) {
+            stmt.setInt(1, game_id);
+            try (ResultSet result = stmt.executeQuery()) {
+                if (result.next()) {
+                    GameDataModel gameData = new GameDataModel();
+                    gameData.setTimeCreate(result.getTimestamp("time_create"));
+                    gameData.setName(result.getString("name"));
+                    gameData.setRated(result.getString("rated"));
+                    int speed = result.getInt("speed");
+                    if (!result.wasNull()) {
+                        gameData.setSpeed(speed);
                     }
-                } finally {
-                    result.close();
+                    int size = result.getInt("size");
+                    if (!result.wasNull()) {
+                        gameData.setSize(size);
+                    }
+                    int hills = result.getInt("hills");
+                    if (!result.wasNull()) {
+                        gameData.setHills(hills);
+                    }
+                    int trees = result.getInt("trees");
+                    if (!result.wasNull()) {
+                        gameData.setTrees(trees);
+                    }
+                    int resources = result.getInt("resources");
+                    if (!result.wasNull()) {
+                        gameData.setResources(resources);
+                    }
+                    gameData.setMapcode(result.getString("mapcode"));
+                    gameData.setStatus(result.getString("status"));
+                    int id = result.getInt("id");
+                    if (!result.wasNull()) {
+                        gameData.setId(id);
+                    }
+                    int winner = result.getInt("winner");
+                    if (!result.wasNull()) {
+                        gameData.setWinner(winner);
+                    }
+                    gameData.setTimeStop(result.getTimestamp("time_stop"));
+                    gameData.setTimeStart(result.getTimestamp("time_start"));
+
+                    if (get_player_data) {
+                        System.out.println("Fetching player data for game ID: " + game_id);
+                        try (Connection conn2 = DBUtils.createDatabaseConnection();
+                             PreparedStatement playerStmt = conn2.prepareStatement(
+                                     "SELECT * FROM game_players WHERE game_id = ?")) {
+                            playerStmt.setInt(1, game_id);
+                            try (ResultSet playerResult = playerStmt.executeQuery()) {
+                                ArrayList<GamePlayerModel> nicks = new ArrayList<>();
+                                while (playerResult.next()) {
+                                    GamePlayerModel player =
+                                            new GamePlayerModel(
+                                                    playerResult.getString("nick"),
+                                                    playerResult.getString("race"),
+                                                    playerResult.getInt("team"));
+                                    nicks.add(player);
+                                }
+                                Profile[] fetchedProfiles =
+                                        DBInterface.getProfilesByNick(
+                                                nicks.stream()
+                                                        .map(GamePlayerModel::getPlayerName)
+                                                        .toArray(String[]::new));
+                                System.out.println(
+                                        "Fetched "
+                                                + fetchedProfiles.length
+                                                + " profiles for game ID: "
+                                                + game_id);
+                                // Map nick to Profile
+                                java.util.Map<String, Profile> nickToProfile =
+                                        new java.util.HashMap<>();
+                                for (Profile pf : fetchedProfiles) {
+                                    if (pf != null && pf.getNick() != null) {
+                                        nickToProfile.put(pf.getNick(), pf);
+                                    }
+                                }
+                                // Map player names to their profiles
+                                for (GamePlayerModel player : nicks) {
+                                    Profile profile = nickToProfile.get(player.getPlayerName());
+                                    if (profile != null) {
+                                        player.setProfile(profile);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return gameData;
                 }
-            } finally {
-                stmt.getConnection().close();
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
@@ -795,7 +765,7 @@ public final class DBInterface {
     }
 
     // Helper function to create IN clause with placeholders
-    private static final String createInClause(int parameterCount) {
+    private static String createInClause(int parameterCount) {
         if (parameterCount <= 0) {
             return "()";
         }
@@ -811,7 +781,7 @@ public final class DBInterface {
         return inClause.toString();
     }
 
-    public static final VersusMatchupResultModel getMatchupStats(
+    public static VersusMatchupResultModel getMatchupStats(
             String player1, String player2, boolean only1v1Matchups) {
         String query =
                 "WITH two_player_games AS (   SELECT game_id FROM game_players GROUP BY game_id"
@@ -824,16 +794,15 @@ public final class DBInterface {
                     + " ON tpg.game_id = g.id WHERE g.winner IS NOT NULL   AND gp.nick = ?   AND"
                     + " gp2.nick = ?   AND gp.team <> gp2.team ORDER BY gp.game_id DESC;";
 
-        try {
-            PreparedStatement stmt = DBUtils.createStatement(query);
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, player1);
             stmt.setString(2, player2);
-            ResultSet result = stmt.executeQuery();
             int p1Wins = 0;
             int p2Wins = 0;
             int neitherWins = 0;
             ArrayList<VersusMatchupModel> recentMatchups = new ArrayList<>();
-            try {
+            try (ResultSet result = stmt.executeQuery()) {
                 while (result.next()) {
                     String vsResult = result.getString("vsResult").trim();
                     if (vsResult.equals("Player1")) {
@@ -857,7 +826,7 @@ public final class DBInterface {
                         String mapSeed = result.getString("mapcode");
                         java.sql.Timestamp startTime = result.getTimestamp("time_start");
                         recentMatchups.add(
-                                new com.oddlabs.matchserver.models.VersusMatchupModel(
+                                new VersusMatchupModel(
                                         player1Name,
                                         player2Name,
                                         winnerName,
@@ -867,9 +836,6 @@ public final class DBInterface {
                                         startTime));
                     }
                 }
-            } finally {
-                result.close();
-                stmt.getConnection().close();
             }
             System.out.println("p1 wins: " + p1Wins);
             System.out.println("p2 wins: " + p2Wins);
@@ -884,13 +850,13 @@ public final class DBInterface {
         return null;
     }
 
-    public static final Profile[] getProfilesByNick(String[] nicks) {
+    public static Profile[] getProfilesByNick(String[] nicks) {
         if (nicks == null || nicks.length == 0) {
             return new Profile[0];
         }
 
         // Filter out null nicks
-        java.util.List<String> nonNullNicksList = new java.util.ArrayList<>();
+        List<String> nonNullNicksList = new ArrayList<>();
         for (String nick : nicks) {
             if (nick != null) {
                 nonNullNicksList.add(nick);
@@ -899,43 +865,28 @@ public final class DBInterface {
         if (nonNullNicksList.isEmpty()) {
             return new Profile[0];
         }
-        String[] filteredNicks = nonNullNicksList.toArray(new String[0]);
+        String[] filteredNicks = nonNullNicksList.toArray(String[]::new);
 
-        try {
-            String inClause = createInClause(filteredNicks.length);
-            String sql =
-                    "SELECT nick, rating, wins, losses, invalid FROM profiles WHERE nick IN "
-                            + inClause;
-            PreparedStatement stmt = DBUtils.createStatement(sql);
-            try {
-                // Set the nicks as parameters
-                for (int i = 0; i < filteredNicks.length; i++) {
-                    stmt.setString(i + 1, filteredNicks[i]);
+        String inClause = createInClause(filteredNicks.length);
+        String sql = "SELECT nick, rating, wins, losses, invalid FROM profiles WHERE nick IN " + inClause;
+
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            // Set the nicks as parameters
+            for (int i = 0; i < filteredNicks.length; i++) {
+                stmt.setString(i + 1, filteredNicks[i]);
+            }
+            try (ResultSet result = stmt.executeQuery()) {
+                List<Profile> profiles = new ArrayList<>();
+                while (result.next()) {
+                    String nick = result.getString("nick").trim();
+                    int rating = result.getInt("rating");
+                    int wins = result.getInt("wins");
+                    int losses = result.getInt("losses");
+                    int invalid = result.getInt("invalid");
+                    profiles.add(new Profile(nick, rating, wins, losses, invalid, -1));
                 }
-
-                ResultSet result = stmt.executeQuery();
-                try {
-                    List profiles = new ArrayList();
-                    while (result.next()) {
-                        String nick = result.getString("nick").trim();
-                        int rating = result.getInt("rating");
-                        int wins = result.getInt("wins");
-                        int losses = result.getInt("losses");
-                        int invalid = result.getInt("invalid");
-                        profiles.add(new Profile(nick, rating, wins, losses, invalid, -1));
-                    }
-
-                    Profile[] profile_array = new Profile[profiles.size()];
-                    for (int i = 0; i < profile_array.length; i++) {
-                        profile_array[i] = (Profile) profiles.get(i);
-                    }
-
-                    return profile_array;
-                } finally {
-                    result.close();
-                }
-            } finally {
-                stmt.getConnection().close();
+                return profiles.toArray(Profile[]::new);
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
@@ -949,92 +900,71 @@ public final class DBInterface {
      * Sets status of created games to dropped after a server restart (aka when the matchmaker
      * initializes)
      */
-    public static final void initDropGames() {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement("UPDATE games G SET status = ? WHERE G.status = ?");
-            try {
-                stmt.setString(1, "dropped");
-                stmt.setString(2, "created");
-                int result = stmt.executeUpdate();
-            } finally {
-                stmt.getConnection().close();
-            }
+    /**
+     * Sets status of created games to dropped after a server restart (aka when the matchmaker
+     * initializes)
+     */
+    public static void initDropGames() {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "UPDATE games G SET status = ? WHERE G.status = ?")) {
+            stmt.setString(1, "dropped");
+            stmt.setString(2, "created");
+            stmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "initDropGames", e);
         }
     }
 
-    public static final void dropGame(String nick) {
-        try {
-
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "UPDATE games G inner join game_players GP on G.id = GP.id SET G.status"
-                                    + " = ? WHERE GP.nick = ? AND G.status = ?");
-            try {
-                stmt.setString(1, "dropped");
-                stmt.setString(2, nick);
-                stmt.setString(3, "created");
-                int result = stmt.executeUpdate();
-            } finally {
-                stmt.getConnection().close();
-            }
+    public static void dropGame(String nick) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "UPDATE games G inner join game_players GP on G.id = GP.id SET G.status"
+                             + " = ? WHERE GP.nick = ? AND G.status = ?")) {
+            stmt.setString(1, "dropped");
+            stmt.setString(2, nick);
+            stmt.setString(3, "created");
+            stmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "dropGame", e);
         }
     }
 
-    public static final void startGame(TimestampedGameSession tgs, MatchmakingServer server) {
+    public static void startGame(TimestampedGameSession tgs, MatchmakingServer server) {
         GameSession session = tgs.getSession();
         GamePlayer[] playerInfo = session.getPlayerInfo();
 
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "UPDATE games G SET "
-                                    + "G.time_start = ?, G.status = ? WHERE G.id = ?");
-            try {
-                stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
-                stmt.setString(2, "started");
-                stmt.setInt(3, tgs.getDatabaseID());
-                int result = stmt.executeUpdate();
-            } finally {
-                stmt.getConnection().close();
-            }
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "UPDATE games G SET G.time_start = ?, G.status = ? WHERE G.id = ?")) {
+            stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+            stmt.setString(2, "started");
+            stmt.setInt(3, tgs.getDatabaseID());
+            stmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Exception (startGame): " + e);
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "startGame", e);
         }
 
-        try {
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < playerInfo.length; i++) {
-                if (i != playerInfo.length - 1) {
-                    builder.append("(?, ?, ?, ?), ");
-                } else {
-                    builder.append("(?, ?, ?, ?)");
-                }
-            }
-            String sql =
-                    "INSERT INTO game_players (game_id, nick, team, race) VALUES "
-                            + builder.toString();
-            PreparedStatement playerStmt = DBUtils.createStatement(sql);
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < playerInfo.length; i++) {
+            if (i > 0) builder.append(", ");
+            builder.append("(?, ?, ?, ?)");
+        }
+        String sql = "INSERT INTO game_players (game_id, nick, team, race) VALUES " + builder;
+
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement playerStmt = conn.prepareStatement(sql)) {
             int parameter_index = 1;
-            for (int i = 0; i < playerInfo.length; i++) {
-                GamePlayer player = playerInfo[i];
+            for (GamePlayer player : playerInfo) {
                 playerStmt.setInt(parameter_index++, tgs.getDatabaseID());
                 playerStmt.setString(parameter_index++, player.getNick());
                 playerStmt.setInt(parameter_index++, player.getTeam());
                 playerStmt.setInt(parameter_index++, player.getRace());
             }
-            try {
-                int result = playerStmt.executeUpdate();
-            } finally {
-                playerStmt.getConnection().close();
-            }
+            playerStmt.executeUpdate();
         } catch (Exception e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "startGame", e);
@@ -1050,24 +980,18 @@ public final class DBInterface {
      *     game state was determined to be invalid and someone cheated. NULL if the game does not
      *     end naturally (dropped for example)
      */
-    public static final void endGame(TimestampedGameSession tgs, long end_time, int winner) {
+    public static void endGame(TimestampedGameSession tgs, long end_time, int winner) {
         GameSession session = tgs.getSession();
         Participant[] participants = session.getParticipants();
 
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "UPDATE games G SET G.time_stop = ?, G.status = ?, G.winner = ? WHERE"
-                                    + " G.id = ?");
-            try {
-                stmt.setTimestamp(1, new Timestamp(end_time));
-                stmt.setString(2, "completed");
-                stmt.setInt(3, winner);
-                stmt.setInt(4, tgs.getDatabaseID());
-                int result = stmt.executeUpdate();
-            } finally {
-                stmt.getConnection().close();
-            }
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "UPDATE games G SET G.time_stop = ?, G.status = ?, G.winner = ? WHERE G.id = ?")) {
+            stmt.setTimestamp(1, new Timestamp(end_time));
+            stmt.setString(2, "completed");
+            stmt.setInt(3, winner);
+            stmt.setInt(4, tgs.getDatabaseID());
+            stmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "endGame", e);
