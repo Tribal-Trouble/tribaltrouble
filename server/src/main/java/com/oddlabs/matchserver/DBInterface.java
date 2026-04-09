@@ -900,10 +900,6 @@ public final class DBInterface {
      * Sets status of created games to dropped after a server restart (aka when the matchmaker
      * initializes)
      */
-    /**
-     * Sets status of created games to dropped after a server restart (aka when the matchmaker
-     * initializes)
-     */
     public static void initDropGames() {
         try (Connection conn = DBUtils.createDatabaseConnection();
              PreparedStatement stmt = conn.prepareStatement(
@@ -998,49 +994,33 @@ public final class DBInterface {
         }
     }
 
-    public static final boolean isProfileRegisteredToDiscord(String nick) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT COUNT(*) FROM discord_to_profiles WHERE nick = ?");
-            try {
-                stmt.setString(1, nick);
-                ResultSet rs = stmt.executeQuery();
-                try {
-                    if (rs.next()) {
-                        return rs.getInt(1) > 0;
-                    }
-                } finally {
-                    rs.close();
+    public static boolean isProfileRegisteredToDiscord(String nick) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT COUNT(*) FROM discord_to_profiles WHERE nick = ?")) {
+            stmt.setString(1, nick);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
                 }
-            } finally {
-                stmt.getConnection().close();
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "isProfileRegistered", e);
+                    .throwing(DBInterface.class.getName(), "isProfileRegisteredToDiscord", e);
         }
         return false;
     }
 
-    public static final long getDiscordUserIdForProfile(String nick) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT discord_id FROM discord_to_profiles WHERE nick = ?");
-            try {
-                stmt.setString(1, nick);
-                ResultSet rs = stmt.executeQuery();
-                try {
-                    if (rs.next()) {
-                        return rs.getLong("discord_id");
-                    }
-                } finally {
-                    rs.close();
+    public static long getDiscordUserIdForProfile(String nick) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT discord_id FROM discord_to_profiles WHERE nick = ?")) {
+            stmt.setString(1, nick);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong("discord_id");
                 }
-            } finally {
-                stmt.getConnection().close();
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
@@ -1050,26 +1030,18 @@ public final class DBInterface {
         return -1L;
     }
 
-    public static final String[] getProfilesRegisteredToDiscordUser(long discord_user_id) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT nick FROM discord_to_profiles WHERE discord_id = ?");
-            try {
-                stmt.setLong(1, discord_user_id);
-                ResultSet result = stmt.executeQuery();
-                try {
-                    List<String> nicks = new ArrayList<String>();
-                    while (result.next()) {
-                        String nick = result.getString("nick").trim();
-                        nicks.add(nick);
-                    }
-                    return nicks.toArray(new String[0]);
-                } finally {
-                    result.close();
+    public static String[] getProfilesRegisteredToDiscordUser(long discord_user_id) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT nick FROM discord_to_profiles WHERE discord_id = ?")) {
+            stmt.setLong(1, discord_user_id);
+            try (ResultSet result = stmt.executeQuery()) {
+                List<String> nicks = new ArrayList<>();
+                while (result.next()) {
+                    String nick = result.getString("nick").trim();
+                    nicks.add(nick);
                 }
-            } finally {
-                stmt.getConnection().close();
+                return nicks.toArray(String[]::new);
             }
         } catch (Exception e) {
             System.out.println("Exception: " + e);
@@ -1079,19 +1051,13 @@ public final class DBInterface {
         return new String[0];
     }
 
-    public static final void registerProfileToDiscordUser(String nick, long discord_user_id) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "INSERT INTO discord_to_profiles (nick, discord_id) VALUES (?, ?)");
-            try {
-                stmt.setString(1, nick);
-                stmt.setLong(2, discord_user_id);
-                stmt.setLong(3, discord_user_id);
-                int row_count = stmt.executeUpdate();
-            } finally {
-                stmt.getConnection().close();
-            }
+    public static void registerProfileToDiscordUser(String nick, long discord_user_id) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "INSERT INTO discord_to_profiles (nick, discord_id) VALUES (?, ?)")) {
+            stmt.setString(1, nick);
+            stmt.setLong(2, discord_user_id);
+            stmt.executeUpdate();
         } catch (Exception e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger()
@@ -1099,35 +1065,27 @@ public final class DBInterface {
         }
     }
 
-    public static final void profileOnline(String nick) {
+    public static void profileOnline(String nick) {
         MatchmakingServer.getLogger().info("profileOnline '" + nick + "'");
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement("INSERT INTO online_profiles (nick) VALUES (?)");
-            try {
-                stmt.setString(1, nick);
-                int row_count = stmt.executeUpdate();
-            } finally {
-                stmt.getConnection().close();
-            }
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "INSERT INTO online_profiles (nick) VALUES (?)")) {
+            stmt.setString(1, nick);
+            stmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "profileOnline", e);
         }
     }
 
-    public static final void profileOffline(String nick) {
+    public static void profileOffline(String nick) {
         MatchmakingServer.getLogger().info("profileOffline '" + nick + "'");
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement("DELETE FROM online_profiles WHERE nick = ?");
-            try {
-                stmt.setString(1, nick);
-                int row_count = stmt.executeUpdate();
-                assert row_count == 1 : row_count;
-            } finally {
-                stmt.getConnection().close();
-            }
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "DELETE FROM online_profiles WHERE nick = ?")) {
+            stmt.setString(1, nick);
+            int row_count = stmt.executeUpdate();
+            assert row_count == 1 : row_count;
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger()
@@ -1135,34 +1093,25 @@ public final class DBInterface {
         }
     }
 
-    public static final void profileSetGame(String nick, int game_id) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "UPDATE online_profiles O SET O.game_id = ? WHERE O.nick = ?");
-            try {
-                stmt.setInt(1, game_id);
-                stmt.setString(2, nick);
-                int row_count = stmt.executeUpdate();
-                assert row_count == 1 : row_count + " nick = '" + nick + "' | game_id = " + game_id;
-            } finally {
-                stmt.getConnection().close();
-            }
+    public static void profileSetGame(String nick, int game_id) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "UPDATE online_profiles O SET O.game_id = ? WHERE O.nick = ?")) {
+            stmt.setInt(1, game_id);
+            stmt.setString(2, nick);
+            int row_count = stmt.executeUpdate();
+            assert row_count == 1 : row_count + " nick = '" + nick + "' | game_id = " + game_id;
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "profileOffline", e);
+                    .throwing(DBInterface.class.getName(), "profileSetGame", e);
         }
     }
 
-    public static final void clearOnlineProfiles() {
-        try {
-            PreparedStatement stmt = DBUtils.createStatement("TRUNCATE TABLE online_profiles");
-            try {
-                int row_count = stmt.executeUpdate();
-            } finally {
-                stmt.getConnection().close();
-            }
+    public static void clearOnlineProfiles() {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement("TRUNCATE TABLE online_profiles")) {
+            stmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger()
@@ -1170,24 +1119,17 @@ public final class DBInterface {
         }
     }
 
-    public static final String[] getOnlineProfiles() {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement("SELECT nick FROM online_profiles ORDER BY nick");
-            try {
-                ResultSet result = stmt.executeQuery();
-                try {
-                    List<String> nicks = new ArrayList<String>();
-                    while (result.next()) {
-                        String nick = result.getString("nick").trim();
-                        nicks.add(nick);
-                    }
-                    return nicks.toArray(new String[0]);
-                } finally {
-                    result.close();
+    public static String[] getOnlineProfiles() {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT nick FROM online_profiles ORDER BY nick")) {
+            try (ResultSet result = stmt.executeQuery()) {
+                List<String> nicks = new ArrayList<>();
+                while (result.next()) {
+                    String nick = result.getString("nick").trim();
+                    nicks.add(nick);
                 }
-            } finally {
-                stmt.getConnection().close();
+                return nicks.toArray(String[]::new);
             }
         } catch (Exception e) {
             System.out.println("Exception: " + e);

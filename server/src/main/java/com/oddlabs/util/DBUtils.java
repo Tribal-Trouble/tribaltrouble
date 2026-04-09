@@ -38,16 +38,13 @@ public final class DBUtils {
         return createDatabaseConnection().prepareStatement(sql);
     }
 
-    public static final void postHermesMessage(String message) throws SQLException {
-        PreparedStatement stmt =
-                DBUtils.createStatement(
-                        "INSERT INTO messages (time, message) " + "VALUES (NOW(), ?)");
-        try {
+    public static void postHermesMessage(String message) throws SQLException {
+        try (Connection conn = createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "INSERT INTO messages (time, message) VALUES (NOW(), ?)")) {
             stmt.setString(1, message);
             int row_count = stmt.executeUpdate();
             assert row_count == 1;
-        } finally {
-            stmt.getConnection().close();
         }
     }
 }
