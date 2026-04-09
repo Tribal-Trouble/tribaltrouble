@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public final class PulldownMenu<T> extends Group {
+public class PulldownMenu<T> extends Group {
     private final Set<@NonNull ItemChosenListener<T>> chosen_listeners = new CopyOnWriteArraySet<>();
 
-    private final List<@NonNull PulldownItem<T>> items = new ArrayList<>();
-    private int chosen_item_index = -1;
+    protected final List<@NonNull PulldownItem<T>> items = new ArrayList<>();
+    protected int chosen_item_index = -1;
 
     public PulldownMenu() {
         setCanFocus(true);
@@ -77,6 +77,10 @@ public final class PulldownMenu<T> extends Group {
         int min_height = Math.max(height, item_pos_count + Skin.getSkin().getPulldownData().pulldownTop().getHeight());
         super.setDim(min_width, min_height);
         return this;
+    }
+
+    protected void super_setDim(int width, int height) {
+        super.setDim(width, height);
     }
 
     public int getChosenItemIndex() {

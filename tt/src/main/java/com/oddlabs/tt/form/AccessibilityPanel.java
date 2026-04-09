@@ -11,6 +11,7 @@ import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PulldownButton;
 import com.oddlabs.tt.gui.PulldownItem;
 import com.oddlabs.tt.gui.PulldownMenu;
+import com.oddlabs.tt.gui.ScrollablePulldownMenu;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.Slider;
 import com.oddlabs.tt.render.GUIRenderer;
@@ -111,7 +112,7 @@ public class AccessibilityPanel extends Panel {
         Label label_team_colours = new Label(AbstractOptionsMenu.i18n("team_colours"), Skin.getSkin().getEditFont());
         group_team_colours.addChild(label_team_colours);
 
-        PulldownMenu<Void> pm_team = new PulldownMenu<>();
+        ScrollablePulldownMenu<Void> pm_team = new ScrollablePulldownMenu<>(6);
         for (int i = 0; i < Settings.getSettings().team_colours.length; i++) {
             String player_str = AbstractOptionsMenu.i18n("player", Integer.toString(i + 1));
             PulldownItem<Void> item = new PulldownItem<>(player_str);

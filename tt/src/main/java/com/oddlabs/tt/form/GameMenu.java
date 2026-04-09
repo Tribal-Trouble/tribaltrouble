@@ -15,6 +15,7 @@ import com.oddlabs.tt.gui.FormData;
 import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
+import com.oddlabs.tt.gui.ScrollableGroup;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MouseButton;
@@ -74,6 +75,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
     private static final int SEND_BUTTON_WIDTH = 60;
 
     private static final int RATING_WIDTH = 80;
+    private static final int DEFAULT_PLAYER_COUNT = 6;
 
     private final PulldownButton<Void> @NonNull [] slot_buttons;
     private final PulldownButton<Void> @NonNull [] race_buttons;
@@ -114,7 +116,9 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
         team_buttons = (PulldownButton<Void>[]) new PulldownButton[player_count];
         ready_marks = new Diode[player_count];
         ratings = new Label[player_count];
-        Group player_group = new Group();
+        Group player_group = player_count > DEFAULT_PLAYER_COUNT
+                ? new ScrollableGroup(170, 64)
+                : new Group();
         GUIObject previous = null;
         for (int i = 0; i < player_count; i++) {
             previous = createPlayerPulldown(gui_root, player_group, previous, slot_buttons, race_buttons, team_buttons, ready_marks, ratings, i, player_count);
@@ -176,6 +180,9 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
             Label rating = new Label(i18n("rating"), font, RATING_WIDTH, Origin.AT_END);
             addChild(rating);
             rating.place(player_group, TOP_RIGHT);
+            if (player_count > DEFAULT_PLAYER_COUNT) {
+                rating.setPos(rating.getX() - 80, rating.getY());
+            }
         }
         compileCanvas();
     }

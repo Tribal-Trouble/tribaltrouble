@@ -31,6 +31,8 @@ public final class PulldownButton<T> extends GUIObject {
         PulldownData data = Skin.getSkin().getPulldownData();
         label.setDim(getWidth() - data.textOffsetLeft() - data.arrowOffsetRight() - data.arrow().quad(ModeIconQuads.Mode.NORMAL).getWidth(), label.getHeight());
         label.setPos(data.textOffsetLeft(), (getHeight() - label.getHeight()) / 2);
+        if (menu instanceof ScrollablePulldownMenu<?> scrollable)
+            scrollable.setButtonWidth(width);
         if (menu.getWidth() < width)
             menu.setDim(width, menu.getHeight());
         return this;
@@ -76,7 +78,12 @@ public final class PulldownButton<T> extends GUIObject {
 
     private void activateMenu() {
         menu_active = true;
-        menu.setPos((int) (getRootX() + getWidth() - menu.getWidth()), (int) (getRootY() - menu.getHeight()));
+        int menu_x = (int) (getRootX() + getWidth() - menu.getWidth());
+        if (menu instanceof ScrollablePulldownMenu) {
+            // Account for scrollbar width in positioning
+            menu_x = (int) getRootX();
+        }
+        menu.setPos(menu_x, (int) (getRootY() - menu.getHeight()));
         gui_root.getDelegate().addChild(menu);
     }
 
