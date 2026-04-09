@@ -268,19 +268,18 @@ public final class DBInterface {
         try {
             PreparedStatement stmt =
                     DBUtils.createStatement(
-                            "INSERT INTO game_reports (game_id, tick, team1, team2, team3, team4,"
-                                    + " team5, team6) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                            "INSERT INTO game_report_teams (game_id, tick, team_index, score)"
+                                    + " VALUES (?, ?, ?, ?)");
             try {
-                stmt.setInt(1, game_id);
-                stmt.setInt(2, tick);
-                stmt.setInt(3, team_score[0]);
-                stmt.setInt(4, team_score[1]);
-                stmt.setInt(5, team_score[2]);
-                stmt.setInt(6, team_score[3]);
-                stmt.setInt(7, team_score[4]);
-                stmt.setInt(8, team_score[5]);
-                int row_count = stmt.executeUpdate();
-                assert row_count == 1;
+                for (int i = 0; i < team_score.length; i++) {
+                    if (team_score[i] == 0) continue;
+                    stmt.setInt(1, game_id);
+                    stmt.setInt(2, tick);
+                    stmt.setInt(3, i);
+                    stmt.setInt(4, team_score[i]);
+                    stmt.addBatch();
+                }
+                stmt.executeBatch();
             } finally {
                 stmt.getConnection().close();
             }

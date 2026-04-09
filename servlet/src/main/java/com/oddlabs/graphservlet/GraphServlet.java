@@ -40,18 +40,38 @@ public final class GraphServlet extends HttpServlet {
     }
 
     private int[][] getGameData(Connection conn, int game_id) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("SELECT tick, team1, team2, team3, team4, team5, team6 FROM game_reports WHERE game_id = ?");
+        // Find the max team_index so we know how many columns to produce
+        PreparedStatement countStmt = conn.prepareStatement(
+                "SELECT COALESCE(MAX(team_index), -1) FROM game_report_teams WHERE game_id = ?");
+        countStmt.setInt(1, game_id);
+        ResultSet countResult = countStmt.executeQuery();
+        countResult.next();
+        int maxTeam = countResult.getInt(1);
+        int numTeams = maxTeam + 1;
+
+        // Pivot normalized rows back into [tick, team0_score, team1_score, ...] arrays
+        PreparedStatement stmt = conn.prepareStatement(
+                "SELECT tick, team_index, score FROM game_report_teams WHERE game_id = ? ORDER BY tick, team_index");
         stmt.setInt(1, game_id);
         ResultSet result = stmt.executeQuery();
-        ArrayList<int[]> list = new ArrayList<>();
+
+        // Group by tick
+        var tickMap = new java.util.LinkedHashMap<Integer, int[]>();
         while (result.next()) {
-            list.add(new int[]{result.getInt("tick"), result.getInt("team1"), result.getInt("team2"), result.getInt("team3"), result.getInt("team4"), result.getInt("team5"), result.getInt("team6")});
+            int tick = result.getInt("tick");
+            int teamIndex = result.getInt("team_index");
+            int score = result.getInt("score");
+            int[] row = tickMap.computeIfAbsent(tick, _ -> {
+                int[] r = new int[numTeams + 1];
+                r[0] = tick;
+                return r;
+            });
+            if (teamIndex + 1 < row.length) {
+                row[teamIndex + 1] = score;
+            }
         }
-        int[][] array = new int[list.size()][];
-        for (int i = 0; i < array.length; i++) {
-            array[i] = list.get(i);
-        }
-        return array;
+
+        return tickMap.values().toArray(int[][]::new);
     }
 
     private void printResult(OutputStream out, int[][] data) {
@@ -87,7 +107,7 @@ public final class GraphServlet extends HttpServlet {
                     g.drawLine(x, y, x, y - 3);
                 }
             }
-            Color[] team_colors = new Color[]{
+            Color[] base_colors = new Color[]{
                     new Color(1f, .75f, 0f),
                     new Color(0f, .5f, 1f),
                     new Color(1f, 0f, .25f),
@@ -96,7 +116,7 @@ public final class GraphServlet extends HttpServlet {
                     new Color(.75f, 1f, 0f)};
 
             for (int j = 1; j < data[0].length; j++) {
-                g.setColor(team_colors[j - 1]);
+                g.setColor(base_colors[(j - 1) % base_colors.length]);
                 int last_x = 0;
                 int last_y = IMAGE_HEIGHT;
                 for (int i = 0; i < data.length; i++) {
