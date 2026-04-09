@@ -224,21 +224,16 @@ public final class DBInterface {
         }
     }
 
-    public static final void createProfile(String username, String nick) {
+    public static void createProfile(String username, String nick) {
         int reg_id = getRegID(username);
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "INSERT INTO profiles (reg_id, nick, rating, wins, losses, invalid) "
-                                    + "VALUES (?, ?, 1000, 0, 0, 0)");
-            try {
-                stmt.setInt(1, reg_id);
-                stmt.setString(2, nick);
-                int row_count = stmt.executeUpdate();
-                assert row_count == 1;
-            } finally {
-                stmt.getConnection().close();
-            }
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "INSERT INTO profiles (reg_id, nick, rating, wins, losses, invalid) "
+                             + "VALUES (?, ?, 1000, 0, 0, 0)")) {
+            stmt.setInt(1, reg_id);
+            stmt.setString(2, nick);
+            int row_count = stmt.executeUpdate();
+            assert row_count == 1;
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "createProfile", e);
@@ -246,43 +241,34 @@ public final class DBInterface {
         }
     }
 
-    public static final void deleteProfile(String username, String nick) {
+    public static void deleteProfile(String username, String nick) {
         Profile profile = getProfile(username, nick, -1);
         if (profile != null) {
             int reg_id = getRegID(username);
-            try {
-                PreparedStatement stmt =
-                        DBUtils.createStatement(
-                                "INSERT INTO deleted_profiles (reg_id, nick, rating, wins, losses,"
-                                        + " invalid) VALUES (?, ?, ?, ?, ?, ?)");
-                try {
-                    stmt.setInt(1, reg_id);
-                    stmt.setString(2, profile.getNick());
-                    stmt.setInt(3, profile.getRating());
-                    stmt.setInt(4, profile.getWins());
-                    stmt.setInt(5, profile.getLosses());
-                    stmt.setInt(6, profile.getInvalid());
-                    int row_count = stmt.executeUpdate();
-                    assert row_count == 1 : row_count;
-                } finally {
-                    stmt.getConnection().close();
-                }
+            try (Connection conn = DBUtils.createDatabaseConnection();
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "INSERT INTO deleted_profiles (reg_id, nick, rating, wins, losses,"
+                                 + " invalid) VALUES (?, ?, ?, ?, ?, ?)")) {
+                stmt.setInt(1, reg_id);
+                stmt.setString(2, profile.getNick());
+                stmt.setInt(3, profile.getRating());
+                stmt.setInt(4, profile.getWins());
+                stmt.setInt(5, profile.getLosses());
+                stmt.setInt(6, profile.getInvalid());
+                int row_count = stmt.executeUpdate();
+                assert row_count == 1 : row_count;
             } catch (SQLException e) {
                 System.out.println("Exception: " + e);
                 MatchmakingServer.getLogger()
                         .throwing(DBInterface.class.getName(), "deleteProfile INSERT", e);
             }
             // drop profile
-            try {
-                PreparedStatement stmt =
-                        DBUtils.createStatement("DELETE FROM profiles WHERE nick = ?");
-                try {
-                    stmt.setString(1, nick);
-                    int row_count = stmt.executeUpdate();
-                    assert row_count == 1 : row_count;
-                } finally {
-                    stmt.getConnection().close();
-                }
+            try (Connection conn = DBUtils.createDatabaseConnection();
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "DELETE FROM profiles WHERE nick = ?")) {
+                stmt.setString(1, nick);
+                int row_count = stmt.executeUpdate();
+                assert row_count == 1 : row_count;
             } catch (SQLException e) {
                 System.out.println("Exception: " + e);
                 MatchmakingServer.getLogger()
@@ -291,44 +277,34 @@ public final class DBInterface {
         }
     }
 
-    public static final String getOrCreateSteamProfile(long steamId, String personaName) {
+    public static String getOrCreateSteamProfile(long steamId, String personaName) {
         // 1. Check if registration already exists for this Steam ID
         int regId;
         String existingNick = null;
         boolean isBannedOrDisabled = false;
 
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT id, username, banned, disabled FROM registrations WHERE"
-                                    + " steam_id = ?");
-            try {
-                stmt.setLong(1, steamId);
-                ResultSet result = stmt.executeQuery();
-                try {
-                    if (result.next()) {
-                        // Registration exists - check if banned/disabled
-                        boolean banned = result.getBoolean("banned");
-                        boolean disabled = result.getBoolean("disabled");
-
-                        if (banned || disabled) {
-                            // Banned/disabled - don't allow login (same as queryUser behavior)
-                            isBannedOrDisabled = true;
-                            regId = -1;
-                        } else {
-                            // Valid registration
-                            regId = result.getInt("id");
-                            existingNick = result.getString("username").trim();
-                        }
-                    } else {
-                        // Registration doesn't exist, need to create it
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT id, username, banned, disabled FROM registrations WHERE steam_id = ?")) {
+            stmt.setLong(1, steamId);
+            try (ResultSet result = stmt.executeQuery()) {
+                if (result.next()) {
+                    // Registration exists - check if banned/disabled
+                    boolean banned = result.getBoolean("banned");
+                    boolean disabled = result.getBoolean("disabled");
+                    if (banned || disabled) {
+                        // Banned/disabled - don't allow login (same as queryUser behavior)
+                        isBannedOrDisabled = true;
                         regId = -1;
+                    } else {
+                        // Valid registration
+                        regId = result.getInt("id");
+                        existingNick = result.getString("username").trim();
                     }
-                } finally {
-                    result.close();
+                } else {
+                    // Registration doesn't exist, need to create it
+                    regId = -1;
                 }
-            } finally {
-                stmt.getConnection().close();
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
@@ -347,49 +323,37 @@ public final class DBInterface {
             String nick = NickUtils.generateSteamNick(personaName, steamId);
             String email = "steam_" + steamId + "@steam.internal";
 
-            try {
-                PreparedStatement stmt =
-                        DBUtils.createStatement(
-                                "INSERT INTO registrations (username, email, password, steam_id,"
-                                        + " disabled, banned) VALUES (?, ?, 'LOCKED', ?, 0, 0)");
-                try {
-                    stmt.setString(1, nick);
-                    stmt.setString(2, email);
-                    stmt.setLong(3, steamId);
-                    int row_count = stmt.executeUpdate();
-                    assert row_count == 1;
-                } finally {
-                    stmt.getConnection().close();
-                }
-
-                // Get the newly created registration ID
-                regId = getRegID(nick);
-                existingNick = nick;
+            try (Connection conn = DBUtils.createDatabaseConnection();
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "INSERT INTO registrations (username, email, password, steam_id,"
+                                 + " disabled, banned) VALUES (?, ?, 'LOCKED', ?, 0, 0)")) {
+                stmt.setString(1, nick);
+                stmt.setString(2, email);
+                stmt.setLong(3, steamId);
+                int row_count = stmt.executeUpdate();
+                assert row_count == 1;
             } catch (SQLException e) {
                 System.out.println("Exception: " + e);
                 MatchmakingServer.getLogger()
                         .throwing(DBInterface.class.getName(), "getOrCreateSteamProfile", e);
                 throw new RuntimeException(e);
             }
+
+            // Get the newly created registration ID
+            regId = getRegID(nick);
+            existingNick = nick;
         }
 
         // 3. Check if profile exists for this registration, if not create it
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement("SELECT nick FROM profiles WHERE reg_id = ?");
-            try {
-                stmt.setInt(1, regId);
-                ResultSet result = stmt.executeQuery();
-                try {
-                    if (result.next()) {
-                        // Profile already exists
-                        return result.getString("nick").trim();
-                    }
-                } finally {
-                    result.close();
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT nick FROM profiles WHERE reg_id = ?")) {
+            stmt.setInt(1, regId);
+            try (ResultSet result = stmt.executeQuery()) {
+                if (result.next()) {
+                    // Profile already exists
+                    return result.getString("nick").trim();
                 }
-            } finally {
-                stmt.getConnection().close();
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
@@ -399,20 +363,14 @@ public final class DBInterface {
         }
 
         // 4. Create profile
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "INSERT INTO profiles (reg_id, nick, rating, wins, losses, invalid)"
-                                    + " VALUES (?, ?, 1000, 0, 0, 0)");
-            try {
-                stmt.setInt(1, regId);
-                stmt.setString(2, existingNick);
-                int row_count = stmt.executeUpdate();
-                assert row_count == 1;
-            } finally {
-                stmt.getConnection().close();
-            }
-
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "INSERT INTO profiles (reg_id, nick, rating, wins, losses, invalid)"
+                             + " VALUES (?, ?, 1000, 0, 0, 0)")) {
+            stmt.setInt(1, regId);
+            stmt.setString(2, existingNick);
+            int row_count = stmt.executeUpdate();
+            assert row_count == 1;
             return existingNick;
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
@@ -422,25 +380,17 @@ public final class DBInterface {
         }
     }
 
-    public static final String getProfileNickBySteamId(long steamId) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT p.nick FROM profiles p INNER JOIN registrations r ON p.reg_id ="
-                                    + " r.id WHERE r.steam_id = ?");
-            try {
-                stmt.setLong(1, steamId);
-                ResultSet result = stmt.executeQuery();
-                try {
-                    if (result.next()) {
-                        return result.getString("nick").trim();
-                    }
-                    return null;
-                } finally {
-                    result.close();
+    public static String getProfileNickBySteamId(long steamId) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT p.nick FROM profiles p INNER JOIN registrations r ON p.reg_id ="
+                             + " r.id WHERE r.steam_id = ?")) {
+            stmt.setLong(1, steamId);
+            try (ResultSet result = stmt.executeQuery()) {
+                if (result.next()) {
+                    return result.getString("nick").trim();
                 }
-            } finally {
-                stmt.getConnection().close();
+                return null;
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
@@ -450,29 +400,21 @@ public final class DBInterface {
         }
     }
 
-    public static final Long getSteamIdByNick(String nick) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT r.steam_id FROM profiles p INNER JOIN registrations r ON"
-                                    + " p.reg_id = r.id WHERE p.nick = ?");
-            try {
-                stmt.setString(1, nick);
-                ResultSet result = stmt.executeQuery();
-                try {
-                    if (result.next()) {
-                        long steamId = result.getLong("steam_id");
-                        if (result.wasNull()) {
-                            return null; // Not a Steam player
-                        }
-                        return steamId;
+    public static Long getSteamIdByNick(String nick) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT r.steam_id FROM profiles p INNER JOIN registrations r ON"
+                             + " p.reg_id = r.id WHERE p.nick = ?")) {
+            stmt.setString(1, nick);
+            try (ResultSet result = stmt.executeQuery()) {
+                if (result.next()) {
+                    long steamId = result.getLong("steam_id");
+                    if (result.wasNull()) {
+                        return null; // Not a Steam player
                     }
-                    return null; // Player not found
-                } finally {
-                    result.close();
+                    return steamId;
                 }
-            } finally {
-                stmt.getConnection().close();
+                return null; // Player not found
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
