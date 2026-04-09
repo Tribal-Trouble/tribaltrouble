@@ -424,75 +424,54 @@ public final class DBInterface {
         }
     }
 
-    public static final void updateStreaks(String nick, int currentStreak, int bestStreak) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "UPDATE profiles SET current_win_streak = ?, best_win_streak = ? WHERE"
-                                    + " nick = ?");
-            try {
-                stmt.setInt(1, currentStreak);
-                stmt.setInt(2, bestStreak);
-                stmt.setString(3, nick);
-                int result = stmt.executeUpdate();
-            } finally {
-                stmt.getConnection().close();
-            }
+    public static void updateStreaks(String nick, int currentStreak, int bestStreak) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "UPDATE profiles SET current_win_streak = ?, best_win_streak = ? WHERE nick = ?")) {
+            stmt.setInt(1, currentStreak);
+            stmt.setInt(2, bestStreak);
+            stmt.setString(3, nick);
+            stmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "updateStreaks", e);
         }
     }
 
-    public static final int[] getStreaks(String nick) throws SQLException {
-        PreparedStatement stmt =
-                DBUtils.createStatement(
-                        "SELECT current_win_streak, best_win_streak FROM profiles WHERE nick = ?");
-        try {
+    public static int[] getStreaks(String nick) throws SQLException {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT current_win_streak, best_win_streak FROM profiles WHERE nick = ?")) {
             stmt.setString(1, nick);
-            ResultSet result = stmt.executeQuery();
-            try {
+            try (ResultSet result = stmt.executeQuery()) {
                 if (result.next()) {
                     int currentStreak = result.getInt("current_win_streak");
                     int bestStreak = result.getInt("best_win_streak");
-                    return new int[] {currentStreak, bestStreak};
+                    return new int[]{currentStreak, bestStreak};
                 }
-                return new int[] {0, 0}; // Player not found, return defaults
-            } finally {
-                result.close();
+                return new int[]{0, 0}; // Player not found, return defaults
             }
-        } finally {
-            stmt.getConnection().close();
         }
     }
 
-    public static final void increaseLosses(String nick) {
+    public static void increaseLosses(String nick) {
         increaseField("losses", nick);
     }
 
-    public static final void increaseWins(String nick) {
+    public static void increaseWins(String nick) {
         increaseField("wins", nick);
     }
 
-    public static final void increaseInvalidGames(String nick) {
+    public static void increaseInvalidGames(String nick) {
         increaseField("invalid", nick);
     }
 
-    public static final void increaseField(String field, String nick) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "UPDATE profiles P SET "
-                                    + field
-                                    + " = "
-                                    + field
-                                    + " + 1 WHERE P.nick = ?");
-            try {
-                stmt.setString(1, nick);
-                int result = stmt.executeUpdate();
-            } finally {
-                stmt.getConnection().close();
-            }
+    public static void increaseField(String field, String nick) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "UPDATE profiles P SET " + field + " = " + field + " + 1 WHERE P.nick = ?")) {
+            stmt.setString(1, nick);
+            stmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger()
@@ -500,73 +479,47 @@ public final class DBInterface {
         }
     }
 
-    public static final void updateRating(String nick, int rating_delta) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "UPDATE profiles P SET rating = rating + ? WHERE P.nick = ?");
-            try {
-                stmt.setInt(1, rating_delta);
-                stmt.setString(2, nick);
-                int result = stmt.executeUpdate();
-            } finally {
-                stmt.getConnection().close();
-            }
+    public static void updateRating(String nick, int rating_delta) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "UPDATE profiles P SET rating = rating + ? WHERE P.nick = ?")) {
+            stmt.setInt(1, rating_delta);
+            stmt.setString(2, nick);
+            stmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "updateRating", e);
         }
     }
 
-    public static final int getWins(String nick) throws SQLException {
+    public static int getWins(String nick) throws SQLException {
         return getIntField("wins", nick);
     }
 
-    public static final int getRating(String nick) throws SQLException {
+    public static int getRating(String nick) throws SQLException {
         return getIntField("rating", nick);
     }
 
-    public static final int getIntField(String int_field, String nick) throws SQLException {
-        // try {
-        PreparedStatement stmt =
-                DBUtils.createStatement(
-                        "SELECT " + int_field + " FROM profiles P WHERE P.nick = ?");
-        try {
+    public static int getIntField(String int_field, String nick) throws SQLException {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT " + int_field + " FROM profiles P WHERE P.nick = ?")) {
             stmt.setString(1, nick);
-            ResultSet result = stmt.executeQuery();
-            try {
+            try (ResultSet result = stmt.executeQuery()) {
                 result.next();
                 return result.getInt(int_field);
-            } finally {
-                result.close();
             }
-        } finally {
-            stmt.getConnection().close();
         }
-        /*
-         * } catch (SQLException e) {
-         * MatchmakingServer.getLogger().throwing(DBInterface.class.getName(),
-         * "getIntField", e);
-         * return 0;
-         * }
-         */
     }
 
-    public static final String getSetting(String setting) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement("SELECT value FROM settings S WHERE S.property = ?");
-            try {
-                stmt.setString(1, setting);
-                ResultSet result = stmt.executeQuery();
-                try {
-                    result.next();
-                    return result.getString("value");
-                } finally {
-                    result.close();
-                }
-            } finally {
-                stmt.getConnection().close();
+    public static String getSetting(String setting) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT value FROM settings S WHERE S.property = ?")) {
+            stmt.setString(1, setting);
+            try (ResultSet result = stmt.executeQuery()) {
+                result.next();
+                return result.getString("value");
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
@@ -575,10 +528,9 @@ public final class DBInterface {
         }
     }
 
-    public static final int getSettingsInt(String setting) {
+    public static int getSettingsInt(String setting) {
         try {
-            String value = getSetting(setting);
-            return (Integer.valueOf(value)).intValue();
+            return Integer.parseInt(getSetting(setting));
         } catch (Exception e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger()
@@ -587,22 +539,21 @@ public final class DBInterface {
         }
     }
 
-    public static final RankingEntry[] getRankings(String nick, int radius) {
-        try {
-            String sql =
-                    "SELECT nick, rating, wins, losses, invalid, row_num FROM (  SELECT nick,"
-                        + " rating, wins, losses, invalid, ROW_NUMBER() OVER (ORDER BY rating DESC,"
-                        + " (wins - losses) DESC, wins DESC) AS row_num   FROM profiles) ranked"
-                        + " WHERE ABS(CAST(row_num AS SIGNED) - (  SELECT CAST(row_num AS SIGNED)"
-                        + " FROM (    SELECT nick, ROW_NUMBER() OVER (ORDER BY rating DESC, (wins -"
-                        + " losses) DESC, wins DESC) AS row_num FROM profiles  ) sub WHERE nick ="
-                        + " ?)) <= ? ORDER BY row_num";
+    public static RankingEntry[] getRankings(String nick, int radius) {
+        String sql =
+                "SELECT nick, rating, wins, losses, invalid, row_num FROM (  SELECT nick,"
+                    + " rating, wins, losses, invalid, ROW_NUMBER() OVER (ORDER BY rating DESC,"
+                    + " (wins - losses) DESC, wins DESC) AS row_num   FROM profiles) ranked"
+                    + " WHERE ABS(CAST(row_num AS SIGNED) - (  SELECT CAST(row_num AS SIGNED)"
+                    + " FROM (    SELECT nick, ROW_NUMBER() OVER (ORDER BY rating DESC, (wins -"
+                    + " losses) DESC, wins DESC) AS row_num FROM profiles  ) sub WHERE nick ="
+                    + " ?)) <= ? ORDER BY row_num";
 
-            PreparedStatement stmt = DBUtils.createStatement(sql);
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, nick);
             stmt.setInt(2, radius);
-            ResultSet result = stmt.executeQuery();
-            try {
+            try (ResultSet result = stmt.executeQuery()) {
                 List<RankingEntry> rankings = new ArrayList<>();
                 while (result.next()) {
                     String nick_name = result.getString("nick");
@@ -614,12 +565,7 @@ public final class DBInterface {
                     rankings.add(
                             new RankingEntry(ranking, nick_name, rating, wins, losses, invalid));
                 }
-                RankingEntry[] ranking_array = new RankingEntry[rankings.size()];
-                for (int i = 0; i < ranking_array.length; i++) ranking_array[i] = rankings.get(i);
-                return ranking_array;
-            } finally {
-                result.close();
-                stmt.getConnection().close();
+                return rankings.toArray(RankingEntry[]::new);
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
@@ -629,82 +575,57 @@ public final class DBInterface {
         }
     }
 
-    public static final RankingEntry[] getRankings(int start, int count) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT nick, rating, wins, losses, invalid FROM profiles P WHERE"
-                                    + " (P.wins > 0 OR P.losses > 0) ORDER BY rating DESC, (wins -"
-                                    + " losses) DESC, wins DESC LIMIT ? OFFSET ?");
-            try {
-                stmt.setInt(1, count);
-                stmt.setInt(2, start);
-                ResultSet result = stmt.executeQuery();
-                try {
-                    List rankings = new ArrayList();
-                    int index = 1;
-                    while (result.next()) {
-                        String nick = result.getString("nick").trim();
-                        int rating = result.getInt("rating");
-                        int wins = result.getInt("wins");
-                        int losses = result.getInt("losses");
-                        int invalid = result.getInt("invalid");
-                        rankings.add(
-                                new RankingEntry(index++, nick, rating, wins, losses, invalid));
-                    }
-                    RankingEntry[] ranking_array = new RankingEntry[rankings.size()];
-                    for (int i = 0; i < ranking_array.length; i++)
-                        ranking_array[i] = (RankingEntry) rankings.get(i);
-
-                    return ranking_array;
-                } finally {
-                    result.close();
+    public static RankingEntry[] getRankings(int start, int count) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT nick, rating, wins, losses, invalid FROM profiles P WHERE"
+                             + " (P.wins > 0 OR P.losses > 0) ORDER BY rating DESC, (wins -"
+                             + " losses) DESC, wins DESC LIMIT ? OFFSET ?")) {
+            stmt.setInt(1, count);
+            stmt.setInt(2, start);
+            try (ResultSet result = stmt.executeQuery()) {
+                List<RankingEntry> rankings = new ArrayList<>();
+                int index = 1;
+                while (result.next()) {
+                    String nick = result.getString("nick").trim();
+                    int rating = result.getInt("rating");
+                    int wins = result.getInt("wins");
+                    int losses = result.getInt("losses");
+                    int invalid = result.getInt("invalid");
+                    rankings.add(
+                            new RankingEntry(index++, nick, rating, wins, losses, invalid));
                 }
-            } finally {
-                stmt.getConnection().close();
+                return rankings.toArray(RankingEntry[]::new);
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getTopRankings", e);
+                    .throwing(DBInterface.class.getName(), "getRankings(start, count)", e);
             return new RankingEntry[0];
         }
     }
 
-    public static final RankingEntry[] getTopRankings(int number) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT nick, rating, wins, losses, invalid FROM profiles P WHERE"
-                                    + " P.wins >= "
-                                    + GameSession.MIN_WINS_FOR_RANKING
-                                    + " ORDER BY rating DESC, (wins - losses) DESC, wins DESC LIMIT"
-                                    + " ?");
-            try {
-                stmt.setInt(1, number);
-                ResultSet result = stmt.executeQuery();
-                try {
-                    List rankings = new ArrayList();
-                    int index = 1;
-                    while (result.next()) {
-                        String nick = result.getString("nick").trim();
-                        int rating = result.getInt("rating");
-                        int wins = result.getInt("wins");
-                        int losses = result.getInt("losses");
-                        int invalid = result.getInt("invalid");
-                        rankings.add(
-                                new RankingEntry(index++, nick, rating, wins, losses, invalid));
-                    }
-                    RankingEntry[] ranking_array = new RankingEntry[rankings.size()];
-                    for (int i = 0; i < ranking_array.length; i++)
-                        ranking_array[i] = (RankingEntry) rankings.get(i);
-
-                    return ranking_array;
-                } finally {
-                    result.close();
+    public static RankingEntry[] getTopRankings(int number) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT nick, rating, wins, losses, invalid FROM profiles P WHERE"
+                             + " P.wins >= "
+                             + GameSession.MIN_WINS_FOR_RANKING
+                             + " ORDER BY rating DESC, (wins - losses) DESC, wins DESC LIMIT ?")) {
+            stmt.setInt(1, number);
+            try (ResultSet result = stmt.executeQuery()) {
+                List<RankingEntry> rankings = new ArrayList<>();
+                int index = 1;
+                while (result.next()) {
+                    String nick = result.getString("nick").trim();
+                    int rating = result.getInt("rating");
+                    int wins = result.getInt("wins");
+                    int losses = result.getInt("losses");
+                    int invalid = result.getInt("invalid");
+                    rankings.add(
+                            new RankingEntry(index++, nick, rating, wins, losses, invalid));
                 }
-            } finally {
-                stmt.getConnection().close();
+                return rankings.toArray(RankingEntry[]::new);
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
