@@ -26,23 +26,13 @@ import java.util.List;
 
 public final class DBInterface {
 
-    public static final boolean usernameExists(String username) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT username FROM registrations R WHERE lower(R.username) ="
-                                    + " lower(?)");
-            try {
-                stmt.setString(1, username);
-                ResultSet result = stmt.executeQuery();
-                try {
-                    boolean user_exists = result.next();
-                    return user_exists;
-                } finally {
-                    result.close();
-                }
-            } finally {
-                stmt.getConnection().close();
+    public static boolean usernameExists(String username) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT username FROM registrations R WHERE lower(R.username) = lower(?)")) {
+            stmt.setString(1, username);
+            try (ResultSet result = stmt.executeQuery()) {
+                return result.next();
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
@@ -52,21 +42,15 @@ public final class DBInterface {
         }
     }
 
-    public static final void createUser(Login login, LoginDetails login_details, String reg_key) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "INSERT INTO registrations (username, email, password) values (?, ?,"
-                                    + " ?)");
-            try {
-                stmt.setString(1, login.getUsername());
-                stmt.setString(2, login_details.getEmail());
-                stmt.setString(3, CryptUtils.digest(login.getPasswordDigest()));
-                int row_count = stmt.executeUpdate();
-                assert row_count == 1;
-            } finally {
-                stmt.getConnection().close();
-            }
+    public static void createUser(Login login, LoginDetails login_details, String reg_key) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "INSERT INTO registrations (username, email, password) VALUES (?, ?, ?)")) {
+            stmt.setString(1, login.getUsername());
+            stmt.setString(2, login_details.getEmail());
+            stmt.setString(3, CryptUtils.digest(login.getPasswordDigest()));
+            int row_count = stmt.executeUpdate();
+            assert row_count == 1;
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "createUser", e);
@@ -74,25 +58,15 @@ public final class DBInterface {
         }
     }
 
-    public static final boolean queryUser(String username, String password) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT username, password FROM registrations R WHERE lower(R.username)"
-                                    + " = lower(?) AND R.password = ? AND NOT R.disabled AND NOT"
-                                    + " R.banned");
-            try {
-                stmt.setString(1, username);
-                stmt.setString(2, CryptUtils.digest(password));
-                ResultSet result = stmt.executeQuery();
-                try {
-                    boolean user_exists = result.next();
-                    return user_exists;
-                } finally {
-                    result.close();
-                }
-            } finally {
-                stmt.getConnection().close();
+    public static boolean queryUser(String username, String password) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT username, password FROM registrations R WHERE lower(R.username)"
+                             + " = lower(?) AND R.password = ? AND NOT R.disabled AND NOT R.banned")) {
+            stmt.setString(1, username);
+            stmt.setString(2, CryptUtils.digest(password));
+            try (ResultSet result = stmt.executeQuery()) {
+                return result.next();
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
@@ -101,36 +75,23 @@ public final class DBInterface {
         }
     }
 
-    public static final Profile[] getProfiles(String username, int revision) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT nick, rating, wins, losses, invalid FROM profiles P,"
-                                    + " registrations R WHERE P.reg_id = R.id AND R.username = ?");
-            try {
-                stmt.setString(1, username);
-                ResultSet result = stmt.executeQuery();
-                try {
-                    List profiles = new ArrayList();
-                    int index = 1;
-                    while (result.next()) {
-                        String nick = result.getString("nick").trim();
-                        int rating = result.getInt("rating");
-                        int wins = result.getInt("wins");
-                        int losses = result.getInt("losses");
-                        int invalid = result.getInt("invalid");
-                        profiles.add(new Profile(nick, rating, wins, losses, invalid, revision));
-                    }
-                    Profile[] profile_array = new Profile[profiles.size()];
-                    for (int i = 0; i < profile_array.length; i++)
-                        profile_array[i] = (Profile) profiles.get(i);
-
-                    return profile_array;
-                } finally {
-                    result.close();
+    public static Profile[] getProfiles(String username, int revision) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT nick, rating, wins, losses, invalid FROM profiles P,"
+                             + " registrations R WHERE P.reg_id = R.id AND R.username = ?")) {
+            stmt.setString(1, username);
+            try (ResultSet result = stmt.executeQuery()) {
+                List<Profile> profiles = new ArrayList<>();
+                while (result.next()) {
+                    String nick = result.getString("nick").trim();
+                    int rating = result.getInt("rating");
+                    int wins = result.getInt("wins");
+                    int losses = result.getInt("losses");
+                    int invalid = result.getInt("invalid");
+                    profiles.add(new Profile(nick, rating, wins, losses, invalid, revision));
                 }
-            } finally {
-                stmt.getConnection().close();
+                return profiles.toArray(Profile[]::new);
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
@@ -139,28 +100,20 @@ public final class DBInterface {
         }
     }
 
-    public static final Profile getProfile(String username, String nick, int revision) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT rating, wins, losses, invalid FROM profiles P, registrations R"
-                                    + " WHERE P.reg_id = R.id AND R.username = ? AND P.nick = ?");
-            try {
-                stmt.setString(1, username);
-                stmt.setString(2, nick);
-                ResultSet result = stmt.executeQuery();
-                try {
-                    result.next();
-                    int rating = result.getInt("rating");
-                    int wins = result.getInt("wins");
-                    int losses = result.getInt("losses");
-                    int invalid = result.getInt("invalid");
-                    return new Profile(nick, rating, wins, losses, invalid, revision);
-                } finally {
-                    result.close();
-                }
-            } finally {
-                stmt.getConnection().close();
+    public static Profile getProfile(String username, String nick, int revision) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT rating, wins, losses, invalid FROM profiles P, registrations R"
+                             + " WHERE P.reg_id = R.id AND R.username = ? AND P.nick = ?")) {
+            stmt.setString(1, username);
+            stmt.setString(2, nick);
+            try (ResultSet result = stmt.executeQuery()) {
+                result.next();
+                int rating = result.getInt("rating");
+                int wins = result.getInt("wins");
+                int losses = result.getInt("losses");
+                int invalid = result.getInt("invalid");
+                return new Profile(nick, rating, wins, losses, invalid, revision);
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
@@ -168,20 +121,14 @@ public final class DBInterface {
         }
     }
 
-    public static final void setLastUsedProfile(String username, String nick) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "UPDATE registrations R SET last_used_profile = ? WHERE R.username ="
-                                    + " ?");
-            try {
-                stmt.setString(1, nick);
-                stmt.setString(2, username);
-                int row_count = stmt.executeUpdate();
-                assert row_count == 1;
-            } finally {
-                stmt.getConnection().close();
-            }
+    public static void setLastUsedProfile(String username, String nick) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "UPDATE registrations R SET last_used_profile = ? WHERE R.username = ?")) {
+            stmt.setString(1, nick);
+            stmt.setString(2, username);
+            int row_count = stmt.executeUpdate();
+            assert row_count == 1;
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger()
@@ -190,23 +137,14 @@ public final class DBInterface {
         }
     }
 
-    public static final String getLastUsedProfile(String username) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT last_used_profile FROM registrations R WHERE R.username = ?");
-            try {
-                stmt.setString(1, username);
-                ResultSet result = stmt.executeQuery();
-                try {
-                    result.next();
-                    String nick = result.getString("last_used_profile");
-                    return nick;
-                } finally {
-                    result.close();
-                }
-            } finally {
-                stmt.getConnection().close();
+    public static String getLastUsedProfile(String username) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT last_used_profile FROM registrations R WHERE R.username = ?")) {
+            stmt.setString(1, username);
+            try (ResultSet result = stmt.executeQuery()) {
+                result.next();
+                return result.getString("last_used_profile");
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
@@ -216,21 +154,14 @@ public final class DBInterface {
         }
     }
 
-    private static final int getRegID(String username) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement("SELECT id FROM registrations R WHERE R.username = ?");
-            try {
-                stmt.setString(1, username);
-                ResultSet result = stmt.executeQuery();
-                try {
-                    result.next();
-                    return result.getInt("id");
-                } finally {
-                    result.close();
-                }
-            } finally {
-                stmt.getConnection().close();
+    private static int getRegID(String username) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT id FROM registrations R WHERE R.username = ?")) {
+            stmt.setString(1, username);
+            try (ResultSet result = stmt.executeQuery()) {
+                result.next();
+                return result.getInt("id");
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
@@ -240,49 +171,34 @@ public final class DBInterface {
         }
     }
 
-    public static final boolean nickExists(String nick) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT nick FROM profiles P WHERE lower(P.nick) = lower(?)");
-            try {
-                stmt.setString(1, nick);
-                ResultSet result = stmt.executeQuery();
-                try {
-                    boolean nick_exists = result.next();
-                    return nick_exists;
-                } finally {
-                    result.close();
-                }
-            } finally {
-                stmt.getConnection().close();
+    public static boolean nickExists(String nick) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT nick FROM profiles P WHERE lower(P.nick) = lower(?)")) {
+            stmt.setString(1, nick);
+            try (ResultSet result = stmt.executeQuery()) {
+                return result.next();
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "queryUser", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "nickExists", e);
             throw new RuntimeException(e);
         }
     }
 
-    public static final void saveGameReport(int game_id, int tick, int[] team_score) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "INSERT INTO game_report_teams (game_id, tick, team_index, score)"
-                                    + " VALUES (?, ?, ?, ?)");
-            try {
-                for (int i = 0; i < team_score.length; i++) {
-                    if (team_score[i] == 0) continue;
-                    stmt.setInt(1, game_id);
-                    stmt.setInt(2, tick);
-                    stmt.setInt(3, i);
-                    stmt.setInt(4, team_score[i]);
-                    stmt.addBatch();
-                }
-                stmt.executeBatch();
-            } finally {
-                stmt.getConnection().close();
+    public static void saveGameReport(int game_id, int tick, int[] team_score) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "INSERT INTO game_report_teams (game_id, tick, team_index, score) VALUES (?, ?, ?, ?)")) {
+            for (int i = 0; i < team_score.length; i++) {
+                if (team_score[i] == 0) continue;
+                stmt.setInt(1, game_id);
+                stmt.setInt(2, tick);
+                stmt.setInt(3, i);
+                stmt.setInt(4, team_score[i]);
+                stmt.addBatch();
             }
+            stmt.executeBatch();
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger()
@@ -291,22 +207,16 @@ public final class DBInterface {
         }
     }
 
-    public static final void logPriority(int game_id, String nick1, String nick2, int priority) {
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "INSERT INTO connections (game_id, nick1, nick2, priority) "
-                                    + "VALUES (?, ?, ?, ?)");
-            try {
-                stmt.setInt(1, game_id);
-                stmt.setString(2, nick1);
-                stmt.setString(3, nick2);
-                stmt.setInt(4, priority);
-                int row_count = stmt.executeUpdate();
-                assert row_count == 1;
-            } finally {
-                stmt.getConnection().close();
-            }
+    public static void logPriority(int game_id, String nick1, String nick2, int priority) {
+        try (Connection conn = DBUtils.createDatabaseConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "INSERT INTO connections (game_id, nick1, nick2, priority) VALUES (?, ?, ?, ?)")) {
+            stmt.setInt(1, game_id);
+            stmt.setString(2, nick1);
+            stmt.setString(3, nick2);
+            stmt.setInt(4, priority);
+            int row_count = stmt.executeUpdate();
+            assert row_count == 1;
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "logPriority", e);
