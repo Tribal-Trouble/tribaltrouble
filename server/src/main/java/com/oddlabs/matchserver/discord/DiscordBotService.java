@@ -38,7 +38,7 @@ public class DiscordBotService {
     private ReactionRoleService reactionRoleService;
     private final List<Disposable> disposables = new ArrayList<>();
 
-    ArrayList<DiscordCommand> commands = new ArrayList<DiscordCommand>();
+    ArrayList<DiscordCommand> commands = new ArrayList<>();
 
     public static DiscordBotService getInstance() {
         if (instance == null) {
@@ -119,7 +119,7 @@ public class DiscordBotService {
         return Optional.ofNullable(game_activity_channel);
     }
 
-    private ArrayList<TextChannel> message_channels = new ArrayList<TextChannel>();
+    private ArrayList<TextChannel> message_channels = new ArrayList<>();
     private TextChannel game_activity_channel;
 
     /** Sets up event handlers for the Discord bot */

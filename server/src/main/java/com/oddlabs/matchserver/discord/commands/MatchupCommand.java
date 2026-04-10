@@ -7,6 +7,8 @@ import com.oddlabs.matchserver.WebsiteLinkHelper;
 import com.oddlabs.matchserver.models.VersusMatchupModel;
 import com.oddlabs.matchserver.models.VersusMatchupResultModel;
 
+import java.sql.Timestamp;
+
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
@@ -86,7 +88,7 @@ public class MatchupCommand extends DiscordCommand {
         int matchupNum = 1;
 
         for (VersusMatchupModel matchup : matchupResult.getRecentMatchups()) {
-            java.sql.Timestamp startTime = matchup.getStartTime();
+            Timestamp startTime = matchup.getStartTime();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
             String formattedTime = sdf.format(startTime);
 

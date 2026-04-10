@@ -2,6 +2,8 @@ package com.oddlabs.matchserver.models;
 
 import com.oddlabs.matchserver.WebsiteLinkHelper;
 
+import java.sql.Timestamp;
+
 public class VersusMatchupModel {
     private String player1;
     private String player2;
@@ -9,7 +11,7 @@ public class VersusMatchupModel {
     private int game_id;
     private String game_name;
     private String map_seed;
-    private java.sql.Timestamp startTime;
+    private Timestamp startTime;
 
     public VersusMatchupModel(
             String player1,
@@ -18,7 +20,7 @@ public class VersusMatchupModel {
             int game_id,
             String game_name,
             String map_seed,
-            java.sql.Timestamp startTime) {
+            Timestamp startTime) {
         this.player1 = player1;
         this.player2 = player2;
         this.winner = winner;
@@ -32,7 +34,7 @@ public class VersusMatchupModel {
         return game_id;
     }
 
-    public java.sql.Timestamp getStartTime() {
+    public Timestamp getStartTime() {
         return startTime;
     }
 

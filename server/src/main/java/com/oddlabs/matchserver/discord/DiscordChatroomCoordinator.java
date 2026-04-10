@@ -14,10 +14,9 @@ import java.util.HashMap;
 public class DiscordChatroomCoordinator {
     private boolean debug = false;
     // TT Chatroom instance -> associated discord text channel
-    private HashMap<ChatRoom, TextChannel> chatRoomChannels = new HashMap<ChatRoom, TextChannel>();
+    private HashMap<ChatRoom, TextChannel> chatRoomChannels = new HashMap<>();
     // TT Chatroom instance -> to its subscription to a message sending
-    private HashMap<ChatRoom, Disposable> discordMessageSubscriptions =
-            new HashMap<ChatRoom, Disposable>();
+    private HashMap<ChatRoom, Disposable> discordMessageSubscriptions = new HashMap<>();
 
     /**
      * Adds a chatroom and its associated discord channel to the coordinator.

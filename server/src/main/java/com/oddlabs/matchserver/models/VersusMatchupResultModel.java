@@ -1,6 +1,6 @@
 package com.oddlabs.matchserver.models;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class VersusMatchupResultModel {
     private String player1;
@@ -8,7 +8,7 @@ public class VersusMatchupResultModel {
     private int player1Wins;
     private int player2Wins;
     private int neitherWins;
-    ArrayList<VersusMatchupModel> recentMatchups;
+    private final List<VersusMatchupModel> recentMatchups;
 
     public VersusMatchupResultModel(
             String player1,
@@ -16,7 +16,7 @@ public class VersusMatchupResultModel {
             int player1Wins,
             int player2Wins,
             int neitherWins,
-            ArrayList<VersusMatchupModel> recentMatchups) {
+            List<VersusMatchupModel> recentMatchups) {
         this.player1 = player1;
         this.player2 = player2;
         this.player1Wins = player1Wins;
@@ -45,7 +45,7 @@ public class VersusMatchupResultModel {
         return player1Wins + player2Wins + neitherWins;
     }
 
-    public ArrayList<VersusMatchupModel> getRecentMatchups() {
+    public List<VersusMatchupModel> getRecentMatchups() {
         return recentMatchups;
     }
 }

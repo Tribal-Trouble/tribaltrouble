@@ -60,8 +60,7 @@ public class ScrollablePulldownMenu<T> extends PulldownMenu<T> implements Scroll
         int min_content_width = Math.max(button_width, item_box.getLeftOffset() + text_width + item_box.getRightOffset());
 
         int item_pos_count = 0;
-        for (int i = 0; i < items.size(); i++) {
-            PulldownItem<T> item = items.get(i);
+        for (PulldownItem<T> item : items) {
             item.setDim(min_content_width, normalizedItemHeight);
             item.setPos(0, item_pos_count);
             item_pos_count -= normalizedItemHeight;
@@ -95,8 +94,7 @@ public class ScrollablePulldownMenu<T> extends PulldownMenu<T> implements Scroll
 
     private void updateItemPositions() {
         int item_pos_count = offset_y;
-        for (int i = 0; i < items.size(); i++) {
-            PulldownItem<T> item = items.get(i);
+        for (PulldownItem<T> item : items) {
             item.setPos(0, item_pos_count + getHeight() - normalizedItemHeight - 2);
             item_pos_count -= normalizedItemHeight;
         }
