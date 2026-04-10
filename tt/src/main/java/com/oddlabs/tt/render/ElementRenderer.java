@@ -1,5 +1,7 @@
 package com.oddlabs.tt.render;
 
+import org.jspecify.annotations.NonNull;
+
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.model.Element;
 import com.oddlabs.tt.model.ElementLeaf;
@@ -7,7 +9,6 @@ import com.oddlabs.tt.model.ElementNode;
 import com.oddlabs.tt.model.ElementNodeVisitor;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.viewer.Selection;
-import org.jspecify.annotations.NonNull;
 
 final class ElementRenderer<T extends Element<T>> implements ElementNodeVisitor<T> {
 
@@ -33,8 +34,8 @@ final class ElementRenderer<T extends Element<T>> implements ElementNodeVisitor<
 
     @Override
     public void visitNode(@NonNull ElementNode<T> node) {
-        RenderTools.FrustumIntersection frustum_state = camera.inNoDetailMode()
-                ? RenderTools.FrustumIntersection.ALL_INSIDE // Force all in frustum for map mode
+        RenderTools.FrustumIntersection frustum_state = camera.inNoDetailMode() && !picking
+                ? RenderTools.FrustumIntersection.ALL_INSIDE
                 : RenderTools.inFrustum(node, camera.getFrustum());
 
         if (visible_override || frustum_state != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
@@ -48,8 +49,8 @@ final class ElementRenderer<T extends Element<T>> implements ElementNodeVisitor<
 
     @Override
     public void visitLeaf(@NonNull ElementLeaf<T> leaf) {
-        RenderTools.FrustumIntersection frustum_state = camera.inNoDetailMode()
-                ? RenderTools.FrustumIntersection.ALL_INSIDE // Force all in frustum for map mode
+        RenderTools.FrustumIntersection frustum_state = camera.inNoDetailMode() && !picking
+                ? RenderTools.FrustumIntersection.ALL_INSIDE
                 : RenderTools.inFrustum(leaf, camera.getFrustum());
 
         if (visible_override || frustum_state != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
@@ -62,8 +63,8 @@ final class ElementRenderer<T extends Element<T>> implements ElementNodeVisitor<
 
     @Override
     public void visit(@NonNull T element) {
-        RenderTools.FrustumIntersection frustum_state = camera.inNoDetailMode()
-                ? RenderTools.FrustumIntersection.ALL_INSIDE // Force all in frustum for map mode
+        RenderTools.FrustumIntersection frustum_state = camera.inNoDetailMode() && !picking
+                ? RenderTools.FrustumIntersection.ALL_INSIDE
                 : RenderTools.inFrustum(element, camera.getFrustum());
 
         if (visible_override || frustum_state != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
