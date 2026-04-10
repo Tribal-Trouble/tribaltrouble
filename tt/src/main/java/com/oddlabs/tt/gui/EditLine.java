@@ -250,6 +250,7 @@ public class EditLine extends TextField implements Clipped {
         if (focus)
             index = getText().length();
         clearSelection();
+        correctOffsetX();
     }
 
     @Override
@@ -264,7 +265,7 @@ public class EditLine extends TextField implements Clipped {
     protected final void mousePressed(@NonNull MouseButton button, int x, int y) {
         if (button == MouseButton.LEFT) {
             Box edit_box = Skin.getSkin().getEditBox();
-            float relativeX = x - (getRootX() + edit_box.getLeftOffset() + offset_x);
+            float relativeX = x - (edit_box.getLeftOffset() + offset_x);
 
             int bestIndex = 0;
             float bestDx = Float.MAX_VALUE;
