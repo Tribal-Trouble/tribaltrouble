@@ -335,6 +335,9 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     public void exitMapMode() {
         map_mode = false;
         getCamera().disable();
+        // Snap GameCamera's current position to its target so there's no
+        // interpolation lag when switching back from MapCamera
+        game_camera.getState().snapToTarget();
         setCamera(game_camera);
         getCamera().enable();
         if (observer)

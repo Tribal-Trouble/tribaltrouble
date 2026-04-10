@@ -102,6 +102,14 @@ public final class CameraState {
         return fog;
     }
 
+    public void snapToTarget() {
+        camera_x = target_camera_x;
+        camera_y = target_camera_y;
+        camera_z = target_camera_z;
+        vert_angle = target_vert_angle;
+        horiz_angle = target_horiz_angle;
+    }
+
     public void animate(float delta_t, float smoothness_factor) {
         camera_x = animateValue(delta_t, camera_x, target_camera_x, smoothness_factor);
         camera_y = animateValue(delta_t, camera_y, target_camera_y, smoothness_factor);
