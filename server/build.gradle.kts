@@ -9,44 +9,42 @@ application {
     applicationDefaultJvmArgs = listOf("-Djdk.crypto.KeyAgreement.legacyKDF=true")
 }
 
+// Fix start scripts to cd into APP_HOME so they find server.properties
+fun fixStartScript(script: File) {
+    var content = script.readText()
+    if (script.name.endsWith(".bat")) {
+        content = content.replace("@rem Execute ", "cd /d \"%APP_HOME%\"\r\n\r\n@rem Execute ")
+    } else {
+        content = content.replace("exec ", "cd \"\$APP_HOME\"\n\nexec ")
+    }
+    script.writeText(content)
+}
+
+tasks.named<CreateStartScripts>("startScripts") {
+    doLast {
+        outputDir.listFiles()?.forEach { fixStartScript(it) }
+    }
+}
+
 tasks.register<CreateStartScripts>("routerScripts") {
     mainClass.set("com.oddlabs.routerserver.RouterServer")
     applicationName = "router"
     classpath = tasks.named<CreateStartScripts>("startScripts").get().classpath
     outputDir = tasks.named<CreateStartScripts>("startScripts").get().outputDir
-}
-
-tasks.installDist {
-    dependsOn("routerScripts")
-}
-
-distributions {
-    main {
-        distributionBaseName.set("server")
-        contents {
-            from("server.properties.template") {
-                rename { "server.properties" }
-            }
-        }
+    doLast {
+        outputDir.listFiles()?.filter { it.name.startsWith("router") }?.forEach { fixStartScript(it) }
     }
 }
 
-tasks.installDist {
+// Generate start-all scripts
+val generateStartAll by tasks.registering {
+    val outputDir = layout.buildDirectory.dir("scripts")
+    outputs.dir(outputDir)
     doLast {
-        val root = destinationDir
-        root.resolve("logs").mkdirs()
+        val dir = outputDir.get().asFile
+        dir.mkdirs()
 
-        root.resolve("bin").listFiles()?.forEach { script ->
-            var content = script.readText()
-            if (script.name.endsWith(".bat")) {
-                content = content.replace("@rem Execute ", "cd /d \"%APP_HOME%\"\r\n\r\n@rem Execute ")
-            } else {
-                content = content.replace("exec ", "cd \"\$APP_HOME\"\n\nexec ")
-            }
-            script.writeText(content)
-        }
-
-        root.resolve("start-all").apply {
+        dir.resolve("start-all").apply {
             writeText(
                 """
                 |#!/bin/bash
@@ -62,7 +60,7 @@ tasks.installDist {
             setExecutable(true)
         }
 
-        root.resolve("start-all.bat").apply {
+        dir.resolve("start-all.bat").apply {
             writeText(
                 """
                 |@echo off
@@ -74,6 +72,36 @@ tasks.installDist {
             """.trimMargin() + "\r\n"
             )
         }
+    }
+}
+
+tasks.installDist {
+    dependsOn("routerScripts")
+}
+
+tasks.distZip {
+    dependsOn("routerScripts")
+}
+
+tasks.distTar {
+    dependsOn("routerScripts")
+}
+
+distributions {
+    main {
+        distributionBaseName.set("server")
+        contents {
+            from("server.properties.template") {
+                rename { "server.properties" }
+            }
+            from(generateStartAll)
+        }
+    }
+}
+
+tasks.installDist {
+    doLast {
+        destinationDir.resolve("logs").mkdirs()
     }
 }
 
