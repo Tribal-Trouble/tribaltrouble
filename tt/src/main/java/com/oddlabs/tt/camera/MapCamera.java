@@ -71,6 +71,7 @@ public final class MapCamera extends Camera {
         distance_to_landscape = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
 
         setSmoothnessFactor(SMOOTHNESS_FACTOR);
+        getState().setNoDetailMode(true);
     }
 
     @Override
@@ -146,6 +147,7 @@ public final class MapCamera extends Camera {
                     camera_state.setTargetZ(original_camera_state.getTargetZ());
                     camera_state.setTargetVertAngle(original_camera_state.getTargetVertAngle());
                     checkPosition();
+                    getState().setNoDetailMode(false);
                     delegate.exitMapMode();
                     break;
                 }
@@ -164,11 +166,9 @@ public final class MapCamera extends Camera {
             case IN_MAP -> {
                 label.setPos((delegate.getGUIRoot().getWidth() - label.getWidth()) / 2, delegate.getGUIRoot().getHeight() - label.getHeight());
                 delegate.addChild(label);
-                getState().setNoDetailMode(true);
             }
             case FROM_MAP -> {
                 label.remove();
-                getState().setNoDetailMode(false);
             }
         }
     }

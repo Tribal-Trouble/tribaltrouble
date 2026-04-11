@@ -65,6 +65,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     private final Vector3f groundAmbientEnhanced = new Vector3f(0.15f, 0.12f, 0.1f);
 
     private @Nullable Building selected_building;
+    private boolean suppressTeamHighlight;
 
     private void setDrawBuffers(boolean mask) {
         try (org.lwjgl.system.MemoryStack stack = org.lwjgl.system.MemoryStack.stackPush()) {
@@ -209,11 +210,12 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
     @Override
     public void endFrame(@NonNull RenderContext context, @NonNull Consumer<@NonNull RenderContext> guiRenderCallback) {
-        postProcessor.renderComposite(context, guiRenderCallback);
+        postProcessor.renderComposite(context, guiRenderCallback, suppressTeamHighlight);
     }
 
     @Override
     public void render(@NonNull RenderContext context, @NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root) {
+        suppressTeamHighlight = frustum_state.inNoDetailMode();
         if (postProcessor.resize(frustum_state.getWidth(), frustum_state.getHeight())) {
             postProcessor.bindSceneFBO();
             context.clear(true, true);

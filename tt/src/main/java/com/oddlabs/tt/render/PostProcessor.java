@@ -73,7 +73,7 @@ public final class PostProcessor implements AutoCloseable {
         sceneFBO.unbind();
     }
 
-    public void renderComposite(@NonNull RenderContext context, @NonNull Consumer<@NonNull RenderContext> guiRenderCallback) {
+    public void renderComposite(@NonNull RenderContext context, @NonNull Consumer<@NonNull RenderContext> guiRenderCallback, boolean suppressTeamHighlight) {
         // 1. Render GUI into the Scene FBO (on top of the 3D scene)
         bindSceneFBO();
 
@@ -100,9 +100,9 @@ public final class PostProcessor implements AutoCloseable {
             Settings settings = Settings.getSettings();
             shader.setUniform(PostProcessShader.Uniforms.CVD_MODE, settings.cvd_mode);
             shader.setUniform(PostProcessShader.Uniforms.CVD_INTENSITY, settings.cvd_intensity);
-            shader.setUniform(PostProcessShader.Uniforms.HIGH_CONTRAST, settings.high_contrast);
+            shader.setUniform(PostProcessShader.Uniforms.HIGH_CONTRAST, suppressTeamHighlight ? false : settings.high_contrast);
             shader.setUniform(PostProcessShader.Uniforms.CONTRAST_INTENSITY, settings.contrast_intensity);
-            shader.setUniform(PostProcessShader.Uniforms.TEAM_STENCIL, settings.team_stencil);
+            shader.setUniform(PostProcessShader.Uniforms.TEAM_STENCIL, suppressTeamHighlight ? false : settings.team_stencil);
             shader.setUniform(PostProcessShader.Uniforms.SCENE_TEXTURE, 0);
             shader.setUniform(PostProcessShader.Uniforms.MASK_TEXTURE, 1);
 
