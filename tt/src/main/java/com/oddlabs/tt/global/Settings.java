@@ -168,7 +168,7 @@ public final class Settings implements Serializable {
     }
 
     public boolean isOfficialServer() {
-        if (OFFICIAL_DOMAIN.equals(domain_name)) {
+        if (OFFICIAL_DOMAIN.equals(domain_name) || domain_name.endsWith("." + OFFICIAL_DOMAIN)) {
             return true;
         }
         // Also allow Steam auth on localhost if debug flag is enabled
