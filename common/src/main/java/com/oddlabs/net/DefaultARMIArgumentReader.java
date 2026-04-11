@@ -4,9 +4,15 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.ObjectInputFilter;
 import java.io.ObjectInputStream;
 
 public class DefaultARMIArgumentReader implements ARMIArgumentReader {
+    private static final ObjectInputFilter ARMI_FILTER = ObjectInputFilter.Config.createFilter(
+            "com.oddlabs.**;"
+            + "java.lang.*;java.net.*;java.math.*;java.security.*;javax.crypto.*;"
+            + "!*");
+
     @Override
     public @Nullable Object readArgument(@NonNull Class<?> type, @NonNull ByteBufferInputStream in) throws IOException, ClassNotFoundException {
         if (type.equals(char.class)) {
@@ -34,6 +40,7 @@ public class DefaultARMIArgumentReader implements ARMIArgumentReader {
             return ARMIEvent.read(in.buffer(), event_size);
         } else {
             try (ObjectInputStream input_stream = new ObjectInputStream(in)) {
+                input_stream.setObjectInputFilter(ARMI_FILTER);
                 return input_stream.readObject();
             }
         }
