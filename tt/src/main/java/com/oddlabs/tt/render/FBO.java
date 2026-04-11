@@ -48,6 +48,7 @@ public final class FBO implements AutoCloseable {
     }
 
     public void resize(int width, int height) {
+        if (width <= 0 || height <= 0) return;
         if (this.width == width && this.height == height) return;
         this.width = width;
         this.height = height;
