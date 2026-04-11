@@ -144,7 +144,8 @@ fun registerMacPackage(
 }
 
 val packageMacX86 = registerMacPackage("packageMacX86", "macosx-x86", "dmg")
-val packageMacArm64 = registerMacPackage("packageMacArm64", "macosx-arm64", "app-image")
+val packageMacArm64 = registerMacPackage("packageMacArm64", "macosx-arm64", "dmg")
+val packageMacArm64App = registerMacPackage("packageMacArm64App", "macosx-arm64-app", "app-image")
 val packageMacX86App = registerMacPackage("packageMacX86App", "macosx-x86-app", "app-image")
 
 val packageLinux by tasks.registering {
