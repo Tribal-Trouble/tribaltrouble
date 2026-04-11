@@ -129,6 +129,15 @@ public final class RenderQueues implements AutoCloseable {
         spriteRenderer.renderAll(context, camera_state, projectionStack);
     }
 
+    void renderEmitterSprites(@NonNull RenderContext context, @NonNull CameraState camera_state, @NonNull MatrixStack projectionStack) {
+        // Sprite-based particles (building debris) are deferred to SpriteListRenderer during
+        // the emitter pass, which runs after the main renderAll(). Flush them here.
+        for (SpriteRenderer spriteRenderer : sprite_renderers) {
+            spriteRenderer.renderAll();
+        }
+        spriteRenderer.renderAll(context, camera_state, projectionStack);
+    }
+
     void renderBlends(@NonNull RenderContext context, @NonNull CameraState camera_state, @NonNull MatrixStack projectionStack) {
         for (SpriteRenderer blendSpriteRenderer : blend_sprite_renderers) {
             blendSpriteRenderer.renderAll();

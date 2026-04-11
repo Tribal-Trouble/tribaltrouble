@@ -1,5 +1,14 @@
 package com.oddlabs.tt.render;
 
+import java.util.function.Consumer;
+
+import org.joml.Vector3f;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
+
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.BoundingMode;
@@ -27,14 +36,6 @@ import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
-import org.joml.Vector3f;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
-
-import java.util.function.Consumer;
 
 public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
@@ -299,6 +300,9 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
         lightningRenderer.render(context, render_queues, element_renderer.getRenderState().getLightningQueue(), frustum_state, modelViewStack, projectionStack);
         emitterRenderer.render(context, render_queues, element_renderer.getRenderState().getEmitterQueue(), frustum_state, modelViewStack, projectionStack);
+        // Flush sprite-based particles (e.g. building debris) that were deferred to
+        // SpriteListRenderer during emitter collection. This must happen after emitter pass.
+        render_queues.renderEmitterSprites(context, frustum_state, projectionStack);
 
         if (world.getRacesResources() != null) {
             sonicBlastRenderer.render(context, render_queues, element_renderer.getRenderState().getSonicBlastQueue(), frustum_state, modelViewStack, projectionStack, world.getRacesResources().getPoisonTextures()[0]);
