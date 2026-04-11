@@ -22,7 +22,7 @@ fun fixStartScript(script: File) {
 
 tasks.named<CreateStartScripts>("startScripts") {
     doLast {
-        outputDir.listFiles()?.forEach { fixStartScript(it) }
+        outputDir?.listFiles()?.forEach { fixStartScript(it) }
     }
 }
 
@@ -32,7 +32,7 @@ tasks.register<CreateStartScripts>("routerScripts") {
     classpath = tasks.named<CreateStartScripts>("startScripts").get().classpath
     outputDir = tasks.named<CreateStartScripts>("startScripts").get().outputDir
     doLast {
-        outputDir.listFiles()?.filter { it.name.startsWith("router") }?.forEach { fixStartScript(it) }
+        outputDir?.listFiles()?.filter { it.name.startsWith("router") }?.forEach { fixStartScript(it) }
     }
 }
 
