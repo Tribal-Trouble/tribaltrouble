@@ -473,11 +473,15 @@ public class EditLine extends TextField implements Clipped {
 
     private void copyToClipboard() {
         if (!hasSelection()) return;
-        String selectedText = getContents().substring(
-                Math.min(selectionStart, selectionEnd),
-                Math.max(selectionStart, selectionEnd));
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(new StringSelection(selectedText), null);
+        try {
+            String selectedText = getContents().substring(
+                    Math.min(selectionStart, selectionEnd),
+                    Math.max(selectionStart, selectionEnd));
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(new StringSelection(selectedText), null);
+        } catch (Exception e) {
+            System.err.println("Error accessing clipboard: " + e.getMessage());
+        }
     }
 
     private void pasteFromClipboard() {
