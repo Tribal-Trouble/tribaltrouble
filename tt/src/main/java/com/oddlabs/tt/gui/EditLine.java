@@ -497,10 +497,12 @@ public class EditLine extends TextField implements Clipped {
             deleteSelection();
 
             String contents = getContents();
-            String newContent = contents.substring(0, index) + text + contents.substring(index);
+            int insertPos = index;
+            String newContent = contents.substring(0, insertPos) + text + contents.substring(insertPos);
             if (max_chars != -1 && newContent.length() > max_chars) return;
             set(newContent);
-            index = Math.min(index + text.length(), newContent.length());
+            index = Math.min(insertPos + text.length(), newContent.length());
+            correctOffsetX();
         } catch (Exception e) {
             System.err.println("Error accessing clipboard: " + e.getMessage());
         }
