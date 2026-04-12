@@ -13,4 +13,6 @@ public strictfp interface TrackerAlgorithm {
             int src_x,
             int src_y,
             boolean allow_secondary_targets);
+
+    public abstract Occupant getOccupant();
 }

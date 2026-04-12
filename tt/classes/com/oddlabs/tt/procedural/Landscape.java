@@ -1477,7 +1477,7 @@ public final strictfp class Landscape {
                         .floodfill(0, 0, -1.0f, 0.1f, new int[1])
                         .threshold(-1.01f, -0.99f);
         if (DEBUG) water_map.toLayer().saveAsPNG("water_map");
-        dock_map = water_map.copy().smooth(4).threshold(0.0f, 0.99f).channelMultiply(water_map);
+        dock_map = water_map.copy().smooth(10).threshold(0.0f, 0.99f).channelMultiply(water_map);
         Channel beach =
                 height.copy()
                         .threshold(

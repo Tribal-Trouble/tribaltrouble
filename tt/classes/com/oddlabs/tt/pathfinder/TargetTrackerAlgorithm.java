@@ -38,6 +38,14 @@ public final strictfp class TargetTrackerAlgorithm implements TrackerAlgorithm {
         }
     }
 
+    public final Occupant getOccupant() {
+        if (target instanceof Occupant) {
+            return (Occupant) target;
+        } else {
+            return null;
+        }
+    }
+
     public final GridPathNode findPathGrid(
             Region target_region,
             Region next_region,

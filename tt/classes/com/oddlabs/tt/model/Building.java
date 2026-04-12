@@ -134,9 +134,9 @@ public abstract strictfp class Building extends Selectable implements Occupant {
 
     public abstract void visit(ToolTipVisitor visitor);
 
-    public abstract void occupy();
-
     public abstract void free();
+
+    public abstract void occupy();
 
     public abstract void fillSupplies(Class key, int max);
 

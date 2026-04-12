@@ -3,7 +3,6 @@ package com.oddlabs.tt.model;
 import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.gui.BuildSpinner;
-import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.behaviour.AttackController;
@@ -21,7 +20,6 @@ import com.oddlabs.tt.particle.LinearEmitter;
 import com.oddlabs.tt.particle.RandomAccelerationEmitter;
 import com.oddlabs.tt.particle.RandomVelocityEmitter;
 import com.oddlabs.tt.pathfinder.Occupant;
-import com.oddlabs.tt.pathfinder.Region;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
@@ -68,21 +66,6 @@ public final strictfp class LandBuilding extends Building {
     public static final int KEY_DEPLOY_PEON_HARVEST_RUBBER = 10;
     public static final int KEY_DEPLOY_PEON_TRANSPORT_RUBBER = 11;
 
-    public static Class deployTypeToGatherSupply(int deploy_type) {
-        switch (deploy_type) {
-            case KEY_DEPLOY_PEON_HARVEST_TREE:
-                return TreeSupply.class;
-            case KEY_DEPLOY_PEON_HARVEST_ROCK:
-                return RockSupply.class;
-            case KEY_DEPLOY_PEON_HARVEST_IRON:
-                return IronSupply.class;
-            case KEY_DEPLOY_PEON_HARVEST_RUBBER:
-                return RubberSupply.class;
-            default:
-                return null;
-        }
-    }
-
     private static final float DAMAGED_PARTICLE_ALPHA = 3f;
 
     private final Map supply_containers = new HashMap();
@@ -103,17 +86,12 @@ public final strictfp class LandBuilding extends Building {
 
     public LandBuilding(Player owner, BuildingTemplate template, int grid_x, int grid_y) {
         super(owner, template);
+        setLayer(UnitGrid.LAND);
         setGridPosition(grid_x, grid_y);
         UnitGrid unit_grid = getUnitGrid();
         float x = UnitGrid.coordinateFromGrid(grid_x);
         float y = UnitGrid.coordinateFromGrid(grid_y);
-        super.setPosition(x, y);
-        setPositionZ(
-                Math.max(
-                                unit_grid.getHeightMap().getSeaLevelMeters(),
-                                unit_grid.getHeightMap().getNearestHeight(x, y))
-                        + getOffsetZ());
-
+        setPosition(x, y);
         pushController(new NullController(this));
         /*
            Vector3f position, float offset_z, float uv_angle,
@@ -207,7 +185,6 @@ public final strictfp class LandBuilding extends Building {
 
     protected final void doAnimate(float t) {
         if (!isDead()) {
-
             UnitContainer unit_container = getUnitContainer();
             if (unit_container != null) unit_container.animate(t);
             if (weapons_producer != null) weapons_producer.animate(t);
@@ -217,7 +194,7 @@ public final strictfp class LandBuilding extends Building {
                 if (deploy_containers[i] != null && deploy_containers[i].getNumSupplies() > 0)
                     num_deploying++;
             }
-            if (num_deploying > 0 && getLayer() == UnitGrid.LAND) {
+            if (num_deploying > 0) {
                 float amount = t / num_deploying;
                 for (int i = 0; i < deploy_containers.length; i++) {
                     if (deploy_containers[i] != null && deploy_containers[i].getNumSupplies() > 0)
@@ -332,7 +309,7 @@ public final strictfp class LandBuilding extends Building {
             getUnitContainer().prepareDeploy(-1);
             getUnitContainer().exit();
             Unit unit = createUnit(null, race.getUnitTemplate(Race.UNIT_PEON));
-            unit.pushController(new GatherController(unit, null, supply_type));
+            unit.pushController(new GatherController(unit, null, supply_type, this));
         }
     }
 
@@ -534,14 +511,12 @@ public final strictfp class LandBuilding extends Building {
                                 rock_axe_weapon, iron_axe_weapon, rubber_axe_weapon
                             };
 
-                    if (getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
-                        weapons_producer =
-                                new WeaponsProducer(
-                                        this,
-                                        (WorkerUnitContainer) getUnitContainer(),
-                                        production_containers,
-                                        production_emitter);
-                    }
+                    weapons_producer =
+                            new WeaponsProducer(
+                                    this,
+                                    (WorkerUnitContainer) getUnitContainer(),
+                                    production_containers,
+                                    production_emitter);
 
                     DeployContainer rock_warrior_container =
                             new DeployContainer(
@@ -646,6 +621,7 @@ public final strictfp class LandBuilding extends Building {
     public static final boolean doIsPlacingLegal(
             UnitGrid unit_grid, int grid_x, int grid_y, int size) {
         if (!unit_grid.getHeightMap().canBuild(grid_x, grid_y, size)) return false;
+
         for (int y = 0; y < size * 2 - 1; y++)
             for (int x = 0; x < size * 2 - 1; x++) {
                 int current_grid_x = grid_x + x - (size - 1);
@@ -653,12 +629,9 @@ public final strictfp class LandBuilding extends Building {
                 if (current_grid_x >= unit_grid.getGridSize()
                         || current_grid_y >= unit_grid.getGridSize()
                         || current_grid_x < 0
-                        || current_grid_y < 0) return false;
-                boolean occupied =
-                        unit_grid.isGridOccupied(current_grid_x, current_grid_y, UnitGrid.LAND);
-                if (occupied) {
+                        || current_grid_y < 0
+                        || unit_grid.isGridOccupied(current_grid_x, current_grid_y, UnitGrid.LAND))
                     return false;
-                }
             }
         return true;
     }
@@ -783,11 +756,7 @@ public final strictfp class LandBuilding extends Building {
     public final boolean isValidRallyPoint(Target t) {
         if (!(t instanceof Building)) return false;
         Building b = (Building) t;
-        if (b != null) {
-            return getOwner() == b.getOwner() && b.getAbilities().hasAbilities(Abilities.RALLY_TO);
-        }
-        Ship s = (Ship) t;
-        return getOwner() == s.getOwner() && s.getAbilities().hasAbilities(Abilities.RALLY_TO);
+        return getOwner() == b.getOwner() && b.getAbilities().hasAbilities(Abilities.RALLY_TO);
     }
 
     public final void setRallyPoint(Target target) {
@@ -829,39 +798,44 @@ public final strictfp class LandBuilding extends Building {
     }
 
     private final void flattenLandscape() {
-        HeightMap map = getOwner().getWorld().getHeightMap();
         int size = getBuildingTemplate().getPlacingSize();
         int height_points = (size - PLACING_BORDER) * 2;
         int offset_x = getGridX() - (size - 1);
         int offset_y = getGridY() - (size - 1);
         float total_height = 0;
         old_landscape_heights = new float[height_points][height_points];
-        for (int y = 0; y < height_points; y++) {
+        for (int y = 0; y < height_points; y++)
             for (int x = 0; x < height_points; x++) {
                 float old_height =
-                        map.getWrappedHeight(
-                                offset_x + x + PLACING_BORDER, offset_y + y + PLACING_BORDER);
+                        getOwner()
+                                .getWorld()
+                                .getHeightMap()
+                                .getWrappedHeight(
+                                        offset_x + x + PLACING_BORDER,
+                                        offset_y + y + PLACING_BORDER);
                 old_landscape_heights[y][x] = old_height;
                 total_height += old_height;
             }
-        }
 
         float new_height = total_height / (height_points * height_points);
-
-        for (int y = 0; y < height_points; y++) {
+        for (int y = 0; y < height_points; y++)
             for (int x = 0; x < height_points; x++) {
-                map.editHeight(
-                        offset_x + x + PLACING_BORDER, offset_y + y + PLACING_BORDER, new_height);
+                getOwner()
+                        .getWorld()
+                        .getHeightMap()
+                        .editHeight(
+                                offset_x + x + PLACING_BORDER,
+                                offset_y + y + PLACING_BORDER,
+                                new_height);
             }
-        }
     }
 
     private final void undoLandscape() {
         int size = getBuildingTemplate().getPlacingSize();
         int offset_x = getGridX() - (size - 1);
         int offset_y = getGridY() - (size - 1);
-        for (int y = 0; y < old_landscape_heights.length; y++) {
-            for (int x = 0; x < old_landscape_heights[y].length; x++) {
+        for (int y = 0; y < old_landscape_heights.length; y++)
+            for (int x = 0; x < old_landscape_heights[y].length; x++)
                 getOwner()
                         .getWorld()
                         .getHeightMap()
@@ -869,42 +843,28 @@ public final strictfp class LandBuilding extends Building {
                                 offset_x + x + PLACING_BORDER,
                                 offset_y + y + PLACING_BORDER,
                                 old_landscape_heights[y][x]);
-            }
-        }
     }
 
     public final void occupy() {
         UnitGrid grid = getUnitGrid();
-        Region region = grid.getRegion(getGridX(), getGridY(), getLayer());
-        if (region == null) {
-            setLayer(UnitGrid.SEA);
-            region = grid.getRegion(getGridX(), getGridY(), UnitGrid.SEA);
-        }
-        if (region != null) {
-            region.registerObject(Building.class, this);
-        }
+        grid.getRegion(getGridX(), getGridY(), UnitGrid.LAND).registerObject(getClass(), this);
         int size = getBuildingTemplate().getPlacingSize() * 2 - 1;
-        for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
+        for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++)
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
                 grid.occupyGrid(
-                        getGridX() - size / 2 + x, getGridY() - size / 2 + y, this, getLayer());
+                        getGridX() - size / 2 + x, getGridY() - size / 2 + y, this, UnitGrid.LAND);
             }
-        }
     }
 
     public final void free() {
         UnitGrid grid = getUnitGrid();
-        Region region = grid.getRegion(getGridX(), getGridY(), getLayer());
-        if (region != null) {
-            region.unregisterObject(Building.class, this);
-        }
+        grid.getRegion(getGridX(), getGridY(), UnitGrid.LAND).unregisterObject(getClass(), this);
         int size = getBuildingTemplate().getPlacingSize() * 2 - 1;
-        for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
+        for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++)
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
                 grid.freeGrid(
-                        getGridX() - size / 2 + x, getGridY() - size / 2 + y, this, getLayer());
+                        getGridX() - size / 2 + x, getGridY() - size / 2 + y, this, UnitGrid.LAND);
             }
-        }
     }
 
     public final void hit(int damage, float dir_x, float dir_y, Player owner) {

@@ -14,6 +14,9 @@ public final strictfp class SailController extends Controller {
     }
 
     public final void decide() {
+        if (ship.isDead()) {
+            return;
+        }
         if (shouldGiveUp(0)) {
             ship.popController();
         } else {

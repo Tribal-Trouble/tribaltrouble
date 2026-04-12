@@ -14,6 +14,7 @@ import com.oddlabs.tt.model.IronSupply;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RockSupply;
 import com.oddlabs.tt.model.RubberSupply;
+import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.model.SupplyCounter;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
@@ -1589,7 +1590,17 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         }
 
         public final void mouseClicked(int button, int x, int y, int clicks) {
-            viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, action));
+            if (action == Target.ACTION_MOVE
+                    && current_ship
+                    && current_building instanceof Ship
+                    && !current_building.isDead()) {
+                viewer.getGUIRoot()
+                        .pushDelegate(
+                                new ShipTargetDelegate(
+                                        viewer, camera, (Ship) current_building, action));
+            } else {
+                viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, action));
+            }
         }
     }
 

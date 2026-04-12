@@ -517,6 +517,16 @@ public final strictfp class Player implements PlayerInterface {
         }
     }
 
+    public final void setSailingTarget(Selectable[] selection, int grid_x, int grid_y) {
+        if (selection.length == 0) return;
+        int grid_size = world.getUnitGrid().getGridSize();
+        if (grid_x < 0 || grid_x >= grid_size || grid_y < 0 || grid_y >= grid_size) return;
+        Target target = new LandscapeTarget(grid_x, grid_y);
+        for (int i = 0; i < selection.length; i++) {
+            if (isValid(selection[i])) selection[i].initTarget(target, Target.ACTION_MOVE, false);
+        }
+    }
+
     public final void setLandscapeTarget(
             Selectable[] selection, int grid_x, int grid_y, int action, boolean aggressive) {
         if (selection.length == 0) return;

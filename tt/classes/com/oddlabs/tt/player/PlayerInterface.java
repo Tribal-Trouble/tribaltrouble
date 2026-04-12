@@ -39,6 +39,8 @@ public strictfp interface PlayerInterface {
     void setLandscapeTarget(
             Selectable[] selection, int grid_x, int grid_y, int action, boolean aggressive);
 
+    void setSailingTarget(Selectable[] selection, int grid_x, int grid_y);
+
     void recallGatherers(Building building, Class supply_type, int amount);
 
     void setPreferredGamespeed(int speed);

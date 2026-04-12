@@ -7,6 +7,7 @@ import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FinderTrackerAlgorithm;
 import com.oddlabs.tt.pathfinder.TargetTrackerAlgorithm;
+import com.oddlabs.tt.pathfinder.TrackerAlgorithm;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 
 public final strictfp class GatherController extends Controller {
@@ -16,12 +17,22 @@ public final strictfp class GatherController extends Controller {
     private final Unit unit;
     private final Class supply_type;
     private Supply supply;
-    private FinderTrackerAlgorithm building_tracker;
+    private Building assigned_building;
+    private TrackerAlgorithm building_tracker;
+
+    public GatherController(Unit unit, Supply supply, Class supply_type, Building building) {
+        super(2);
+        this.unit = unit;
+        this.supply = supply;
+        this.assigned_building = building;
+        this.supply_type = supply_type;
+    }
 
     public GatherController(Unit unit, Supply supply, Class supply_type) {
         super(2);
         this.unit = unit;
         this.supply = supply;
+        this.assigned_building = null;
         this.supply_type = supply_type;
     }
 
@@ -71,10 +82,16 @@ public final strictfp class GatherController extends Controller {
                 unit.pushController(new EnterController(unit, building));
             } else gather();
         } else if (!shouldGiveUp(DROPOFF_STATE)) {
-            building_tracker =
-                    new FinderTrackerAlgorithm(
-                            unit.getUnitGrid(),
-                            new BuildingFinder(unit.getOwner(), Abilities.SUPPLY_CONTAINER));
+            if (assigned_building == null || assigned_building.isDead()) {
+                building_tracker =
+                        new FinderTrackerAlgorithm(
+                                unit.getUnitGrid(),
+                                new BuildingFinder(unit.getOwner(), Abilities.SUPPLY_CONTAINER));
+            } else {
+                building_tracker =
+                        new TargetTrackerAlgorithm(
+                                unit.getUnitGrid(), 0.0f, assigned_building, UnitGrid.LAND);
+            }
             unit.setBehaviour(new WalkBehaviour(unit, building_tracker, false));
         } else {
             unit.popController();

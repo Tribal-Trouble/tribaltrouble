@@ -32,10 +32,7 @@ import com.oddlabs.util.Vector4f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 public final strictfp class Ship extends Building implements Movable {
     private static final float REMOVE_DELAY = 1f / 10f;
@@ -45,8 +42,8 @@ public final strictfp class Ship extends Building implements Movable {
     public static final int RENDER_BUILT = 2;
 
     private static final int MAX_SUPPLY_COUNT = 200;
-    private static final float OCCUPY_LENGTH_CELLS = 10f;
-    private static final float OCCUPY_WIDTH_CELLS = 3f;
+    private static final int OCCUPY_LENGTH_CELLS = 8;
+    private static final int OCCUPY_WIDTH_CELLS = 2;
 
     public static final Cost COST_ROCK_WEAPON =
             new Cost(new Class[] {TreeSupply.class, RockSupply.class}, new int[] {2, 1});
@@ -90,19 +87,17 @@ public final strictfp class Ship extends Building implements Movable {
     private static final float DAMAGED_PARTICLE_ALPHA = 3f;
 
     private final Map supply_containers = new HashMap();
-    private final Set registered_regions = new HashSet();
     private final ShipDeployContainer[] deploy_containers = new ShipDeployContainer[12];
     private final LinearEmitter damaged_emitter;
     private final LinearEmitter production_emitter;
 
-    private ChieftainContainer chieftain_container = null;
+    private Region last_region = null;
     private float remove_delay = 0;
     private int hit_points = 1;
     private int build_points = 0;
     private float[][] old_landscape_heights;
 
     private Target rally_point = this;
-    private boolean is_training_chieftain = false;
 
     private final PathTracker path_tracker;
 
@@ -273,7 +268,7 @@ public final strictfp class Ship extends Building implements Movable {
                 if (deploy_containers[i] != null && deploy_containers[i].getNumSupplies() > 0)
                     num_deploying++;
             }
-            if (num_deploying > 0 && getLayer() == UnitGrid.LAND) {
+            if (num_deploying > 0 && getLayer() == UnitGrid.LAND && !isMoving()) {
                 float amount = t / num_deploying;
                 for (int i = 0; i < deploy_containers.length; i++) {
                     if (deploy_containers[i] != null && deploy_containers[i].getNumSupplies() > 0)
@@ -331,8 +326,7 @@ public final strictfp class Ship extends Building implements Movable {
     }
 
     public final ChieftainContainer getChieftainContainer() {
-        assert !isDead();
-        return chieftain_container;
+        return null;
     }
 
     public final boolean isEnabled() {
@@ -370,42 +364,23 @@ public final strictfp class Ship extends Building implements Movable {
             getUnitContainer().prepareDeploy(-1);
             getUnitContainer().exit();
             Unit unit = createUnit(null, race.getUnitTemplate(Race.UNIT_PEON));
-            unit.pushController(new GatherController(unit, null, supply_type));
+            if (unit != null) {
+                unit.pushController(new GatherController(unit, null, supply_type, this));
+            }
         }
     }
 
     public final boolean canBuildChieftain() {
-        return !isDead()
-                && chieftain_container != null
-                && getOwner().canBuildChieftains()
-                && !getOwner().hasActiveChieftain()
-                && !getOwner().isTrainingChieftain();
+        return false;
     }
 
     public final boolean canStopChieftain() {
-        return !isDead() && chieftain_container != null && chieftain_container.isTraining();
+        return false;
     }
 
-    public final void trainChieftain(boolean start) {
-        if (canBuildChieftain() && start) {
-            chieftain_container.startTraining();
-            getOwner().setTrainingChieftain(true);
-            is_training_chieftain = true;
-        } else if (canStopChieftain() && !start) {
-            chieftain_container.stopTraining();
-            getOwner().setTrainingChieftain(false);
-            is_training_chieftain = false;
-        }
-    }
+    public final void trainChieftain(boolean start) {}
 
-    public final void deployChieftain() {
-        chieftain_container.stopTraining();
-        getOwner().setTrainingChieftain(false);
-        is_training_chieftain = false;
-        Unit chieftain =
-                createUnit(null, getOwner().getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN));
-        getOwner().setActiveChieftain(chieftain);
-    }
+    public final void deployChieftain() {}
 
     private final Unit createUnit(Target rally_point, UnitTemplate template) {
         Unit unit = ship_hr.exitUnit(template);
@@ -660,7 +635,6 @@ public final strictfp class Ship extends Building implements Movable {
         clearControllerStack();
         pushController(new SailController(this, target));
         free();
-        setLayer(UnitGrid.SEA);
         occupy();
     }
 
@@ -801,7 +775,7 @@ public final strictfp class Ship extends Building implements Movable {
         visitor.visitBuilding(this);
     }
 
-    private boolean isInsideOrientedFootprint(
+    private static boolean IsInsideShape(
             int grid_x,
             int grid_y,
             float center_x,
@@ -822,97 +796,24 @@ public final strictfp class Ship extends Building implements Movable {
                 && StrictMath.abs(side) <= half_width_meters;
     }
 
-    private void registerRegion(Region region) {
-        if (region != null && registered_regions.add(region)) {
-            region.registerObject(Building.class, this);
-        }
-    }
-
-    private void unregisterRegions() {
-        for (Iterator it = registered_regions.iterator(); it.hasNext(); ) {
-            Region region = (Region) it.next();
-            region.unregisterObject(Building.class, this);
-        }
-        registered_regions.clear();
-    }
-
     public final void occupy() {
         UnitGrid grid = getUnitGrid();
-        float center_x = getPositionX();
-        float center_y = getPositionY();
-        float dir_x = getDirectionX();
-        float dir_y = getDirectionY();
-        float dir_len = (float) StrictMath.sqrt(dir_x * dir_x + dir_y * dir_y);
-        if (dir_len > 0.0001f) {
-            dir_x /= dir_len;
-            dir_y /= dir_len;
+        Region region = grid.getRegion(getGridX(), getGridY(), UnitGrid.LAND);
+        if (region != null) {
+            setLayer(UnitGrid.LAND);
+            region.registerObject(Building.class, this);
         } else {
-            dir_x = 1.0f;
-            dir_y = 0.0f;
-        }
-
-        float half_length_meters = OCCUPY_LENGTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
-        float half_width_meters = OCCUPY_WIDTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
-        float half_diagonal_meters =
-                (float)
-                        StrictMath.sqrt(
-                                half_length_meters * half_length_meters
-                                        + half_width_meters * half_width_meters);
-        int radius_cells =
-                (int) StrictMath.ceil(half_diagonal_meters / HeightMap.METERS_PER_UNIT_GRID) + 1;
-        int grid_size = grid.getGridSize();
-        int start_x = StrictMath.max(0, getGridX() - radius_cells);
-        int end_x = StrictMath.min(grid_size - 1, getGridX() + radius_cells);
-        int start_y = StrictMath.max(0, getGridY() - radius_cells);
-        int end_y = StrictMath.min(grid_size - 1, getGridY() + radius_cells);
-
-        boolean found_land = false;
-
-        if (!isMoving()) {
-            for (int y = start_y; y <= end_y; y++) {
-                for (int x = start_x; x <= end_x; x++) {
-                    if (isInsideOrientedFootprint(
-                            x,
-                            y,
-                            center_x,
-                            center_y,
-                            dir_x,
-                            dir_y,
-                            half_length_meters,
-                            half_width_meters)) {
-                        Region region = grid.getRegion(x, y, UnitGrid.LAND);
-                        if (region != null) {
-                            found_land = true;
-                            grid.occupyGrid(x, y, this, getLayer());
-                            setLayer(UnitGrid.LAND);
-                            registerRegion(region);
-                        }
-                    }
-                }
+            region = grid.getRegion(getGridX(), getGridY(), UnitGrid.SEA);
+            setLayer(UnitGrid.SEA);
+            if (region != null) {
+                region.registerObject(Building.class, this);
             }
         }
-
-        if (!found_land) {
-            setLayer(UnitGrid.SEA);
-        }
-    }
-
-    public final void free() {
-        UnitGrid grid = getUnitGrid();
-        unregisterRegions();
-
+        last_region = region;
         float center_x = getPositionX();
         float center_y = getPositionY();
         float dir_x = getDirectionX();
         float dir_y = getDirectionY();
-        float dir_len = (float) StrictMath.sqrt(dir_x * dir_x + dir_y * dir_y);
-        if (dir_len > 0.0001f) {
-            dir_x /= dir_len;
-            dir_y /= dir_len;
-        } else {
-            dir_x = 1.0f;
-            dir_y = 0.0f;
-        }
 
         float half_length_meters = OCCUPY_LENGTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
         float half_width_meters = OCCUPY_WIDTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
@@ -931,7 +832,50 @@ public final strictfp class Ship extends Building implements Movable {
 
         for (int y = start_y; y <= end_y; y++) {
             for (int x = start_x; x <= end_x; x++) {
-                if (isInsideOrientedFootprint(
+                if (IsInsideShape(
+                        x,
+                        y,
+                        center_x,
+                        center_y,
+                        dir_x,
+                        dir_y,
+                        half_length_meters,
+                        half_width_meters)) {
+                    grid.occupyGrid(x, y, this, getLayer());
+                }
+            }
+        }
+    }
+
+    public final void free() {
+        if (last_region != null) {
+            last_region.unregisterObject(Building.class, this);
+            last_region = null;
+        }
+        UnitGrid grid = getUnitGrid();
+        float center_x = getPositionX();
+        float center_y = getPositionY();
+        float dir_x = getDirectionX();
+        float dir_y = getDirectionY();
+
+        float half_length_meters = OCCUPY_LENGTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
+        float half_width_meters = OCCUPY_WIDTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
+        float half_diagonal_meters =
+                (float)
+                        StrictMath.sqrt(
+                                half_length_meters * half_length_meters
+                                        + half_width_meters * half_width_meters);
+        int radius_cells =
+                (int) StrictMath.ceil(half_diagonal_meters / HeightMap.METERS_PER_UNIT_GRID) + 1;
+        int grid_size = grid.getGridSize();
+        int start_x = StrictMath.max(0, getGridX() - radius_cells);
+        int end_x = StrictMath.min(grid_size - 1, getGridX() + radius_cells);
+        int start_y = StrictMath.max(0, getGridY() - radius_cells);
+        int end_y = StrictMath.min(grid_size - 1, getGridY() + radius_cells);
+
+        for (int y = start_y; y <= end_y; y++) {
+            for (int x = start_x; x <= end_x; x++) {
+                if (IsInsideShape(
                         x,
                         y,
                         center_x,
@@ -967,7 +911,6 @@ public final strictfp class Ship extends Building implements Movable {
                 // stats
                 getOwner().buildingLost();
                 owner.buildingDestroyed();
-                if (is_training_chieftain) getOwner().setTrainingChieftain(false);
                 removeDying();
             }
         }
