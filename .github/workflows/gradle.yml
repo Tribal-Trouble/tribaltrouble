@@ -186,7 +186,7 @@ jobs:
           username: ${{ vars.STEAM_USER }}
           configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
           appId: ${{ vars.STEAM_APP_ID }}
-          buildDescription: v1.2.3
+          buildDescription: v1.2.3-${{ github.run_number }}
           firstDepotIdOverride: 3945722
           rootPath: tt/build/dist/
           depot1Path: windows
