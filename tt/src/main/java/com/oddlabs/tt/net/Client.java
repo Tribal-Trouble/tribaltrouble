@@ -36,7 +36,7 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
     private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(GameClientInterface.class);
     private final WorldParameters world_params;
     private final @NonNull GameServerInterface gameserver_interface;
-    private UnitInfo @NonNull [] unit_infos;
+    private final UnitInfo @NonNull [] unit_infos;
     private final WorldInitAction initial_action;
     private final InGameInfo ingame_info;
     private final GUI gui;
@@ -101,10 +101,6 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
         state = NEGOTIATING;
         this.generator = generator;
         this.player_slot = player_slot;
-        this.unit_infos = new UnitInfo[player_count];
-        for (int i = 0; i < unit_infos.length; i++) {
-            unit_infos[i] = new UnitInfo(false, false, 0, false, Player.INITIAL_UNIT_COUNT, 0, 0, 0);
-        }
         getConfigurationListener().connected(this, game, generator, player_slot, player_count);
     }
 
