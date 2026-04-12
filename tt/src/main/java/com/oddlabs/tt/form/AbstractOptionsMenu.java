@@ -1,5 +1,6 @@
 package com.oddlabs.tt.form;
 
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.CancelListener;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
@@ -52,6 +53,8 @@ public abstract class AbstractOptionsMenu extends Form {
         HorizButton button_about = new HorizButton(i18n("about"), BUTTON_WIDTH);
         button_about.addMouseClickListener((_, _, _, _) -> gui_root.addModalForm(new CreditsForm()));
         addChild(button_about);
+
+        addCloseListener(() -> Settings.getSettings().save());
 
         // Place objects
         label_headline.place();
