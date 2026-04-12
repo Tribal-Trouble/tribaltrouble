@@ -662,6 +662,9 @@ public final strictfp class Ship extends Building implements Movable {
 
     protected final void removeDying() {
 
+        pushController(new NullController(this));
+        forceDecide();
+
         // If it's a ship and it's destroyed, kill everyone on board
         ship_hr.killCrew();
 
@@ -706,21 +709,6 @@ public final strictfp class Ship extends Building implements Movable {
                                 AudioPlayer.AUDIO_DISTANCE_BUILDING_COLLAPSE,
                                 AudioPlayer.AUDIO_GAIN_BUILDING_COLLAPSE,
                                 AudioPlayer.AUDIO_RADIUS_BUILDING_COLLAPSE));
-        if (getUnitContainer() != null) {
-            while (getUnitContainer().getNumSupplies() > 0) {
-                Unit unit = getUnitContainer().exit();
-                if (unit != null) unit.removeNow();
-            }
-        }
-        for (int i = 0; i < deploy_containers.length; i++) {
-            if (deploy_containers[i] != null) {
-                int result =
-                        getOwner()
-                                .getUnitCountContainer()
-                                .increaseSupply(-deploy_containers[i].getNumSupplies());
-                assert result == -deploy_containers[i].getNumSupplies();
-            }
-        }
         free();
         int result = getOwner().getBuildingCountContainer().increaseSupply(-1);
         assert result == -1;
