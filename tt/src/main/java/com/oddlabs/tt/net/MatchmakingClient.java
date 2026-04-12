@@ -271,6 +271,10 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         chat_room_info = null;
     }
 
+    public void clearChatRoomInfo() {
+        chat_room_info = null;
+    }
+
     public @Nullable ChatRoomInfo getChatRoomInfo() {
         return chat_room_info;
     }
