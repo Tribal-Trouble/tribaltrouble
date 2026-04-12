@@ -64,8 +64,18 @@ public final class SteamAuthValidator {
 
             SteamAuthResponse authResponse = objectMapper.readValue(response.body(), SteamAuthResponse.class);
 
-            if (authResponse.response == null || authResponse.response.params == null) {
-                logger.warning("Missing response/params in Steam API response");
+            if (authResponse.response == null) {
+                logger.warning("Missing response in Steam API response: " + response.body());
+                return false;
+            }
+
+            if (authResponse.response.params == null) {
+                if (authResponse.response.error != null) {
+                    logger.warning("Steam API error " + authResponse.response.error.errorcode
+                            + ": " + authResponse.response.error.errordesc);
+                } else {
+                    logger.warning("Missing params in Steam API response: " + response.body());
+                }
                 return false;
             }
 

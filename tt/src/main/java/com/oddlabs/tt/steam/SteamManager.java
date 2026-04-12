@@ -27,6 +27,7 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
     private final SteamUser steamUser;
     private final SteamFriends steamFriends;
     private final SteamUserStats steamUserStats;
+    private @Nullable SteamAuthTicket currentAuthTicket;
 
     private SteamManager() {
         steamUser = new SteamUser(this);
@@ -68,6 +69,7 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
 
     public static void shutdown() {
         if (instance != null) {
+            instance.cancelAuthTicket();
             instance.steamUserStats.dispose();
             instance.steamUser.dispose();
             instance.steamFriends.dispose();
@@ -91,11 +93,13 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
     }
 
     public byte @Nullable [] getAuthSessionTicket() {
+        cancelAuthTicket();
         try {
             ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
             int[] sizeInBytes = new int[1];
             SteamAuthTicket ticket = steamUser.getAuthSessionTicket(buffer, sizeInBytes);
             if (ticket != null && sizeInBytes[0] > 0) {
+                currentAuthTicket = ticket;
                 byte[] ticketData = new byte[sizeInBytes[0]];
                 buffer.get(ticketData);
                 return ticketData;
@@ -104,6 +108,13 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
             logger.warning("Failed to get Steam auth session ticket: " + e.getMessage());
         }
         return null;
+    }
+
+    public void cancelAuthTicket() {
+        if (currentAuthTicket != null) {
+            steamUser.cancelAuthTicket(currentAuthTicket);
+            currentAuthTicket = null;
+        }
     }
 
     // SteamUserCallback

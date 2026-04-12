@@ -516,6 +516,12 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
             conn.close();
             conn = null;
         }
+
+        SteamManager steam = SteamManager.getInstance();
+        if (steam != null) {
+            steam.cancelAuthTicket();
+        }
+
         state = STATE_NOT_CONNECTED;
         matchmaking_interface = null;
         active_profile = null;

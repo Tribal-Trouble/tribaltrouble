@@ -9,6 +9,13 @@ public class SteamAuthResponse {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class SteamAuthResponseBody {
         public SteamAuthParams params;
+        public SteamAuthError error;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class SteamAuthError {
+        public int errorcode;
+        public String errordesc;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
