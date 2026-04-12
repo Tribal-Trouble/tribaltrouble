@@ -44,31 +44,62 @@ val generateStartAll by tasks.registering {
         val dir = outputDir.get().asFile
         dir.mkdirs()
 
-        dir.resolve("start-all").apply {
+        dir.resolve("start.sh").apply {
             writeText(
                 """
                 |#!/bin/bash
-                |SCRIPT_DIR=${'$'}(cd "${'$'}(dirname "${'$'}0")" && pwd)
-                |echo "Starting matchmaker..."
-                |"${'$'}SCRIPT_DIR/bin/matchmaker" &
-                |echo "Starting router..."
-                |"${'$'}SCRIPT_DIR/bin/router" &
-                |echo "Both servers started. PIDs: matchmaker=${'$'}!, router=${'$'}!"
-                |wait
+                |cd "${'$'}(dirname "${'$'}0")"
+                |chmod +x bin/* 2>/dev/null
+                |
+                |case "${'$'}1" in
+                |  start)
+                |    if pgrep -f "oddlabs.*(matchserver|routerserver)" > /dev/null 2>&1; then
+                |      echo "Killing existing servers..."
+                |      pkill -f "oddlabs.*(matchserver|routerserver)" 2>/dev/null
+                |      sleep 1
+                |    fi
+                |    echo "Starting matchmaker..."
+                |    nohup ./bin/matchmaker > logs/matchmaker.out 2>&1 &
+                |    echo "Starting router..."
+                |    nohup ./bin/router > logs/router.out 2>&1 &
+                |    echo "Both servers started."
+                |    ;;
+                |  stop)
+                |    echo "Stopping servers..."
+                |    pkill -f "oddlabs.*(matchserver|routerserver)" 2>/dev/null
+                |    echo "Servers stopped."
+                |    ;;
+                |  status)
+                |    pgrep -fa "oddlabs.*(matchserver|routerserver)" || echo "No servers running."
+                |    ;;
+                |  *)
+                |    echo "Usage: ${'$'}0 {start|stop|status}"
+                |    exit 1
+                |    ;;
+                |esac
             """.trimMargin() + "\n"
             )
             setExecutable(true)
         }
 
-        dir.resolve("start-all.bat").apply {
+        dir.resolve("start.bat").apply {
             writeText(
                 """
                 |@echo off
-                |echo Starting matchmaker...
-                |start "" "%~dp0bin\matchmaker.bat"
-                |echo Starting router...
-                |start "" "%~dp0bin\router.bat"
-                |echo Both servers started.
+                |if "%1"=="start" (
+                |    echo Starting matchmaker...
+                |    start "" "%~dp0bin\matchmaker.bat"
+                |    echo Starting router...
+                |    start "" "%~dp0bin\router.bat"
+                |    echo Both servers started.
+                |) else if "%1"=="stop" (
+                |    echo Stopping servers...
+                |    taskkill /f /fi "WINDOWTITLE eq matchmaker*" 2>nul
+                |    taskkill /f /fi "WINDOWTITLE eq router*" 2>nul
+                |    echo Servers stopped.
+                |) else (
+                |    echo Usage: %0 {start^|stop}
+                |)
             """.trimMargin() + "\r\n"
             )
         }
@@ -77,6 +108,10 @@ val generateStartAll by tasks.registering {
 
 tasks.installDist {
     dependsOn("routerScripts")
+    doLast {
+        destinationDir.resolve("bin").listFiles()?.filter { !it.name.endsWith(".bat") }?.forEach { it.setExecutable(true) }
+        destinationDir.resolve("logs").mkdirs()
+    }
 }
 
 tasks.distZip {
@@ -99,11 +134,6 @@ distributions {
     }
 }
 
-tasks.installDist {
-    doLast {
-        destinationDir.resolve("logs").mkdirs()
-    }
-}
 
 dependencies {
     implementation(project(":common"))
