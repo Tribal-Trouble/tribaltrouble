@@ -112,7 +112,7 @@ public final class ARMIEvent implements Serializable {
         Object[] args;
         try {
             args = parseArgs(reader, method);
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (Exception e) {
             throw new IllegalARMIEventException(e);
         }
         interface_methods.invoke(instance, method, args);

@@ -197,8 +197,8 @@ public final class NetworkSelector {
             Handler handler = handler_map.get(handler_key);
             try {
                 handler.handle();
-            } catch (IOException e) {
-                handler.handleError(e);
+            } catch (Exception e) {
+                handler.handleError(e instanceof IOException ioe ? ioe : new IOException("Unexpected error", e));
                 cancelKey(key, handler);
             }
         }

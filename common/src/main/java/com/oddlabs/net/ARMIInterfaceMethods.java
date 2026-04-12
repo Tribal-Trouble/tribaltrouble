@@ -38,7 +38,7 @@ public final class ARMIInterfaceMethods {
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw new IllegalARMIEventException(e);
         } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
+            throw new IllegalARMIEventException(e);
         }
     }
 
