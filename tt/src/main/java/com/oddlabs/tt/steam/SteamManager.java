@@ -3,7 +3,6 @@ package com.oddlabs.tt.steam;
 import com.codedisaster.steamworks.SteamAPI;
 import com.codedisaster.steamworks.SteamAuth;
 import com.codedisaster.steamworks.SteamAuthTicket;
-import com.codedisaster.steamworks.SteamException;
 import com.codedisaster.steamworks.SteamFriends;
 import com.codedisaster.steamworks.SteamFriendsCallback;
 import com.codedisaster.steamworks.SteamID;
@@ -16,18 +15,26 @@ import com.codedisaster.steamworks.SteamUserStats;
 import com.codedisaster.steamworks.SteamUserStatsCallback;
 import org.jspecify.annotations.Nullable;
 
-import java.nio.ByteBuffer;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class SteamManager implements SteamUserCallback, SteamFriendsCallback, SteamUserStatsCallback {
     private static final Logger logger = Logger.getLogger(SteamManager.class.getName());
+    private static final Duration TICKET_MAX_AGE = Duration.ofHours(1);
+    private static final String WEB_API_IDENTITY = "tribaltrouble.org";
+
     private static @Nullable SteamManager instance;
 
     private final SteamUser steamUser;
     private final SteamFriends steamFriends;
     private final SteamUserStats steamUserStats;
+
     private @Nullable SteamAuthTicket currentAuthTicket;
+    private byte @Nullable [] cachedTicketData;
+    private boolean ticketReady;
+    private @Nullable Instant ticketTimestamp;
 
     private SteamManager() {
         steamUser = new SteamUser(this);
@@ -92,22 +99,68 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
         return steamFriends.getPersonaName();
     }
 
-    public byte @Nullable [] getAuthSessionTicket() {
-        cancelAuthTicket();
-        try {
-            ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
-            int[] sizeInBytes = new int[1];
-            SteamAuthTicket ticket = steamUser.getAuthSessionTicket(buffer, sizeInBytes);
-            if (ticket != null && sizeInBytes[0] > 0) {
-                currentAuthTicket = ticket;
-                byte[] ticketData = new byte[sizeInBytes[0]];
-                buffer.get(ticketData);
-                return ticketData;
-            }
-        } catch (SteamException e) {
-            logger.warning("Failed to get Steam auth session ticket: " + e.getMessage());
+    /**
+     * Request a Web API auth ticket asynchronously. The ticket arrives via
+     * {@link #onGetTicketForWebApi}. Reuses a cached ticket if it's less than 1 hour old.
+     */
+    public void requestWebApiTicket() {
+        if (ticketReady && ticketTimestamp != null && Duration.between(ticketTimestamp, Instant.now()).compareTo(TICKET_MAX_AGE) < 0) {
+            logger.info("Web API ticket still fresh, reusing");
+            return;
         }
-        return null;
+
+        if (ticketReady && ticketTimestamp != null) {
+            logger.info("Web API ticket expired, requesting fresh ticket");
+            cancelAuthTicket();
+        }
+
+        if (currentAuthTicket != null && !ticketReady) {
+            logger.info("Web API ticket request already pending");
+            return;
+        }
+
+        ticketReady = false;
+        cachedTicketData = null;
+        currentAuthTicket = null;
+
+        logger.info("Requesting Steam Web API ticket...");
+        currentAuthTicket = steamUser.getAuthTicketForWebApi(WEB_API_IDENTITY);
+        logger.info("getAuthTicketForWebApi returned: " + (currentAuthTicket != null ? "ticket created" : "null"));
+    }
+
+    public byte @Nullable [] getWebApiTicket() {
+        return ticketReady ? cachedTicketData : null;
+    }
+
+    public boolean isWebApiTicketReady() {
+        return ticketReady;
+    }
+
+    /**
+     * Wait up to {@code maxWaitMs} for the Web API ticket callback to fire,
+     * pumping Steam callbacks while waiting.
+     *
+     * @return true if the ticket is ready
+     */
+    public boolean awaitWebApiTicket(int maxWaitMs) {
+        int elapsed = 0;
+        int pollInterval = 50;
+        while (!ticketReady && elapsed < maxWaitMs) {
+            if (SteamAPI.isSteamRunning()) {
+                SteamAPI.runCallbacks();
+            }
+            try {
+                Thread.sleep(pollInterval);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+            elapsed += pollInterval;
+        }
+        if (elapsed > 0 && ticketReady) {
+            logger.info("Web API ticket ready after " + elapsed + "ms");
+        }
+        return ticketReady;
     }
 
     public void cancelAuthTicket() {
@@ -115,9 +168,28 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
             steamUser.cancelAuthTicket(currentAuthTicket);
             currentAuthTicket = null;
         }
+        cachedTicketData = null;
+        ticketReady = false;
+        ticketTimestamp = null;
     }
 
     // SteamUserCallback
+    @Override
+    public void onGetTicketForWebApi(SteamAuthTicket authTicket, SteamResult result, byte[] ticketData) {
+        logger.info("Web API ticket callback — result: " + result);
+        if (result == SteamResult.OK && ticketData != null && ticketData.length > 0) {
+            cachedTicketData = ticketData.clone();
+            ticketReady = true;
+            ticketTimestamp = Instant.now();
+            logger.info("Web API ticket ready: " + ticketData.length + " bytes");
+        } else {
+            cachedTicketData = null;
+            ticketReady = false;
+            ticketTimestamp = null;
+            logger.warning("Failed to get Web API ticket: " + result);
+        }
+    }
+
     @Override
     public void onValidateAuthTicket(SteamID steamID, SteamAuth.AuthSessionResponse authSessionResponse, SteamID ownerSteamID) {
     }

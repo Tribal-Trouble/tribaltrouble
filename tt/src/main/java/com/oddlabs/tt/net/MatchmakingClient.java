@@ -306,6 +306,10 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         this.login = null;
         this.login_details = null;
         this.steamLogin = true;
+        SteamManager steam = SteamManager.getInstance();
+        if (steam != null) {
+            steam.requestWebApiTicket();
+        }
         open(network);
         state = STATE_AWAITING_OK;
     }
@@ -483,9 +487,13 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
                 loginError(MatchmakingClientInterface.USER_ERROR_NO_SUCH_USER);
                 return;
             }
+            if (!steam.awaitWebApiTicket(3000)) {
+                handleError(new IOException("Steam Web API ticket not ready — Steam may not be running properly"));
+                return;
+            }
             long accountId = steam.getAccountID();
             String personaName = steam.getPersonaName();
-            byte[] authTicket = steam.getAuthSessionTicket();
+            byte[] authTicket = steam.getWebApiTicket();
             matchmaking_login_interface.loginWithSteam(accountId, personaName, authTicket, revision);
         } else if (!Renderer.isRegistered()) {
             matchmaking_login_interface.loginAsGuest(revision);
@@ -517,13 +525,16 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
             conn = null;
         }
 
-        SteamManager steam = SteamManager.getInstance();
-        if (steam != null) {
-            steam.cancelAuthTicket();
+        if (!steamLogin) {
+            SteamManager steam = SteamManager.getInstance();
+            if (steam != null) {
+                steam.cancelAuthTicket();
+            }
         }
 
         state = STATE_NOT_CONNECTED;
         matchmaking_interface = null;
         active_profile = null;
+        chat_room_info = null;
     }
 }
