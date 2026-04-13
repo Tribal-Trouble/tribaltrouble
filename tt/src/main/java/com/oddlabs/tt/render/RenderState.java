@@ -317,7 +317,7 @@ final class RenderState implements ElementVisitor {
             DirectedThrowingWeapon model = render_state.getModel();
             float yawRad = (float) Math.atan2(model.getDirectionY(), model.getDirectionX());
             float pitchRad = (float) Math.toRadians(model.getAngle());
-            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ() + model.getOffsetZ())
+            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ())
                     .rotate(yawRad, 0f, 0f, 1f)
                     .rotate(-pitchRad, 0f, 1f, 0f);
         }
@@ -336,7 +336,7 @@ final class RenderState implements ElementVisitor {
             RotatingThrowingWeapon model = render_state.getModel();
             float yawRad = (float) Math.atan2(model.getDirectionY(), model.getDirectionX());
             float spinRad = (float) Math.toRadians(model.getAngle());
-            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ() + model.getOffsetZ())
+            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ())
                     .rotate(yawRad, 0f, 0f, 1f)
                     .rotate(spinRad, 0f, 1f, 0f);
         }

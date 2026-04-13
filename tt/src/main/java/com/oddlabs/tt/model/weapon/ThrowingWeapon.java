@@ -37,13 +37,6 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
     private float time_limit;
     private float time;
     private float z_speed;
-    /**
-     * absolute height in the world
-     */
-    private float current_z;
-    /**
-     * rendering offset
-     */
     private float deterministic_z;
 
     public ThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target, @NonNull SpriteKey sprite_renderer, @NonNull Audio throw_sound, @NonNull Audio @NonNull [] hit_sounds) {
@@ -55,7 +48,6 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 
         setPosition(src.getPositionX() + OFFSET_X * src.getDirectionX() - OFFSET_Y * src.getDirectionY(), src.getPositionY() + OFFSET_X * src.getDirectionY() - OFFSET_Y * src.getDirectionX());
         deterministic_z = OFFSET_Z + src.getMountOffset();
-        current_z = owner.getWorld().getHeightMap().getNearestHeight(getPositionX(), getPositionY()) + deterministic_z;
 
         setTarget(target);
 
@@ -96,9 +88,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
         float len = (float) Math.sqrt(dx * dx + dy * dy);
         time_limit = len / getMetersPerSecond();
         time = 0;
-        // current_z is already set to absolute start height
-        float dest_z = owner.getWorld().getHeightMap().getNearestHeight(end_x, end_y) + target.getHitOffsetZ();
-        float dest_vec_z = dest_z - current_z;
+        float dest_vec_z = owner.getWorld().getHeightMap().getNearestHeight(end_x, end_y) + target.getHitOffsetZ() - (getPositionZ() + deterministic_z);
         z_speed = (dest_vec_z) / time_limit - GRAVITY * time_limit / 2f;
     }
 
@@ -152,14 +142,12 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
             y = end_y;
         }
 
-        current_z += z_speed * t;
+        deterministic_z += z_speed * t;
         z_speed += GRAVITY * t;
 
         setPosition(x, y);
-        deterministic_z = current_z - owner.getWorld().getHeightMap().getNearestHeight(x, y);
-
         reinsert();
-        audio_player.setPos(getPositionX(), getPositionY(), getPositionZ() + getOffsetZ());
+        audio_player.setPos(getPositionX(), getPositionY(), getPositionZ());
     }
 
     protected void hitTarget(boolean hit, @NonNull Player owner, @NonNull Selectable<?> target) {
