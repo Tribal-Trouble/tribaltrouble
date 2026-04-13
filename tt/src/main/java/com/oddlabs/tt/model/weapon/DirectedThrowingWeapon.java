@@ -17,11 +17,6 @@ public abstract class DirectedThrowingWeapon extends ThrowingWeapon {
     }
 
     @Override
-    protected float getLoftFactor() {
-        return 1.03f;
-    }
-
-    @Override
     public final void visit(@NonNull ElementVisitor visitor) {
         visitor.visitDirectedThrowingWeapon(this);
     }

@@ -15,11 +15,7 @@ import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 
 public abstract class ThrowingWeapon extends Accessories implements Animated {
-    /**
-     * Multiplier for projectile arc exaggeration.
-     */
-    private static final float GRAVITY_MULTIPLIER = 3.0f;
-    private static final float GRAVITY = -GRAVITY_MULTIPLIER * 9.82f;
+    private static final float GRAVITY = -6 * 9.82f;
     private static final float NO_DETAIL_SIZE = .5f;
 
     private static final float OFFSET_X = 1.316f;
@@ -98,7 +94,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
         float dx = end_x - start_x;
         float dy = end_y - start_y;
         float len = (float) Math.sqrt(dx * dx + dy * dy);
-        time_limit = (len / getMetersPerSecond()) * getLoftFactor();
+        time_limit = len / getMetersPerSecond();
         time = 0;
         // current_z is already set to absolute start height
         float dest_z = owner.getWorld().getHeightMap().getNearestHeight(end_x, end_y) + target.getHitOffsetZ();
@@ -107,8 +103,6 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
     }
 
     protected abstract float getMetersPerSecond();
-
-    protected abstract float getLoftFactor();
 
     private void updateTarget() {
         end_x = target.getPositionX();
