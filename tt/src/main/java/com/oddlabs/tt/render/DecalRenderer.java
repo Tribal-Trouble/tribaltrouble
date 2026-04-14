@@ -37,7 +37,7 @@ public final class DecalRenderer implements AutoCloseable {
     private int instanceCount = 0;
     private @Nullable Texture currentTexture;
 
-    private static final int GRID_SIZE = 8; // 8x8 grid
+    private static final int GRID_SIZE = 32; // 32x32 grid for terrain-matching shadow resolution
     private static final int VERTEX_COUNT = GRID_SIZE * GRID_SIZE;
     private static final int INDEX_COUNT = (GRID_SIZE - 1) * (GRID_SIZE - 1) * 6;
 
