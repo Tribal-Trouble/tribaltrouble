@@ -109,12 +109,16 @@ public class EditLine extends TextField implements Clipped {
         return result;
     }
 
+    private static final boolean ERROR_SOUND_ENABLED = false;
+
     public void triggerError() {
         errorFlashStart = System.currentTimeMillis();
-        try {
-            AudioManager.getManager().newAudio(new AudioParameters<>(ERROR_SOUND, 0f, 0f, 0f, AudioPlayer.AUDIO_RANK_NOTIFICATION, AudioPlayer.AUDIO_DISTANCE_NOTIFICATION, 0.5f, 1f, 0.5f, false, true));
-        } catch (Exception _) {
-            // Ignore audio errors
+        if (ERROR_SOUND_ENABLED) {
+            try {
+                AudioManager.getManager().newAudio(new AudioParameters<>(ERROR_SOUND, 0f, 0f, 0f, AudioPlayer.AUDIO_RANK_NOTIFICATION, AudioPlayer.AUDIO_DISTANCE_NOTIFICATION, 0.5f, 1f, 0.5f, false, true));
+            } catch (Exception _) {
+                // Ignore audio errors
+            }
         }
     }
 
