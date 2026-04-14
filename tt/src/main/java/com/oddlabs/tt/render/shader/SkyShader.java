@@ -50,16 +50,13 @@ public final class SkyShader extends ShaderProgram {
                     out vec2 v_texCoord0;
                     out vec2 v_texCoord1;
                     out vec4 v_color;
-                    out vec3 v_normal;
-                    
+
                     void main() {
                         gl_Position = u_projectionMatrix * u_modelViewMatrix * vec4(in_Position, 1.0);
-                    
-                        v_normal = in_Normal;
-                    
+
                         v_texCoord0 = in_TexCoord0 + u_innerOffset;
                         v_texCoord1 = in_TexCoord1 + u_outerOffset;
-                        v_color = vec4(in_Color, 1.0); 
+                        v_color = vec4(in_Color, 1.0);
                     }
                     """;
 
@@ -71,43 +68,27 @@ public final class SkyShader extends ShaderProgram {
                     uniform sampler2D u_texture0;
                     uniform sampler2D u_texture1;
                     uniform vec4 u_skyColor;
-                    uniform float u_innerCloudDensity;
-                    uniform float u_outerCloudDensity;
-                    
-                    // Fog uniforms
-                    uniform float u_fogFadeStart;
-                    uniform float u_fogFadeEnd;
-                    
+
                     in vec2 v_texCoord0;
                     in vec2 v_texCoord1;
                     in vec4 v_color; // Vertex color (gradient for sky)
-                    in vec3 v_normal;
                     
                     layout(location = 0) out vec4 out_FragColor;
                     
                     void main() {
                         vec4 tex0 = texture(u_texture0, v_texCoord0);
                         vec4 tex1 = texture(u_texture1, v_texCoord1);
-                    
-                        float exp0 = exp(-u_innerCloudDensity * 2.0);
-                        float exp1 = exp(-u_outerCloudDensity * 2.0);
-                    
-                        vec3 cloud0 = pow(vec3(tex0.r), vec3(exp0));
-                        vec3 cloud1 = pow(vec3(tex1.r), vec3(exp1));
-                    
-                        vec3 color0 = mix(v_color.rgb, u_skyColor.rgb, cloud0); 
-                        vec3 color1 = mix(color0, u_skyColor.rgb, cloud1);
-                    
-                        vec4 finalColor = vec4(color1, 1.0);
-                    
-                        float fogFactor = 1.0 - smoothstep(u_fogFadeStart, u_fogFadeEnd, v_normal.z);
-                    
-                        if (u_fogHeightFactor > 0.0) {
-                            fogFactor *= (1.0 - clamp(u_cameraHeight / u_fogHeightFactor, 0.0, 1.0));
-                        }
-                    
-                        out_FragColor.rgb = mix(finalColor.rgb, u_fogColor.rgb, fogFactor * 0.25);
-                        out_FragColor.a = finalColor.a;
+
+                        // Match original fixed-function GL_BLEND using single-channel cloud textures
+                        // Cloud textures are luminance stored as R-only in modern GL
+                        vec3 vc = clamp(v_color.rgb, 0.0, 1.0);
+                        vec3 sc = clamp(u_skyColor.rgb, 0.0, 1.0);
+                        float c0 = tex0.r;
+                        float c1 = tex1.r;
+                        vec3 color0 = vc * (1.0 - c0) + sc * c0;
+                        vec3 color1 = color0 * (1.0 - c1) + sc * c1;
+
+                        out_FragColor = vec4(color1, 1.0);
                     }
                     """;
 

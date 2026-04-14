@@ -22,7 +22,6 @@ import com.oddlabs.tt.util.Stitcher;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
-import com.oddlabs.util.Color;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
@@ -50,18 +49,18 @@ public final class Sky implements SceneRenderer, AutoCloseable {
     private static final int SKYDOME_DEFAULT_COLOR = 8;
 
     private static final Vector4fc[] SKYDOME_INITCOLOR = {
-            /* Native */ Color.argb4v(0xFF_E5_F2_FF),
-            /* Viking */ Color.argb4v(0xFF_FF_E5_A6)
+            /* Native */ new Vector4f(0.90f, 0.95f, 1f, 1f),
+            /* Viking */ new Vector4f(1.50f, 0.90f, 0.65f, 1f)
     };
 
     private static final Vector4fc[] SKYDOME_GRADIENT = {
-            /* Native */ Color.argb4v(0xFF_BF_D2_F2),
-            /* Viking */ Color.argb4v(0xFF_99_99_D9)
+            /* Native */ new Vector4f(0.75f, 0.825f, 0.95f, 1f),
+            /* Viking */ new Vector4f(0.6f, 0.6f, 0.85f, 1f)
     };
 
     private static final Vector4fc[] tex_env_color = {
-            /* Native */ Color.argb4v(0xFF_F2_F8_FF),
-            /* Viking */ Color.argb4v(0xFF_FF_F2_CC)
+            /* Native */ new Vector4f(0.95f, 0.975f, 1f, 1f),
+            /* Viking */ new Vector4f(1f, 0.95f, 0.8f, 1f)
     };
 
     private static final float SKYDOME_OUTER_UTILING = 8f;
@@ -137,9 +136,6 @@ public final class Sky implements SceneRenderer, AutoCloseable {
             skyShader.setUniformMatrix4(SkyShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
             skyShader.setUniform(SkyShader.Uniforms.SKY_COLOR, color.get(0), color.get(1), color.get(2), color.get(3));
 
-            skyShader.setUniform(SkyShader.Uniforms.FOG_FADE_START, 0.0f);
-            skyShader.setUniform(SkyShader.Uniforms.FOG_FADE_END, 0.1f);
-
             context.setTexture(0, clouds[GeneratorClouds.INNER]);
             skyShader.setUniform(SkyShader.Uniforms.TEXTURE_0, 0);
 
@@ -150,8 +146,6 @@ public final class Sky implements SceneRenderer, AutoCloseable {
 
             skyShader.setUniform(SkyShader.Uniforms.INNER_OFFSET, innerOffset[0], innerOffset[1]);
             skyShader.setUniform(SkyShader.Uniforms.OUTER_OFFSET, outerOffset[0], outerOffset[1]);
-            skyShader.setUniform(SkyShader.Uniforms.INNER_CLOUD_DENSITY, innerCloudDensity);
-            skyShader.setUniform(SkyShader.Uniforms.OUTER_CLOUD_DENSITY, outerCloudDensity);
 
             skyVAO.bind();
 
