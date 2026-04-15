@@ -47,6 +47,7 @@ public final class Settings implements Serializable {
     public boolean play_music = true;
     public boolean play_sfx = true;
     public boolean headphone_mode = false;
+    public boolean classic_audio = true;
     public float music_gain = .5f;
     public float sound_gain = 1f;
 
@@ -203,6 +204,7 @@ public final class Settings implements Serializable {
         setProperty(props, "play_music", play_music, defaults.play_music);
         setProperty(props, "play_sfx", play_sfx, defaults.play_sfx);
         setProperty(props, "headphone_mode", headphone_mode, defaults.headphone_mode);
+        setProperty(props, "classic_audio", classic_audio, defaults.classic_audio);
         setProperty(props, "music_gain", music_gain, defaults.music_gain);
         setProperty(props, "sound_gain", sound_gain, defaults.sound_gain);
         setProperty(props, "language", language, defaults.language);
@@ -265,6 +267,7 @@ public final class Settings implements Serializable {
         play_music = getBoolean(props, "play_music", play_music);
         play_sfx = getBoolean(props, "play_sfx", play_sfx);
         headphone_mode = getBoolean(props, "headphone_mode", headphone_mode);
+        classic_audio = getBoolean(props, "classic_audio", classic_audio);
         music_gain = getFloat(props, "music_gain", music_gain);
         sound_gain = getFloat(props, "sound_gain", sound_gain);
         language = props.getProperty("language", language);

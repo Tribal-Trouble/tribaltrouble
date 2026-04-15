@@ -1,5 +1,6 @@
 package com.oddlabs.tt.form;
 
+import com.oddlabs.tt.audio.AbstractAudioPlayer;
 import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.audio.openal.OpenALManager;
 import com.oddlabs.tt.global.Settings;
@@ -141,10 +142,23 @@ public class SoundPanel extends Panel {
 
         group_output.compileCanvas();
 
+        // Classic audio toggle
+        CheckBox cb_classic = new CheckBox(Settings.getSettings().classic_audio, AbstractOptionsMenu.i18n("classic_audio"));
+        addChild(cb_classic);
+        if (Settings.getSettings().classic_audio) {
+            group_output.setDisabled(true);
+        }
+        cb_classic.addCheckBoxListener(marked -> {
+            Settings.getSettings().classic_audio = marked;
+            AbstractAudioPlayer.CLASSIC_AUDIO = marked;
+            group_output.setDisabled(marked);
+        });
+
         // Placement
         group_music.place();
         group_sound.place(group_music, BOTTOM_LEFT);
         group_output.place(group_sound, BOTTOM_LEFT);
+        cb_classic.place(group_output, BOTTOM_LEFT);
         compileCanvas();
     }
 }

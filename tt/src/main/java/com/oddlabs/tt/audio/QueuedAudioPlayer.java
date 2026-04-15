@@ -51,7 +51,7 @@ final class QueuedAudioPlayer extends AbstractAudioPlayer {
         }
 
         source.setLooping(false);
-        source.setRolloff(ROLLOFF_FACTOR);
+        source.setRolloff(getRolloffFactor());
         source.setDistance(params.radius);
         source.setMinGain(0f);
         source.setMaxGain(1f);

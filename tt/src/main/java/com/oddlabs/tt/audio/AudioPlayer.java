@@ -94,13 +94,13 @@ public final class AudioPlayer extends AbstractAudioPlayer {
         var state = source.getState();
         assert state == AudioSource.State.STOPPED || state == AudioSource.State.INITIAL;
 
-        source.setRolloff(ROLLOFF_FACTOR);
+        source.setRolloff(getRolloffFactor());
         source.setDistance(params.radius);
         source.setMinGain(0f);
         source.setMaxGain(1f);
         source.setPitch(params.pitch);
 
-        if (source instanceof OpenALAudioSource alSource && AudioManager.getManager() instanceof OpenALManager alManager) {
+        if (!CLASSIC_AUDIO && source instanceof OpenALAudioSource alSource && AudioManager.getManager() instanceof OpenALManager alManager) {
             EFXManager efx = alManager.getEfxManager();
             if (efx.isSupported()) {
                 boolean useReverb = params.rank != AUDIO_RANK_MUSIC && params.rank != AUDIO_RANK_NOTIFICATION;
