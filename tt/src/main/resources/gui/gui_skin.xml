@@ -173,14 +173,14 @@
         ]>
 
 <gui texture="/textures/gui/gui">
-    <editfont>/font/inter-light_13.font</editfont>
-    <formfont>/font/inter-light_13.font</formfont>
-    <groupfont>/font/inter-light_13.font</groupfont>
-    <progressfont>/font/inter-light_13.font</progressfont>
-    <buttonfont>/font/inter-light_13.font</buttonfont>
-    <headlinefont>/font/intertight-black_28.font</headlinefont>
-    <combofont>/font/inter-light_13.font</combofont>
-    <pulldownfont>/font/inter-light_13.font</pulldownfont>
+    <editfont>/font/tahoma_13.font</editfont>
+    <formfont>/font/tahoma_13.font</formfont>
+    <groupfont>/font/tahoma_13.font</groupfont>
+    <progressfont>/font/tahoma_13.font</progressfont>
+    <buttonfont>/font/tahoma_13.font</buttonfont>
+    <headlinefont>/font/impact_24.font</headlinefont>
+    <combofont>/font/tahoma_13.font</combofont>
+    <pulldownfont>/font/tahoma_13.font</pulldownfont>
     <form spacing="5" section_spacing="25" caption_left="17" caption_y="12" close_right="11" close_top="5">
         <box left_offset="6" bottom_offset="10" top_offset="24" right_offset="10">
             <left_bottom>

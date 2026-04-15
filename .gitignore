@@ -256,5 +256,9 @@ gradle-app.setting
 server/logs/
 /common/src/main/resources/fonts/Impact.ttf
 /common/src/main/resources/fonts/Tahoma.ttf
+/assets/font/*
+!/assets/font/Inter-Light.ttf
+!/assets/font/InterTight-Black.ttf
+!/assets/font/README
 /.gradle_local/
 **/steam_appid.txt

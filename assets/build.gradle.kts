@@ -152,27 +152,92 @@ val convertPixelPerfect = convertBatch("convertPixelPerfect", "textures/pixelper
 val fontInfoDir = layout.buildDirectory.dir("resources/font")
 val fontTexClasspath = "/textures/font"
 
+val renderTahomaFont = tasks.register<JavaExec>("renderTahomaFont") {
+    group = "build"
+    description = "Renders Tahoma TTF font to PNG texture and font metadata."
+    mainClass.set("com.oddlabs.fontutil.FontRenderer")
+    classpath = converter
+    jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true", "--enable-native-access=ALL-UNNAMED")
+
+    val ttfFile = file("font/tahoma.ttf")
+    val outDir = layout.buildDirectory.dir("font_png/tahoma")
+
+    outputs.files(
+        fontInfoDir.get().file("tahoma_13.font"),
+        outDir.get().file("tahoma_13.png")
+    )
+
+    args = listOf(ttfFile.absolutePath, "13", "1024", "1200", "2", fontInfoDir.get().asFile.absolutePath, outDir.get().asFile.absolutePath, fontTexClasspath, "…–—•°™∞␡␈c←↑→↓⌃⇧⌥⌘□")
+    onlyIf { ttfFile.exists() }
+}
+
+val convertTahomaFont = tasks.register<JavaExec>("convertTahomaFont") {
+    group = "build"
+    dependsOn(renderTahomaFont)
+    mainClass.set("com.oddlabs.imageutil.Convert")
+    classpath = converter
+    val inFile = layout.buildDirectory.file("font_png/tahoma/tahoma_13.png").get().asFile
+    val outFile = layout.buildDirectory.file("textures/font/tahoma_13.dds").get().asFile
+    args(inFile.absolutePath, "-flip", "-format", "dds", outFile.absolutePath)
+    jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true", "--enable-native-access=ALL-UNNAMED")
+    outputs.file(outFile)
+    onlyIf { file("font/tahoma.ttf").exists() }
+}
+
+val renderImpactFont = tasks.register<JavaExec>("renderImpactFont") {
+    group = "build"
+    description = "Renders Impact TTF font to PNG texture and font metadata."
+    mainClass.set("com.oddlabs.fontutil.FontRenderer")
+    classpath = converter
+    jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true", "--enable-native-access=ALL-UNNAMED")
+
+    val ttfFile = file("font/impact.ttf")
+    val outDir = layout.buildDirectory.dir("font_png/impact")
+
+    outputs.files(
+        fontInfoDir.get().file("impact_24.font"),
+        outDir.get().file("impact_24.png")
+    )
+
+    args = listOf(ttfFile.absolutePath, "24", "1024", "600", "2", fontInfoDir.get().asFile.absolutePath, outDir.get().asFile.absolutePath, fontTexClasspath, "…–—•°™∞␡␈c←↑→↓⌃⇧⌥⌘□")
+    onlyIf { ttfFile.exists() }
+}
+
+val convertImpactFont = tasks.register<JavaExec>("convertImpactFont") {
+    group = "build"
+    dependsOn(renderImpactFont)
+    mainClass.set("com.oddlabs.imageutil.Convert")
+    classpath = converter
+    val inFile = layout.buildDirectory.file("font_png/impact/impact_24.png").get().asFile
+    val outFile = layout.buildDirectory.file("textures/font/impact_24.dds").get().asFile
+    args(inFile.absolutePath, "-flip", "-format", "dds", outFile.absolutePath)
+    jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true", "--enable-native-access=ALL-UNNAMED")
+    outputs.file(outFile)
+    onlyIf { file("font/impact.ttf").exists() }
+}
+
+// Fallback fonts (Inter) - always built so the game works without Tahoma/Impact TTFs
 val renderInterLightFont = tasks.register<JavaExec>("renderInterLightFont") {
     group = "build"
     description = "Renders Inter Light TTF font to PNG texture and font metadata."
     mainClass.set("com.oddlabs.fontutil.FontRenderer")
     classpath = converter
     jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true", "--enable-native-access=ALL-UNNAMED")
-    
+
     val ttfFile = file("font/Inter-Light.ttf")
     val outDir = layout.buildDirectory.dir("font_png/light")
-    
+
     inputs.file(ttfFile)
     outputs.files(
         fontInfoDir.get().file("inter-light_13.font"),
         outDir.get().file("inter-light_13.png")
     )
-    
+
     args = listOf(ttfFile.absolutePath, "13", "2048", "1200", "2", fontInfoDir.get().asFile.absolutePath, outDir.get().asFile.absolutePath, fontTexClasspath, "…–—•°™∞␡␈c←↑→↓⌃⇧⌥⌘□")
     onlyIf { ttfFile.exists() }
 }
 
-val convertInterLightFont = convertTexture("convertInterLightFont", 
+val convertInterLightFont = convertTexture("convertInterLightFont",
     layout.buildDirectory.dir("font_png/light").map { it.file("inter-light_13.png") }, "font", "-flip", "-format", "dds")
 convertInterLightFont.configure { dependsOn(renderInterLightFont) }
 
@@ -182,21 +247,21 @@ val renderInterTightBlackFont = tasks.register<JavaExec>("renderInterTightBlackF
     mainClass.set("com.oddlabs.fontutil.FontRenderer")
     classpath = converter
     jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true", "--enable-native-access=ALL-UNNAMED")
-    
+
     val ttfFile = file("font/InterTight-Black.ttf")
     val outDir = layout.buildDirectory.dir("font_png/black")
-    
+
     inputs.file(ttfFile)
     outputs.files(
         fontInfoDir.get().file("intertight-black_28.font"),
         outDir.get().file("intertight-black_28.png")
     )
-    
+
     args = listOf(ttfFile.absolutePath, "28", "2048", "1200", "2", fontInfoDir.get().asFile.absolutePath, outDir.get().asFile.absolutePath, fontTexClasspath, "…–—•°™∞␡␈c←↑→↓⌃⇧⌥⌘□")
     onlyIf { ttfFile.exists() }
 }
 
-val convertInterTightBlackFont = convertTexture("convertInterTightBlackFont", 
+val convertInterTightBlackFont = convertTexture("convertInterTightBlackFont",
     layout.buildDirectory.dir("font_png/black").map { it.file("intertight-black_28.png") }, "font", "-flip", "-format", "dds")
 convertInterTightBlackFont.configure { dependsOn(renderInterTightBlackFont) }
 
@@ -215,8 +280,9 @@ val geometry = tasks.register<JavaExec>("geometry") {
 }
 
 val textures = tasks.register("textures") {
-    dependsOn(convertExternalModels, convertExternalDecals, 
-              convertInterLightFont, convertInterTightBlackFont, 
+    dependsOn(convertExternalModels, convertExternalDecals,
+              convertTahomaFont, convertImpactFont,
+              convertInterLightFont, convertInterTightBlackFont,
               convertGui, convertPixelPerfect)
 }
 

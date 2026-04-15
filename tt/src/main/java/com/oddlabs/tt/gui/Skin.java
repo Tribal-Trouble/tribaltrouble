@@ -144,8 +144,20 @@ public final class Skin {
                 top_offset);
     }
 
+    private static final String TAHOMA_FONT = "/font/tahoma_13.font";
+    private static final String IMPACT_FONT = "/font/impact_24.font";
+    private static final String FALLBACK_EDIT_FONT = "/font/inter-light_13.font";
+    private static final String FALLBACK_HEADLINE_FONT = "/font/intertight-black_28.font";
+
     private @NonNull Font getFont(@NonNull Node n) {
         String path = n.getFirstChild().getNodeValue();
+        if (getClass().getResource(path) == null) {
+            if (path.equals(IMPACT_FONT)) {
+                path = FALLBACK_HEADLINE_FONT;
+            } else if (path.equals(TAHOMA_FONT)) {
+                path = FALLBACK_EDIT_FONT;
+            }
+        }
         FontFile font_file = new FontFile(path);
         return Resources.findResource(font_file);
     }
