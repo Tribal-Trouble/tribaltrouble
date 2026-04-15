@@ -79,7 +79,7 @@ final class CampaignMapMenu extends Form {
         if (resumeButton != null) {
             resumeButton.setFocus();
         } else {
-            super.setFocus();
+            super.setFocus(FocusDirection.FORWARD);
         }
     }
 

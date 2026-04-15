@@ -175,7 +175,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
     @Override
     public void setFocus() {
         if (islandButtons.isEmpty()) {
-            super.setFocus();
+            super.setFocus(FocusDirection.FORWARD);
             return;
         }
 
