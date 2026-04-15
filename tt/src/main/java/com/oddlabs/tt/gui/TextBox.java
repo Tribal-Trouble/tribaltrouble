@@ -98,9 +98,10 @@ public class TextBox extends TextField implements Scrollable, Clipped {
     @Override
     public final float getScrollBarRatio() {
         int text_height = textLayout.getTextHeight();
+        if (text_height <= 0) return 1f;
         Box edit_box = Skin.getSkin().getEditBox();
         int inner_height = getHeight() - edit_box.getBottomOffset() - edit_box.getTopOffset();
-        return (float) inner_height / text_height;
+        return Math.min(1f, (float) inner_height / text_height);
     }
 
     @Override
