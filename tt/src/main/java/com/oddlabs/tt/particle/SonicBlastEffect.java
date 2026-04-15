@@ -29,6 +29,7 @@ public final class SonicBlastEffect extends Element<SonicBlastEffect> {
     }
 
     public void update(float dt) {
+        if (dead) return;
         time += dt;
         if (time >= duration) {
             dead = true;
