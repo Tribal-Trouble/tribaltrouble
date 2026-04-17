@@ -52,10 +52,13 @@ public final class PointerInput {
     }
 
     public void setActiveCursor(@NonNull Cursor cursor) {
-        if (cursor != Cursor.NULL_CURSOR && inputProvider.isGrabbed()) {
+        if (cursor != Cursor.NULL_CURSOR) {
+            boolean wasGrabbed = inputProvider.isGrabbed();
             inputProvider.setGrabbed(false);
-            resetCursorPos();
-        } else if (cursor == Cursor.NULL_CURSOR && !inputProvider.isGrabbed()) {
+            if (wasGrabbed) {
+                resetCursorPos();
+            }
+        } else if (!inputProvider.isGrabbed()) {
             inputProvider.setGrabbed(true);
             resetCursorPos();
         }

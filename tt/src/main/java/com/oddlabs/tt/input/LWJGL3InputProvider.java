@@ -10,6 +10,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import static org.lwjgl.glfw.GLFW.GLFW_CURSOR;
+import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_CAPTURED;
 import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_DISABLED;
 import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_NORMAL;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
@@ -249,7 +250,7 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
 
     @Override
     public void setGrabbed(boolean grabbed) {
-        glfwSetInputMode(windowHandle, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+        glfwSetInputMode(windowHandle, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_CAPTURED);
     }
 
     @Override
