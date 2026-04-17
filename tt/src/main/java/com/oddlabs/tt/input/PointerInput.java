@@ -64,6 +64,10 @@ public final class PointerInput {
         }
     }
 
+    public boolean isGrabbed() {
+        return inputProvider.isGrabbed();
+    }
+
     public void setCursorPosition(int x, int y) {
         if (!LocalEventQueue.getQueue().getDeterministic().isPlayback())
             inputProvider.setCursorPosition(x, y);

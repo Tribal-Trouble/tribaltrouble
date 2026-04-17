@@ -1,5 +1,11 @@
 package com.oddlabs.tt.gui;
 
+import java.util.EnumSet;
+import java.util.Set;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.font.Index;
@@ -11,11 +17,6 @@ import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.input.KeyboardEvent;
 import com.oddlabs.tt.input.Modifier;
 import com.oddlabs.tt.render.Renderer;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-
-import java.util.EnumSet;
-import java.util.Set;
 
 public final class InputState {
     private static final float MOUSE_REPEAT_DELAY = .5f;
@@ -59,9 +60,15 @@ public final class InputState {
     }
 
     public void mouseMoved(short x, short y) {
-        GUIObject gui_hit = pick();
         float scale = gui_root.getGlobalScale();
-        gui_hit.mouseMovedAll((short) Math.round(x / scale), (short) Math.round(y / scale));
+        // Skip GUI hit-testing when cursor is grabbed (middle mouse wheel or 'first person')
+        // the virtual cursor position is meaningless for picking
+        if (Renderer.getLocalInput().getPointerInput().isGrabbed()) {
+            gui_root.getCurrentGUIObject().mouseMovedAll((short) Math.round(x / scale), (short) Math.round(y / scale));
+        } else {
+            GUIObject gui_hit = pick();
+            gui_hit.mouseMovedAll((short) Math.round(x / scale), (short) Math.round(y / scale));
+        }
     }
 
     private void resetKeyTimer() {
