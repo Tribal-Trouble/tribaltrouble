@@ -107,7 +107,7 @@ public class GraphicsPanel extends Panel {
         pb_detail.place(label_detail, BOTTOM_LEFT);
         group_detail.compileCanvas();
 
-        // Display mode
+        // Display mode (disabled in fullscreen — borderless fullscreen uses native resolution)
         Group mode_group = new Group();
         addChild(mode_group);
 
@@ -135,12 +135,14 @@ public class GraphicsPanel extends Panel {
         mode_list_box.addRowListener(new RowListener<>() {
             @Override
             public void rowDoubleClicked(@NonNull SerializableDisplayMode mode) {
-                gui_root.addModalForm(new DisplayChangeForm(switch_now -> {
-                    Renderer.getRenderer().switchMode(mode, switch_now);
-                    if (switch_now) {
-                        gui_root.displayChanged(mode.getWidth(), mode.getHeight());
-                    }
-                }));
+                if (!Settings.getSettings().fullscreen) {
+                    gui_root.addModalForm(new DisplayChangeForm(switch_now -> {
+                        Renderer.getRenderer().switchMode(mode, switch_now);
+                        if (switch_now) {
+                            gui_root.displayChanged(mode.getWidth(), mode.getHeight());
+                        }
+                    }));
+                }
             }
         });
 
@@ -148,6 +150,10 @@ public class GraphicsPanel extends Panel {
         mode_label.place();
         mode_list_box.place(mode_label, BOTTOM_LEFT);
         mode_group.compileCanvas();
+        mode_group.setDisabled(Settings.getSettings().fullscreen);
+
+        // Toggle resolution list when fullscreen changes
+        cb_fullscreen.addCheckBoxListener(marked -> mode_group.setDisabled(marked));
 
         // Placement
         mode_group.place();

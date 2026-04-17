@@ -23,6 +23,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.lwjgl.glfw.GLFW.GLFW_DECORATED;
 import static org.lwjgl.glfw.GLFW.GLFW_AUTO_ICONIFY;
 import static org.lwjgl.glfw.GLFW.GLFW_COCOA_RETINA_FRAMEBUFFER;
 import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MAJOR;
@@ -59,6 +60,7 @@ import static org.lwjgl.glfw.GLFW.glfwRestoreWindow;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowCloseCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowAttrib;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowIcon;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowMonitor;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
@@ -80,6 +82,7 @@ public final class LWJGL3Window implements Window {
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
     private boolean resized;
     private boolean closeRequested;
+    private boolean fullscreen;
 
     public LWJGL3Window() {
     }
@@ -97,26 +100,27 @@ public final class LWJGL3Window implements Window {
     @Override
     public void create(@NonNull SerializableDisplayMode mode, boolean fullscreen) {
         ensureGLFW();
+        this.fullscreen = fullscreen;
 
         if (windowHandle != MemoryUtil.NULL) {
             // Reconfigure existing window
-            long monitor = fullscreen ? glfwGetPrimaryMonitor() : MemoryUtil.NULL;
-            int refreshRate = fullscreen ? mode.getFrequency() : GLFW_DONT_CARE;
-
             if (fullscreen) {
-                glfwSetWindowMonitor(windowHandle, monitor, 0, 0, mode.getWidth(), mode.getHeight(), refreshRate);
+                // Borderless fullscreen: undecorated window at monitor native resolution
+                GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+                if (vidmode != null) {
+                    glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
+                    glfwSetWindowMonitor(windowHandle, MemoryUtil.NULL, 0, 0, vidmode.width(), vidmode.height(), GLFW_DONT_CARE);
+                }
             } else {
-                // Windowed mode: center on screen
+                // Windowed mode: decorated, centered
+                glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_TRUE);
                 long currentMonitor = getCurrentMonitor();
                 GLFWVidMode vidmode = glfwGetVideoMode(currentMonitor);
                 if (vidmode != null) {
                     int x = (vidmode.width() - mode.getWidth()) / 2;
                     int y = (vidmode.height() - mode.getHeight()) / 2;
-                    glfwSetWindowMonitor(windowHandle, MemoryUtil.NULL, x, y, mode.getWidth(), mode.getHeight(), refreshRate);
+                    glfwSetWindowMonitor(windowHandle, MemoryUtil.NULL, x, y, mode.getWidth(), mode.getHeight(), GLFW_DONT_CARE);
                 }
-            }
-
-            if (!fullscreen) {
                 glfwSetWindowSize(windowHandle, mode.getWidth(), mode.getHeight());
             }
 
@@ -129,6 +133,10 @@ public final class LWJGL3Window implements Window {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
+
+        if (fullscreen) {
+            glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+        }
 
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
             glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
@@ -145,20 +153,27 @@ public final class LWJGL3Window implements Window {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
-        long monitor = MemoryUtil.NULL;
+        // Always create as a regular window (no monitor handle) — fullscreen is borderless
+        int createWidth, createHeight;
         if (fullscreen) {
-            monitor = glfwGetPrimaryMonitor();
+            GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+            createWidth = vidmode != null ? vidmode.width() : mode.getWidth();
+            createHeight = vidmode != null ? vidmode.height() : mode.getHeight();
+        } else {
+            createWidth = mode.getWidth();
+            createHeight = mode.getHeight();
         }
 
-        windowHandle = glfwCreateWindow(mode.getWidth(), mode.getHeight(), title, monitor, MemoryUtil.NULL);
+        windowHandle = glfwCreateWindow(createWidth, createHeight, title, MemoryUtil.NULL, MemoryUtil.NULL);
         if (windowHandle == MemoryUtil.NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
 
         glfwSetWindowSizeLimits(windowHandle, 800, 600, GLFW_DONT_CARE, GLFW_DONT_CARE);
 
-        // Center the window if not fullscreen
-        if (!fullscreen) {
+        if (fullscreen) {
+            glfwSetWindowPos(windowHandle, 0, 0);
+        } else {
             GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
             if (vidmode != null) {
                 glfwSetWindowPos(
@@ -411,8 +426,7 @@ public final class LWJGL3Window implements Window {
             height = 1024;
         }
 
-        long monitor = windowHandle != MemoryUtil.NULL ? glfwGetWindowMonitor(windowHandle) : MemoryUtil.NULL;
-        if (monitor == MemoryUtil.NULL) monitor = glfwGetPrimaryMonitor();
+        long monitor = glfwGetPrimaryMonitor();
 
         GLFWVidMode vidmode = glfwGetVideoMode(monitor);
         int freq = 60;
@@ -456,7 +470,7 @@ public final class LWJGL3Window implements Window {
 
     @Override
     public void setDisplayMode(@NonNull SerializableDisplayMode mode) {
-        create(mode, glfwGetWindowMonitor(windowHandle) != MemoryUtil.NULL);
+        create(mode, fullscreen);
     }
 
     @Override
@@ -470,7 +484,7 @@ public final class LWJGL3Window implements Window {
 
     @Override
     public boolean isFullscreen() {
-        return windowHandle != MemoryUtil.NULL && glfwGetWindowMonitor(windowHandle) != MemoryUtil.NULL;
+        return fullscreen;
     }
 
     private long getCurrentMonitor() {

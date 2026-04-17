@@ -578,10 +578,6 @@ public final class Renderer implements AutoCloseable {
                     if (window.isIconified()) window.restore();
                     if (!window.isVisible()) window.show();
                     window.focus();
-                } else if (!isActive && wasActive) {
-                    if (Settings.getSettings().fullscreen) {
-                        window.minimize();
-                    }
                 }
                 wasActive = isActive;
 
