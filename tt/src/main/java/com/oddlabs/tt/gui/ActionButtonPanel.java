@@ -724,40 +724,42 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
             // Repeating Actions (Spinners)
             // Clear remaining actions after a match to prevent global actions (e.g. screenshot)
             // from also firing on the same key combo. Mirrors upstream's return-true behavior.
-            var peon = checkResourceAction(event, GameAction.TRAIN_PEON, GameAction.TRAIN_PEON_DEC, GameAction.TRAIN_PEON_BATCH, GameAction.TRAIN_PEON_BATCH_DEC);
-            if (peon.active()) {
-                if (current_quarters) {
-                    quarters_peon_button.shortcutPressed(peon.decrement(), peon.batch());
-                } else if (current_armory && current_submenu == army_group) {
-                    army_peon_button.shortcutPressed(peon.decrement(), peon.batch());
+            if (current_building != null) {
+                var peon = checkResourceAction(event, GameAction.TRAIN_PEON, GameAction.TRAIN_PEON_DEC, GameAction.TRAIN_PEON_BATCH, GameAction.TRAIN_PEON_BATCH_DEC);
+                if (peon.active()) {
+                    if (current_quarters) {
+                        quarters_peon_button.shortcutPressed(peon.decrement(), peon.batch());
+                    } else if (current_armory && current_submenu == army_group) {
+                        army_peon_button.shortcutPressed(peon.decrement(), peon.batch());
+                    }
+                    event.getActions().clear();
                 }
-                event.getActions().clear();
-            }
 
-            // Chicken/Rubber
-            var chicken = checkResourceAction(event, GameAction.RES_CHICKEN, GameAction.RES_CHICKEN_DEC, GameAction.RES_CHICKEN_BATCH, GameAction.RES_CHICKEN_BATCH_DEC);
-            if (chicken.active()) {
-                handleArmoryShortcut(true, chicken, harvest_rubber_button, build_weapon_rubber_button, army_warrior_rubber_button, transport_rubber_button);
-                event.getActions().clear();
-            }
+                // Chicken/Rubber
+                var chicken = checkResourceAction(event, GameAction.RES_CHICKEN, GameAction.RES_CHICKEN_DEC, GameAction.RES_CHICKEN_BATCH, GameAction.RES_CHICKEN_BATCH_DEC);
+                if (chicken.active()) {
+                    handleArmoryShortcut(true, chicken, harvest_rubber_button, build_weapon_rubber_button, army_warrior_rubber_button, transport_rubber_button);
+                    event.getActions().clear();
+                }
 
-            // Iron
-            var iron = checkResourceAction(event, GameAction.RES_IRON, GameAction.RES_IRON_DEC, GameAction.RES_IRON_BATCH, GameAction.RES_IRON_BATCH_DEC);
-            if (iron.active()) {
-                handleArmoryShortcut(true, iron, harvest_iron_button, build_weapon_iron_button, army_warrior_iron_button, transport_iron_button);
-                event.getActions().clear();
-            }
+                // Iron
+                var iron = checkResourceAction(event, GameAction.RES_IRON, GameAction.RES_IRON_DEC, GameAction.RES_IRON_BATCH, GameAction.RES_IRON_BATCH_DEC);
+                if (iron.active()) {
+                    handleArmoryShortcut(true, iron, harvest_iron_button, build_weapon_iron_button, army_warrior_iron_button, transport_iron_button);
+                    event.getActions().clear();
+                }
 
-            var tree = checkResourceAction(event, GameAction.RES_TREE, GameAction.RES_TREE_DEC, GameAction.RES_TREE_BATCH, GameAction.RES_TREE_BATCH_DEC);
-            if (tree.active()) {
-                handleArmoryShortcut(true, tree, harvest_tree_button, null, null, transport_tree_button);
-                event.getActions().clear();
-            }
+                var tree = checkResourceAction(event, GameAction.RES_TREE, GameAction.RES_TREE_DEC, GameAction.RES_TREE_BATCH, GameAction.RES_TREE_BATCH_DEC);
+                if (tree.active()) {
+                    handleArmoryShortcut(true, tree, harvest_tree_button, null, null, transport_tree_button);
+                    event.getActions().clear();
+                }
 
-            var rock = checkResourceAction(event, GameAction.RES_ROCK, GameAction.RES_ROCK_DEC, GameAction.RES_ROCK_BATCH, GameAction.RES_ROCK_BATCH_DEC);
-            if (rock.active()) {
-                handleArmoryShortcut(true, rock, harvest_rock_button, build_weapon_rock_button, army_warrior_rock_button, transport_rock_button);
-                event.getActions().clear();
+                var rock = checkResourceAction(event, GameAction.RES_ROCK, GameAction.RES_ROCK_DEC, GameAction.RES_ROCK_BATCH, GameAction.RES_ROCK_BATCH_DEC);
+                if (rock.active()) {
+                    handleArmoryShortcut(true, rock, harvest_rock_button, build_weapon_rock_button, army_warrior_rock_button, transport_rock_button);
+                    event.getActions().clear();
+                }
             }
         } else if (released) {
             var chicken = checkResourceAction(event, GameAction.RES_CHICKEN, GameAction.RES_CHICKEN_DEC, GameAction.RES_CHICKEN_BATCH, GameAction.RES_CHICKEN_BATCH_DEC);
