@@ -20,6 +20,7 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
     private final @NonNull ModeIconQuads icon_quad;
     private final @NonNull String tool_tip;
     private final @NonNull IconQuad @Nullable [] tool_tip_icons;
+    private final @NonNull IconQuad infinite_icon;
     private final @NonNull TextField label;
     private final @NonNull GUIObject button_plus;
     private final @NonNull GUIObject button_minus;
@@ -30,6 +31,7 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 
     public IconSpinner(@NonNull WorldViewer viewer, @NonNull ModeIconQuads icon_quad, @NonNull String tool_tip, @NonNull IconQuad @Nullable [] tool_tip_icons, @NonNull String shortcut_key) {
         this.icon_quad = icon_quad;
+        this.infinite_icon = GUIIcons.getIcons().getInfinite();
         this.tool_tip = tool_tip;
         this.tool_tip_icons = tool_tip_icons;
         this.viewer = viewer;
@@ -140,6 +142,10 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
             int index = (int) (getProgress() * (watch.length - 1));
             IconQuad watchQuad = watch[index];
             renderer.drawIcon(watchQuad, getWidth() - watchQuad.getWidth(), getHeight() - watchQuad.getHeight());
+        }
+
+        if (renderInfinite()) {
+            renderer.drawIcon(infinite_icon, 0, 0);
         }
     }
 
