@@ -33,9 +33,6 @@ public class TargetDelegate extends ControllableCameraDelegate {
         // Prevent base GUIObject from handling UI_ACTIVATE (Space/Return as Click)
         event.consumeAction(GameAction.UI_ACTIVATE);
 
-        super.handleInput(event);
-        if (event.isConsumed()) return;
-
         if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
             if (event.consumeAction(GameAction.UI_CANCEL)) {
                 pop();
@@ -43,6 +40,9 @@ public class TargetDelegate extends ControllableCameraDelegate {
                 return;
             }
         }
+
+        super.handleInput(event);
+        if (event.isConsumed()) return;
     }
 
     @Override
