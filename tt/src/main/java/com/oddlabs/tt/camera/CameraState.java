@@ -211,8 +211,8 @@ public final class CameraState {
         m.target_camera_x = target_camera_x;
         m.camera_y = camera_y;
         m.target_camera_y = target_camera_y;
-        m.camera_z = 0.0f;
-        m.target_camera_z = 0.0f;
+        m.camera_z = camera_z - 2 * (camera_z - seaLevel);
+        m.target_camera_z = target_camera_z - 2 * (target_camera_z - seaLevel);
         m.vert_angle = -vert_angle;
         m.target_vert_angle = -target_vert_angle;
         m.horiz_angle = horiz_angle;
