@@ -697,9 +697,9 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
                         else if (current_submenu == transport_group)
                             transport_back_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
                     }
-                } else if (event.consumeAction(GameAction.UNIT_BUILD_ARMORY)) {
+                } else if (current_building == null && event.consumeAction(GameAction.UNIT_BUILD_ARMORY)) {
                     if (current_peon) armory_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
-                } else if (event.consumeAction(GameAction.UNIT_SET_RALLY)) {
+                } else if (current_building != null && event.consumeAction(GameAction.UNIT_SET_RALLY)) {
                     if (current_armory && current_submenu == null)
                         rally_point_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
                     else if (current_quarters) quarters_rally_point_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
