@@ -295,7 +295,7 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         }
         all_indices.flip();
         water_indices = new ShortVBO(GL15.GL_STATIC_DRAW, all_indices);
-        water_vertices = toVBO(all_vertices, landscape_renderer.getHeightMap().getSeaLevelMeters());
+        water_vertices = toVBO(all_vertices, 0f);
         bottom_vertices = toVBO(all_vertices, 0);
 
         this.skyVAO = new VertexArray();

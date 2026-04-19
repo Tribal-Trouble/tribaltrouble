@@ -2,10 +2,15 @@ package com.oddlabs.tt.render;
 
 import java.util.function.Consumer;
 
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
@@ -56,10 +61,11 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     private final @NonNull SonicBlastRenderer sonicBlastRenderer;
     private final @NonNull InstancedSpriteRenderer treeSpriteRenderer = new InstancedSpriteRenderer();
     private final @NonNull PostProcessor postProcessor;
+    private final @NonNull FBO reflectionFBO;
     private final @Nullable Cheat cheat;
 
     private final GlobalUniforms globalUniforms = new GlobalUniforms();
-    private final Vector3f sunDirection = new Vector3f(-1f, 0f, 1f).normalize();
+    private final Vector3f sunDirection = new Vector3f(-0.9f, 0.7f, 0.7f).normalize();
     private final Vector3f globalAmbientClassic = new Vector3f(0.65f, 0.65f, 0.65f);
     private final Vector3f groundAmbientClassic = new Vector3f(0.65f, 0.65f, 0.65f);
     private final Vector3f globalAmbientEnhanced = new Vector3f(0.4f, 0.4f, 0.45f);
@@ -99,6 +105,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         this.sonicBlastRenderer = new SonicBlastRenderer();
         var window = Renderer.getRenderer().getWindow();
         this.postProcessor = new PostProcessor(window.getWidth(), window.getHeight());
+        this.reflectionFBO = FBO.createSceneFBO(window.getWidth(), window.getHeight());
         DebugRender.setShaderRenderer(new DebugShaderRenderer(new DebugMeshShader(), modelViewStack, projectionStack));
     }
 
@@ -214,24 +221,10 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         postProcessor.renderComposite(context, guiRenderCallback, suppressTeamHighlight);
     }
 
-    @Override
-    public void render(@NonNull RenderContext context, @NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root) {
-        suppressTeamHighlight = frustum_state.inNoDetailMode();
-        if (postProcessor.resize(frustum_state.getWidth(), frustum_state.getHeight())) {
-            postProcessor.bindSceneFBO();
-            context.clear(true, true);
-        }
-
-        // Update Global UBO
-        Vector3f ga = Globals.classic_lighting ? globalAmbientClassic : globalAmbientEnhanced;
-        Vector3f gga = Globals.classic_lighting ? groundAmbientClassic : groundAmbientEnhanced;
-        globalUniforms.update(frustum_state, sunDirection, ga, gga, LocalEventQueue.getQueue().getTime());
-        context.updateGlobalState(globalUniforms.getBuffer());
-
-        ambient.updateSoundListener(frustum_state, world.getHeightMap());
-        modelViewStack.current().set(frustum_state.getModelView());
-        projectionStack.current().set(frustum_state.getProjectionMatrix());
-
+    private void renderScene(@NonNull RenderContext context, @NonNull CameraState frustum_state,
+                             @NonNull GUIRoot gui_root, boolean includeWater,
+                             @Nullable Texture reflectionTexture, @Nullable Matrix4f reflectionVP,
+                             boolean aboveSea) {
         if (Globals.line_mode || (cheat != null && cheat.line_mode)) {
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
         }
@@ -245,7 +238,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         }
 
         if (Globals.process_landscape) {
-            landscape_renderer.prepareAll(frustum_state, false);
+            landscape_renderer.prepareAll(frustum_state, false, aboveSea);
             landscape_renderer.render(context, frustum_state, modelViewStack, projectionStack);
         }
         // Trees & Units write to mask -> Enable Mask Buffer
@@ -291,8 +284,10 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         // Water & Particles don't write to mask -> Disable Mask Buffer
         setDrawBuffers(false);
 
-        if (Globals.draw_water) {
-            water.render(context, frustum_state, landscape_renderer.getVisiblePatches());
+        // Usually a scene would be rendered with water included. But when rendering the scene from the water's point of view,
+        // it's meaningless to render the water when the render pass itself is for the water.
+        if (includeWater && Globals.draw_water) {
+            water.render(context, frustum_state, landscape_renderer.getVisiblePatches(), reflectionTexture, reflectionVP);
         }
 
         if (Globals.process_misc)
@@ -327,6 +322,38 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     }
 
     @Override
+    public void render(@NonNull RenderContext context, @NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root) {
+        suppressTeamHighlight = frustum_state.inNoDetailMode();
+        if (postProcessor.resize(frustum_state.getWidth(), frustum_state.getHeight())) {
+            reflectionFBO.resize(frustum_state.getWidth(), frustum_state.getHeight());
+            postProcessor.bindSceneFBO();
+            context.clear(true, true);
+        }
+
+        Vector3f ga = Globals.classic_lighting ? globalAmbientClassic : globalAmbientEnhanced;
+        Vector3f gga = Globals.classic_lighting ? groundAmbientClassic : groundAmbientEnhanced;
+        
+        // Rendering everything from the water's point of view. It's as if we put the camera underwater and 
+        // rendered from there. The output image will be used to color the water as if it's a reflection
+        CameraState waterCamera = frustum_state.reflectCamera(world.getHeightMap().getSeaLevelMeters());
+        globalUniforms.update(waterCamera, sunDirection, ga, gga, LocalEventQueue.getQueue().getTime());
+        context.updateGlobalState(globalUniforms.getBuffer());
+        modelViewStack.current().set(waterCamera.getModelView());
+        reflectionFBO.bind();
+        context.clear(true, true);
+        renderScene(context, waterCamera, gui_root, false, null, null, true);
+
+        globalUniforms.update(frustum_state, sunDirection, ga, gga, LocalEventQueue.getQueue().getTime());
+        context.updateGlobalState(globalUniforms.getBuffer());
+        ambient.updateSoundListener(frustum_state, world.getHeightMap());
+        modelViewStack.current().set(frustum_state.getModelView());
+        projectionStack.current().set(frustum_state.getProjectionMatrix());
+        postProcessor.bindSceneFBO();
+        context.clear(true, true);
+        renderScene(context, frustum_state, gui_root, true, reflectionFBO.getColorTexture(), waterCamera.getProjectionModelView(), false);
+    }
+
+    @Override
     public void close() {
         emitterRenderer.close();
         lightningRenderer.close();
@@ -334,6 +361,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         sky.close();
         water.close();
         treeSpriteRenderer.close();
+        reflectionFBO.close();
         postProcessor.close();
     }
 }

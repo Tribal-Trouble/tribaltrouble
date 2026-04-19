@@ -18,8 +18,10 @@ import com.oddlabs.tt.render.state.DepthMode;
 import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.vbo.FloatVBO;
+import org.joml.Matrix4fc;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -70,16 +72,20 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
     }
 
     public void pick(@NonNull CameraState camera, boolean visible_override, @NonNull Set<LandscapeLeaf> set) {
-        doPrepareAll(camera, visible_override, set);
+        doPrepareAll(camera, visible_override, false, set);
     }
 
     public void prepareAll(@NonNull CameraState camera, boolean visible_override) {
-        render_list.clear();
-        doPrepareAll(camera, visible_override, render_list);
+        prepareAll(camera, visible_override, false);
     }
 
-    private void doPrepareAll(@NonNull CameraState camera, final boolean visible_override, @NonNull Collection<LandscapeLeaf> result) {
-        var patch_visitor = new Visitor(camera, visible_override, result);
+    public void prepareAll(@NonNull CameraState camera, boolean visible_override, boolean aboveSea) {
+        render_list.clear();
+        doPrepareAll(camera, visible_override, aboveSea, render_list);
+    }
+
+    private void doPrepareAll(@NonNull CameraState camera, final boolean visible_override, boolean aboveSea, @NonNull Collection<LandscapeLeaf> result) {
+        var patch_visitor = new Visitor(camera, visible_override, aboveSea, aboveSea ? world.getHeightMap() : null, result);
         world.getPatchRoot().visit(patch_visitor);
     }
 
@@ -189,11 +195,15 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
     private static final class Visitor implements PatchGroupVisitor {
         private final @NonNull CameraState camera;
         private boolean visible_override;
+        private final boolean aboveSea;
+        private final @Nullable HeightMap heightMap;
         private final @NonNull Collection<LandscapeLeaf> result;
 
-        private Visitor(@NonNull CameraState camera, boolean visible_override, @NonNull Collection<LandscapeLeaf> result) {
+        private Visitor(@NonNull CameraState camera, boolean visible_override, boolean aboveSea, @Nullable HeightMap heightMap, @NonNull Collection<LandscapeLeaf> result) {
             this.camera = camera;
             this.visible_override = visible_override;
+            this.aboveSea = aboveSea;
+            this.heightMap = heightMap;
             this.result = result;
         }
 
@@ -211,7 +221,9 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
         @Override
         public void visitLeaf(@NonNull LandscapeLeaf leaf) {
             if (visible_override || RenderTools.inFrustum(leaf, camera.getFrustum()) != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
-                result.add(leaf);
+                if (!aboveSea || !heightMap.isBelowSeaLevel(leaf.getPatchX(), leaf.getPatchY())) {
+                    result.add(leaf);
+                }
             }
         }
     }

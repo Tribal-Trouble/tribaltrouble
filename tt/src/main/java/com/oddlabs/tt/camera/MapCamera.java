@@ -111,6 +111,8 @@ public final class MapCamera extends Camera {
             float radiusScale = 1.5f - (0.5f * fade);
             getState().setFog(new RadialFogInfo(Color.WHITE, baseDensity * fade, radiusScale));
         }
+        // The fog should be disabled here because it shows this strange ring around the map
+        getState().getFog().setEnabled(false);
 
         switch (map_mode) {
             case TO_MAP -> {

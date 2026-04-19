@@ -287,6 +287,8 @@ public final class GameCamera extends Camera {
         doRotate(t);
         updateDirection();
         getState().setFog(viewer.getWorld().getFog());
+        // Enabling the fog here because it'll be disabled in other situations
+        getState().getFog().setEnabled(true);
     }
 
     @Override

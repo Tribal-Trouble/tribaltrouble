@@ -202,6 +202,25 @@ public final class CameraState {
         return horiz_angle;
     }
 
+    public @NonNull CameraState reflectCamera(float seaLevel) {
+        CameraState m = new CameraState(fog);
+        m.width = width;
+        m.height = height;
+        m.no_detail_mode = no_detail_mode;
+        m.camera_x = camera_x;
+        m.target_camera_x = target_camera_x;
+        m.camera_y = camera_y;
+        m.target_camera_y = target_camera_y;
+        m.camera_z = 0.0f;
+        m.target_camera_z = 0.0f;
+        m.vert_angle = -vert_angle;
+        m.target_vert_angle = -target_vert_angle;
+        m.horiz_angle = horiz_angle;
+        m.target_horiz_angle = target_horiz_angle;
+        m.doSetView(m.camera_x, m.camera_y, m.camera_z, m.horiz_angle, m.vert_angle, new Matrix4f(proj));
+        return m;
+    }
+
     public void setCamera(float x, float y, float z, float va, float ha) {
         setCurrentX(x);
         setCurrentY(y);

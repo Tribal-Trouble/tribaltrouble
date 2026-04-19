@@ -12,6 +12,7 @@ import com.oddlabs.tt.render.MatrixStack;
 import com.oddlabs.tt.render.PatchMesh;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.render.shader.WaterShader;
+import org.joml.Matrix4f;
 import com.oddlabs.tt.render.state.BlendMode;
 import com.oddlabs.tt.render.state.CullMode;
 import com.oddlabs.tt.render.state.DepthMode;
@@ -20,6 +21,7 @@ import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.VertexArray;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -92,7 +94,7 @@ public final class Water implements AutoCloseable {
     }
 
 
-    public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull List<LandscapeLeaf> visiblePatches) {
+    public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull List<LandscapeLeaf> visiblePatches, @Nullable Texture reflectionTexture, @Nullable Matrix4f reflectionVP) {
         updateAnimation();
 
         try (var _ = waterShader.use();
@@ -121,17 +123,25 @@ public final class Water implements AutoCloseable {
                 waterShader.setUniform(WaterShader.Uniforms.ENABLE_DETAIL, false);
             }
 
+            if (reflectionTexture != null && reflectionVP != null) {
+                context.setTexture(2, reflectionTexture);
+                waterShader.setUniform(WaterShader.Uniforms.REFLECTION_TEXTURE, 2);
+                waterShader.setUniformMatrix4(WaterShader.Uniforms.REFLECTION_VP, false, reflectionVP);
+                waterShader.setUniform(WaterShader.Uniforms.HAS_REFLECTION, true);
+            } else {
+                waterShader.setUniform(WaterShader.Uniforms.HAS_REFLECTION, false);
+            }
+
             waterShader.setUniform(WaterShader.Uniforms.WATER_REPEAT_RATE, Globals.WATER_REPEAT_RATE);
 
             // Render Sky Water (Infinite Plane). u_waterHeight = 0 because Z is baked in.
-            waterShader.setUniform(WaterShader.Uniforms.WATER_HEIGHT, 0.0f);
+            waterShader.setUniform(WaterShader.Uniforms.WATER_HEIGHT, heightMap.getSeaLevelMeters());
             skyWaterVao.bind();
             sky.getWaterIndices().drawElements(GL11.GL_TRIANGLES, sky.getWaterIndices().capacity(), 0);
             skyWaterVao.unbind();
 
             // Render Instanced Water Patches. u_waterHeight = seaLevel.
             if (!visiblePatches.isEmpty()) {
-                waterShader.setUniform(WaterShader.Uniforms.WATER_HEIGHT, heightMap.getSeaLevelMeters());
                 instanceBuffer.clear();
                 int count = 0;
                 float patchSize = heightMap.getMetersPerPatch();
