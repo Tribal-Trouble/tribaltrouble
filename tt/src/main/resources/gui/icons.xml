@@ -742,7 +742,7 @@
 
     <!-- Infinite char -->
     <infinite>
-        <quad left="768" top="192" right="832" bottom="256"/>
+        <quad left="768" top="192" right="830" bottom="256"/>
     </infinite>
 
     <notify_arrow head_x="64" head_y="32" end_x="0" end_y="32">
