@@ -235,28 +235,8 @@ public final class GameCamera extends Camera {
     private void doRotate(float time_delta) {
         checkKeys();
         if (rotate_left || rotate_right) {
-            float dx;
-            float dy;
-            float da;
-
-            float[] point = getRotationPoint();
-            if (insideWorld(point[0], point[1])) {
-                dx = getState().getTargetX() - point[0];
-                dy = getState().getTargetY() - point[1];
-            } else {
-                dx = -left_dir_y * default_rotate_radius;
-                dy = left_dir_x * default_rotate_radius;
-            }
-
-            if (rotate_left) {
-                da = -time_delta * ANGLE_DELTA;
-            } else {
-                da = time_delta * ANGLE_DELTA;
-            }
+            float da = rotate_left ? -time_delta * ANGLE_DELTA : time_delta * ANGLE_DELTA;
             getState().setTargetHorizAngle(getState().getTargetHorizAngle() + da);
-            getState().setTargetX(getState().getTargetX() - dx + (float) (dx * Math.cos(da) - dy * Math.sin(da)));
-            getState().setTargetY(getState().getTargetY() - dy + (float) (dx * Math.sin(da) + dy * Math.cos(da)));
-            checkPosition();
         }
     }
 

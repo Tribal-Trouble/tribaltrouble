@@ -3,12 +3,9 @@ package com.oddlabs.tt.render;
 import java.util.function.Consumer;
 
 import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import org.lwjgl.opengl.GL20;
