@@ -37,7 +37,6 @@ public final class MapCamera extends Camera {
             GameAction.CAMERA_ROTATE_RIGHT,
             GameAction.CAMERA_ZOOM_IN,
             GameAction.CAMERA_ZOOM_OUT,
-            GameAction.CAMERA_RESET,
             GameAction.CAMERA_FIRST_PERSON,
             GameAction.CAMERA_ZOOM_MODE
     );
