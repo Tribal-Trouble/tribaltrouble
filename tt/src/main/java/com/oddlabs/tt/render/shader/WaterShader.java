@@ -11,7 +11,9 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
         String TEXTURE_0 = "u_texture0"; // Base water texture
         String TEXTURE_1 = "u_texture1"; // Detail water texture
         String REFLECTION_TEXTURE = "u_reflectionTexture";
+        String REFRACTION_TEXTURE = "u_refractionTexture";
         String REFLECTION_VP = "u_reflectionVP";
+        String REFRACTION_VP = "u_refractionVP";
         String HAS_REFLECTION = "u_hasReflection";
         String WATER_REPEAT_RATE = "u_waterRepeatRate";
         String WATER_DETAIL_REPEAT_RATE = "u_waterDetailRepeatRate";
@@ -41,6 +43,7 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
 
                     uniform mat4 u_modelViewMatrix;
                     uniform mat4 u_reflectionVP;
+                    uniform mat4 u_refractionVP;
                     uniform float u_waterRepeatRate;
                     uniform float u_waterDetailRepeatRate;
                     uniform vec2 u_scrollOffset0;
@@ -52,6 +55,7 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
                     out float v_fogDist;
                     out vec3 v_worldPos;
                     out vec4 v_reflectionClipPos;
+                    out vec4 v_refractionClipPos;
 
                     void main() {
                         vec3 worldPos = vec3(in_InstanceOffset + in_Position.xy, u_waterHeight + in_Position.z);
@@ -68,6 +72,7 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
 
                         v_fogDist = length(viewPosition.xyz);
                         v_reflectionClipPos = u_reflectionVP * vec4(worldPos, 1.0);
+                        v_refractionClipPos = u_refractionVP * vec4(worldPos, 1.0);
                     }
                     """;
 
@@ -81,6 +86,7 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
                             uniform sampler2D u_texture0;
                             uniform sampler2D u_texture1;
                             uniform sampler2D u_reflectionTexture;
+                            uniform sampler2D u_refractionTexture;
                             uniform bool u_enableDetail;
                             uniform bool u_hasReflection;
                             uniform vec3 u_cameraPos;
@@ -90,6 +96,7 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
                             in float v_fogDist;
                             in vec3 v_worldPos;
                             in vec4 v_reflectionClipPos;
+                            in vec4 v_refractionClipPos;
 
                             layout(location = 0) out vec4 out_FragColor;
 
@@ -122,29 +129,36 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
                                 float specAngle = max(dot(normal, halfDir), 0.0);
                                 float specular = pow(specAngle, 40.0);
 
-                                float F0 = 0.02;
+                                float F0 = +0.02;
                                 float F = F0 + (1.0 - F0) * pow(1.0 - max(dot(normal, viewDir), 0.0), 5.0);
 
                                 vec3 reflectionColor;
-                                vec2 reflectionOffset = vec2(0.0, 0.0);
+                                vec3 refractionColor;
+                                vec2 temporalNoise = vec2(0.0, 0.0);
                                 if (u_enableDetail) {
-                                    reflectionOffset = texture(u_texture1, v_texCoord0 * 2.0 + 0.01 * vec2(sin(u_globalTime * 4.0), cos(u_globalTime * 0.23))).xy * 0.1;
+                                    temporalNoise = texture(u_texture1, v_texCoord0 * 2.0 + 0.01 * vec2(sin(u_globalTime * 4.0), cos(u_globalTime * 0.23))).xy * 0.1;
                                 }
-                                if (u_hasReflection && v_reflectionClipPos.w > 0.0) {
+                                if (u_hasReflection) {
                                     vec2 reflUV = v_reflectionClipPos.xy / v_reflectionClipPos.w * 0.5 + 0.5;
                                     reflUV += combinedGrad * 0.04;
-                                    reflectionColor = texture(u_reflectionTexture, reflUV + reflectionOffset).rgb;
+                                    reflectionColor = texture(u_reflectionTexture, reflUV + temporalNoise).rgb;
+                                    vec2 refrUV = v_refractionClipPos.xy / v_refractionClipPos.w * 0.5 + 0.5;
+                                    vec2 refrOffset = temporalNoise;
+                                    refractionColor = (texture(u_refractionTexture, refrUV).rgb + texture(u_refractionTexture, refrUV - refrOffset).rgb + texture(u_refractionTexture, refrUV + refrOffset).rgb) * 0.333;
                                 } else {
                                     reflectionColor = vec3(0.6, 0.7, 0.8);
+                                    refractionColor = baseColor.rgb;
                                 }
+
+                                vec3 rtColor = mix(refractionColor, reflectionColor, F * 0.6);
 
                                 vec3 waterColor = baseColor.rgb * 0.7;
 
-                                vec3 finalRGB = mix(waterColor, reflectionColor, F * 0.9);
+                                vec3 finalRGB = mix(waterColor, rtColor, 0.7);
                                 finalRGB += vec3(specular) * 0.4;
 
                                 float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
-                                out_FragColor = vec4(mix(u_fogColor.rgb, finalRGB, fogFactor), baseColor.a);
+                                out_FragColor = vec4(mix(u_fogColor.rgb, finalRGB, fogFactor), 1.0);
                             }
                             """;
 

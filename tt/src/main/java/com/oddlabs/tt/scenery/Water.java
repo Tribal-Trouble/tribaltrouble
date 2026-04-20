@@ -94,7 +94,7 @@ public final class Water implements AutoCloseable {
     }
 
 
-    public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull List<LandscapeLeaf> visiblePatches, @Nullable Texture reflectionTexture, @Nullable Matrix4f reflectionVP) {
+    public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull List<LandscapeLeaf> visiblePatches, @Nullable Texture reflectionTexture, @Nullable Texture refractionTexture, @Nullable Matrix4f reflectionVP) {
         updateAnimation();
 
         try (var _ = waterShader.use();
@@ -123,10 +123,13 @@ public final class Water implements AutoCloseable {
                 waterShader.setUniform(WaterShader.Uniforms.ENABLE_DETAIL, false);
             }
 
-            if (reflectionTexture != null && reflectionVP != null) {
+            if (reflectionTexture != null && refractionTexture != null && reflectionVP != null) {
                 context.setTexture(2, reflectionTexture);
+                context.setTexture(3, refractionTexture);
                 waterShader.setUniform(WaterShader.Uniforms.REFLECTION_TEXTURE, 2);
+                waterShader.setUniform(WaterShader.Uniforms.REFRACTION_TEXTURE, 3);
                 waterShader.setUniformMatrix4(WaterShader.Uniforms.REFLECTION_VP, false, reflectionVP);
+                waterShader.setUniformMatrix4(WaterShader.Uniforms.REFRACTION_VP, false, state.getProjectionModelView());
                 waterShader.setUniform(WaterShader.Uniforms.HAS_REFLECTION, true);
             } else {
                 waterShader.setUniform(WaterShader.Uniforms.HAS_REFLECTION, false);

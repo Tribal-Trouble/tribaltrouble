@@ -59,6 +59,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     private final @NonNull InstancedSpriteRenderer treeSpriteRenderer = new InstancedSpriteRenderer();
     private final @NonNull PostProcessor postProcessor;
     private final @NonNull FBO reflectionFBO;
+    private final @NonNull FBO refractionFBO;
     private final @Nullable Cheat cheat;
 
     private final GlobalUniforms globalUniforms = new GlobalUniforms();
@@ -103,6 +104,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         var window = Renderer.getRenderer().getWindow();
         this.postProcessor = new PostProcessor(window.getWidth(), window.getHeight());
         this.reflectionFBO = FBO.createSceneFBO(window.getWidth(), window.getHeight());
+        this.refractionFBO = FBO.createSceneFBO(window.getWidth(), window.getHeight());
         DebugRender.setShaderRenderer(new DebugShaderRenderer(new DebugMeshShader(), modelViewStack, projectionStack));
     }
 
@@ -220,7 +222,9 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
     private void renderScene(@NonNull RenderContext context, @NonNull CameraState frustum_state,
                              @NonNull GUIRoot gui_root, boolean includeWater,
-                             @Nullable Texture reflectionTexture, @Nullable Matrix4f reflectionVP,
+                             @Nullable Texture reflectionTexture,
+                             @Nullable Texture refractionTexture,
+                             @Nullable Matrix4f reflectionVP,
                              boolean aboveSea) {
         if (Globals.line_mode || (cheat != null && cheat.line_mode)) {
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
@@ -284,7 +288,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         // Usually a scene would be rendered with water included. But when rendering the scene from the water's point of view,
         // it's meaningless to render the water when the render pass itself is for the water.
         if (includeWater && Globals.draw_water) {
-            water.render(context, frustum_state, landscape_renderer.getVisiblePatches(), reflectionTexture, reflectionVP);
+            water.render(context, frustum_state, landscape_renderer.getVisiblePatches(), reflectionTexture, refractionTexture, reflectionVP);
         }
 
         if (Globals.process_misc)
@@ -323,6 +327,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         suppressTeamHighlight = frustum_state.inNoDetailMode();
         if (postProcessor.resize(frustum_state.getWidth(), frustum_state.getHeight())) {
             reflectionFBO.resize(frustum_state.getWidth(), frustum_state.getHeight());
+            refractionFBO.resize(frustum_state.getWidth(), frustum_state.getHeight());
             postProcessor.bindSceneFBO();
             context.clear(true, true);
         }
@@ -338,7 +343,16 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         modelViewStack.current().set(waterCamera.getModelView());
         reflectionFBO.bind();
         context.clear(true, true);
-        renderScene(context, waterCamera, gui_root, false, null, null, true);
+        renderScene(context, waterCamera, gui_root, false, null, null, null, true);
+
+        // Doing the same but for the sake of refraction
+        globalUniforms.update(frustum_state, sunDirection, ga, gga, LocalEventQueue.getQueue().getTime());
+        context.updateGlobalState(globalUniforms.getBuffer());
+        modelViewStack.current().set(frustum_state.getModelView());
+        projectionStack.current().set(frustum_state.getProjectionMatrix());
+        refractionFBO.bind();
+        context.clear(true, true);
+        renderScene(context, frustum_state, gui_root, false, null, null, null, false);
 
         globalUniforms.update(frustum_state, sunDirection, ga, gga, LocalEventQueue.getQueue().getTime());
         context.updateGlobalState(globalUniforms.getBuffer());
@@ -347,7 +361,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         projectionStack.current().set(frustum_state.getProjectionMatrix());
         postProcessor.bindSceneFBO();
         context.clear(true, true);
-        renderScene(context, frustum_state, gui_root, true, reflectionFBO.getColorTexture(), waterCamera.getProjectionModelView(), false);
+        renderScene(context, frustum_state, gui_root, true, reflectionFBO.getColorTexture(), refractionFBO.getColorTexture(), waterCamera.getProjectionModelView(), false);
     }
 
     @Override
