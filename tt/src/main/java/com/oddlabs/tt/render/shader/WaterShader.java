@@ -55,7 +55,10 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
                     out float v_fogDist;
                     out vec3 v_worldPos;
                     out vec4 v_reflectionClipPos;
-                    out vec4 v_refractionClipPos;
+                    out vec4 v_refractionPt0;
+                    out vec4 v_refractionPt1;
+                    out vec4 v_refractionPt2;
+                    out vec4 v_refractionPt3;
 
                     void main() {
                         vec3 worldPos = vec3(in_InstanceOffset + in_Position.xy, u_waterHeight + in_Position.z);
@@ -72,7 +75,14 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
 
                         v_fogDist = length(viewPosition.xyz);
                         v_reflectionClipPos = u_reflectionVP * vec4(worldPos, 1.0);
-                        v_refractionClipPos = u_refractionVP * vec4(worldPos, 1.0);
+
+                        vec3 tn0 = vec3(sin(u_globalTime * 4.0), cos(u_globalTime * 4.0), 0.0) * 0.5;
+                        vec3 tn1 = vec3(cos(u_globalTime * 3.1), sin(u_globalTime * 3.1), 0.0) * 0.5;
+                        vec3 tn2 = vec3(cos(u_globalTime * 1.4), sin(u_globalTime * 1.4), 0.0) * 0.5;
+                        v_refractionPt0 = u_refractionVP * vec4(worldPos, 1.0);
+                        v_refractionPt1 = u_refractionVP * vec4(worldPos + tn0, 1.0);
+                        v_refractionPt2 = u_refractionVP * vec4(worldPos + tn1, 1.0);
+                        v_refractionPt3 = u_refractionVP * vec4(worldPos + tn2, 1.0);
                     }
                     """;
 
@@ -96,7 +106,10 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
                             in float v_fogDist;
                             in vec3 v_worldPos;
                             in vec4 v_reflectionClipPos;
-                            in vec4 v_refractionClipPos;
+                            in vec4 v_refractionPt0;
+                            in vec4 v_refractionPt1;
+                            in vec4 v_refractionPt2;
+                            in vec4 v_refractionPt3;
 
                             layout(location = 0) out vec4 out_FragColor;
 
@@ -142,9 +155,11 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
                                     vec2 reflUV = v_reflectionClipPos.xy / v_reflectionClipPos.w * 0.5 + 0.5;
                                     reflUV += combinedGrad * 0.04;
                                     reflectionColor = texture(u_reflectionTexture, reflUV + temporalNoise).rgb;
-                                    vec2 refrUV = v_refractionClipPos.xy / v_refractionClipPos.w * 0.5 + 0.5;
-                                    vec2 refrOffset = temporalNoise;
-                                    refractionColor = (texture(u_refractionTexture, refrUV).rgb + texture(u_refractionTexture, refrUV - refrOffset).rgb + texture(u_refractionTexture, refrUV + refrOffset).rgb) * 0.333;
+                                    vec2 refrUV0 = v_refractionPt0.xy / v_refractionPt0.w * 0.5 + 0.5;
+                                    vec2 refrUV1 = v_refractionPt1.xy / v_refractionPt1.w * 0.5 + 0.5;
+                                    vec2 refrUV2 = v_refractionPt2.xy / v_refractionPt2.w * 0.5 + 0.5;
+                                    vec2 refrUV3 = v_refractionPt3.xy / v_refractionPt3.w * 0.5 + 0.5;
+                                    refractionColor = texture(u_refractionTexture, refrUV0).rgb * 0.5 + (texture(u_refractionTexture, refrUV1).rgb + texture(u_refractionTexture, refrUV2).rgb + texture(u_refractionTexture, refrUV3).rgb) * 0.16667;
                                 } else {
                                     reflectionColor = vec3(0.6, 0.7, 0.8);
                                     refractionColor = baseColor.rgb;
