@@ -658,7 +658,10 @@ public final strictfp class Ship extends Building implements Movable {
 
     public static final boolean doIsPlacingLegal(
             UnitGrid unit_grid, int grid_x, int grid_y, int size) {
-        for (int y = 0; y < size * 2 - 1; y++)
+        if (!unit_grid.isDockable(grid_x, grid_y)) {
+            return false;
+        }
+        for (int y = 0; y < size * 2 - 1; y++) {
             for (int x = 0; x < size * 2 - 1; x++) {
                 int current_grid_x = grid_x + x - (size - 1);
                 int current_grid_y = grid_y + y - (size - 1);
@@ -672,6 +675,7 @@ public final strictfp class Ship extends Building implements Movable {
                     return false;
                 }
             }
+        }
         return true;
     }
 
