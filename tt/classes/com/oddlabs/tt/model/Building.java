@@ -76,6 +76,10 @@ public abstract strictfp class Building extends Selectable implements Occupant {
 
     public abstract SupplyContainer getSupplyContainer(Class key);
 
+    public Building getEntrance() {
+        return this;
+    }
+
     public final int getUnitCount() {
         assert !isDead();
         return getUnitContainer().getNumSupplies();

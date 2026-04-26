@@ -259,7 +259,9 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
         mounted = false;
         mount_offset = 0;
         enable();
-        findInitialPosition(getPositionX(), getPositionY(), true);
+        Building entrance = mounted_building.getEntrance();
+        findInitialPosition(entrance.getPositionX(), entrance.getPositionY(), true);
+        mounted_building = null;
     }
 
     public final void mount(Building building) {
@@ -607,8 +609,7 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
     }
 
     public final boolean canEnter(Target target) {
-        if (!(target instanceof Building || target instanceof Ship)
-                || getAbilities().hasAbilities(Abilities.MAGIC)) {
+        if (!(target instanceof Building) || getAbilities().hasAbilities(Abilities.MAGIC)) {
             return false;
         }
         if (target instanceof Building) {
@@ -616,12 +617,8 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
             return building.getUnitContainer() != null
                     && getOwner() == building.getOwner()
                     && building.getUnitContainer().canEnter(this);
-        } else {
-            Ship ship = (Ship) target;
-            return ship.getUnitContainer() != null
-                    && getOwner() == ship.getOwner()
-                    && ship.getUnitContainer().canEnter(this);
         }
+        return false;
     }
 
     public final float getDefenseChance() {
@@ -641,6 +638,9 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
         if (target == this) return;
         assert !target.isDead() : "Setting dead target";
         assert !mounted;
+        if (target instanceof Building) {
+            target = ((Building) target).getEntrance();
+        }
         switch (action) {
             case Target.ACTION_DEFAULT:
                 if (canBuild(target)) {

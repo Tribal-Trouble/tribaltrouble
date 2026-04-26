@@ -14,7 +14,7 @@ public final strictfp class EnterController extends Controller {
     public EnterController(Unit unit, Building building) {
         super(1);
         this.unit = unit;
-        this.building = building;
+        this.building = building.getEntrance();
     }
 
     public final void decide() {

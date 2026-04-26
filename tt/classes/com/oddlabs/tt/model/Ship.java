@@ -21,7 +21,6 @@ import com.oddlabs.tt.particle.RandomVelocityEmitter;
 import com.oddlabs.tt.pathfinder.Movable;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.PathTracker;
-import com.oddlabs.tt.pathfinder.Region;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
@@ -91,7 +90,6 @@ public final strictfp class Ship extends Building implements Movable {
     private final LinearEmitter damaged_emitter;
     private final LinearEmitter production_emitter;
 
-    private Region last_region = null;
     private float remove_delay = 0;
     private int hit_points = 1;
     private int build_points = 0;
@@ -100,6 +98,8 @@ public final strictfp class Ship extends Building implements Movable {
     private Target rally_point = this;
 
     private final PathTracker path_tracker;
+
+    private ShipProxy proxy = null;
 
     private final ShipHR ship_hr = new ShipHR();
 
@@ -232,7 +232,7 @@ public final strictfp class Ship extends Building implements Movable {
                 best_gap_dy = sin;
             }
         }
-        setDirection((float) -best_gap_dy, (float) best_gap_dx);
+        setDirection((float) best_gap_dy, (float) -best_gap_dx);
     }
 
     public final float getOffsetZ() {
@@ -268,7 +268,7 @@ public final strictfp class Ship extends Building implements Movable {
                 if (deploy_containers[i] != null && deploy_containers[i].getNumSupplies() > 0)
                     num_deploying++;
             }
-            if (num_deploying > 0 && getLayer() == UnitGrid.LAND && !isMoving()) {
+            if (num_deploying > 0 && proxy != null && !isMoving()) {
                 float amount = t / num_deploying;
                 for (int i = 0; i < deploy_containers.length; i++) {
                     if (deploy_containers[i] != null && deploy_containers[i].getNumSupplies() > 0)
@@ -335,6 +335,47 @@ public final strictfp class Ship extends Building implements Movable {
 
     public final ShipHR getShipHR() {
         return ship_hr;
+    }
+
+    final ShipProxy getProxy() {
+        return proxy;
+    }
+
+    public Building getEntrance() {
+        return (proxy != null && !proxy.isDead()) ? proxy : this;
+    }
+
+    private void removeProxy() {
+        if (proxy != null && !proxy.isDead()) {
+            proxy.removeDying();
+        }
+        proxy = null;
+    }
+
+    private void createProxy() {
+        UnitGrid grid = getUnitGrid();
+        float half_length_meters =
+                (OCCUPY_LENGTH_CELLS + 8) * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
+        int cx = UnitGrid.toGridCoordinate(getPositionX() + getDirectionX() * half_length_meters);
+        int cy = UnitGrid.toGridCoordinate(getPositionY() + getDirectionY() * half_length_meters);
+        int grid_size = grid.getGridSize();
+        for (int radius = 0; radius <= 4; radius++) {
+            for (int dy = -radius; dy <= radius; dy++) {
+                for (int dx = -radius; dx <= radius; dx++) {
+                    int nx = cx + dx;
+                    int ny = cy + dy;
+                    if (nx < 0 || ny < 0 || nx >= grid_size || ny >= grid_size) {
+                        continue;
+                    }
+                    if (grid.getRegion(nx, ny, UnitGrid.LAND) != null
+                            && !grid.isGridOccupied(nx, ny, UnitGrid.LAND)) {
+                        proxy = new ShipProxy(nx, ny, this);
+                        proxy.place();
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     public final boolean canExitTower() {
@@ -642,6 +683,7 @@ public final strictfp class Ship extends Building implements Movable {
     protected final void setTarget(Target target, int action, boolean aggressive) {
         forceDecide();
         clearControllerStack();
+        removeProxy();
         pushController(new SailController(this, target));
         free();
         occupy();
@@ -665,11 +707,11 @@ public final strictfp class Ship extends Building implements Movable {
     }
 
     public final int getPenalty() {
-        assert !isDead();
         return Occupant.STATIC;
     }
 
     protected final void removeDying() {
+        removeProxy();
 
         pushController(new NullController(this));
         forceDecide();
@@ -795,18 +837,6 @@ public final strictfp class Ship extends Building implements Movable {
 
     public final void occupy() {
         UnitGrid grid = getUnitGrid();
-        Region region = grid.getRegion(getGridX(), getGridY(), UnitGrid.LAND);
-        if (region != null) {
-            setLayer(UnitGrid.LAND);
-            region.registerObject(Building.class, this);
-        } else {
-            region = grid.getRegion(getGridX(), getGridY(), UnitGrid.SEA);
-            setLayer(UnitGrid.SEA);
-            if (region != null) {
-                region.registerObject(Building.class, this);
-            }
-        }
-        last_region = region;
         float center_x = getPositionX();
         float center_y = getPositionY();
         float dir_x = getDirectionX();
@@ -842,13 +872,11 @@ public final strictfp class Ship extends Building implements Movable {
                 }
             }
         }
+
+        createProxy();
     }
 
     public final void free() {
-        if (last_region != null) {
-            last_region.unregisterObject(Building.class, this);
-            last_region = null;
-        }
         UnitGrid grid = getUnitGrid();
         float center_x = getPositionX();
         float center_y = getPositionY();
@@ -885,6 +913,7 @@ public final strictfp class Ship extends Building implements Movable {
                 }
             }
         }
+        removeProxy();
     }
 
     public final void hit(int damage, float dir_x, float dir_y, Player owner) {

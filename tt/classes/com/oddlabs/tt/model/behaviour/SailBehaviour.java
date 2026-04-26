@@ -3,6 +3,7 @@ package com.oddlabs.tt.model.behaviour;
 import com.oddlabs.tt.gui.ToolTipBox;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Ship;
+import com.oddlabs.tt.model.ShipProxy;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.StaticOccupant;
 import com.oddlabs.tt.pathfinder.UnitGrid;
@@ -883,7 +884,8 @@ public final strictfp class SailBehaviour implements Behaviour {
                     object = grid.getOccupant(check_grid_x, check_grid_y, UnitGrid.LAND);
                     if (object != null
                             && object instanceof Selectable
-                            && !(object instanceof StaticOccupant)) {
+                            && !(object instanceof StaticOccupant)
+                            && !(object instanceof ShipProxy)) {
                         Selectable selectable = (Selectable) object;
                         if (selectable != null && selectable != ship) {
                             return UNRESOLVABLE_COLLISION;
@@ -959,6 +961,20 @@ public final strictfp class SailBehaviour implements Behaviour {
 
         int new_x = UnitGrid.toGridCoordinate(new_pose.x);
         int new_y = UnitGrid.toGridCoordinate(new_pose.y);
+
+        TrajectoryPoint fromPoint = new TrajectoryPoint(ship);
+        TrajectoryPoint toPoint = new TrajectoryPoint(new_x, new_y, new_pose.z, new_pose.w);
+
+        if (!left_shore) {
+            if (!checkCollisionOnLine(fromPoint, fromPoint.moved(40), 10)) {
+                left_shore = true;
+            }
+        } else {
+            if (checkCollisionOnLine(fromPoint, fromPoint.moved(6), 6)) {
+                ship.endTrip();
+                return Selectable.DONE;
+            }
+        }
 
         ship.free();
         ship.setPosition(new_pose.x, new_pose.y);

@@ -90,7 +90,10 @@ public final strictfp class GatherController extends Controller {
             } else {
                 building_tracker =
                         new TargetTrackerAlgorithm(
-                                unit.getUnitGrid(), 0.0f, assigned_building, UnitGrid.LAND);
+                                unit.getUnitGrid(),
+                                0.0f,
+                                assigned_building.getEntrance(),
+                                UnitGrid.LAND);
             }
             unit.setBehaviour(new WalkBehaviour(unit, building_tracker, false));
         } else {
