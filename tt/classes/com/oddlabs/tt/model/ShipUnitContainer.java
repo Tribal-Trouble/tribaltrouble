@@ -22,6 +22,10 @@ public final strictfp class ShipUnitContainer extends UnitContainer {
         return getNumSupplies() + getNumPreparing();
     }
 
+    public int getNumSupplies() {
+        return building.getShipHR().countUnits();
+    }
+
     public final Unit exit() {
         assert getNumSupplies() > 0;
         increaseSupply(-1);

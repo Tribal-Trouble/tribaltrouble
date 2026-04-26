@@ -31,7 +31,7 @@ public strictfp class SupplyContainer {
         return supply_count == max_supply_count;
     }
 
-    public final int getNumSupplies() {
+    public int getNumSupplies() {
         return supply_count;
     }
 

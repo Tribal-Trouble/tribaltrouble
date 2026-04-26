@@ -158,6 +158,28 @@ public final strictfp class ShipHR {
         return null;
     }
 
+    public int countUnitsOfType(Class type) {
+        int result = 0;
+        for (int i = 0; i < NUM_UNITS; i++) {
+            Unit unit = units[i];
+            if (unit != null && unit.getWeaponFactory().getType() == type) {
+                result++;
+            }
+        }
+        return result;
+    }
+
+    public int countUnits() {
+        int result = 0;
+        for (int i = 0; i < NUM_UNITS; i++) {
+            Unit unit = units[i];
+            if (unit != null) {
+                result++;
+            }
+        }
+        return result;
+    }
+
     public int countPeons() {
         int result = 0;
         for (int i = 0; i < NUM_UNITS; i++) {

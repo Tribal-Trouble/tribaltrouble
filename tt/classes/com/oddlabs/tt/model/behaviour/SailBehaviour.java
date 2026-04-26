@@ -11,7 +11,6 @@ import com.oddlabs.util.Vector2f;
 import com.oddlabs.util.Vector4f;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public final strictfp class SailBehaviour implements Behaviour {
     private static final float SHIP_SPEED = 0.2f;

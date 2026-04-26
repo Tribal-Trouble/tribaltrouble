@@ -491,15 +491,24 @@ public final strictfp class Ship extends Building implements Movable {
                     supply_containers.put(IronSupply.class, iron_supply);
                     supply_containers.put(RubberSupply.class, rubber_supply);
 
-                    SupplyContainer rock_weapon_container = new SupplyContainer(MAX_SUPPLY_COUNT);
-                    supply_containers.put(RockAxeWeapon.class, rock_weapon_container);
-                    supply_containers.put(RockSpearWeapon.class, rock_weapon_container);
-                    SupplyContainer iron_weapon_container = new SupplyContainer(MAX_SUPPLY_COUNT);
-                    supply_containers.put(IronAxeWeapon.class, iron_weapon_container);
-                    supply_containers.put(IronSpearWeapon.class, iron_weapon_container);
-                    SupplyContainer rubber_weapon_container = new SupplyContainer(MAX_SUPPLY_COUNT);
-                    supply_containers.put(RubberAxeWeapon.class, rubber_weapon_container);
-                    supply_containers.put(RubberSpearWeapon.class, rubber_weapon_container);
+                    supply_containers.put(
+                            RockAxeWeapon.class,
+                            new ShipSupplyContainer(ship_hr, RockAxeWeapon.class));
+                    supply_containers.put(
+                            RockSpearWeapon.class,
+                            new ShipSupplyContainer(ship_hr, RockSpearWeapon.class));
+                    supply_containers.put(
+                            IronAxeWeapon.class,
+                            new ShipSupplyContainer(ship_hr, IronAxeWeapon.class));
+                    supply_containers.put(
+                            IronSpearWeapon.class,
+                            new ShipSupplyContainer(ship_hr, IronSpearWeapon.class));
+                    supply_containers.put(
+                            RubberAxeWeapon.class,
+                            new ShipSupplyContainer(ship_hr, RubberAxeWeapon.class));
+                    supply_containers.put(
+                            RubberSpearWeapon.class,
+                            new ShipSupplyContainer(ship_hr, RubberSpearWeapon.class));
 
                     ShipDeployContainer rock_warrior_container =
                             new ShipDeployContainer(
