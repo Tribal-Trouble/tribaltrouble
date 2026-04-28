@@ -45,8 +45,10 @@ public class DiscordChatroomCoordinator {
      * @param chatroom
      */
     public void removeChatroom(ChatRoom chatroom) {
-        discordMessageSubscriptions.get(chatroom).dispose();
-        discordMessageSubscriptions.remove(chatroom);
+        Disposable subscription = discordMessageSubscriptions.remove(chatroom);
+        if (subscription != null) {
+            subscription.dispose();
+        }
         chatRoomChannels.remove(chatroom);
     }
 
