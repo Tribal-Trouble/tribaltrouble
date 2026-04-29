@@ -21,6 +21,8 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static org.lwjgl.glfw.GLFW.GLFW_DECORATED;
@@ -76,6 +78,8 @@ import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 
 public final class LWJGL3Window implements Window {
+
+    private static final Logger logger = Logger.getLogger(LWJGL3Window.class.getName());
 
     private long windowHandle = MemoryUtil.NULL;
     private @NonNull String title = "Tribal Trouble";
@@ -263,32 +267,52 @@ public final class LWJGL3Window implements Window {
     public void setIcon(@NonNull Path imagePath) {
         if (windowHandle == MemoryUtil.NULL) return;
 
-        String os = System.getProperty("os.name").toLowerCase();
-        if (os.contains("mac")) {
-            return;
+        String os = System.getProperty("os.name", "").toLowerCase();
+        boolean isMac = os.contains("mac");
+
+        // GLFW window icon — Windows + Linux. (GLFW does not affect the macOS dock.)
+        if (!isMac) {
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                IntBuffer w = stack.mallocInt(1);
+                IntBuffer h = stack.mallocInt(1);
+                IntBuffer comp = stack.mallocInt(1);
+
+                ByteBuffer image = STBImage.stbi_load(imagePath.toString(), w, h, comp, 4);
+                if (image == null) {
+                    logger.warning(() -> "Failed to load icon: " + imagePath
+                            + " Reason: " + STBImage.stbi_failure_reason());
+                    return;
+                }
+
+                GLFWImage.Buffer icons = GLFWImage.malloc(1, stack);
+                icons.position(0);
+                icons.width(w.get(0));
+                icons.height(h.get(0));
+                icons.pixels(image);
+
+                glfwSetWindowIcon(windowHandle, icons);
+
+                STBImage.stbi_image_free(image);
+            }
+        } else {
+            // macOS dock icon — GLFW does not handle it; AWT does.
+            setMacDockIconIfPossible(imagePath);
         }
+    }
 
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            IntBuffer w = stack.mallocInt(1);
-            IntBuffer h = stack.mallocInt(1);
-            IntBuffer comp = stack.mallocInt(1);
-
-            // STBImage requires absolute path or relative to CWD.
-            ByteBuffer image = STBImage.stbi_load(imagePath.toString(), w, h, comp, 4);
-            if (image == null) {
-                System.err.println("Failed to load icon: " + imagePath + " Reason: " + STBImage.stbi_failure_reason());
+    private static void setMacDockIconIfPossible(@NonNull Path imagePath) {
+        try {
+            if (!java.awt.Taskbar.isTaskbarSupported()) return;
+            java.awt.Taskbar tb = java.awt.Taskbar.getTaskbar();
+            if (!tb.isSupported(java.awt.Taskbar.Feature.ICON_IMAGE)) return;
+            java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(imagePath.toFile());
+            if (img == null) {
+                logger.warning(() -> "Failed to decode macOS dock icon: " + imagePath);
                 return;
             }
-
-            GLFWImage.Buffer icons = GLFWImage.malloc(1, stack);
-            icons.position(0);
-            icons.width(w.get(0));
-            icons.height(h.get(0));
-            icons.pixels(image);
-
-            glfwSetWindowIcon(windowHandle, icons);
-
-            STBImage.stbi_image_free(image);
+            tb.setIconImage(img);
+        } catch (java.io.IOException | UnsupportedOperationException | SecurityException e) {
+            logger.log(Level.WARNING, "macOS dock icon could not be set", e);
         }
     }
 

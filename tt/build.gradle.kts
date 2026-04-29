@@ -113,6 +113,7 @@ val packageWindows by tasks.registering(Exec::class) {
         "--java-options",
         "-ea -Djdk.crypto.KeyAgreement.legacyKDF=true -Xmx512m -cp \$APPDIR\\;\$APPDIR\\*",
         "--type", "app-image",
+        "--icon", rootProject.file("assets/icons/tribaltrouble.ico").absolutePath,
     )
 }
 
@@ -140,6 +141,7 @@ fun registerMacPackage(
         "--java-options",
         "-ea -XstartOnFirstThread -cp \$APPDIR:\$APPDIR/* -Djdk.crypto.KeyAgreement.legacyKDF=true",
         "--type", jpackageType,
+        "--icon", rootProject.file("assets/icons/tribaltrouble.icns").absolutePath,
     )
 }
 
@@ -166,9 +168,11 @@ val packageLinux by tasks.registering {
         appDirFile.resolve("usr/lib").mkdirs()
 
         val appImageSrc = project.projectDir.resolve("linux/TribalTrouble.AppDir")
-        listOf("AppRun", "icon.png", "TribalTrouble.desktop").forEach { f ->
+        listOf("AppRun", "TribalTrouble.desktop").forEach { f ->
             appImageSrc.resolve(f).copyTo(appDirFile.resolve(f), overwrite = true)
         }
+        rootProject.file("assets/icons/icon.png")
+            .copyTo(appDirFile.resolve("icon.png"), overwrite = true)
         appDirFile.resolve("AppRun").setExecutable(true)
 
         distCommon.get().asFile.copyRecursively(appDirFile.resolve("common"), overwrite = true)

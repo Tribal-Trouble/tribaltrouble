@@ -3,6 +3,8 @@ package com.oddlabs.tt.window;
 import com.oddlabs.tt.render.SerializableDisplayMode;
 import org.jspecify.annotations.NonNull;
 
+import java.nio.file.Path;
+
 public interface Window extends AutoCloseable {
     void create(@NonNull SerializableDisplayMode mode, boolean fullscreen);
 
@@ -69,7 +71,14 @@ public interface Window extends AutoCloseable {
 
     void setDisplayMode(@NonNull SerializableDisplayMode mode) throws Exception;
 
-    void setIcon(java.nio.file.Path imagePath);
+    /**
+     * Sets the window icon used by the OS for the title bar, taskbar, alt-tab,
+     * and (on macOS) the dock.
+     *
+     * @param imagePath path to a PNG icon. The same image is used for the macOS
+     *     dock via java.awt.Taskbar since GLFW does not affect that surface.
+     */
+    void setIcon(@NonNull Path imagePath);
 
     void restore();
 
