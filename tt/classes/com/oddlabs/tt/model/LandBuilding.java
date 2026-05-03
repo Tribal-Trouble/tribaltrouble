@@ -847,7 +847,7 @@ public final strictfp class LandBuilding extends Building {
 
     public final void occupy() {
         UnitGrid grid = getUnitGrid();
-        grid.getRegion(getGridX(), getGridY(), UnitGrid.LAND).registerObject(getClass(), this);
+        grid.getRegion(getGridX(), getGridY(), UnitGrid.LAND).registerObject(Building.class, this);
         int size = getBuildingTemplate().getPlacingSize() * 2 - 1;
         for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++)
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
@@ -858,7 +858,8 @@ public final strictfp class LandBuilding extends Building {
 
     public final void free() {
         UnitGrid grid = getUnitGrid();
-        grid.getRegion(getGridX(), getGridY(), UnitGrid.LAND).unregisterObject(getClass(), this);
+        grid.getRegion(getGridX(), getGridY(), UnitGrid.LAND)
+                .unregisterObject(Building.class, this);
         int size = getBuildingTemplate().getPlacingSize() * 2 - 1;
         for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++)
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
