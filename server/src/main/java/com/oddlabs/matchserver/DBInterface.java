@@ -5,7 +5,6 @@ import com.oddlabs.matchmaking.GamePlayer;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.Login;
 import com.oddlabs.matchmaking.LoginDetails;
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.Participant;
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.matchmaking.RankingEntry;
@@ -277,107 +276,62 @@ public final class DBInterface {
         }
     }
 
-    public static String getOrCreateSteamProfile(long steamId, String personaName) {
-        // 1. Check if registration already exists for this Steam ID
-        int regId;
-        String existingNick = null;
+    public static String getOrCreateSteamRegistration(long steamId) {
+        // Look up existing registration by Steam ID
         boolean isBannedOrDisabled = false;
+        String existingUsername = null;
 
         try (Connection conn = DBUtils.createDatabaseConnection();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT id, username, banned, disabled FROM registrations WHERE steam_id = ?")) {
+                     "SELECT username, banned, disabled FROM registrations WHERE steam_id = ?")) {
             stmt.setLong(1, steamId);
             try (ResultSet result = stmt.executeQuery()) {
                 if (result.next()) {
-                    // Registration exists - check if banned/disabled
                     boolean banned = result.getBoolean("banned");
                     boolean disabled = result.getBoolean("disabled");
                     if (banned || disabled) {
-                        // Banned/disabled - don't allow login (same as queryUser behavior)
                         isBannedOrDisabled = true;
-                        regId = -1;
                     } else {
-                        // Valid registration
-                        regId = result.getInt("id");
-                        existingNick = result.getString("username").trim();
+                        existingUsername = result.getString("username").trim();
                     }
-                } else {
-                    // Registration doesn't exist, need to create it
-                    regId = -1;
                 }
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getOrCreateSteamProfile", e);
+                    .throwing(DBInterface.class.getName(), "getOrCreateSteamRegistration", e);
             throw new RuntimeException(e);
         }
 
-        // If banned/disabled, return null (Authenticator will handle error)
         if (isBannedOrDisabled) {
             return null;
         }
-
-        // 2. If registration doesn't exist, create it
-        if (regId == -1) {
-            String nick = NickUtils.generateSteamNick(personaName, steamId);
-            String email = "steam_" + steamId + "@steam.internal";
-
-            try (Connection conn = DBUtils.createDatabaseConnection();
-                 PreparedStatement stmt = conn.prepareStatement(
-                         "INSERT INTO registrations (username, email, password, steam_id,"
-                                 + " disabled, banned) VALUES (?, ?, 'LOCKED', ?, 0, 0)")) {
-                stmt.setString(1, nick);
-                stmt.setString(2, email);
-                stmt.setLong(3, steamId);
-                int row_count = stmt.executeUpdate();
-                assert row_count == 1;
-            } catch (SQLException e) {
-                System.out.println("Exception: " + e);
-                MatchmakingServer.getLogger()
-                        .throwing(DBInterface.class.getName(), "getOrCreateSteamProfile", e);
-                throw new RuntimeException(e);
-            }
-
-            // Get the newly created registration ID
-            regId = getRegID(nick);
-            existingNick = nick;
+        if (existingUsername != null) {
+            return existingUsername;
         }
 
-        // 3. Check if profile exists for this registration, if not create it
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT nick FROM profiles WHERE reg_id = ?")) {
-            stmt.setInt(1, regId);
-            try (ResultSet result = stmt.executeQuery()) {
-                if (result.next()) {
-                    // Profile already exists
-                    return result.getString("nick").trim();
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getOrCreateSteamProfile", e);
-            throw new RuntimeException(e);
-        }
+        // No registration yet — create one. Profile is left unset; the client will
+        // be routed to the profile-creation screen so the player picks their own nick.
+        String username = "steam_" + steamId;
+        String email = "steam_" + steamId + "@steam.internal";
 
-        // 4. Create profile
         try (Connection conn = DBUtils.createDatabaseConnection();
              PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT INTO profiles (reg_id, nick, rating, wins, losses, invalid)"
-                             + " VALUES (?, ?, 1000, 0, 0, 0)")) {
-            stmt.setInt(1, regId);
-            stmt.setString(2, existingNick);
+                     "INSERT INTO registrations (username, email, password, steam_id,"
+                             + " disabled, banned) VALUES (?, ?, 'LOCKED', ?, 0, 0)")) {
+            stmt.setString(1, username);
+            stmt.setString(2, email);
+            stmt.setLong(3, steamId);
             int row_count = stmt.executeUpdate();
             assert row_count == 1;
-            return existingNick;
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getOrCreateSteamProfile", e);
+                    .throwing(DBInterface.class.getName(), "getOrCreateSteamRegistration", e);
             throw new RuntimeException(e);
         }
+
+        return username;
     }
 
     public static String getProfileNickBySteamId(long steamId) {

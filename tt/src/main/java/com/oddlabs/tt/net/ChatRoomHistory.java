@@ -1,7 +1,6 @@
 package com.oddlabs.tt.net;
 
 import com.oddlabs.matchmaking.ChatRoomUser;
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.tt.gui.ChatPanel;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -28,12 +27,12 @@ public final class ChatRoomHistory extends ChatHistory {
         Set<ChatRoomUser> joined_users = new HashSet<>(new_users_set);
         joined_users.removeAll(old_users_set);
         for (ChatRoomUser user : joined_users) {
-            addMessage(i18n("user_joined", NickUtils.toDisplayName(user.getNick())));
+            addMessage(i18n("user_joined", user.getNick()));
         }
         Set<ChatRoomUser> left_users = new HashSet<>(old_users_set);
         left_users.removeAll(new_users_set);
         for (ChatRoomUser user : left_users) {
-            addMessage(i18n("user_left", NickUtils.toDisplayName(user.getNick())));
+            addMessage(i18n("user_left", user.getNick()));
         }
     }
 

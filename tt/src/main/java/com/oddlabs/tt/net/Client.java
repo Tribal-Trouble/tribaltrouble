@@ -1,7 +1,6 @@
 package com.oddlabs.tt.net;
 
 import com.oddlabs.matchmaking.Game;
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.net.ARMIEvent;
 import com.oddlabs.net.ARMIEventBroker;
@@ -91,7 +90,7 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
     @Override
     public void chat(int player_slot, @Nullable String chat) {
         if (chat != null && player_slot >= 0 && player_slot < player_slots.length)
-            Network.getChatHub().chat(new ChatMessage(NickUtils.toDisplayName(player_slots[player_slot].getInfo().getName()), chat, ChatMessage.Type.GAME_MENU));
+            Network.getChatHub().chat(new ChatMessage(player_slots[player_slot].getInfo().getName(), chat, ChatMessage.Type.GAME_MENU));
     }
 
     @Override

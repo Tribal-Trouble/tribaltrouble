@@ -1,7 +1,6 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.Game;
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.net.NetworkSelector;
@@ -163,7 +162,7 @@ public final class TerrainMenu extends Group {
         editline_name = new EditLine(180, Game.MAX_LENGTH);
         if (multiplayer) {
             standard.addChild(label_name);
-            String default_name = i18n("default_name", NickUtils.toDisplayName(Network.getMatchmakingClient().getProfile().getNick()));
+            String default_name = i18n("default_name", Network.getMatchmakingClient().getProfile().getNick());
             label_default_name = new Label(default_name, Skin.getSkin().getEditFont());
             editline_name.append(default_name);
             if (Renderer.isRegistered())

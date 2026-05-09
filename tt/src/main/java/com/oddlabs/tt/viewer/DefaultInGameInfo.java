@@ -1,6 +1,5 @@
 package com.oddlabs.tt.viewer;
 
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.tt.delegate.GameStatsDelegate;
 import com.oddlabs.tt.delegate.InGameMainMenu;
 import com.oddlabs.tt.delegate.Menu;
@@ -90,7 +89,7 @@ public class DefaultInGameInfo implements InGameInfo {
         var nameLabels = new java.util.ArrayList<Label>();
         int largestLabel = 0;
         for (Player player : players) {
-            Label name = new Label(NickUtils.toDisplayName(player.getPlayerInfo().getName()), Skin.getSkin().getHeadlineFont());
+            Label name = new Label(player.getPlayerInfo().getName(), Skin.getSkin().getHeadlineFont());
             nameLabels.add(name);
             if (name.getWidth() > largestLabel)
                 largestLabel = name.getWidth();

@@ -1,6 +1,5 @@
 package com.oddlabs.matchserver.discord.commands;
 
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.matchserver.DBInterface;
 import com.oddlabs.matchserver.WebsiteLinkHelper;
@@ -56,8 +55,8 @@ public class MatchupCommand extends DiscordCommand {
 
         VersusMatchupResultModel matchupResult =
                 DBInterface.getMatchupStats(player1, player2, true);
-        String displayPlayer1 = NickUtils.toDisplayName(player1);
-        String displayPlayer2 = NickUtils.toDisplayName(player2);
+        String displayPlayer1 = player1;
+        String displayPlayer2 = player2;
         EmbedCreateSpec.Builder builder =
                 EmbedCreateSpec.builder()
                         .color(Color.ORANGE)
@@ -93,7 +92,7 @@ public class MatchupCommand extends DiscordCommand {
             String formattedTime = sdf.format(startTime);
 
             String field_value =
-                    String.format("Winner: %s", NickUtils.toDisplayName(matchup.getWinner()));
+                    String.format("Winner: %s", matchup.getWinner());
             field_value += String.format("\nStart time: %s", formattedTime);
             if (matchup.getGameReplayUrl() != null) {
                 field_value += String.format("\n[Watch Replay](%s)", matchup.getGameReplayUrl());

@@ -1,6 +1,5 @@
 package com.oddlabs.matchserver.discord;
 
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchserver.ChatRoom;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
@@ -195,7 +194,7 @@ public class DiscordChatroomCoordinator {
     }
 
     private String formatChat(String owner, String message) {
-        return "<" + NickUtils.toDisplayName(owner) + "> " + message;
+        return "<" + owner + "> " + message;
     }
 
     private void LogDebug(String message) {

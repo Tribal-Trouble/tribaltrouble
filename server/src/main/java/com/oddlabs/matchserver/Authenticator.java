@@ -171,15 +171,15 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
             return;
         }
 
-        String nick = DBInterface.getOrCreateSteamProfile(steamAccountId, personaName);
-        if (nick == null) {
+        String username = DBInterface.getOrCreateSteamRegistration(steamAccountId);
+        if (username == null) {
             client_interface.loginError(MatchmakingClientInterface.USER_ERROR_NO_SUCH_USER);
-            MatchmakingServer.getLogger().warning("getOrCreateSteamProfile returned null for account ID: " + steamAccountId);
+            MatchmakingServer.getLogger().warning("getOrCreateSteamRegistration returned null for account ID: " + steamAccountId);
             return;
         }
 
-        MatchmakingServer.getLogger().info("Steam login success: " + nick);
-        doLogin(nick, revision);
+        MatchmakingServer.getLogger().info("Steam login success: " + username);
+        doLogin(username, revision);
     }
 
     private boolean revisionOK(int revision) {

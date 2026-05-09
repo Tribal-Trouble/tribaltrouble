@@ -2,7 +2,6 @@ package com.oddlabs.matchserver.discord;
 
 import com.oddlabs.matchmaking.GamePlayer;
 import com.oddlabs.matchmaking.GameSession;
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.PlayerTypes;
 import com.oddlabs.matchserver.DBInterface;
 import com.oddlabs.matchserver.WebsiteLinkHelper;
@@ -35,7 +34,7 @@ public class DiscordEmbedCreator {
             if (!currentTeamList.isEmpty()) {
                 currentTeamList += ", ";
             }
-            currentTeamList += NickUtils.toDisplayName(player.getNick());
+            currentTeamList += player.getNick();
             teamPlayers.put(team, currentTeamList);
         }
         return teamPlayers;
@@ -48,7 +47,7 @@ public class DiscordEmbedCreator {
         for (GamePlayer player : players) {
             if (player.getPlayerType() == PlayerTypes.Human) {
                 if (allNicks.length() > 0) {
-                    allNicks.add(NickUtils.toDisplayName(player.getNick()));
+                    allNicks.add(player.getNick());
                 }
             }
         }

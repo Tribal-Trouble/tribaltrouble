@@ -1,6 +1,5 @@
 package com.oddlabs.matchserver.discord.commands;
 
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.RankingEntry;
 import com.oddlabs.matchserver.DBInterface;
 import com.oddlabs.matchserver.ServerConfiguration;
@@ -61,10 +60,10 @@ public class RankCommand extends DiscordCommand {
         EmbedCreateSpec.Builder builder =
                 EmbedCreateSpec.builder()
                         .color(Color.BLUE)
-                        .title(String.format("%s ranking", NickUtils.toDisplayName(nick)));
+                        .title(String.format("%s ranking", nick));
 
         for (RankingEntry entry : rankingEntry) {
-            String displayName = NickUtils.toDisplayName(entry.getName());
+            String displayName = entry.getName();
             String profileLink = WebsiteLinkHelper.getProfileLink("Profile", entry.getName());
             builder.addField(
                     String.format(

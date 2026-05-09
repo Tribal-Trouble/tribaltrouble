@@ -1,6 +1,5 @@
 package com.oddlabs.matchserver.discord.commands;
 
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.RankingEntry;
 import com.oddlabs.matchserver.DBInterface;
 import com.oddlabs.matchserver.WebsiteLinkHelper;
@@ -87,7 +86,7 @@ public class LeaderboardsCommand extends DiscordCommand {
                                                         i + startInt + 25,
                                                         i + startInt + ranks.length));
                 for (int j = i; j < Math.min(i + 25, ranks.length); j++) {
-                    String name = NickUtils.toDisplayName(ranks[j].getName());
+                    String name = ranks[j].getName();
                     String title = String.format("%d. %s", j + startInt + 1, name);
                     String message =
                             String.format(

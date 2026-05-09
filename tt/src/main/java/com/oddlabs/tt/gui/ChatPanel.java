@@ -1,7 +1,6 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.matchmaking.ChatRoomUser;
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.tt.form.PrivateMessageForm;
 import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.guievent.ItemChosenListener;
@@ -131,7 +130,7 @@ public class ChatPanel extends Panel implements ChatListener {
             playing_users_list_box.clear();
             for (ChatRoomUser user : users) {
                 int label_width = user_list_width - (Skin.getSkin().getMultiColumnComboBoxData().box().getLeftOffset() + Skin.getSkin().getMultiColumnComboBoxData().box().getRightOffset());
-                Label label = new Label(NickUtils.toDisplayName(user.getNick()), Skin.getSkin().getMultiColumnComboBoxData().font(), label_width);
+                Label label = new Label(user.getNick(), Skin.getSkin().getMultiColumnComboBoxData().font(), label_width);
                 Row<ChatRoomUser, Label> row = new Row<>(new Label[]{label}, user);
                 if (!user.isPlaying()) {
                     lobby_users_list_box.addRow(row);

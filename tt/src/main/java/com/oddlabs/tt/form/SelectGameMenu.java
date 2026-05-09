@@ -1,7 +1,6 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.ChatRoomEntry;
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.GameHost;
 import com.oddlabs.matchmaking.GameSession;
@@ -11,8 +10,6 @@ import com.oddlabs.matchmaking.RankingEntry;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.font.Font;
-import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.gui.ChatPanel;
 import com.oddlabs.tt.gui.ChatRoomInfo;
 import com.oddlabs.tt.gui.ColumnInfo;
@@ -239,12 +236,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         updateList(MatchmakingServerInterface.TYPE_RANKING_LIST);
 
         profiles_form = new ProfilesForm(gui_root, main_menu, this);
-        if (Settings.getSettings().isOfficialServer() && SteamManager.getInstance() != null) {
-            // Steam users: profile was auto-created on login, set it directly
-            String nick = Network.getMatchmakingClient().getUsername();
-            Network.getMatchmakingClient().setProfile(nick);
-            main_menu.setMenuCentered(this);
-        } else if (Network.getMatchmakingClient().getProfile() == null) {
+        if (Network.getMatchmakingClient().getProfile() == null) {
             main_menu.setMenuCentered(profiles_form);
             Network.getMatchmakingClient().requestProfiles();
         } else {
@@ -393,7 +385,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
     private void updateRankingList(@NonNull RankingEntry ranking) {
         Row<RankingEntry, Label> row = new Row<>(new Label[]{
                 new IntegerLabel(ranking.getRanking(), Skin.getSkin().getMultiColumnComboBoxData().font()),
-                new Label(NickUtils.toDisplayName(ranking.getName()), Skin.getSkin().getMultiColumnComboBoxData().font(), user_name_size),
+                new Label(ranking.getName(), Skin.getSkin().getMultiColumnComboBoxData().font(), user_name_size),
                 new IntegerLabel(ranking.getRating(), Skin.getSkin().getMultiColumnComboBoxData().font()),
                 new IntegerLabel(ranking.getWins(), Skin.getSkin().getMultiColumnComboBoxData().font()),
                 new IntegerLabel(ranking.getLosses(), Skin.getSkin().getMultiColumnComboBoxData().font()),
