@@ -51,6 +51,19 @@ public class GraphicsPanel extends Panel {
         cb_fullscreen.place();
         group_fullscreen.compileCanvas();
 
+        // Confine cursor
+        Group group_confine_cursor = new Group();
+        addChild(group_confine_cursor);
+        CheckBox cb_confine_cursor = new CheckBox(Settings.getSettings().confine_cursor, AbstractOptionsMenu.i18n("confine_cursor"), AbstractOptionsMenu.i18n("confine_cursor_tip"));
+        cb_confine_cursor.addCheckBoxListener(marked -> {
+            Settings.getSettings().confine_cursor = marked;
+            var input = Renderer.getLocalInput().getInputProvider();
+            input.setGrabbed(input.isGrabbed());
+        });
+        group_confine_cursor.addChild(cb_confine_cursor);
+        cb_confine_cursor.place();
+        group_confine_cursor.compileCanvas();
+
         // UI Scale
         Group group_ui_scale = new Group();
         addChild(group_ui_scale);
@@ -160,6 +173,7 @@ public class GraphicsPanel extends Panel {
         group_detail.place(mode_group, RIGHT_TOP);
         group_ui_scale.place(group_detail, BOTTOM_LEFT);
         group_fullscreen.place(group_ui_scale, BOTTOM_LEFT);
+        group_confine_cursor.place(group_fullscreen, BOTTOM_LEFT);
         compileCanvas();
     }
 
