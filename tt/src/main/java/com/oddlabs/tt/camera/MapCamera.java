@@ -25,6 +25,7 @@ public final class MapCamera extends Camera {
     private static final float MAP_TIME_FACTOR = 1000f;
     private static final float SMOOTHNESS_FACTOR = 200f;
     public static final float MAP_Z_FACTOR = 1.3f;
+    private static final float LANDING_DISTANCE = 50f;
 
     private static final Set<GameAction> BLOCKED_ACTIONS = EnumSet.of(
             GameAction.CAMERA_PAN_LEFT,
@@ -180,18 +181,21 @@ public final class MapCamera extends Camera {
 
     public void mapGoto(float x, float y, boolean override) {
         if (map_mode == MapMode.IN_MAP || override) {
-            //	float radius = (float)Math.cos(getVertAngle());
-            //	float old_dir_x = (float)Math.cos(getHorizAngle())*radius;
-            //	float old_dir_y = (float)Math.sin(getHorizAngle())*radius;
-            //	float old_dir_z = (float)Math.sin(getVertAngle());
-            float radius = (float) Math.cos(original_camera_state.getTargetVertAngle());
+            // Land the eye near the click using a default 45° angle and the game's
+            // initial view distance, so the landing spot is sensible regardless of
+            // the user's prior tilt or how stale distance_to_landscape was. The saved
+            // tilt is then reapplied by the FROM_MAP transition animating vertAngle
+            // back to the original value.
+            float landing_angle = -(float) Math.PI / 4f;
+            float landing_distance = LANDING_DISTANCE;
+            float radius = (float) Math.cos(landing_angle);
             float old_dir_x = (float) Math.cos(getState().getHorizAngle()) * radius;
             float old_dir_y = (float) Math.sin(getState().getHorizAngle()) * radius;
-            float old_dir_z = (float) Math.sin(original_camera_state.getTargetVertAngle());
+            float old_dir_z = (float) Math.sin(landing_angle);
             // Adjust the position of the original camera.
-            original_camera_state.setTargetX(x - old_dir_x * distance_to_landscape);
-            original_camera_state.setTargetY(y - old_dir_y * distance_to_landscape);
-            original_camera_state.setTargetZ(getHeightMap().getNearestHeight(x, y) - old_dir_z * distance_to_landscape);
+            original_camera_state.setTargetX(x - old_dir_x * landing_distance);
+            original_camera_state.setTargetY(y - old_dir_y * landing_distance);
+            original_camera_state.setTargetZ(getHeightMap().getNearestHeight(x, y) - old_dir_z * landing_distance);
             changeMode(MapMode.FROM_MAP);
         }
     }
