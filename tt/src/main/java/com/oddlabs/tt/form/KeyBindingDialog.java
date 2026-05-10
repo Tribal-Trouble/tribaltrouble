@@ -12,6 +12,7 @@ import com.oddlabs.tt.input.InputBinding;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.input.Key;
+import com.oddlabs.tt.input.KeyBindingConflicts;
 import com.oddlabs.tt.input.Modifier;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
@@ -98,6 +99,20 @@ public class KeyBindingDialog extends Form {
                 if (event.isControlDown()) modifiers.add(Modifier.CONTROL);
                 if (event.isMetaDown()) modifiers.add(Modifier.META);
                 InputBinding binding = new InputBinding(key, modifiers, action);
+
+                GameAction conflict = KeyBindingConflicts.findConflict(action, binding, Renderer.getLocalInput().getInputManager());
+                if (conflict != null) {
+                    String otherName;
+                    try {
+                        otherName = AbstractOptionsMenu.i18n("action." + conflict.name());
+                    } catch (Exception e) {
+                        otherName = conflict.name();
+                    }
+                    guiRoot.addModalForm(new MessageForm(AbstractOptionsMenu.i18n("conflict_title"), AbstractOptionsMenu.i18n("conflict_message", otherName)));
+                    event.consume();
+                    return;
+                }
+
                 onBindingChosen.accept(List.of(binding));
                 remove();
                 event.consume();

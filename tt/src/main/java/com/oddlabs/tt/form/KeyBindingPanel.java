@@ -16,15 +16,19 @@ import com.oddlabs.tt.gui.SortedLabel;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputBinding;
+import com.oddlabs.tt.input.KeyBindingConflicts;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.util.Color;
+import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +38,46 @@ import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 public class KeyBindingPanel extends Panel {
     private static final int COL_ACTION_WIDTH = 200;
     private static final int COL_BINDINGS_WIDTH = 300;
+    private static final Vector4f CONFLICT_COLOR = new Vector4f(1.0f, 0.3f, 0.3f, 1.0f);
+    private static final Vector4f HEADER_COLOR = new Vector4f(0.9f, 0.75f, 0.4f, 1.0f);
+    private static final int CATEGORY_STRIDE = 10_000;
+
+    private enum Category {
+        GENERAL("category.general"),
+        CAMERA("category.camera"),
+        UI("category.ui"),
+        UNIT("category.unit"),
+        ARMY_GROUPS("category.army_groups"),
+        PRODUCTION("category.production"),
+        TRAINING("category.training"),
+        RESOURCES("category.resources"),
+        MAGIC("category.magic"),
+        GAME("category.game"),
+        CHEATS("category.cheats"),
+        DEBUG("category.debug");
+
+        final @NonNull String i18nKey;
+
+        Category(@NonNull String i18nKey) {
+            this.i18nKey = i18nKey;
+        }
+    }
+
+    private static @NonNull Category categorize(@NonNull GameAction action) {
+        String name = action.name();
+        if (name.startsWith("CAMERA_")) return Category.CAMERA;
+        if (name.startsWith("UI_")) return Category.UI;
+        if (name.startsWith("ARMY_")) return Category.ARMY_GROUPS;
+        if (name.startsWith("PROD_")) return Category.PRODUCTION;
+        if (name.startsWith("TRAIN_")) return Category.TRAINING;
+        if (name.startsWith("RES_")) return Category.RESOURCES;
+        if (name.startsWith("MAGIC_")) return Category.MAGIC;
+        if (name.startsWith("CHEAT_")) return Category.CHEATS;
+        if (name.startsWith("DEBUG_")) return Category.DEBUG;
+        if (name.startsWith("UNIT_") || name.equals("GAMEPLAY_BACK")) return Category.UNIT;
+        if (name.startsWith("GAME_SPEED_") || name.equals("NOTIFICATION_JUMP")) return Category.GAME;
+        return Category.GENERAL;
+    }
 
     private final @NonNull MultiColumnComboBox<GameAction> list_box;
     private final @NonNull GUIRoot gui_root;
@@ -93,7 +137,10 @@ public class KeyBindingPanel extends Panel {
     }
 
     private void updateList() {
+        int savedOffset = list_box.getOffsetY();
         list_box.clear();
+
+        EnumMap<Category, List<GameAction>> byCategory = new EnumMap<>(Category.class);
         for (GameAction action : GameAction.values()) {
             if (action.name().startsWith("DEBUG_") && !Settings.getSettings().inDeveloperMode()) {
                 continue;
@@ -101,41 +148,65 @@ public class KeyBindingPanel extends Panel {
             if (action.name().startsWith("CHEAT_") && !Renderer.getRenderer().isCheater()) {
                 continue;
             }
-            String name;
-            try {
-                name = AbstractOptionsMenu.i18n("action." + action.name());
-            } catch (Exception e) {
-                name = action.name();
-            }
-
-            List<InputBinding> bindings = Renderer.getLocalInput().getInputManager().getBindings(action);
-            Label l2;
-
-            if (bindings.isEmpty()) {
-                l2 = new InvertedLabel(AbstractOptionsMenu.i18n("unassigned"), Skin.getSkin().getMultiColumnComboBoxData().font(), COL_BINDINGS_WIDTH);
-            } else {
-                boolean isMac = System.getProperty("os.name", "").toLowerCase().contains("mac");
-                String bindingStr = bindings.stream().map(b -> {
-                    String s = b.key().getDisplayName();
-                    if (isMac) {
-                        if (b.meta()) s = "⌘" + s;
-                        if (b.alt()) s = "⌥" + s;
-                        if (b.control()) s = "⌃" + s;
-                        if (b.shift()) s = "⇧" + s;
-                    } else {
-                        if (b.shift()) s = "Shift+" + s;
-                        if (b.control()) s = "Ctrl+" + s;
-                        if (b.alt()) s = "Alt+" + s;
-                        if (b.meta()) s = "Meta+" + s;
-                    }
-                    return s;
-                }).collect(Collectors.joining(", "));
-                l2 = new Label(bindingStr, Skin.getSkin().getMultiColumnComboBoxData().font());
-            }
-
-            Label l1 = new SortedLabel(name, action.ordinal(), Skin.getSkin().getMultiColumnComboBoxData().font());
-            list_box.addRow(new Row<>(new Label[]{l1, l2}, action));
+            byCategory.computeIfAbsent(categorize(action), k -> new ArrayList<>()).add(action);
         }
+
+        for (Category category : Category.values()) {
+            List<GameAction> actions = byCategory.get(category);
+            if (actions == null || actions.isEmpty()) continue;
+
+            int categoryBase = category.ordinal() * CATEGORY_STRIDE;
+            String headerText = "-- " + AbstractOptionsMenu.i18n(category.i18nKey) + " --";
+            Label headerLeft = new SortedLabel(headerText, categoryBase, Skin.getSkin().getMultiColumnComboBoxData().font());
+            headerLeft.setColor(HEADER_COLOR);
+            Label headerRight = new Label("", Skin.getSkin().getMultiColumnComboBoxData().font());
+            list_box.addRow(new Row<>(new Label[]{headerLeft, headerRight}, null));
+
+            int withinCategory = 1;
+            for (GameAction action : actions) {
+                String name;
+                try {
+                    name = AbstractOptionsMenu.i18n("action." + action.name());
+                } catch (Exception e) {
+                    name = action.name();
+                }
+
+                List<InputBinding> bindings = Renderer.getLocalInput().getInputManager().getBindings(action);
+                Label l2;
+
+                if (bindings.isEmpty()) {
+                    l2 = new InvertedLabel(AbstractOptionsMenu.i18n("unassigned"), Skin.getSkin().getMultiColumnComboBoxData().font(), COL_BINDINGS_WIDTH);
+                } else {
+                    boolean isMac = System.getProperty("os.name", "").toLowerCase().contains("mac");
+                    String bindingStr = bindings.stream().map(b -> {
+                        String s = b.key().getDisplayName();
+                        if (isMac) {
+                            if (b.meta()) s = "⌘" + s;
+                            if (b.alt()) s = "⌥" + s;
+                            if (b.control()) s = "⌃" + s;
+                            if (b.shift()) s = "⇧" + s;
+                        } else {
+                            if (b.shift()) s = "Shift+" + s;
+                            if (b.control()) s = "Ctrl+" + s;
+                            if (b.alt()) s = "Alt+" + s;
+                            if (b.meta()) s = "Meta+" + s;
+                        }
+                        return s;
+                    }).collect(Collectors.joining(", "));
+                    l2 = new Label(bindingStr, Skin.getSkin().getMultiColumnComboBoxData().font());
+                }
+
+                Label l1 = new SortedLabel(name, categoryBase + withinCategory, Skin.getSkin().getMultiColumnComboBoxData().font());
+                if (!KeyBindingConflicts.findExistingConflicts(action, Renderer.getLocalInput().getInputManager()).isEmpty()) {
+                    l1.setColor(CONFLICT_COLOR);
+                    l2.setColor(CONFLICT_COLOR);
+                }
+                list_box.addRow(new Row<>(new Label[]{l1, l2}, action));
+                withinCategory++;
+            }
+        }
+
+        list_box.setOffsetY(savedOffset);
     }
 
     private void saveMappings() {
