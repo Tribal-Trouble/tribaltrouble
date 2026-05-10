@@ -117,7 +117,7 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
                     i18n("username_error_invalid_characters");
             case MatchmakingClientInterface.USERNAME_ERROR_TOO_LONG -> i18n("username_error_too_long");
             case MatchmakingClientInterface.USERNAME_ERROR_TOO_SHORT -> i18n("username_error_too_short");
-            case MatchmakingClientInterface.USER_ERROR_STEAM_REQUIRED -> "Steam login is required on this server.";
+            case MatchmakingClientInterface.USER_ERROR_STEAM_REQUIRED -> i18n("user_error_steam_required");
             default -> throw new RuntimeException("Unknown error code: " + error_code);
         };
         gui_root.addModalForm(new MessageForm(error_message));
