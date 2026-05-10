@@ -53,7 +53,6 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
     private final List<MapIslandButton> islandButtons = new ArrayList<>();
     private boolean initialFocusSet = false;
 
-    private float flicker_time;
     private final Vector4f mapColor = new Vector4f(1f, 1f, 1f, 1f);
 
     public CampaignMapForm(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Campaign campaign) {
@@ -308,8 +307,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
 
     @Override
     public void animate(float t) {
-        flicker_time += t;
-        float flicker = 0.9f + (float) (0.0375 * Math.sin(flicker_time * 4.5) + 0.0375 * Math.sin(flicker_time * 10.35));
+        float flicker = 0.9f;
         mapColor.set(flicker, flicker, flicker, 1f);
     }
 
