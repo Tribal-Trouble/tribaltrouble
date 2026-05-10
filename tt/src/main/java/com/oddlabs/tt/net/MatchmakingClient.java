@@ -215,6 +215,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         chat_room_info = new ChatRoomInfo(room_name, null);
 
         chat_room_history.clear();
+        SteamManager.setLobbyRichPresence(room_name);
         MatchmakingListener listener = Network.getMatchmakingListener();
         if (listener != null)
             listener.joinedChat(chat_room_info);
@@ -269,6 +270,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         if (isConnected())
             getInterface().leaveRoom();
         chat_room_info = null;
+        SteamManager.clearRichPresence();
     }
 
     public void clearChatRoomInfo() {
@@ -544,5 +546,6 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         matchmaking_interface = null;
         active_profile = null;
         chat_room_info = null;
+        SteamManager.clearRichPresence();
     }
 }

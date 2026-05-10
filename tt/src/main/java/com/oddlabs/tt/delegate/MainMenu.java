@@ -22,6 +22,8 @@ public final class MainMenu extends Menu {
     public MainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Camera camera) {
         super(network, gui_root, camera);
         reload();
+        SteamManager.clearRichPresence();
+        SteamManager.setInActiveWorld(false);
     }
 
     private void addGameTypeButtons() {

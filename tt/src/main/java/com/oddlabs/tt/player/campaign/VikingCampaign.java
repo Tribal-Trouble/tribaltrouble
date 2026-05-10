@@ -8,6 +8,7 @@ import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.VikingCampaignIcons;
+import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
@@ -109,6 +110,8 @@ public final class VikingCampaign extends Campaign {
     @Override
     public void startIsland(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
         getState().setCurrentIsland(number);
+        SteamManager.setCampaignRichPresence("Vikings");
+        SteamManager.setInActiveWorld(true);
         islands[number].chosen(network, gui_root);
     }
 }

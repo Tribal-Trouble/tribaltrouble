@@ -26,6 +26,7 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
     private static final String WEB_API_IDENTITY = "tribaltrouble.org";
 
     private static @Nullable SteamManager instance;
+    private static volatile boolean inActiveWorld = false;
 
     private final SteamUser steamUser;
     private final SteamFriends steamFriends;
@@ -60,6 +61,51 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
             logger.log(Level.WARNING, "Failed to initialize Steam API", t);
             return false;
         }
+    }
+
+    public static void setLobbyRichPresence(String roomName) {
+        if (instance == null) return;
+        instance.steamFriends.setRichPresence("steam_display", "#Status_InLobby");
+    }
+
+    /**
+     * Sets rich presence for an active multiplayer game. Clears the {@code connect}
+     * key so the friend list shows no "Join Game" button — joining a started match
+     * isn't supported (spectate would be a future addition).
+     */
+    public static void setMultiplayerInGameRichPresence() {
+        if (instance == null) return;
+        instance.steamFriends.clearRichPresence();
+        instance.steamFriends.setRichPresence("steam_display", "#Status_InGame");
+    }
+
+    public static void clearRichPresence() {
+        if (instance == null) return;
+        instance.steamFriends.clearRichPresence();
+    }
+
+    /**
+     * Marks the local user as being inside an active world (multiplayer game,
+     * skirmish, or campaign mission). While set, an inbound Steam join is
+     * dropped — yanking someone out of an active match would lose progress
+     * and drop teammates. The friend can re-invite once the match ends.
+     */
+    public static void setInActiveWorld(boolean active) {
+        inActiveWorld = active;
+    }
+
+    /**
+     * Sets rich presence for a single-player campaign mission. Intentionally clears
+     * any previous keys first so friends don't see leftover lobby/in-game state.
+     *
+     * @param race "Vikings" or "Natives" — used to pick a localization token
+     *             {@code #Status_CampaignVikings} / {@code #Status_CampaignNatives}.
+     */
+    public static void setCampaignRichPresence(String race) {
+        if (instance == null) return;
+        instance.steamFriends.clearRichPresence();
+        instance.steamFriends.setRichPresence("steam_display", "#Status_Campaign" + race);
+        instance.steamFriends.setRichPresence("race", race);
     }
 
     public static void unlockAchievement(String achievementId) {
