@@ -22,6 +22,7 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.util.Color;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 import java.io.IOException;
@@ -81,6 +82,7 @@ public class KeyBindingPanel extends Panel {
 
     private final @NonNull MultiColumnComboBox<GameAction> list_box;
     private final @NonNull GUIRoot gui_root;
+    private @Nullable GameAction last_selected_action;
 
     public KeyBindingPanel(@NonNull GUIRoot gui_root) {
         super(AbstractOptionsMenu.i18n("key_bindings_title"));
@@ -99,6 +101,7 @@ public class KeyBindingPanel extends Panel {
         list_box.addRowListener(new RowListener<>() {
             @Override
             public void rowDoubleClicked(@NonNull GameAction action) {
+                last_selected_action = action;
                 gui_root.addModalForm(new KeyBindingDialog(gui_root, action, bindings -> {
                     Renderer.getLocalInput().getInputManager().setBindings(action, bindings);
                     updateList();
@@ -139,6 +142,7 @@ public class KeyBindingPanel extends Panel {
     private void updateList() {
         int savedOffset = list_box.getOffsetY();
         list_box.clear();
+        Row<GameAction, Label> rowToReselect = null;
 
         EnumMap<Category, List<GameAction>> byCategory = new EnumMap<>(Category.class);
         for (GameAction action : GameAction.values()) {
@@ -155,6 +159,8 @@ public class KeyBindingPanel extends Panel {
             List<GameAction> actions = byCategory.get(category);
             if (actions == null || actions.isEmpty()) continue;
 
+            actions.sort((a, b) -> AbstractOptionsMenu.i18n("action." + a.name()).compareToIgnoreCase(AbstractOptionsMenu.i18n("action." + b.name())));
+
             int categoryBase = category.ordinal() * CATEGORY_STRIDE;
             String headerText = "-- " + AbstractOptionsMenu.i18n(category.i18nKey) + " --";
             Label headerLeft = new SortedLabel(headerText, categoryBase, Skin.getSkin().getMultiColumnComboBoxData().font());
@@ -164,12 +170,7 @@ public class KeyBindingPanel extends Panel {
 
             int withinCategory = 1;
             for (GameAction action : actions) {
-                String name;
-                try {
-                    name = AbstractOptionsMenu.i18n("action." + action.name());
-                } catch (Exception e) {
-                    name = action.name();
-                }
+                String name = AbstractOptionsMenu.i18n("action." + action.name());
 
                 List<InputBinding> bindings = Renderer.getLocalInput().getInputManager().getBindings(action);
                 Label l2;
@@ -201,12 +202,19 @@ public class KeyBindingPanel extends Panel {
                     l1.setColor(CONFLICT_COLOR);
                     l2.setColor(CONFLICT_COLOR);
                 }
-                list_box.addRow(new Row<>(new Label[]{l1, l2}, action));
+                Row<GameAction, Label> row = new Row<>(new Label[]{l1, l2}, action);
+                list_box.addRow(row);
+                if (action == last_selected_action) {
+                    rowToReselect = row;
+                }
                 withinCategory++;
             }
         }
 
         list_box.setOffsetY(savedOffset);
+        if (rowToReselect != null) {
+            list_box.selectRow(rowToReselect);
+        }
     }
 
     private void saveMappings() {

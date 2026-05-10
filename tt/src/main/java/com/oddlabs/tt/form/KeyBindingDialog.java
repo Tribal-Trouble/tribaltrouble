@@ -1,11 +1,20 @@
 package com.oddlabs.tt.form;
 
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.function.Consumer;
+
+import org.jspecify.annotations.NonNull;
+
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.LabelBox;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
+import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputBinding;
@@ -15,15 +24,6 @@ import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.input.KeyBindingConflicts;
 import com.oddlabs.tt.input.Modifier;
 import com.oddlabs.tt.render.Renderer;
-import org.jspecify.annotations.NonNull;
-
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.function.Consumer;
-
-import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
-import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 
 public class KeyBindingDialog extends Form {
     private final @NonNull GameAction action;
