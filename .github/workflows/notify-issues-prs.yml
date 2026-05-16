@@ -1,0 +1,92 @@
+name: Notify on Issues and PRs
+
+on:
+  issues:
+    types: [opened, closed]
+  pull_request:
+    types: [opened, closed, ready_for_review]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Notify Discord on Issue Opened
+      if: github.event_name == 'issues' && github.event.action == 'opened'
+      run: |
+        ISSUE_TITLE="${{ github.event.issue.title }}"
+        ISSUE_URL="${{ github.event.issue.html_url }}"
+        ISSUE_NUMBER="${{ github.event.issue.number }}"
+        AUTHOR="${{ github.event.issue.user.login }}"
+
+        MESSAGE="🐛 **New Issue Opened: #$ISSUE_NUMBER**\n\n**Title:** $ISSUE_TITLE\n**Author:** $AUTHOR\n**URL:** $ISSUE_URL"
+
+        curl -H "Content-Type: application/json" \
+             -d "{\"content\": \"$MESSAGE\"}" \
+             ${{ secrets.DISCORD_WEBHOOK_GITHUB }}
+
+    - name: Notify Discord on Issue Closed
+      if: github.event_name == 'issues' && github.event.action == 'closed'
+      run: |
+        ISSUE_TITLE="${{ github.event.issue.title }}"
+        ISSUE_URL="${{ github.event.issue.html_url }}"
+        ISSUE_NUMBER="${{ github.event.issue.number }}"
+        CLOSED_BY="${{ github.event.sender.login }}"
+        STATE_REASON="${{ github.event.issue.state_reason }}"
+
+        if [ "$STATE_REASON" = "completed" ]; then
+          STATUS="✅ Completed"
+        elif [ "$STATE_REASON" = "not_planned" ]; then
+          STATUS="❌ Closed as not planned"
+        else
+          STATUS="Closed"
+        fi
+
+        MESSAGE="🔒 **Issue Closed: #$ISSUE_NUMBER**\n\n**Title:** $ISSUE_TITLE\n**Status:** $STATUS\n**Closed by:** $CLOSED_BY\n**URL:** $ISSUE_URL"
+
+        curl -H "Content-Type: application/json" \
+             -d "{\"content\": \"$MESSAGE\"}" \
+             ${{ secrets.DISCORD_WEBHOOK_GITHUB }}
+
+    - name: Notify Discord on PR Opened
+      if: github.event_name == 'pull_request' && github.event.action == 'opened' && github.event.pull_request.draft == false
+      run: |
+        PR_TITLE="${{ github.event.pull_request.title }}"
+        PR_URL="${{ github.event.pull_request.html_url }}"
+        PR_NUMBER="${{ github.event.pull_request.number }}"
+        AUTHOR="${{ github.event.pull_request.user.login }}"
+
+        MESSAGE="🔀 **New Pull Request Opened: #$PR_NUMBER**\n\n**Title:** $PR_TITLE\n**Author:** $AUTHOR\n**URL:** $PR_URL"
+
+        curl -H "Content-Type: application/json" \
+             -d "{\"content\": \"$MESSAGE\"}" \
+             ${{ secrets.DISCORD_WEBHOOK_GITHUB }}
+
+    - name: Notify Discord on PR Ready for Review
+      if: github.event_name == 'pull_request' && github.event.action == 'ready_for_review'
+      run: |
+        PR_TITLE="${{ github.event.pull_request.title }}"
+        PR_URL="${{ github.event.pull_request.html_url }}"
+        PR_NUMBER="${{ github.event.pull_request.number }}"
+        AUTHOR="${{ github.event.pull_request.user.login }}"
+
+        MESSAGE="👀 **PR Ready for Review: #$PR_NUMBER**\n\n**Title:** $PR_TITLE\n**Author:** $AUTHOR\n**URL:** $PR_URL"
+
+        curl -H "Content-Type: application/json" \
+             -d "{\"content\": \"$MESSAGE\"}" \
+             ${{ secrets.DISCORD_WEBHOOK_GITHUB }}
+
+    - name: Notify Discord on PR Merged
+      if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+      run: |
+        PR_TITLE="${{ github.event.pull_request.title }}"
+        PR_URL="${{ github.event.pull_request.html_url }}"
+        PR_NUMBER="${{ github.event.pull_request.number }}"
+        AUTHOR="${{ github.event.pull_request.user.login }}"
+        MERGED_BY="${{ github.event.pull_request.merged_by.login }}"
+        BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+
+        MESSAGE="✅ **PR Merged: #$PR_NUMBER**\n\n**Title:** $PR_TITLE\n**Author:** $AUTHOR\n**Merged by:** $MERGED_BY\n**Into:** $BASE_BRANCH\n**URL:** $PR_URL"
+
+        curl -H "Content-Type: application/json" \
+             -d "{\"content\": \"$MESSAGE\"}" \
+             ${{ secrets.DISCORD_WEBHOOK_GITHUB }}
