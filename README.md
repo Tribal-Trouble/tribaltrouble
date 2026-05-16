@@ -3,9 +3,8 @@
 
 ![Tribal Trouble](./.github/images/tt_logo.png)
 
-![License](https://img.shields.io/badge/license-GPLv2-orange.svg)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Build Status](https://github.com/RcubDev/limbo_console_sharp/actions/workflows/build-and-publish.yaml/badge.svg)](https://github.com//OmarAMokhtar/tribaltrouble)
+[![License](https://img.shields.io/badge/license-GPLv2-orange.svg)](LICENSE)
+[![Build Status](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml/badge.svg?branch=main)](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml?query=branch%3Amain)
 [![](https://dcbadge.limes.pink/api/server/https://discord.gg/tribaltrouble?style=flat)](https://discord.gg/tribaltrouble?style=flat)
 
 Tribal Trouble is a realtime strategy game released by Oddlabs in 2004. In 2014 the source was released under GPL2 license.
@@ -17,21 +16,26 @@ This fork aims to:
 3. Remaster and modernize the graphics 🚧
 4. Add more playable features later 🚧
 
+See what we're working on right now on the **[current roadmap](https://github.com/users/OmarAMokhtar/projects/1)**.
+
 ## Table of Contents
 
 - [🎮 How to play?](#-how-to-play)
-- [🛠️ Build Requirements](#️-build-requirements)  
+- [🛠️ Build Requirements](#️-build-requirements)
 - [🏗️ Building](#️-building)
+  - [Repository Setup](#repository-setup)
   - [Build + Run Game Client](#build--run-game-client)
   - [Build Game Client for Distribution](#build-game-client-for-distribution)
   - [Build + Run Game Server](#build--run-game-server)
+  - [Common Gradle Tasks](#common-gradle-tasks)
 - [🤝 Contributing](#-contributing)
+- [🙏 About this fork](#-about-this-fork)
 
 ## 🎮 How to play?
 
-If you want to play the game with minimal hassle check out [Tribal Trouble](https://tribaltrouble.org) or see the releases section of the github. Also come join us on [discord](https://discord.gg/tribaltrouble) as we're still a small community!
+The easiest way to play is on **[Steam - Tribal Trouble: Resurrected](https://store.steampowered.com/app/3945720/Tribal_Trouble_Resurrected/)**. You can also grab a build from [tribaltrouble.org](https://tribaltrouble.org) or the releases section of this repo. Come join us on [discord](https://discord.gg/tribaltrouble) - we're still a small community!
 
-The game is currently unsigned and not available through another platform like steam so when you launch the game different OSes will respond differently:
+Builds from this repo (outside of Steam) are unsigned, so different OSes will respond differently when you launch:
 
 - Linux
   - Launch the `TribalTrouble-x86_64.AppImage`
@@ -48,8 +52,8 @@ The game is currently unsigned and not available through another platform like s
 
 ### Client + Server
 
-- [Apache ant](https://ant.apache.org/)
-- [Java SDK 24](https://www.oracle.com/java/technologies/downloads/) (or Open-JDK-24)
+- [Java SDK 26](https://www.oracle.com/java/technologies/downloads/) (or Open-JDK-26)
+- The bundled Gradle wrapper (`./gradlew` / `gradlew.bat`)
 
 ### Server
 
@@ -57,41 +61,52 @@ The game is currently unsigned and not available through another platform like s
 
 ## 🏗️ Building
 
-Each instruction below assumes you are in a terminal at the root of the repository
+Each instruction below assumes you are in a terminal at the root of the repository. Examples use `./gradlew`; on Windows use `gradlew.bat` (or `.\gradlew.bat`) instead.
+
+### Repository Setup
+
+This repo ships a `.gitconfig` with a `.git-blame-ignore-revs` file so the mass-reformat commits don't pollute `git blame`. Git won't auto-load it for security reasons. Run this once from the project root after cloning:
+
+```bash
+git config --local include.path ../.gitconfig
+```
 
 ### Build + Run Game Client
 
-- `cd tt` > `ant run`
+- `./gradlew tt:run`
+
+> Steam integration is optional at runtime: `tt:run` works fine without Steam installed or running. If the Steam client is running and `tt/steam_appid.txt` is present (it's committed to the repo), the game will use Steam features (rich presence, achievements, etc.) where it can.
 
 ### Build Game Client for Distribution
 
-Building the game client Distribution files can be found in `tt/builds/dist/common`
+Build output lands under `tt/build/dist/<platform>` (with shared staged files in `tt/build/dist/common`).
 
 - Linux
-  - `cd tt` > `ant build-linux`
+  - `./gradlew tt:packageLinux`
 - Windows
-  - `cd tt` > `ant build-windows`
+  - `gradlew.bat tt:packageWindows`
 - Mac x86
-  - `cd tt` > `ant build-mac-x86`
+  - `./gradlew tt:packageMacX86`
 - Mac arm64
-  - `cd tt` > `ant build-mac-arm64`
+  - `./gradlew tt:packageMacArm64`
 
-Optional Steps (Recommend for server hosting)
+> Each `package*` task only runs on its matching host OS `packageWindows` skips on Linux/Mac, and vice versa.
 
-1. Key generation - before building the client or the server keys must be generated.
-    - Inside a terminal > `cd tools`
-    - `ant run generatekeys`
-    - Enter a password when it asks for one
-    - Make sure the keys are generated under `./common/static/`.
-
-    > Why is key generation optional? The keys it generates are commited to the repository. If you intend to run a server you may want generate your own keys since they are used for encryption/decryption with the client and server
+> Don't want to build locally? CI builds per-platform artifacts on every push to `main` and `steam`. Grab them from the [Actions tab](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml) — pick a successful run and download the `windows`, `linux-appimage`, `mac-x86`, `mac-arm64`, or `server` artifact at the bottom of the page.
 
 ### Build + Run Game Server
 
 1. mySQL Setup
-    - Create the database schema from `initmysql.sql`.
-    - Create the user `matchmaker` with any password you would like (remember it for the next step)
-    - Run all scripts in order of their number inside of the `database` folder
+    - Run `initmysql.sql` against your MySQL server this creates the `oddlabs` database and all base tables.
+    - Create the `matchmaker` user and grant it access to the `oddlabs` database (pick any password remember it for the next step):
+
+      ```sql
+      CREATE USER 'matchmaker'@'localhost' IDENTIFIED BY '<your-password>';
+      GRANT ALL PRIVILEGES ON oddlabs.* TO 'matchmaker'@'localhost';
+      FLUSH PRIVILEGES;
+      ```
+
+    - Run each migration script in `database/` in numeric order (`001` → `002` → `003` → `004`). They assume you're already in the `oddlabs` database.
 
 2. Server Configuration
     - Copy `server/server.properties.template` to `server/server.properties`
@@ -109,16 +124,22 @@ Optional Steps (Recommend for server hosting)
 
 3. Run the servers
      - There are two main servers needed. The matchmaker and the router. The matchmaker is what runs the game and most the server logic. The router sends and receives chat messages and other messages from the client
-     - To build and run the matchmaker: `cd server` > `ant run-matchmaker`
-     - To build and run the router: `cd server` > `ant run-router`
-     - Alternatively run the scripts from the server using: `cd server` > `./matchmaker & ./router`
+     - **For dev** (foreground, console logs, picks up `server/server.properties`):
+       - Matchmaker: `./gradlew server:runMatchmaker`
+       - Router: `./gradlew server:runRouter`
+     - **For deployment** — extract the server bundle (grab it from the [Actions tab](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml) under the `server` artifact), edit `server.properties` in the extracted root, then launch via `bin/matchmaker` / `bin/router`, or the bundled `start.sh` / `start.bat` (which runs both with `nohup` and tees logs to `logs/`)
 
-     > Note: The router and matchmaker can be hosted on the same or a different machine. The only time they actually need to be on the same machine is when one logs a crashing event to the database
+### Common Gradle Tasks
 
-### Formatting
+Quick reference for tasks you'll reach for often:
 
-- We are currently using google java format <https://github.com/google/google-java-format>
-- Use the command `ant format` at the root of the repository to make sure all files are formatted before contributing
+- `./gradlew clean` - wipe all build outputs
+- `./gradlew build` - build every module
+- `./gradlew tt:run` - run the game client
+- `./gradlew tt:build` - build just the client
+- `./gradlew assets:geometry` - regenerate binary geometry files
+- `./gradlew assets:textures` - convert texture sources
+- `./gradlew tasks --all` - full list of available tasks
 
 ## 🤝 Contributing
 
@@ -131,3 +152,9 @@ There are ways to contribute besides developing. If you have screenshots of the 
 > For example a screenshot of the old the leaderboards.
 
 Being an active member in the [discord](https://discord.gg/tribaltrouble) and playing games also will help keep the game going!
+
+## 🙏 About this fork
+
+Accessibility features carried over from the restoration work include UI magnification, high-contrast filter, color-vision-difference correction, editable team colors, keyboard control remapping, and unit/building team-color overlays.
+
+Much of the modernization work this fork is built on came from [bondolo's restoration fork](https://github.com/bondolo/tribaltrouble). If you're looking for the pure restoration experience (no multiplayer/new-feature focus), check it out.

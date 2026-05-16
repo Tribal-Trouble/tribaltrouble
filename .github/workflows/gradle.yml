@@ -2,9 +2,9 @@ name: Gradle Build + Publish
 
 on:
   push:
-    branches: [ "port/bondolo-clean" ]
+    branches: [ "main", "steam" ]
   pull_request:
-    branches: [ "port/bondolo-clean" ]
+    branches: [ "main", "steam" ]
   workflow_dispatch:
 
 jobs:
@@ -156,7 +156,7 @@ jobs:
           path: tt/build/dist/macosx-x86-app/
 
   deploy-to-steam:
-    if: github.ref == 'refs/heads/steam'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/steam'
     needs: [ build-mac-arm64-app, build-mac-x86-app, build-windows, build-linux ]
     runs-on: ubuntu-latest
     steps:
