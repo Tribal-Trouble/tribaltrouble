@@ -25,7 +25,8 @@ public final class MapCamera extends Camera {
     private static final float MAP_TIME_FACTOR = 1000f;
     private static final float SMOOTHNESS_FACTOR = 200f;
     public static final float MAP_Z_FACTOR = 1.3f;
-    private static final float LANDING_DISTANCE = 50f;
+    private static final float LANDING_ANGLE = -(float) Math.PI / 4f;
+    private static final float MIN_LANDING_DISTANCE = 20f;
 
     private static final Set<GameAction> BLOCKED_ACTIONS = EnumSet.of(
             GameAction.CAMERA_PAN_LEFT,
@@ -50,7 +51,6 @@ public final class MapCamera extends Camera {
 
     private final @NonNull SelectionDelegate delegate;
     private final @NonNull CameraState original_camera_state;
-    private final float distance_to_landscape;
     private final Label label = new Label(Utils.getBundleString(ResourceBundle.getBundle(MapCamera.class.getName()), "map_mode"), Skin.getSkin().getHeadlineFont());
 
     private @NonNull MapMode map_mode = MapMode.TO_MAP;
@@ -64,11 +64,6 @@ public final class MapCamera extends Camera {
         mapCameraState.setFog(radialFog);
         super(old_camera.getHeightMap(), mapCameraState);
         this.delegate = delegate;
-        float[] target = old_camera.getRotationPoint();
-        float dx = target[0] - original_camera_state.getTargetX();
-        float dy = target[1] - original_camera_state.getTargetY();
-        float dz = getHeightMap().getNearestHeight(target[0], target[1]) - original_camera_state.getTargetZ();
-        distance_to_landscape = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
 
         setSmoothnessFactor(SMOOTHNESS_FACTOR);
         getState().setNoDetailMode(true);
@@ -181,21 +176,26 @@ public final class MapCamera extends Camera {
 
     public void mapGoto(float x, float y, boolean override) {
         if (map_mode == MapMode.IN_MAP || override) {
-            // Land the eye near the click using a default 45° angle and the game's
-            // initial view distance, so the landing spot is sensible regardless of
-            // the user's prior tilt or how stale distance_to_landscape was. The saved
-            // tilt is then reapplied by the FROM_MAP transition animating vertAngle
-            // back to the original value.
-            float landing_angle = -(float) Math.PI / 4f;
-            float landing_distance = LANDING_DISTANCE;
-            float radius = (float) Math.cos(landing_angle);
+            // Land the eye near the click using a fixed 45° angle (avoids weird views
+            // when the prior tilt was near horizontal). Preserve the user's absolute
+            // eye Z so a fully-zoomed-out camera stays fully zoomed out across the
+            // teleport — matching what they'd see if they scrolled there manually,
+            // since scroll/bounce only push the eye up, never down. Then derive
+            // landing_distance so the 45° ray from the eye hits the clicked point.
+            float clickGroundZ = getHeightMap().getNearestHeight(x, y);
+            float sinDown = -(float) Math.sin(LANDING_ANGLE);
+            float minEyeZ = clickGroundZ + MIN_LANDING_DISTANCE * sinDown;
+            float landingEyeZ = Math.min(
+                    Math.max(minEyeZ, original_camera_state.getTargetZ()),
+                    GameCamera.MAX_Z);
+            float landing_distance = Math.max(MIN_LANDING_DISTANCE, (landingEyeZ - clickGroundZ) / sinDown);
+            float radius = (float) Math.cos(LANDING_ANGLE);
             float old_dir_x = (float) Math.cos(getState().getHorizAngle()) * radius;
             float old_dir_y = (float) Math.sin(getState().getHorizAngle()) * radius;
-            float old_dir_z = (float) Math.sin(landing_angle);
             // Adjust the position of the original camera.
             original_camera_state.setTargetX(x - old_dir_x * landing_distance);
             original_camera_state.setTargetY(y - old_dir_y * landing_distance);
-            original_camera_state.setTargetZ(getHeightMap().getNearestHeight(x, y) - old_dir_z * landing_distance);
+            original_camera_state.setTargetZ(landingEyeZ);
             changeMode(MapMode.FROM_MAP);
         }
     }
