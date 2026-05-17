@@ -225,6 +225,48 @@ jobs:
           depot4Path: linux
           releaseBranch: prerelease
 
+  itch-release:
+    if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [ version, build-windows, build-linux, build-mac-arm64, build-mac-x86 ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-windows_${{ needs.version.outputs.full }}
+          path: dist/windows/
+      - name: Download Linux AppImage
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-linux-appimage_${{ needs.version.outputs.full }}
+          path: dist/linux/
+      - name: Download Mac arm64 DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-mac-arm64_${{ needs.version.outputs.full }}
+          path: dist/mac-arm64/
+      - name: Download Mac x86 DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-mac-x86_${{ needs.version.outputs.full }}
+          path: dist/mac-x86/
+      - name: Install butler
+        run: |
+          curl -L -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip -q butler.zip
+          chmod +x butler
+          ./butler -V
+      - name: Push to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.ITCH_BUTLER_API_KEY }}
+        run: |
+          VERSION="${{ needs.version.outputs.full }}"
+          PROJECT="${{ vars.ITCH_PROJECT }}"
+          ./butler push dist/windows   "$PROJECT:windows"   --userversion "$VERSION"
+          ./butler push dist/linux     "$PROJECT:linux"     --userversion "$VERSION"
+          ./butler push dist/mac-arm64 "$PROJECT:osx-arm64" --userversion "$VERSION"
+          ./butler push dist/mac-x86   "$PROJECT:osx-x86"   --userversion "$VERSION"
+
   github-release:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/release') || github.event_name == 'workflow_dispatch'
     needs: [ version, build-linux, build-server, build-windows, build-mac-x86, build-mac-arm64 ]
