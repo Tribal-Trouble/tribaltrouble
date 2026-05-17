@@ -1,5 +1,5 @@
 -- Migration 003: Add Steam identity support
--- Steam users get an auto-created profile keyed by steam_id.
+-- Steam users get an auto-created registration keyed by steam_id.
 -- The existing profiles table continues to hold wins/losses/rating for everyone.
 USE oddlabs;
 
@@ -7,10 +7,10 @@ USE oddlabs;
 ALTER TABLE profiles
   MODIFY COLUMN reg_id INT NULL;
 
--- Add steam_id to profiles so we can look up a profile by Steam account ID.
--- Only Steam-created profiles will have this set; legacy profiles keep it NULL.
-ALTER TABLE profiles
-  ADD COLUMN steam_id BIGINT NULL UNIQUE AFTER reg_id;
+-- Add steam_id to registrations so we can look up a registration by Steam account ID.
+-- Only Steam-created registrations will have this set; legacy ones keep it NULL.
+ALTER TABLE registrations
+  ADD COLUMN steam_id BIGINT NULL UNIQUE;
 
 -- Win streak tracking for Steam achievements
 ALTER TABLE profiles
