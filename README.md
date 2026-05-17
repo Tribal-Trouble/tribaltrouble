@@ -156,12 +156,12 @@ The canonical release identifier is **`v<MAJOR>.<MINOR>.<PATCH>-<API>`** (e.g., 
 It's built from three sources:
 
 - **MAJOR.MINOR** — `version = "2.0"` in the root `build.gradle.kts`. Bump manually for a minor or major release.
-- **PATCH** — auto-computed: number of commits since the most recent `v<MAJOR>.<MINOR>.*` git tag (or `0` if no such tag exists). You don't edit this anywhere — pushing a commit advances it; tagging a release resets the counter for that minor line.
+- **PATCH** — auto-computed: number of commits since the commit that introduced the current `version = "<MAJOR>.<MINOR>"` line in `build.gradle.kts`. You don't edit this anywhere. Every commit on top of the bump advances it by one
 - **API** — `public static final int API_VERSION = 102;` in `common/src/main/java/com/oddlabs/util/Compatibility.java`. Bump only when the wire protocol between client and server changes (mismatched clients get rejected at login).
 
-Both Gradle and CI compute PATCH from the same git history using identical logic, so the value the game logs (from the generated `BuildInfo.java` under `tt/build/generated/sources/buildinfo/`) always matches the git tag and Steam build description of the build it came from. The startup log line `version: v2.0.3-102 (API 102)` confirms which version is running — useful when triaging player-submitted log files.
+Both Gradle and CI compute PATCH from the same git history using identical logic (`git log -S'version = "<BASE>"' -- build.gradle.kts | head -1` as the anchor, then `git rev-list --count <anchor>..HEAD`), so the value the game logs (from the generated `BuildInfo.java` under `tt/build/generated/sources/buildinfo/`) always matches the git tag and Steam build description of the build it came from. The startup log line `version: v2.0.3-102 (API 102)` confirms which version is running — useful when triaging player-submitted log files.
 
-> When you bump `MAJOR.MINOR` (say `2.0` → `2.1`), there's no `v2.1.*` tag yet, so the first build is `v2.1.0-102`, the next push is `v2.1.1-102`, and so on. PATCH resets cleanly on each minor bump.
+> When you bump `MAJOR.MINOR` (say `2.0` → `2.1`), that bump commit becomes the new anchor — so PATCH is `0` at the bump (yielding `v2.1.0-102`), `1` after the next commit (`v2.1.1-102`), and so on. PATCH resets cleanly on each minor bump.
 
 ### Branches & CI Behavior
 

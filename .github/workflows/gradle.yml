@@ -21,15 +21,15 @@ jobs:
         run: |
           BASE=$(grep 'version = "' build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
           API=$(grep 'API_VERSION' common/src/main/java/com/oddlabs/util/Compatibility.java | sed 's/.*= \([0-9]*\);/\1/')
-          # PATCH = commits since most recent v<BASE>.* tag (or 0 if none exists)
-          LAST_PATCH_TAG=$(git tag -l "v${BASE}.*" --sort=-v:refname | head -1)
-          if [ -z "$LAST_PATCH_TAG" ]; then
+          # PATCH = commits since the bump commit that introduced the current MAJOR.MINOR.
+          ANCHOR=$(git log --format=%H -S"version = \"${BASE}\"" -- build.gradle.kts | head -1)
+          if [ -z "$ANCHOR" ]; then
             PATCH=0
           else
-            PATCH=$(git rev-list --count "${LAST_PATCH_TAG}..HEAD")
+            PATCH=$(git rev-list --count "${ANCHOR}..HEAD")
           fi
           echo "full=v${BASE}.${PATCH}-${API}" >> $GITHUB_OUTPUT
-          echo "Resolved version: v${BASE}.${PATCH}-${API} (base=${BASE}, patch=${PATCH}, api=${API}, last-tag=${LAST_PATCH_TAG:-none})"
+          echo "Resolved version: v${BASE}.${PATCH}-${API} (base=${BASE}, patch=${PATCH}, api=${API}, anchor=${ANCHOR:-none})"
 
   build-linux:
     needs: [version]

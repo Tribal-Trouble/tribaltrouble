@@ -62,11 +62,9 @@ tasks.processResources {
 }
 
 // --- BuildInfo generation ---
-// Writes BuildInfo.java with the effective project version (MAJOR.MINOR.PATCH).
-// MAJOR.MINOR comes from project.version (root build.gradle.kts).
-// PATCH = number of commits since the most recent v<MAJOR>.<MINOR>.* git tag
-// (or 0 if no such tag exists). Same logic the CI uses for the release tag,
-// so the game's reported version always matches the tag of the build it came from.
+// Writes BuildInfo.java with VERSION = MAJOR.MINOR.PATCH.
+// PATCH = commits since the bump commit that introduced the current MAJOR.MINOR.
+// Must stay in sync with the `version` job in .github/workflows/gradle.yml.
 
 val generatedBuildInfoDir = layout.buildDirectory.dir("generated/sources/buildinfo/java/main")
 
@@ -79,18 +77,24 @@ val generateBuildInfo by tasks.registering {
 
     doLast {
         val patch = runCatching {
-            val tagsOutput = ProcessBuilder("git", "tag", "-l", "v$baseVersion.*", "--sort=-v:refname")
+            val anchor = ProcessBuilder(
+                "git", "log", "--format=%H",
+                "-S", "version = \"$baseVersion\"",
+                "--", "build.gradle.kts"
+            )
                 .directory(gitDir)
                 .redirectErrorStream(true)
                 .start()
                 .inputStream.bufferedReader()
                 .readText()
                 .trim()
-            if (tagsOutput.isEmpty()) {
+                .lineSequence()
+                .firstOrNull()
+                .orEmpty()
+            if (anchor.isEmpty()) {
                 "0"
             } else {
-                val lastTag = tagsOutput.lines().first()
-                ProcessBuilder("git", "rev-list", "--count", "$lastTag..HEAD")
+                ProcessBuilder("git", "rev-list", "--count", "$anchor..HEAD")
                     .directory(gitDir)
                     .redirectErrorStream(true)
                     .start()
