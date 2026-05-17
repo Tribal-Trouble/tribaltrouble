@@ -221,13 +221,25 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
         getClientInterface().receiveSpectatorData(world_params_data);
     }
 
+    private static final int SPECTATOR_CHUNK_SIZE = 16000;
+
     public void requestSpectatorEventLog() {
         if (spectated_session == null) return;
         byte[] event_log_data = spectated_session.readEventLog();
         int current_tick = spectated_session.getLastTick();
+        int total_chunks = event_log_data.length == 0
+                ? 1
+                : (event_log_data.length + SPECTATOR_CHUNK_SIZE - 1) / SPECTATOR_CHUNK_SIZE;
         MatchmakingServer.getLogger().info("Sending spectator event log for game " + spectated_session.getDatabaseID()
-                + ": " + event_log_data.length + " bytes, tick=" + current_tick);
-        getClientInterface().receiveSpectatorEventLog(event_log_data, current_tick);
+                + ": " + event_log_data.length + " bytes in " + total_chunks + " chunks, tick=" + current_tick);
+        for (int i = 0; i < total_chunks; i++) {
+            int offset = i * SPECTATOR_CHUNK_SIZE;
+            int length = Math.min(SPECTATOR_CHUNK_SIZE, event_log_data.length - offset);
+            if (length < 0) length = 0;
+            byte[] chunk = new byte[length];
+            if (length > 0) System.arraycopy(event_log_data, offset, chunk, 0, length);
+            getClientInterface().receiveSpectatorEventLog(chunk, i, total_chunks, current_tick);
+        }
         this.spectated_session = null;
     }
 

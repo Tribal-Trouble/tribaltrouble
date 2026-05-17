@@ -359,11 +359,24 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         }
     }
 
+    private @Nullable java.io.ByteArrayOutputStream pendingSpectatorEventLog;
+    private int pendingSpectatorEventLogTotal;
+
     @Override
-    public void receiveSpectatorEventLog(byte[] event_log_data, int current_tick) {
-        PeerHubSpectatorController controller = PeerHubSpectatorController.getInstance();
-        if (controller == null) return;
-        controller.fastForward(event_log_data, current_tick);
+    public void receiveSpectatorEventLog(byte[] chunk, int chunk_index, int total_chunks, int current_tick) {
+        if (chunk_index == 0) {
+            pendingSpectatorEventLog = new java.io.ByteArrayOutputStream();
+            pendingSpectatorEventLogTotal = total_chunks;
+        }
+        if (pendingSpectatorEventLog == null) return;  // missed chunk 0; can't reassemble
+        pendingSpectatorEventLog.write(chunk, 0, chunk.length);
+        if (chunk_index == pendingSpectatorEventLogTotal - 1) {
+            byte[] full = pendingSpectatorEventLog.toByteArray();
+            pendingSpectatorEventLog = null;
+            PeerHubSpectatorController controller = PeerHubSpectatorController.getInstance();
+            if (controller == null) return;
+            controller.fastForward(full, current_tick);
+        }
     }
 
     public @Nullable MatchmakingServerLoginInterface getLoginInterface() {
