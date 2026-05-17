@@ -1,12 +1,12 @@
 package com.oddlabs.util;
 
-import org.jspecify.annotations.NonNull;
-
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
+import org.jspecify.annotations.NonNull;
+
 public final class ByteBufferOutputStream extends OutputStream {
-    private static final int BUFFER_SIZE = 16382;
+    private static final int BUFFER_SIZE = 5 * 1024 * 1024;  // 5MB
 
     private ByteBuffer buffer;
 
