@@ -130,10 +130,12 @@ public final class Settings implements Serializable {
                 Color.argb4v(0xFF228B22), /* 16 Forest Green */
                 Color.argb4v(0xFF708090), /* 17 Slate */
         };
-        // Fill remaining slots (18-31) with HSB-generated colours
+        // Use the hand-picked palette up to MAX_PLAYERS; if MAX_PLAYERS exceeds the
+        // hand-picked count, fill remaining slots with evenly-spaced HSB-generated colours.
         Vector4f[] all = new Vector4f[MatchmakingServerInterface.MAX_PLAYERS];
-        System.arraycopy(handPicked, 0, all, 0, handPicked.length);
-        for (int i = handPicked.length; i < all.length; i++) {
+        int copyCount = Math.min(handPicked.length, all.length);
+        System.arraycopy(handPicked, 0, all, 0, copyCount);
+        for (int i = copyCount; i < all.length; i++) {
             float hue = (i - handPicked.length) / (float) (all.length - handPicked.length);
             int rgb = java.awt.Color.HSBtoRGB(hue, 0.8f, 0.9f);
             all[i] = Color.argb4v(0xFF000000 | (rgb & 0x00FFFFFF));
