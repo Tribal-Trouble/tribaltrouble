@@ -3,7 +3,7 @@ package com.oddlabs.tt.render;
 import com.oddlabs.event.Deterministic;
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.net.NetworkSelector;
-import com.oddlabs.tt.BuildInfo;
+import com.oddlabs.util.BuildInfo;
 import com.oddlabs.tt.Main;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.animation.TimerAnimation;
@@ -490,7 +490,7 @@ public final class Renderer implements AutoCloseable {
         GamePaths paths = setupPaths();
         Path game_dir = paths.dataDir();
         logger.info("********** Running tt **********");
-        logger.info("version: v" + BuildInfo.VERSION + " (API " + com.oddlabs.util.Compatibility.API_VERSION + ")");
+        logger.info("version: " + BuildInfo.FULL_VERSION);
         logger.info("game dir: " + game_dir);
         logger.info("logs dir: " + paths.logDir());
         boolean eventload = false;

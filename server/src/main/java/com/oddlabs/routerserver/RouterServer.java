@@ -5,6 +5,7 @@ import com.oddlabs.event.NotDeterministic;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.router.Router;
 import com.oddlabs.matchserver.ServerConfiguration;
+import com.oddlabs.util.BuildInfo;
 import com.oddlabs.util.DBUtils;
 
 import java.util.logging.FileHandler;
@@ -43,7 +44,7 @@ public final class RouterServer {
         try {
             NetworkSelector network = new NetworkSelector(deterministic);
             Router router = new Router(network, logger);
-            logger.info("Router started.");
+            logger.log(Level.INFO, "Router started: {0}", BuildInfo.FULL_VERSION);
             while (true) {
                 long timeout = router.getNextTimeout();
 //logger.finer("timeout: " + timeout);

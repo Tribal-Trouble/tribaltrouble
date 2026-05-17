@@ -61,7 +61,8 @@ jobs:
           BASE=$(grep 'version = "' build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
           API=$(grep 'API_VERSION' common/src/main/java/com/oddlabs/util/Compatibility.java | sed 's/.*= \([0-9]*\);/\1/')
           # PATCH = commits since the bump commit that introduced the current MAJOR.MINOR.
-          ANCHOR=$(git log --format=%H -S"version = \"${BASE}\"" -- build.gradle.kts | head -1)
+          VERSION_PATTERN="version = .$(echo "$BASE" | sed 's/\./\\./g')."
+          ANCHOR=$(git log --format=%H -G"$VERSION_PATTERN" -- build.gradle.kts | head -1)
           if [ -z "$ANCHOR" ]; then
             PATCH=0
           else

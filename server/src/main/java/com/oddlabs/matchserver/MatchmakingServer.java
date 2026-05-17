@@ -10,6 +10,7 @@ import com.oddlabs.net.ConnectionListenerInterface;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.net.SecureConnection;
 import com.oddlabs.matchserver.discord.DiscordBotService;
+import com.oddlabs.util.BuildInfo;
 import com.oddlabs.util.DBUtils;
 import com.oddlabs.util.KeyManager;
 
@@ -72,7 +73,7 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
         connection_listener = new ConnectionListener(network, null, MatchmakingServerInterface.MATCHMAKING_SERVER_PORT, this);
         DBInterface.initDropGames();
         DBInterface.clearOnlineProfiles();
-        logger.info("Matchmaking server started.");
+        logger.log(Level.INFO, "Matchmaking server started: {0}", BuildInfo.FULL_VERSION);
         while (true)
             network.tickBlocking(server_tick_timeout);
     }
