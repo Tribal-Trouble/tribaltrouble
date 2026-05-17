@@ -57,6 +57,50 @@ jobs:
           name: tribal-trouble-linux-package_${{ needs.version.outputs.full }}
           path: tt/build/dist/linux/TribalTrouble.AppDir
 
+  build-mac-arm64-app:
+    if: github.ref == 'refs/heads/release'
+    needs: [version]
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26-ea'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build mac binaries
+        run: ./gradlew :tt:packageMacArm64App
+      - name: Upload files
+        uses: actions/upload-artifact@v4
+        with:
+          name: tribal-trouble-mac-arm64-app_${{ needs.version.outputs.full }}
+          path: tt/build/dist/macosx-arm64-app/
+
+  build-mac-x86-app:
+    if: github.ref == 'refs/heads/release'
+    needs: [version]
+    runs-on: macos-15-intel
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26-ea'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build mac binaries
+        run: ./gradlew :tt:packageMacX86App
+      - name: Upload files
+        uses: actions/upload-artifact@v4
+        with:
+          name: tribal-trouble-mac-x86-app_${{ needs.version.outputs.full }}
+          path: tt/build/dist/macosx-x86-app/
+
   build-server:
     needs: [version]
     runs-on: ubuntu-latest
@@ -140,50 +184,6 @@ jobs:
         with:
           name: tribal-trouble-mac-arm64_${{ needs.version.outputs.full }}
           path: tt/build/dist/macosx-arm64/
-
-  build-mac-arm64-app:
-    if: github.ref == 'refs/heads/release'
-    needs: [version]
-    runs-on: macos-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 26
-        uses: actions/setup-java@v4
-        with:
-          java-version: '26-ea'
-          distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-      - name: Build mac binaries
-        run: ./gradlew :tt:packageMacArm64App
-      - name: Upload files
-        uses: actions/upload-artifact@v4
-        with:
-          name: tribal-trouble-mac-arm64-app_${{ needs.version.outputs.full }}
-          path: tt/build/dist/macosx-arm64-app/
-
-  build-mac-x86-app:
-    if: github.ref == 'refs/heads/release'
-    needs: [version]
-    runs-on: macos-15-intel
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 26
-        uses: actions/setup-java@v4
-        with:
-          java-version: '26-ea'
-          distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-      - name: Build mac binaries
-        run: ./gradlew :tt:packageMacX86App
-      - name: Upload files
-        uses: actions/upload-artifact@v4
-        with:
-          name: tribal-trouble-mac-x86-app_${{ needs.version.outputs.full }}
-          path: tt/build/dist/macosx-x86-app/
 
   steam-release:
     if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
