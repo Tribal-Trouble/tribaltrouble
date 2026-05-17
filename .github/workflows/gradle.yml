@@ -262,8 +262,7 @@ jobs:
              "dist/mac-x86/tribal-trouble-mac-x86_${VERSION}.dmg"
           # Windows is a directory (jpackage app-image) — zip it with the desired name.
           # itch app auto-extracts zip uploads on install, so end-user UX is unchanged.
-          mkdir -p dist/windows-zipped
-          (cd dist/windows && zip -qr "../windows-zipped/tribal-trouble-windows_${VERSION}.zip" .)
+          (cd dist/windows && zip -qr "../tribal-trouble-windows_${VERSION}.zip" .)
       - name: Install butler
         run: |
           curl -L -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
@@ -276,10 +275,10 @@ jobs:
         run: |
           VERSION="${{ needs.version.outputs.full }}"
           PROJECT="${{ vars.ITCH_PROJECT }}"
-          ./butler push dist/windows-zipped "$PROJECT:windows"   --userversion "$VERSION"
-          ./butler push dist/linux          "$PROJECT:linux"     --userversion "$VERSION"
-          ./butler push dist/mac-arm64      "$PROJECT:osx-arm64" --userversion "$VERSION"
-          ./butler push dist/mac-x86        "$PROJECT:osx-x86"   --userversion "$VERSION"
+          ./butler push "dist/tribal-trouble-windows_${VERSION}.zip"                "$PROJECT:windows"   --userversion "$VERSION"
+          ./butler push "dist/linux/tribal-trouble-linux-appimage_${VERSION}.AppImage" "$PROJECT:linux"     --userversion "$VERSION"
+          ./butler push "dist/mac-arm64/tribal-trouble-mac-arm64_${VERSION}.dmg"     "$PROJECT:osx-arm64" --userversion "$VERSION"
+          ./butler push "dist/mac-x86/tribal-trouble-mac-x86_${VERSION}.dmg"         "$PROJECT:osx-x86"   --userversion "$VERSION"
 
   github-release:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/release') || github.event_name == 'workflow_dispatch'
