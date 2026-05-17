@@ -8,7 +8,22 @@ on:
   workflow_dispatch:
 
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      full: ${{ steps.compute.outputs.full }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: compute
+        name: Compute version string
+        run: |
+          BASE=$(grep 'version = "' build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          API=$(grep 'API_VERSION' common/src/main/java/com/oddlabs/util/Compatibility.java | sed 's/.*= \([0-9]*\);/\1/')
+          echo "full=v${BASE}-${API}" >> $GITHUB_OUTPUT
+          echo "Resolved version: v${BASE}-${API}"
+
   build-linux:
+    needs: [version]
     runs-on: ubuntu-latest
 
     steps:
@@ -25,15 +40,16 @@ jobs:
       - name: Upload Linux AppImage
         uses: actions/upload-artifact@v4
         with:
-          name: linux-appimage
+          name: tribal-trouble-linux-appimage_${{ needs.version.outputs.full }}
           path: tt/build/dist/linux/TribalTrouble-x86_64.AppImage
       - name: Upload Linux Package
         uses: actions/upload-artifact@v4
         with:
-          name: linux-package
+          name: tribal-trouble-linux-package_${{ needs.version.outputs.full }}
           path: tt/build/dist/linux/TribalTrouble.AppDir
 
   build-server:
+    needs: [version]
     runs-on: ubuntu-latest
 
     steps:
@@ -50,10 +66,11 @@ jobs:
       - name: Upload server
         uses: actions/upload-artifact@v4
         with:
-          name: server
+          name: tribal-trouble-server_${{ needs.version.outputs.full }}
           path: server/build/install/server/
 
   build-windows:
+    needs: [version]
     runs-on: windows-latest
 
     steps:
@@ -70,10 +87,11 @@ jobs:
       - name: Upload files
         uses: actions/upload-artifact@v4
         with:
-          name: windows
+          name: tribal-trouble-windows_${{ needs.version.outputs.full }}
           path: tt/build/dist/windows/
 
   build-mac-x86:
+    needs: [version]
     runs-on: macos-15-intel
 
     steps:
@@ -90,10 +108,11 @@ jobs:
       - name: Upload files
         uses: actions/upload-artifact@v4
         with:
-          name: mac-x86
+          name: tribal-trouble-mac-x86_${{ needs.version.outputs.full }}
           path: tt/build/dist/macosx-x86/
 
   build-mac-arm64:
+    needs: [version]
     runs-on: macos-latest
 
     steps:
@@ -110,11 +129,12 @@ jobs:
       - name: Upload files
         uses: actions/upload-artifact@v4
         with:
-          name: mac-arm64
+          name: tribal-trouble-mac-arm64_${{ needs.version.outputs.full }}
           path: tt/build/dist/macosx-arm64/
 
   build-mac-arm64-app:
     if: github.ref == 'refs/heads/steam'
+    needs: [version]
     runs-on: macos-latest
 
     steps:
@@ -131,11 +151,12 @@ jobs:
       - name: Upload files
         uses: actions/upload-artifact@v4
         with:
-          name: mac-arm64-app
+          name: tribal-trouble-mac-arm64-app_${{ needs.version.outputs.full }}
           path: tt/build/dist/macosx-arm64-app/
 
   build-mac-x86-app:
     if: github.ref == 'refs/heads/steam'
+    needs: [version]
     runs-on: macos-15-intel
 
     steps:
@@ -152,33 +173,33 @@ jobs:
       - name: Upload files
         uses: actions/upload-artifact@v4
         with:
-          name: mac-x86-app
+          name: tribal-trouble-mac-x86-app_${{ needs.version.outputs.full }}
           path: tt/build/dist/macosx-x86-app/
 
   deploy-to-steam:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/steam'
-    needs: [ build-mac-arm64-app, build-mac-x86-app, build-windows, build-linux ]
+    needs: [ version, build-mac-arm64-app, build-mac-x86-app, build-windows, build-linux ]
     runs-on: ubuntu-latest
     steps:
       - name: Download Windows Artifact
         uses: actions/download-artifact@v4
         with:
-          name: windows
+          name: tribal-trouble-windows_${{ needs.version.outputs.full }}
           path: tt/build/dist/windows/
       - name: Download Mac x86 Artifact
         uses: actions/download-artifact@v4
         with:
-          name: mac-x86-app
+          name: tribal-trouble-mac-x86-app_${{ needs.version.outputs.full }}
           path: tt/build/dist/macosx-x86-app/
       - name: Download Mac arm64 Artifact
         uses: actions/download-artifact@v4
         with:
-          name: mac-arm64-app
+          name: tribal-trouble-mac-arm64-app_${{ needs.version.outputs.full }}
           path: tt/build/dist/macosx-arm64-app/
       - name: Download Linux Artifact
         uses: actions/download-artifact@v4
         with:
-          name: linux-package
+          name: tribal-trouble-linux-package_${{ needs.version.outputs.full }}
           path: tt/build/dist/linux/
       - name: Upload to steam
         uses: game-ci/steam-deploy@v3
@@ -186,7 +207,7 @@ jobs:
           username: ${{ vars.STEAM_USER }}
           configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
           appId: ${{ vars.STEAM_APP_ID }}
-          buildDescription: v1.2.3-${{ github.run_number }}
+          buildDescription: ${{ needs.version.outputs.full }}.${{ github.run_number }}
           firstDepotIdOverride: 3945722
           rootPath: tt/build/dist/
           depot1Path: windows
