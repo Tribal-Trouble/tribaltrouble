@@ -273,10 +273,6 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         SteamManager.clearRichPresence();
     }
 
-    public void clearChatRoomInfo() {
-        chat_room_info = null;
-    }
-
     public @Nullable ChatRoomInfo getChatRoomInfo() {
         return chat_room_info;
     }

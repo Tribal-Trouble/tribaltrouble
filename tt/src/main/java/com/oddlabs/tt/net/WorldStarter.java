@@ -69,7 +69,6 @@ final class WorldStarter implements LoadCallback {
         Participant[] participants = getParticipants(viewer, player_slots);
         GamePlayer[] gamePlayers = getGamePlayers(viewer, player_slots);
         if (Network.getMatchmakingClient().isConnected()) {
-            Network.getMatchmakingClient().clearChatRoomInfo();
             GameSession game_session = new GameSession(session_id, participants, ingame_info.isRated(), gamePlayers);
             Network.getMatchmakingClient().getInterface().gameStartedNotify(game_session);
             sendWorldParams(player_slots, corrected_unit_infos);
