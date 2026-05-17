@@ -61,6 +61,67 @@ tasks.processResources {
     inputs.files(revision)
 }
 
+// --- BuildInfo generation ---
+// Writes BuildInfo.java with the effective project version (MAJOR.MINOR.PATCH).
+// MAJOR.MINOR comes from project.version (root build.gradle.kts).
+// PATCH = number of commits since the most recent v<MAJOR>.<MINOR>.* git tag
+// (or 0 if no such tag exists). Same logic the CI uses for the release tag,
+// so the game's reported version always matches the tag of the build it came from.
+
+val generatedBuildInfoDir = layout.buildDirectory.dir("generated/sources/buildinfo/java/main")
+
+val generateBuildInfo by tasks.registering {
+    val outputDir = generatedBuildInfoDir
+    val baseVersion = project.version.toString()
+    val gitDir = project.rootDir
+    outputs.dir(outputDir)
+    outputs.upToDateWhen { false }  // git history changes between commits; always recompute
+
+    doLast {
+        val patch = runCatching {
+            val tagsOutput = ProcessBuilder("git", "tag", "-l", "v$baseVersion.*", "--sort=-v:refname")
+                .directory(gitDir)
+                .redirectErrorStream(true)
+                .start()
+                .inputStream.bufferedReader()
+                .readText()
+                .trim()
+            if (tagsOutput.isEmpty()) {
+                "0"
+            } else {
+                val lastTag = tagsOutput.lines().first()
+                ProcessBuilder("git", "rev-list", "--count", "$lastTag..HEAD")
+                    .directory(gitDir)
+                    .redirectErrorStream(true)
+                    .start()
+                    .inputStream.bufferedReader()
+                    .readText()
+                    .trim()
+                    .ifEmpty { "0" }
+            }
+        }.getOrDefault("0")
+
+        val effectiveVersion = "$baseVersion.$patch"
+        val packageDir = outputDir.get().asFile.resolve("com/oddlabs/tt")
+        packageDir.mkdirs()
+        packageDir.resolve("BuildInfo.java").writeText(
+            """
+            package com.oddlabs.tt;
+
+            public final class BuildInfo {
+                public static final String VERSION = "$effectiveVersion";
+                private BuildInfo() {}
+            }
+
+            """.trimIndent()
+        )
+    }
+}
+
+sourceSets.main {
+    java.srcDir(generateBuildInfo)
+}
+
 tasks.run.configure {
     classpath = files(layout.buildDirectory) + sourceSets.main.get().runtimeClasspath
 }

@@ -1,10 +1,10 @@
-name: Gradle Build + Publish
+name: Build & Release
 
 on:
   push:
-    branches: [ "main", "steam" ]
+    branches: [ "main", "release" ]
   pull_request:
-    branches: [ "main", "steam" ]
+    branches: [ "main", "release" ]
   workflow_dispatch:
 
 jobs:
@@ -14,13 +14,22 @@ jobs:
       full: ${{ steps.compute.outputs.full }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # need full history + tags to compute patch from commits since last tag
       - id: compute
         name: Compute version string
         run: |
           BASE=$(grep 'version = "' build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
           API=$(grep 'API_VERSION' common/src/main/java/com/oddlabs/util/Compatibility.java | sed 's/.*= \([0-9]*\);/\1/')
-          echo "full=v${BASE}-${API}" >> $GITHUB_OUTPUT
-          echo "Resolved version: v${BASE}-${API}"
+          # PATCH = commits since most recent v<BASE>.* tag (or 0 if none exists)
+          LAST_PATCH_TAG=$(git tag -l "v${BASE}.*" --sort=-v:refname | head -1)
+          if [ -z "$LAST_PATCH_TAG" ]; then
+            PATCH=0
+          else
+            PATCH=$(git rev-list --count "${LAST_PATCH_TAG}..HEAD")
+          fi
+          echo "full=v${BASE}.${PATCH}-${API}" >> $GITHUB_OUTPUT
+          echo "Resolved version: v${BASE}.${PATCH}-${API} (base=${BASE}, patch=${PATCH}, api=${API}, last-tag=${LAST_PATCH_TAG:-none})"
 
   build-linux:
     needs: [version]
@@ -133,7 +142,7 @@ jobs:
           path: tt/build/dist/macosx-arm64/
 
   build-mac-arm64-app:
-    if: github.ref == 'refs/heads/steam'
+    if: github.ref == 'refs/heads/release'
     needs: [version]
     runs-on: macos-latest
 
@@ -155,7 +164,7 @@ jobs:
           path: tt/build/dist/macosx-arm64-app/
 
   build-mac-x86-app:
-    if: github.ref == 'refs/heads/steam'
+    if: github.ref == 'refs/heads/release'
     needs: [version]
     runs-on: macos-15-intel
 
@@ -176,8 +185,8 @@ jobs:
           name: tribal-trouble-mac-x86-app_${{ needs.version.outputs.full }}
           path: tt/build/dist/macosx-x86-app/
 
-  deploy-to-steam:
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/steam'
+  steam-release:
+    if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: [ version, build-mac-arm64-app, build-mac-x86-app, build-windows, build-linux ]
     runs-on: ubuntu-latest
     steps:
@@ -215,3 +224,83 @@ jobs:
           depot3Path: macosx-x86-app
           depot4Path: linux
           releaseBranch: prerelease
+
+  github-release:
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/release') || github.event_name == 'workflow_dispatch'
+    needs: [ version, build-linux, build-server, build-windows, build-mac-x86, build-mac-arm64 ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if tag already exists
+        id: check
+        run: |
+          TAG="${{ needs.version.outputs.full }}"
+          if git rev-parse --verify "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag $TAG already exists — skipping release (bump version in build.gradle.kts to release again)"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Tag $TAG does not exist — proceeding with release"
+          fi
+
+      - name: Download all artifacts
+        if: steps.check.outputs.exists == 'false'
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
+
+      - name: Package artifacts for release
+        if: steps.check.outputs.exists == 'false'
+        working-directory: dist
+        run: |
+          # Skip artifacts that aren't useful for direct download
+          # (-app variants are Steam-only depot contents; linux-package is the AppDir, redundant with the AppImage)
+          for d in */; do
+            name="${d%/}"
+            if [[ "$name" == *"-app_"* ]] || [[ "$name" == *"linux-package"* ]]; then
+              rm -rf "$d"
+              continue
+            fi
+            files=("$d"*)
+            if [ ${#files[@]} -eq 1 ] && [ -f "${files[0]}" ]; then
+              # Single-file artifact (AppImage, DMG) — keep extension, prefix with artifact name
+              src="${files[0]}"
+              filename="$(basename "$src")"
+              if [[ "$filename" == *.* ]]; then
+                ext="${filename##*.}"
+                mv "$src" "${name}.${ext}"
+              else
+                mv "$src" "$name"
+              fi
+              rm -rf "$d"
+            else
+              # Directory artifact (Windows, server) — zip the contents
+              (cd "$d" && zip -r "../${name}.zip" .)
+              rm -rf "$d"
+            fi
+          done
+          ls -lh
+
+      - name: Tag commit and create GitHub Release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ needs.version.outputs.full }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --notes-file CHANGELOG.md \
+            --target "${{ github.ref_name }}" \
+            --prerelease \
+            dist/*
+

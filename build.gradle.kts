@@ -9,7 +9,7 @@ plugins {
 
 allprojects {
     group = "com.oddlabs.tribaltrouble"
-    version = "2.0.0"
+    version = "2.0"
 }
 
 subprojects {

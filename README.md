@@ -28,6 +28,11 @@ See what we're working on right now on the **[current roadmap](https://github.co
   - [Build Game Client for Distribution](#build-game-client-for-distribution)
   - [Build + Run Game Server](#build--run-game-server)
   - [Common Gradle Tasks](#common-gradle-tasks)
+- [🚀 Releasing](#-releasing)
+  - [Versioning](#versioning)
+  - [Branches & CI Behavior](#branches--ci-behavior)
+  - [How to Cut a Release](#how-to-cut-a-release)
+  - [Steam Setup](#steam-setup)
 - [🤝 Contributing](#-contributing)
 - [🙏 About this fork](#-about-this-fork)
 
@@ -92,7 +97,7 @@ Build output lands under `tt/build/dist/<platform>` (with shared staged files in
 
 > Each `package*` task only runs on its matching host OS `packageWindows` skips on Linux/Mac, and vice versa.
 
-> Don't want to build locally? CI builds per-platform artifacts on every push to `main` and `steam`. Grab them from the [Actions tab](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml) — pick a successful run and download the `windows`, `linux-appimage`, `mac-x86`, `mac-arm64`, or `server` artifact at the bottom of the page.
+> Don't want to build locally? CI builds per-platform artifacts on every push to `main` and `release`. Grab them from the [Actions tab](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml) — pick a successful run and download the platform artifact you want at the bottom of the page.
 
 ### Build + Run Game Server
 
@@ -140,6 +145,56 @@ Quick reference for tasks you'll reach for often:
 - `./gradlew assets:geometry` - regenerate binary geometry files
 - `./gradlew assets:textures` - convert texture sources
 - `./gradlew tasks --all` - full list of available tasks
+
+## 🚀 Releasing
+
+### Versioning
+
+The canonical release identifier is **`v<MAJOR>.<MINOR>.<PATCH>-<API>`** (e.g., `v2.0.3-102`) and shows up everywhere: git tags, GitHub Release titles, artifact names, Steam build descriptions, the in-game about screen, and the matchmaker server logs.
+
+It's built from three sources:
+
+- **MAJOR.MINOR** — `version = "2.0"` in the root `build.gradle.kts`. Bump manually for a minor or major release.
+- **PATCH** — auto-computed: number of commits since the most recent `v<MAJOR>.<MINOR>.*` git tag (or `0` if no such tag exists). You don't edit this anywhere — pushing a commit advances it; tagging a release resets the counter for that minor line.
+- **API** — `public static final int API_VERSION = 102;` in `common/src/main/java/com/oddlabs/util/Compatibility.java`. Bump only when the wire protocol between client and server changes (mismatched clients get rejected at login).
+
+Both Gradle and CI compute PATCH from the same git history using identical logic, so the value the game logs (from the generated `BuildInfo.java` under `tt/build/generated/sources/buildinfo/`) always matches the git tag and Steam build description of the build it came from. The startup log line `version: v2.0.3-102 (API 102)` confirms which version is running — useful when triaging player-submitted log files.
+
+> When you bump `MAJOR.MINOR` (say `2.0` → `2.1`), there's no `v2.1.*` tag yet, so the first build is `v2.1.0-102`, the next push is `v2.1.1-102`, and so on. PATCH resets cleanly on each minor bump.
+
+### Branches & CI Behavior
+
+| Branch | On push: builds? | On push: tag + GitHub Release? | On push: Steam? |
+|---|---|---|---|
+| `main` | ✅ | ❌ | ❌ |
+| `release` | ✅ | ✅ | ✅ |
+| pull requests | ✅ | ❌ | ❌ |
+
+Push to `main` just builds artifacts for testing (downloadable from the Actions tab). **`release` is the "ship it" branch** — pushing to it triggers the full release pipeline.
+
+The CI is also reachable manually from the Actions tab via "Run workflow" — useful for re-running a release on demand.
+
+### How to Cut a Release
+
+1. On `main`, get everything ready (merge feature branches, polish, etc.).
+2. Update `CHANGELOG.md` under the new version heading.
+3. If the wire protocol changed, bump `API_VERSION` in `common/src/main/java/com/oddlabs/util/Compatibility.java`.
+4. Only edit `build.gradle.kts` if this release is a new minor or major (e.g., `2.0` → `2.1`). Patches are auto-counted from commits since the last tag; no edit needed.
+5. Merge `main` → `release` and push.
+6. CI computes the version (e.g., `v2.0.3-102` for the 3rd commit after `v2.0.0-102`) → builds → tags → creates a prerelease GitHub Release with all platform artifacts attached → pushes to Steam's `prerelease` branch.
+7. Promote on Steam (move the prerelease build to default) when you're ready for players to see it.
+
+### Steam Setup
+
+The `steam-release` job needs the following set on the GitHub repo (Settings → Secrets and variables → Actions):
+
+| Type | Name | Value |
+|---|---|---|
+| Variable | `STEAM_USER` | Your Steam build account username |
+| Variable | `STEAM_APP_ID` | The Steam app ID (e.g., `3945720`) |
+| Secret | `STEAM_CONFIG_VDF` | Contents of your `config.vdf` (lets the action authenticate without 2FA) |
+
+The deploy uses `game-ci/steam-deploy@v3` and pushes Windows, Mac arm64, Mac x86, and Linux depots to the `prerelease` Steam branch. Promote it to `default` manually in Steamworks when you're ready.
 
 ## 🤝 Contributing
 
