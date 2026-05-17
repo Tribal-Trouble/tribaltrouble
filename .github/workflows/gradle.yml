@@ -278,6 +278,8 @@ jobs:
           depot3Path: macosx-x86-app
           depot4Path: linux
           releaseBranch: prerelease
+      - name: Reset BuildOutput between Steam uploads
+        run: rm -rf BuildOutput
       - name: Upload to steam (demo)
         uses: game-ci/steam-deploy@v3
         with:
