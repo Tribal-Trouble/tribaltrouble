@@ -299,7 +299,7 @@ jobs:
 
           gh release create "$TAG" \
             --title "$TAG" \
-            --notes-file CHANGELOG.md \
+            --generate-notes \
             --target "${{ github.ref_name }}" \
             --prerelease \
             dist/*
