@@ -504,7 +504,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
                 handleError(new IOException("Steam Web API ticket was null after awaiting"));
                 return;
             }
-            matchmaking_login_interface.loginWithSteam(accountId, personaName, authTicket, revision);
+            matchmaking_login_interface.loginWithSteam(accountId, personaName, authTicket, steam.getAppID(), revision);
         } else if (!Renderer.isRegistered()) {
             matchmaking_login_interface.loginAsGuest(revision);
         } else if (login_details != null) {

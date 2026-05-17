@@ -26,25 +26,29 @@ public final class SteamAuthValidator {
     // Steam ID 64 base offset (converts account ID to full Steam ID)
     private static final long STEAM_ID_BASE = 76561197960265728L;
 
-    public static boolean validateTicket(long steamAccountId, byte[] authTicket) {
+    public static boolean validateTicket(long steamAccountId, byte[] authTicket, int appId) {
         if (authTicket == null || authTicket.length == 0) {
             logger.warning("Steam auth ticket is null or empty");
             return false;
         }
 
         ServerConfiguration config = ServerConfiguration.getInstance();
-        String apiKey = config.get(ServerConfiguration.STEAM_WEB_API_KEY);
-        String appId = config.get(ServerConfiguration.STEAM_APP_ID);
 
-        if (apiKey == null || apiKey.isEmpty() || appId == null || appId.isEmpty()) {
-            logger.warning("Steam Web API key or App ID not configured");
+        if (!config.isWhitelistedSteamAppId(appId)) {
+            logger.warning("Steam auth rejected: app ID " + appId + " is not in STEAM_APP_ID whitelist");
+            return false;
+        }
+
+        String apiKey = config.get(ServerConfiguration.STEAM_WEB_API_KEY);
+        if (apiKey == null || apiKey.isEmpty()) {
+            logger.warning("Steam Web API key not configured");
             return false;
         }
 
         String ticketHex = bytesToHex(authTicket);
         String url = STEAM_API_URL
                 + "?key=" + URLEncoder.encode(apiKey, StandardCharsets.UTF_8)
-                + "&appid=" + URLEncoder.encode(appId, StandardCharsets.UTF_8)
+                + "&appid=" + appId
                 + "&ticket=" + URLEncoder.encode(ticketHex, StandardCharsets.UTF_8);
 
         try {

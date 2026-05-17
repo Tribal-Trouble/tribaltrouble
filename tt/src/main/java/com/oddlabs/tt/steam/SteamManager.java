@@ -13,6 +13,8 @@ import com.codedisaster.steamworks.SteamUser;
 import com.codedisaster.steamworks.SteamUserCallback;
 import com.codedisaster.steamworks.SteamUserStats;
 import com.codedisaster.steamworks.SteamUserStatsCallback;
+import com.codedisaster.steamworks.SteamUtils;
+import com.codedisaster.steamworks.SteamUtilsCallback;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
@@ -20,7 +22,7 @@ import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class SteamManager implements SteamUserCallback, SteamFriendsCallback, SteamUserStatsCallback {
+public final class SteamManager implements SteamUserCallback, SteamFriendsCallback, SteamUserStatsCallback, SteamUtilsCallback {
     private static final Logger logger = Logger.getLogger(SteamManager.class.getName());
     private static final Duration TICKET_MAX_AGE = Duration.ofHours(1);
     private static final String WEB_API_IDENTITY = "tribaltrouble.org";
@@ -31,6 +33,7 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
     private final SteamUser steamUser;
     private final SteamFriends steamFriends;
     private final SteamUserStats steamUserStats;
+    private final SteamUtils steamUtils;
 
     private @Nullable SteamAuthTicket currentAuthTicket;
     private byte @Nullable [] cachedTicketData;
@@ -41,6 +44,7 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
         steamUser = new SteamUser(this);
         steamFriends = new SteamFriends(this);
         steamUserStats = new SteamUserStats(this);
+        steamUtils = new SteamUtils(this);
     }
 
     public static @Nullable SteamManager getInstance() {
@@ -126,6 +130,7 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
             instance.steamUserStats.dispose();
             instance.steamUser.dispose();
             instance.steamFriends.dispose();
+            instance.steamUtils.dispose();
             instance = null;
         }
         SteamAPI.shutdown();
@@ -139,6 +144,10 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
 
     public long getAccountID() {
         return steamUser.getSteamID().getAccountID();
+    }
+
+    public int getAppID() {
+        return steamUtils.getAppID();
     }
 
     public String getPersonaName() {
@@ -304,5 +313,10 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
 
     @Override
     public void onGlobalStatsReceived(long gameId, SteamResult result) {
+    }
+
+    // SteamUtilsCallback
+    @Override
+    public void onSteamShutdown() {
     }
 }

@@ -35,9 +35,9 @@ public final class SteamAchievementService {
             long steamId, int totalWins, int totalLosses, int currentStreak, int bestStreak) {
         ServerConfiguration config = ServerConfiguration.getInstance();
         String apiKey = config.get(ServerConfiguration.STEAM_WEB_API_KEY);
-        String appId = config.get(ServerConfiguration.STEAM_APP_ID);
+        int appId = config.getMainSteamAppId();
 
-        if (apiKey == null || apiKey.isEmpty() || appId == null || appId.isEmpty()) {
+        if (apiKey == null || apiKey.isEmpty() || appId == -1) {
             logger.warning("Steam Web API key or App ID not configured");
             return false;
         }
@@ -47,7 +47,7 @@ public final class SteamAchievementService {
             StringBuilder postData = new StringBuilder();
             postData.append("key=").append(URLEncoder.encode(apiKey, StandardCharsets.UTF_8));
             postData.append("&steamid=").append(steamId);
-            postData.append("&appid=").append(URLEncoder.encode(appId, StandardCharsets.UTF_8));
+            postData.append("&appid=").append(appId);
             postData.append("&count=4");
 
             postData.append("&name[0]=").append(URLEncoder.encode(SteamStatConstants.MP_TOTAL_WINS, StandardCharsets.UTF_8));

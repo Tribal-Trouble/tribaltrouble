@@ -8,10 +8,13 @@ import discord4j.core.object.reaction.ReactionEmoji;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public final class ServerConfiguration {
@@ -150,5 +153,50 @@ public final class ServerConfiguration {
 
     public boolean isSteamOnlyAuth() {
         return getBoolean(STEAM_ONLY_AUTH, false);
+    }
+
+    /**
+     * Parses STEAM_APP_ID as a comma-separated whitelist of Steam app IDs that the
+     * server accepts auth tickets for. Lets one server pool serve the full game
+     * plus a demo and/or playtest build with their own app IDs.
+     */
+    public Set<Integer> getSteamAppIds() {
+        String raw = get(STEAM_APP_ID);
+        if (raw == null || raw.trim().isEmpty()) {
+            return Collections.emptySet();
+        }
+        Set<Integer> ids = new HashSet<>();
+        for (String part : raw.split(",")) {
+            String trimmed = part.trim();
+            if (trimmed.isEmpty()) continue;
+            try {
+                ids.add(Integer.parseInt(trimmed));
+            } catch (NumberFormatException e) {
+                logger.warning("Invalid Steam app ID in STEAM_APP_ID: '" + trimmed + "' — skipping");
+            }
+        }
+        return ids;
+    }
+
+    public boolean isWhitelistedSteamAppId(int appId) {
+        return getSteamAppIds().contains(appId);
+    }
+
+    /**
+     * First app ID from STEAM_APP_ID — used as the target for multiplayer stats
+     * and achievement pushes. Returns -1 if not configured.
+     */
+    public int getMainSteamAppId() {
+        String raw = get(STEAM_APP_ID);
+        if (raw == null || raw.trim().isEmpty()) {
+            return -1;
+        }
+        String first = raw.split(",")[0].trim();
+        try {
+            return Integer.parseInt(first);
+        } catch (NumberFormatException e) {
+            logger.warning("Invalid first Steam app ID in STEAM_APP_ID: '" + first + "'");
+            return -1;
+        }
     }
 }

@@ -160,12 +160,12 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
         doLogin(username, revision);
     }
 
-    public void loginWithSteam(long steamAccountId, String personaName, byte[] authTicket, int revision) {
+    public void loginWithSteam(long steamAccountId, String personaName, byte[] authTicket, int appId, int revision) {
         if (!revisionOK(revision)) return;
 
-        MatchmakingServer.getLogger().info("Steam login attempt: accountId=" + steamAccountId + " persona=" + personaName + " ticketLen=" + (authTicket != null ? authTicket.length : 0));
+        MatchmakingServer.getLogger().info("Steam login attempt: accountId=" + steamAccountId + " persona=" + personaName + " appId=" + appId + " ticketLen=" + (authTicket != null ? authTicket.length : 0));
 
-        if (!SteamAuthValidator.validateTicket(steamAccountId, authTicket)) {
+        if (!SteamAuthValidator.validateTicket(steamAccountId, authTicket, appId)) {
             client_interface.loginError(MatchmakingClientInterface.USER_ERROR_NO_SUCH_USER);
             MatchmakingServer.getLogger().warning("Steam auth ticket validation failed for account ID: " + steamAccountId);
             return;
