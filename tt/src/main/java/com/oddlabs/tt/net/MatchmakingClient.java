@@ -28,6 +28,7 @@ import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
@@ -359,7 +360,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         }
     }
 
-    private @Nullable java.io.ByteArrayOutputStream pendingSpectatorEventLog;
+    private @Nullable ByteArrayOutputStream pendingSpectatorEventLog;
     private int pendingSpectatorEventLogTotal;
 
     @Override
