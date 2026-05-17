@@ -1,0 +1,81 @@
+name: Release Website Downloads
+
+# Manually push a previously-released tag's binaries to tribaltrouble.org.
+# Downloads assets from the named GitHub Release, re-packages them to match
+# Omar's existing zip pattern, and atomically uploads to /var/www/html.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to deploy (e.g. v2.0.14-103)'
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Verify tag exists on GitHub
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ inputs.tag }}"
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::Release '$TAG' not found. Pick from: gh release list --repo $GITHUB_REPOSITORY"
+            exit 1
+          fi
+          echo "Release $TAG found — proceeding."
+
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir release-assets
+          gh release download "${{ inputs.tag }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --dir release-assets \
+            --pattern 'tribal-trouble-windows_*.zip' \
+            --pattern 'tribal-trouble-linux-appimage_*.AppImage' \
+            --pattern 'tribal-trouble-mac-arm64_*.dmg' \
+            --pattern 'tribal-trouble-mac-x86_*.dmg'
+          ls -lh release-assets/
+
+      - name: Stage with stable filenames matching Omar's pattern
+        run: |
+          mkdir staging
+
+          # Windows release asset is already a zip wrapping TribalTrouble/ — just rename.
+          mv release-assets/tribal-trouble-windows_*.zip staging/windows.zip
+
+          # Linux/Mac assets are bare files — wrap in zips matching Omar's existing layout.
+          (cd release-assets && zip -qj ../staging/linux.zip     tribal-trouble-linux-appimage_*.AppImage)
+          (cd release-assets && zip -qj ../staging/mac-arm64.zip tribal-trouble-mac-arm64_*.dmg)
+          (cd release-assets && zip -qj ../staging/mac-x86.zip   tribal-trouble-mac-x86_*.dmg)
+
+          ls -lh staging/
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY_PROD }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ vars.DEPLOY_HOST_PROD }}" >> ~/.ssh/known_hosts
+
+      - name: Upload to website (atomic)
+        run: |
+          rsync --delay-updates -v \
+            staging/windows.zip staging/linux.zip staging/mac-arm64.zip staging/mac-x86.zip \
+            "${{ vars.DEPLOY_USER_PROD }}@${{ vars.DEPLOY_HOST_PROD }}:/var/www/html/"
+
+      - name: Summary
+        run: |
+          echo "## Deployed ${{ inputs.tag }} to tribaltrouble.org" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Files updated:" >> $GITHUB_STEP_SUMMARY
+          echo "- https://tribaltrouble.org/windows.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- https://tribaltrouble.org/linux.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- https://tribaltrouble.org/mac-arm64.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- https://tribaltrouble.org/mac-x86.zip" >> $GITHUB_STEP_SUMMARY
