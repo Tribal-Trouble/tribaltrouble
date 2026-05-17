@@ -8,14 +8,53 @@ on:
   workflow_dispatch:
 
 jobs:
+  api-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require API_VERSION bump when wire interfaces change
+        run: |
+          LAST_API_BUMP=$(git log -1 --format=%H -G"API_VERSION =" -- common/src/main/java/com/oddlabs/util/Compatibility.java)
+          if [ -z "$LAST_API_BUMP" ]; then
+            echo "Could not locate last API_VERSION bump; skipping check"
+            exit 0
+          fi
+          echo "Last API_VERSION bump: $LAST_API_BUMP"
+
+          INTERFACE_FILES=(
+            common/src/main/java/com/oddlabs/matchmaking/MatchmakingServerInterface.java
+            common/src/main/java/com/oddlabs/matchmaking/MatchmakingClientInterface.java
+            common/src/main/java/com/oddlabs/matchmaking/MatchmakingServerLoginInterface.java
+            common/src/main/java/com/oddlabs/router/RouterInterface.java
+            common/src/main/java/com/oddlabs/router/RouterClientInterface.java
+            common/src/main/java/com/oddlabs/router/GameInterface.java
+            common/src/main/java/com/oddlabs/registration/RegClientInterface.java
+          )
+
+          failed=0
+          for f in "${INTERFACE_FILES[@]}"; do
+            if ! git diff --quiet "$LAST_API_BUMP" HEAD -- "$f"; then
+              echo "::error file=$f::Wire-protocol interface changed since last API_VERSION bump. Bump API_VERSION in common/src/main/java/com/oddlabs/util/Compatibility.java"
+              failed=1
+            fi
+          done
+
+          if [ $failed -eq 0 ]; then
+            echo "OK: no tracked interface changed since last API_VERSION bump"
+          fi
+          exit $failed
+
   version:
+    needs: [api-guard]
     runs-on: ubuntu-latest
     outputs:
       full: ${{ steps.compute.outputs.full }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # need full history + tags to compute patch from commits since last tag
+          fetch-depth: 0
       - id: compute
         name: Compute version string
         run: |
