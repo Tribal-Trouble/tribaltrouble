@@ -264,7 +264,7 @@ jobs:
         with:
           name: tribal-trouble-linux-package_${{ needs.version.outputs.full }}
           path: tt/build/dist/linux/
-      - name: Upload to steam
+      - name: Upload to steam (main game)
         uses: game-ci/steam-deploy@v3
         with:
           username: ${{ vars.STEAM_USER }}
@@ -272,6 +272,19 @@ jobs:
           appId: ${{ vars.STEAM_APP_ID }}
           buildDescription: ${{ needs.version.outputs.full }}.${{ github.run_number }}
           firstDepotIdOverride: 3945722
+          rootPath: tt/build/dist/
+          depot1Path: windows
+          depot2Path: macosx-arm64-app
+          depot3Path: macosx-x86-app
+          depot4Path: linux
+          releaseBranch: prerelease
+      - name: Upload to steam (demo)
+        uses: game-ci/steam-deploy@v3
+        with:
+          username: ${{ vars.STEAM_USER }}
+          configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
+          appId: ${{ vars.STEAM_DEMO_APP_ID }}
+          buildDescription: ${{ needs.version.outputs.full }}.${{ github.run_number }}
           rootPath: tt/build/dist/
           depot1Path: windows
           depot2Path: macosx-arm64-app
