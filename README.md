@@ -165,13 +165,15 @@ Both Gradle and CI compute PATCH from the same git history using identical logic
 
 ### Branches & CI Behavior
 
+**`main` is the integration branch** — all work (feature branches, PRs, fixes) lands here first. **`release` is the "ship it" branch** when `main` is ready to go out, merge `main` → `release` and push. Contributor PRs should target `main`.
+
 | Branch | On push: builds? | On push: tag + GitHub Release? | On push: Steam? | On push: itch.io? |
 |---|---|---|---|---|
 | `main` | ✅ | ❌ | ❌ | ❌ |
 | `release` | ✅ | ✅ | ✅ | ✅ |
 | pull requests | ✅ | ❌ | ❌ | ❌ |
 
-Push to `main` just builds artifacts for testing (downloadable from the Actions tab). **`release` is the "ship it" branch** — pushing to it triggers the full release pipeline.
+Push to `main` just builds artifacts for testing (downloadable from the Actions tab). Pushing to `release` triggers the full release pipeline.
 
 The CI is also reachable manually from the Actions tab via "Run workflow" — useful for re-running a release on demand.
 
@@ -216,6 +218,8 @@ The deploy downloads `butler` from `broth.itch.zone` and pushes to four channels
 Thanks for your interest in contributing. We have a channel in [discord](https://discord.gg/tribaltrouble) that is active with contributors if you have any questions on setup or where to find things. Come chat, play some games!
 
 See something you want or could improve upon? Make a PR or an issue! Don't have an idea? There's plenty of work to be done check out the active issues!
+
+> PRs should target `main` — that's where all work lands before being merged into `release` to ship. See [Branches & CI Behavior](#branches--ci-behavior) for the full flow.
 
 There are ways to contribute besides developing. If you have screenshots of the game from back in the day those are welcome.
 
