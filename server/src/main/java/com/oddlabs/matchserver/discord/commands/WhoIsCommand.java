@@ -20,7 +20,8 @@ public class WhoIsCommand extends DiscordCommand {
             "Displays tribal trouble profiles associated with the discord user and vice versa.";
     private String command_option_lookup_name = "user";
 
-    public WhoIsCommand() {}
+    public WhoIsCommand() {
+    }
 
     @Override
     public String getCommandName() {

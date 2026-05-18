@@ -117,13 +117,20 @@ final class RouterClient implements ConnectionInterface {
         this.is_spectator = true;
         this.current_interface = new Interface(GameInterface.class, new GameInterface() {
             @Override
-            public void checksum(int checksum) {}
+            public void checksum(int checksum) {
+            }
+
             @Override
-            public void relayEventTo(int client_id, ARMIEvent event) {}
+            public void relayEventTo(int client_id, ARMIEvent event) {
+            }
+
             @Override
-            public void relayGameStateEvent(ARMIEvent event) {}
+            public void relayGameStateEvent(ARMIEvent event) {
+            }
+
             @Override
-            public void relayEvent(ARMIEvent event) {}
+            public void relayEvent(ARMIEvent event) {
+            }
         });
         session.addSpectator(this);
         logger.info("Spectator logged in: session = " + session);

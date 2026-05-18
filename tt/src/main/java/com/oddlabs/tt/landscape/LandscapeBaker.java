@@ -1,4 +1,5 @@
 package com.oddlabs.tt.landscape;
+
 import java.nio.IntBuffer;
 
 import org.jspecify.annotations.NonNull;
@@ -14,7 +15,9 @@ import com.oddlabs.tt.resource.BlendInfo;
 import com.oddlabs.tt.resource.BlendLighting;
 import com.oddlabs.tt.resource.StructureBlend;
 import com.oddlabs.tt.resource.WorldInfo;
+
 import static com.oddlabs.tt.util.GLUtils.checkGLError;
+
 import com.oddlabs.tt.vbo.QuadVBO;
 
 

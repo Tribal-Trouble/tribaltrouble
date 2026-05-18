@@ -23,7 +23,8 @@ public class RankCommand extends DiscordCommand {
     private String command_option_lookup_name = "tt_user";
     private String command_option_range = "range";
 
-    public RankCommand() {}
+    public RankCommand() {
+    }
 
     @Override
     public String getCommandName() {
@@ -71,10 +72,10 @@ public class RankCommand extends DiscordCommand {
                             entry.getRanking(),
                             displayName,
                             entry.getName()
-                                            .equalsIgnoreCase(
-                                                    nick) // Allows for case insensitive match
+                                    .equalsIgnoreCase(
+                                            nick) // Allows for case insensitive match
                                     ? ServerConfiguration.getInstance()
-                                            .get(ServerConfiguration.VIKING_CHIEF_EMOJI)
+                                      .get(ServerConfiguration.VIKING_CHIEF_EMOJI)
                                     : ""),
                     String.format(
                             "Rating: %d, Wins: %d, Losses: %d, Invalid: %d, %s",

@@ -337,8 +337,8 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
             var ois = new java.io.ObjectInputStream(bais);
             ois.setObjectInputFilter(java.io.ObjectInputFilter.Config.createFilter(
                     "com.oddlabs.**;"
-                    + "java.lang.*;java.net.*;"
-                    + "!*"));
+                            + "java.lang.*;java.net.*;"
+                            + "!*"));
             var generator = (com.oddlabs.tt.resource.WorldGenerator) ois.readObject();
             var world_params = (com.oddlabs.tt.landscape.WorldParameters) ois.readObject();
             var player_slots = (PlayerSlot[]) ois.readObject();

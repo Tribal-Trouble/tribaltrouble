@@ -14,7 +14,8 @@ public class OnlineCommand extends DiscordCommand {
     private String command_name = "online";
     private String command_description = "Displays tribal trouble profiles that are online now";
 
-    public OnlineCommand() {}
+    public OnlineCommand() {
+    }
 
     @Override
     public String getCommandName() {

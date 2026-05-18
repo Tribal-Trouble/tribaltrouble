@@ -311,7 +311,9 @@ public final class PeerHub implements Animated, RouterHandler {
         this.is_synchronized = value;
     }
 
-    /** Package-private entry point for SpectatorController catch-up ticks. */
+    /**
+     * Package-private entry point for SpectatorController catch-up ticks.
+     */
     void doTickInternal(float t) {
         doTick(t);
     }

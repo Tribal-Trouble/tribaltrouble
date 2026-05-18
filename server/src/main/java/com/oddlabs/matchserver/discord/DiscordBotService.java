@@ -47,7 +47,8 @@ public class DiscordBotService {
         return instance;
     }
 
-    public DiscordBotService() {}
+    public DiscordBotService() {
+    }
 
     public void initialize(String token, long serverId) {
         if (isInitialized) return;
@@ -95,7 +96,9 @@ public class DiscordBotService {
         disposables.clear();
     }
 
-    /** Gets the discord id associated with the bot user */
+    /**
+     * Gets the discord id associated with the bot user
+     */
     Snowflake getBotId() {
         return bot_id;
     }
@@ -122,7 +125,9 @@ public class DiscordBotService {
     private ArrayList<TextChannel> message_channels = new ArrayList<>();
     private TextChannel game_activity_channel;
 
-    /** Sets up event handlers for the Discord bot */
+    /**
+     * Sets up event handlers for the Discord bot
+     */
     private void setupEventHandlers(long serverId) {
         initTribalTroubleTextChannels(serverId);
 
@@ -150,8 +155,8 @@ public class DiscordBotService {
                                                                             + e.getMessage());
                                                             return event.reply(
                                                                             "An error occurred"
-                                                                                + " while executing"
-                                                                                + " the command.")
+                                                                                    + " while executing"
+                                                                                    + " the command.")
                                                                     .withEphemeral(true);
                                                         }
                                                     })
@@ -231,7 +236,9 @@ public class DiscordBotService {
         return Mono.empty();
     }
 
-    /** Deletes all existing commands for the bot in the specified server. */
+    /**
+     * Deletes all existing commands for the bot in the specified server.
+     */
     private void deleteCommands() {
         long guildId = serverId; // Discord4J's server ID.
 

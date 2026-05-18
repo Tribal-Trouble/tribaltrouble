@@ -13,8 +13,10 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.LabelBox;
+
 import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
 import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
+
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputBinding;

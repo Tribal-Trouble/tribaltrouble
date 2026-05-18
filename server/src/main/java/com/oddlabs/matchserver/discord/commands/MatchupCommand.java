@@ -48,7 +48,7 @@ public class MatchupCommand extends DiscordCommand {
         if (player1 == null || player2 == null)
             return event.reply("Both player1 and player2 options are required.");
 
-        Profile[] profiles = DBInterface.getProfilesByNick(new String[] {player1, player2});
+        Profile[] profiles = DBInterface.getProfilesByNick(new String[]{player1, player2});
         if (profiles.length < 2) {
             return event.reply("Could not find requested players");
         }

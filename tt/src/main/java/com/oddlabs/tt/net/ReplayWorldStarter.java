@@ -17,7 +17,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Launches a world for spectating — no game session registration, no participant tracking. */
+/**
+ * Launches a world for spectating — no game session registration, no participant tracking.
+ */
 final class ReplayWorldStarter implements LoadCallback {
     private final UnitInfo[] unit_infos;
     private final PlayerSlot[] player_slots;

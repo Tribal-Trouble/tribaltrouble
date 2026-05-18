@@ -10,8 +10,8 @@ import java.io.ObjectInputStream;
 public class DefaultARMIArgumentReader implements ARMIArgumentReader {
     private static final ObjectInputFilter ARMI_FILTER = ObjectInputFilter.Config.createFilter(
             "com.oddlabs.**;"
-            + "java.lang.*;java.net.*;java.math.*;java.security.*;javax.crypto.*;"
-            + "!*");
+                    + "java.lang.*;java.net.*;java.math.*;java.security.*;javax.crypto.*;"
+                    + "!*");
 
     @Override
     public @Nullable Object readArgument(@NonNull Class<?> type, @NonNull ByteBufferInputStream in) throws IOException, ClassNotFoundException {

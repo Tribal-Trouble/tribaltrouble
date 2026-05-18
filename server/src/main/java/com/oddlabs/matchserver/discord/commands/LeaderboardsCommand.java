@@ -26,7 +26,8 @@ public class LeaderboardsCommand extends DiscordCommand {
     private String command_option_start = "start";
     private String command_option_count = "count";
 
-    public LeaderboardsCommand() {}
+    public LeaderboardsCommand() {
+    }
 
     @Override
     public String getCommandName() {
@@ -83,8 +84,8 @@ public class LeaderboardsCommand extends DiscordCommand {
                                                 + (i + startInt + 1)
                                                 + "-"
                                                 + Math.min(
-                                                        i + startInt + 25,
-                                                        i + startInt + ranks.length));
+                                                i + startInt + 25,
+                                                i + startInt + ranks.length));
                 for (int j = i; j < Math.min(i + 25, ranks.length); j++) {
                     String name = ranks[j].getName();
                     String title = String.format("%d. %s", j + startInt + 1, name);

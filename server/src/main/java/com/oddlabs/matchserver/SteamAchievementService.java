@@ -11,7 +11,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** Service for updating player stats and achievements via Steam Web API. */
+/**
+ * Service for updating player stats and achievements via Steam Web API.
+ */
 public final class SteamAchievementService {
     private static final Logger logger = MatchmakingServer.getLogger();
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -24,11 +26,11 @@ public final class SteamAchievementService {
     /**
      * Updates player stats on Steam which will trigger achievement unlocks.
      *
-     * @param steamId The player's Steam ID (64-bit)
-     * @param totalWins Total multiplayer wins
-     * @param totalLosses Total multiplayer losses
+     * @param steamId       The player's Steam ID (64-bit)
+     * @param totalWins     Total multiplayer wins
+     * @param totalLosses   Total multiplayer losses
      * @param currentStreak Current win streak
-     * @param bestStreak Best win streak ever achieved
+     * @param bestStreak    Best win streak ever achieved
      * @return true if the update was successful, false otherwise
      */
     public static boolean updatePlayerStats(

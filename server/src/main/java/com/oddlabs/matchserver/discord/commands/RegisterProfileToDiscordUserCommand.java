@@ -33,7 +33,9 @@ public class RegisterProfileToDiscordUserCommand extends DiscordCommand {
         return event.deferReply().withEphemeral(true).then(doRegistrationInteraction(event));
     }
 
-    /** Static dicitonary of profiles awaiting to be processed by a user response. */
+    /**
+     * Static dicitonary of profiles awaiting to be processed by a user response.
+     */
     private class ProfileRegistrationTimeout {
         long discord_user_id;
         String profile_name;

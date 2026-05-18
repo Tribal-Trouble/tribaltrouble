@@ -66,20 +66,20 @@ public interface LitShader extends Shader {
     String FRAGMENT_LIGHTING_FUNCTION = """
             vec3 calculateLighting(vec3 normal, vec3 viewPos, float specularStrength) {
                 vec3 lightDir = normalize(u_lightDirection);
-
+            
                 // Diffuse
                 float diff = max(dot(normal, lightDir), 0.0);
-
+            
                 // Hemispheric Ambient (mix based on normal Y in View Space)
                 float skyWeight = 0.5 * (normal.y + 1.0);
                 vec3 ambient = mix(u_groundAmbient, u_globalAmbient, skyWeight);
-
+            
                 // Specular (Blinn-Phong)
                 vec3 viewDir = normalize(-viewPos);
                 vec3 halfDir = normalize(lightDir + viewDir);
                 float spec = pow(max(dot(normal, halfDir), 0.0), 32.0);
                 vec3 specular = specularStrength * spec * vec3(1.0);
-
+            
                 return ambient + diff * vec3(1.0) + specular;
             }
             """;

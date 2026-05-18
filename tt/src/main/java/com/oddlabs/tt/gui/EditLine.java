@@ -306,7 +306,9 @@ public class EditLine extends TextField implements Clipped {
 
     //region Selection Input Handling
 
-    /** Handle Ctrl+C/V/X/A clipboard shortcuts. Returns true if handled. */
+    /**
+     * Handle Ctrl+C/V/X/A clipboard shortcuts. Returns true if handled.
+     */
     private boolean handleClipboardInput(@NonNull InputEvent event) {
         boolean ctrl = event.isControlDown() || event.isMetaDown();
         if (!ctrl) return false;
@@ -329,7 +331,9 @@ public class EditLine extends TextField implements Clipped {
         return false;
     }
 
-    /** Handle shift+arrow selection and ctrl+arrow word jump. Returns true if handled. */
+    /**
+     * Handle shift+arrow selection and ctrl+arrow word jump. Returns true if handled.
+     */
     private boolean handleSelectionNavigation(@NonNull InputEvent event) {
         boolean shift = event.isShiftDown();
         boolean ctrl = event.isControlDown() || event.isMetaDown();
@@ -369,9 +373,11 @@ public class EditLine extends TextField implements Clipped {
         return false;
     }
 
-    /** If there's an active selection and the user types, backspaces, or deletes,
-     *  replace/delete the selection. Returns true if handled, false to fall through
-     *  to basic navigation. */
+    /**
+     * If there's an active selection and the user types, backspaces, or deletes,
+     * replace/delete the selection. Returns true if handled, false to fall through
+     * to basic navigation.
+     */
     private boolean handleSelectionReplacement(@NonNull InputEvent event) {
         if (!hasSelection()) return false;
 

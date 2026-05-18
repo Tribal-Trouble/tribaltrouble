@@ -33,7 +33,9 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
     private static final int TEXT_OFFSET = -4;
     private static final ResourceBundle bundle = ResourceBundle.getBundle(GameStatsDelegate.class.getName());
 
-    /** Threshold above which the paginated transposed layout is used */
+    /**
+     * Threshold above which the paginated transposed layout is used
+     */
     private static final int PAGINATED_THRESHOLD = 6;
     private static final int PAGINATED_STAT_COLUMN_WIDTH = 130;
     private static final int PAGINATED_PLAYER_NAME_WIDTH = 120;
@@ -101,7 +103,9 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
         delay_timer.start();
     }
 
-    /** Original layout: rows=stats, columns=players. Used for ≤6 players. */
+    /**
+     * Original layout: rows=stats, columns=players. Used for ≤6 players.
+     */
     private MultiColumnComboBox<Void> buildLegacyLayout(Player[] players) {
         ColumnInfo[] score_infos = new ColumnInfo[players.length + 1];
         score_infos[0] = new ColumnInfo(i18n("type"), 160);
@@ -207,7 +211,9 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
         return score_box;
     }
 
-    /** Transposed paginated layout: rows=players, columns=stats. Used for >6 players. */
+    /**
+     * Transposed paginated layout: rows=players, columns=stats. Used for >6 players.
+     */
     private MultiColumnComboBox<Void> buildPaginatedLayout(Player[] worldPlayers) {
         this.paginatedPlayers = worldPlayers;
         this.paginatedFont = Skin.getSkin().getMultiColumnComboBoxData().font();

@@ -496,12 +496,12 @@ public final class DBInterface {
     public static RankingEntry[] getRankings(String nick, int radius) {
         String sql =
                 "SELECT nick, rating, wins, losses, invalid, row_num FROM (  SELECT nick,"
-                    + " rating, wins, losses, invalid, ROW_NUMBER() OVER (ORDER BY rating DESC,"
-                    + " (wins - losses) DESC, wins DESC) AS row_num   FROM profiles) ranked"
-                    + " WHERE ABS(CAST(row_num AS SIGNED) - (  SELECT CAST(row_num AS SIGNED)"
-                    + " FROM (    SELECT nick, ROW_NUMBER() OVER (ORDER BY rating DESC, (wins -"
-                    + " losses) DESC, wins DESC) AS row_num FROM profiles  ) sub WHERE nick ="
-                    + " ?)) <= ? ORDER BY row_num";
+                        + " rating, wins, losses, invalid, ROW_NUMBER() OVER (ORDER BY rating DESC,"
+                        + " (wins - losses) DESC, wins DESC) AS row_num   FROM profiles) ranked"
+                        + " WHERE ABS(CAST(row_num AS SIGNED) - (  SELECT CAST(row_num AS SIGNED)"
+                        + " FROM (    SELECT nick, ROW_NUMBER() OVER (ORDER BY rating DESC, (wins -"
+                        + " losses) DESC, wins DESC) AS row_num FROM profiles  ) sub WHERE nick ="
+                        + " ?)) <= ? ORDER BY row_num";
 
         try (Connection conn = DBUtils.createDatabaseConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -739,14 +739,14 @@ public final class DBInterface {
             String player1, String player2, boolean only1v1Matchups) {
         String query =
                 "WITH two_player_games AS (   SELECT game_id FROM game_players GROUP BY game_id"
-                    + " HAVING COUNT(*) = 2 ) SELECT g.id AS game_id, CASE   WHEN g.winner ="
-                    + " gp.team THEN 'Player1'   WHEN g.winner = gp2.team THEN 'Player2'   ELSE"
-                    + " 'Neither' END AS vsResult, gp.nick AS player1_name, gp2.nick AS"
-                    + " player2_name,  g.name, g.mapcode, g.time_start FROM game_players gp   INNER"
-                    + " JOIN game_players gp2 ON gp.game_id = gp2.game_id AND gp.team <> gp2.team  "
-                    + " INNER JOIN games g ON g.id = gp.game_id   INNER JOIN two_player_games tpg"
-                    + " ON tpg.game_id = g.id WHERE g.winner IS NOT NULL   AND gp.nick = ?   AND"
-                    + " gp2.nick = ?   AND gp.team <> gp2.team ORDER BY gp.game_id DESC;";
+                        + " HAVING COUNT(*) = 2 ) SELECT g.id AS game_id, CASE   WHEN g.winner ="
+                        + " gp.team THEN 'Player1'   WHEN g.winner = gp2.team THEN 'Player2'   ELSE"
+                        + " 'Neither' END AS vsResult, gp.nick AS player1_name, gp2.nick AS"
+                        + " player2_name,  g.name, g.mapcode, g.time_start FROM game_players gp   INNER"
+                        + " JOIN game_players gp2 ON gp.game_id = gp2.game_id AND gp.team <> gp2.team  "
+                        + " INNER JOIN games g ON g.id = gp.game_id   INNER JOIN two_player_games tpg"
+                        + " ON tpg.game_id = g.id WHERE g.winner IS NOT NULL   AND gp.nick = ?   AND"
+                        + " gp2.nick = ?   AND gp.team <> gp2.team ORDER BY gp.game_id DESC;";
 
         try (Connection conn = DBUtils.createDatabaseConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -924,11 +924,11 @@ public final class DBInterface {
     /**
      * Ends a game session and updates the database.
      *
-     * @param tgs The timestamped game session to end.
+     * @param tgs      The timestamped game session to end.
      * @param end_time The time at which the game ended.
-     * @param winner The ID of the winning team. When -1 then the player lost against the AI or the
-     *     game state was determined to be invalid and someone cheated. NULL if the game does not
-     *     end naturally (dropped for example)
+     * @param winner   The ID of the winning team. When -1 then the player lost against the AI or the
+     *                 game state was determined to be invalid and someone cheated. NULL if the game does not
+     *                 end naturally (dropped for example)
      */
     public static void endGame(TimestampedGameSession tgs, long end_time, int winner) {
         GameSession session = tgs.getSession();

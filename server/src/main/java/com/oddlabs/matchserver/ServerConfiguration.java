@@ -106,7 +106,8 @@ public final class ServerConfiguration {
                 ObjectMapper mapper = new ObjectMapper();
                 List<Map<String, String>> jsonData =
                         mapper.readValue(
-                                mappingString, new TypeReference<List<Map<String, String>>>() {});
+                                mappingString, new TypeReference<List<Map<String, String>>>() {
+                                });
 
                 for (Map<String, String> item : jsonData) {
                     String emojiId = item.get("emoji id");

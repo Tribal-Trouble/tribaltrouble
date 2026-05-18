@@ -355,7 +355,7 @@ public final class TimestampedGameSession {
             DBInterface.endGame(this, end_time, -1);
             DiscordEmbedCreator.SendHumansLoseToBotsDiscordEmbed(session, database_id);
             game_ended = true;
-        closeSpectatorStreams();
+            closeSpectatorStreams();
             return; // last players disconnected
         }
 
@@ -383,7 +383,7 @@ public final class TimestampedGameSession {
                 DBInterface.endGame(this, end_time, -1);
                 DiscordEmbedCreator.SendInvalidatedGameDiscordEmbed(session, database_id);
                 game_ended = true;
-        closeSpectatorStreams();
+                closeSpectatorStreams();
                 return;
             }
         }
@@ -395,7 +395,7 @@ public final class TimestampedGameSession {
             DBInterface.endGame(this, end_time, -1);
             DiscordEmbedCreator.SendHumansWinAgainstBotsDiscordEmbed(winning_team_index, session, database_id);
             game_ended = true;
-        closeSpectatorStreams();
+            closeSpectatorStreams();
             return;
         }
 

@@ -24,7 +24,8 @@ public final class GameDataModel {
     ArrayList<GamePlayerModel> players = new ArrayList<>();
 
     // Constructor
-    public GameDataModel() {}
+    public GameDataModel() {
+    }
 
     // Getters and Setters for basic game information
     public Timestamp getTimeCreate() {

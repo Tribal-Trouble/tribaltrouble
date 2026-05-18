@@ -329,7 +329,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
         Vector3f ga = Globals.classic_lighting ? globalAmbientClassic : globalAmbientEnhanced;
         Vector3f gga = Globals.classic_lighting ? groundAmbientClassic : groundAmbientEnhanced;
-        
+
         // Rendering everything from the water's point of view. It's as if we put the camera underwater and 
         // rendered from there. The output image will be used to color the water as if it's a reflection
         CameraState waterCamera = frustum_state.reflectCamera(world.getHeightMap().getSeaLevelMeters());
