@@ -442,8 +442,8 @@
         <setting id="org.eclipse.jdt.core.formatter.wrap_before_relational_operator" value="false"/>
         <setting id="org.eclipse.jdt.core.formatter.alignment_for_bitwise_operator" value="0"/>
         <setting id="org.eclipse.jdt.core.formatter.wrap_before_bitwise_operator" value="false"/>
-        <setting id="org.eclipse.jdt.core.formatter.alignment_for_logical_operator" value="0"/>
-        <setting id="org.eclipse.jdt.core.formatter.wrap_before_logical_operator" value="false"/>
+        <setting id="org.eclipse.jdt.core.formatter.alignment_for_logical_operator" value="16"/>
+        <setting id="org.eclipse.jdt.core.formatter.wrap_before_logical_operator" value="true"/>
         <setting id="org.eclipse.jdt.core.formatter.alignment_for_conditional_expression" value="0"/>
         <setting id="org.eclipse.jdt.core.formatter.alignment_for_conditional_expression_chain" value="0"/>
         <setting id="org.eclipse.jdt.core.formatter.wrap_before_conditional_operator" value="false"/>
