@@ -77,24 +77,29 @@ public abstract class AI implements Animated {
             Random random = new Random(42);
             if (unit_info.hasChieftain()) {
                 Target t = getTarget(random);
-                Unit chieftain = new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN));
+                Unit chieftain = new Unit(owner, t.getPositionX(), t.getPositionY(), null,
+                        owner.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN));
                 owner.setActiveChieftain(chieftain);
             }
             for (int i = 0; i < unit_info.numPeons(); i++) {
                 Target t = getTarget(random);
-                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(Race.UNIT_PEON));
+                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
+                        Race.UNIT_PEON));
             }
             for (int i = 0; i < unit_info.numRockWarriors(); i++) {
                 Target t = getTarget(random);
-                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
+                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
+                        Race.UNIT_WARRIOR_ROCK));
             }
             for (int i = 0; i < unit_info.numIronWarriors(); i++) {
                 Target t = getTarget(random);
-                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
+                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
+                        Race.UNIT_WARRIOR_IRON));
             }
             for (int i = 0; i < unit_info.numRubberWarriors(); i++) {
                 Target t = getTarget(random);
-                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
+                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
+                        Race.UNIT_WARRIOR_RUBBER));
             }
         }
     }
@@ -282,10 +287,12 @@ public abstract class AI implements Animated {
         Selectable<?>[][] lists = owner.classifyUnits();
         for (Selectable<?>[] list : lists) {
             Selectable<?> s = list[0];
-            if (s instanceof Unit unit && !(s.getPrimaryController() instanceof WalkController && ((WalkController) s.getPrimaryController()).isAgressive())) {
+            if (s instanceof Unit unit && !(s.getPrimaryController() instanceof WalkController
+                    && ((WalkController) s.getPrimaryController()).isAgressive())) {
                 for (Selectable<?> thrower : list) {
                     if (unit.getAbilities().hasAbilities(Abilities.THROW)) {
-                        owner.setLandscapeTarget(Selectable.newArray(thrower), target.getGridX(), target.getGridY(), Action.ATTACK, true);
+                        owner.setLandscapeTarget(Selectable.newArray(thrower), target.getGridX(), target.getGridY(),
+                                Action.ATTACK, true);
                         ordered++;
                         if (ordered == num_warriors) {
                             return ordered;
@@ -312,7 +319,8 @@ public abstract class AI implements Animated {
         float RADIUS = 30;
         float target_x = owner.getStartX() + (random.nextFloat() * 2 - 1) * RADIUS;
         float target_y = owner.getStartY() + (random.nextFloat() * 2 - 1) * RADIUS;
-        return getUnitGrid().findGridTargets(UnitGrid.toGridCoordinate(target_x), UnitGrid.toGridCoordinate(target_y), 1, false)[0];
+        return getUnitGrid().findGridTargets(UnitGrid.toGridCoordinate(target_x), UnitGrid.toGridCoordinate(target_y),
+                1, false)[0];
 
     }
 }

@@ -62,7 +62,8 @@ public final class ReproduceUnitContainer extends UnitContainer {
     public void animate(float t) {
         ChieftainContainer chieftain_container = building.getChieftainContainer();
 
-        if ((building.getOwner().getUnitCountContainer().getNumSupplies() < getMaxSupplyCount() && getTotalSupplies() != getMaxSupplyCount())
+        if ((building.getOwner().getUnitCountContainer().getNumSupplies() < getMaxSupplyCount()
+                && getTotalSupplies() != getMaxSupplyCount())
                 || chieftain_container.isTraining()) {
             float units = Math.max(building.getUnitContainer().getNumSupplies(), .5f);
             unit_reproduction += ((1f / 11f) * Math.pow(units, 1f / 3f)) * t;

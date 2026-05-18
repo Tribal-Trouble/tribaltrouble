@@ -5,7 +5,11 @@ import org.jspecify.annotations.NonNull;
 
 public record ChatMessage(@NonNull String nick, @NonNull String message, @NonNull Type type) {
     public enum Type {
-        NORMAL, TEAM, PRIVATE, CHATROOM, GAME_MENU
+        NORMAL,
+        TEAM,
+        PRIVATE,
+        CHATROOM,
+        GAME_MENU
     }
 
     public ChatMessage(@NonNull String nick, @NonNull String message, @NonNull Type type) {

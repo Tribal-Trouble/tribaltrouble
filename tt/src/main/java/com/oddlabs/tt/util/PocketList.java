@@ -14,9 +14,7 @@ public final class PocketList<T> {
 
     @SuppressWarnings("unchecked")
     public PocketList(int num_pockets) {
-        pockets = IntStream.rangeClosed(0, num_pockets)
-                .mapToObj(_ -> new ArrayList<T>())
-                .toArray(List[]::new);
+        pockets = IntStream.rangeClosed(0, num_pockets).mapToObj(_ -> new ArrayList<T>()).toArray(List[]::new);
         reset();
     }
 
@@ -51,11 +49,11 @@ public final class PocketList<T> {
         reset();
     }
 
-/*	private final void check() {
-		for (int i = 0; i < pockets.length; i++)
-			assert pockets[i].isEmpty(): min_list_index + " " + max_list_index + " " + i;
-	}
-*/
+    /*	private final void check() {
+    		for (int i = 0; i < pockets.length; i++)
+    			assert pockets[i].isEmpty(): min_list_index + " " + max_list_index + " " + i;
+    	}
+    */
 
     public boolean isEmpty() {
         return size == 0;

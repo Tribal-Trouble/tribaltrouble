@@ -14,7 +14,8 @@ public record KeyboardEvent(@NonNull Key keyCode, char keyChar, @NonNull Set<@No
         modifiers = EnumSet.copyOf(modifiers);
     }
 
-    public KeyboardEvent(@NonNull Key keyCode, char keyChar, boolean shiftDown, boolean controlDown, boolean altDown, boolean metaDown, int clicks) {
+    public KeyboardEvent(@NonNull Key keyCode, char keyChar, boolean shiftDown, boolean controlDown, boolean altDown,
+            boolean metaDown, int clicks) {
         Set<Modifier> set = EnumSet.noneOf(Modifier.class);
         if (shiftDown) set.add(Modifier.SHIFT);
         if (controlDown) set.add(Modifier.CONTROL);

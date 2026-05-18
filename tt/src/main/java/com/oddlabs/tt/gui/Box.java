@@ -24,18 +24,18 @@ public final class Box {
     private final int top_height;
 
     public Box(@NonNull ModeIconQuads left_bottom,
-               @NonNull ModeIconQuads bottom,
-               @NonNull ModeIconQuads right_bottom,
-               @NonNull ModeIconQuads right,
-               @NonNull ModeIconQuads right_top,
-               @NonNull ModeIconQuads top,
-               @NonNull ModeIconQuads left_top,
-               @NonNull ModeIconQuads left,
-               @NonNull ModeIconQuads center,
-               int left_offset,
-               int bottom_offset,
-               int right_offset,
-               int top_offset) {
+            @NonNull ModeIconQuads bottom,
+            @NonNull ModeIconQuads right_bottom,
+            @NonNull ModeIconQuads right,
+            @NonNull ModeIconQuads right_top,
+            @NonNull ModeIconQuads top,
+            @NonNull ModeIconQuads left_top,
+            @NonNull ModeIconQuads left,
+            @NonNull ModeIconQuads center,
+            int left_offset,
+            int bottom_offset,
+            int right_offset,
+            int top_offset) {
         this.left_bottom = left_bottom;
         this.bottom = bottom;
         this.right_bottom = right_bottom;
@@ -56,16 +56,19 @@ public final class Box {
         top_height = top.quad(ModeIconQuads.Mode.NORMAL).getHeight();
     }
 
-    public void render(@NonNull GUIRenderer renderer, float x, float y, int width, int height, ModeIconQuads.@NonNull Mode skinMode) {
+    public void render(@NonNull GUIRenderer renderer, float x, float y, int width, int height,
+            ModeIconQuads.@NonNull Mode skinMode) {
         int center_width = width - left_width - right_width;
         int center_height = height - bottom_height - top_height;
 
         renderer.drawModeIcon(left_bottom, skinMode, x, y);
         renderer.drawIcon(bottom.quad(skinMode), x + left_width, y, center_width, bottom_height);
         renderer.drawModeIcon(right_bottom, skinMode, x + left_width + center_width, y);
-        renderer.drawIcon(right.quad(skinMode), x + left_width + center_width, y + bottom_height, right_width, center_height);
+        renderer.drawIcon(right.quad(skinMode), x + left_width + center_width, y + bottom_height, right_width,
+                center_height);
         renderer.drawModeIcon(right_top, skinMode, x + left_width + center_width, y + bottom_height + center_height);
-        renderer.drawIcon(top.quad(skinMode), x + left_width, y + bottom_height + center_height, center_width, top_height);
+        renderer.drawIcon(top.quad(skinMode), x + left_width, y + bottom_height + center_height, center_width,
+                top_height);
         renderer.drawModeIcon(left_top, skinMode, x, y + bottom_height + center_height);
         renderer.drawIcon(left.quad(skinMode), x, y + bottom_height, left_width, center_height);
         renderer.drawIcon(center.quad(skinMode), x + left_width, y + bottom_height, center_width, center_height);

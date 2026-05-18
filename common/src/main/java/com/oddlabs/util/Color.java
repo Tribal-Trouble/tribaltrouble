@@ -57,7 +57,8 @@ public final class Color {
      * @return A 32-bit packed integer in AARRGGBB format
      */
     public static int argbi(byte a, byte r, byte g, byte b) {
-        return (Byte.toUnsignedInt(a) << 24) | (Byte.toUnsignedInt(r) << 16) | (Byte.toUnsignedInt(g) << 8) | Byte.toUnsignedInt(b);
+        return (Byte.toUnsignedInt(a) << 24) | (Byte.toUnsignedInt(r) << 16) | (Byte.toUnsignedInt(
+                g) << 8) | Byte.toUnsignedInt(b);
     }
 
     /**
@@ -71,10 +72,7 @@ public final class Color {
     }
 
     public static int abgri(float a, float b, float g, float r) {
-        return ((int) (a * NORMALIZE_8_BIT) << 24) |
-                ((int) (b * NORMALIZE_8_BIT) << 16) |
-                ((int) (g * NORMALIZE_8_BIT) << 8) |
-                ((int) (r * NORMALIZE_8_BIT));
+        return ((int) (a * NORMALIZE_8_BIT) << 24) | ((int) (b * NORMALIZE_8_BIT) << 16) | ((int) (g * NORMALIZE_8_BIT) << 8) | ((int) (r * NORMALIZE_8_BIT));
     }
 
     /**

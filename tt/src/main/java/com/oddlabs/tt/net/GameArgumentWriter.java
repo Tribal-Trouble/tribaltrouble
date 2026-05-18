@@ -14,7 +14,8 @@ final class GameArgumentWriter extends DefaultARMIArgumentWriter {
     }
 
     @Override
-    public void writeArgument(@NonNull Class<?> type, @NonNull Object arg, @NonNull ByteBufferOutputStream out) throws IOException {
+    public void writeArgument(@NonNull Class<?> type, @NonNull Object arg,
+            @NonNull ByteBufferOutputStream out) throws IOException {
         if (Distributable.class.isAssignableFrom(type)) {
             int name = distributable_table.getName((Distributable) arg);
             out.buffer().putInt(name);

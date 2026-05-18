@@ -35,11 +35,13 @@ public final class CountdownDelegate extends CameraDelegate<Camera> {
         this.viewer = viewer;
 
         String waitingText = Utils.getBundleString(bundle, "waiting");
-        waiting_label = new Label(waitingText, Skin.getSkin().getHeadlineFont(), Skin.getSkin().getHeadlineFont().getWidth(waitingText), Origin.AT_MIDDLE);
+        waiting_label = new Label(waitingText, Skin.getSkin().getHeadlineFont(),
+                Skin.getSkin().getHeadlineFont().getWidth(waitingText), Origin.AT_MIDDLE);
         addChild(waiting_label);
 
         String fightText = Utils.getBundleString(bundle, "fight");
-        countdown_label = new Label("", Skin.getSkin().getHeadlineFont(), Skin.getSkin().getHeadlineFont().getWidth(fightText), Origin.AT_MIDDLE);
+        countdown_label = new Label("", Skin.getSkin().getHeadlineFont(), Skin.getSkin().getHeadlineFont().getWidth(
+                fightText), Origin.AT_MIDDLE);
         addChild(countdown_label);
 
         timer_animation = new TimerAnimation(this::tick, 1f);

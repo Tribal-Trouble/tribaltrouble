@@ -44,7 +44,7 @@ final class Session {
         players.remove(client);
         if (getNumPlayers() == 0) {
             // Kick all spectators — game is over
-            for (var it = spectators.iterator(); it.hasNext(); ) {
+            for (var it = spectators.iterator(); it.hasNext();) {
                 RouterClient spectator = it.next();
                 it.remove();
                 spectator.doError(false, new IOException("Game ended"));
@@ -104,7 +104,8 @@ final class Session {
             } else
                 client_checksum = client.getChecksums().removeFirst();
             if (client_checksum != best_checksum[0]) {
-                logger.log(Level.WARNING, "Kicking client because of checksum error: {0} != {1}", new Object[]{client_checksum, best_checksum[0]});
+                logger.log(Level.WARNING, "Kicking client because of checksum error: {0} != {1}",
+                        new Object[]{client_checksum, best_checksum[0]});
                 clients_to_be_kicked.add(client);
             }
         });

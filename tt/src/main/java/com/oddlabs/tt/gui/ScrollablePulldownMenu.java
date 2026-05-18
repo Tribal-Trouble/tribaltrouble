@@ -30,7 +30,8 @@ public class ScrollablePulldownMenu<T> extends PulldownMenu<T> implements Scroll
 
         Horizontal top = Skin.getSkin().getPulldownData().pulldownTop();
         int addAmount = items.size() > render_amount ? top.getHeight() : 0;
-        top.render(renderer, 0, getHeight() - top.getHeight() + addAmount, getWidth() - getScrollbarWidth(), ModeIconQuads.Mode.NORMAL);
+        top.render(renderer, 0, getHeight() - top.getHeight() + addAmount, getWidth() - getScrollbarWidth(),
+                ModeIconQuads.Mode.NORMAL);
     }
 
     public void setButtonWidth(int width) {
@@ -57,7 +58,8 @@ public class ScrollablePulldownMenu<T> extends PulldownMenu<T> implements Scroll
             if (item.getTextWidth() > text_width)
                 text_width = item.getTextWidth();
         }
-        int min_content_width = Math.max(button_width, item_box.getLeftOffset() + text_width + item_box.getRightOffset());
+        int min_content_width = Math.max(button_width,
+                item_box.getLeftOffset() + text_width + item_box.getRightOffset());
 
         int item_pos_count = 0;
         for (PulldownItem<T> item : items) {

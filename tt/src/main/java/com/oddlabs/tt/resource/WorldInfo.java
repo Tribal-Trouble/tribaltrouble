@@ -16,7 +16,13 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
     public record Maps(Texture diffuse, Texture normal) {
     }
 
-    public WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, @NonNull Texture @Nullable [] @NonNull [] colormaps, Maps maps, @NonNull Texture detail, float @NonNull [] @NonNull [] heightmap, @NonNull List<int @NonNull []> trees, @NonNull List<int @NonNull []> palm_trees, @NonNull List<int[]> rocks, @NonNull List<int[]> iron, float @NonNull [] @NonNull [] plants, boolean @NonNull [] @NonNull [] access_grid, byte @NonNull [] @NonNull [] build_grid, float @NonNull [] @NonNull [] starting_locations, BlendInfo @NonNull [] blend_infos) {
+    public WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap,
+            @NonNull Texture @Nullable [] @NonNull [] colormaps, Maps maps, @NonNull Texture detail,
+            float @NonNull [] @NonNull [] heightmap, @NonNull List<int @NonNull []> trees,
+            @NonNull List<int @NonNull []> palm_trees, @NonNull List<int[]> rocks, @NonNull List<int[]> iron,
+            float @NonNull [] @NonNull [] plants, boolean @NonNull [] @NonNull [] access_grid,
+            byte @NonNull [] @NonNull [] build_grid, float @NonNull [] @NonNull [] starting_locations,
+            BlendInfo @NonNull [] blend_infos) {
         this.texels_per_colormap = texels_per_colormap;
         this.chunks_per_colormap = chunks_per_colormap;
         this.sea_level_meters = sea_level_meters;

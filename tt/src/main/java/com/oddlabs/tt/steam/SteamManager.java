@@ -159,7 +159,8 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
      * {@link #onGetTicketForWebApi}. Reuses a cached ticket if it's less than 1 hour old.
      */
     public void requestWebApiTicket() {
-        if (ticketReady && ticketTimestamp != null && Duration.between(ticketTimestamp, Instant.now()).compareTo(TICKET_MAX_AGE) < 0) {
+        if (ticketReady && ticketTimestamp != null && Duration.between(ticketTimestamp, Instant.now()).compareTo(
+                TICKET_MAX_AGE) < 0) {
             logger.info("Web API ticket still fresh, reusing");
             return;
         }
@@ -246,7 +247,8 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
     }
 
     @Override
-    public void onValidateAuthTicket(SteamID steamID, SteamAuth.AuthSessionResponse authSessionResponse, SteamID ownerSteamID) {
+    public void onValidateAuthTicket(SteamID steamID, SteamAuth.AuthSessionResponse authSessionResponse,
+            SteamID ownerSteamID) {
     }
 
     @Override
@@ -292,7 +294,8 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
     }
 
     @Override
-    public void onUserAchievementStored(long gameId, boolean groupAchievement, String achievementName, int curProgress, int maxProgress) {
+    public void onUserAchievementStored(long gameId, boolean groupAchievement, String achievementName, int curProgress,
+            int maxProgress) {
     }
 
     @Override
@@ -300,11 +303,13 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
     }
 
     @Override
-    public void onLeaderboardScoresDownloaded(SteamLeaderboardHandle leaderboard, SteamLeaderboardEntriesHandle entries, int numEntries) {
+    public void onLeaderboardScoresDownloaded(SteamLeaderboardHandle leaderboard, SteamLeaderboardEntriesHandle entries,
+            int numEntries) {
     }
 
     @Override
-    public void onLeaderboardScoreUploaded(boolean success, SteamLeaderboardHandle leaderboard, int score, boolean scoreChanged, int globalRankNew, int globalRankPrevious) {
+    public void onLeaderboardScoreUploaded(boolean success, SteamLeaderboardHandle leaderboard, int score,
+            boolean scoreChanged, int globalRankNew, int globalRankPrevious) {
     }
 
     @Override

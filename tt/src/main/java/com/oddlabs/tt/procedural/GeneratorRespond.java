@@ -15,7 +15,8 @@ public final class GeneratorRespond extends TextureGenerator {
         GLIntImage img = new GLIntImage(1, 1, GL11.GL_RGBA);
         img.putPixel(0, 0, COLOR);
         Texture[] textures = new Texture[1];
-        textures[0] = new Texture(new GLImage[]{img}, Globals.COMPRESSED_RGBA_FORMAT, GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_REPEAT, GL11.GL_REPEAT);
+        textures[0] = new Texture(new GLImage[]{img}, Globals.COMPRESSED_RGBA_FORMAT, GL11.GL_NEAREST, GL11.GL_NEAREST,
+                GL11.GL_REPEAT, GL11.GL_REPEAT);
         return textures;
     }
 

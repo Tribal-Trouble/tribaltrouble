@@ -17,7 +17,9 @@ public final class SonicBlastFactory implements MagicFactory {
     private final float init_ratio;
     private final float release_ratio;
 
-    public SonicBlastFactory(float offset_x, float offset_y, float offset_z, float hit_radius, float hit_chance_closest, float hit_chance_farthest, int damage_closest, int damage_farthest, float seconds, float seconds_per_anim, float init_ratio, float release_ratio) {
+    public SonicBlastFactory(float offset_x, float offset_y, float offset_z, float hit_radius, float hit_chance_closest,
+            float hit_chance_farthest, int damage_closest, int damage_farthest, float seconds, float seconds_per_anim,
+            float init_ratio, float release_ratio) {
         this.offset_x = offset_x;
         this.offset_y = offset_y;
         this.offset_z = offset_z;
@@ -54,6 +56,7 @@ public final class SonicBlastFactory implements MagicFactory {
 
     @Override
     public @NonNull Magic execute(@NonNull Unit src) {
-        return new SonicBlast(offset_x, offset_y, offset_z, hit_radius, hit_chance_closest, hit_chance_farthest, damage_closest, damage_farthest, seconds, src);
+        return new SonicBlast(offset_x, offset_y, offset_z, hit_radius, hit_chance_closest, hit_chance_farthest,
+                damage_closest, damage_farthest, seconds, src);
     }
 }

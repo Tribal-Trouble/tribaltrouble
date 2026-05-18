@@ -49,8 +49,7 @@ public final class OGGStream implements AutoCloseable {
     }
 
     private static byte[] readAllBytes(@NonNull URL url) throws IOException {
-        try (InputStream is = url.openStream();
-             ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+        try (InputStream is = url.openStream(); ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
             int nRead;
             byte[] data = new byte[16384];
             while ((nRead = is.read(data, 0, data.length)) != -1) {

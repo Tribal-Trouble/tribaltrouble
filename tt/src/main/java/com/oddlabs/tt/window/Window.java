@@ -63,9 +63,11 @@ public interface Window extends AutoCloseable {
 
     void setFullscreen(boolean fullscreen) throws Exception;
 
-    @NonNull SerializableDisplayMode @NonNull [] getAvailableDisplayModes();
+    @NonNull
+    SerializableDisplayMode @NonNull [] getAvailableDisplayModes();
 
-    @NonNull SerializableDisplayMode getDisplayMode();
+    @NonNull
+    SerializableDisplayMode getDisplayMode();
 
     void setDisplayMode(@NonNull SerializableDisplayMode mode) throws Exception;
 

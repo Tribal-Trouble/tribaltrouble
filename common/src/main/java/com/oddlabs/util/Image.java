@@ -116,12 +116,12 @@ public final class Image implements Serializable {
             int o0 = 0, o1 = 0, o2 = 0, o3 = 0, n0 = 0, n1 = 0, n2 = 0, n3 = 0;
             for (int x = 0; x < width; x++) {
                 int pixel = data_ints.get();
-/*
-				n0 = data.get();
-				n1 = data.get();
-				n2 = data.get();
-				n3 = data.get();
-*/
+                /*
+                				n0 = data.get();
+                				n1 = data.get();
+                				n2 = data.get();
+                				n3 = data.get();
+                */
                 n0 = pixel >>> 24;
                 n1 = (pixel >> 16) & 0xff;
                 n2 = (pixel >> 8) & 0xff;

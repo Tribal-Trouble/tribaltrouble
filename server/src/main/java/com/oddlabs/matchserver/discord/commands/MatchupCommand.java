@@ -23,8 +23,7 @@ import java.text.SimpleDateFormat;
 
 public class MatchupCommand extends DiscordCommand {
     private String command_name = "matchup";
-    private String command_description =
-            "Displays the win loss record for a player vs another player";
+    private String command_description = "Displays the win loss record for a player vs another player";
     private String command_option_p1 = "player1";
     private String command_option_p2 = "player2";
 
@@ -35,16 +34,10 @@ public class MatchupCommand extends DiscordCommand {
 
     @Override
     public Mono<Void> executeCommand(ChatInputInteractionEvent event) {
-        String player1 =
-                event.getOption(command_option_p1)
-                        .flatMap(ApplicationCommandInteractionOption::getValue)
-                        .map(ApplicationCommandInteractionOptionValue::asString)
-                        .orElse(null);
-        String player2 =
-                event.getOption(command_option_p2)
-                        .flatMap(ApplicationCommandInteractionOption::getValue)
-                        .map(ApplicationCommandInteractionOptionValue::asString)
-                        .orElse(null);
+        String player1 = event.getOption(command_option_p1).flatMap(ApplicationCommandInteractionOption::getValue).map(
+                ApplicationCommandInteractionOptionValue::asString).orElse(null);
+        String player2 = event.getOption(command_option_p2).flatMap(ApplicationCommandInteractionOption::getValue).map(
+                ApplicationCommandInteractionOptionValue::asString).orElse(null);
         if (player1 == null || player2 == null)
             return event.reply("Both player1 and player2 options are required.");
 
@@ -53,19 +46,15 @@ public class MatchupCommand extends DiscordCommand {
             return event.reply("Could not find requested players");
         }
 
-        VersusMatchupResultModel matchupResult =
-                DBInterface.getMatchupStats(player1, player2, true);
+        VersusMatchupResultModel matchupResult = DBInterface.getMatchupStats(player1, player2, true);
         String displayPlayer1 = player1;
         String displayPlayer2 = player2;
-        EmbedCreateSpec.Builder builder =
-                EmbedCreateSpec.builder()
-                        .color(Color.ORANGE)
-                        .title(String.format("%s vs %s", displayPlayer1, displayPlayer2))
-                        .description(
-                                String.format(
-                                        "Comparing 1v1 stats for %s and %s",
-                                        WebsiteLinkHelper.getProfileLink(displayPlayer1, player1),
-                                        WebsiteLinkHelper.getProfileLink(displayPlayer2, player2)));
+        EmbedCreateSpec.Builder builder = EmbedCreateSpec.builder().color(Color.ORANGE).title(String.format("%s vs %s",
+                displayPlayer1, displayPlayer2)).description(
+                        String.format(
+                                "Comparing 1v1 stats for %s and %s",
+                                WebsiteLinkHelper.getProfileLink(displayPlayer1, player1),
+                                WebsiteLinkHelper.getProfileLink(displayPlayer2, player2)));
 
         int totalGames = matchupResult.getTotalGamesPlayed();
         builder.addField("Games played: ", Integer.toString(totalGames), false);
@@ -91,8 +80,7 @@ public class MatchupCommand extends DiscordCommand {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
             String formattedTime = sdf.format(startTime);
 
-            String field_value =
-                    String.format("Winner: %s", matchup.getWinner());
+            String field_value = String.format("Winner: %s", matchup.getWinner());
             field_value += String.format("\nStart time: %s", formattedTime);
             if (matchup.getGameReplayUrl() != null) {
                 field_value += String.format("\n[Watch Replay](%s)", matchup.getGameReplayUrl());
@@ -106,25 +94,17 @@ public class MatchupCommand extends DiscordCommand {
 
     @Override
     public ApplicationCommandRequest getCommand() {
-        ApplicationCommandRequest matchupCommand =
-                ApplicationCommandRequest.builder()
-                        .name(command_name)
-                        .description(command_description)
-                        .addOption(
-                                ApplicationCommandOptionData.builder()
-                                        .name(command_option_p1)
-                                        .description("First player to compare")
-                                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                                        .required(true)
-                                        .build())
-                        .addOption(
-                                ApplicationCommandOptionData.builder()
-                                        .name(command_option_p2)
-                                        .description("Second player to compare")
-                                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                                        .required(true)
-                                        .build())
-                        .build();
+        ApplicationCommandRequest matchupCommand = ApplicationCommandRequest.builder().name(command_name).description(
+                command_description).addOption(
+                        ApplicationCommandOptionData.builder().name(command_option_p1).description(
+                                "First player to compare").type(
+                                        ApplicationCommandOption.Type.STRING.getValue()).required(
+                                                true).build()).addOption(
+                                                        ApplicationCommandOptionData.builder().name(
+                                                                command_option_p2).description(
+                                                                        "Second player to compare").type(
+                                                                                ApplicationCommandOption.Type.STRING.getValue()).required(
+                                                                                        true).build()).build();
 
         return matchupCommand;
     }

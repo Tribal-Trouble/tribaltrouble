@@ -31,14 +31,15 @@ public final class Race {
     private final @NonNull String music_path;
 
     public Race(@NonNull BuildingTemplate quarters, @NonNull BuildingTemplate armory, @NonNull BuildingTemplate tower,
-                @NonNull UnitTemplate warrior_rock, @NonNull UnitTemplate warrior_iron, @NonNull UnitTemplate warrior_rubber,
-                @NonNull UnitTemplate peon, @NonNull UnitTemplate chieftain,
-                @NonNull SpriteKey rally_point,
-                @NonNull RaceIcons icons,
-                @NonNull Audio attack_notification, @NonNull Audio building_notification,
-                @NonNull MagicFactory @NonNull [] magic_factory,
-                @NonNull ChieftainAI chieftain_ai,
-                @NonNull String music_path) {
+            @NonNull UnitTemplate warrior_rock, @NonNull UnitTemplate warrior_iron,
+            @NonNull UnitTemplate warrior_rubber,
+            @NonNull UnitTemplate peon, @NonNull UnitTemplate chieftain,
+            @NonNull SpriteKey rally_point,
+            @NonNull RaceIcons icons,
+            @NonNull Audio attack_notification, @NonNull Audio building_notification,
+            @NonNull MagicFactory @NonNull [] magic_factory,
+            @NonNull ChieftainAI chieftain_ai,
+            @NonNull String music_path) {
         buildings[BUILDING_QUARTERS] = quarters;
         buildings[BUILDING_ARMORY] = armory;
         buildings[BUILDING_TOWER] = tower;

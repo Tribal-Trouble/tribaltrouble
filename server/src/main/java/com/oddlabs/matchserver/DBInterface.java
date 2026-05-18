@@ -26,25 +26,22 @@ import java.util.List;
 public final class DBInterface {
 
     public static boolean usernameExists(String username) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT username FROM registrations R WHERE lower(R.username) = lower(?)")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT username FROM registrations R WHERE lower(R.username) = lower(?)")) {
             stmt.setString(1, username);
             try (ResultSet result = stmt.executeQuery()) {
                 return result.next();
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "usernameExists", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "usernameExists", e);
             throw new RuntimeException(e);
         }
     }
 
     public static void createUser(Login login, LoginDetails login_details, String reg_key) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT INTO registrations (username, email, password) VALUES (?, ?, ?)")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO registrations (username, email, password) VALUES (?, ?, ?)")) {
             stmt.setString(1, login.getUsername());
             stmt.setString(2, login_details.getEmail());
             stmt.setString(3, CryptUtils.digest(login.getPasswordDigest()));
@@ -58,10 +55,8 @@ public final class DBInterface {
     }
 
     public static boolean queryUser(String username, String password) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT username, password FROM registrations R WHERE lower(R.username)"
-                             + " = lower(?) AND R.password = ? AND NOT R.disabled AND NOT R.banned")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT username, password FROM registrations R WHERE lower(R.username)" + " = lower(?) AND R.password = ? AND NOT R.disabled AND NOT R.banned")) {
             stmt.setString(1, username);
             stmt.setString(2, CryptUtils.digest(password));
             try (ResultSet result = stmt.executeQuery()) {
@@ -75,10 +70,8 @@ public final class DBInterface {
     }
 
     public static Profile[] getProfiles(String username, int revision) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT nick, rating, wins, losses, invalid FROM profiles P,"
-                             + " registrations R WHERE P.reg_id = R.id AND R.username = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT nick, rating, wins, losses, invalid FROM profiles P," + " registrations R WHERE P.reg_id = R.id AND R.username = ?")) {
             stmt.setString(1, username);
             try (ResultSet result = stmt.executeQuery()) {
                 List<Profile> profiles = new ArrayList<>();
@@ -100,10 +93,8 @@ public final class DBInterface {
     }
 
     public static Profile getProfile(String username, String nick, int revision) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT rating, wins, losses, invalid FROM profiles P, registrations R"
-                             + " WHERE P.reg_id = R.id AND R.username = ? AND P.nick = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT rating, wins, losses, invalid FROM profiles P, registrations R" + " WHERE P.reg_id = R.id AND R.username = ? AND P.nick = ?")) {
             stmt.setString(1, username);
             stmt.setString(2, nick);
             try (ResultSet result = stmt.executeQuery()) {
@@ -121,25 +112,22 @@ public final class DBInterface {
     }
 
     public static void setLastUsedProfile(String username, String nick) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "UPDATE registrations R SET last_used_profile = ? WHERE R.username = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE registrations R SET last_used_profile = ? WHERE R.username = ?")) {
             stmt.setString(1, nick);
             stmt.setString(2, username);
             int row_count = stmt.executeUpdate();
             assert row_count == 1;
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "setLastUsedProfile", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "setLastUsedProfile", e);
             throw new RuntimeException(e);
         }
     }
 
     public static String getLastUsedProfile(String username) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT last_used_profile FROM registrations R WHERE R.username = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT last_used_profile FROM registrations R WHERE R.username = ?")) {
             stmt.setString(1, username);
             try (ResultSet result = stmt.executeQuery()) {
                 result.next();
@@ -147,16 +135,14 @@ public final class DBInterface {
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getLastUsedProfile", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getLastUsedProfile", e);
             throw new RuntimeException(e);
         }
     }
 
     private static int getRegID(String username) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT id FROM registrations R WHERE R.username = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT id FROM registrations R WHERE R.username = ?")) {
             stmt.setString(1, username);
             try (ResultSet result = stmt.executeQuery()) {
                 result.next();
@@ -164,16 +150,14 @@ public final class DBInterface {
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "private getRegID", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "private getRegID", e);
             throw new RuntimeException(e);
         }
     }
 
     public static boolean nickExists(String nick) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT nick FROM profiles P WHERE lower(P.nick) = lower(?)")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT nick FROM profiles P WHERE lower(P.nick) = lower(?)")) {
             stmt.setString(1, nick);
             try (ResultSet result = stmt.executeQuery()) {
                 return result.next();
@@ -186,9 +170,8 @@ public final class DBInterface {
     }
 
     public static void saveGameReport(int game_id, int tick, int[] team_score) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT INTO game_report_teams (game_id, tick, team_index, score) VALUES (?, ?, ?, ?)")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO game_report_teams (game_id, tick, team_index, score) VALUES (?, ?, ?, ?)")) {
             for (int i = 0; i < team_score.length; i++) {
                 if (team_score[i] == 0) continue;
                 stmt.setInt(1, game_id);
@@ -200,16 +183,14 @@ public final class DBInterface {
             stmt.executeBatch();
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "saveGameReport", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "saveGameReport", e);
             throw new RuntimeException(e);
         }
     }
 
     public static void logPriority(int game_id, String nick1, String nick2, int priority) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT INTO connections (game_id, nick1, nick2, priority) VALUES (?, ?, ?, ?)")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO connections (game_id, nick1, nick2, priority) VALUES (?, ?, ?, ?)")) {
             stmt.setInt(1, game_id);
             stmt.setString(2, nick1);
             stmt.setString(3, nick2);
@@ -225,10 +206,8 @@ public final class DBInterface {
 
     public static void createProfile(String username, String nick) {
         int reg_id = getRegID(username);
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT INTO profiles (reg_id, nick, rating, wins, losses, invalid) "
-                             + "VALUES (?, ?, 1000, 0, 0, 0)")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO profiles (reg_id, nick, rating, wins, losses, invalid) " + "VALUES (?, ?, 1000, 0, 0, 0)")) {
             stmt.setInt(1, reg_id);
             stmt.setString(2, nick);
             int row_count = stmt.executeUpdate();
@@ -244,10 +223,8 @@ public final class DBInterface {
         Profile profile = getProfile(username, nick, -1);
         if (profile != null) {
             int reg_id = getRegID(username);
-            try (Connection conn = DBUtils.createDatabaseConnection();
-                 PreparedStatement stmt = conn.prepareStatement(
-                         "INSERT INTO deleted_profiles (reg_id, nick, rating, wins, losses,"
-                                 + " invalid) VALUES (?, ?, ?, ?, ?, ?)")) {
+            try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                    "INSERT INTO deleted_profiles (reg_id, nick, rating, wins, losses," + " invalid) VALUES (?, ?, ?, ?, ?, ?)")) {
                 stmt.setInt(1, reg_id);
                 stmt.setString(2, profile.getNick());
                 stmt.setInt(3, profile.getRating());
@@ -258,20 +235,17 @@ public final class DBInterface {
                 assert row_count == 1 : row_count;
             } catch (SQLException e) {
                 System.out.println("Exception: " + e);
-                MatchmakingServer.getLogger()
-                        .throwing(DBInterface.class.getName(), "deleteProfile INSERT", e);
+                MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "deleteProfile INSERT", e);
             }
             // drop profile
-            try (Connection conn = DBUtils.createDatabaseConnection();
-                 PreparedStatement stmt = conn.prepareStatement(
-                         "DELETE FROM profiles WHERE nick = ?")) {
+            try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                    "DELETE FROM profiles WHERE nick = ?")) {
                 stmt.setString(1, nick);
                 int row_count = stmt.executeUpdate();
                 assert row_count == 1 : row_count;
             } catch (SQLException e) {
                 System.out.println("Exception: " + e);
-                MatchmakingServer.getLogger()
-                        .throwing(DBInterface.class.getName(), "deleteProfile DELETE", e);
+                MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "deleteProfile DELETE", e);
             }
         }
     }
@@ -281,9 +255,8 @@ public final class DBInterface {
         boolean isBannedOrDisabled = false;
         String existingUsername = null;
 
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT username, banned, disabled FROM registrations WHERE steam_id = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT username, banned, disabled FROM registrations WHERE steam_id = ?")) {
             stmt.setLong(1, steamId);
             try (ResultSet result = stmt.executeQuery()) {
                 if (result.next()) {
@@ -298,8 +271,7 @@ public final class DBInterface {
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getOrCreateSteamRegistration", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getOrCreateSteamRegistration", e);
             throw new RuntimeException(e);
         }
 
@@ -315,10 +287,8 @@ public final class DBInterface {
         String username = "steam_" + steamId;
         String email = "steam_" + steamId + "@steam.internal";
 
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT INTO registrations (username, email, password, steam_id,"
-                             + " disabled, banned) VALUES (?, ?, 'LOCKED', ?, 0, 0)")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO registrations (username, email, password, steam_id," + " disabled, banned) VALUES (?, ?, 'LOCKED', ?, 0, 0)")) {
             stmt.setString(1, username);
             stmt.setString(2, email);
             stmt.setLong(3, steamId);
@@ -326,8 +296,7 @@ public final class DBInterface {
             assert row_count == 1;
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getOrCreateSteamRegistration", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getOrCreateSteamRegistration", e);
             throw new RuntimeException(e);
         }
 
@@ -335,10 +304,8 @@ public final class DBInterface {
     }
 
     public static String getProfileNickBySteamId(long steamId) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT p.nick FROM profiles p INNER JOIN registrations r ON p.reg_id ="
-                             + " r.id WHERE r.steam_id = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT p.nick FROM profiles p INNER JOIN registrations r ON p.reg_id =" + " r.id WHERE r.steam_id = ?")) {
             stmt.setLong(1, steamId);
             try (ResultSet result = stmt.executeQuery()) {
                 if (result.next()) {
@@ -348,17 +315,14 @@ public final class DBInterface {
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getProfileNickBySteamId", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getProfileNickBySteamId", e);
             return null;
         }
     }
 
     public static Long getSteamIdByNick(String nick) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT r.steam_id FROM profiles p INNER JOIN registrations r ON"
-                             + " p.reg_id = r.id WHERE p.nick = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT r.steam_id FROM profiles p INNER JOIN registrations r ON" + " p.reg_id = r.id WHERE p.nick = ?")) {
             stmt.setString(1, nick);
             try (ResultSet result = stmt.executeQuery()) {
                 if (result.next()) {
@@ -372,16 +336,14 @@ public final class DBInterface {
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getSteamIdByNick", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getSteamIdByNick", e);
             return null;
         }
     }
 
     public static void updateStreaks(String nick, int currentStreak, int bestStreak) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "UPDATE profiles SET current_win_streak = ?, best_win_streak = ? WHERE nick = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE profiles SET current_win_streak = ?, best_win_streak = ? WHERE nick = ?")) {
             stmt.setInt(1, currentStreak);
             stmt.setInt(2, bestStreak);
             stmt.setString(3, nick);
@@ -393,9 +355,8 @@ public final class DBInterface {
     }
 
     public static int[] getStreaks(String nick) throws SQLException {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT current_win_streak, best_win_streak FROM profiles WHERE nick = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT current_win_streak, best_win_streak FROM profiles WHERE nick = ?")) {
             stmt.setString(1, nick);
             try (ResultSet result = stmt.executeQuery()) {
                 if (result.next()) {
@@ -421,22 +382,19 @@ public final class DBInterface {
     }
 
     public static void increaseField(String field, String nick) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "UPDATE profiles P SET " + field + " = " + field + " + 1 WHERE P.nick = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE profiles P SET " + field + " = " + field + " + 1 WHERE P.nick = ?")) {
             stmt.setString(1, nick);
             stmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "update" + field, e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "update" + field, e);
         }
     }
 
     public static void updateRating(String nick, int rating_delta) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "UPDATE profiles P SET rating = rating + ? WHERE P.nick = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE profiles P SET rating = rating + ? WHERE P.nick = ?")) {
             stmt.setInt(1, rating_delta);
             stmt.setString(2, nick);
             stmt.executeUpdate();
@@ -455,9 +413,8 @@ public final class DBInterface {
     }
 
     public static int getIntField(String int_field, String nick) throws SQLException {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT " + int_field + " FROM profiles P WHERE P.nick = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT " + int_field + " FROM profiles P WHERE P.nick = ?")) {
             stmt.setString(1, nick);
             try (ResultSet result = stmt.executeQuery()) {
                 result.next();
@@ -467,9 +424,8 @@ public final class DBInterface {
     }
 
     public static String getSetting(String setting) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT value FROM settings S WHERE S.property = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT value FROM settings S WHERE S.property = ?")) {
             stmt.setString(1, setting);
             try (ResultSet result = stmt.executeQuery()) {
                 result.next();
@@ -487,24 +443,16 @@ public final class DBInterface {
             return Integer.parseInt(getSetting(setting));
         } catch (Exception e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getSettingsInt", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getSettingsInt", e);
             throw new RuntimeException(e);
         }
     }
 
     public static RankingEntry[] getRankings(String nick, int radius) {
-        String sql =
-                "SELECT nick, rating, wins, losses, invalid, row_num FROM (  SELECT nick,"
-                        + " rating, wins, losses, invalid, ROW_NUMBER() OVER (ORDER BY rating DESC,"
-                        + " (wins - losses) DESC, wins DESC) AS row_num   FROM profiles) ranked"
-                        + " WHERE ABS(CAST(row_num AS SIGNED) - (  SELECT CAST(row_num AS SIGNED)"
-                        + " FROM (    SELECT nick, ROW_NUMBER() OVER (ORDER BY rating DESC, (wins -"
-                        + " losses) DESC, wins DESC) AS row_num FROM profiles  ) sub WHERE nick ="
-                        + " ?)) <= ? ORDER BY row_num";
+        String sql = "SELECT nick, rating, wins, losses, invalid, row_num FROM (  SELECT nick," + " rating, wins, losses, invalid, ROW_NUMBER() OVER (ORDER BY rating DESC," + " (wins - losses) DESC, wins DESC) AS row_num   FROM profiles) ranked" + " WHERE ABS(CAST(row_num AS SIGNED) - (  SELECT CAST(row_num AS SIGNED)" + " FROM (    SELECT nick, ROW_NUMBER() OVER (ORDER BY rating DESC, (wins -" + " losses) DESC, wins DESC) AS row_num FROM profiles  ) sub WHERE nick =" + " ?)) <= ? ORDER BY row_num";
 
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                sql)) {
             stmt.setString(1, nick);
             stmt.setInt(2, radius);
             try (ResultSet result = stmt.executeQuery()) {
@@ -523,18 +471,14 @@ public final class DBInterface {
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getRankings(nick, radius)", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getRankings(nick, radius)", e);
             return new RankingEntry[0];
         }
     }
 
     public static RankingEntry[] getRankings(int start, int count) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT nick, rating, wins, losses, invalid FROM profiles P WHERE"
-                             + " (P.wins > 0 OR P.losses > 0) ORDER BY rating DESC, (wins -"
-                             + " losses) DESC, wins DESC LIMIT ? OFFSET ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT nick, rating, wins, losses, invalid FROM profiles P WHERE" + " (P.wins > 0 OR P.losses > 0) ORDER BY rating DESC, (wins -" + " losses) DESC, wins DESC LIMIT ? OFFSET ?")) {
             stmt.setInt(1, count);
             stmt.setInt(2, start);
             try (ResultSet result = stmt.executeQuery()) {
@@ -553,19 +497,14 @@ public final class DBInterface {
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getRankings(start, count)", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getRankings(start, count)", e);
             return new RankingEntry[0];
         }
     }
 
     public static RankingEntry[] getTopRankings(int number) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT nick, rating, wins, losses, invalid FROM profiles P WHERE"
-                             + " P.wins >= "
-                             + GameSession.MIN_WINS_FOR_RANKING
-                             + " ORDER BY rating DESC, (wins - losses) DESC, wins DESC LIMIT ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT nick, rating, wins, losses, invalid FROM profiles P WHERE" + " P.wins >= " + GameSession.MIN_WINS_FOR_RANKING + " ORDER BY rating DESC, (wins - losses) DESC, wins DESC LIMIT ?")) {
             stmt.setInt(1, number);
             try (ResultSet result = stmt.executeQuery()) {
                 List<RankingEntry> rankings = new ArrayList<>();
@@ -583,19 +522,15 @@ public final class DBInterface {
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getTopRankings", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getTopRankings", e);
             return new RankingEntry[0];
         }
     }
 
     public static void createGame(Game game, String nick) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT INTO games (time_create, name, rated, speed, size, hills,"
-                             + " trees, resources, mapcode, status) VALUES (?, ?, ?, ?, ?, ?, ?,"
-                             + " ?, ?, ?)",
-                     java.sql.Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO games (time_create, name, rated, speed, size, hills," + " trees, resources, mapcode, status) VALUES (?, ?, ?, ?, ?, ?, ?," + " ?, ?, ?)",
+                java.sql.Statement.RETURN_GENERATED_KEYS)) {
             stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
             stmt.setString(2, game.getName());
             stmt.setString(3, game.isRated() ? "Y" : "N");
@@ -620,10 +555,8 @@ public final class DBInterface {
     }
 
     public static GameDataModel getGame(int game_id, boolean get_player_data) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT time_create,name,rated,speed,size,hills,trees,resources,mapcode,"
-                             + "status,id,winner,time_stop,time_start FROM games G WHERE G.id = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT time_create,name,rated,speed,size,hills,trees,resources,mapcode," + "status,id,winner,time_stop,time_start FROM games G WHERE G.id = ?")) {
             stmt.setInt(1, game_id);
             try (ResultSet result = stmt.executeQuery()) {
                 if (result.next()) {
@@ -666,33 +599,24 @@ public final class DBInterface {
 
                     if (get_player_data) {
                         System.out.println("Fetching player data for game ID: " + game_id);
-                        try (Connection conn2 = DBUtils.createDatabaseConnection();
-                             PreparedStatement playerStmt = conn2.prepareStatement(
-                                     "SELECT * FROM game_players WHERE game_id = ?")) {
+                        try (Connection conn2 = DBUtils.createDatabaseConnection(); PreparedStatement playerStmt = conn2.prepareStatement(
+                                "SELECT * FROM game_players WHERE game_id = ?")) {
                             playerStmt.setInt(1, game_id);
                             try (ResultSet playerResult = playerStmt.executeQuery()) {
                                 ArrayList<GamePlayerModel> nicks = new ArrayList<>();
                                 while (playerResult.next()) {
-                                    GamePlayerModel player =
-                                            new GamePlayerModel(
-                                                    playerResult.getString("nick"),
-                                                    playerResult.getString("race"),
-                                                    playerResult.getInt("team"));
+                                    GamePlayerModel player = new GamePlayerModel(
+                                            playerResult.getString("nick"),
+                                            playerResult.getString("race"),
+                                            playerResult.getInt("team"));
                                     nicks.add(player);
                                 }
-                                Profile[] fetchedProfiles =
-                                        DBInterface.getProfilesByNick(
-                                                nicks.stream()
-                                                        .map(GamePlayerModel::getPlayerName)
-                                                        .toArray(String[]::new));
+                                Profile[] fetchedProfiles = DBInterface.getProfilesByNick(
+                                        nicks.stream().map(GamePlayerModel::getPlayerName).toArray(String[]::new));
                                 System.out.println(
-                                        "Fetched "
-                                                + fetchedProfiles.length
-                                                + " profiles for game ID: "
-                                                + game_id);
+                                        "Fetched " + fetchedProfiles.length + " profiles for game ID: " + game_id);
                                 // Map nick to Profile
-                                java.util.Map<String, Profile> nickToProfile =
-                                        new java.util.HashMap<>();
+                                java.util.Map<String, Profile> nickToProfile = new java.util.HashMap<>();
                                 for (Profile pf : fetchedProfiles) {
                                     if (pf != null && pf.getNick() != null) {
                                         nickToProfile.put(pf.getNick(), pf);
@@ -737,19 +661,10 @@ public final class DBInterface {
 
     public static VersusMatchupResultModel getMatchupStats(
             String player1, String player2, boolean only1v1Matchups) {
-        String query =
-                "WITH two_player_games AS (   SELECT game_id FROM game_players GROUP BY game_id"
-                        + " HAVING COUNT(*) = 2 ) SELECT g.id AS game_id, CASE   WHEN g.winner ="
-                        + " gp.team THEN 'Player1'   WHEN g.winner = gp2.team THEN 'Player2'   ELSE"
-                        + " 'Neither' END AS vsResult, gp.nick AS player1_name, gp2.nick AS"
-                        + " player2_name,  g.name, g.mapcode, g.time_start FROM game_players gp   INNER"
-                        + " JOIN game_players gp2 ON gp.game_id = gp2.game_id AND gp.team <> gp2.team  "
-                        + " INNER JOIN games g ON g.id = gp.game_id   INNER JOIN two_player_games tpg"
-                        + " ON tpg.game_id = g.id WHERE g.winner IS NOT NULL   AND gp.nick = ?   AND"
-                        + " gp2.nick = ?   AND gp.team <> gp2.team ORDER BY gp.game_id DESC;";
+        String query = "WITH two_player_games AS (   SELECT game_id FROM game_players GROUP BY game_id" + " HAVING COUNT(*) = 2 ) SELECT g.id AS game_id, CASE   WHEN g.winner =" + " gp.team THEN 'Player1'   WHEN g.winner = gp2.team THEN 'Player2'   ELSE" + " 'Neither' END AS vsResult, gp.nick AS player1_name, gp2.nick AS" + " player2_name,  g.name, g.mapcode, g.time_start FROM game_players gp   INNER" + " JOIN game_players gp2 ON gp.game_id = gp2.game_id AND gp.team <> gp2.team  " + " INNER JOIN games g ON g.id = gp.game_id   INNER JOIN two_player_games tpg" + " ON tpg.game_id = g.id WHERE g.winner IS NOT NULL   AND gp.nick = ?   AND" + " gp2.nick = ?   AND gp.team <> gp2.team ORDER BY gp.game_id DESC;";
 
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                query)) {
             stmt.setString(1, player1);
             stmt.setString(2, player2);
             int p1Wins = 0;
@@ -824,8 +739,8 @@ public final class DBInterface {
         String inClause = createInClause(filteredNicks.length);
         String sql = "SELECT nick, rating, wins, losses, invalid FROM profiles WHERE nick IN " + inClause;
 
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                sql)) {
             // Set the nicks as parameters
             for (int i = 0; i < filteredNicks.length; i++) {
                 stmt.setString(i + 1, filteredNicks[i]);
@@ -844,8 +759,7 @@ public final class DBInterface {
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getProfilesByNick", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getProfilesByNick", e);
         }
         return null;
     }
@@ -855,9 +769,8 @@ public final class DBInterface {
      * initializes)
      */
     public static void initDropGames() {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "UPDATE games G SET status = ? WHERE G.status = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE games G SET status = ? WHERE G.status = ?")) {
             stmt.setString(1, "dropped");
             stmt.setString(2, "created");
             stmt.executeUpdate();
@@ -868,10 +781,8 @@ public final class DBInterface {
     }
 
     public static void dropGame(String nick) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "UPDATE games G inner join game_players GP on G.id = GP.id SET G.status"
-                             + " = ? WHERE GP.nick = ? AND G.status = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE games G inner join game_players GP on G.id = GP.id SET G.status" + " = ? WHERE GP.nick = ? AND G.status = ?")) {
             stmt.setString(1, "dropped");
             stmt.setString(2, nick);
             stmt.setString(3, "created");
@@ -886,9 +797,8 @@ public final class DBInterface {
         GameSession session = tgs.getSession();
         GamePlayer[] playerInfo = session.getPlayerInfo();
 
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "UPDATE games G SET G.time_start = ?, G.status = ? WHERE G.id = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE games G SET G.time_start = ?, G.status = ? WHERE G.id = ?")) {
             stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
             stmt.setString(2, "started");
             stmt.setInt(3, tgs.getDatabaseID());
@@ -905,8 +815,8 @@ public final class DBInterface {
         }
         String sql = "INSERT INTO game_players (game_id, nick, team, race) VALUES " + builder;
 
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement playerStmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement playerStmt = conn.prepareStatement(
+                sql)) {
             int parameter_index = 1;
             for (GamePlayer player : playerInfo) {
                 playerStmt.setInt(parameter_index++, tgs.getDatabaseID());
@@ -934,9 +844,8 @@ public final class DBInterface {
         GameSession session = tgs.getSession();
         Participant[] participants = session.getParticipants();
 
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "UPDATE games G SET G.time_stop = ?, G.status = ?, G.winner = ? WHERE G.id = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE games G SET G.time_stop = ?, G.status = ?, G.winner = ? WHERE G.id = ?")) {
             stmt.setTimestamp(1, new Timestamp(end_time));
             stmt.setString(2, "completed");
             stmt.setInt(3, winner);
@@ -949,9 +858,8 @@ public final class DBInterface {
     }
 
     public static boolean isProfileRegisteredToDiscord(String nick) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT COUNT(*) FROM discord_to_profiles WHERE nick = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT COUNT(*) FROM discord_to_profiles WHERE nick = ?")) {
             stmt.setString(1, nick);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -960,16 +868,14 @@ public final class DBInterface {
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "isProfileRegisteredToDiscord", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "isProfileRegisteredToDiscord", e);
         }
         return false;
     }
 
     public static long getDiscordUserIdForProfile(String nick) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT discord_id FROM discord_to_profiles WHERE nick = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT discord_id FROM discord_to_profiles WHERE nick = ?")) {
             stmt.setString(1, nick);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -978,16 +884,14 @@ public final class DBInterface {
             }
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getDiscordUserIdForProfile", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getDiscordUserIdForProfile", e);
         }
         return -1L;
     }
 
     public static String[] getProfilesRegisteredToDiscordUser(long discord_user_id) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT nick FROM discord_to_profiles WHERE discord_id = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT nick FROM discord_to_profiles WHERE discord_id = ?")) {
             stmt.setLong(1, discord_user_id);
             try (ResultSet result = stmt.executeQuery()) {
                 List<String> nicks = new ArrayList<>();
@@ -999,31 +903,28 @@ public final class DBInterface {
             }
         } catch (Exception e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getProfilesRegisteredToDiscordUser", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getProfilesRegisteredToDiscordUser",
+                    e);
         }
         return new String[0];
     }
 
     public static void registerProfileToDiscordUser(String nick, long discord_user_id) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT INTO discord_to_profiles (nick, discord_id) VALUES (?, ?)")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO discord_to_profiles (nick, discord_id) VALUES (?, ?)")) {
             stmt.setString(1, nick);
             stmt.setLong(2, discord_user_id);
             stmt.executeUpdate();
         } catch (Exception e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "registerProfileToDiscordUser", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "registerProfileToDiscordUser", e);
         }
     }
 
     public static void profileOnline(String nick) {
         MatchmakingServer.getLogger().info("profileOnline '" + nick + "'");
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT INTO online_profiles (nick) VALUES (?)")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO online_profiles (nick) VALUES (?)")) {
             stmt.setString(1, nick);
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -1034,49 +935,43 @@ public final class DBInterface {
 
     public static void profileOffline(String nick) {
         MatchmakingServer.getLogger().info("profileOffline '" + nick + "'");
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "DELETE FROM online_profiles WHERE nick = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "DELETE FROM online_profiles WHERE nick = ?")) {
             stmt.setString(1, nick);
             int row_count = stmt.executeUpdate();
             assert row_count == 1 : row_count;
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "profileOffline", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "profileOffline", e);
         }
     }
 
     public static void profileSetGame(String nick, int game_id) {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "UPDATE online_profiles O SET O.game_id = ? WHERE O.nick = ?")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE online_profiles O SET O.game_id = ? WHERE O.nick = ?")) {
             stmt.setInt(1, game_id);
             stmt.setString(2, nick);
             int row_count = stmt.executeUpdate();
             assert row_count == 1 : row_count + " nick = '" + nick + "' | game_id = " + game_id;
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "profileSetGame", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "profileSetGame", e);
         }
     }
 
     public static void clearOnlineProfiles() {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement("TRUNCATE TABLE online_profiles")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "TRUNCATE TABLE online_profiles")) {
             stmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "clearOnlineProfiles", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "clearOnlineProfiles", e);
         }
     }
 
     public static String[] getOnlineProfiles() {
-        try (Connection conn = DBUtils.createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT nick FROM online_profiles ORDER BY nick")) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT nick FROM online_profiles ORDER BY nick")) {
             try (ResultSet result = stmt.executeQuery()) {
                 List<String> nicks = new ArrayList<>();
                 while (result.next()) {
@@ -1087,8 +982,7 @@ public final class DBInterface {
             }
         } catch (Exception e) {
             System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "getOnlineProfiles", e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getOnlineProfiles", e);
         }
         return new String[0];
     }

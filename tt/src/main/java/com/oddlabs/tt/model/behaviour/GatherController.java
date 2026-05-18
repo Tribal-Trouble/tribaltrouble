@@ -60,10 +60,12 @@ public final class GatherController<S extends Supply> extends Controller {
 
     private void dropoff() {
         resetGiveUpCounter(State.HARVEST.ordinal());
-        if (building_tracker != null && building_tracker.getOccupant() != null && unit.isCloseEnough(0f, building_tracker.getOccupant())) {
+        if (building_tracker != null && building_tracker.getOccupant() != null && unit.isCloseEnough(0f,
+                building_tracker.getOccupant())) {
             Building building = building_tracker.getOccupant();
             Class<? extends Supply> unit_supply_type = unit.getSupplyContainer().getSupplyType();
-            int num_supplies = building.getSupplyContainer(unit_supply_type).increaseSupply(unit.getSupplyContainer().getNumSupplies());
+            int num_supplies = building.getSupplyContainer(unit_supply_type).increaseSupply(
+                    unit.getSupplyContainer().getNumSupplies());
             unit.getSupplyContainer().increaseSupply(-num_supplies, unit_supply_type);
             if (unit.getSupplyContainer().getNumSupplies() > 0) {
                 unit.popController();
@@ -71,7 +73,8 @@ public final class GatherController<S extends Supply> extends Controller {
             } else
                 gather();
         } else if (!shouldGiveUp(State.DROPOFF.ordinal())) {
-            building_tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new BuildingFinder(unit.getOwner(), Abilities.SUPPLY_CONTAINER));
+            building_tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new BuildingFinder(unit.getOwner(),
+                    Abilities.SUPPLY_CONTAINER));
             unit.setBehaviour(new WalkBehaviour(unit, building_tracker, false));
         } else {
             unit.popController();
@@ -80,7 +83,8 @@ public final class GatherController<S extends Supply> extends Controller {
 
     @Override
     public void decide() {
-        if (unit.getSupplyContainer().getNumSupplies() > 0 && unit.getSupplyContainer().getSupplyType() == supply_type) {
+        if (unit.getSupplyContainer().getNumSupplies() > 0
+                && unit.getSupplyContainer().getSupplyType() == supply_type) {
             dropoff();
         } else {
             gather();

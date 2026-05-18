@@ -11,11 +11,13 @@ public interface Supply extends Occupant {
 
     boolean hit();
 
-    @NonNull Supply respawn();
+    @NonNull
+    Supply respawn();
 
     void animateSpawn(float t, float progress);
 
     void spawnComplete();
 
-    @NonNull World getWorld();
+    @NonNull
+    World getWorld();
 }

@@ -16,8 +16,7 @@ public class WhoIsCommand extends DiscordCommand {
 
     private boolean debug = false;
     private String command_name = "whois";
-    private String command_description =
-            "Displays tribal trouble profiles associated with the discord user and vice versa.";
+    private String command_description = "Displays tribal trouble profiles associated with the discord user and vice versa.";
     private String command_option_lookup_name = "user";
 
     public WhoIsCommand() {
@@ -33,11 +32,9 @@ public class WhoIsCommand extends DiscordCommand {
     // easiest way
     @Override
     public Mono<Void> executeCommand(ChatInputInteractionEvent event) {
-        String user_name =
-                event.getOption(command_option_lookup_name)
-                        .flatMap(ApplicationCommandInteractionOption::getValue)
-                        .map(ApplicationCommandInteractionOptionValue::asString)
-                        .orElse("");
+        String user_name = event.getOption(command_option_lookup_name).flatMap(
+                ApplicationCommandInteractionOption::getValue).map(
+                        ApplicationCommandInteractionOptionValue::asString).orElse("");
 
         printDebug("Looking up user: " + user_name);
         // If a discord user was mentioned, extract their ID by removing non-numeric
@@ -51,30 +48,22 @@ public class WhoIsCommand extends DiscordCommand {
         }
 
         if (discordUserId != -1) {
-            String[] registeredProfiles =
-                    DBInterface.getProfilesRegisteredToDiscordUser(discordUserId);
+            String[] registeredProfiles = DBInterface.getProfilesRegisteredToDiscordUser(discordUserId);
             if (registeredProfiles.length == 0) {
                 return event.reply("No profiles registered for user: " + discordUserId);
             }
             String displayProfiles = String.join(", ", registeredProfiles);
             return event.reply(
-                    "Registered profiles for user "
-                            + toDiscordMention(discordUserId)
-                            + ": "
-                            + displayProfiles);
+                    "Registered profiles for user " + toDiscordMention(discordUserId) + ": " + displayProfiles);
         } else {
             long discord_id_for_user = DBInterface.getDiscordUserIdForProfile(user_name);
             if (discord_id_for_user != -1) {
                 return event.reply(
-                        "Discord ID for tribal trouble nick '"
-                                + user_name
-                                + "': "
-                                + toDiscordMention(discord_id_for_user));
+                        "Discord ID for tribal trouble nick '" + user_name + "': " + toDiscordMention(
+                                discord_id_for_user));
             } else {
                 return event.reply(
-                        "No Discord ID found for tribal trouble nick: '"
-                                + user_name
-                                + "'");
+                        "No Discord ID found for tribal trouble nick: '" + user_name + "'");
             }
         }
     }
@@ -85,20 +74,12 @@ public class WhoIsCommand extends DiscordCommand {
      */
     @Override
     public ApplicationCommandRequest getCommand() {
-        ApplicationCommandRequest whoIsCommand =
-                ApplicationCommandRequest.builder()
-                        .name(command_name)
-                        .description(command_description)
-                        .addOption(
-                                ApplicationCommandOptionData.builder()
-                                        .name(command_option_lookup_name)
-                                        .description(
-                                                "The user to look up (@discord_user or"
-                                                        + " tt_nickname)")
-                                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                                        .required(true)
-                                        .build())
-                        .build();
+        ApplicationCommandRequest whoIsCommand = ApplicationCommandRequest.builder().name(command_name).description(
+                command_description).addOption(
+                        ApplicationCommandOptionData.builder().name(command_option_lookup_name).description(
+                                "The user to look up (@discord_user or" + " tt_nickname)").type(
+                                        ApplicationCommandOption.Type.STRING.getValue()).required(
+                                                true).build()).build();
 
         return whoIsCommand;
     }
@@ -108,10 +89,8 @@ public class WhoIsCommand extends DiscordCommand {
     }
 
     private Mono<String> toDiscordUserName(long discordId, ChatInputInteractionEvent event) {
-        return event.getInteraction()
-                .getGuild()
-                .flatMap(guild -> guild.getMemberById(Snowflake.of(discordId)))
-                .map(member -> member.getNickname().orElse(member.getUsername()));
+        return event.getInteraction().getGuild().flatMap(guild -> guild.getMemberById(Snowflake.of(discordId))).map(
+                member -> member.getNickname().orElse(member.getUsername()));
     }
 
     private void printDebug(String message) {

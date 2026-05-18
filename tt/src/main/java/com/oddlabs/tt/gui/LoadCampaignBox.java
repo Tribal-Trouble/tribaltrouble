@@ -32,17 +32,15 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
     private final @NonNull GUIRoot gui_root;
     private static final ResourceBundle bundle = ResourceBundle.getBundle(LoadCampaignBox.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
     public LoadCampaignBox(@NonNull GUIRoot gui_root, @NonNull RowListener<CampaignState> listener) {
         this.gui_root = gui_root;
-        ColumnInfo[] infos = {
-                new ColumnInfo(i18n("name"), WIDTH_NAME),
-                new ColumnInfo(i18n("race"), WIDTH_RACE),
-                new ColumnInfo(i18n("difficulty"), WIDTH_DIFFICULTY),
-                new ColumnInfo(i18n("date"), WIDTH_DATE)};
+        ColumnInfo[] infos = {new ColumnInfo(i18n("name"), WIDTH_NAME), new ColumnInfo(i18n("race"),
+                WIDTH_RACE), new ColumnInfo(i18n("difficulty"), WIDTH_DIFFICULTY), new ColumnInfo(i18n("date"),
+                        WIDTH_DATE)};
         list_box = new MultiColumnComboBox<>(gui_root, infos, 262);
         list_box.addRowListener(listener);
         addChild(list_box);
@@ -52,8 +50,10 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
         refresh();
     }
 
-    public static <T> void saveSavegames(@NonNull CampaignState @NonNull [] states, @NonNull DeterministicSerializerLoopbackInterface<T> callback) {
-        DeterministicSerializer.save(LocalEventQueue.getQueue().getDeterministic(), states, getSaveSavegamesFile(), callback);
+    public static <T> void saveSavegames(@NonNull CampaignState @NonNull [] states,
+            @NonNull DeterministicSerializerLoopbackInterface<T> callback) {
+        DeterministicSerializer.save(LocalEventQueue.getQueue().getDeterministic(), states, getSaveSavegamesFile(),
+                callback);
     }
 
     private static @NonNull Path getSaveSavegamesFile() {
@@ -98,11 +98,13 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
                 default -> throw new IllegalArgumentException("invalid difficulty");
             };
             Row<CampaignState, Label> row = new Row<>(
-                    new Label[]{
-                            new Label(campaign_state.getName(), Skin.getSkin().getMultiColumnComboBoxData().font(), WIDTH_NAME - box.getLeftOffset() - 1),
-                            new Label(race, Skin.getSkin().getMultiColumnComboBoxData().font(), WIDTH_RACE),
-                            new Label(difficulty, Skin.getSkin().getMultiColumnComboBoxData().font(), WIDTH_DIFFICULTY),
-                            new DateLabel(campaign_state.getDate(), Skin.getSkin().getMultiColumnComboBoxData().font(), WIDTH_DATE - box.getRightOffset() + 1)
+                    new Label[]{new Label(campaign_state.getName(), Skin.getSkin().getMultiColumnComboBoxData().font(),
+                            WIDTH_NAME - box.getLeftOffset() - 1), new Label(race,
+                                    Skin.getSkin().getMultiColumnComboBoxData().font(), WIDTH_RACE), new Label(
+                                            difficulty, Skin.getSkin().getMultiColumnComboBoxData().font(),
+                                            WIDTH_DIFFICULTY), new DateLabel(campaign_state.getDate(),
+                                                    Skin.getSkin().getMultiColumnComboBoxData().font(),
+                                                    WIDTH_DATE - box.getRightOffset() + 1)
                     }, campaign_state);
             list_box.addRow(row);
         }

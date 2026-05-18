@@ -31,7 +31,8 @@ public final class GLIntImage extends GLImage {
     }
 
     public GLIntImage(int width, int height, int format) {
-        this(width, height, Objects.requireNonNull(BufferUtils.createByteBuffer(width * height * Integer.BYTES)), format);
+        this(width, height, Objects.requireNonNull(BufferUtils.createByteBuffer(
+                width * height * Integer.BYTES)), format);
     }
 
     public GLIntImage(@NonNull Layer layer) {

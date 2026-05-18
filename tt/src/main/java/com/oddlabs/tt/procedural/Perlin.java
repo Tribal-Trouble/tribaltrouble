@@ -32,7 +32,8 @@ public final class Perlin {
     public Channel channel;
     public Channel[] noise_channels;
 
-    public Perlin(int width, int height, int x_factor, int y_factor, float pers, int oct, long seed, @NonNull Interpolation interpolation, @NonNull Summation summation) {
+    public Perlin(int width, int height, int x_factor, int y_factor, float pers, int oct, long seed,
+            @NonNull Interpolation interpolation, @NonNull Summation summation) {
         assert Utils.isPowerOf2(width) : "width must be power of 2";
         assert Utils.isPowerOf2(height) : "height must be power of 2";
         assert Utils.isPowerOf2(x_factor) : "x_factor must be power of 2";
@@ -87,7 +88,8 @@ public final class Perlin {
             if (width == octave.width && height == octave.height) { // no interpolation needed when octave matches image size
                 for (y_pixel = 0; y_pixel < height; y_pixel++) {
                     for (x_pixel = 0; x_pixel < width; x_pixel++) {
-                        channel.putPixel(x_pixel, y_pixel, channel.getPixel(x_pixel, y_pixel) + octave.getPixel(x_pixel, y_pixel) * amplitude);
+                        channel.putPixel(x_pixel, y_pixel, channel.getPixel(x_pixel, y_pixel) + octave.getPixel(x_pixel,
+                                y_pixel) * amplitude);
                     }
                 }
             } else if (interpolation != Interpolation.CUBIC && i >= method_threshold) { // interpolate linear
@@ -96,8 +98,10 @@ public final class Perlin {
                     y_block_hi = (y_block_lo + 1) % octave.height;
                     for (x_block_lo = 0; x_block_lo < x_blocks; x_block_lo++) {
                         x_block_hi = (x_block_lo + 1) % octave.width;
-                        y_incr1 = (octave.getPixel(x_block_lo, y_block_hi) - octave.getPixel(x_block_lo, y_block_lo)) / block_height;
-                        y_incr2 = (octave.getPixel(x_block_hi, y_block_hi) - octave.getPixel(x_block_hi, y_block_lo)) / block_height;
+                        y_incr1 = (octave.getPixel(x_block_lo, y_block_hi) - octave.getPixel(x_block_lo,
+                                y_block_lo)) / block_height;
+                        y_incr2 = (octave.getPixel(x_block_hi, y_block_hi) - octave.getPixel(x_block_hi,
+                                y_block_lo)) / block_height;
                         val1 = octave.getPixel(x_block_lo, y_block_lo) - 0.5f * y_incr1;
                         val2 = octave.getPixel(x_block_hi, y_block_lo) - 0.5f * y_incr2;
                         for (int y = 0; y < block_height; y++) {
@@ -109,7 +113,8 @@ public final class Perlin {
                             for (int x = 0; x < block_width; x++) {
                                 x_pixel = x + x_block_lo * block_width;
                                 val += x_incr;
-                                channel.putPixel(x_pixel, y_pixel, channel.getPixel(x_pixel, y_pixel) + val * amplitude);
+                                channel.putPixel(x_pixel, y_pixel, channel.getPixel(x_pixel,
+                                        y_pixel) + val * amplitude);
                             }
                         }
                     }
@@ -124,14 +129,17 @@ public final class Perlin {
                         y_diff = y_coord - y_block_lo;
                         for (x_block_lo = 0; x_block_lo < x_blocks; x_block_lo++) {
                             x_block_hi = (x_block_lo + 1) % octave.width;
-                            val1 = Tools.interpolateSmooth(octave.getPixel(x_block_lo, y_block_lo), octave.getPixel(x_block_lo, y_block_hi), y_diff);
-                            val2 = Tools.interpolateSmooth(octave.getPixel(x_block_hi, y_block_lo), octave.getPixel(x_block_hi, y_block_hi), y_diff);
+                            val1 = Tools.interpolateSmooth(octave.getPixel(x_block_lo, y_block_lo), octave.getPixel(
+                                    x_block_lo, y_block_hi), y_diff);
+                            val2 = Tools.interpolateSmooth(octave.getPixel(x_block_hi, y_block_lo), octave.getPixel(
+                                    x_block_hi, y_block_hi), y_diff);
                             for (int x = 0; x < block_width; x++) {
                                 x_pixel = x + x_block_lo * block_width;
                                 x_coord = x_pixel * width_ratio;
                                 x_diff = x_coord - x_block_lo;
                                 val = Tools.interpolateSmooth(val1, val2, x_diff);
-                                channel.putPixel(x_pixel, y_pixel, channel.getPixel(x_pixel, y_pixel) + val * amplitude);
+                                channel.putPixel(x_pixel, y_pixel, channel.getPixel(x_pixel,
+                                        y_pixel) + val * amplitude);
                             }
                         }
                     }
@@ -181,7 +189,8 @@ public final class Perlin {
                                 x_diff = x_coord - x_block_lo;
                                 val = Tools.interpolateCubic(
                                         val0, val1, val2, val3, x_diff);
-                                channel.putPixelWrap(x_pixel, y_pixel, channel.getPixelWrap(x_pixel, y_pixel) + val * amplitude);
+                                channel.putPixelWrap(x_pixel, y_pixel, channel.getPixelWrap(x_pixel,
+                                        y_pixel) + val * amplitude);
                             }
                         }
                     }
@@ -213,7 +222,8 @@ public final class Perlin {
             case XSINE:
                 for (int y = 0; y < height; y++) {
                     for (int x = 0; x < width; x++) {
-                        channel.putPixel(x, y, (float) Math.sin(x / ((width / 256f) * Math.PI) + channel.getPixel(x, y)));
+                        channel.putPixel(x, y, (float) Math.sin(x / ((width / 256f) * Math.PI) + channel.getPixel(x,
+                                y)));
                     }
                 }
                 break;

@@ -44,7 +44,7 @@ public final class NewUserForm extends Form {
     private final @NonNull PasswordLine editline_verify;
     private static final ResourceBundle bundle = ResourceBundle.getBundle(NewUserForm.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -163,7 +163,8 @@ public final class NewUserForm extends Form {
         }
     }
 
-    private void doCreateUser(@NonNull String username, LoginDetails login_details, @NonNull String password, Login login) {
+    private void doCreateUser(@NonNull String username, LoginDetails login_details, @NonNull String password,
+            Login login) {
         Settings.getSettings().username = username;
         Settings.getSettings().pw_digest = password;
         Form connecting_form = new MatchmakingConnectingForm(network, gui_root, this, main_menu, login, login_details);

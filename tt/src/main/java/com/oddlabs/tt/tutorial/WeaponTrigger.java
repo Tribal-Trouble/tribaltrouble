@@ -17,7 +17,8 @@ public final class WeaponTrigger extends TutorialTrigger {
     protected void run(@NonNull Tutorial tutorial) {
         for (var s : tutorial.getViewer().getSelection().getCurrentSelection().getSet()) {
             if (s instanceof Building armory && s.getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
-                if (armory.getSupplyContainer(com.oddlabs.tt.model.weapon.RockAxeWeapon.class).getNumSupplies() >= WEAPONS)
+                if (armory.getSupplyContainer(
+                        com.oddlabs.tt.model.weapon.RockAxeWeapon.class).getNumSupplies() >= WEAPONS)
                     tutorial.next(new ArmyMenuTrigger(tutorial.getViewer().getLocalPlayer()));
             }
         }

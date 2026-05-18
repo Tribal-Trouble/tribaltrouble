@@ -116,14 +116,14 @@ public class Group extends GUIObject {
         switchFocus(direction, false);
     }
 
-/*
-	public final void correctPos(int dx, int dy) {
-		setPos(getX() + dx, getY() + dy);
-		ListElement current = getLastChild();
-		while (current != null) {
-			((GUIObject)current).correctPosRecurseGroup(getX(), getY());
-			current = current.getNext();
-		}
-	}
-*/
+    /*
+    	public final void correctPos(int dx, int dy) {
+    		setPos(getX() + dx, getY() + dy);
+    		ListElement current = getLastChild();
+    		while (current != null) {
+    			((GUIObject)current).correctPosRecurseGroup(getX(), getY());
+    			current = current.getNext();
+    		}
+    	}
+    */
 }

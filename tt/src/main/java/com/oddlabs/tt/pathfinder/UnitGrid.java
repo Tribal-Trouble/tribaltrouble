@@ -25,7 +25,8 @@ public final class UnitGrid {
         return filter.filter(x, y, occupants[y][x]);
     }
 
-    public Target @NonNull [] findGridTargets(int center_grid_x, int center_grid_y, int num_targets, boolean grid_targets_only) {
+    public Target @NonNull [] findGridTargets(int center_grid_x, int center_grid_y, int num_targets,
+            boolean grid_targets_only) {
         FindTargetsFilter filter = new FindTargetsFilter(num_targets, occupants.length, grid_targets_only);
         scan(filter, center_grid_x, center_grid_y);
         return filter.getTargets();

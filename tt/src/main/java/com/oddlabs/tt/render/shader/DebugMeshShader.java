@@ -69,83 +69,75 @@ public final class DebugMeshShader extends ShaderProgram implements FogShader, L
         }
     }
 
-    private static final String VERTEX_SHADER =
-            """
-                    #version 410 core
-                    """ +
-                    GLOBAL_STATE_BLOCK +
-                    VERTEX_LIGHTING_FUNCTION +
-                    """
-                            layout(location = 0) in vec3 in_Position;
-                            layout(location = 1) in vec3 in_Normal;
-                            layout(location = 2) in vec4 in_Color;
-                            layout(location = 3) in vec2 in_TexCoord0;
-                            
-                            uniform mat4 u_modelViewMatrix;
-                            uniform bool u_enableLighting;
-                            uniform float u_pointSize;
-                            
-                            out vec4 v_color;
-                            out vec2 v_texCoord0;
-                            out float v_fogDist;
-                            
-                            void main() {
-                                vec4 viewPosition = u_modelViewMatrix * vec4(in_Position, 1.0);
-                            	gl_Position = u_projectionMatrix * viewPosition;
-                            	v_texCoord0 = in_TexCoord0;
-                            	v_fogDist = length(viewPosition.xyz);
-                            
-                            	if (u_pointSize > 0.0) {
-                            	    gl_PointSize = u_pointSize;
-                            	}
-                            
-                            	if (u_enableLighting) {
-                            		v_color = calculateVertexLighting(in_Normal, in_Color, u_modelViewMatrix);
-                            	} else {
-                            		v_color = in_Color;
-                            	}
-                            }
-                            """;
+    private static final String VERTEX_SHADER = """
+            #version 410 core
+            """ + GLOBAL_STATE_BLOCK + VERTEX_LIGHTING_FUNCTION + """
+            layout(location = 0) in vec3 in_Position;
+            layout(location = 1) in vec3 in_Normal;
+            layout(location = 2) in vec4 in_Color;
+            layout(location = 3) in vec2 in_TexCoord0;
 
-    private static final String FRAGMENT_SHADER =
-            """
-                    #version 410 core
-                    """ +
-                    GLOBAL_STATE_BLOCK +
-                    FOG_FUNCTION +
-                    """
-                            uniform sampler2D u_texture0;
-                            uniform bool u_enableTexture;
-                            uniform float u_alphaCutoff;
-                            uniform bool u_replaceMode;
-                            
-                            in vec4 v_color;
-                            in vec2 v_texCoord0;
-                            in float v_fogDist;
-                            
-                            layout(location = 0) out vec4 out_FragColor;
-                            
-                            void main() {
-                            	vec4 color;
-                            	if (u_enableTexture) {
-                            	    vec4 texColor = texture(u_texture0, v_texCoord0);
-                            	    if (u_replaceMode) {
-                            	        color = texColor;
-                            	    } else {
-                            		    color = v_color * texColor;
-                            		}
-                            	} else {
-                            	    color = v_color;
-                            	}
-                            
-                            	if (color.a < u_alphaCutoff) {
-                            	    discard;
-                            	}
-                            
-                                      float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
-                            	out_FragColor = vec4(mix(u_fogColor.rgb, color.rgb, fogFactor), color.a);
-                            }
-                            """;
+            uniform mat4 u_modelViewMatrix;
+            uniform bool u_enableLighting;
+            uniform float u_pointSize;
+
+            out vec4 v_color;
+            out vec2 v_texCoord0;
+            out float v_fogDist;
+
+            void main() {
+                vec4 viewPosition = u_modelViewMatrix * vec4(in_Position, 1.0);
+            	gl_Position = u_projectionMatrix * viewPosition;
+            	v_texCoord0 = in_TexCoord0;
+            	v_fogDist = length(viewPosition.xyz);
+
+            	if (u_pointSize > 0.0) {
+            	    gl_PointSize = u_pointSize;
+            	}
+
+            	if (u_enableLighting) {
+            		v_color = calculateVertexLighting(in_Normal, in_Color, u_modelViewMatrix);
+            	} else {
+            		v_color = in_Color;
+            	}
+            }
+            """;
+
+    private static final String FRAGMENT_SHADER = """
+            #version 410 core
+            """ + GLOBAL_STATE_BLOCK + FOG_FUNCTION + """
+            uniform sampler2D u_texture0;
+            uniform bool u_enableTexture;
+            uniform float u_alphaCutoff;
+            uniform bool u_replaceMode;
+
+            in vec4 v_color;
+            in vec2 v_texCoord0;
+            in float v_fogDist;
+
+            layout(location = 0) out vec4 out_FragColor;
+
+            void main() {
+            	vec4 color;
+            	if (u_enableTexture) {
+            	    vec4 texColor = texture(u_texture0, v_texCoord0);
+            	    if (u_replaceMode) {
+            	        color = texColor;
+            	    } else {
+            		    color = v_color * texColor;
+            		}
+            	} else {
+            	    color = v_color;
+            	}
+
+            	if (color.a < u_alphaCutoff) {
+            	    discard;
+            	}
+
+                      float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
+            	out_FragColor = vec4(mix(u_fogColor.rgb, color.rgb, fogFactor), color.a);
+            }
+            """;
 
     public DebugMeshShader() {
         super(VERTEX_SHADER, FRAGMENT_SHADER);

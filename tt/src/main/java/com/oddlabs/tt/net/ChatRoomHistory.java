@@ -13,7 +13,7 @@ import java.util.Set;
 public final class ChatRoomHistory extends ChatHistory {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(ChatPanel.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 

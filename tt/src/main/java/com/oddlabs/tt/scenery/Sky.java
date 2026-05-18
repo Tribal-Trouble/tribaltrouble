@@ -123,15 +123,15 @@ public final class Sky implements SceneRenderer, AutoCloseable {
     private final Random random = new Random();
 
     public Sky(@NonNull LandscapeRenderer renderer, Landscape.@NonNull TerrainType terrain, @NonNull Texture detail) {
-        this(renderer, terrain, (float) (renderer.getHeightMap().getMetersPerWorld() * Math.sqrt(2) / 2), 6000f, 20, 20, SKYDOME_OUTER_UTILING, SKYDOME_OUTER_VTILING, SKYDOME_INNER_UTILING, SKYDOME_INNER_VTILING, renderer.getHeightMap().getMetersPerWorld() / 2f, renderer.getHeightMap().getMetersPerWorld() / 2f, SKYDOME_HEIGHT, detail);
+        this(renderer, terrain, (float) (renderer.getHeightMap().getMetersPerWorld() * Math.sqrt(
+                2) / 2), 6000f, 20, 20, SKYDOME_OUTER_UTILING, SKYDOME_OUTER_VTILING, SKYDOME_INNER_UTILING, SKYDOME_INNER_VTILING, renderer.getHeightMap().getMetersPerWorld() / 2f, renderer.getHeightMap().getMetersPerWorld() / 2f, SKYDOME_HEIGHT, detail);
     }
 
     @Override
-    public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull MatrixStack modelView, @NonNull MatrixStack projection) {
-        try (var _ = skyShader.use();
-             var _ = context.withBlendMode(BlendMode.NONE);
-             var _ = context.withDepthMode(DepthMode.READ_WRITE);
-             var _ = context.withCullMode(CullMode.BACK)) {
+    public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull MatrixStack modelView,
+            @NonNull MatrixStack projection) {
+        try (var _ = skyShader.use(); var _ = context.withBlendMode(BlendMode.NONE); var _ = context.withDepthMode(
+                DepthMode.READ_WRITE); var _ = context.withCullMode(CullMode.BACK)) {
 
             skyShader.setUniformMatrix4(SkyShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
             skyShader.setUniform(SkyShader.Uniforms.SKY_COLOR, color.get(0), color.get(1), color.get(2), color.get(3));
@@ -209,11 +209,11 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         outerCloudDensity += (targetOuterCloudDensity - outerCloudDensity) * dt * 0.05f;
     }
 
-    public void renderSeaBottom(@NonNull RenderContext context, @NonNull CameraState state, @NonNull MatrixStack modelView, @NonNull MatrixStack projection) {
-        try (var _ = seaBottomShader.use();
-             var _ = context.withBlendMode(BlendMode.NONE);
-             var _ = context.withDepthMode(DepthMode.READ_WRITE);
-             var _ = context.withCullMode(CullMode.BACK)) {
+    public void renderSeaBottom(@NonNull RenderContext context, @NonNull CameraState state,
+            @NonNull MatrixStack modelView, @NonNull MatrixStack projection) {
+        try (var _ = seaBottomShader.use(); var _ = context.withBlendMode(
+                BlendMode.NONE); var _ = context.withDepthMode(DepthMode.READ_WRITE); var _ = context.withCullMode(
+                        CullMode.BACK)) {
 
             seaBottomShader.setUniformMatrix4(SeaBottomShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
 
@@ -221,7 +221,8 @@ public final class Sky implements SceneRenderer, AutoCloseable {
                 case NATIVE -> NATIVE_SEA_BOTTOM_COLOR;
                 case VIKING -> VIKING_SEA_BOTTOM_COLOR;
             };
-            seaBottomShader.setUniform(SeaBottomShader.Uniforms.BASE_COLOR, seaColor.x(), seaColor.y(), seaColor.z(), seaColor.w());
+            seaBottomShader.setUniform(SeaBottomShader.Uniforms.BASE_COLOR, seaColor.x(), seaColor.y(), seaColor.z(),
+                    seaColor.w());
 
             if (Globals.draw_detail) {
                 context.setTexture(1, detail);
@@ -241,7 +242,10 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         }
     }
 
-    private Sky(@NonNull LandscapeRenderer landscape_renderer, Landscape.@NonNull TerrainType terrain, float inner_radius, float radius, int subdiv_axis, int subdiv_height, float outer_utile, float outer_vtile, float inner_utile, float inner_vtile, float origin_x, float origin_y, float origin_z, @NonNull Texture detail) {
+    private Sky(@NonNull LandscapeRenderer landscape_renderer, Landscape.@NonNull TerrainType terrain,
+            float inner_radius, float radius, int subdiv_axis, int subdiv_height, float outer_utile, float outer_vtile,
+            float inner_utile, float inner_vtile, float origin_x, float origin_y, float origin_z,
+            @NonNull Texture detail) {
         this.terrain = terrain;
         this.detail = detail;
         this.subdiv_axis = subdiv_axis;
@@ -254,7 +258,8 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         int num_vertices_sky = subdiv_axis * (subdiv_height - 1) + 1;
         int stride = (3 + 3 + 2 + 2 + 3) * Float.BYTES; // pos, norm, uv0, uv1, color
         FloatBuffer skyBuffer = BufferUtils.createFloatBuffer(num_vertices_sky * (stride / Float.BYTES));
-        makeSkyVertices(radius, outer_utile, outer_vtile, inner_utile, inner_vtile, origin_x, origin_y, origin_z, skyBuffer);
+        makeSkyVertices(radius, outer_utile, outer_vtile, inner_utile, inner_vtile, origin_x, origin_y, origin_z,
+                skyBuffer);
         skyBuffer.flip();
         sky_vbo = new FloatVBO(GL15.GL_STATIC_DRAW, skyBuffer);
 
@@ -272,7 +277,8 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         for (int i = 0; i < NUM_WATER_RINGS; i++) {
             float radius_factor = (float) (i + 1) / NUM_WATER_RINGS;
             float ring_radius = inner_radius + (float) Math.pow(radius - inner_radius, radius_factor);
-            SkyStitchVertex[] ring_vertices = makeDomeVertices(landscape_renderer.getHeightMap(), i + 1, num_vertices_water, ring_radius, origin_x, origin_y);
+            SkyStitchVertex[] ring_vertices = makeDomeVertices(landscape_renderer.getHeightMap(), i + 1,
+                    num_vertices_water, ring_radius, origin_x, origin_y);
             vertices_stitch_list.add(ring_vertices);
             num_vertices_water += ring_vertices.length;
             SkyStitchVertex[] stitch_vertices = new SkyStitchVertex[ring_vertices.length + previous_vertices.length];
@@ -341,7 +347,8 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         return water_indices;
     }
 
-    private void makeSkyVertices(float radius, float outer_utile, float outer_vtile, float inner_utile, float inner_vtile, float origin_x, float origin_y, float origin_z, @NonNull FloatBuffer buffer) {
+    private void makeSkyVertices(float radius, float outer_utile, float outer_vtile, float inner_utile,
+            float inner_vtile, float origin_x, float origin_y, float origin_z, @NonNull FloatBuffer buffer) {
         float r;
         float x, y, z;
         float height_coeff;
@@ -383,8 +390,10 @@ public final class Sky implements SceneRenderer, AutoCloseable {
                 buffer.put(x + origin_x).put(y + origin_y).put(z + origin_z); // Position
                 float inv_len = 1.0f / (float) Math.sqrt(x * x + y * y + z * z);
                 buffer.put(x * inv_len).put(y * inv_len).put(z * inv_len); // Normal
-                buffer.put(x * height_coeff / (radius * outer_utile) + 0.5f).put(y * height_coeff / (radius * outer_vtile) + 0.5f); // TexCoord0
-                buffer.put(x * height_coeff / (radius * inner_utile) + 0.5f).put(y * height_coeff / (radius * inner_vtile) + 0.5f); // TexCoord1
+                buffer.put(x * height_coeff / (radius * outer_utile) + 0.5f).put(
+                        y * height_coeff / (radius * outer_vtile) + 0.5f); // TexCoord0
+                buffer.put(x * height_coeff / (radius * inner_utile) + 0.5f).put(
+                        y * height_coeff / (radius * inner_vtile) + 0.5f); // TexCoord1
                 Vector4fc color = i < SKYDOME_GRADIENT_LENGTH ? skydome_gradient[i] : skydome_default_color;
                 buffer.put(color.x()).put(color.y()).put(color.z()); // Color
             }
@@ -431,15 +440,15 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         return fan_indices;
     }
 
-    private @NonNull SkyStitchVertex @NonNull [] makeDomeVertices(@NonNull HeightMap heightmap, int ring_id, int index_offset, float radius, float origin_x, float origin_y) {
+    private @NonNull SkyStitchVertex @NonNull [] makeDomeVertices(@NonNull HeightMap heightmap, int ring_id,
+            int index_offset, float radius, float origin_x, float origin_y) {
         float a_angle_inc = (float) Math.PI * 2 / subdiv_axis;
-        return IntStream.range(0, subdiv_axis)
-                .mapToObj(i -> {
-                    int index = i + index_offset;
-                    return new SkyStitchVertex(heightmap, index, ring_id,
-                            (float) java.lang.Math.cos(START_ANGLE + a_angle_inc * i) * radius + origin_x,
-                            (float) java.lang.Math.sin(START_ANGLE + a_angle_inc * i) * radius + origin_y);
-                }).toArray(SkyStitchVertex[]::new);
+        return IntStream.range(0, subdiv_axis).mapToObj(i -> {
+            int index = i + index_offset;
+            return new SkyStitchVertex(heightmap, index, ring_id,
+                    (float) java.lang.Math.cos(START_ANGLE + a_angle_inc * i) * radius + origin_x,
+                    (float) java.lang.Math.sin(START_ANGLE + a_angle_inc * i) * radius + origin_y);
+        }).toArray(SkyStitchVertex[]::new);
     }
 
     private @NonNull SkyStitchVertex @NonNull [] makeLandscapeVertices(@NonNull HeightMap heightmap) {
@@ -458,7 +467,8 @@ public final class Sky implements SceneRenderer, AutoCloseable {
             result[index] = new SkyStitchVertex(heightmap, index, 0, i * metersPerUnit, metersPerWorld);
 
             index = i + gridUnitsPerWorld * 2;
-            result[index] = new SkyStitchVertex(heightmap, index, 0, metersPerWorld, metersPerWorld - i * metersPerUnit);
+            result[index] = new SkyStitchVertex(heightmap, index, 0, metersPerWorld,
+                    metersPerWorld - i * metersPerUnit);
 
             index = i + gridUnitsPerWorld * 3;
             result[index] = new SkyStitchVertex(heightmap, index, 0, metersPerWorld - i * metersPerUnit, 0);

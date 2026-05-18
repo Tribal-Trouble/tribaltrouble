@@ -23,7 +23,8 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
     private final MatchmakingClientInterface client_interface;
     private final MatchmakingServer server;
     private final InetAddress remote_address;
-    private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(MatchmakingServerLoginInterface.class);
+    private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(
+            MatchmakingServerLoginInterface.class);
     private final int host_id;
     private InetAddress local_remote_address;
 
@@ -31,7 +32,8 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
         this.conn = conn;
         this.server = server;
         this.remote_address = remote_address;
-        this.client_interface = (MatchmakingClientInterface) ARMIEvent.createProxy(conn, MatchmakingClientInterface.class);
+        this.client_interface = (MatchmakingClientInterface) ARMIEvent.createProxy(conn,
+                MatchmakingClientInterface.class);
         this.host_id = host_id;
         conn.setConnectionInterface(this);
     }
@@ -115,7 +117,8 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
         }
 
         DBInterface.createUser(login, login_details, null);
-        MatchmakingServer.getLogger().info("Created user " + login.getUsername() + " with email address " + login_details.getEmail());
+        MatchmakingServer.getLogger().info(
+                "Created user " + login.getUsername() + " with email address " + login_details.getEmail());
         doLogin(login.getUsername(), revision);
     }
 
@@ -163,18 +166,21 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
     public void loginWithSteam(long steamAccountId, String personaName, byte[] authTicket, int appId, int revision) {
         if (!revisionOK(revision)) return;
 
-        MatchmakingServer.getLogger().info("Steam login attempt: accountId=" + steamAccountId + " persona=" + personaName + " appId=" + appId + " ticketLen=" + (authTicket != null ? authTicket.length : 0));
+        MatchmakingServer.getLogger().info(
+                "Steam login attempt: accountId=" + steamAccountId + " persona=" + personaName + " appId=" + appId + " ticketLen=" + (authTicket != null ? authTicket.length : 0));
 
         if (!SteamAuthValidator.validateTicket(steamAccountId, authTicket, appId)) {
             client_interface.loginError(MatchmakingClientInterface.USER_ERROR_NO_SUCH_USER);
-            MatchmakingServer.getLogger().warning("Steam auth ticket validation failed for account ID: " + steamAccountId);
+            MatchmakingServer.getLogger().warning(
+                    "Steam auth ticket validation failed for account ID: " + steamAccountId);
             return;
         }
 
         String username = DBInterface.getOrCreateSteamRegistration(steamAccountId);
         if (username == null) {
             client_interface.loginError(MatchmakingClientInterface.USER_ERROR_NO_SUCH_USER);
-            MatchmakingServer.getLogger().warning("getOrCreateSteamRegistration returned null for account ID: " + steamAccountId);
+            MatchmakingServer.getLogger().warning(
+                    "getOrCreateSteamRegistration returned null for account ID: " + steamAccountId);
             return;
         }
 
@@ -193,7 +199,8 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
     private void doLogin(String username, int revision) {
         if (local_remote_address != null) {
             client_interface.loginOK(username, new TunnelAddress(getHostID(), remote_address, local_remote_address));
-            server.loginClient(remote_address, local_remote_address, username, conn.getWrappedConnectionAndShutdown(), revision, host_id);
+            server.loginClient(remote_address, local_remote_address, username, conn.getWrappedConnectionAndShutdown(),
+                    revision, host_id);
         } else {
             error(new IllegalStateException("Client didnt set local_remote_address"));
         }

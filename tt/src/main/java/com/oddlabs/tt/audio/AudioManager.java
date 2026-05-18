@@ -122,7 +122,8 @@ public abstract class AudioManager implements AudioImplementation, AutoCloseable
         }
     }
 
-    public @NonNull AbstractAudioPlayer newAudio(@NonNull CameraState camera_state, @NonNull AudioParameters<?> params) {
+    public @NonNull AbstractAudioPlayer newAudio(@NonNull CameraState camera_state,
+            @NonNull AudioParameters<?> params) {
         AudioSource source = getSource(camera_state, params);
         if (source == null) {
             return createPlayer(null, params);
@@ -139,7 +140,8 @@ public abstract class AudioManager implements AudioImplementation, AutoCloseable
         return doNewAudio(source, params);
     }
 
-    private static @NonNull AbstractAudioPlayer doNewAudio(@NonNull AudioSource source, @NonNull AudioParameters<?> params) {
+    private static @NonNull AbstractAudioPlayer doNewAudio(@NonNull AudioSource source,
+            @NonNull AudioParameters<?> params) {
         // Bind the audio to the source before creating the player.
         if (params.sound instanceof Audio) {
             source.setAudio((Audio) params.sound);
@@ -148,7 +150,8 @@ public abstract class AudioManager implements AudioImplementation, AutoCloseable
     }
 
     @SuppressWarnings("unchecked")
-    private static @NonNull AbstractAudioPlayer createPlayer(@Nullable AudioSource source, @NonNull AudioParameters<?> params) {
+    private static @NonNull AbstractAudioPlayer createPlayer(@Nullable AudioSource source,
+            @NonNull AudioParameters<?> params) {
         if (params.sound instanceof Audio) {
             return new AudioPlayer(source, (AudioParameters<Audio>) params);
         } else if (params.sound instanceof String) {
@@ -158,7 +161,8 @@ public abstract class AudioManager implements AudioImplementation, AutoCloseable
                 throw new IllegalArgumentException("Could not load " + params.sound, ex);
             }
         } else {
-            throw new IllegalArgumentException("Unrecognized audio parameters : " + params.sound.getClass().getSimpleName());
+            throw new IllegalArgumentException(
+                    "Unrecognized audio parameters : " + params.sound.getClass().getSimpleName());
         }
     }
 
@@ -188,7 +192,8 @@ public abstract class AudioManager implements AudioImplementation, AutoCloseable
         int worst_rank = Integer.MAX_VALUE;
         for (AudioSource source : sources) {
             var sourceState = source.getState();
-            if ((sourceState == AudioSource.State.INITIAL || sourceState == AudioSource.State.STOPPED) && source.getRank() < AudioPlayer.AUDIO_RANK_AMBIENT) {
+            if ((sourceState == AudioSource.State.INITIAL || sourceState == AudioSource.State.STOPPED)
+                    && source.getRank() < AudioPlayer.AUDIO_RANK_AMBIENT) {
                 if (source.getAudioPlayer() != null)
                     source.getAudioPlayer().stop();
                 return source;

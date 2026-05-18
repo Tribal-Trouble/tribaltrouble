@@ -13,7 +13,7 @@ import java.util.ResourceBundle;
 public final class DefeatTrigger extends IntervalTrigger {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(DefeatTrigger.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 

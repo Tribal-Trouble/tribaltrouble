@@ -43,18 +43,19 @@ public final class VikingChieftainAI extends ChieftainAI {
         int num_friendly_units_close = getNumFriendlyUnitsClose(chieftain, hit_radius);
         if (2 * num_friendly_units_close < num_enemy_units_close
                 && (num_enemy_units_close >= NUM_UNITS_FOR_BLAST
-                || (num_enemy_units < NUM_UNITS_FOR_BLAST && num_enemy_units_close > 1)
-                || (chieftain.getHitPoints() <= 2 && num_enemy_units_close > 1))) {
+                        || (num_enemy_units < NUM_UNITS_FOR_BLAST && num_enemy_units_close > 1)
+                        || (chieftain.getHitPoints() <= 2 && num_enemy_units_close > 1))) {
             chieftain.doMagic(RacesResources.INDEX_MAGIC_BLAST, false);
         }
     }
 
-    private <S extends Selectable<?>> int getNumEnemyUnitsClose(@NonNull Unit chieftain, float hit_radius, Class<S> type) {
-        FindOccupantFilter<S> filter = new FindOccupantFilter<>(chieftain.getPositionX(), chieftain.getPositionY(), hit_radius, chieftain, type);
+    private <S extends Selectable<?>> int getNumEnemyUnitsClose(@NonNull Unit chieftain, float hit_radius,
+            Class<S> type) {
+        FindOccupantFilter<S> filter = new FindOccupantFilter<>(chieftain.getPositionX(), chieftain.getPositionY(),
+                hit_radius, chieftain, type);
         chieftain.getUnitGrid().scan(filter, chieftain.getGridX(), chieftain.getGridY());
-        long num_enemy_units_close = StreamSupport.stream(filter.getResult().spliterator(), false)
-                .filter(Selectable::isAlive)
-                .filter(s -> {
+        long num_enemy_units_close = StreamSupport.stream(filter.getResult().spliterator(), false).filter(
+                Selectable::isAlive).filter(s -> {
                     float dx = s.getPositionX() - chieftain.getPositionX();
                     float dy = s.getPositionY() - chieftain.getPositionY();
                     float squared_dist = dx * dx + dy * dy;
@@ -64,11 +65,11 @@ public final class VikingChieftainAI extends ChieftainAI {
     }
 
     private int getNumFriendlyUnitsClose(@NonNull Unit chieftain, float hit_radius) {
-        var filter = new FindOccupantFilter<>(chieftain.getPositionX(), chieftain.getPositionY(), hit_radius, chieftain, Selectable.genericClass());
+        var filter = new FindOccupantFilter<>(chieftain.getPositionX(), chieftain.getPositionY(), hit_radius, chieftain,
+                Selectable.genericClass());
         chieftain.getUnitGrid().scan(filter, chieftain.getGridX(), chieftain.getGridY());
-        long num_friendly_units_close = StreamSupport.stream(filter.getResult().spliterator(), false)
-                .filter(Selectable::isAlive)
-                .filter(s -> {
+        long num_friendly_units_close = StreamSupport.stream(filter.getResult().spliterator(), false).filter(
+                Selectable::isAlive).filter(s -> {
                     float dx = s.getPositionX() - chieftain.getPositionX();
                     float dy = s.getPositionY() - chieftain.getPositionY();
                     float squared_dist = dx * dx + dy * dy;

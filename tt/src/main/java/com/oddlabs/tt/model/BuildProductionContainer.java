@@ -13,10 +13,10 @@ public class BuildProductionContainer extends BuildSupplyContainer {
     private boolean infinite = false;
 
     public BuildProductionContainer(int max_supply_count,
-                                    @NonNull SupplyContainer dest_container,
-                                    @NonNull Building building,
-                                    @NonNull Cost cost,
-                                    float man_seconds_per_production) {
+            @NonNull SupplyContainer dest_container,
+            @NonNull Building building,
+            @NonNull Cost cost,
+            float man_seconds_per_production) {
         super(max_supply_count);
         this.dest_container = dest_container;
         this.building = building;

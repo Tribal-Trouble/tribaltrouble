@@ -22,7 +22,8 @@ public final class WatchStatusIcon extends StatusIcon {
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         super.renderGeometry(renderer);
-        if (!building.isDead() && !building.getChieftainContainer().isTraining() && building.getOwner().getUnitCountContainer().getNumSupplies() < building.getOwner().getWorld().getMaxUnitCount()) {
+        if (!building.isDead() && !building.getChieftainContainer().isTraining()
+                && building.getOwner().getUnitCountContainer().getNumSupplies() < building.getOwner().getWorld().getMaxUnitCount()) {
             IconQuad[] watch = GUIIcons.getIcons().getWatch();
             float progress = ((ReproduceUnitContainer) (building.getUnitContainer())).getBuildProgress();
             int index = (int) (progress * (watch.length - 1));
@@ -30,7 +31,8 @@ public final class WatchStatusIcon extends StatusIcon {
             int y = (getHeight() - watch[0].getHeight()) / 2;
             x -= 5; // visual HAX
             IconQuad icon = watch[index];
-            renderer.drawTexture(icon.getTexture(), x, y, icon.getWidth(), icon.getHeight(), icon.getU1(), icon.getV1(), icon.getU2(), icon.getV2(), COLOR);
+            renderer.drawTexture(icon.getTexture(), x, y, icon.getWidth(), icon.getHeight(), icon.getU1(), icon.getV1(),
+                    icon.getU2(), icon.getV2(), COLOR);
         }
     }
 }

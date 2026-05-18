@@ -250,9 +250,7 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
 
     @Override
     public void setGrabbed(boolean grabbed) {
-        int ungrabbedMode = com.oddlabs.tt.global.Settings.getSettings().confine_cursor
-                ? GLFW_CURSOR_CAPTURED
-                : GLFW_CURSOR_NORMAL;
+        int ungrabbedMode = com.oddlabs.tt.global.Settings.getSettings().confine_cursor ? GLFW_CURSOR_CAPTURED : GLFW_CURSOR_NORMAL;
         glfwSetInputMode(windowHandle, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : ungrabbedMode);
     }
 

@@ -16,7 +16,8 @@ public final class PoisonCloud {
 
     private float time;
 
-    public PoisonCloud(@NonNull ParametricEmitter emitter, float src_x, float src_y, float dst_x, float dst_y, float velocity) {
+    public PoisonCloud(@NonNull ParametricEmitter emitter, float src_x, float src_y, float dst_x, float dst_y,
+            float velocity) {
         this.emitter = emitter;
         this.src_x = src_x;
         this.src_y = src_y;

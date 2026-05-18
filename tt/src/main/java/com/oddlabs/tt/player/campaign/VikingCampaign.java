@@ -15,38 +15,24 @@ import org.jspecify.annotations.NonNull;
 public final class VikingCampaign extends Campaign {
     public static final int MAX_UNITS = 46;
     private static final int[] INITIAL_STATES = new int[]{
-/*
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE};
-*/
-            CampaignState.ISLAND_AVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_HIDDEN,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE};
+            /*
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE};
+            */
+            CampaignState.ISLAND_AVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_HIDDEN, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE};
 
     private final @NonNull Island @NonNull [] islands;
 

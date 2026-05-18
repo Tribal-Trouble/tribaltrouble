@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-/* http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html*/
+/* http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html */
 public final class IndexListOptimizer {
     private static final int LRU_SIZE = 32;
     private static final float INITIAL_SCORE = .7f;
@@ -20,14 +20,14 @@ public final class IndexListOptimizer {
     private static final float VALENCE_BOOST_POWER = .5f;
 
     public static void optimize(@NonNull ShortBuffer buffer) {
-/*System.out.println("buffer:");
-dumpBuffer(buffer);*/
+        /*System.out.println("buffer:");
+        dumpBuffer(buffer);*/
         Index[] lru = new Index[LRU_SIZE];
         Map<Short, Index> indices = new LinkedHashMap<>();
         Set<Triangle> triangles = new LinkedHashSet<>();
         for (int i = 0; i < buffer.remaining() / 3; i++) {
-            short[] index_array = new short[]{buffer.get(buffer.position() + i * 3),
-                    buffer.get(buffer.position() + i * 3 + 1), buffer.get(buffer.position() + i * 3 + 2)};
+            short[] index_array = new short[]{buffer.get(buffer.position() + i * 3), buffer.get(
+                    buffer.position() + i * 3 + 1), buffer.get(buffer.position() + i * 3 + 2)};
             Index[] triangle_indices = new Index[index_array.length];
             for (int j = 0; j < index_array.length; j++) {
                 Short index_key = index_array[j];
@@ -103,8 +103,8 @@ dumpBuffer(buffer);*/
         }
         assert !buffer.hasRemaining() : buffer.remaining();
         buffer.position(old_position);
-/*System.out.println("optimized buffer:");
-dumpBuffer(buffer);*/
+        /*System.out.println("optimized buffer:");
+        dumpBuffer(buffer);*/
     }
 
     private static void dumpBuffer(@NonNull ShortBuffer buffer) {

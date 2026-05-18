@@ -39,19 +39,24 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
     public InstancedSpriteRenderer() {
         GLImage whiteImage = new GLIntImage(1, 1, GL11.GL_RGBA);
         whiteImage.putPixel(0, 0, Color.WHITE_INT);
-        whiteTexture = new Texture(new GLImage[]{whiteImage}, GL11.GL_RGBA8, GL11.GL_NEAREST, GL11.GL_NEAREST, GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
+        whiteTexture = new Texture(new GLImage[]{whiteImage}, GL11.GL_RGBA8, GL11.GL_NEAREST, GL11.GL_NEAREST,
+                GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
     }
 
-    public void add(@NonNull SpriteList spriteList, int spriteIndex, int animation, float animTicks, int texIndex, boolean respond, boolean blend, boolean depthWrite, boolean depthTest, @NonNull Matrix4f modelMatrix, @NonNull Vector4fc color, @NonNull Vector4fc decalColor) {
+    public void add(@NonNull SpriteList spriteList, int spriteIndex, int animation, float animTicks, int texIndex,
+            boolean respond, boolean blend, boolean depthWrite, boolean depthTest, @NonNull Matrix4f modelMatrix,
+            @NonNull Vector4fc color, @NonNull Vector4fc decalColor) {
         Sprite sprite = spriteList.getSprite(spriteIndex);
         Sprite.FrameState frameState = sprite.getAnimationState(animation, animTicks);
 
         BatchKey key = new BatchKey(spriteList, spriteIndex, texIndex, respond, blend, depthWrite, depthTest);
         RenderBatch batch = batches.computeIfAbsent(key, RenderBatch::new);
-        batch.addInstance(frameState.pos1(), frameState.norm1(), frameState.pos2(), frameState.norm2(), frameState.tween(), modelMatrix, color, decalColor);
+        batch.addInstance(frameState.pos1(), frameState.norm1(), frameState.pos2(), frameState.norm2(),
+                frameState.tween(), modelMatrix, color, decalColor);
     }
 
-    public void renderAll(@NonNull RenderContext context, @NonNull CameraState cameraState, @NonNull MatrixStack projectionStack) {
+    public void renderAll(@NonNull RenderContext context, @NonNull CameraState cameraState,
+            @NonNull MatrixStack projectionStack) {
         if (batches.isEmpty()) return;
 
         try (var _ = shader.use()) {
@@ -183,7 +188,8 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             GL33.glVertexAttribDivisor(tweenLoc, 1);
         }
 
-        void addInstance(int pos1, int norm1, int pos2, int norm2, float tween, @NonNull Matrix4f modelMatrix, @NonNull Vector4fc color, @NonNull Vector4fc decalColor) {
+        void addInstance(int pos1, int norm1, int pos2, int norm2, float tween, @NonNull Matrix4f modelMatrix,
+                @NonNull Vector4fc color, @NonNull Vector4fc decalColor) {
             if (totalInstances >= capacity) {
                 int newCapacity = capacity * 2;
                 FloatBuffer newBuffer = BufferUtils.createFloatBuffer(newCapacity * FLOATS_PER_INSTANCE);
@@ -217,7 +223,8 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             totalInstances++;
         }
 
-        void render(@NonNull RenderContext context, @NonNull InstancedSpriteShader shader, Texture whiteTexture, @NonNull RenderState state) {
+        void render(@NonNull RenderContext context, @NonNull InstancedSpriteShader shader, Texture whiteTexture,
+                @NonNull RenderState state) {
             if (totalInstances == 0) return;
 
             Sprite sprite = key.spriteList.getSprite(key.spriteIndex);
@@ -241,24 +248,23 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             if (key.respond) {
                 // Two-pass technique to avoid alpha accumulation (like building placement ghosts)
                 // Pass 1: Depth Prime (Write Depth, No Color)
-                try (var _ = context.withColorMask(false, false, false, false);
-                     var _ = context.withDepthMode(DepthMode.READ_WRITE);
-                     var _ = context.withDepthFunc(GL11.GL_LEQUAL);
-                     var _ = context.withBlendMode(BlendMode.NONE)) {
+                try (var _ = context.withColorMask(false, false, false, false); var _ = context.withDepthMode(
+                        DepthMode.READ_WRITE); var _ = context.withDepthFunc(
+                                GL11.GL_LEQUAL); var _ = context.withBlendMode(BlendMode.NONE)) {
                     GL11.glDisable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
                     draw(sprite);
                 }
 
                 // Pass 2: Color Render (No Depth Write, Equal Depth)
-                try (var _ = context.withColorMask(true, true, true, true);
-                     var _ = context.withDepthMode(DepthMode.READ_ONLY);
-                     var _ = context.withDepthFunc(GL11.GL_EQUAL);
-                     var _ = context.withBlendMode(BlendMode.ALPHA)) {
+                try (var _ = context.withColorMask(true, true, true, true); var _ = context.withDepthMode(
+                        DepthMode.READ_ONLY); var _ = context.withDepthFunc(
+                                GL11.GL_EQUAL); var _ = context.withBlendMode(BlendMode.ALPHA)) {
                     GL11.glDisable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
                     draw(sprite);
                 }
             } else {
-                context.setDepthMode(key.depthTest ? key.depthWrite ? DepthMode.READ_WRITE : DepthMode.READ_ONLY : DepthMode.NONE);
+                context.setDepthMode(
+                        key.depthTest ? key.depthWrite ? DepthMode.READ_WRITE : DepthMode.READ_ONLY : DepthMode.NONE);
                 context.setCullMode(sprite.culled ? CullMode.BACK : CullMode.NONE);
 
                 if (key.blend) {
@@ -276,12 +282,14 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
 
         private void draw(Sprite sprite) {
             // Use glDrawElementsInstanced
-            GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, sprite.getTriangleCount() * 3, GL11.GL_UNSIGNED_SHORT, (long) sprite.indices_offset * Short.BYTES, totalInstances);
+            GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, sprite.getTriangleCount() * 3, GL11.GL_UNSIGNED_SHORT,
+                    (long) sprite.indices_offset * Short.BYTES, totalInstances);
         }
 
-        private void setupTextures(@NonNull RenderContext context, @NonNull InstancedSpriteShader shader, @NonNull Sprite sprite, Texture whiteTexture, @NonNull RenderState state) {
-            Texture texture = (sprite.textures.length > key.texIndex && sprite.textures[key.texIndex].length > 0 && sprite.textures[key.texIndex][0] != null)
-                    ? sprite.textures[key.texIndex][0] : whiteTexture;
+        private void setupTextures(@NonNull RenderContext context, @NonNull InstancedSpriteShader shader,
+                @NonNull Sprite sprite, Texture whiteTexture, @NonNull RenderState state) {
+            Texture texture = (sprite.textures.length > key.texIndex && sprite.textures[key.texIndex].length > 0
+                    && sprite.textures[key.texIndex][0] != null) ? sprite.textures[key.texIndex][0] : whiteTexture;
 
             context.setTexture(0, texture);
             shader.setUniform(InstancedSpriteShader.Uniforms.TEXTURE_0, 0);

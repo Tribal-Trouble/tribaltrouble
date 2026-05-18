@@ -62,4 +62,3 @@ public final class CounterLabel extends Label implements Animated {
     }
 
 }
-

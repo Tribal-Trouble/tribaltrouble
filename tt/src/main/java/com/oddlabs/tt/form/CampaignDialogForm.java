@@ -46,15 +46,18 @@ public class CampaignDialogForm extends Form {
         }
     };
 
-    public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable IconQuad image, @NonNull Origin align) {
+    public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable IconQuad image,
+            @NonNull Origin align) {
         this(header, text, image, align, null);
     }
 
-    public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable IconQuad image, @NonNull Origin align, @Nullable Runnable runnable) {
+    public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable IconQuad image,
+            @NonNull Origin align, @Nullable Runnable runnable) {
         this(header, text, image, align, runnable, false);
     }
 
-    public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable IconQuad image, @NonNull Origin align, @Nullable Runnable runnable, boolean cancel) {
+    public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable IconQuad image,
+            @NonNull Origin align, @Nullable Runnable runnable, boolean cancel) {
         this.runnable = runnable;
         this.cancel = cancel;
         buildForm(header, text, image, align, cancel);
@@ -96,7 +99,8 @@ public class CampaignDialogForm extends Form {
             run();
     }
 
-    private void buildForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable IconQuad image, @NonNull Origin align, boolean cancel) {
+    private void buildForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable IconQuad image,
+            @NonNull Origin align, boolean cancel) {
         GUIIcon gui_icon = null;
         if (image != null) {
             gui_icon = new GUIIcon(image);

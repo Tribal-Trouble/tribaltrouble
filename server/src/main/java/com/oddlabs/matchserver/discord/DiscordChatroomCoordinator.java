@@ -30,11 +30,7 @@ public class DiscordChatroomCoordinator {
             chatRoomChannels.put(chatroom, discordChannel);
             subscribeToDiscordMessages(chatroom);
             LogDebug(
-                    "Discord channel for "
-                            + chatroom.getName()
-                            + " found: "
-                            + discordChannel.getName()
-                            + ". Registered to coordinator.");
+                    "Discord channel for " + chatroom.getName() + " found: " + discordChannel.getName() + ". Registered to coordinator.");
         }
     }
 
@@ -69,16 +65,11 @@ public class DiscordChatroomCoordinator {
             LogDebug("sending message to discord");
             if (!msg.startsWith("<")) msg = formatChat(owner, msg);
 
-            discordChannel
-                    .createMessage(msg)
-                    .retry(3)
-                    .subscribe(
-                            unused -> {
-                            },
-                            error ->
-                                    LogDebug(
-                                            "Failed to send Discord message: "
-                                                    + error.getMessage()));
+            discordChannel.createMessage(msg).retry(3).subscribe(
+                    unused -> {
+                    },
+                    error -> LogDebug(
+                            "Failed to send Discord message: " + error.getMessage()));
 
         } catch (Exception e) {
             LogDebug("Error sending discord message: " + e.getMessage());
@@ -110,16 +101,11 @@ public class DiscordChatroomCoordinator {
     public void sendDiscordEmbed(TextChannel discordChannel, EmbedCreateSpec embed) {
         try {
             if (discordChannel != null) {
-                discordChannel
-                        .createMessage(embed)
-                        .retry(3)
-                        .subscribe(
-                                unused -> {
-                                },
-                                error ->
-                                        LogDebug(
-                                                "Failed to send Discord embed: "
-                                                        + error.getMessage()));
+                discordChannel.createMessage(embed).retry(3).subscribe(
+                        unused -> {
+                        },
+                        error -> LogDebug(
+                                "Failed to send Discord embed: " + error.getMessage()));
             }
         } catch (Exception e) {
             LogDebug("Error sending discord embed: " + e.getMessage());
@@ -152,14 +138,13 @@ public class DiscordChatroomCoordinator {
     private void handleIncomingDiscordMessage(MessageCreateEvent event, ChatRoom chatRoom) {
         LogDebug("Handling Discord message for chatroom " + chatRoom.getName());
         String content = event.getMessage().getContent();
-        event.getMember()
-                .ifPresent(
-                        member -> {
-                            String displayName = member.getDisplayName();
-                            String author = "@" + displayName;
-                            LogDebug("Processing Discord message from " + author + ": " + content);
-                            chatRoom.sendMessage(author, content);
-                        });
+        event.getMember().ifPresent(
+                member -> {
+                    String displayName = member.getDisplayName();
+                    String author = "@" + displayName;
+                    LogDebug("Processing Discord message from " + author + ": " + content);
+                    chatRoom.sendMessage(author, content);
+                });
     }
 
     /**
@@ -170,28 +155,12 @@ public class DiscordChatroomCoordinator {
     private void subscribeToDiscordMessages(ChatRoom chatRoom) {
         TextChannel discordChannel = chatRoomChannels.get(chatRoom);
 
-        Disposable messageSubscription =
-                discordChannel
-                        .getClient()
-                        .on(MessageCreateEvent.class)
-                        .filter(
-                                event ->
-                                        event.getMessage()
-                                                .getChannelId()
-                                                .equals(discordChannel.getId()))
-                        .filter(
-                                event ->
-                                        !event.getMessage()
-                                                .getAuthor()
-                                                .map(
-                                                        user ->
-                                                                user.getId()
-                                                                        .equals(
-                                                                                DiscordBotService
-                                                                                        .getInstance()
-                                                                                        .getBotId()))
-                                                .orElse(false))
-                        .subscribe(event -> handleIncomingDiscordMessage(event, chatRoom));
+        Disposable messageSubscription = discordChannel.getClient().on(MessageCreateEvent.class).filter(
+                event -> event.getMessage().getChannelId().equals(discordChannel.getId())).filter(
+                        event -> !event.getMessage().getAuthor().map(
+                                user -> user.getId().equals(
+                                        DiscordBotService.getInstance().getBotId())).orElse(false)).subscribe(
+                                                event -> handleIncomingDiscordMessage(event, chatRoom));
         discordMessageSubscriptions.put(chatRoom, messageSubscription);
     }
 

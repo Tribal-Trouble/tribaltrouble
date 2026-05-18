@@ -25,9 +25,9 @@ public final class FontInfo implements Serializable {
     private final int max_descension;
 
     public FontInfo(@NonNull String texture_name,
-                    @NonNull HashTable<@NonNull Quad> key_map,
-                    int x_border, int y_border,
-                    int font_height, int max_ascension, int max_descension) {
+            @NonNull HashTable<@NonNull Quad> key_map,
+            int x_border, int y_border,
+            int font_height, int max_ascension, int max_descension) {
         this.texture_name = texture_name;
         this.key_map = key_map;
         this.x_border = x_border;
@@ -66,7 +66,8 @@ public final class FontInfo implements Serializable {
     }
 
     public void saveToFile(@NonNull Path file_name) {
-        try (ObjectOutputStream os = new ObjectOutputStream(new BufferedOutputStream(Files.newOutputStream(file_name)))) {
+        try (ObjectOutputStream os = new ObjectOutputStream(new BufferedOutputStream(Files.newOutputStream(
+                file_name)))) {
             os.writeObject(this);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

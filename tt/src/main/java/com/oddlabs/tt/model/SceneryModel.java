@@ -18,15 +18,19 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
     private final float seconds_per_animation_cycle;
     private float anim_time = 0;
 
-    public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y, @NonNull SpriteKey sprite_renderer) {
+    public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
+            @NonNull SpriteKey sprite_renderer) {
         this(world, x, y, dir_x, dir_y, sprite_renderer, 0f, false, null);
     }
 
-    public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y, @NonNull SpriteKey sprite_renderer, float shadow_diameter, boolean occupy, @Nullable String name) {
+    public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
+            @NonNull SpriteKey sprite_renderer, float shadow_diameter, boolean occupy, @Nullable String name) {
         this(world, x, y, dir_x, dir_y, sprite_renderer, shadow_diameter, occupy, name, -1, -1, 0);
     }
 
-    public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y, @NonNull SpriteKey sprite_renderer, float shadow_diameter, boolean occupy, @Nullable String name, int animation, float seconds_per_animation_cycle, float anim_offset) {
+    public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
+            @NonNull SpriteKey sprite_renderer, float shadow_diameter, boolean occupy, @Nullable String name,
+            int animation, float seconds_per_animation_cycle, float anim_offset) {
         super(world);
         this.sprite_renderer = sprite_renderer;
         this.shadow_diameter = shadow_diameter;

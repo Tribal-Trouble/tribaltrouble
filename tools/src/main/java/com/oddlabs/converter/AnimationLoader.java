@@ -35,16 +35,13 @@ public final class AnimationLoader {
     private static @NonNull Map<@NonNull String, float @NonNull []> @NonNull [] parseAnimation(@NonNull Node node) {
         NodeList frames = node.getChildNodes();
         Map<Integer, Map<String, float[]>> anim_infos_map = new HashMap<>();
-        IntStream.range(0, frames.getLength())
-                .mapToObj(frames::item)
-                .filter(frame -> frame.getNodeName().equals("frame"))
-                .forEach(frame -> {
+        IntStream.range(0, frames.getLength()).mapToObj(frames::item).filter(frame -> frame.getNodeName().equals(
+                "frame")).forEach(frame -> {
                     int frame_index = getAttrInt(frame, "index");
                     assert frame_index >= 0;
                     anim_infos_map.put(frame_index, parseFrame(frame));
                 });
-        @SuppressWarnings("unchecked")
-        var anim_infos = (Map<String, float[]>[]) new Map[anim_infos_map.size()];
+        @SuppressWarnings("unchecked") var anim_infos = (Map<String, float[]>[]) new Map[anim_infos_map.size()];
         anim_infos_map.keySet().forEach(frame_index_obj -> {
             Map<String, float[]> frame = anim_infos_map.get(frame_index_obj);
             int index = frame_index_obj;
@@ -57,10 +54,8 @@ public final class AnimationLoader {
     public static @NonNull Map<@NonNull String, float @NonNull []> parseFrame(@NonNull Node node) {
         NodeList bones = node.getChildNodes();
         Map<String, float[]> bone_infos = new HashMap<>();
-        IntStream.range(0, bones.getLength())
-                .mapToObj(bones::item)
-                .filter(bone -> bone.getNodeName().equals("transform"))
-                .forEach(bone -> {
+        IntStream.range(0, bones.getLength()).mapToObj(bones::item).filter(bone -> bone.getNodeName().equals(
+                "transform")).forEach(bone -> {
                     String name = bone.getAttributes().getNamedItem("name").getNodeValue();
                     float[] matrix = new float[16];
                     matrix[0 * 4 + 0] = getAttrFloat(bone, "m00");

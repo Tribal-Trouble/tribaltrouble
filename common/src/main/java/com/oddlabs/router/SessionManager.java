@@ -24,7 +24,8 @@ final class SessionManager {
         this.time_manager = time_manager;
     }
 
-    @Nullable Session getExistingSession(SessionID session_id) {
+    @Nullable
+    Session getExistingSession(SessionID session_id) {
         Session session = id_to_session.get(session_id);
         if (session == null || !session.isComplete()) {
             logger.warning("Session not found or not started for spectator: " + session_id);
@@ -33,15 +34,18 @@ final class SessionManager {
         return session;
     }
 
-    @NonNull Session get(SessionID session_id, @NonNull SessionInfo session_info, int client_id) {
+    @NonNull
+    Session get(SessionID session_id, @NonNull SessionInfo session_info, int client_id) {
         Session session = id_to_session.get(session_id);
         if (session == null) {
             session = new Session(logger, session_id, session_info, this);
             id_to_session.put(session_id, session);
             logger.log(Level.INFO, "Creating session: {0}", session);
         } else {
-            if (session.isComplete() || !session.info.equals(session_info) || session.hasClient(client_id) || client_id >= session_info.num_participants)
-                throw new RuntimeException("SessionInfo mismatch " + session.info + " != " + session_info + " client_id = " + client_id);
+            if (session.isComplete() || !session.info.equals(session_info) || session.hasClient(client_id)
+                    || client_id >= session_info.num_participants)
+                throw new RuntimeException(
+                        "SessionInfo mismatch " + session.info + " != " + session_info + " client_id = " + client_id);
         }
         return session;
     }

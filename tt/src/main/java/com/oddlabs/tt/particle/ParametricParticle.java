@@ -14,7 +14,8 @@ final class ParametricParticle extends Particle {
     private float u = 0f;
     private float v = 0f;
 
-    public ParametricParticle(@NonNull World world, ParametricFunction function, float u, float v, float offset_x, float offset_y, float offset_z) {
+    public ParametricParticle(@NonNull World world, ParametricFunction function, float u, float v, float offset_x,
+            float offset_y, float offset_z) {
         super(world);
         this.function = function;
         this.u = u;

@@ -9,7 +9,8 @@ public final class UnitSupplyContainer extends SupplyContainer {
 
     private Class<? extends Supply> type;
 
-    public UnitSupplyContainer(int max_resource_count, Map<Class<? extends Supply>, SpriteKey> supply_sprite_renderers) {
+    public UnitSupplyContainer(int max_resource_count,
+            Map<Class<? extends Supply>, SpriteKey> supply_sprite_renderers) {
         super(max_resource_count);
         this.supply_sprite_renderers = supply_sprite_renderers;
     }

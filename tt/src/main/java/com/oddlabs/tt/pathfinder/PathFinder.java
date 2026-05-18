@@ -13,22 +13,25 @@ public final class PathFinder {
     private static final List<@NonNull Node> visited_list = new ArrayList<>();
     public static int stat_pathfinder_per_frame = 0;
 
-    public static Region findPathRegion(@NonNull UnitGrid unit_grid, @NonNull Region src_region, @NonNull Region dst_region) {
-/*		Node src_region = unit_grid.getRegion(src_grid_x, src_grid_y);
-		Node dst_region = unit_grid.getRegion(dst_grid_x, dst_grid_y);*/
+    public static Region findPathRegion(@NonNull UnitGrid unit_grid, @NonNull Region src_region,
+            @NonNull Region dst_region) {
+        /*		Node src_region = unit_grid.getRegion(src_grid_x, src_grid_y);
+        		Node dst_region = unit_grid.getRegion(dst_grid_x, dst_grid_y);*/
         assert src_region != null;// : "src_grid_x = " + src_grid_x + " | src_grid_y = " + src_grid_y;
         assert dst_region != null;// : "dst_grid_x = " + dst_grid_x + " | dst_grid_y = " + dst_grid_y;
         PathFinderAlgorithm finder = new RegionPathFinder(unit_grid, dst_region);
         return (Region) doFindPath(finder, src_region, unit_grid);
     }
 
-    public static Region findPathRegion(@NonNull UnitGrid unit_grid, @NonNull PathFinderAlgorithm finder, @NonNull Region current_region) {
+    public static Region findPathRegion(@NonNull UnitGrid unit_grid, @NonNull PathFinderAlgorithm finder,
+            @NonNull Region current_region) {
 //		Node current_region = UnitGrid.getGrid().getRegion(src_grid_x, src_grid_y);
         assert current_region != null;// : "src_grid_x = " + src_grid_x + " | src_grid_y = " + src_grid_y + " | occupant " + UnitGrid.getGrid().getOccupant(src_grid_x, src_grid_y);
         return (Region) doFindPath(finder, current_region, unit_grid);
     }
 
-    public static @Nullable GridPathNode findPathGrid(UnitGrid unit_grid, @NonNull PathFinderAlgorithm finder, int src_grid_x, int src_grid_y) {
+    public static @Nullable GridPathNode findPathGrid(UnitGrid unit_grid, @NonNull PathFinderAlgorithm finder,
+            int src_grid_x, int src_grid_y) {
         GridNode.Offset offset = GridNode.setupPathFinding(src_grid_x, src_grid_y, src_grid_x, src_grid_y);
         if (offset == null)
             return null;
@@ -37,12 +40,15 @@ public final class PathFinder {
         return grid_node != null ? (GridPathNode) grid_node.newPath() : null;
     }
 
-    public static @Nullable GridPathNode findPathGrid(@NonNull UnitGrid unit_grid, Region dst_region, Region dst_region2, int src_grid_x, int src_grid_y, int dst_grid_x, int dst_grid_y, Target target, float max_dist, boolean allow_second_best) {
+    public static @Nullable GridPathNode findPathGrid(@NonNull UnitGrid unit_grid, Region dst_region,
+            Region dst_region2, int src_grid_x, int src_grid_y, int dst_grid_x, int dst_grid_y, Target target,
+            float max_dist, boolean allow_second_best) {
         GridNode.Offset offset = GridNode.setupPathFinding(src_grid_x, src_grid_y, src_grid_x, src_grid_y);
         if (offset == null)
             return null;
         Node current_node = GridNode.getPathfinderNode(offset, src_grid_x, src_grid_y);
-        PathFinderAlgorithm finder = new TargetGridPathFinder(unit_grid, max_dist, dst_region, dst_region2, dst_grid_x, dst_grid_y, target, allow_second_best);
+        PathFinderAlgorithm finder = new TargetGridPathFinder(unit_grid, max_dist, dst_region, dst_region2, dst_grid_x,
+                dst_grid_y, target, allow_second_best);
         Node grid_node = doFindPath(finder, current_node, unit_grid);
         return grid_node != null ? (GridPathNode) grid_node.newPath() : null;
     }
@@ -68,7 +74,8 @@ public final class PathFinder {
         return result != null ? result.get() : null;
     }
 
-    public static void addToOpenList(@NonNull PathFinderAlgorithm finder, @NonNull Node current_node, @NonNull Node parent, int cost) {
+    public static void addToOpenList(@NonNull PathFinderAlgorithm finder, @NonNull Node current_node,
+            @NonNull Node parent, int cost) {
         current_node.setPath(parent, cost, finder.computeEstimatedCost(current_node));
         addToLists(current_node);
     }

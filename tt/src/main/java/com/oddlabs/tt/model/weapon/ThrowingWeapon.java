@@ -39,14 +39,16 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
     private float z_speed;
     private float deterministic_z;
 
-    public ThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target, @NonNull SpriteKey sprite_renderer, @NonNull Audio throw_sound, @NonNull Audio @NonNull [] hit_sounds) {
+    public ThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target,
+            @NonNull SpriteKey sprite_renderer, @NonNull Audio throw_sound, @NonNull Audio @NonNull [] hit_sounds) {
         super(target.getOwner().getWorld(), sprite_renderer);
         this.hit = hit;
         this.hit_sounds = hit_sounds;
 
         owner = src.getOwner();
 
-        setPosition(src.getPositionX() + OFFSET_X * src.getDirectionX() - OFFSET_Y * src.getDirectionY(), src.getPositionY() + OFFSET_X * src.getDirectionY() - OFFSET_Y * src.getDirectionX());
+        setPosition(src.getPositionX() + OFFSET_X * src.getDirectionX() - OFFSET_Y * src.getDirectionY(),
+                src.getPositionY() + OFFSET_X * src.getDirectionY() - OFFSET_Y * src.getDirectionX());
         deterministic_z = OFFSET_Z + src.getMountOffset();
 
         setTarget(target);
@@ -88,7 +90,8 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
         float len = (float) Math.sqrt(dx * dx + dy * dy);
         time_limit = len / getMetersPerSecond();
         time = 0;
-        float dest_vec_z = owner.getWorld().getHeightMap().getNearestHeight(end_x, end_y) + target.getHitOffsetZ() - (getPositionZ() + deterministic_z);
+        float dest_vec_z = owner.getWorld().getHeightMap().getNearestHeight(end_x,
+                end_y) + target.getHitOffsetZ() - (getPositionZ() + deterministic_z);
         z_speed = (dest_vec_z) / time_limit - GRAVITY * time_limit / 2f;
     }
 
@@ -160,7 +163,8 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 
     protected final void damageTarget(@NonNull Selectable<?> target) {
         if (target instanceof Unit) {
-            owner.getWorld().getAudio().newAudio(new AudioParameters<>(hit_sounds[owner.getWorld().getRandom().nextInt(hit_sounds.length)], target.getPositionX(), target.getPositionY(), target.getPositionZ(),
+            owner.getWorld().getAudio().newAudio(new AudioParameters<>(hit_sounds[owner.getWorld().getRandom().nextInt(
+                    hit_sounds.length)], target.getPositionX(), target.getPositionY(), target.getPositionZ(),
                     AudioPlayer.AUDIO_RANK_DEATH,
                     AudioPlayer.AUDIO_DISTANCE_DEATH,
                     AudioPlayer.AUDIO_GAIN_DEATH,

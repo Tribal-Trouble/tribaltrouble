@@ -110,8 +110,7 @@ public final class Settings implements Serializable {
 
     private static Vector4f[] generateDefaultColours() {
         // 18 hand-picked colours that are visually distinct on terrain
-        Vector4f[] handPicked = {
-                Color.argb4v(0xFFFFBF00), /*  0 Orange */
+        Vector4f[] handPicked = {Color.argb4v(0xFFFFBF00), /*  0 Orange */
                 Color.argb4v(0xFF007FFF), /*  1 Royal Blue */
                 Color.argb4v(0xFFFF0040), /*  2 Red */
                 Color.argb4v(0xFF00FFBF), /*  3 Teal */
@@ -312,7 +311,8 @@ public final class Settings implements Serializable {
         }
     }
 
-    private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull String value, String defaultValue) {
+    private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull String value,
+            String defaultValue) {
         if (!value.equals(defaultValue)) {
             props.setProperty(key, value);
         }
@@ -336,12 +336,11 @@ public final class Settings implements Serializable {
         }
     }
 
-    private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull Vector4fc @NonNull [] value, @NonNull Vector4fc @NonNull [] defaultValue) {
+    private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull Vector4fc @NonNull [] value,
+            @NonNull Vector4fc @NonNull [] defaultValue) {
         if (!Arrays.equals(value, defaultValue)) {
-            String colors = Arrays.stream(value)
-                    .mapToInt(Color::argbi)
-                    .mapToObj(Integer::toHexString)
-                    .collect(Collectors.joining(","));
+            String colors = Arrays.stream(value).mapToInt(Color::argbi).mapToObj(Integer::toHexString).collect(
+                    Collectors.joining(","));
 
             props.setProperty(key, colors);
         }
@@ -365,7 +364,8 @@ public final class Settings implements Serializable {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException _) {
-            logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+            logger.warning(
+                    "WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
             return defaultValue;
         }
     }
@@ -378,7 +378,8 @@ public final class Settings implements Serializable {
         try {
             return Float.parseFloat(value);
         } catch (NumberFormatException _) {
-            logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+            logger.warning(
+                    "WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
             return defaultValue;
         }
     }
@@ -391,12 +392,14 @@ public final class Settings implements Serializable {
         try {
             return Path.of(value);
         } catch (InvalidPathException _) {
-            logger.warning("Invalid path for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+            logger.warning(
+                    "Invalid path for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
             return defaultValue;
         }
     }
 
-    private static Vector4f @NonNull [] getColours(@NonNull Properties props, @NonNull String key, Vector4f @NonNull [] defaultValue) {
+    private static Vector4f @NonNull [] getColours(@NonNull Properties props, @NonNull String key,
+            Vector4f @NonNull [] defaultValue) {
         String value = props.getProperty(key);
         if (value == null) {
             return defaultValue;
@@ -413,7 +416,8 @@ public final class Settings implements Serializable {
             }
             return result;
         } catch (Exception e) {
-            logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value. Error: " + e);
+            logger.warning(
+                    "WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value. Error: " + e);
             return defaultValue;
         }
     }

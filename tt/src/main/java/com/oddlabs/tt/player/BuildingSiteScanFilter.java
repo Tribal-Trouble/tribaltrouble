@@ -37,7 +37,8 @@ public final class BuildingSiteScanFilter implements ScanFilter {
 
     @Override
     public boolean filter(int grid_x, int grid_y, Occupant occ) {
-        if (unit_grid.getHeightMap().canBuild(grid_x, grid_y, template.getPlacingSize()) && Building.isPlacingLegal(unit_grid, template, grid_x, grid_y)) {
+        if (unit_grid.getHeightMap().canBuild(grid_x, grid_y, template.getPlacingSize()) && Building.isPlacingLegal(
+                unit_grid, template, grid_x, grid_y)) {
             result.add(new LandscapeTarget(grid_x, grid_y));
             if (one_target)
                 return true;

@@ -104,10 +104,9 @@ public final class ServerConfiguration {
         if (mappingString != null && !mappingString.trim().isEmpty()) {
             try {
                 ObjectMapper mapper = new ObjectMapper();
-                List<Map<String, String>> jsonData =
-                        mapper.readValue(
-                                mappingString, new TypeReference<List<Map<String, String>>>() {
-                                });
+                List<Map<String, String>> jsonData = mapper.readValue(
+                        mappingString, new TypeReference<List<Map<String, String>>>() {
+                        });
 
                 for (Map<String, String> item : jsonData) {
                     String emojiId = item.get("emoji id");
@@ -134,8 +133,8 @@ public final class ServerConfiguration {
             val = Long.parseLong(emojiId);
         } catch (NumberFormatException e) {
             if (!emojiId.startsWith("U+")) {
-                logger.warning("The argument(s) to this method should use the \"U+\" notation for"
-                        + " codepoints. Skipping mapping: " + emojiId);
+                logger.warning(
+                        "The argument(s) to this method should use the \"U+\" notation for" + " codepoints. Skipping mapping: " + emojiId);
                 return null;
             }
         }

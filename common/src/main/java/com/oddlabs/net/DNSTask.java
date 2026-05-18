@@ -35,4 +35,3 @@ public final class DNSTask implements Callable<InetSocketAddress> {
         return address;
     }
 }
-

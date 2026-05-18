@@ -71,7 +71,8 @@ public final class ScrollBar extends GUIObject {
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         ScrollBarData data = Skin.getSkin().getScrollBarData();
         Vertical scroll_bar = data.scrollBar();
-        scroll_bar.render(renderer, 0, less_button.getHeight(), getHeight() - less_button.getHeight() - more_button.getHeight(), ModeIconQuads.Mode.NORMAL);
+        scroll_bar.render(renderer, 0, less_button.getHeight(),
+                getHeight() - less_button.getHeight() - more_button.getHeight(), ModeIconQuads.Mode.NORMAL);
     }
 
     public int getButtonX() {
@@ -151,7 +152,8 @@ public final class ScrollBar extends GUIObject {
         }
 
         @Override
-        public void mouseDragged(@NonNull MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
+        public void mouseDragged(@NonNull MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x,
+                int abs_y) {
             int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.bottomOffset() - data.topOffset();
             float ratio = owner.getScrollBarRatio();
             int size = (int) (ratio * max_height);

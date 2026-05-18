@@ -21,7 +21,7 @@ import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 public final class CreditsForm extends Form {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(CreditsForm.class.getName());
 
-    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -30,7 +30,8 @@ public final class CreditsForm extends Form {
         addChild(head_label);
         head_label.place();
 
-        PanelGroup panel_group = new PanelGroup(createAboutPanel(bundle), createCreditsPanel(bundle), createThanksPanel(bundle));
+        PanelGroup panel_group = new PanelGroup(createAboutPanel(bundle), createCreditsPanel(bundle), createThanksPanel(
+                bundle));
         addChild(panel_group);
         panel_group.place(head_label, BOTTOM_LEFT);
 

@@ -12,7 +12,8 @@ public abstract class Template {
     private final float shadow_diameter;
     private final @NonNull String name;
 
-    protected Template(@NonNull Abilities abilities, float shadow_diameter, @NonNull ShadowListKey shadow_renderer, float @NonNull [] hit_offset_z, float no_detail_size, float defense_chance, @NonNull String name) {
+    protected Template(@NonNull Abilities abilities, float shadow_diameter, @NonNull ShadowListKey shadow_renderer,
+            float @NonNull [] hit_offset_z, float no_detail_size, float defense_chance, @NonNull String name) {
         this.abilities = abilities;
         this.shadow_renderer = shadow_renderer;
         this.hit_offset_z = hit_offset_z;

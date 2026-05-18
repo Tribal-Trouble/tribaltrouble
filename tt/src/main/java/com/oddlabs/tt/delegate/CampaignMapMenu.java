@@ -93,9 +93,9 @@ final class CampaignMapMenu extends Form {
         String abort_text = Menu.i18n("end_campaign");
         MenuButton abort = new MenuButton(abort_text, Menu.COLOR_NORMAL, Menu.COLOR_ACTIVE);
         addChild(abort);
-        abort.addMouseClickListener((_, _, _, _) ->
-                gui_root.addModalForm(new QuestionForm(Menu.i18n("end_game_confirm"),
-                        (_, _, _, _) -> CampaignMapForm.closeCampaign(network, gui_root.getGUI()))));
+        abort.addMouseClickListener((_, _, _, _) -> gui_root.addModalForm(new QuestionForm(Menu.i18n(
+                "end_game_confirm"),
+                (_, _, _, _) -> CampaignMapForm.closeCampaign(network, gui_root.getGUI()))));
     }
 
     private void addExitButton() {

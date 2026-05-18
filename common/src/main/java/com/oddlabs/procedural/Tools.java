@@ -18,9 +18,7 @@ public final class Tools {
     }
 
     public static float interpolateSmooth(float v1, float v2, float fraction) {
-        fraction = fraction < 0.5f
-                ? 2f * fraction * fraction
-                : 1f - 2f * (fraction - 1f) * (fraction - 1f);
+        fraction = fraction < 0.5f ? 2f * fraction * fraction : 1f - 2f * (fraction - 1f) * (fraction - 1f);
         return v1 * (1f - fraction) + v2 * fraction;
     }
 
@@ -53,30 +51,21 @@ public final class Tools {
     public static float sawtooth(float x) {
         x++; // hack!
         float x_frac = x - (int) x;
-        return x_frac < 0.5
-                ? 2 * x_frac
-                : -2 * x_frac + 2;
+        return x_frac < 0.5 ? 2 * x_frac : -2 * x_frac + 2;
     }
 
     public static float gaussify(float x) {
-        return x >= 0 && x < 0.5
-                ? 0.5f * (float) Math.sqrt(2 * x)
-                : x >= 0.5f && x <= 1f
-                  ? 1f - 0.5f * (float) Math.sqrt(-2 * x + 2)
-                  : 0;
+        return x >= 0 && x < 0.5 ? 0.5f * (float) Math.sqrt(2 * x) : x >= 0.5f
+                && x <= 1f ? 1f - 0.5f * (float) Math.sqrt(-2 * x + 2) : 0;
     }
 
     public static float gaussify(float x, float exponent) {
-        return x >= 0 && x < 0.5
-                ? 0.5f * (float) Math.pow(2 * x, exponent)
-                : x >= 0.5f && x <= 1f
-                  ? 1f - 0.5f * (float) Math.pow(-2 * x + 2, exponent)
-                  : 0;
+        return x >= 0 && x < 0.5 ? 0.5f * (float) Math.pow(2 * x, exponent) : x >= 0.5f
+                && x <= 1f ? 1f - 0.5f * (float) Math.pow(-2 * x + 2, exponent) : 0;
     }
 
     public static float gain(float gain, float x) {
-        return x < 0.5f
-                ? (float) (Math.pow(2 * x, Math.log(1 - gain) / Math.log(0.5d)) / 2f)
-                : 1f - (float) (Math.pow(2 - 2 * x, Math.log(1 - gain) / Math.log(0.5d)) / 2f);
+        return x < 0.5f ? (float) (Math.pow(2 * x, Math.log(1 - gain) / Math.log(0.5d)) / 2f) : 1f - (float) (Math.pow(
+                2 - 2 * x, Math.log(1 - gain) / Math.log(0.5d)) / 2f);
     }
 }

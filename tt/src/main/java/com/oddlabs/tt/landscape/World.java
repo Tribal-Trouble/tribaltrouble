@@ -31,12 +31,7 @@ import java.util.Random;
 public final class World {
     public static final int GAMESPEED_DONTCARE = -2;
 
-    private static final float[] GAMESPEEDS = new float[]{
-            0f,
-            AnimationManager.ANIMATION_SECONDS_PER_TICK / 2,
-            AnimationManager.ANIMATION_SECONDS_PER_TICK,
-            AnimationManager.ANIMATION_SECONDS_PER_TICK * 1.75f,
-            AnimationManager.ANIMATION_SECONDS_PER_TICK * 4
+    private static final float[] GAMESPEEDS = new float[]{0f, AnimationManager.ANIMATION_SECONDS_PER_TICK / 2, AnimationManager.ANIMATION_SECONDS_PER_TICK, AnimationManager.ANIMATION_SECONDS_PER_TICK * 1.75f, AnimationManager.ANIMATION_SECONDS_PER_TICK * 4
     };
 
     private final @NonNull HeightMap world;
@@ -73,9 +68,14 @@ public final class World {
         return new RacesResources(queues);
     }
 
-    public static @NonNull World newWorld(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, @NonNull FogInfo fog) {
+    public static @NonNull World newWorld(@NonNull AudioImplementation audio_implementation,
+            @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources,
+            @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params,
+            @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain,
+            @NonNull PlayerInfo @NonNull [] player_infos, @NonNull FogInfo fog) {
         ProgressForm.progress();
-        World world = new World(audio_implementation, landscape_resources, races_resources, notification_listener, world_params, world_info, terrain, player_infos, fog);
+        World world = new World(audio_implementation, landscape_resources, races_resources, notification_listener,
+                world_params, world_info, terrain, player_infos, fog);
         ProgressForm.progress();
         ProgressForm.progress(1 / 5f);
         ProgressForm.progress();
@@ -149,7 +149,8 @@ public final class World {
     }
 
     public void tick(float t) {
-        getAnimationManagerGameTime().runAnimations(getSecondsPerTick() * t / AnimationManager.ANIMATION_SECONDS_PER_TICK);
+        getAnimationManagerGameTime().runAnimations(
+                getSecondsPerTick() * t / AnimationManager.ANIMATION_SECONDS_PER_TICK);
         getAnimationManagerRealTime().runAnimations(t/*AnimationManager.ANIMATION_SECONDS_PER_TICK*/);
     }
 
@@ -157,8 +158,13 @@ public final class World {
         return getAnimationManagerRealTime().getTick();
     }
 
-    private World(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, @NonNull FogInfo fog) {
-        IO.println("****************** Generating landscape at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " ********************");
+    private World(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources,
+            @Nullable RacesResources races_resources, @NonNull NotificationListener notification_listener,
+            @NonNull WorldParameters world_params, @NonNull WorldInfo world_info,
+            Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos,
+            @NonNull FogInfo fog) {
+        IO.println(
+                "****************** Generating landscape at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " ********************");
         this.fog = fog;
         this.landscape_resources = landscape_resources;
         this.races_resources = races_resources;
@@ -169,21 +175,24 @@ public final class World {
         this.map_size = world_params.getMapSize();
         long time_start = System.currentTimeMillis();
 
-        world = new HeightMap(this, world_info.meters_per_world(), world_info.sea_level_meters(), world_info.texels_per_colormap(), world_info.chunks_per_colormap(), world_info.heightmap(), world_info.trees(), world_info.access_grid(), world_info.build_grid());
+        world = new HeightMap(this, world_info.meters_per_world(), world_info.sea_level_meters(),
+                world_info.texels_per_colormap(), world_info.chunks_per_colormap(), world_info.heightmap(),
+                world_info.trees(), world_info.access_grid(), world_info.build_grid());
         animation_manager_game_time = new AnimationManager();
         animation_manager_real_time = new AnimationManager();
         random = new Random(42);
 
         Iterator<Vector4fc> eachColor = Arrays.asList((Vector4fc[]) Settings.getSettings().team_colours).iterator();
-        players = Arrays.stream(player_infos)
-                .map(info -> new Player(this, info, eachColor.next()))
-                .toArray(Player[]::new);
+        players = Arrays.stream(player_infos).map(info -> new Player(this, info, eachColor.next())).toArray(
+                Player[]::new);
 
         long time_stop = System.currentTimeMillis();
-        IO.println("****************** Finished landscape in " + ((time_stop - time_start) / 1000f) + " sec ********************");
+        IO.println(
+                "****************** Finished landscape in " + ((time_stop - time_start) / 1000f) + " sec ********************");
         this.supply_managers = new SupplyManagers(this);
         this.unit_grid = new UnitGrid(world);
-        RegionBuilder.buildRegions(unit_grid, world_info.starting_locations()[0][0], world_info.starting_locations()[0][1]);
+        RegionBuilder.buildRegions(unit_grid, world_info.starting_locations()[0][0],
+                world_info.starting_locations()[0][1]);
         this.patch_root = new PatchGroup(this);
         this.treePositions = world_info.trees();
         this.tree_root = AbstractTreeGroup.newRoot(this, world_info.trees(), world_info.palm_trees(), terrain);

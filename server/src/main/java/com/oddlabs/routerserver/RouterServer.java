@@ -31,16 +31,16 @@ public final class RouterServer {
     private static void run() throws Exception {
         final Deterministic deterministic;
         deterministic = new NotDeterministic();
-/*		File log_file = new File("event.log");
-		if (log_file.exists())
-			deterministic = new LoadDeterministic(log_file, false);
-		else
-			deterministic = new SaveDeterministic(log_file);
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public final void run() {
-				deterministic.endLog();
-			}
-		});*/
+        /*		File log_file = new File("event.log");
+        		if (log_file.exists())
+        			deterministic = new LoadDeterministic(log_file, false);
+        		else
+        			deterministic = new SaveDeterministic(log_file);
+        		Runtime.getRuntime().addShutdownHook(new Thread() {
+        			public final void run() {
+        				deterministic.endLog();
+        			}
+        		});*/
         try {
             NetworkSelector network = new NetworkSelector(deterministic);
             Router router = new Router(network, logger);

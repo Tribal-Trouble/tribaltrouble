@@ -14,7 +14,7 @@ public final class Main {
     private static final Logger logger = Logger.getLogger(Main.class.getName());
     private static final ResourceBundle bundle = ResourceBundle.getBundle(Main.class.getName());
 
-    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -45,7 +45,7 @@ public final class Main {
         System.exit(status);
     }
 
-    static void main(@NonNull String @NonNull ... args) {
+    static void main(@NonNull String @NonNull... args) {
         int status = 1;
         try {
             SteamManager.init();

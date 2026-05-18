@@ -9,7 +9,8 @@ public final class GeneratePies {
     void main() {
         int dia = 20;
         Channel channel;
-        Channel alpha = new Pie(dia, 1f, Pie.CIRCLE).toChannel().channelBrightest(new Pie(dia, 1f, Pie.CIRCLE).toChannel().flipH());
+        Channel alpha = new Pie(dia, 1f, Pie.CIRCLE).toChannel().channelBrightest(new Pie(dia, 1f,
+                Pie.CIRCLE).toChannel().flipH());
         Layer layer;
         Layer canvas = new Layer(416, 64);
         canvas.addAlpha();
@@ -22,7 +23,8 @@ public final class GeneratePies {
             r = 1f - fill * fill * fill;
             g = 1f - (1f - fill) * (1f - fill) * (1f - fill);
             channel = new Pie(dia, fill, Pie.FULL).toChannel().invert();
-            layer = new Layer(channel.copy().dynamicRange(r, 1f), channel.copy().dynamicRange(g, 1f), channel.copy(), channel.copy().invert().addClip(bg_alpha).channelMultiply(alpha));
+            layer = new Layer(channel.copy().dynamicRange(r, 1f), channel.copy().dynamicRange(g, 1f), channel.copy(),
+                    channel.copy().invert().addClip(bg_alpha).channelMultiply(alpha));
             if (degrees < 10) {
                 new GLIntImage(layer).saveAsPNG("pie00" + degrees);
             } else if (degrees < 100) {

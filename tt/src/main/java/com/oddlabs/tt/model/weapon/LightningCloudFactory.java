@@ -17,7 +17,9 @@ public final class LightningCloudFactory implements MagicFactory {
     private final float init_ratio;
     private final float release_ratio;
 
-    public LightningCloudFactory(float offset_x, float offset_y, float offset_z, float seconds_to_live, float seconds_per_hit, float meters_per_second, float hit_chance, int damage, float height, float seconds_per_anim, float init_ratio, float release_ratio) {
+    public LightningCloudFactory(float offset_x, float offset_y, float offset_z, float seconds_to_live,
+            float seconds_per_hit, float meters_per_second, float hit_chance, int damage, float height,
+            float seconds_per_anim, float init_ratio, float release_ratio) {
         this.offset_x = offset_x;
         this.offset_y = offset_y;
         this.offset_z = offset_z;
@@ -55,6 +57,7 @@ public final class LightningCloudFactory implements MagicFactory {
     @Override
     public @NonNull Magic execute(@NonNull Unit src) {
         float seconds_to_init = getSecondsPerRelease() - getSecondsPerInit();
-        return new LightningCloud(src.getOwner().getWorld(), offset_x, offset_y, offset_z, seconds_to_live, seconds_per_hit, seconds_to_init, meters_per_second, hit_chance, damage, height, src);
+        return new LightningCloud(src.getOwner().getWorld(), offset_x, offset_y, offset_z, seconds_to_live,
+                seconds_per_hit, seconds_to_init, meters_per_second, hit_chance, damage, height, src);
     }
 }

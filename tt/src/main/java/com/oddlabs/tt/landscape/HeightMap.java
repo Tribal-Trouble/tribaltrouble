@@ -35,7 +35,9 @@ public final class HeightMap {
     private final World world_instance;
     private final com.oddlabs.tt.render.@NonNull Texture heightTexture;
 
-    public HeightMap(World world_instance, int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, float @NonNull [] @NonNull [] world, List<int[]> trees, boolean[][] access_grid, byte[][] build_grid) {
+    public HeightMap(World world_instance, int meters_per_world, float sea_level_meters, int texels_per_colormap,
+            int chunks_per_colormap, float @NonNull [] @NonNull [] world, List<int[]> trees, boolean[][] access_grid,
+            byte[][] build_grid) {
         this.world = world;
         this.world_instance = world_instance;
         this.trees = trees;
@@ -60,20 +62,24 @@ public final class HeightMap {
         landscape_leaves = new LandscapeLeaf[getPatchesPerWorld()][getPatchesPerWorld()];
 
         // Create Height Texture
-        java.nio.FloatBuffer buffer = org.lwjgl.BufferUtils.createFloatBuffer(grid_units_per_world * grid_units_per_world);
+        java.nio.FloatBuffer buffer = org.lwjgl.BufferUtils.createFloatBuffer(
+                grid_units_per_world * grid_units_per_world);
         for (int y = 0; y < grid_units_per_world; y++) {
             for (int x = 0; x < grid_units_per_world; x++) {
                 buffer.put(world[y][x]);
             }
         }
         buffer.flip();
-        heightTexture = new com.oddlabs.tt.render.Texture(grid_units_per_world, grid_units_per_world, org.lwjgl.opengl.GL30.GL_R32F, org.lwjgl.opengl.GL11.GL_LINEAR, org.lwjgl.opengl.GL11.GL_LINEAR, org.lwjgl.opengl.GL11.GL_REPEAT);
+        heightTexture = new com.oddlabs.tt.render.Texture(grid_units_per_world, grid_units_per_world,
+                org.lwjgl.opengl.GL30.GL_R32F, org.lwjgl.opengl.GL11.GL_LINEAR, org.lwjgl.opengl.GL11.GL_LINEAR,
+                org.lwjgl.opengl.GL11.GL_REPEAT);
         GL11.glBindTexture(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, heightTexture.getHandle());
         GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_ROW_LENGTH, 0);
         GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_SKIP_PIXELS, 0);
         GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_SKIP_ROWS, 0);
         GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_ALIGNMENT, 1);
-        GL11.glTexSubImage2D(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, 0, 0, 0, grid_units_per_world, grid_units_per_world, GL11.GL_RED, GL11.GL_FLOAT, buffer);
+        GL11.glTexSubImage2D(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, 0, 0, 0, grid_units_per_world, grid_units_per_world,
+                GL11.GL_RED, GL11.GL_FLOAT, buffer);
     }
 
     public com.oddlabs.tt.render.@NonNull Texture getHeightTexture() {
@@ -160,7 +166,8 @@ public final class HeightMap {
                 x2, y2, getWrappedHeight(x2, y2), plane);
     }
 
-    private static void makePlaneVector(float h1x, float h1y, float h1z, float h2x, float h2y, float h2z, float h3x, float h3y, float h3z, @NonNull Vector3f plane) {
+    private static void makePlaneVector(float h1x, float h1y, float h1z, float h2x, float h2y, float h2z, float h3x,
+            float h3y, float h3z, @NonNull Vector3f plane) {
         float v1x = h2x - h1x;
         float v1y = h2y - h1y;
         float v1z = h2z - h1z;
@@ -181,7 +188,8 @@ public final class HeightMap {
         return plane.x * x + plane.y * y + plane.z;
     }
 
-    private static float doPlane(float x, float y, float h1x, float h1y, float h1z, float h2x, float h2y, float h2z, float h3x, float h3y, float h3z) {
+    private static float doPlane(float x, float y, float h1x, float h1y, float h1z, float h2x, float h2y, float h2z,
+            float h3x, float h3y, float h3z) {
         makePlaneVector(h1x, h1y, h1z, h2x, h2y, h2z, h3x, h3y, h3z, plane);
         return planeHeight(x, y, plane);
     }

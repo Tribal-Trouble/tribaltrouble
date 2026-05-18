@@ -22,12 +22,14 @@ public class ShaderRenderer implements AutoCloseable {
     private final @NonNull MatrixStack projectionStack;
     private final VertexArray vao = new VertexArray();
 
-    private final FloatBuffer vertexBuffer = Objects.requireNonNull(BufferUtils.createFloatBuffer(INITIAL_VERTEX_CAPACITY * FLOATS_PER_VERTEX));
+    private final FloatBuffer vertexBuffer = Objects.requireNonNull(BufferUtils.createFloatBuffer(
+            INITIAL_VERTEX_CAPACITY * FLOATS_PER_VERTEX));
     private int vboHandle = 0;
     private int vertexCount = 0;
     private int mode = GL11.GL_TRIANGLES;
 
-    public ShaderRenderer(@NonNull ShaderProgram shader, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public ShaderRenderer(@NonNull ShaderProgram shader, @NonNull MatrixStack modelViewStack,
+            @NonNull MatrixStack projectionStack) {
         this.shader = shader;
         this.modelViewStack = modelViewStack;
         this.projectionStack = projectionStack;
@@ -63,9 +65,9 @@ public class ShaderRenderer implements AutoCloseable {
     }
 
     public void vertex(float x, float y, float z,
-                       float nx, float ny, float nz,
-                       float r, float g, float b, float a,
-                       float u, float v) {
+            float nx, float ny, float nz,
+            float r, float g, float b, float a,
+            float u, float v) {
         if (vertexBuffer.remaining() < FLOATS_PER_VERTEX) {
             flush();
             vertexBuffer.clear();

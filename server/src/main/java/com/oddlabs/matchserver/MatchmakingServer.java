@@ -70,7 +70,8 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
                 config.get(ServerConfiguration.SQL_PASS, ""));
         logger.info("Generating encryption keys.");
         this.param_spec = KeyManager.generateParameterSpec();
-        connection_listener = new ConnectionListener(network, null, MatchmakingServerInterface.MATCHMAKING_SERVER_PORT, this);
+        connection_listener = new ConnectionListener(network, null, MatchmakingServerInterface.MATCHMAKING_SERVER_PORT,
+                this);
         DBInterface.initDropGames();
         DBInterface.clearOnlineProfiles();
         logger.log(Level.INFO, "Matchmaking server started: {0}", BuildInfo.FULL_VERSION);
@@ -101,13 +102,15 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
 //		return online_keys.contains(key_encoded);
 //	}
 
-    public void loginClient(InetAddress remote_address, InetAddress local_remote_address, String username, AbstractConnection conn, int revision, int host_id) {
+    public void loginClient(InetAddress remote_address, InetAddress local_remote_address, String username,
+            AbstractConnection conn, int revision, int host_id) {
         Client old_logged_in = online_users.remove(username.toLowerCase());
         if (old_logged_in != null) {
             old_logged_in.close();
             logger.info(username + " overtaked old login");
         }
-        Client client = new Client(this, conn, remote_address, local_remote_address, username, false, revision, host_id);
+        Client client = new Client(this, conn, remote_address, local_remote_address, username, false, revision,
+                host_id);
         online_users.put(username.toLowerCase(), client);
         client_map.put(client.getHostID(), client);
         logger.info(username + " logged in");
@@ -170,13 +173,17 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
                 try {
                     long serverId = Long.parseLong(serverIdAsString);
                     if (serverId <= 0) {
-                        logger.log(Level.INFO, "Invalid discord guild ID (must be positive): {0}. Skipping Discord bot initialization.", serverIdAsString);
+                        logger.log(Level.INFO,
+                                "Invalid discord guild ID (must be positive): {0}. Skipping Discord bot initialization.",
+                                serverIdAsString);
                     } else {
                         DiscordBotService.getInstance().initialize(token, serverId);
                         logger.log(Level.INFO, "Discord bot initialized for server id: {0}", serverId);
                     }
                 } catch (NumberFormatException e) {
-                    logger.log(Level.WARNING, "Invalid discord guild ID format: {0}, skipping Discord bot initialization.", serverIdAsString);
+                    logger.log(Level.WARNING,
+                            "Invalid discord guild ID format: {0}, skipping Discord bot initialization.",
+                            serverIdAsString);
                 }
             }
         } catch (Exception e) {

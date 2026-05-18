@@ -34,7 +34,7 @@ public final class CreateChatRoomForm extends Form {
     private final SelectGameMenu menu;
     private static final ResourceBundle bundle = ResourceBundle.getBundle(CreateChatRoomForm.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 

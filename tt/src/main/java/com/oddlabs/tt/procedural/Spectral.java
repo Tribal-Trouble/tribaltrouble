@@ -67,7 +67,8 @@ public final class Spectral {
             if (size == octave.width) { // no interpolation needed when octave matches image size
                 for (y_pixel = 0; y_pixel < size; y_pixel++) {
                     for (x_pixel = 0; x_pixel < size; x_pixel++) {
-                        channel.putPixel(x_pixel, y_pixel, channel.getPixel(x_pixel, y_pixel) + octave.getPixel(x_pixel, y_pixel) * amplitude);
+                        channel.putPixel(x_pixel, y_pixel, channel.getPixel(x_pixel, y_pixel) + octave.getPixel(x_pixel,
+                                y_pixel) * amplitude);
                     }
                 }
             } else if (interpolation != CUBIC && i >= method_threshold) { // interpolate linear
@@ -76,8 +77,10 @@ public final class Spectral {
                     y_block_hi = (y_block_lo + 1) % octave.width;
                     for (x_block_lo = 0; x_block_lo < blocks; x_block_lo++) {
                         x_block_hi = (x_block_lo + 1) % octave.width;
-                        y_incr1 = (octave.getPixel(x_block_lo, y_block_hi) - octave.getPixel(x_block_lo, y_block_lo)) / block_size;
-                        y_incr2 = (octave.getPixel(x_block_hi, y_block_hi) - octave.getPixel(x_block_hi, y_block_lo)) / block_size;
+                        y_incr1 = (octave.getPixel(x_block_lo, y_block_hi) - octave.getPixel(x_block_lo,
+                                y_block_lo)) / block_size;
+                        y_incr2 = (octave.getPixel(x_block_hi, y_block_hi) - octave.getPixel(x_block_hi,
+                                y_block_lo)) / block_size;
                         val1 = octave.getPixel(x_block_lo, y_block_lo) - 0.5f * y_incr1;
                         val2 = octave.getPixel(x_block_hi, y_block_lo) - 0.5f * y_incr2;
                         for (int y = 0; y < block_size; y++) {
@@ -89,7 +92,8 @@ public final class Spectral {
                             for (int x = 0; x < block_size; x++) {
                                 x_pixel = x + x_block_lo * block_size;
                                 val += x_incr;
-                                channel.putPixel(x_pixel, y_pixel, channel.getPixel(x_pixel, y_pixel) + val * amplitude);
+                                channel.putPixel(x_pixel, y_pixel, channel.getPixel(x_pixel,
+                                        y_pixel) + val * amplitude);
                             }
                         }
                     }
@@ -104,14 +108,17 @@ public final class Spectral {
                         y_diff = y_coord - y_block_lo;
                         for (x_block_lo = 0; x_block_lo < blocks; x_block_lo++) {
                             x_block_hi = (x_block_lo + 1) % octave.width;
-                            val1 = Tools.interpolateSmooth(octave.getPixel(x_block_lo, y_block_lo), octave.getPixel(x_block_lo, y_block_hi), y_diff);
-                            val2 = Tools.interpolateSmooth(octave.getPixel(x_block_hi, y_block_lo), octave.getPixel(x_block_hi, y_block_hi), y_diff);
+                            val1 = Tools.interpolateSmooth(octave.getPixel(x_block_lo, y_block_lo), octave.getPixel(
+                                    x_block_lo, y_block_hi), y_diff);
+                            val2 = Tools.interpolateSmooth(octave.getPixel(x_block_hi, y_block_lo), octave.getPixel(
+                                    x_block_hi, y_block_hi), y_diff);
                             for (int x = 0; x < block_size; x++) {
                                 x_pixel = x + x_block_lo * block_size;
                                 x_coord = x_pixel * size_ratio;
                                 x_diff = x_coord - x_block_lo;
                                 val = Tools.interpolateSmooth(val1, val2, x_diff);
-                                channel.putPixel(x_pixel, y_pixel, channel.getPixel(x_pixel, y_pixel) + val * amplitude);
+                                channel.putPixel(x_pixel, y_pixel, channel.getPixel(x_pixel,
+                                        y_pixel) + val * amplitude);
                             }
                         }
                     }
@@ -160,7 +167,8 @@ public final class Spectral {
                                 x_coord = x_pixel * size_ratio;
                                 x_diff = x_coord - x_block_lo;
                                 val = Tools.interpolateCubic(val0, val1, val2, val3, x_diff);
-                                channel.putPixelWrap(x_pixel, y_pixel, channel.getPixelWrap(x_pixel, y_pixel) + val * amplitude);
+                                channel.putPixelWrap(x_pixel, y_pixel, channel.getPixelWrap(x_pixel,
+                                        y_pixel) + val * amplitude);
                             }
                         }
                     }

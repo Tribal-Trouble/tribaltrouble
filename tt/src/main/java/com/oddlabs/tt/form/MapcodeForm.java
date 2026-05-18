@@ -27,7 +27,7 @@ public final class MapcodeForm extends Form {
     private static final int BUTTON_WIDTH = 100;
     private static final ResourceBundle bundle = ResourceBundle.getBundle(MapcodeForm.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -80,7 +80,8 @@ public final class MapcodeForm extends Form {
     private final class RandButtonListener implements MouseClickListener {
         @Override
         public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
-            Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * (long) LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
+            Random random = new Random(
+                    LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * (long) LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
             random.nextInt();
             BigInteger rand_int = new BigInteger(60, random);
             String rand_string = WordsEncoding.encode(rand_int);

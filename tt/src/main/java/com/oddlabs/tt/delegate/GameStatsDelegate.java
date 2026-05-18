@@ -39,12 +39,11 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
     private static final int PAGINATED_THRESHOLD = 6;
     private static final int PAGINATED_STAT_COLUMN_WIDTH = 130;
     private static final int PAGINATED_PLAYER_NAME_WIDTH = 120;
-    private static final int[][] STAT_PAGES = {
-            {0, 1, 2, 3, 9, 10},  // Combat: units lost, killed, buildings lost, wrecked, weapons, magics
+    private static final int[][] STAT_PAGES = {{0, 1, 2, 3, 9, 10},  // Combat: units lost, killed, buildings lost, wrecked, weapons, magics
             {4, 5, 6, 7, 8, 11},  // Economy: wood, rock, iron, chicken, meters walked, total
     };
 
-    public static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    public static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -97,7 +96,8 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
 
         group_buttons.compileCanvas();
         addChild(group_buttons);
-        group_buttons.setPos((getWidth() - group_buttons.getWidth()) / 2, (getHeight() - group_buttons.getHeight()) * 1 / 5);
+        group_buttons.setPos((getWidth() - group_buttons.getWidth()) / 2,
+                (getHeight() - group_buttons.getHeight()) * 1 / 5);
 
         setFocusCycle(true);
         delay_timer.start();
@@ -116,79 +116,100 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
         MultiColumnComboBox<Void> score_box = new MultiColumnComboBox<>(viewer.getGUIRoot(), score_infos, 200);
 
         Label[] units_lost_labels = new Label[players.length + 1];
-        units_lost_labels[0] = new SortedLabel(i18n("units_lost"), 0, Skin.getSkin().getMultiColumnComboBoxData().font());
+        units_lost_labels[0] = new SortedLabel(i18n("units_lost"), 0,
+                Skin.getSkin().getMultiColumnComboBoxData().font());
         for (int i = 0; i < players.length; i++) {
-            units_lost_labels[i + 1] = new IntegerLabel(players[i].getUnitsLost(), Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
+            units_lost_labels[i + 1] = new IntegerLabel(players[i].getUnitsLost(),
+                    Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
         }
         score_box.addRow(new Row<>(units_lost_labels, null));
 
         Label[] units_killed_labels = new Label[players.length + 1];
-        units_killed_labels[0] = new SortedLabel(i18n("units_killed"), 1, Skin.getSkin().getMultiColumnComboBoxData().font());
+        units_killed_labels[0] = new SortedLabel(i18n("units_killed"), 1,
+                Skin.getSkin().getMultiColumnComboBoxData().font());
         for (int i = 0; i < players.length; i++) {
-            units_killed_labels[i + 1] = new IntegerLabel(players[i].getUnitsKilled(), Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
+            units_killed_labels[i + 1] = new IntegerLabel(players[i].getUnitsKilled(),
+                    Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
         }
         score_box.addRow(new Row<>(units_killed_labels, null));
 
         Label[] buildings_lost_labels = new Label[players.length + 1];
-        buildings_lost_labels[0] = new SortedLabel(i18n("buildings_lost"), 2, Skin.getSkin().getMultiColumnComboBoxData().font());
+        buildings_lost_labels[0] = new SortedLabel(i18n("buildings_lost"), 2,
+                Skin.getSkin().getMultiColumnComboBoxData().font());
         for (int i = 0; i < players.length; i++) {
-            buildings_lost_labels[i + 1] = new IntegerLabel(players[i].getBuildingsLost(), Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
+            buildings_lost_labels[i + 1] = new IntegerLabel(players[i].getBuildingsLost(),
+                    Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
         }
         score_box.addRow(new Row<>(buildings_lost_labels, null));
 
         Label[] buildings_destroyed_labels = new Label[players.length + 1];
-        buildings_destroyed_labels[0] = new SortedLabel(i18n("buildings_wrecked"), 3, Skin.getSkin().getMultiColumnComboBoxData().font());
+        buildings_destroyed_labels[0] = new SortedLabel(i18n("buildings_wrecked"), 3,
+                Skin.getSkin().getMultiColumnComboBoxData().font());
         for (int i = 0; i < players.length; i++) {
-            buildings_destroyed_labels[i + 1] = new IntegerLabel(players[i].getBuildingsDestroyed(), Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
+            buildings_destroyed_labels[i + 1] = new IntegerLabel(players[i].getBuildingsDestroyed(),
+                    Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
         }
         score_box.addRow(new Row<>(buildings_destroyed_labels, null));
 
         Label[] tree_harvested_labels = new Label[players.length + 1];
-        tree_harvested_labels[0] = new SortedLabel(i18n("tree_resources"), 3, Skin.getSkin().getMultiColumnComboBoxData().font());
+        tree_harvested_labels[0] = new SortedLabel(i18n("tree_resources"), 3,
+                Skin.getSkin().getMultiColumnComboBoxData().font());
         for (int i = 0; i < players.length; i++) {
-            tree_harvested_labels[i + 1] = new IntegerLabel(players[i].getTreeHarvested(), Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
+            tree_harvested_labels[i + 1] = new IntegerLabel(players[i].getTreeHarvested(),
+                    Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
         }
         score_box.addRow(new Row<>(tree_harvested_labels, null));
 
         Label[] rock_harvested_labels = new Label[players.length + 1];
-        rock_harvested_labels[0] = new SortedLabel(i18n("rock_resources"), 4, Skin.getSkin().getMultiColumnComboBoxData().font());
+        rock_harvested_labels[0] = new SortedLabel(i18n("rock_resources"), 4,
+                Skin.getSkin().getMultiColumnComboBoxData().font());
         for (int i = 0; i < players.length; i++) {
-            rock_harvested_labels[i + 1] = new IntegerLabel(players[i].getRockHarvested(), Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
+            rock_harvested_labels[i + 1] = new IntegerLabel(players[i].getRockHarvested(),
+                    Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
         }
         score_box.addRow(new Row<>(rock_harvested_labels, null));
 
         Label[] iron_harvested_labels = new Label[players.length + 1];
-        iron_harvested_labels[0] = new SortedLabel(i18n("iron_resources"), 5, Skin.getSkin().getMultiColumnComboBoxData().font());
+        iron_harvested_labels[0] = new SortedLabel(i18n("iron_resources"), 5,
+                Skin.getSkin().getMultiColumnComboBoxData().font());
         for (int i = 0; i < players.length; i++) {
-            iron_harvested_labels[i + 1] = new IntegerLabel(players[i].getIronHarvested(), Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
+            iron_harvested_labels[i + 1] = new IntegerLabel(players[i].getIronHarvested(),
+                    Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
         }
         score_box.addRow(new Row<>(iron_harvested_labels, null));
 
         Label[] rubber_harvested_labels = new Label[players.length + 1];
-        rubber_harvested_labels[0] = new SortedLabel(i18n("chicken_resources"), 6, Skin.getSkin().getMultiColumnComboBoxData().font());
+        rubber_harvested_labels[0] = new SortedLabel(i18n("chicken_resources"), 6,
+                Skin.getSkin().getMultiColumnComboBoxData().font());
         for (int i = 0; i < players.length; i++) {
-            rubber_harvested_labels[i + 1] = new IntegerLabel(players[i].getRubberHarvested(), Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
+            rubber_harvested_labels[i + 1] = new IntegerLabel(players[i].getRubberHarvested(),
+                    Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
         }
         score_box.addRow(new Row<>(rubber_harvested_labels, null));
 
         Label[] walked_labels = new Label[players.length + 1];
-        walked_labels[0] = new SortedLabel(i18n("meters_walked"), 7, Skin.getSkin().getMultiColumnComboBoxData().font());
+        walked_labels[0] = new SortedLabel(i18n("meters_walked"), 7,
+                Skin.getSkin().getMultiColumnComboBoxData().font());
         for (int i = 0; i < players.length; i++) {
-            walked_labels[i + 1] = new IntegerLabel(players[i].getUnitsMoved() * 2, Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
+            walked_labels[i + 1] = new IntegerLabel(players[i].getUnitsMoved() * 2,
+                    Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
         }
         score_box.addRow(new Row<>(walked_labels, null));
 
         Label[] weapons_labels = new Label[players.length + 1];
-        weapons_labels[0] = new SortedLabel(i18n("weapons_thrown"), 8, Skin.getSkin().getMultiColumnComboBoxData().font());
+        weapons_labels[0] = new SortedLabel(i18n("weapons_thrown"), 8,
+                Skin.getSkin().getMultiColumnComboBoxData().font());
         for (int i = 0; i < players.length; i++) {
-            weapons_labels[i + 1] = new IntegerLabel(players[i].getWeaponsThrown(), Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
+            weapons_labels[i + 1] = new IntegerLabel(players[i].getWeaponsThrown(),
+                    Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
         }
         score_box.addRow(new Row<>(weapons_labels, null));
 
         Label[] magics_labels = new Label[players.length + 1];
         magics_labels[0] = new SortedLabel(i18n("magics_used"), 9, Skin.getSkin().getMultiColumnComboBoxData().font());
         for (int i = 0; i < players.length; i++) {
-            magics_labels[i + 1] = new IntegerLabel(players[i].getMagics(), Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
+            magics_labels[i + 1] = new IntegerLabel(players[i].getMagics(),
+                    Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET);
         }
         score_box.addRow(new Row<>(magics_labels, null));
 
@@ -204,7 +225,8 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
 
             int total_score = unit_killed * 10 + buildings_wrecked * 100 + tree + rock + iron * 2 + chicken * 4;
 
-            total_labels.add(new IntegerLabel(total_score, Skin.getSkin().getMultiColumnComboBoxData().font(), PLAYER_COLUMN_WIDTH + TEXT_OFFSET));
+            total_labels.add(new IntegerLabel(total_score, Skin.getSkin().getMultiColumnComboBoxData().font(),
+                    PLAYER_COLUMN_WIDTH + TEXT_OFFSET));
         }
         score_box.addRow(new Row<>(total_labels.toArray(Label[]::new), null));
 
@@ -219,28 +241,17 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
         this.paginatedFont = Skin.getSkin().getMultiColumnComboBoxData().font();
         this.currentPage = 0;
 
-        paginatedStatNames = new String[]{
-                i18n("units_lost"), i18n("units_killed"),
-                i18n("buildings_lost"), i18n("buildings_wrecked"),
-                i18n("tree_resources"), i18n("rock_resources"),
-                i18n("iron_resources"), i18n("chicken_resources"),
-                i18n("meters_walked"), i18n("weapons_thrown"),
-                i18n("magics_used"), i18n("total")
+        paginatedStatNames = new String[]{i18n("units_lost"), i18n("units_killed"), i18n("buildings_lost"), i18n(
+                "buildings_wrecked"), i18n("tree_resources"), i18n("rock_resources"), i18n("iron_resources"), i18n(
+                        "chicken_resources"), i18n("meters_walked"), i18n("weapons_thrown"), i18n("magics_used"), i18n(
+                                "total")
         };
 
         paginatedPlayerStats = new int[paginatedPlayers.length][];
         for (int i = 0; i < paginatedPlayers.length; i++) {
             Player player = paginatedPlayers[i];
-            int total_score = player.getUnitsKilled() * 10 + player.getBuildingsDestroyed() * 100
-                    + player.getTreeHarvested() + player.getRockHarvested()
-                    + player.getIronHarvested() * 2 + player.getRubberHarvested() * 4;
-            paginatedPlayerStats[i] = new int[]{
-                    player.getUnitsLost(), player.getUnitsKilled(),
-                    player.getBuildingsLost(), player.getBuildingsDestroyed(),
-                    player.getTreeHarvested(), player.getRockHarvested(),
-                    player.getIronHarvested(), player.getRubberHarvested(),
-                    player.getUnitsMoved() * 2, player.getWeaponsThrown(),
-                    player.getMagics(), total_score
+            int total_score = player.getUnitsKilled() * 10 + player.getBuildingsDestroyed() * 100 + player.getTreeHarvested() + player.getRockHarvested() + player.getIronHarvested() * 2 + player.getRubberHarvested() * 4;
+            paginatedPlayerStats[i] = new int[]{player.getUnitsLost(), player.getUnitsKilled(), player.getBuildingsLost(), player.getBuildingsDestroyed(), player.getTreeHarvested(), player.getRockHarvested(), player.getIronHarvested(), player.getRubberHarvested(), player.getUnitsMoved() * 2, player.getWeaponsThrown(), player.getMagics(), total_score
             };
         }
 
@@ -260,7 +271,8 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
             Label[] row = new Label[statIndices.length + 1];
             row[0] = new SortedLabel(paginatedPlayers[i].getPlayerInfo().getName(), i, paginatedFont);
             for (int j = 0; j < statIndices.length; j++) {
-                row[j + 1] = new IntegerLabel(paginatedPlayerStats[i][statIndices[j]], paginatedFont, PAGINATED_STAT_COLUMN_WIDTH + TEXT_OFFSET);
+                row[j + 1] = new IntegerLabel(paginatedPlayerStats[i][statIndices[j]], paginatedFont,
+                        PAGINATED_STAT_COLUMN_WIDTH + TEXT_OFFSET);
             }
             box.addRow(new Row<>(row, null));
         }

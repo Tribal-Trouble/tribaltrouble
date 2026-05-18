@@ -28,7 +28,8 @@ public final class ARMIInterfaceMethods {
         return armi_interface.isInstance(instance);
     }
 
-    @NonNull Class<?> getInterfaceClass() {
+    @NonNull
+    Class<?> getInterfaceClass() {
         return armi_interface;
     }
 

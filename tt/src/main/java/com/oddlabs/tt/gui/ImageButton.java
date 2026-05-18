@@ -26,9 +26,7 @@ public class ImageButton extends ButtonObject {
 
     @Override
     protected final void renderGeometry(@NonNull GUIRenderer renderer) {
-        var render = isDisabled()
-                ? disabled
-                : isHovered() || isActive() ? hovered : normal;
+        var render = isDisabled() ? disabled : isHovered() || isActive() ? hovered : normal;
         render.renderGeometry(renderer);
     }
 

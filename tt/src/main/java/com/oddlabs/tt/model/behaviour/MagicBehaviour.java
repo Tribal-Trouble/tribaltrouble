@@ -21,7 +21,8 @@ public final class MagicBehaviour implements Behaviour {
     private float anim_time;
     private @NonNull MagicState state = MagicState.PREPARING;
 
-    public MagicBehaviour(@NonNull Unit unit, @NonNull MagicFactory magic_factory, @NonNull MagicController controller) {
+    public MagicBehaviour(@NonNull Unit unit, @NonNull MagicFactory magic_factory,
+            @NonNull MagicController controller) {
         this.unit = unit;
         this.magic_factory = magic_factory;
         this.controller = controller;

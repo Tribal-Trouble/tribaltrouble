@@ -37,16 +37,10 @@ public class LeaderboardsCommand extends DiscordCommand {
     @Override
     public Mono<Void> executeCommand(ChatInputInteractionEvent event) {
 
-        long start =
-                event.getOption(command_option_start)
-                        .flatMap(ApplicationCommandInteractionOption::getValue)
-                        .map(ApplicationCommandInteractionOptionValue::asLong)
-                        .orElse(0L);
-        long count =
-                event.getOption(command_option_count)
-                        .flatMap(ApplicationCommandInteractionOption::getValue)
-                        .map(ApplicationCommandInteractionOptionValue::asLong)
-                        .orElse(25L);
+        long start = event.getOption(command_option_start).flatMap(ApplicationCommandInteractionOption::getValue).map(
+                ApplicationCommandInteractionOptionValue::asLong).orElse(0L);
+        long count = event.getOption(command_option_count).flatMap(ApplicationCommandInteractionOption::getValue).map(
+                ApplicationCommandInteractionOptionValue::asLong).orElse(25L);
 
         if (start > Integer.MAX_VALUE || count > Integer.MAX_VALUE) {
             return event.reply("Invalid start or count value.");
@@ -71,32 +65,22 @@ public class LeaderboardsCommand extends DiscordCommand {
         try {
             for (int i = 0; i < ranks.length; i += 25) {
                 printDebug(
-                        "Creating embed for leaderboard "
-                                + (i + startInt)
-                                + "-"
-                                + Math.min(i + 25, ranks.length));
+                        "Creating embed for leaderboard " + (i + startInt) + "-" + Math.min(i + 25, ranks.length));
 
-                EmbedCreateSpec.Builder builder =
-                        EmbedCreateSpec.builder()
-                                .color(Color.BLUE)
-                                .title(
-                                        "Leaderboards "
-                                                + (i + startInt + 1)
-                                                + "-"
-                                                + Math.min(
-                                                i + startInt + 25,
-                                                i + startInt + ranks.length));
+                EmbedCreateSpec.Builder builder = EmbedCreateSpec.builder().color(Color.BLUE).title(
+                        "Leaderboards " + (i + startInt + 1) + "-" + Math.min(
+                                i + startInt + 25,
+                                i + startInt + ranks.length));
                 for (int j = i; j < Math.min(i + 25, ranks.length); j++) {
                     String name = ranks[j].getName();
                     String title = String.format("%d. %s", j + startInt + 1, name);
-                    String message =
-                            String.format(
-                                    "Rating: %s, Wins: %s, Losses: %s, %s",
-                                    ranks[j].getRating(),
-                                    ranks[j].getWins(),
-                                    ranks[j].getLosses(),
-                                    WebsiteLinkHelper.getProfileLink(
-                                            "Profile", ranks[j].getName()));
+                    String message = String.format(
+                            "Rating: %s, Wins: %s, Losses: %s, %s",
+                            ranks[j].getRating(),
+                            ranks[j].getWins(),
+                            ranks[j].getLosses(),
+                            WebsiteLinkHelper.getProfileLink(
+                                    "Profile", ranks[j].getName()));
                     builder.addField(title, message, false);
                     printDebug("Added rank " + title + " to embed.");
                 }
@@ -118,25 +102,17 @@ public class LeaderboardsCommand extends DiscordCommand {
      */
     @Override
     public ApplicationCommandRequest getCommand() {
-        ApplicationCommandRequest leaderboardCommand =
-                ApplicationCommandRequest.builder()
-                        .name(command_name)
-                        .description(command_description)
-                        .addOption(
-                                ApplicationCommandOptionData.builder()
-                                        .name(command_option_start)
-                                        .description("Rank to start showing the leaderboards from")
-                                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
-                                        .required(false)
-                                        .build())
-                        .addOption(
-                                ApplicationCommandOptionData.builder()
-                                        .name(command_option_count)
-                                        .description("Number of ranks to show")
-                                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
-                                        .required(false)
-                                        .build())
-                        .build();
+        ApplicationCommandRequest leaderboardCommand = ApplicationCommandRequest.builder().name(
+                command_name).description(command_description).addOption(
+                        ApplicationCommandOptionData.builder().name(command_option_start).description(
+                                "Rank to start showing the leaderboards from").type(
+                                        ApplicationCommandOption.Type.INTEGER.getValue()).required(
+                                                false).build()).addOption(
+                                                        ApplicationCommandOptionData.builder().name(
+                                                                command_option_count).description(
+                                                                        "Number of ranks to show").type(
+                                                                                ApplicationCommandOption.Type.INTEGER.getValue()).required(
+                                                                                        false).build()).build();
 
         return leaderboardCommand;
     }

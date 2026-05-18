@@ -16,19 +16,13 @@ public final class BalancedParametricEmitter extends ParametricEmitter {
     private final float margin_v;
 
     public BalancedParametricEmitter(@NonNull World world, ParametricFunction function, @NonNull Vector3f position,
-                                     float velocity_u, float velocity_v, float dist_u, float dist_v,
-                                     int num_particles, float margin_u, float margin_v,
-                                     Vector4fc color, Vector4fc delta_color,
-                                     Vector3fc particle_radius, Vector3fc growth_rate, float energy,
-                                     int src_blend_func, int dst_blend_func, TextureKey @NonNull [] textures,
-                                     @NonNull AnimationManager manager) {
-        super(world, function, position,
-                0f, 0f, velocity_u, velocity_v, 0f,
-                num_particles, Float.MAX_VALUE,
-                color, delta_color,
-                particle_radius, growth_rate, energy,
-                src_blend_func, dst_blend_func, textures,
-                manager);
+            float velocity_u, float velocity_v, float dist_u, float dist_v,
+            int num_particles, float margin_u, float margin_v,
+            Vector4fc color, Vector4fc delta_color,
+            Vector3fc particle_radius, Vector3fc growth_rate, float energy,
+            int src_blend_func, int dst_blend_func, TextureKey @NonNull [] textures,
+            @NonNull AnimationManager manager) {
+        super(world, function, position, 0f, 0f, velocity_u, velocity_v, 0f, num_particles, Float.MAX_VALUE, color, delta_color, particle_radius, growth_rate, energy, src_blend_func, dst_blend_func, textures, manager);
         this.num_particles = num_particles;
         this.dist_u = dist_u;
         this.dist_v = dist_v;
@@ -40,10 +34,10 @@ public final class BalancedParametricEmitter extends ParametricEmitter {
 
     @Override
     protected int initParticle(ParametricFunction function,
-                               float velocity_u, float velocity_v,
-                               @NonNull Vector4fc color, @NonNull Vector4fc delta_color,
-                               @NonNull Vector3fc particle_radius, @NonNull Vector3fc growth_rate,
-                               float energy) {
+            float velocity_u, float velocity_v,
+            @NonNull Vector4fc color, @NonNull Vector4fc delta_color,
+            @NonNull Vector3fc particle_radius, @NonNull Vector3fc growth_rate,
+            float energy) {
 
         for (int i = 0; i < num_particles; i++) {
             float u = dist_u * i / num_particles;

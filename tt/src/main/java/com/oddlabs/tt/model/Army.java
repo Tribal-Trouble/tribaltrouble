@@ -9,14 +9,12 @@ public class Army {
     private final Set<@NonNull Selectable<?>> selection = new LinkedHashSet<>();
 
     public final @NonNull Selectable<?> @NonNull [] filter(int ability_filter) {
-        return (Selectable<?>[]) selection.stream()
-                .filter(s -> s.getAbilities().hasAbilities(ability_filter))
-                .toArray(Selectable[]::new);
+        return (Selectable<?>[]) selection.stream().filter(s -> s.getAbilities().hasAbilities(ability_filter)).toArray(
+                Selectable[]::new);
     }
 
     public final boolean containsAbility(int ability_filter) {
-        return selection.stream()
-                .anyMatch(s -> s.getAbilities().hasAbilities(ability_filter));
+        return selection.stream().anyMatch(s -> s.getAbilities().hasAbilities(ability_filter));
     }
 
     public void clear() {

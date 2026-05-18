@@ -94,8 +94,8 @@ public class DiscordEmbedCreator {
 
         // Start building the embed
 
-        EmbedCreateSpec.Builder embed =
-                EmbedCreateSpec.builder().title(gameName).color(color).description(desc.toString());
+        EmbedCreateSpec.Builder embed = EmbedCreateSpec.builder().title(gameName).color(color).description(
+                desc.toString());
 
         // Add a field for each team
         Map<Integer, String> teamLineup = getTeamLineup(session.getPlayerInfo());
@@ -113,14 +113,10 @@ public class DiscordEmbedCreator {
         EmbedCreateSpec builtEmbed = embed.build();
 
         // Send to the Correct Channel
-        TextChannel gameActivityChannel =
-                DiscordBotService.getInstance().getGameActivityChannel().orElse(null);
+        TextChannel gameActivityChannel = DiscordBotService.getInstance().getGameActivityChannel().orElse(null);
 
-        DiscordBotService.getInstance()
-                .getChatroomCoordinator()
-                .ifPresent(
-                        coordinator ->
-                                coordinator.sendDiscordEmbed(gameActivityChannel, builtEmbed));
+        DiscordBotService.getInstance().getChatroomCoordinator().ifPresent(
+                coordinator -> coordinator.sendDiscordEmbed(gameActivityChannel, builtEmbed));
     }
 
     /**

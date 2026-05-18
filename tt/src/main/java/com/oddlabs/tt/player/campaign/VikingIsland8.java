@@ -32,7 +32,7 @@ import java.util.stream.IntStream;
 public final class VikingIsland8 extends Island {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland8.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -44,11 +44,10 @@ public final class VikingIsland8 extends Island {
 
     @Override
     public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-        String[] ai_names = IntStream.range(0, 6)
-                .mapToObj(i -> i18n("name" + i))
-                .toArray(String[]::new);
+        String[] ai_names = IntStream.range(0, 6).mapToObj(i -> i18n("name" + i)).toArray(String[]::new);
         // gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
-        GameNetwork game_network = startNewGame(network, gui_root, 1024, Landscape.TerrainType.NATIVE, 1f, 1f, 0f, 285914281, 8, VikingCampaign.MAX_UNITS, ai_names);
+        GameNetwork game_network = startNewGame(network, gui_root, 1024, Landscape.TerrainType.NATIVE, 1f, 1f, 0f,
+                285914281, 8, VikingCampaign.MAX_UNITS, ai_names);
         game_network.getClient().getServerInterface().setPlayerSlot(0,
                 PlayerSlot.HUMAN,
                 RacesResources.RACE_VIKINGS,
@@ -84,7 +83,8 @@ public final class VikingIsland8 extends Island {
         getViewer().getCamera().setPos(358 * 2, 484 * 2);
 
         // Introduction
-        final Runnable camera_jump = () -> getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), getViewer().getCamera(), 170 * 2, 160 * 2, 200f, 3f));
+        final Runnable camera_jump = () -> getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(),
+                getViewer().getCamera(), 170 * 2, 160 * 2, 200f, 3f));
         new GameStartedTrigger(getViewer().getWorld(), () -> {
             CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header0"),
                     i18n("dialog0"),
@@ -96,15 +96,15 @@ public final class VikingIsland8 extends Island {
 
         // Insert viking men
         ResourceBundle player_bundle = ResourceBundle.getBundle(Player.class.getName());
-        local_player.setActiveChieftain(new Unit(local_player, 170 * 2, 160 * 2, null, local_player.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN), Utils.getBundleString(player_bundle, "chieftain_name"), false));
+        local_player.setActiveChieftain(new Unit(local_player, 170 * 2, 160 * 2, null,
+                local_player.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN), Utils.getBundleString(player_bundle,
+                        "chieftain_name"), false));
         local_player.getChieftain().increaseMagicEnergy(0, 1000);
         local_player.getChieftain().increaseMagicEnergy(1, 1000);
-        int unit_count = getCampaign().getState().getNumPeons()
-                + getCampaign().getState().getNumRockWarriors()
-                + getCampaign().getState().getNumIronWarriors()
-                + getCampaign().getState().getNumRubberWarriors();
+        int unit_count = getCampaign().getState().getNumPeons() + getCampaign().getState().getNumRockWarriors() + getCampaign().getState().getNumIronWarriors() + getCampaign().getState().getNumRubberWarriors();
         for (int i = 0; i < unit_count; i++) {
-            new Unit(local_player, 170 * 2, 160 * 2, null, local_player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
+            new Unit(local_player, 170 * 2, 160 * 2, null, local_player.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_ROCK));
         }
 
         // Winner prize
@@ -198,22 +198,33 @@ public final class VikingIsland8 extends Island {
         army2[5] = new Unit(enemy, 364 * 2, 440 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
         army2[6] = new Unit(enemy, 364 * 2, 440 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
 
-        if (getCampaign().getState().getDifficulty() == CampaignState.DIFFICULTY_HARD || getCampaign().getState().getDifficulty() == CampaignState.DIFFICULTY_NORMAL) {
+        if (getCampaign().getState().getDifficulty() == CampaignState.DIFFICULTY_HARD
+                || getCampaign().getState().getDifficulty() == CampaignState.DIFFICULTY_NORMAL) {
             army2[7] = new Unit(enemy, 365 * 2, 427 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
             army2[8] = new Unit(enemy, 365 * 2, 427 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
             army2[9] = new Unit(enemy, 365 * 2, 427 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
-            army2[10] = new Unit(enemy, 365 * 2, 427 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-            army2[11] = new Unit(enemy, 365 * 2, 427 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-            army2[12] = new Unit(enemy, 365 * 2, 427 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
+            army2[10] = new Unit(enemy, 365 * 2, 427 * 2, null, enemy.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_IRON));
+            army2[11] = new Unit(enemy, 365 * 2, 427 * 2, null, enemy.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_IRON));
+            army2[12] = new Unit(enemy, 365 * 2, 427 * 2, null, enemy.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_IRON));
         }
         if (getCampaign().getState().getDifficulty() == CampaignState.DIFFICULTY_HARD) {
-            army2[13] = new Unit(enemy, 366 * 2, 419 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
-            army2[14] = new Unit(enemy, 366 * 2, 419 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
-            army2[15] = new Unit(enemy, 366 * 2, 419 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
-            army2[16] = new Unit(enemy, 366 * 2, 419 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-            army2[17] = new Unit(enemy, 366 * 2, 419 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
-            army2[18] = new Unit(enemy, 366 * 2, 419 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
-            army2[19] = new Unit(enemy, 366 * 2, 419 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
+            army2[13] = new Unit(enemy, 366 * 2, 419 * 2, null, enemy.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_ROCK));
+            army2[14] = new Unit(enemy, 366 * 2, 419 * 2, null, enemy.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_ROCK));
+            army2[15] = new Unit(enemy, 366 * 2, 419 * 2, null, enemy.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_ROCK));
+            army2[16] = new Unit(enemy, 366 * 2, 419 * 2, null, enemy.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_IRON));
+            army2[17] = new Unit(enemy, 366 * 2, 419 * 2, null, enemy.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_RUBBER));
+            army2[18] = new Unit(enemy, 366 * 2, 419 * 2, null, enemy.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_RUBBER));
+            army2[19] = new Unit(enemy, 366 * 2, 419 * 2, null, enemy.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_RUBBER));
         }
         new DeathTrigger(bait2, () -> enemy.setLandscapeTarget(army2, 352, 480, Action.ATTACK, true));
 
@@ -284,18 +295,28 @@ public final class VikingIsland8 extends Island {
         neutrals[3] = new Unit(lost, 265 * 2, 325 * 2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
         neutrals[4] = new Unit(lost, 265 * 2, 324 * 2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
         neutrals[5] = new Unit(lost, 266 * 2, 326 * 2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-        if (getCampaign().getState().getDifficulty() == CampaignState.DIFFICULTY_EASY || getCampaign().getState().getDifficulty() == CampaignState.DIFFICULTY_NORMAL) {
-            neutrals[6] = new Unit(lost, 267 * 2, 327 * 2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
-            neutrals[7] = new Unit(lost, 269 * 2, 327 * 2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-            neutrals[8] = new Unit(lost, 270 * 2, 327 * 2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
+        if (getCampaign().getState().getDifficulty() == CampaignState.DIFFICULTY_EASY
+                || getCampaign().getState().getDifficulty() == CampaignState.DIFFICULTY_NORMAL) {
+            neutrals[6] = new Unit(lost, 267 * 2, 327 * 2, null, lost.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_RUBBER));
+            neutrals[7] = new Unit(lost, 269 * 2, 327 * 2, null, lost.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_IRON));
+            neutrals[8] = new Unit(lost, 270 * 2, 327 * 2, null, lost.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_RUBBER));
         }
         if (getCampaign().getState().getDifficulty() == CampaignState.DIFFICULTY_EASY) {
-            neutrals[9] = new Unit(lost, 268 * 2, 326 * 2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
-            neutrals[10] = new Unit(lost, 271 * 2, 325 * 2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-            neutrals[11] = new Unit(lost, 270 * 2, 324 * 2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
-            neutrals[12] = new Unit(lost, 271 * 2, 328 * 2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
-            neutrals[13] = new Unit(lost, 269 * 2, 330 * 2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-            neutrals[14] = new Unit(lost, 272 * 2, 323 * 2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
+            neutrals[9] = new Unit(lost, 268 * 2, 326 * 2, null, lost.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_RUBBER));
+            neutrals[10] = new Unit(lost, 271 * 2, 325 * 2, null, lost.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_IRON));
+            neutrals[11] = new Unit(lost, 270 * 2, 324 * 2, null, lost.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_RUBBER));
+            neutrals[12] = new Unit(lost, 271 * 2, 328 * 2, null, lost.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_RUBBER));
+            neutrals[13] = new Unit(lost, 269 * 2, 330 * 2, null, lost.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_IRON));
+            neutrals[14] = new Unit(lost, 272 * 2, 323 * 2, null, lost.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_RUBBER));
         }
         new NearArmyTrigger(neutrals, 10f, local_player, () -> {
             CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header2"),

@@ -58,7 +58,8 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
     private boolean spawning;
     private float offset_z;
 
-    public RubberSupply(@NonNull World world, @NonNull SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, @NonNull RubberGroup group, float spawn_x, float spawn_y) {
+    public RubberSupply(@NonNull World world, @NonNull SpriteKey sprite_renderer, float size, int grid_x, int grid_y,
+            float x, float y, float rotation, @NonNull RubberGroup group, float spawn_x, float spawn_y) {
         super(world, sprite_renderer, size, grid_x, grid_y, x, y, rotation, INITIAL_SUPPLIES, false);
         this.path_tracker = new PathTracker(world.getUnitGrid(), this);
         this.group = group;
@@ -159,7 +160,9 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
             if (random < .75) {
                 setNewAnimation(Animation.IDLING);
                 if (random < .05)
-                    getWorld().getAudio().newAudio(new AudioParameters<>(getWorld().getLandscapeResources().getBirdIdleSound(getWorld().getRandom()), getPositionX(), getPositionY(), getPositionZ(),
+                    getWorld().getAudio().newAudio(new AudioParameters<>(
+                            getWorld().getLandscapeResources().getBirdIdleSound(getWorld().getRandom()), getPositionX(),
+                            getPositionY(), getPositionZ(),
                             AudioPlayer.AUDIO_RANK_CHICKEN,
                             AudioPlayer.AUDIO_DISTANCE_CHICKEN,
                             AudioPlayer.AUDIO_GAIN_CHICKEN_IDLE,
@@ -173,7 +176,9 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
                 float move_random = getWorld().getRandom().nextFloat();
                 if (move_random < .25f) {
                     setNewAnimation(Animation.FLYING);
-                    getWorld().getAudio().newAudio(new AudioParameters<>(getWorld().getLandscapeResources().getBirdPeckSound(), getPositionX(), getPositionY(), getPositionZ(),
+                    getWorld().getAudio().newAudio(new AudioParameters<>(
+                            getWorld().getLandscapeResources().getBirdPeckSound(), getPositionX(), getPositionY(),
+                            getPositionZ(),
                             AudioPlayer.AUDIO_RANK_CHICKEN,
                             AudioPlayer.AUDIO_DISTANCE_CHICKEN,
                             AudioPlayer.AUDIO_GAIN_CHICKEN_PECK,
@@ -184,7 +189,9 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
             } else {
                 setNewAnimation(Animation.PECKING);
                 if (random > .98f)
-                    getWorld().getAudio().newAudio(new AudioParameters<>(getWorld().getLandscapeResources().getBirdPeckSound(), getPositionX(), getPositionY(), getPositionZ(),
+                    getWorld().getAudio().newAudio(new AudioParameters<>(
+                            getWorld().getLandscapeResources().getBirdPeckSound(), getPositionX(), getPositionY(),
+                            getPositionZ(),
                             AudioPlayer.AUDIO_RANK_CHICKEN,
                             AudioPlayer.AUDIO_DISTANCE_CHICKEN,
                             AudioPlayer.AUDIO_GAIN_CHICKEN_PECK,
@@ -236,7 +243,8 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
         if (!is_hit) {
             is_hit = true;
             setNewAnimation(Animation.DYING);
-            getWorld().getAudio().newAudio(new AudioParameters<>(getWorld().getLandscapeResources().getBirdDeathSound(), getPositionX(), getPositionY(), getPositionZ(),
+            getWorld().getAudio().newAudio(new AudioParameters<>(getWorld().getLandscapeResources().getBirdDeathSound(),
+                    getPositionX(), getPositionY(), getPositionZ(),
                     AudioPlayer.AUDIO_RANK_DEATH,
                     AudioPlayer.AUDIO_DISTANCE_DEATH,
                     AudioPlayer.AUDIO_GAIN_CHICKEN_DEATH,

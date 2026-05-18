@@ -17,7 +17,9 @@ public final class LandscapeLeaf extends AbstractPatchGroup {
         this.patch_y = index_y;
         int patch_offset_x = index_x * heightmap.getMetersPerPatch();
         int patch_offset_y = index_y * heightmap.getMetersPerPatch();
-        setBoundsFromLandscape(heightmap, index_x * heightmap.getGridUnitsPerPatch(), index_y * heightmap.getGridUnitsPerPatch(), heightmap.getGridUnitsPerPatch(), heightmap.getGridUnitsPerPatch());
+        setBoundsFromLandscape(heightmap, index_x * heightmap.getGridUnitsPerPatch(),
+                index_y * heightmap.getGridUnitsPerPatch(), heightmap.getGridUnitsPerPatch(),
+                heightmap.getGridUnitsPerPatch());
         checkBoundsZ(heightmap.getSeaLevelMeters());
         heightmap.registerLeaf(patch_x, patch_y, this);
     }

@@ -28,7 +28,8 @@ public final class RegistrationKey {
         return KeyManager.readPublicKey(encoded_key, RegServiceInterface.KEY_ALGORITHM);
     }
 
-    public static boolean verify(PublicKey public_key, @NonNull SignedObject signed_object) throws GeneralSecurityException {
+    public static boolean verify(PublicKey public_key,
+            @NonNull SignedObject signed_object) throws GeneralSecurityException {
         return signed_object.verify(public_key, Signature.getInstance(RegServiceInterface.SIGN_ALGORITHM));
     }
 
@@ -86,7 +87,8 @@ public final class RegistrationKey {
         key_str = key_str.replaceAll("-", "");
         if (key_str.length() != STRIPPED_LENGTH)
 //			throw new RegistrationKeyFormatException("The specified key must be " + STRIPPED_LENGTH + " characters, excluding the dashes.");
-            throw new RegistrationKeyFormatException(RegistrationKeyFormatException.TYPE_INVALID_LENGTH, STRIPPED_LENGTH);
+            throw new RegistrationKeyFormatException(RegistrationKeyFormatException.TYPE_INVALID_LENGTH,
+                    STRIPPED_LENGTH);
         BigInteger key_code_crc = parseBits(key_str);
         long key_code = key_code_crc.longValue();
         BigInteger crc = computeChecksum(key_code);

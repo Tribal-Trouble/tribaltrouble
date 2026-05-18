@@ -53,9 +53,9 @@ public final class CampaignState implements Serializable {
     }
 
     public int getIslandState(int index) {
-/*		for (int i = 0; i < island_states.length; i++)
-			island_states[i] = ISLAND_AVAILABLE;
-		island_states[0] = ISLAND_COMPLETED;*/
+        /*		for (int i = 0; i < island_states.length; i++)
+        			island_states[i] = ISLAND_AVAILABLE;
+        		island_states[0] = ISLAND_COMPLETED;*/
         return island_states[index];
     }
 

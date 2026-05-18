@@ -50,7 +50,7 @@ public final class CompassRenderer {
     }
 
     public static void render(@NonNull GUIRenderer renderer, @NonNull Font font,
-                              float horizAngle, int screenWidth, int screenHeight) {
+            float horizAngle, int screenWidth, int screenHeight) {
         float cx = screenWidth - RADIUS - MARGIN;
         float cy = RADIUS + MARGIN;
 
@@ -84,7 +84,7 @@ public final class CompassRenderer {
      * Approximate a filled circle using wedge-shaped quads radiating from center.
      */
     private static void drawCircle(@NonNull GUIRenderer renderer, float cx, float cy,
-                                   float radius, int segments, @NonNull Vector4fc color) {
+            float radius, int segments, @NonNull Vector4fc color) {
         MatrixStack stack = renderer.getMatrixStack();
         float angleStep = 360f / segments;
         for (int i = 0; i < segments; i++) {
@@ -102,7 +102,7 @@ public final class CompassRenderer {
      * Draw a circle outline as a ring of small rotated quads.
      */
     private static void drawRing(@NonNull GUIRenderer renderer, float cx, float cy,
-                                 float radius, float thickness, int segments, @NonNull Vector4fc color) {
+            float radius, float thickness, int segments, @NonNull Vector4fc color) {
         MatrixStack stack = renderer.getMatrixStack();
         float angleStep = 360f / segments;
         float segmentLength = 2f * radius * (float) Math.sin(Math.toRadians(angleStep / 2));
@@ -121,8 +121,8 @@ public final class CompassRenderer {
      * Draw a tick mark at the rim, properly rotated to point radially inward.
      */
     private static void drawTick(@NonNull GUIRenderer renderer, float cx, float cy,
-                                 float horizAngle, float cardinalAngle, float width,
-                                 @NonNull Vector4fc color) {
+            float horizAngle, float cardinalAngle, float width,
+            @NonNull Vector4fc color) {
         float delta = cardinalAngle - horizAngle;
         float angleDeg = (float) Math.toDegrees(delta);
 
@@ -140,7 +140,7 @@ public final class CompassRenderer {
      * Draw the north needle from near center outward toward north.
      */
     private static void drawNeedle(@NonNull GUIRenderer renderer, float cx, float cy,
-                                   float horizAngle) {
+            float horizAngle) {
         float delta = NORTH_ANGLE - horizAngle;
         float angleDeg = (float) Math.toDegrees(delta);
 
@@ -157,9 +157,9 @@ public final class CompassRenderer {
      * Draw a cardinal label at the correct position outside the compass circle.
      */
     private static void drawLabel(@NonNull GUIRenderer renderer, @NonNull Font font,
-                                  float cx, float cy, float horizAngle,
-                                  float cardinalAngle, @NonNull String label,
-                                  @NonNull Vector4fc color) {
+            float cx, float cy, float horizAngle,
+            float cardinalAngle, @NonNull String label,
+            @NonNull Vector4fc color) {
         float delta = cardinalAngle - horizAngle;
         float dx = (float) Math.sin(delta);
         float dy = (float) Math.cos(delta);

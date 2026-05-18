@@ -39,24 +39,31 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
     private static final float REMOVE_DELAY = 1f / 10f;
 
     public enum BuildState {
-        START, HALFBUILT, BUILT
+        START,
+        HALFBUILT,
+        BUILT
     }
 
     private static final int PLACING_BORDER = 1;
     private static final int MAX_SUPPLY_COUNT = 200;
 
     @SuppressWarnings({"unchecked"})
-    public static final Cost COST_ROCK_WEAPON = new Cost(new Class[]{TreeSupply.class, RockSupply.class}, new int[]{2, 1});
+    public static final Cost COST_ROCK_WEAPON = new Cost(new Class[]{TreeSupply.class, RockSupply.class},
+            new int[]{2, 1});
     @SuppressWarnings({"unchecked"})
-    public static final Cost COST_IRON_WEAPON = new Cost(new Class[]{TreeSupply.class, IronSupply.class}, new int[]{2, 1});
+    public static final Cost COST_IRON_WEAPON = new Cost(new Class[]{TreeSupply.class, IronSupply.class},
+            new int[]{2, 1});
     @SuppressWarnings({"unchecked"})
-    public static final Cost COST_RUBBER_WEAPON = new Cost(new Class[]{TreeSupply.class, RockSupply.class, IronSupply.class, RubberSupply.class}, new int[]{2, 1, 1, 1});
+    public static final Cost COST_RUBBER_WEAPON = new Cost(
+            new Class[]{TreeSupply.class, RockSupply.class, IronSupply.class, RubberSupply.class},
+            new int[]{2, 1, 1, 1});
 
     private static final float DAMAGED_PARTICLE_ALPHA = 3f;
 
     private final Map<@NonNull Class<?>, @NonNull SupplyContainer> supply_containers = new HashMap<>();
     private final Map<@NonNull Class<?>, @NonNull BuildProductionContainer> build_containers = new HashMap<>();
-    private final Map<@NonNull DeployType, @NonNull DeployContainer> deploy_containers = new EnumMap<>(DeployType.class);
+    private final Map<@NonNull DeployType, @NonNull DeployContainer> deploy_containers = new EnumMap<>(
+            DeployType.class);
     private final @NonNull LinearEmitter damaged_emitter;
     private final @NonNull LinearEmitter production_emitter;
 
@@ -78,17 +85,18 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
         float y = UnitGrid.coordinateFromGrid(grid_y);
         setPosition(x, y);
         pushController(new NullController(this));
-/*
-   Vector3f position, float offset_z, float uv_angle,
-   float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
-   int num_particles, float particles_per_second,
-   Vector3f velocity, Vector3f acceleration,
-   Vector4f color, Vector4f delta_color,
-   Vector3f particle_radius, Vector3f growth_rate, int energy, float friction,
-   int src_blend_func, int dst_blend_func,
-   Texture texture
-*/
-        damaged_emitter = new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(), getPositionZ() + getHitOffsetZ()), 0f, 0f,
+        /*
+           Vector3f position, float offset_z, float uv_angle,
+           float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
+           int num_particles, float particles_per_second,
+           Vector3f velocity, Vector3f acceleration,
+           Vector4f color, Vector4f delta_color,
+           Vector3f particle_radius, Vector3f growth_rate, int energy, float friction,
+           int src_blend_func, int dst_blend_func,
+           Texture texture
+        */
+        damaged_emitter = new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(),
+                getPositionZ() + getHitOffsetZ()), 0f, 0f,
                 0.01f, 0.01f, 0.5f, .7f,
                 -1, 4f,
                 new Vector3f(0f, 0f, 5f), new Vector3f(0f, 0f, 0f),
@@ -176,7 +184,8 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
                 float energy = 3f;
                 float fade_speed = 2.5f;
 
-                new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(), getPositionZ()), 0f,
+                new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(),
+                        getPositionZ()), 0f,
                         getTemplate().getSmokeRadius(), getTemplate().getSmokeHeight(), 0.05f, (float) Math.PI,
                         getTemplate().getNumFragments(), getTemplate().getNumFragments(),
                         new Vector3f(0f, 0f, 5f), new Vector3f(0f, 0f, -25f),
@@ -224,7 +233,8 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
     }
 
     public boolean canExitTower() {
-        return !isDead() && getAbilities().hasAbilities(Abilities.ATTACK) && getUnitContainer().getNumSupplies() > 0 && getOwner().canExitTowers() &&
+        return !isDead() && getAbilities().hasAbilities(Abilities.ATTACK) && getUnitContainer().getNumSupplies() > 0
+                && getOwner().canExitTowers() &&
                 !(((MountUnitContainer) getUnitContainer()).getUnit().getCurrentController() instanceof StunController);
     }
 
@@ -234,10 +244,10 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
         if (canExitTower()) {
 //			Army selection = Selection.singleton.getCurrentSelection();
             Unit unit = container.exit();
-/*			if (getOwner().isControllable()) {
-				selection.clear();
-				selection.add(unit);
-			}*/
+            /*			if (getOwner().isControllable()) {
+            				selection.clear();
+            				selection.add(unit);
+            			}*/
         }
     }
 
@@ -276,7 +286,8 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
     }
 
     public boolean canBuildChieftain() {
-        return !isDead() && chieftain_container != null && getOwner().canBuildChieftains() && !getOwner().hasActiveChieftain() && !getOwner().isTrainingChieftain();
+        return !isDead() && chieftain_container != null && getOwner().canBuildChieftains()
+                && !getOwner().hasActiveChieftain() && !getOwner().isTrainingChieftain();
     }
 
     public boolean canStopChieftain() {
@@ -422,7 +433,8 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
                             this,
                             COST_IRON_WEAPON,
                             80f);
-                    BuildProductionContainer rubber_axe_weapon = new BuildProductionContainer(BuildSpinner.INFINITE_LIMIT,
+                    BuildProductionContainer rubber_axe_weapon = new BuildProductionContainer(
+                            BuildSpinner.INFINITE_LIMIT,
                             rubber_weapon_container,
                             this,
                             COST_RUBBER_WEAPON,
@@ -432,20 +444,32 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
                     build_containers.put(RubberAxeWeapon.class, rubber_axe_weapon);
                     BuildProductionContainer[] production_containers = new BuildProductionContainer[]{rock_axe_weapon, iron_axe_weapon, rubber_axe_weapon};
 
-                    weapons_producer = new WeaponsProducer(this, (WorkerUnitContainer) getUnitContainer(), production_containers, production_emitter);
+                    weapons_producer = new WeaponsProducer(this, (WorkerUnitContainer) getUnitContainer(),
+                            production_containers, production_emitter);
 
-                    deploy_containers.put(DeployType.ROCK_WARRIOR, new DeployContainer(this, 1f, DeployType.ROCK_WARRIOR, RockAxeWeapon.class));
-                    deploy_containers.put(DeployType.IRON_WARRIOR, new DeployContainer(this, 1.5f, DeployType.IRON_WARRIOR, IronAxeWeapon.class));
-                    deploy_containers.put(DeployType.RUBBER_WARRIOR, new DeployContainer(this, 2f, DeployType.RUBBER_WARRIOR, RubberAxeWeapon.class));
+                    deploy_containers.put(DeployType.ROCK_WARRIOR, new DeployContainer(this, 1f,
+                            DeployType.ROCK_WARRIOR, RockAxeWeapon.class));
+                    deploy_containers.put(DeployType.IRON_WARRIOR, new DeployContainer(this, 1.5f,
+                            DeployType.IRON_WARRIOR, IronAxeWeapon.class));
+                    deploy_containers.put(DeployType.RUBBER_WARRIOR, new DeployContainer(this, 2f,
+                            DeployType.RUBBER_WARRIOR, RubberAxeWeapon.class));
                     deploy_containers.put(DeployType.PEON, new DeployContainer(this, .5f, DeployType.PEON, null));
-                    deploy_containers.put(DeployType.PEON_HARVEST_TREE, new DeployContainer(this, .5f, DeployType.PEON_HARVEST_TREE, null));
-                    deploy_containers.put(DeployType.PEON_TRANSPORT_TREE, new DeployContainer(this, .5f, DeployType.PEON_TRANSPORT_TREE, TreeSupply.class));
-                    deploy_containers.put(DeployType.PEON_HARVEST_ROCK, new DeployContainer(this, .5f, DeployType.PEON_HARVEST_ROCK, null));
-                    deploy_containers.put(DeployType.PEON_TRANSPORT_ROCK, new DeployContainer(this, .5f, DeployType.PEON_TRANSPORT_ROCK, RockSupply.class));
-                    deploy_containers.put(DeployType.PEON_HARVEST_IRON, new DeployContainer(this, .5f, DeployType.PEON_HARVEST_IRON, null));
-                    deploy_containers.put(DeployType.PEON_TRANSPORT_IRON, new DeployContainer(this, .5f, DeployType.PEON_TRANSPORT_IRON, IronSupply.class));
-                    deploy_containers.put(DeployType.PEON_HARVEST_RUBBER, new DeployContainer(this, .5f, DeployType.PEON_HARVEST_RUBBER, null));
-                    deploy_containers.put(DeployType.PEON_TRANSPORT_RUBBER, new DeployContainer(this, .5f, DeployType.PEON_TRANSPORT_RUBBER, RubberSupply.class));
+                    deploy_containers.put(DeployType.PEON_HARVEST_TREE, new DeployContainer(this, .5f,
+                            DeployType.PEON_HARVEST_TREE, null));
+                    deploy_containers.put(DeployType.PEON_TRANSPORT_TREE, new DeployContainer(this, .5f,
+                            DeployType.PEON_TRANSPORT_TREE, TreeSupply.class));
+                    deploy_containers.put(DeployType.PEON_HARVEST_ROCK, new DeployContainer(this, .5f,
+                            DeployType.PEON_HARVEST_ROCK, null));
+                    deploy_containers.put(DeployType.PEON_TRANSPORT_ROCK, new DeployContainer(this, .5f,
+                            DeployType.PEON_TRANSPORT_ROCK, RockSupply.class));
+                    deploy_containers.put(DeployType.PEON_HARVEST_IRON, new DeployContainer(this, .5f,
+                            DeployType.PEON_HARVEST_IRON, null));
+                    deploy_containers.put(DeployType.PEON_TRANSPORT_IRON, new DeployContainer(this, .5f,
+                            DeployType.PEON_TRANSPORT_IRON, IronSupply.class));
+                    deploy_containers.put(DeployType.PEON_HARVEST_RUBBER, new DeployContainer(this, .5f,
+                            DeployType.PEON_HARVEST_RUBBER, null));
+                    deploy_containers.put(DeployType.PEON_TRANSPORT_RUBBER, new DeployContainer(this, .5f,
+                            DeployType.PEON_TRANSPORT_RUBBER, RubberSupply.class));
                 } else if (getAbilities().hasAbilities(Abilities.REPRODUCE)) {
                     chieftain_container = new ChieftainContainer(this);
                     deploy_containers.put(DeployType.PEON, new DeployContainer(this, .5f, DeployType.PEON, null));
@@ -454,13 +478,15 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
         }
     }
 
-    public static boolean isPlacingLegal(@NonNull UnitGrid unit_grid, @NonNull BuildingTemplate template, int grid_x, int grid_y) {
+    public static boolean isPlacingLegal(@NonNull UnitGrid unit_grid, @NonNull BuildingTemplate template, int grid_x,
+            int grid_y) {
         return doIsPlacingLegal(unit_grid, grid_x, grid_y, template.getPlacingSize());
     }
 
     public boolean isPlacingLegal() {
         return !isDead() && getOwner().canBuild(getTemplate().getTemplateID()) &&
-                doIsPlacingLegal(getUnitGrid(), getGridX(), getGridY(), getTemplate().getPlacingSize() - PLACING_BORDER);
+                doIsPlacingLegal(getUnitGrid(), getGridX(), getGridY(),
+                        getTemplate().getPlacingSize() - PLACING_BORDER);
     }
 
     public boolean isPlaced() {
@@ -486,7 +512,8 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
                 int current_grid_x = grid_x + x - (size - 1);
                 int current_grid_y = grid_y + y - (size - 1);
                 if (current_grid_x >= unit_grid.getGridSize() || current_grid_y >= unit_grid.getGridSize() ||
-                        current_grid_x < 0 || current_grid_y < 0 || unit_grid.isGridOccupied(current_grid_x, current_grid_y))
+                        current_grid_x < 0 || current_grid_y < 0 || unit_grid.isGridOccupied(current_grid_x,
+                                current_grid_y))
                     return false;
             }
         }
@@ -495,11 +522,9 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
 
     @Override
     public AttackScanFilter.@NonNull Priority getAttackPriority() {
-        return getAbilities().hasAbilities(Abilities.ATTACK)
-                ? AttackScanFilter.Priority.TOWER
-                : getAbilities().hasAbilities(Abilities.BUILD_ARMIES)
-                  ? AttackScanFilter.Priority.ARMORY
-                  : AttackScanFilter.Priority.QUARTERS;
+        return getAbilities().hasAbilities(
+                Abilities.ATTACK) ? AttackScanFilter.Priority.TOWER : getAbilities().hasAbilities(
+                        Abilities.BUILD_ARMIES) ? AttackScanFilter.Priority.ARMORY : AttackScanFilter.Priority.QUARTERS;
     }
 
     @Override
@@ -544,7 +569,8 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
     @Override
     protected void removeDying() {
 
-        new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(), getPositionZ()), 0f, 0f,
+        new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(), getPositionZ()),
+                0f, 0f,
                 getTemplate().getSmokeRadius(), getTemplate().getSmokeHeight(), 1f, 1f,
                 30, 400f,
                 new Vector3f(0f, 0f, .1f), new Vector3f(0f, 0f, -2.5f),
@@ -555,7 +581,10 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
                 getOwner().getWorld().getAnimationManagerRealTime());
 
         remove_delay = REMOVE_DELAY;
-        getOwner().getWorld().getAudio().newAudio(new AudioParameters<>(getOwner().getWorld().getRacesResources().getBuildingCollapseSound(), getPositionX(), getPositionY(), getPositionZ(), AudioPlayer.AUDIO_RANK_BUILDING_COLLAPSE, AudioPlayer.AUDIO_DISTANCE_BUILDING_COLLAPSE, AudioPlayer.AUDIO_GAIN_BUILDING_COLLAPSE, AudioPlayer.AUDIO_RADIUS_BUILDING_COLLAPSE));
+        getOwner().getWorld().getAudio().newAudio(new AudioParameters<>(
+                getOwner().getWorld().getRacesResources().getBuildingCollapseSound(), getPositionX(), getPositionY(),
+                getPositionZ(), AudioPlayer.AUDIO_RANK_BUILDING_COLLAPSE, AudioPlayer.AUDIO_DISTANCE_BUILDING_COLLAPSE,
+                AudioPlayer.AUDIO_GAIN_BUILDING_COLLAPSE, AudioPlayer.AUDIO_RADIUS_BUILDING_COLLAPSE));
         if (getUnitContainer() != null) {
             while (getUnitContainer().getNumSupplies() > 0) {
                 Unit unit = getUnitContainer().exit();
@@ -588,16 +617,12 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
     public void setRallyPoint(@NonNull Target target) {
         if (!getOwner().canSetRallyPoints())
             return;
-        rally_point = isValidRallyPoint(target)
-                ? target
-                : getUnitGrid().findGridTargets(target.getGridX(), target.getGridY(), 1, false)[0];
+        rally_point = isValidRallyPoint(target) ? target : getUnitGrid().findGridTargets(target.getGridX(),
+                target.getGridY(), 1, false)[0];
     }
 
     public @NonNull BuildState getRenderLevel() {
-        return build_points == getTemplate().getMaxHitPoints()
-                ? BuildState.BUILT
-                : (float) build_points / getTemplate().getMaxHitPoints() < .5
-                  ? BuildState.START : BuildState.HALFBUILT;
+        return build_points == getTemplate().getMaxHitPoints() ? BuildState.BUILT : (float) build_points / getTemplate().getMaxHitPoints() < .5 ? BuildState.START : BuildState.HALFBUILT;
     }
 
     @Override
@@ -624,7 +649,8 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
         old_landscape_heights = new float[height_points][height_points];
         for (int y = 0; y < height_points; y++) {
             for (int x = 0; x < height_points; x++) {
-                float old_height = getOwner().getWorld().getHeightMap().getWrappedHeight(offset_x + x + PLACING_BORDER, offset_y + y + PLACING_BORDER);
+                float old_height = getOwner().getWorld().getHeightMap().getWrappedHeight(offset_x + x + PLACING_BORDER,
+                        offset_y + y + PLACING_BORDER);
                 old_landscape_heights[y][x] = old_height;
                 total_height += old_height;
             }
@@ -633,7 +659,8 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
         float new_height = total_height / (height_points * height_points);
         for (int y = 0; y < height_points; y++) {
             for (int x = 0; x < height_points; x++) {
-                getOwner().getWorld().getHeightMap().editHeight(offset_x + x + PLACING_BORDER, offset_y + y + PLACING_BORDER, new_height);
+                getOwner().getWorld().getHeightMap().editHeight(offset_x + x + PLACING_BORDER,
+                        offset_y + y + PLACING_BORDER, new_height);
             }
         }
     }
@@ -644,7 +671,8 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
         int offset_y = getGridY() - (size - 1);
         for (int y = 0; y < old_landscape_heights.length; y++) {
             for (int x = 0; x < old_landscape_heights[y].length; x++) {
-                getOwner().getWorld().getHeightMap().editHeight(offset_x + x + PLACING_BORDER, offset_y + y + PLACING_BORDER, old_landscape_heights[y][x]);
+                getOwner().getWorld().getHeightMap().editHeight(offset_x + x + PLACING_BORDER,
+                        offset_y + y + PLACING_BORDER, old_landscape_heights[y][x]);
             }
         }
     }
@@ -679,7 +707,10 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
         if (!isDead()) {
             setHitPoints(hit_points - damage);
             World world = getOwner().getWorld();
-            world.getAudio().newAudio(new AudioParameters<>(world.getRacesResources().getBuildingHitSound(world.getRandom()), getPositionX(), getPositionY(), getPositionZ(), AudioPlayer.AUDIO_RANK_WEAPON_HIT, AudioPlayer.AUDIO_DISTANCE_WEAPON_HIT, AudioPlayer.AUDIO_GAIN_WEAPON_HIT, AudioPlayer.AUDIO_RADIUS_WEAPON_HIT));
+            world.getAudio().newAudio(new AudioParameters<>(world.getRacesResources().getBuildingHitSound(
+                    world.getRandom()), getPositionX(), getPositionY(), getPositionZ(),
+                    AudioPlayer.AUDIO_RANK_WEAPON_HIT, AudioPlayer.AUDIO_DISTANCE_WEAPON_HIT,
+                    AudioPlayer.AUDIO_GAIN_WEAPON_HIT, AudioPlayer.AUDIO_RADIUS_WEAPON_HIT));
             if (hit_points == 0) {
                 // stats
                 getOwner().buildingLost();
@@ -712,14 +743,12 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
 
     @Override
     public int getStatusValue() {
-        return getAbilities().hasAbilities(Abilities.REPRODUCE)
-                ? getUnitContainer().getNumSupplies()
-                : getAbilities().hasAbilities(Abilities.BUILD_ARMIES)
-                  ? getUnitContainer().getNumSupplies() +
-                getSupplyContainer(RockAxeWeapon.class).getNumSupplies() +
-                    getSupplyContainer(IronAxeWeapon.class).getNumSupplies() * 3 +
-                    getSupplyContainer(RubberAxeWeapon.class).getNumSupplies() * 8
-                  : 0;
+        return getAbilities().hasAbilities(
+                Abilities.REPRODUCE) ? getUnitContainer().getNumSupplies() : getAbilities().hasAbilities(
+                        Abilities.BUILD_ARMIES) ? getUnitContainer().getNumSupplies() + getSupplyContainer(
+                                RockAxeWeapon.class).getNumSupplies() + getSupplyContainer(
+                                        IronAxeWeapon.class).getNumSupplies() * 3 + getSupplyContainer(
+                                                RubberAxeWeapon.class).getNumSupplies() * 8 : 0;
     }
 
     public void printDebugInfo() {

@@ -8,7 +8,9 @@ public record ModelInfo(short @NonNull [] indices, float @NonNull [] vertices, f
                         byte @NonNull [] @NonNull [] skin_names, float @NonNull [] @NonNull [] skin_weights) {
     //	public final String tex_name;
 
-    public ModelInfo(/*String tex_name, */short @NonNull [] indices, float @NonNull [] vertices, float @NonNull [] normals, float @NonNull [] colors, float @NonNull [] texcoords, byte @NonNull [] @NonNull [] skin_names, float @NonNull [] @NonNull [] skin_weights) {
+    public ModelInfo(/*String tex_name, */short @NonNull [] indices, float @NonNull [] vertices,
+            float @NonNull [] normals, float @NonNull [] colors, float @NonNull [] texcoords,
+            byte @NonNull [] @NonNull [] skin_names, float @NonNull [] @NonNull [] skin_weights) {
         this(indices, vertices, normals, colors, texcoords, null, skin_names, skin_weights);
     }
 

@@ -15,7 +15,8 @@ public final class SupplyGatheredTrigger extends IntervalTrigger {
     private final int goal;
     private final @NonNull Player local_player;
 
-    public SupplyGatheredTrigger(@NonNull Player local_player, Runnable runnable, Class<? extends Supply> type, int goal) {
+    public SupplyGatheredTrigger(@NonNull Player local_player, Runnable runnable, Class<? extends Supply> type,
+            int goal) {
         super(local_player.getWorld(), .5f, 0f);
         this.local_player = local_player;
         this.runnable = runnable;

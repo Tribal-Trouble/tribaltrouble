@@ -9,7 +9,8 @@ public final class Skeleton {
     private final @NonNull Map<@NonNull String, float @NonNull []> initial_pose;
     private final @NonNull Map<@NonNull String, @NonNull Bone> name_to_bone_map;
 
-    public Skeleton(@NonNull Bone bone_root, @NonNull Map<@NonNull String, float[]> initial_pose, @NonNull Map<@NonNull String, @NonNull Bone> name_to_bone_map) {
+    public Skeleton(@NonNull Bone bone_root, @NonNull Map<@NonNull String, float[]> initial_pose,
+            @NonNull Map<@NonNull String, @NonNull Bone> name_to_bone_map) {
         this.bone_root = bone_root;
         this.initial_pose = initial_pose;
         this.name_to_bone_map = name_to_bone_map;

@@ -48,11 +48,8 @@ public class PulldownItem<T> extends ButtonObject {
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         Box item = Skin.getSkin().getPulldownData().pulldownItem();
-        ModeIconQuads.Mode skinMode = isDisabled()
-                ? ModeIconQuads.Mode.NORMAL
-                : isActive() || isHovered()
-                  ? ModeIconQuads.Mode.ACTIVE
-                  : ModeIconQuads.Mode.NORMAL;
+        ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.NORMAL : isActive()
+                || isHovered() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
         item.render(renderer, 0f, 0f, getWidth(), getHeight(), skinMode);
     }
 

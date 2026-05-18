@@ -26,7 +26,8 @@ public final class TargetRespondRenderer extends ShadowListRenderer {
     }
 
     @Override
-    public void renderShadows(@NonNull RenderContext context, @NonNull LandscapeRenderer renderer, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public void renderShadows(@NonNull RenderContext context, @NonNull LandscapeRenderer renderer,
+            @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         if (target_list.isEmpty()) return;
 
         try (var _ = setupShadows(context, renderer, modelViewStack, projectionStack)) {
@@ -34,7 +35,8 @@ public final class TargetRespondRenderer extends ShadowListRenderer {
             bindShadowTexture(ring);
             while (!target_list.isEmpty()) {
                 var target = target_list.pop();
-                renderShadow(context, renderer, SHADOW_SIZE * target.getProgress(), target.getPositionX(), target.getPositionY());
+                renderShadow(context, renderer, SHADOW_SIZE * target.getProgress(), target.getPositionX(),
+                        target.getPositionY());
             }
         }
     }

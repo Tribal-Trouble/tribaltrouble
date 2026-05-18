@@ -18,12 +18,14 @@ final class ElementRenderer<T extends Element<T>> implements ElementNodeVisitor<
 
     private boolean visible_override;
 
-    ElementRenderer(@NonNull Player local_player, @NonNull RenderQueues render_queues, @NonNull Picker picker, boolean picking, @NonNull SpriteSorter sprite_sorter, Selection selection) {
+    ElementRenderer(@NonNull Player local_player, @NonNull RenderQueues render_queues, @NonNull Picker picker,
+            boolean picking, @NonNull SpriteSorter sprite_sorter, Selection selection) {
         this.picking = picking;
         this.render_state = new RenderState(local_player, sprite_sorter, render_queues, picker, selection);
     }
 
-    @NonNull RenderState getRenderState() {
+    @NonNull
+    RenderState getRenderState() {
         return render_state;
     }
 
@@ -34,9 +36,9 @@ final class ElementRenderer<T extends Element<T>> implements ElementNodeVisitor<
 
     @Override
     public void visitNode(@NonNull ElementNode<T> node) {
-        RenderTools.FrustumIntersection frustum_state = camera.inNoDetailMode() && !picking
-                ? RenderTools.FrustumIntersection.ALL_INSIDE
-                : RenderTools.inFrustum(node, camera.getFrustum());
+        RenderTools.FrustumIntersection frustum_state = camera.inNoDetailMode()
+                && !picking ? RenderTools.FrustumIntersection.ALL_INSIDE : RenderTools.inFrustum(node,
+                        camera.getFrustum());
 
         if (visible_override || frustum_state != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
             boolean old_override = visible_override;
@@ -49,9 +51,9 @@ final class ElementRenderer<T extends Element<T>> implements ElementNodeVisitor<
 
     @Override
     public void visitLeaf(@NonNull ElementLeaf<T> leaf) {
-        RenderTools.FrustumIntersection frustum_state = camera.inNoDetailMode() && !picking
-                ? RenderTools.FrustumIntersection.ALL_INSIDE
-                : RenderTools.inFrustum(leaf, camera.getFrustum());
+        RenderTools.FrustumIntersection frustum_state = camera.inNoDetailMode()
+                && !picking ? RenderTools.FrustumIntersection.ALL_INSIDE : RenderTools.inFrustum(leaf,
+                        camera.getFrustum());
 
         if (visible_override || frustum_state != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
             boolean old_override = visible_override;
@@ -63,9 +65,9 @@ final class ElementRenderer<T extends Element<T>> implements ElementNodeVisitor<
 
     @Override
     public void visit(@NonNull T element) {
-        RenderTools.FrustumIntersection frustum_state = camera.inNoDetailMode() && !picking
-                ? RenderTools.FrustumIntersection.ALL_INSIDE
-                : RenderTools.inFrustum(element, camera.getFrustum());
+        RenderTools.FrustumIntersection frustum_state = camera.inNoDetailMode()
+                && !picking ? RenderTools.FrustumIntersection.ALL_INSIDE : RenderTools.inFrustum(element,
+                        camera.getFrustum());
 
         if (visible_override || frustum_state != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
             boolean old_override = visible_override;

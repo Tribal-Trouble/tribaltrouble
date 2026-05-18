@@ -30,7 +30,9 @@ public final class QuitScreen extends CameraDelegate<Camera> implements Updatabl
         setCanFocus(true);
         setFocusCycle(true);
 
-        overlay = new GUIImage(gui_root.getWidth(), gui_root.getHeight(), 0f, 0f, (float) overlay_image_width / overlay_texture_width, (float) overlay_image_height / overlay_texture_height, overlay_texture_name);
+        overlay = new GUIImage(gui_root.getWidth(), gui_root.getHeight(), 0f, 0f,
+                (float) overlay_image_width / overlay_texture_width,
+                (float) overlay_image_height / overlay_texture_height, overlay_texture_name);
         overlay.setPos(0, 0);
         addChild(overlay);
 

@@ -30,7 +30,7 @@ public final class NewProfileForm extends Form {
     private static final int EDITLINE_WIDTH = 240;
     private static final ResourceBundle bundle = ResourceBundle.getBundle(NewProfileForm.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 

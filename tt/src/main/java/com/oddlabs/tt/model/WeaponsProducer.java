@@ -24,7 +24,8 @@ public class WeaponsProducer {
     private float break_time = 0f;
     private @Nullable AbstractAudioPlayer production_player;
 
-    public WeaponsProducer(@NonNull Building building, @NonNull WorkerUnitContainer unit_container, @NonNull BuildProductionContainer @NonNull [] production_containers, @NonNull LinearEmitter emitter) {
+    public WeaponsProducer(@NonNull Building building, @NonNull WorkerUnitContainer unit_container,
+            @NonNull BuildProductionContainer @NonNull [] production_containers, @NonNull LinearEmitter emitter) {
         this.building = building;
         this.unit_container = unit_container;
         this.production_containers = production_containers;
@@ -61,7 +62,9 @@ public class WeaponsProducer {
 
     private void startSound() {
         if (production_player == null) {
-            production_player = building.getOwner().getWorld().getAudio().newAudio(new AudioParameters<>(building.getOwner().getWorld().getRacesResources().getArmorySound(), building.getPositionX(), building.getPositionY(), building.getPositionZ(),
+            production_player = building.getOwner().getWorld().getAudio().newAudio(new AudioParameters<>(
+                    building.getOwner().getWorld().getRacesResources().getArmorySound(), building.getPositionX(),
+                    building.getPositionY(), building.getPositionZ(),
                     AudioPlayer.AUDIO_RANK_ARMORY,
                     AudioPlayer.AUDIO_DISTANCE_ARMORY,
                     AudioPlayer.AUDIO_GAIN_ARMORY,

@@ -28,13 +28,15 @@ public final class BorderGroup extends Group {
             label.setPos(data.captionLeft(), getHeight() - data.captionY());
             addChild(label);
         } else {
-            super.compileCanvas(group.getLeftOffset(), group.getBottomOffset(), group.getRightOffset(), group.getTopOffset());
+            super.compileCanvas(group.getLeftOffset(), group.getBottomOffset(), group.getRightOffset(),
+                    group.getTopOffset());
         }
         setCanFocus(true);
     }
 
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
-        Skin.getSkin().getGroupData().group().render(renderer, 0f, 0f, getWidth(), getHeight(), ModeIconQuads.Mode.NORMAL);
+        Skin.getSkin().getGroupData().group().render(renderer, 0f, 0f, getWidth(), getHeight(),
+                ModeIconQuads.Mode.NORMAL);
     }
 }

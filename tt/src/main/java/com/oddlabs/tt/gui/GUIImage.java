@@ -24,14 +24,17 @@ public final class GUIImage extends GUIIcon {
      * @param texture_name The name of the texture file to load.
      */
     public GUIImage(int width, int height, float u1, float v1, float u2, float v2, String texture_name) {
-        this(width, height, u1, v1, u2, v2, Resources.findResource(new TextureFile(texture_name, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT)), false);
+        this(width, height, u1, v1, u2, v2, Resources.findResource(new TextureFile(texture_name, GL11.GL_RGBA,
+                GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT)), false);
     }
 
     /**
      * Creates a clickable GUIImage. Focusable so it receives mouse pick events, shows target cursor on hover.
      */
-    public GUIImage(int width, int height, float u1, float v1, float u2, float v2, String texture_name, boolean clickable) {
-        this(width, height, u1, v1, u2, v2, Resources.findResource(new TextureFile(texture_name, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT)), clickable);
+    public GUIImage(int width, int height, float u1, float v1, float u2, float v2, String texture_name,
+            boolean clickable) {
+        this(width, height, u1, v1, u2, v2, Resources.findResource(new TextureFile(texture_name, GL11.GL_RGBA,
+                GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT)), clickable);
     }
 
     /**
@@ -46,7 +49,8 @@ public final class GUIImage extends GUIIcon {
      * @param texture   The texture to display.
      * @param clickable Whether this image should be clickable (focusable + target cursor).
      */
-    private GUIImage(int width, int height, float u1, float v1, float u2, float v2, @NonNull Texture texture, boolean clickable) {
+    private GUIImage(int width, int height, float u1, float v1, float u2, float v2, @NonNull Texture texture,
+            boolean clickable) {
         boolean useTexture = width < 0 || height < 0;
         int useHeight = useTexture ? texture.getHeight() : height;
         int useWidth = useTexture ? texture.getWidth() : width;

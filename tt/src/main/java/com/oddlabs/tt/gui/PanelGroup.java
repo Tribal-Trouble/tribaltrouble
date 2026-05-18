@@ -15,7 +15,7 @@ public final class PanelGroup extends GUIObject {
         this(0, panels);
     }
 
-    public PanelGroup(int selected, @NonNull Panel @NonNull ... panels) {
+    public PanelGroup(int selected, @NonNull Panel @NonNull... panels) {
         assert selected < panels.length && panels.length > 0 : "Invalid index selected.";
         this.panels = panels;
 
@@ -35,12 +35,14 @@ public final class PanelGroup extends GUIObject {
         int x = Skin.getSkin().getPanelData().leftTabOffset();
         int y = height;
         for (int i = 0; i < panels.length; i++) {
-            panels[i].setPos((width - panels[i].getWidth()) / 2, Skin.getSkin().getPanelData().bottomTabOffset() + (height - panels[i].getHeight()) / 2);
+            panels[i].setPos((width - panels[i].getWidth()) / 2,
+                    Skin.getSkin().getPanelData().bottomTabOffset() + (height - panels[i].getHeight()) / 2);
             panels[i].getTab().setPos(x, y);
             x += panels[i].getTab().getWidth();
             panels[i].getTab().addMouseButtonListener(new TabListener(i));
         }
-        box = new PanelBox(width, total_height - panels[0].getTab().getHeight() + Skin.getSkin().getPanelData().bottomTabOffset());
+        box = new PanelBox(width,
+                total_height - panels[0].getTab().getHeight() + Skin.getSkin().getPanelData().bottomTabOffset());
 
         focus_group.setDim(width, total_height);
         focus_group.setPos(0, 0);

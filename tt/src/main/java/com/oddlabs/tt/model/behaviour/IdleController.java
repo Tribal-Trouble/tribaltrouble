@@ -41,7 +41,8 @@ public final class IdleController extends Controller {
         Selectable<?> s = scan_filter.removeTarget();
         if (s != null) {
             if (can_move)
-                unit.pushControllers(new WalkController(unit, new LandscapeTarget(unit.getGridX(), unit.getGridY()), true), new HuntController(unit, s));
+                unit.pushControllers(new WalkController(unit, new LandscapeTarget(unit.getGridX(), unit.getGridY()),
+                        true), new HuntController(unit, s));
             else
                 unit.pushController(new AttackController(unit, s));
         }
@@ -49,6 +50,7 @@ public final class IdleController extends Controller {
 
     @Override
     public @NonNull String getKey() {
-        return super.getKey() + unit.getAbilities().hasAbilities(Abilities.BUILD) + unit.getAbilities().hasAbilities(Abilities.MAGIC);
+        return super.getKey() + unit.getAbilities().hasAbilities(Abilities.BUILD) + unit.getAbilities().hasAbilities(
+                Abilities.MAGIC);
     }
 }

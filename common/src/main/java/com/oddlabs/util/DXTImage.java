@@ -87,7 +87,8 @@ public final class DXTImage {
     }
 
     public void write(@NonNull Path file) throws IOException {
-        try (WritableByteChannel out = Files.newByteChannel(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
+        try (WritableByteChannel out = Files.newByteChannel(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE,
+                StandardOpenOption.TRUNCATE_EXISTING)) {
             ByteBuffer header = ByteBuffer.allocateDirect(128);
             header.order(ByteOrder.LITTLE_ENDIAN);
             header.putInt(MAGIC);

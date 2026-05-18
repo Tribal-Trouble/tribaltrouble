@@ -55,25 +55,24 @@ public class DiscordBotService {
         this.serverId = serverId;
         DiscordClient client = DiscordClient.create(token);
 
-        Mono<Void> login =
-                client.withGateway(
-                        (GatewayDiscordClient gateway) -> {
-                            this.gateway = gateway;
-                            // Extra discord things that can be done
-                            bot_id = gateway.getSelfId();
-                            setupEventHandlers(serverId);
-                            commands.add(new LeaderboardsCommand());
-                            commands.add(new MatchupCommand());
-                            commands.add(new RegisterProfileToDiscordUserCommand());
-                            commands.add(new WhoIsCommand());
-                            commands.add(new OnlineCommand());
-                            commands.add(new RankCommand());
-                            chatroomCoordinator = new DiscordChatroomCoordinator();
-                            reactionRoleService = new ReactionRoleService(gateway, serverId);
-                            registerCommands();
-                            // deleteCommands();
-                            return gateway.onDisconnect();
-                        });
+        Mono<Void> login = client.withGateway(
+                (GatewayDiscordClient gateway) -> {
+                    this.gateway = gateway;
+                    // Extra discord things that can be done
+                    bot_id = gateway.getSelfId();
+                    setupEventHandlers(serverId);
+                    commands.add(new LeaderboardsCommand());
+                    commands.add(new MatchupCommand());
+                    commands.add(new RegisterProfileToDiscordUserCommand());
+                    commands.add(new WhoIsCommand());
+                    commands.add(new OnlineCommand());
+                    commands.add(new RankCommand());
+                    chatroomCoordinator = new DiscordChatroomCoordinator();
+                    reactionRoleService = new ReactionRoleService(gateway, serverId);
+                    registerCommands();
+                    // deleteCommands();
+                    return gateway.onDisconnect();
+                });
         isInitialized = true;
         login.subscribe();
     }
@@ -133,43 +132,31 @@ public class DiscordBotService {
 
         disposables.add(
                 gateway.on(
-                                ChatInputInteractionEvent.class,
-                                event -> {
-                                    if (event.getCommandName().equals("ping")) {
-                                        return event.reply("Pong!");
-                                    }
+                        ChatInputInteractionEvent.class,
+                        event -> {
+                            if (event.getCommandName().equals("ping")) {
+                                return event.reply("Pong!");
+                            }
 
-                                    return commands.stream()
-                                            .filter(
-                                                    cmd ->
-                                                            event.getCommandName()
-                                                                    .equals(cmd.getCommandName()))
-                                            .findFirst()
-                                            .map(
-                                                    cmd -> {
-                                                        try {
-                                                            return cmd.executeCommand(event);
-                                                        } catch (Exception e) {
-                                                            System.out.println(
-                                                                    "Error executing command: "
-                                                                            + e.getMessage());
-                                                            return event.reply(
-                                                                            "An error occurred"
-                                                                                    + " while executing"
-                                                                                    + " the command.")
-                                                                    .withEphemeral(true);
-                                                        }
-                                                    })
-                                            .orElseGet(
+                            return commands.stream().filter(
+                                    cmd -> event.getCommandName().equals(cmd.getCommandName())).findFirst().map(
+                                            cmd -> {
+                                                try {
+                                                    return cmd.executeCommand(event);
+                                                } catch (Exception e) {
+                                                    System.out.println(
+                                                            "Error executing command: " + e.getMessage());
+                                                    return event.reply(
+                                                            "An error occurred" + " while executing" + " the command.").withEphemeral(
+                                                                    true);
+                                                }
+                                            }).orElseGet(
                                                     () -> {
                                                         System.out.println(
-                                                                "No matching command found for: "
-                                                                        + event.getCommandName());
-                                                        return event.reply("Unknown command")
-                                                                .withEphemeral(true);
+                                                                "No matching command found for: " + event.getCommandName());
+                                                        return event.reply("Unknown command").withEphemeral(true);
                                                     });
-                                })
-                        .subscribe());
+                        }).subscribe());
         gateway.on(ReadyEvent.class, this::handleReady).take(1).subscribe();
     }
 
@@ -197,35 +184,32 @@ public class DiscordBotService {
     private void initTribalTroubleTextChannels(long serverId) {
         if (gateway != null) {
             message_channels.clear(); // Clear before repopulating
-            gateway.getGuilds()
-                    .take(1)
-                    .filter(
-                            guild -> {
-                                return guild.getId().equals(Snowflake.of(serverId));
-                            })
-                    .doOnNext(
-                            guild ->
-                                    System.out.printf(
-                                            "Found matching guild: %s%n", guild.getName()))
-                    .flatMap(guild -> guild.getChannels())
-                    .subscribe(
-                            channel -> {
-                                System.out.printf(
-                                        "  - %s (ID: %s, Type: %s)%n",
-                                        channel.getName(),
-                                        channel.getId().asString(),
-                                        channel.getType().name());
+            gateway.getGuilds().take(1).filter(
+                    guild -> {
+                        return guild.getId().equals(Snowflake.of(serverId));
+                    }).doOnNext(
+                            guild -> System.out.printf(
+                                    "Found matching guild: %s%n", guild.getName())).flatMap(
+                                            guild -> guild.getChannels()).subscribe(
+                                                    channel -> {
+                                                        System.out.printf(
+                                                                "  - %s (ID: %s, Type: %s)%n",
+                                                                channel.getName(),
+                                                                channel.getId().asString(),
+                                                                channel.getType().name());
 
-                                if (channel.getType() == Channel.Type.GUILD_TEXT) {
-                                    if (channel.getName().indexOf("tt_chatroom_") != -1) {
-                                        message_channels.add((TextChannel) channel);
-                                        System.out.println("Added channel: " + channel.getName());
-                                    } else if (channel.getName().equals("game-activity")) {
-                                        game_activity_channel = (TextChannel) channel;
-                                        System.out.println("Added channel: " + channel.getName());
-                                    }
-                                }
-                            });
+                                                        if (channel.getType() == Channel.Type.GUILD_TEXT) {
+                                                            if (channel.getName().indexOf("tt_chatroom_") != -1) {
+                                                                message_channels.add((TextChannel) channel);
+                                                                System.out.println(
+                                                                        "Added channel: " + channel.getName());
+                                                            } else if (channel.getName().equals("game-activity")) {
+                                                                game_activity_channel = (TextChannel) channel;
+                                                                System.out.println(
+                                                                        "Added channel: " + channel.getName());
+                                                            }
+                                                        }
+                                                    });
         }
     }
 
@@ -243,19 +227,13 @@ public class DiscordBotService {
         long guildId = serverId; // Discord4J's server ID.
 
         // Get the commands from discord as a Map
-        Map<String, ApplicationCommandData> discordCommands =
-                gateway.getRestClient()
-                        .getApplicationService()
-                        .getGuildApplicationCommands(getBotId().asLong(), guildId)
-                        .collectMap(ApplicationCommandData::name)
-                        .block();
+        Map<String, ApplicationCommandData> discordCommands = gateway.getRestClient().getApplicationService().getGuildApplicationCommands(
+                getBotId().asLong(), guildId).collectMap(ApplicationCommandData::name).block();
 
         for (ApplicationCommandData data : discordCommands.values()) {
             System.out.println("Deleting command: " + data.name());
-            gateway.getRestClient()
-                    .getApplicationService()
-                    .deleteGuildApplicationCommand(getBotId().asLong(), guildId, data.id().asLong())
-                    .subscribe();
+            gateway.getRestClient().getApplicationService().deleteGuildApplicationCommand(getBotId().asLong(), guildId,
+                    data.id().asLong()).subscribe();
         }
     }
 
@@ -264,47 +242,31 @@ public class DiscordBotService {
      * com.oddlabs.matchserver.discord.DiscordBotService#commands} is registered with Discord.
      */
     private void registerCommands() {
-        gateway.getRestClient()
-                .getApplicationService()
-                .getGuildApplicationCommands(getBotId().asLong(), serverId)
-                .collectList()
-                .subscribe(
+        gateway.getRestClient().getApplicationService().getGuildApplicationCommands(getBotId().asLong(),
+                serverId).collectList().subscribe(
                         existingCommands -> {
                             for (DiscordCommand command : commands) {
-                                existingCommands.stream()
-                                        .filter(cmd -> cmd.name().equals(command.getCommandName()))
-                                        .findFirst()
-                                        .ifPresentOrElse(
-                                                cmd ->
-                                                        System.out.println(
-                                                                "Command already registered: "
-                                                                        + cmd.name()),
+                                existingCommands.stream().filter(cmd -> cmd.name().equals(
+                                        command.getCommandName())).findFirst().ifPresentOrElse(
+                                                cmd -> System.out.println(
+                                                        "Command already registered: " + cmd.name()),
                                                 () -> {
                                                     System.out.println(
-                                                            "Registering new command: "
-                                                                    + command.getCommandName());
-                                                    gateway.getRestClient()
-                                                            .getApplicationService()
-                                                            .createGuildApplicationCommand(
-                                                                    gateway.getRestClient()
-                                                                            .getApplicationId()
-                                                                            .block(),
-                                                                    serverId,
-                                                                    command.getCommand())
-                                                            .subscribe();
+                                                            "Registering new command: " + command.getCommandName());
+                                                    gateway.getRestClient().getApplicationService().createGuildApplicationCommand(
+                                                            gateway.getRestClient().getApplicationId().block(),
+                                                            serverId,
+                                                            command.getCommand()).subscribe();
                                                 });
                             }
                         });
     }
 
     public void createPingCommand() {
-        ApplicationCommandRequest pingCommand =
-                ApplicationCommandRequest.builder().name("ping").description("Pings").build();
+        ApplicationCommandRequest pingCommand = ApplicationCommandRequest.builder().name("ping").description(
+                "Pings").build();
         // Use your gateway field
-        gateway.getRestClient()
-                .getApplicationService()
-                .createGuildApplicationCommand(
-                        gateway.getRestClient().getApplicationId().block(), serverId, pingCommand)
-                .subscribe();
+        gateway.getRestClient().getApplicationService().createGuildApplicationCommand(
+                gateway.getRestClient().getApplicationId().block(), serverId, pingCommand).subscribe();
     }
 }

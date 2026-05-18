@@ -30,7 +30,8 @@ public final class Stun implements Magic {
 
     private final @NonNull Iterable<? extends Selectable<?>> target_list;
 
-    public Stun(float offset_x, float offset_y, float offset_z, float hit_radius, float stun_time_closest, float stun_time_farthest, @NonNull Unit src) {
+    public Stun(float offset_x, float offset_y, float offset_z, float hit_radius, float stun_time_closest,
+            float stun_time_farthest, @NonNull Unit src) {
         this.hit_radius = hit_radius;
         this.stun_time_closest = stun_time_closest;
         this.stun_time_farthest = stun_time_farthest;
@@ -51,13 +52,16 @@ public final class Stun implements Magic {
                 owner.getWorld().getRacesResources().getNoteTextures(),
                 owner.getWorld().getAnimationManagerGameTime());
 
-        var filter = new FindOccupantFilter<>(src.getPositionX(), src.getPositionY(), hit_radius, src, Selectable.genericClass());
+        var filter = new FindOccupantFilter<>(src.getPositionX(), src.getPositionY(), hit_radius, src,
+                Selectable.genericClass());
 //		FindOccupantFilter filter = new FindOccupantFilter(src.getPositionX(), src.getPositionY(), hit_radius, src, Unit.class);
         UnitGrid unit_grid = owner.getWorld().getUnitGrid();
-        unit_grid.scan(filter, UnitGrid.toGridCoordinate(src.getPositionX()), UnitGrid.toGridCoordinate(src.getPositionY()));
+        unit_grid.scan(filter, UnitGrid.toGridCoordinate(src.getPositionX()), UnitGrid.toGridCoordinate(
+                src.getPositionY()));
         target_list = filter.getResult();
 
-        sound = owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getStunSound(owner.getWorld().getRandom()), start_x, start_y, z,
+        sound = owner.getWorld().getAudio().newAudio(new AudioParameters<>(
+                owner.getWorld().getRacesResources().getStunSound(owner.getWorld().getRandom()), start_x, start_y, z,
                 AudioPlayer.AUDIO_RANK_MAGIC,
                 AudioPlayer.AUDIO_DISTANCE_MAGIC,
                 AudioPlayer.AUDIO_GAIN_STUN_LUR,

@@ -22,7 +22,9 @@ public final class SpriteInfo implements Serializable {
     private final String[][] textures;
     private final float[] clear_color;
 
-    public SpriteInfo(String[][] textures, short[] indices, float @NonNull [] vertices, float @NonNull [] normals, float @NonNull [] texcoords, float @Nullable [] texcoords2, byte[][] skin_names, float[][] skin_weights, float[] clear_color) {
+    public SpriteInfo(String[][] textures, short[] indices, float @NonNull [] vertices, float @NonNull [] normals,
+            float @NonNull [] texcoords, float @Nullable [] texcoords2, byte[][] skin_names, float[][] skin_weights,
+            float[] clear_color) {
         this.textures = textures;
         this.indices = indices;
         this.vertices = new ShortCompressedFloatArray(vertices, 3);

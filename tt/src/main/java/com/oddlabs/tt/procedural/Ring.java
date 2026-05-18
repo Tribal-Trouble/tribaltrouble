@@ -13,7 +13,8 @@ public final class Ring {
         SMOOTH
     }
 
-    public Ring(int width, int height, float @NonNull [] @NonNull [] gradient_list, @NonNull Interpolation interpolation) {
+    public Ring(int width, int height, float @NonNull [] @NonNull [] gradient_list,
+            @NonNull Interpolation interpolation) {
         var quarter = new Channel(width >> 1, height >> 1);
         float x_coord;
         float y_coord;
@@ -41,9 +42,11 @@ public final class Ring {
                     } else {
                         value = switch (interpolation) {
                             case LINEAR ->
-                                    Tools.interpolateLinear(gradient_list[index - 1][1], gradient_list[index][1], (radius - gradient_list[index - 1][0]) / (gradient_list[index][0] - gradient_list[index - 1][0]));
+                                Tools.interpolateLinear(gradient_list[index - 1][1], gradient_list[index][1],
+                                        (radius - gradient_list[index - 1][0]) / (gradient_list[index][0] - gradient_list[index - 1][0]));
                             case SMOOTH ->
-                                    Tools.interpolateSmooth(gradient_list[index - 1][1], gradient_list[index][1], (radius - gradient_list[index - 1][0]) / (gradient_list[index][0] - gradient_list[index - 1][0]));
+                                Tools.interpolateSmooth(gradient_list[index - 1][1], gradient_list[index][1],
+                                        (radius - gradient_list[index - 1][0]) / (gradient_list[index][0] - gradient_list[index - 1][0]));
                         };
                     }
                 }

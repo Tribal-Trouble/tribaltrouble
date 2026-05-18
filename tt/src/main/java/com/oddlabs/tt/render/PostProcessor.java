@@ -39,11 +39,7 @@ public final class PostProcessor implements AutoCloseable {
         this.vao = new VertexArray();
         this.vao.bind();
 
-        float[] quadVertices = {
-                -1.0f, -1.0f,
-                1.0f, -1.0f,
-                -1.0f, 1.0f,
-                1.0f, 1.0f
+        float[] quadVertices = {-1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f
         };
         FloatBuffer buffer = BufferUtils.createFloatBuffer(quadVertices.length).put(quadVertices).flip();
         this.quadVBO = new FloatVBO(GL15.GL_STATIC_DRAW, buffer);
@@ -73,7 +69,8 @@ public final class PostProcessor implements AutoCloseable {
         sceneFBO.unbind();
     }
 
-    public void renderComposite(@NonNull RenderContext context, @NonNull Consumer<@NonNull RenderContext> guiRenderCallback, boolean suppressTeamHighlight) {
+    public void renderComposite(@NonNull RenderContext context,
+            @NonNull Consumer<@NonNull RenderContext> guiRenderCallback, boolean suppressTeamHighlight) {
         // 1. Render GUI into the Scene FBO (on top of the 3D scene)
         bindSceneFBO();
 
@@ -93,16 +90,17 @@ public final class PostProcessor implements AutoCloseable {
         GL11.glViewport(0, 0, currentWidth, currentHeight);
         context.clear(true, true);
 
-        try (var _ = shader.use();
-             var _ = context.withDepthMode(DepthMode.NONE);
-             var _ = context.withCullMode(CullMode.NONE)) {
+        try (var _ = shader.use(); var _ = context.withDepthMode(DepthMode.NONE); var _ = context.withCullMode(
+                CullMode.NONE)) {
 
             Settings settings = Settings.getSettings();
             shader.setUniform(PostProcessShader.Uniforms.CVD_MODE, settings.cvd_mode);
             shader.setUniform(PostProcessShader.Uniforms.CVD_INTENSITY, settings.cvd_intensity);
-            shader.setUniform(PostProcessShader.Uniforms.HIGH_CONTRAST, suppressTeamHighlight ? false : settings.high_contrast);
+            shader.setUniform(PostProcessShader.Uniforms.HIGH_CONTRAST,
+                    suppressTeamHighlight ? false : settings.high_contrast);
             shader.setUniform(PostProcessShader.Uniforms.CONTRAST_INTENSITY, settings.contrast_intensity);
-            shader.setUniform(PostProcessShader.Uniforms.TEAM_STENCIL, suppressTeamHighlight ? false : settings.team_stencil);
+            shader.setUniform(PostProcessShader.Uniforms.TEAM_STENCIL,
+                    suppressTeamHighlight ? false : settings.team_stencil);
             shader.setUniform(PostProcessShader.Uniforms.SCENE_TEXTURE, 0);
             shader.setUniform(PostProcessShader.Uniforms.MASK_TEXTURE, 1);
 

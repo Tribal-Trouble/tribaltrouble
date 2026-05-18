@@ -29,7 +29,8 @@ public final class StackTraceDeterministic extends Deterministic {
         int stack_trace_hash = getTraceId();
         int old_stack_trace_hash = stack_deterministic.log(stack_trace_hash);
         if (old_stack_trace_hash != stack_trace_hash)
-            throw new Error("old_stack_trace_hash = " + old_stack_trace_hash + " | stack_trace_hash = " + stack_trace_hash);
+            throw new Error(
+                    "old_stack_trace_hash = " + old_stack_trace_hash + " | stack_trace_hash = " + stack_trace_hash);
     }
 
     @Override

@@ -76,11 +76,13 @@ public final class TextureFile extends File<Texture> {
         this(location, internal_format, min_filter, mag_filter, wrap_s, wrap_t, Globals.NO_MIPMAP_CUTOFF, 10000, 1.0f);
     }
 
-    public TextureFile(String location, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t, int max_mipmap_level, int base_fadeout_level, float fadeout_factor) {
+    public TextureFile(String location, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t,
+            int max_mipmap_level, int base_fadeout_level, float fadeout_factor) {
         this(location, internal_format, min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level, base_fadeout_level, fadeout_factor, false);
     }
 
-    public TextureFile(String location, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t, int max_mipmap_level, int base_fadeout_level, float fadeout_factor, boolean max_alpha) {
+    public TextureFile(String location, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t,
+            int max_mipmap_level, int base_fadeout_level, float fadeout_factor, boolean max_alpha) {
         super(locateTexture(location));
         this.is_dxt = getURL().toString().endsWith(".dds");
         this.internal_format = internal_format;
@@ -95,13 +97,10 @@ public final class TextureFile extends File<Texture> {
     }
 
     private static @NonNull URI locateTexture(String location) {
-        return Arrays.stream(EXTENSIONS)
-                .map(ext -> locate(location + ext))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .findFirst()
-                .orElseThrow(() -> {
-                    String msg = "Failed to locate texture: " + location + " (tried extensions: " + Arrays.toString(EXTENSIONS) + ")";
+        return Arrays.stream(EXTENSIONS).map(ext -> locate(location + ext)).filter(Optional::isPresent).map(
+                Optional::get).findFirst().orElseThrow(() -> {
+                    String msg = "Failed to locate texture: " + location + " (tried extensions: " + Arrays.toString(
+                            EXTENSIONS) + ")";
                     logger.log(Level.SEVERE, msg);
                     return new IllegalArgumentException(msg);
                 });
@@ -158,7 +157,8 @@ public final class TextureFile extends File<Texture> {
                 case DXTImage.FOURCC_DXT1 -> EXTTextureCompressionS3TC.GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
                 case DXTImage.FOURCC_DXT5 -> EXTTextureCompressionS3TC.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
                 default -> {
-                    String msg = "Unsupported DXT format (FourCC): " + Integer.toHexString(getDXTImage().getFourCC()) + " for texture: " + getURL();
+                    String msg = "Unsupported DXT format (FourCC): " + Integer.toHexString(
+                            getDXTImage().getFourCC()) + " for texture: " + getURL();
                     logger.severe(msg);
                     throw new IllegalArgumentException(msg);
                 }

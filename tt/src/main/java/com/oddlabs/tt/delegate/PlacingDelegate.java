@@ -58,11 +58,13 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
         UnitGrid unit_grid = getViewer().getWorld().getUnitGrid();
         int placing_grid_x = UnitGrid.toGridCoordinate(landscape_hit.x);
         int placing_grid_y = UnitGrid.toGridCoordinate(landscape_hit.y);
-        if (Building.isPlacingLegal(getViewer().getWorld().getUnitGrid(), getTemplate(), placing_grid_x, placing_grid_y)) {
+        if (Building.isPlacingLegal(getViewer().getWorld().getUnitGrid(), getTemplate(), placing_grid_x,
+                placing_grid_y)) {
             var peons = getViewer().getSelection().getCurrentSelection().filter(Abilities.BUILD);
             if (peons.length > 0) {
                 logger.info("placeObject: Placing building at " + placing_grid_x + "," + placing_grid_y);
-                getViewer().getPeerHub().getPlayerInterface().placeBuilding(peons, building_index, placing_grid_x, placing_grid_y);
+                getViewer().getPeerHub().getPlayerInterface().placeBuilding(peons, building_index, placing_grid_x,
+                        placing_grid_y);
             } else {
                 logger.info("placeObject: No peons selected");
             }
@@ -104,7 +106,8 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
     }
 
     @Override
-    public void render3D(@NonNull LandscapeRenderer renderer, @NonNull RenderQueues queues, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public void render3D(@NonNull LandscapeRenderer renderer, @NonNull RenderQueues queues, @NonNull CameraState state,
+            @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         if (!getViewer().getPicker().pickLocation(getCamera().getState(), landscape_hit)) return;
         UnitGrid unit_grid = getViewer().getWorld().getUnitGrid();
         int placing_grid_x = UnitGrid.toGridCoordinate(landscape_hit.x) - (getTemplate().getPlacingSize() - 1);
@@ -120,7 +123,8 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
         List<LandscapeTarget> target_list = filter.getResult();
 
         RenderContext context = Renderer.getRenderer().getRenderContext();
-        site_renderer.renderSites(context, renderer, modelViewStack, projectionStack, target_list, center_x, center_y, 2 * GRID_RADIUS);
+        site_renderer.renderSites(context, renderer, modelViewStack, projectionStack, target_list, center_x, center_y,
+                2 * GRID_RADIUS);
         com.oddlabs.tt.util.GLUtils.checkGLError("Placing: After renderSites");
 
         SpriteRenderer built_renderer = queues.getRenderer(getTemplate().getBuiltRenderer());
@@ -146,17 +150,15 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
 
             try (var _ = context.withCullMode(CullMode.BACK)) {
                 // Pass 1: Depth Prime (Write Depth, No Color)
-                try (var _ = context.withDepthMode(DepthMode.READ_WRITE);
-                     var _ = context.withColorMask(false, false, false, false);
-                     var _ = context.withBlendMode(BlendMode.NONE)) {
+                try (var _ = context.withDepthMode(DepthMode.READ_WRITE); var _ = context.withColorMask(false, false,
+                        false, false); var _ = context.withBlendMode(BlendMode.NONE)) {
 
                     sprite.renderShader(spriteShader, 0, 0f, built_renderer.getSpriteList());
                 }
 
                 // Pass 2: Color Render (No Depth Write, Equal Depth)
-                try (var _ = context.withDepthMode(DepthMode.READ_ONLY);
-                     var _ = context.withColorMask(true, true, true, true);
-                     var _ = context.withBlendMode(BlendMode.ALPHA)) {
+                try (var _ = context.withDepthMode(DepthMode.READ_ONLY); var _ = context.withColorMask(true, true, true,
+                        true); var _ = context.withBlendMode(BlendMode.ALPHA)) {
 
                     sprite.renderShader(spriteShader, 0, 0f, built_renderer.getSpriteList());
                 }

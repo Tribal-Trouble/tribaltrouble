@@ -49,20 +49,23 @@ final class RenderState implements ElementVisitor {
     private boolean visible_override;
     private CameraState camera;
 
-    public RenderState(@NonNull Player local_player, @NonNull SpriteSorter sprite_sorter, @NonNull RenderQueues render_queues, @NonNull Picker picker, Selection selection) {
+    public RenderState(@NonNull Player local_player, @NonNull SpriteSorter sprite_sorter,
+            @NonNull RenderQueues render_queues, @NonNull Picker picker, Selection selection) {
         this.local_player = local_player;
         this.selection = selection;
         this.picker = picker;
         this.sprite_sorter = sprite_sorter;
         this.render_queues = render_queues;
-        ShadowListKey key = render_queues.registerRespondRenderer(new GeneratorRing(LandscapeTargetRespond.SIZE, new float[][]{{0.40f, 0f}, {0.41f, 1f}, {0.48f, 1f}, {0.49f, 0f}}));
+        ShadowListKey key = render_queues.registerRespondRenderer(new GeneratorRing(LandscapeTargetRespond.SIZE,
+                new float[][]{{0.40f, 0f}, {0.41f, 1f}, {0.48f, 1f}, {0.49f, 0f}}));
         this.target_respond_renderer = (TargetRespondRenderer) render_queues.getShadowRenderer(key);
         this.default_shadow_renderer = (SelectableShadowRenderer) render_queues.getShadowRenderer(
                 render_queues.registerSelectableShadowList(RacesResources.DEFAULT_SHADOW_DESC));
         this.render_state_cache = new RenderStateCache<>(() -> new ElementRenderState<>(RenderState.this));
     }
 
-    @NonNull Player getLocalPlayer() {
+    @NonNull
+    Player getLocalPlayer() {
         return local_player;
     }
 
@@ -70,11 +73,13 @@ final class RenderState implements ElementVisitor {
         return picker.getRespondManager().isResponding(target);
     }
 
-    @NonNull RenderQueues getRenderQueues() {
+    @NonNull
+    RenderQueues getRenderQueues() {
         return render_queues;
     }
 
-    @NonNull MatrixStack getModelViewStack() {
+    @NonNull
+    MatrixStack getModelViewStack() {
         return model_view_stack;
     }
 
@@ -111,9 +116,11 @@ final class RenderState implements ElementVisitor {
             Unit unit = render_state.model;
             super.markDetailPolygon(render_state, detail);
             UnitSupplyContainer supply_container = unit.getSupplyContainer();
-            if (!render_state.render_state.isPicking() && unit.getAbilities().hasAbilities(Abilities.BUILD) && supply_container.getSupplyType() != null) {
+            if (!render_state.render_state.isPicking() && unit.getAbilities().hasAbilities(Abilities.BUILD)
+                    && supply_container.getSupplyType() != null) {
                 if (supply_container.getNumSupplies() > 0) {
-                    SpriteRenderer supply_sprite = render_state.getRenderer(supply_container.getSupplySpriteRenderer(supply_container.getSupplyType()));
+                    SpriteRenderer supply_sprite = render_state.getRenderer(supply_container.getSupplySpriteRenderer(
+                            supply_container.getSupplyType()));
                     supply_sprite.addToRenderList(detail, render_state, false);
                 }
             }
@@ -123,20 +130,23 @@ final class RenderState implements ElementVisitor {
     @Override
     public void visitUnit(final @NonNull Unit unit) {
         float z_offset = getVisuallyCorrectHeight(unit.getPositionX(), unit.getPositionY()) + unit.getOffsetZ();
-        visitSelectable(unit_visitor, unit, z_offset, unit.getTemplate().getSelectionRadius(), unit.getTemplate().getSelectionHeight());
+        visitSelectable(unit_visitor, unit, z_offset, unit.getTemplate().getSelectionRadius(),
+                unit.getTemplate().getSelectionHeight());
     }
 
     private <M extends Model> @NonNull ElementRenderState<M> doGetCachedState() {
         return (ElementRenderState<M>) render_state_cache.get();
     }
 
-    private @NonNull <M extends Model> ModelState<M> getCachedState(@NonNull ModelVisitor<M> visitor, @NonNull M model) {
+    private @NonNull <M extends Model> ModelState<M> getCachedState(@NonNull ModelVisitor<M> visitor,
+            @NonNull M model) {
         ElementRenderState<M> state = doGetCachedState();
         state.setup(visitor, model);
         return state;
     }
 
-    private @NonNull <M extends Model> ModelState<M> getCachedState(@NonNull ModelVisitor<M> visitor, @NonNull M model, float dist_squared) {
+    private @NonNull <M extends Model> ModelState<M> getCachedState(@NonNull ModelVisitor<M> visitor, @NonNull M model,
+            float dist_squared) {
         ElementRenderState<M> state = doGetCachedState();
         state.setup(visitor, model, dist_squared);
         return state;
@@ -144,8 +154,11 @@ final class RenderState implements ElementVisitor {
 
     private static final BoundingBox picking_selection_box = new BoundingBox();
 
-    private static boolean pickingInFrustum(@NonNull Selectable<?> selectable, float[][] frustum, float z_offset, float selection_radius, float selection_height) {
-        picking_selection_box.setBounds(-selection_radius + selectable.getPositionX(), selection_radius + selectable.getPositionX(), -selection_radius + selectable.getPositionY(), selection_radius + selectable.getPositionY(), z_offset, z_offset + selection_height);
+    private static boolean pickingInFrustum(@NonNull Selectable<?> selectable, float[][] frustum, float z_offset,
+            float selection_radius, float selection_height) {
+        picking_selection_box.setBounds(-selection_radius + selectable.getPositionX(),
+                selection_radius + selectable.getPositionX(), -selection_radius + selectable.getPositionY(),
+                selection_radius + selectable.getPositionY(), z_offset, z_offset + selection_height);
         return RenderTools.inFrustum(picking_selection_box, frustum) != RenderTools.FrustumIntersection.ALL_OUTSIDE;
     }
 
@@ -157,15 +170,19 @@ final class RenderState implements ElementVisitor {
         return selection.getCurrentSelection().contains(selectable);
     }
 
-    private <S extends Selectable<?>> void visitSelectable(@NonNull ModelVisitor<S> visitor, @NonNull S selectable, float z_offset, float selection_radius, float selection_height) {
-        boolean in_view = !picking || (selectable.isEnabled() && (visible_override || pickingInFrustum(selectable, camera.getFrustum(), z_offset, selection_radius, selection_height)));
+    private <S extends Selectable<?>> void visitSelectable(@NonNull ModelVisitor<S> visitor, @NonNull S selectable,
+            float z_offset, float selection_radius, float selection_height) {
+        boolean in_view = !picking || (selectable.isEnabled() && (visible_override || pickingInFrustum(selectable,
+                camera.getFrustum(), z_offset, selection_radius, selection_height)));
         if (in_view) {
             Player owner = selectable.getOwnerNoCheck();
-            boolean point_on_map = !local_player.isEnemy(owner) || (!owner.teamHasBuilding() && PeerHub.getFreeQuitTimeLeft(local_player.getWorld()) < 0f);
+            boolean point_on_map = !local_player.isEnemy(owner) || (!owner.teamHasBuilding()
+                    && PeerHub.getFreeQuitTimeLeft(local_player.getWorld()) < 0f);
             ModelState<S> state = getCachedState(visitor, selectable, z_offset);
             int sort_status = addToRenderList(state, point_on_map);
             if (!picking && selectable.isEnabled() && sort_status == SpriteSorter.DETAIL_POLYGON) {
-                SelectableShadowRenderer shadow_renderer = (SelectableShadowRenderer) render_queues.getShadowRenderer(selectable.getTemplate().getSelectableShadowRenderer());
+                SelectableShadowRenderer shadow_renderer = (SelectableShadowRenderer) render_queues.getShadowRenderer(
+                        selectable.getTemplate().getSelectableShadowRenderer());
                 if (isHovered(selectable) || isSelected(selectable)) {
                     shadow_renderer.addToSelectionList(state);
                 } else {
@@ -201,7 +218,8 @@ final class RenderState implements ElementVisitor {
 
     @Override
     public void visitBuilding(final @NonNull Building building) {
-        visitSelectable(building_visitor, building, building.getPositionZ(), getBuildingSelectionRadius(building), getBuildingSelectionHeight(building));
+        visitSelectable(building_visitor, building, building.getPositionZ(), getBuildingSelectionRadius(building),
+                getBuildingSelectionHeight(building));
     }
 
     int addToRenderList(@NonNull LODObject model) {
@@ -240,8 +258,8 @@ final class RenderState implements ElementVisitor {
         @Override
         public void getTransform(@NonNull ElementRenderState<SupplyModel> render_state, @NonNull Matrix4f dest) {
             SupplyModel model = render_state.getModel();
-            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ())
-                    .rotate((float) Math.toRadians(model.getRotation()), 0f, 0f, 1f);
+            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ()).rotate(
+                    (float) Math.toRadians(model.getRotation()), 0f, 0f, 1f);
         }
     };
 
@@ -255,8 +273,7 @@ final class RenderState implements ElementVisitor {
         public void getTransform(@NonNull ElementRenderState<RubberSupply> render_state, @NonNull Matrix4f dest) {
             Model model = render_state.model;
             float angle = (float) Math.atan2(model.getDirectionY(), model.getDirectionX());
-            dest.translation(model.getPositionX(), model.getPositionY(), render_state.f)
-                    .rotate(angle, 0f, 0f, 1f);
+            dest.translation(model.getPositionX(), model.getPositionY(), render_state.f).rotate(angle, 0f, 0f, 1f);
         }
     };
 
@@ -290,8 +307,8 @@ final class RenderState implements ElementVisitor {
         public void getTransform(@NonNull ElementRenderState<Plants> render_state, @NonNull Matrix4f dest) {
             Plants plants = render_state.getModel();
             float angle = (float) Math.atan2(plants.getDirectionY(), plants.getDirectionX());
-            dest.translation(plants.getPositionX(), plants.getPositionY(), plants.getPositionZ())
-                    .rotate(angle, 0f, 0f, 1f);
+            dest.translation(plants.getPositionX(), plants.getPositionY(), plants.getPositionZ()).rotate(angle, 0f, 0f,
+                    1f);
 
             float dist_squared = render_state.f;
             if (dist_squared > START_FADE_DIST * START_FADE_DIST) {
@@ -305,7 +322,8 @@ final class RenderState implements ElementVisitor {
     @Override
     public void visitPlants(final @NonNull Plants plants) {
         if (!picking && Globals.draw_plants) {
-            float camera_dist_sqr = RenderTools.getEyeDistanceSquared(plants, camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ());
+            float camera_dist_sqr = RenderTools.getEyeDistanceSquared(plants, camera.getCurrentX(),
+                    camera.getCurrentY(), camera.getCurrentZ());
             if (camera_dist_sqr <= PLANTS_CUT_DIST * PLANTS_CUT_DIST)
                 addToRenderList(getCachedState(plants_model_visitor, plants, camera_dist_sqr));
         }
@@ -313,13 +331,13 @@ final class RenderState implements ElementVisitor {
 
     private static final ModelVisitor<DirectedThrowingWeapon> directed_weapon_model_visitor = new WhiteModelVisitor<>() {
         @Override
-        public void getTransform(@NonNull ElementRenderState<DirectedThrowingWeapon> render_state, @NonNull Matrix4f dest) {
+        public void getTransform(@NonNull ElementRenderState<DirectedThrowingWeapon> render_state,
+                @NonNull Matrix4f dest) {
             DirectedThrowingWeapon model = render_state.getModel();
             float yawRad = (float) Math.atan2(model.getDirectionY(), model.getDirectionX());
             float pitchRad = (float) Math.toRadians(model.getAngle());
-            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ())
-                    .rotate(yawRad, 0f, 0f, 1f)
-                    .rotate(-pitchRad, 0f, 1f, 0f);
+            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ()).rotate(yawRad, 0f, 0f,
+                    1f).rotate(-pitchRad, 0f, 1f, 0f);
         }
     };
 
@@ -332,13 +350,13 @@ final class RenderState implements ElementVisitor {
 
     private static final ModelVisitor<RotatingThrowingWeapon> rotating_weapon_model_visitor = new WhiteModelVisitor<>() {
         @Override
-        public void getTransform(@NonNull ElementRenderState<RotatingThrowingWeapon> render_state, @NonNull Matrix4f dest) {
+        public void getTransform(@NonNull ElementRenderState<RotatingThrowingWeapon> render_state,
+                @NonNull Matrix4f dest) {
             RotatingThrowingWeapon model = render_state.getModel();
             float yawRad = (float) Math.atan2(model.getDirectionY(), model.getDirectionX());
             float spinRad = (float) Math.toRadians(model.getAngle());
-            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ())
-                    .rotate(yawRad, 0f, 0f, 1f)
-                    .rotate(spinRad, 0f, 1f, 0f);
+            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ()).rotate(yawRad, 0f, 0f,
+                    1f).rotate(spinRad, 0f, 1f, 0f);
         }
     };
 

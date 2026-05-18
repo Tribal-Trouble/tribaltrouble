@@ -17,8 +17,7 @@ import java.util.logging.Logger;
 public final class SteamAchievementService {
     private static final Logger logger = MatchmakingServer.getLogger();
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String STEAM_API_URL =
-            "https://partner.steam-api.com/ISteamUserStats/SetUserStatsForGame/v1/";
+    private static final String STEAM_API_URL = "https://partner.steam-api.com/ISteamUserStats/SetUserStatsForGame/v1/";
 
     private SteamAchievementService() {
     }
@@ -52,16 +51,20 @@ public final class SteamAchievementService {
             postData.append("&appid=").append(appId);
             postData.append("&count=4");
 
-            postData.append("&name[0]=").append(URLEncoder.encode(SteamStatConstants.MP_TOTAL_WINS, StandardCharsets.UTF_8));
+            postData.append("&name[0]=").append(URLEncoder.encode(SteamStatConstants.MP_TOTAL_WINS,
+                    StandardCharsets.UTF_8));
             postData.append("&value[0]=").append(totalWins);
 
-            postData.append("&name[1]=").append(URLEncoder.encode(SteamStatConstants.MP_TOTAL_LOSSES, StandardCharsets.UTF_8));
+            postData.append("&name[1]=").append(URLEncoder.encode(SteamStatConstants.MP_TOTAL_LOSSES,
+                    StandardCharsets.UTF_8));
             postData.append("&value[1]=").append(totalLosses);
 
-            postData.append("&name[2]=").append(URLEncoder.encode(SteamStatConstants.MP_CURRENT_WIN_STREAK, StandardCharsets.UTF_8));
+            postData.append("&name[2]=").append(URLEncoder.encode(SteamStatConstants.MP_CURRENT_WIN_STREAK,
+                    StandardCharsets.UTF_8));
             postData.append("&value[2]=").append(currentStreak);
 
-            postData.append("&name[3]=").append(URLEncoder.encode(SteamStatConstants.MP_BEST_WIN_STREAK, StandardCharsets.UTF_8));
+            postData.append("&name[3]=").append(URLEncoder.encode(SteamStatConstants.MP_BEST_WIN_STREAK,
+                    StandardCharsets.UTF_8));
             postData.append("&value[3]=").append(bestStreak);
 
             byte[] postDataBytes = postData.toString().getBytes(StandardCharsets.UTF_8);

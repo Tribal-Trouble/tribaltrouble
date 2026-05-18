@@ -21,7 +21,8 @@ final class RenderStateCache<RS extends LODObject> {
         current_index = 0;
     }
 
-    @NonNull RS get() {
+    @NonNull
+    RS get() {
         if (current_index == cache.size()) {
             cache.add(factory.create());
         }

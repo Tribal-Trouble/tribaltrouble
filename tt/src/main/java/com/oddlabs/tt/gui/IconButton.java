@@ -29,11 +29,8 @@ public class IconButton extends ButtonObject {
 
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
-        ModeIconQuads.Mode skinMode = isDisabled()
-                ? ModeIconQuads.Mode.DISABLED
-                : isHovered() || isActive()
-                  ? ModeIconQuads.Mode.ACTIVE
-                  : ModeIconQuads.Mode.NORMAL;
+        ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isHovered()
+                || isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
 
         renderer.drawModeIcon(icon, skinMode, 0, 0);
     }

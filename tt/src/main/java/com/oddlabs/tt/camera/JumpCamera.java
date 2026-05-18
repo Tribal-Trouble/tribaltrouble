@@ -26,7 +26,8 @@ public final class JumpCamera extends Camera {
         this(delegate, old_camera, x, y, DEFAULT_METERS_PER_SECOND, DEFAULT_MAX_SECONDS);
     }
 
-    public JumpCamera(@NonNull JumpDelegate delegate, @NonNull GameCamera old_camera, float x, float y, float meters_per_second, float max_seconds) {
+    public JumpCamera(@NonNull JumpDelegate delegate, @NonNull GameCamera old_camera, float x, float y,
+            float meters_per_second, float max_seconds) {
         super(old_camera.getHeightMap(), old_camera.getState());
         this.delegate = delegate;
         delegate.getViewer().getPicker().pickRotate(old_camera);
@@ -68,6 +69,7 @@ public final class JumpCamera extends Camera {
         temp_z += z_speed * t;
         getState().setTargetZ(temp_z);
         z_speed += z_accel * t;
-        bounce(getState().getTargetX(), getState().getTargetY(), getState().getTargetZ(), delegate.getGUIRoot().getWidth(), delegate.getGUIRoot().getHeight());
+        bounce(getState().getTargetX(), getState().getTargetY(), getState().getTargetZ(),
+                delegate.getGUIRoot().getWidth(), delegate.getGUIRoot().getHeight());
     }
 }

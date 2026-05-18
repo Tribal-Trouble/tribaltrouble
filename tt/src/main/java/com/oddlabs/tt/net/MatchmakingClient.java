@@ -56,7 +56,8 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
     private @Nullable MatchmakingServerLoginInterface matchmaking_login_interface;
     private @Nullable TunnelledConnectionListener tunnelled_listener;
     private TunnelAddress local_address;
-    private String username = Utils.getBundleString(ResourceBundle.getBundle(MatchmakingClient.class.getName()), "player");
+    private String username = Utils.getBundleString(ResourceBundle.getBundle(MatchmakingClient.class.getName()),
+            "player");
     private @Nullable Profile active_profile = null;
     private int state = STATE_NOT_CONNECTED;
     private boolean update_allowed;
@@ -99,7 +100,8 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
             this.username = username;
             this.local_address = address;
             this.matchmaking_login_interface = null;
-            this.matchmaking_interface = (MatchmakingServerInterface) ARMIEvent.createProxy(conn.getWrappedConnectionAndShutdown(), MatchmakingServerInterface.class);
+            this.matchmaking_interface = (MatchmakingServerInterface) ARMIEvent.createProxy(
+                    conn.getWrappedConnectionAndShutdown(), MatchmakingServerInterface.class);
             state = STATE_LOGGED_IN;
             MatchmakingListener listener = Network.getMatchmakingListener();
             listener.loggedIn();
@@ -293,8 +295,11 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
     private void open(@NonNull NetworkSelector network) {
         close();
         this.network = network;
-        this.conn = new SecureConnection(network.getDeterministic(), new Connection(network, Settings.getSettings().getMatchmakingAddress(), MatchmakingServerInterface.MATCHMAKING_SERVER_PORT, this), null);
-        this.matchmaking_login_interface = (MatchmakingServerLoginInterface) ARMIEvent.createProxy(conn, MatchmakingServerLoginInterface.class);
+        this.conn = new SecureConnection(network.getDeterministic(), new Connection(network,
+                Settings.getSettings().getMatchmakingAddress(), MatchmakingServerInterface.MATCHMAKING_SERVER_PORT,
+                this), null);
+        this.matchmaking_login_interface = (MatchmakingServerLoginInterface) ARMIEvent.createProxy(conn,
+                MatchmakingServerLoginInterface.class);
     }
 
     public void login(@NonNull NetworkSelector network, Login login, LoginDetails login_details) {
@@ -336,9 +341,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
             var bais = new java.io.ByteArrayInputStream(world_params_data);
             var ois = new java.io.ObjectInputStream(bais);
             ois.setObjectInputFilter(java.io.ObjectInputFilter.Config.createFilter(
-                    "com.oddlabs.**;"
-                            + "java.lang.*;java.net.*;"
-                            + "!*"));
+                    "com.oddlabs.**;" + "java.lang.*;java.net.*;" + "!*"));
             var generator = (com.oddlabs.tt.resource.WorldGenerator) ois.readObject();
             var world_params = (com.oddlabs.tt.landscape.WorldParameters) ois.readObject();
             var player_slots = (PlayerSlot[]) ois.readObject();
@@ -458,7 +461,8 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
     }
 
     @Override
-    public void tunnelOpened(@NonNull HostSequenceID from, InetAddress inet_from, InetAddress local_inet_from, Profile other) {
+    public void tunnelOpened(@NonNull HostSequenceID from, InetAddress inet_from, InetAddress local_inet_from,
+            Profile other) {
         if (tunnelled_listener != null) {
             tunnelled_listener.requestTunnelledConnection(from, inet_from, local_inet_from, other);
         } else

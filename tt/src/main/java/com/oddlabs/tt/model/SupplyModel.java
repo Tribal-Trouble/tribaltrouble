@@ -25,7 +25,8 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
     private int hit_counter = 0;
 
     @SuppressWarnings("unchecked")
-    public SupplyModel(@NonNull World world, @NonNull SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, int num_supplies, boolean increase_count) {
+    public SupplyModel(@NonNull World world, @NonNull SpriteKey sprite_renderer, float size, int grid_x, int grid_y,
+            float x, float y, float rotation, int num_supplies, boolean increase_count) {
         super(world);
         this.sprite_renderer = sprite_renderer;
         this.size = size;

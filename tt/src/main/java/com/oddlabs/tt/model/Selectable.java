@@ -122,7 +122,8 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
         return isCloseEnough(getUnitGrid(), max_dist, getGridX(), getGridY(), target);
     }
 
-    public static boolean isCloseEnough(@NonNull UnitGrid unit_grid, float max_dist, int grid_x, int grid_y, @NonNull Target target) {
+    public static boolean isCloseEnough(@NonNull UnitGrid unit_grid, float max_dist, int grid_x, int grid_y,
+            @NonNull Target target) {
         if (max_dist == 0f && target instanceof Occupant occupant) {
             return isAdjacent(unit_grid, grid_x, grid_y, occupant);
         } else {
@@ -167,7 +168,7 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
         decide();
     }
 
-    public final void pushControllers(@NonNull Controller @NonNull ... controllers) {
+    public final void pushControllers(@NonNull Controller @NonNull... controllers) {
         assert !isDead();
         controller_stack.addAll(Arrays.asList(controllers));
         decide();
@@ -232,7 +233,8 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
 
     public final void setGridPosition(int grid_x, int grid_y) {
         assert !isDead();
-        assert owner.getWorld().getHeightMap().isGridInside(grid_x, grid_y) : grid_x + " " + grid_y + " " + this.grid_x + " " + this.grid_y;
+        assert owner.getWorld().getHeightMap().isGridInside(grid_x,
+                grid_y) : grid_x + " " + grid_y + " " + this.grid_x + " " + this.grid_y;
         this.grid_x = grid_x;
         this.grid_y = grid_y;
     }
@@ -253,10 +255,10 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
 
     @Override
     public final void updateChecksum(@NonNull StateChecksum checksum) {
-/*		checksum.update(getGridX());
-		checksum.update(getGridY());
-		checksum.update(getPositionX());
-		checksum.update(getPositionY());*/
+        /*		checksum.update(getGridX());
+        		checksum.update(getGridY());
+        		checksum.update(getPositionX());
+        		checksum.update(getPositionY());*/
     }
 
     protected final void disable() {
@@ -296,7 +298,8 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
         return new Selectable[length];
     }
 
-    public static <T extends Template> Selectable<T> @NonNull [] newArray(@NonNull Selectable<T> @NonNull ... selectables) {
+    public static <T extends Template> Selectable<T> @NonNull [] newArray(
+            @NonNull Selectable<T> @NonNull... selectables) {
         return selectables;
     }
 }

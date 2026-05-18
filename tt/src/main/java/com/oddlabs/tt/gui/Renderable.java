@@ -112,14 +112,16 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
     }
 
     public final void render(@NonNull GUIRenderer renderer) {
-        render(renderer, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        render(renderer, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY,
+                Float.POSITIVE_INFINITY);
     }
 
     /**
      * Render the component and children first applying appropriate clipping, transformation and setting the drawing
      * origin to relative (0,0).
      */
-    protected void render(@NonNull GUIRenderer renderer, float clip_left, float clip_right, float clip_bottom, float clip_top) {
+    protected void render(@NonNull GUIRenderer renderer, float clip_left, float clip_right, float clip_bottom,
+            float clip_top) {
         if (this instanceof Clipped) {
             IntBuffer scissor_box;
             if (GL11.glIsEnabled(GL11.GL_SCISSOR_TEST)) {
@@ -148,7 +150,8 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
         }
     }
 
-    private void renderClipped(@NonNull GUIRenderer renderer, float clip_left, float clip_right, float clip_bottom, float clip_top) {
+    private void renderClipped(@NonNull GUIRenderer renderer, float clip_left, float clip_right, float clip_bottom,
+            float clip_top) {
         clip_left = Math.max(transformX(clip_left), 0);
         clip_right = Math.min(transformX(clip_right), width);
         clip_bottom = Math.max(transformY(clip_bottom), 0);

@@ -36,7 +36,8 @@ public final class FirstPersonCamera extends Camera {
         var inputManager = Renderer.getLocalInput().getInputManager();
         if (inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !inputManager.isActive(GameAction.CAMERA_PAN_RIGHT))
             scrolling_x = -1f;
-        else if (inputManager.isActive(GameAction.CAMERA_PAN_RIGHT) && !inputManager.isActive(GameAction.CAMERA_PAN_LEFT))
+        else if (inputManager.isActive(GameAction.CAMERA_PAN_RIGHT) && !inputManager.isActive(
+                GameAction.CAMERA_PAN_LEFT))
             scrolling_x = 1f;
 
         if (inputManager.isActive(GameAction.CAMERA_PAN_DOWN) && !inputManager.isActive(GameAction.CAMERA_PAN_UP))

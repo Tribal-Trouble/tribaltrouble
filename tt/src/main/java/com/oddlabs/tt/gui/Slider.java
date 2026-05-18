@@ -22,7 +22,8 @@ public final class Slider extends GUIObject {
 
     public Slider(int width, int min, int max, int init_value) {
         cardinality = max - min + 1;
-        assert cardinality > 0 && max >= init_value && init_value >= min : "Invalid values. cardinality = " + cardinality + " | max = " + max + " | min = " + min + " | init_value = " + init_value;
+        assert cardinality > 0 && max >= init_value
+                && init_value >= min : "Invalid values. cardinality = " + cardinality + " | max = " + max + " | min = " + min + " | init_value = " + init_value;
         this.min = min;
         left_offset = Skin.getSkin().getSliderData().leftOffset();
         int right_offset = Skin.getSkin().getSliderData().rightOffset();
@@ -51,8 +52,8 @@ public final class Slider extends GUIObject {
 
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
-        Skin.getSkin().getSliderData().slider()
-                .render(renderer, 0, 0, getWidth(), isDisabled() ? ModeIconQuads.Mode.DISABLED : ModeIconQuads.Mode.NORMAL);
+        Skin.getSkin().getSliderData().slider().render(renderer, 0, 0, getWidth(),
+                isDisabled() ? ModeIconQuads.Mode.DISABLED : ModeIconQuads.Mode.NORMAL);
     }
 
     public int getValue() {
@@ -129,11 +130,11 @@ public final class Slider extends GUIObject {
     }
 
     void valueSet(int value) {
-/*		
-		GUIObject parent = (GUIObject)getParent();
-		if (parent != null)
-			parent.valueSetAll(value);
-*/
+        /*
+        		GUIObject parent = (GUIObject)getParent();
+        		if (parent != null)
+        			parent.valueSetAll(value);
+        */
     }
 
     public void addValueListener(@NonNull ValueListener listener) {
@@ -154,7 +155,8 @@ public final class Slider extends GUIObject {
         }
 
         @Override
-        public void mouseDragged(@NonNull MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
+        public void mouseDragged(@NonNull MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x,
+                int abs_y) {
             if (!isDisabled()) {
                 setValue(offsetToValue((int) (start_offset + abs_x)) + min);
             }

@@ -25,7 +25,8 @@ public final class MultiplayerInGameInfo extends DefaultInGameInfo {
     }
 
     @Override
-    public void addGameOverGUI(@NonNull WorldViewer viewer, @NonNull GameStatsDelegate delegate, int header_y, @NonNull Group buttons) {
+    public void addGameOverGUI(@NonNull WorldViewer viewer, @NonNull GameStatsDelegate delegate, int header_y,
+            @NonNull Group buttons) {
         addGameOverGUI(viewer, delegate, header_y, buttons, false);
     }
 

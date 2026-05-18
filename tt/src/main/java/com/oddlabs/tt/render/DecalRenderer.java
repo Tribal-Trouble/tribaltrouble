@@ -104,7 +104,8 @@ public final class DecalRenderer implements AutoCloseable {
         this.vao.unbind();
     }
 
-    public @NonNull ScopedState setup(@NonNull RenderContext context, @NonNull LandscapeRenderer landscape, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public @NonNull ScopedState setup(@NonNull RenderContext context, @NonNull LandscapeRenderer landscape,
+            @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         var shaderUseState = shader.use();
 
         shader.setUniformMatrix4(DecalShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
@@ -146,7 +147,8 @@ public final class DecalRenderer implements AutoCloseable {
         };
     }
 
-    public void draw(@NonNull RenderContext context, @NonNull Texture texture, float x, float y, float size, float r, float g, float b, float a) {
+    public void draw(@NonNull RenderContext context, @NonNull Texture texture, float x, float y, float size, float r,
+            float g, float b, float a) {
         if (currentTexture != texture) {
             flush(context);
             currentTexture = texture;

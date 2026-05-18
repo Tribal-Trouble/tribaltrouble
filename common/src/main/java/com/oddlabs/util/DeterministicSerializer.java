@@ -13,7 +13,8 @@ public final class DeterministicSerializer {
     private DeterministicSerializer() {
     }
 
-    public static <T> void save(@NonNull Deterministic deterministic, final Object object, final @NonNull Path file, final @NonNull DeterministicSerializerLoopbackInterface<T> callback_loopback) {
+    public static <T> void save(@NonNull Deterministic deterministic, final Object object, final @NonNull Path file,
+            final @NonNull DeterministicSerializerLoopbackInterface<T> callback_loopback) {
         IOException exception;
         try {
             ObjectOutputStream os = new ObjectOutputStream(Files.newOutputStream(file));
@@ -28,7 +29,8 @@ public final class DeterministicSerializer {
             callback_loopback.saveSucceeded();
     }
 
-    public static <T> void load(@NonNull Deterministic deterministic, final @NonNull Path file, final @NonNull DeterministicSerializerLoopbackInterface<T> callback_loopback) {
+    public static <T> void load(@NonNull Deterministic deterministic, final @NonNull Path file,
+            final @NonNull DeterministicSerializerLoopbackInterface<T> callback_loopback) {
         T object;
         Throwable throwable;
         try {

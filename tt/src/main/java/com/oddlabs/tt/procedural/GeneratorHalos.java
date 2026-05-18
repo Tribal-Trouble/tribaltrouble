@@ -19,7 +19,8 @@ public final class GeneratorHalos extends TextureGenerator {
     private final float @NonNull [] @NonNull [] shadow_parms;
     private final float @NonNull [] @NonNull [] ring_parms;
 
-    public GeneratorHalos(int size, float @NonNull [] @NonNull [] shadow_parms, float @NonNull [] @NonNull [] ring_parms) {
+    public GeneratorHalos(int size, float @NonNull [] @NonNull [] shadow_parms,
+            float @NonNull [] @NonNull [] ring_parms) {
         this.size = size;
         this.shadow_parms = shadow_parms;
         this.ring_parms = ring_parms;
@@ -38,7 +39,8 @@ public final class GeneratorHalos extends TextureGenerator {
         Texture[] textures = new Texture[layers.length];
         for (int i = 0; i < layers.length; i++) {
             if (Landscape.DEBUG) new GLIntImage(layers[i]).saveAsPNG("generator_halos_" + i);
-            textures[i] = new Texture(new GLImage[]{new GLIntImage(layers[i])}, GL11.GL_RGBA8, GL11.GL_LINEAR, GL11.GL_LINEAR, GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
+            textures[i] = new Texture(new GLImage[]{new GLIntImage(layers[i])}, GL11.GL_RGBA8, GL11.GL_LINEAR,
+                    GL11.GL_LINEAR, GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
         }
         return textures;
     }

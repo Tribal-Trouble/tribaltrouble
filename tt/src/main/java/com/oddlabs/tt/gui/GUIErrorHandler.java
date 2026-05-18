@@ -29,4 +29,3 @@ final class GUIErrorHandler implements ErrorHandler {
         logger.log(Level.WARNING, "line " + err.getLineNumber() + ", uri " + err.getSystemId(), err);
     }
 }
-

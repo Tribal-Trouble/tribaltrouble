@@ -28,7 +28,8 @@ public final class GeneratorRock extends TextureGenerator {
         rock.toHSV();
         rock.r = noise8.copy().dynamicRange(0.05f, 0.1f);
         rock.toRGB();
-        Channel rock_bump = rock_bump1.channelAdd(rock_bump2).channelAdd(rock_bump3).channelAdd(noise256.multiply(0.4f));
+        Channel rock_bump = rock_bump1.channelAdd(rock_bump2).channelAdd(rock_bump3).channelAdd(noise256.multiply(
+                0.4f));
         rock_bump.perturb(perturb, 0.1f);
         rock.bump(rock_bump, TEXTURE_SIZE / 144f, 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f);
         rock.gamma(1.25f);
@@ -38,9 +39,9 @@ public final class GeneratorRock extends TextureGenerator {
         Layer normalMapLayer = rock_bump.toNormalMap(3.0f, mica);
         if (Landscape.DEBUG) new GLIntImage(normalMapLayer).saveAsPNG("generator_rock_normal");
 
-        return new Texture[]{
-                new Texture(new GLIntImage(rock), GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT),
-                new Texture(new GLIntImage(normalMapLayer), GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT)
+        return new Texture[]{new Texture(new GLIntImage(rock), GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_LINEAR,
+                GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT), new Texture(new GLIntImage(normalMapLayer),
+                        GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT)
         };
     }
 

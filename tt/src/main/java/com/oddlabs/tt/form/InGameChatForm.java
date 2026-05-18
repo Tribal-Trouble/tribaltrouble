@@ -35,7 +35,7 @@ public final class InGameChatForm extends Form implements ChatListener {
     private static final int CHAT_HEIGHT = 150;
     private static final ResourceBundle bundle = ResourceBundle.getBundle(InGameChatForm.class.getName());
 
-    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -133,8 +133,7 @@ public final class InGameChatForm extends Form implements ChatListener {
             String chat = text.toString();
             if (!chat.isEmpty()) {
                 chat_line.clear();
-                Map<String, ChatMethod> commands =
-                        Map.of("iamacheater", (_, _) -> viewer.getCheat().enable());
+                Map<String, ChatMethod> commands = Map.of("iamacheater", (_, _) -> viewer.getCheat().enable());
                 if (!ChatCommand.filterCommand(info_printer, commands, chat)) {
                     viewer.getPeerHub().sendChat(chat, radio_button_group.getMarked() == radio_team);
                 }

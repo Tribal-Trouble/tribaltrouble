@@ -16,8 +16,8 @@ public final class WordsEncoding {
     private static final BigInteger MASK = BigInteger.valueOf(0x3FF);
 
     static {
-        try (var stream = WordsEncoding.class.getResourceAsStream("dictionary");
-             var reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+        try (var stream = WordsEncoding.class.getResourceAsStream("dictionary"); var reader = new BufferedReader(
+                new InputStreamReader(stream, StandardCharsets.UTF_8))) {
             String line;
             int i = 0;
             while ((line = reader.readLine()) != null) {

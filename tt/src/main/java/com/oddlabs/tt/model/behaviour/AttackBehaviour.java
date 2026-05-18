@@ -40,7 +40,8 @@ public final class AttackBehaviour implements Behaviour {
                     else
                         unit.getWeaponFactory().attack(unit, target);
 
-                    anim_time += SECONDS_PER_ATTACK - unit.getWeaponFactory().getSecondsPerRelease(1f / SECONDS_PER_ATTACK);
+                    anim_time += SECONDS_PER_ATTACK - unit.getWeaponFactory().getSecondsPerRelease(
+                            1f / SECONDS_PER_ATTACK);
                     state = AttackState.RELEASED;
                 }
                 yield State.UNINTERRUPTIBLE;

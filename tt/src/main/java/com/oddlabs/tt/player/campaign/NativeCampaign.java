@@ -16,24 +16,17 @@ import org.jspecify.annotations.NonNull;
 public final class NativeCampaign extends Campaign {
     public static final int MAX_UNITS = 41;
     private static final int[] INITIAL_STATES = new int[]{
-/*
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE};
-*/
-            CampaignState.ISLAND_AVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_HIDDEN};
+            /*
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE};
+            */
+            CampaignState.ISLAND_AVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_HIDDEN};
 
     private final Island @NonNull [] islands;
 

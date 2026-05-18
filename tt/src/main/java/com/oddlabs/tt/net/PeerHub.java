@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 public final class PeerHub implements Animated, RouterHandler {
     public static final ResourceBundle bundle = ResourceBundle.getBundle(PeerHub.class.getName());
 
-    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -95,11 +95,17 @@ public final class PeerHub implements Animated, RouterHandler {
 
 //private int ignore_peer = -1;
 
-    public PeerHub(@NonNull AnimationManager manager, boolean is_multiplayer, boolean is_rated, @NonNull Player local_player, PlayerSlot[] player_slots, @NonNull NetworkSelector network, GUIRoot gui_root, NotificationManager notification_manager, DistributableTable distributable_table, SessionID session_id, StallHandler stall_handler) {
+    public PeerHub(@NonNull AnimationManager manager, boolean is_multiplayer, boolean is_rated,
+            @NonNull Player local_player, PlayerSlot[] player_slots, @NonNull NetworkSelector network, GUIRoot gui_root,
+            NotificationManager notification_manager, DistributableTable distributable_table, SessionID session_id,
+            StallHandler stall_handler) {
         this(manager, is_multiplayer, is_rated, false, local_player, player_slots, network, gui_root, notification_manager, distributable_table, session_id, stall_handler);
     }
 
-    public PeerHub(@NonNull AnimationManager manager, boolean is_multiplayer, boolean is_rated, boolean is_spectator, @NonNull Player local_player, PlayerSlot[] player_slots, @NonNull NetworkSelector network, GUIRoot gui_root, NotificationManager notification_manager, DistributableTable distributable_table, SessionID session_id, StallHandler stall_handler) {
+    public PeerHub(@NonNull AnimationManager manager, boolean is_multiplayer, boolean is_rated, boolean is_spectator,
+            @NonNull Player local_player, PlayerSlot[] player_slots, @NonNull NetworkSelector network, GUIRoot gui_root,
+            NotificationManager notification_manager, DistributableTable distributable_table, SessionID session_id,
+            StallHandler stall_handler) {
         this.stall_handler = stall_handler;
         this.is_rated = is_rated;
         this.is_spectator = is_spectator;
@@ -114,10 +120,11 @@ public final class PeerHub implements Animated, RouterHandler {
         Player[] players = local_player.getWorld().getPlayers();
         this.local_peer_index = -1;
         if (!is_multiplayer) {
-            this.router = new Router(network, com.oddlabs.util.Utils.getLoopbackAddress(), 0, Logger.getAnonymousLogger(), (IOException e) -> {
-                //					PeerHub.this.routerFailed(e);
-                throw new RuntimeException(e);
-            });
+            this.router = new Router(network, com.oddlabs.util.Utils.getLoopbackAddress(), 0,
+                    Logger.getAnonymousLogger(), (IOException e) -> {
+                        //					PeerHub.this.routerFailed(e);
+                        throw new RuntimeException(e);
+                    });
             this.router_client = new RouterClient(network, this, router.getPort());
         } else {
             this.router = null;
@@ -131,8 +138,10 @@ public final class PeerHub implements Animated, RouterHandler {
             }
             IO.println("index " + i + " contains player " + player);
             final int peer_index = peer_index_to_peer_list.size();
-            ARMIEventWriter router_handler = (ARMIEvent event) -> router_client.getInterface().relayEventTo(peer_index, event);
-            PeerHubInterface peer_interface = (PeerHubInterface) ARMIEvent.createProxy(router_handler, PeerHubInterface.class);
+            ARMIEventWriter router_handler = (ARMIEvent event) -> router_client.getInterface().relayEventTo(peer_index,
+                    event);
+            PeerHubInterface peer_interface = (PeerHubInterface) ARMIEvent.createProxy(router_handler,
+                    PeerHubInterface.class);
             Peer peer = new Peer(this, peer_index, player, argument_reader, peer_interface);
             ARMIEventWriter peer_broker;
             if (player == local_player) {
@@ -149,7 +158,8 @@ public final class PeerHub implements Animated, RouterHandler {
             this.player_interface = new NoOpPlayerInterface();
         } else {
             ARMIEventWriter game_router_handler = router_client.getInterface()::relayGameStateEvent;
-            this.player_interface = (PlayerInterface) ARMIEvent.createProxy(game_router_handler, new GameArgumentWriter(distributable_table), PlayerInterface.class);
+            this.player_interface = (PlayerInterface) ARMIEvent.createProxy(game_router_handler, new GameArgumentWriter(
+                    distributable_table), PlayerInterface.class);
         }
         ARMIEventWriter hub_router_handler = router_client.getInterface()::relayEvent;
         this.peerhubs_interface = (PeerHubInterface) ARMIEvent.createProxy(hub_router_handler, PeerHubInterface.class);
@@ -158,7 +168,8 @@ public final class PeerHub implements Animated, RouterHandler {
         if (is_spectator) {
             router_client.connectSpectator(session_id);
         } else {
-            router_client.connect(session_id, new SessionInfo(num_participants, MILLISECONDS_PER_HEARTBEAT), local_peer_index);
+            router_client.connect(session_id, new SessionInfo(num_participants, MILLISECONDS_PER_HEARTBEAT),
+                    local_peer_index);
         }
     }
 
@@ -172,7 +183,8 @@ public final class PeerHub implements Animated, RouterHandler {
     @Override
     public void heartbeat(int millis) {
         if (millis < server_millis) {
-            routerFailed(new IOException("Invalid time received: " + millis + " (tick currently at " + getTick() + ")"));
+            routerFailed(new IOException(
+                    "Invalid time received: " + millis + " (tick currently at " + getTick() + ")"));
             return;
         }
         server_millis = millis;
@@ -195,7 +207,8 @@ public final class PeerHub implements Animated, RouterHandler {
     @Override
     public void receiveGameStateEvent(int client_id, int millis, ARMIEvent event) {
         if (millis < server_millis) {
-            routerFailed(new IOException("Invalid time received for event: " + millis + " (tick currently at " + getTick() + ")"));
+            routerFailed(new IOException(
+                    "Invalid time received for event: " + millis + " (tick currently at " + getTick() + ")"));
             return;
         }
         Peer peer = getPeerFromClientID(client_id);
@@ -233,7 +246,8 @@ public final class PeerHub implements Animated, RouterHandler {
         Globals.checksum_error_in_last_game = true;
     }
 
-    @Nullable Peer getPeerFromClientID(int client_id) {
+    @Nullable
+    Peer getPeerFromClientID(int client_id) {
         if (client_id >= 0 && client_id < peer_index_to_peer.length)
             return unsafeGetPeerFromClientID(client_id);
         else
@@ -385,7 +399,8 @@ public final class PeerHub implements Animated, RouterHandler {
             info.append("NAME ").append(name).append(' ');
             info.append("RACE ").append(race).append(' ');
             info.append("TEAM ").append(team).append(' ');
-            info.append("COLOR ").append(color.x()).append(' ').append(color.y()).append(' ').append(color.z()).append(' ');
+            info.append("COLOR ").append(color.x()).append(' ').append(color.y()).append(' ').append(color.z()).append(
+                    ' ');
         }
         info.append('\n');
         Network.getMatchmakingClient().getInterface().updateSpectatorInfo(-10001, info.toString());
@@ -413,8 +428,8 @@ public final class PeerHub implements Animated, RouterHandler {
                 if (s instanceof Unit u) {
                     info.append("U ").append(u.getGridX()).append(' ').append(u.getGridY()).append(' ');
                 } else if (s instanceof Building b) {
-                    info.append("B ").append(b.getGridX()).append(' ').append(b.getGridY()).append(' ')
-                            .append(b.getTemplate().getPlacingSize()).append(' ').append(b.getHitPoints()).append(' ');
+                    info.append("B ").append(b.getGridX()).append(' ').append(b.getGridY()).append(' ').append(
+                            b.getTemplate().getPlacingSize()).append(' ').append(b.getHitPoints()).append(' ');
                 }
             }
         }

@@ -126,12 +126,12 @@ public final class ErosionThermal {
             for (int y = 1; y < channel.height - 1; y++) {
                 for (int x = 1; x < channel.width - 1; x++) {
                     float h = channel.getPixel(x, y);
-					/*
-					float h1 = channel.getPixel(x, y + 1);
-					float h2 = channel.getPixel(x - 1, y);
-					float h3 = channel.getPixel(x + 1, y);
-					float h4 = channel.getPixel(x, y - 1);
-					*/
+                    /*
+                    float h1 = channel.getPixel(x, y + 1);
+                    float h2 = channel.getPixel(x - 1, y);
+                    float h3 = channel.getPixel(x + 1, y);
+                    float h4 = channel.getPixel(x, y - 1);
+                    */
                     float h1 = channel.getPixel(x - 1, y + 1);
                     float h2 = channel.getPixel(x + 1, y + 1);
                     float h3 = channel.getPixel(x - 1, y - 1);
@@ -143,27 +143,27 @@ public final class ErosionThermal {
                     float d4 = h - h4;
                     int i = 0, j = 0;
                     float max_d = 0f;
-					/*
-					if (d1 > max_d) {
-						max_d = d1;
-						j = 1;
-					}
-					if (d2 > max_d) {
-						max_d = d2;
-						i = -1;
-						j = 0;
-					}
-					if (d3 > max_d) {
-						max_d = d3;
-						i = 1;
-						j = 0;
-					}
-					if (d4 > max_d) {
-						max_d = d4;
-						i = 0;
-						j = -1;
-					}
-					*/
+                    /*
+                    if (d1 > max_d) {
+                    	max_d = d1;
+                    	j = 1;
+                    }
+                    if (d2 > max_d) {
+                    	max_d = d2;
+                    	i = -1;
+                    	j = 0;
+                    }
+                    if (d3 > max_d) {
+                    	max_d = d3;
+                    	i = 1;
+                    	j = 0;
+                    }
+                    if (d4 > max_d) {
+                    	max_d = d4;
+                    	i = 0;
+                    	j = -1;
+                    }
+                    */
                     if (d1 > max_d) {
                         max_d = d1;
                         i = -1;

@@ -55,7 +55,8 @@ final class SpriteListRenderer {
         render_list.clear();
     }
 
-    private void pickFromList(@NonNull List<@Nullable ModelState<?>> render_list, @NonNull List<@NonNull Target> pick_list) {
+    private void pickFromList(@NonNull List<@Nullable ModelState<?>> render_list,
+            @NonNull List<@NonNull Target> pick_list) {
         for (int i = 0; i < render_list.size(); i++) {
             ModelState<?> model = render_list.get(i);
             render_list.set(i, null);

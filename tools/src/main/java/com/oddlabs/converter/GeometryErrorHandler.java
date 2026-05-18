@@ -23,4 +23,3 @@ public final class GeometryErrorHandler implements ErrorHandler {
         IO.println("   " + err.getMessage());
     }
 }
-

@@ -49,7 +49,8 @@ public abstract class Model extends Element<Model> {
         float z = getPositionZ();
         BoundingBox unit_bounds = getSpriteRenderer().getBounds(getAnimation());
         float error = getZError();
-        setBounds(unit_bounds.bmin_x + x, unit_bounds.bmax_x + x, unit_bounds.bmin_y + y, unit_bounds.bmax_y + y, unit_bounds.bmin_z + z - error, unit_bounds.bmax_z + z + error);
+        setBounds(unit_bounds.bmin_x + x, unit_bounds.bmax_x + x, unit_bounds.bmin_y + y, unit_bounds.bmax_y + y,
+                unit_bounds.bmin_z + z - error, unit_bounds.bmax_z + z + error);
     }
 
     protected float getZError() {

@@ -8,7 +8,10 @@ public interface TrackerAlgorithm {
 
     boolean acceptRegion(@NonNull Region region);
 
-    @Nullable Region findPathRegion(int src_x, int src_y);
+    @Nullable
+    Region findPathRegion(int src_x, int src_y);
 
-    @Nullable GridPathNode findPathGrid(@NonNull Region target_region, @NonNull Region next_region, int src_x, int src_y, boolean allow_secondary_targets);
+    @Nullable
+    GridPathNode findPathGrid(@NonNull Region target_region, @NonNull Region next_region, int src_x, int src_y,
+            boolean allow_secondary_targets);
 }

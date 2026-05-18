@@ -54,7 +54,8 @@ public final class MatrixStack {
         return stack.element();
     }
 
-    @NonNull Matrix4f clear() {
+    @NonNull
+    Matrix4f clear() {
         stack.clear();
         stack.push(new Matrix4f());
 

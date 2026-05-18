@@ -97,7 +97,8 @@ public final class SpriteList implements AutoCloseable {
             }
         }
 
-        FloatBuffer all_vertices_and_normals = Objects.requireNonNull(BufferUtils.createFloatBuffer(vert_and_normal_buffer_size));
+        FloatBuffer all_vertices_and_normals = Objects.requireNonNull(BufferUtils.createFloatBuffer(
+                vert_and_normal_buffer_size));
 
         float[] cpw_array = new float[animation_infos.length];
         type_array = new AnimationInfo.AnimationType[animation_infos.length];
@@ -109,13 +110,12 @@ public final class SpriteList implements AutoCloseable {
             animation_names[i] = animation_infos[i].getName();
             animation_length_array[i] = animation_infos[i].getFrames().length;
         }
-        sprites = Arrays.stream(sprite_infos)
-                .map(info -> new Sprite(info, animation_infos,
-                        sprite_file.hasAlpha(), sprite_file.isLighted(), sprite_file.isCulled(),
-                        sprite_file.hasModulateColor(), sprite_file.hasMaxAlpha(), sprite_file.getMipmapCutoff(),
-                        bounds, cpw_array, type_array, animation_length_array,
-                        all_indices, all_texcoords, all_vertices_and_normals)
-                ).toArray(Sprite[]::new);
+        sprites = Arrays.stream(sprite_infos).map(info -> new Sprite(info, animation_infos,
+                sprite_file.hasAlpha(), sprite_file.isLighted(), sprite_file.isCulled(),
+                sprite_file.hasModulateColor(), sprite_file.hasMaxAlpha(), sprite_file.getMipmapCutoff(),
+                bounds, cpw_array, type_array, animation_length_array,
+                all_indices, all_texcoords, all_vertices_and_normals)
+        ).toArray(Sprite[]::new);
 
         all_indices.flip();
         indices = new ShortVBO(GL15.GL_STATIC_DRAW, all_indices.remaining());

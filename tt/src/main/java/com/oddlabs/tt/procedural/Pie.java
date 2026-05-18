@@ -43,13 +43,17 @@ public final class Pie {
                             if (value < inner_angle) {
                                 channel.putPixel(x, y, 1f);
                             } else if (value >= inner_angle && value <= fill) {
-                                channel.putPixel(x, y, Tools.interpolateLinear(1f, 0f, (value - inner_angle) / fade_angle));
+                                channel.putPixel(x, y, Tools.interpolateLinear(1f, 0f,
+                                        (value - inner_angle) / fade_angle));
                             }
                         } else if (radius >= inner_radius && radius <= 0.5f) {
                             if (value < inner_angle) {
-                                channel.putPixel(x, y, Tools.interpolateLinear(1f, 0f, (radius - inner_radius) / fade_dist));
+                                channel.putPixel(x, y, Tools.interpolateLinear(1f, 0f,
+                                        (radius - inner_radius) / fade_dist));
                             } else if (value >= inner_angle && value <= fill) {
-                                channel.putPixel(x, y, Math.min(Tools.interpolateLinear(1f, 0f, (value - inner_angle) / fade_angle), Tools.interpolateLinear(1f, 0f, (radius - inner_radius) / fade_dist)));
+                                channel.putPixel(x, y, Math.min(Tools.interpolateLinear(1f, 0f,
+                                        (value - inner_angle) / fade_angle), Tools.interpolateLinear(1f, 0f,
+                                                (radius - inner_radius) / fade_dist)));
                             }
                         }
                         break;

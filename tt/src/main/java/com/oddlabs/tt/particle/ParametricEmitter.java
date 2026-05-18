@@ -35,12 +35,12 @@ public class ParametricEmitter extends Emitter<ParametricParticle> {
     private boolean started = true;
 
     public ParametricEmitter(@NonNull World world, ParametricFunction function, @NonNull Vector3f position,
-                             float area_xy, float area_z, float velocity_u, float velocity_v, float velocity_random_margin,
-                             int num_particles, float particles_per_second,
-                             Vector4fc color, Vector4fc delta_color,
-                             Vector3fc particle_radius, Vector3fc growth_rate, float energy,
-                             int src_blend_func, int dst_blend_func, TextureKey @NonNull [] textures,
-                             @NonNull AnimationManager manager) {
+            float area_xy, float area_z, float velocity_u, float velocity_v, float velocity_random_margin,
+            int num_particles, float particles_per_second,
+            Vector4fc color, Vector4fc delta_color,
+            Vector3fc particle_radius, Vector3fc growth_rate, float energy,
+            int src_blend_func, int dst_blend_func, TextureKey @NonNull [] textures,
+            @NonNull AnimationManager manager) {
         super(world, position, src_blend_func, dst_blend_func, textures, null, textures.length, manager);
         this.function = function;
         this.area_xy = area_xy;
@@ -88,7 +88,8 @@ public class ParametricEmitter extends Emitter<ParametricParticle> {
             particle_counter += particles_per_second * t;
 
         while (particle_counter >= 1 && (num_particles == -1 || num_particles != 0) && started) {
-            int initiated = initParticle(function, velocity_u, velocity_v, color, delta_color, particle_radius, growth_rate, energy);
+            int initiated = initParticle(function, velocity_u, velocity_v, color, delta_color, particle_radius,
+                    growth_rate, energy);
             assert initiated <= num_particles || num_particles == -1 : "Too many particles initiated";
             particle_counter -= initiated;
             if (num_particles > 0)
@@ -140,13 +141,14 @@ public class ParametricEmitter extends Emitter<ParametricParticle> {
     }
 
     protected int initParticle(ParametricFunction function,
-                               float velocity_u, float velocity_v,
-                               @NonNull Vector4fc color, @NonNull Vector4fc delta_color,
-                               @NonNull Vector3fc particle_radius, @NonNull Vector3fc growth_rate,
-                               float energy) {
+            float velocity_u, float velocity_v,
+            @NonNull Vector4fc color, @NonNull Vector4fc delta_color,
+            @NonNull Vector3fc particle_radius, @NonNull Vector3fc growth_rate,
+            float energy) {
 
         Vector3f offset = randomOffset(area_xy, area_xy, area_z);
-        ParametricParticle particle = new ParametricParticle(getWorld(), function, random.nextFloat() * (float) Math.PI * 2f, random.nextFloat() * (float) Math.PI * 2f,
+        ParametricParticle particle = new ParametricParticle(getWorld(), function,
+                random.nextFloat() * (float) Math.PI * 2f, random.nextFloat() * (float) Math.PI * 2f,
                 offset.x(), offset.y(), offset.z());
         offset = randomOffset(velocity_random_margin, velocity_random_margin, 0f);
         particle.setVelocity(velocity_u + offset.x(), velocity_v + offset.y());

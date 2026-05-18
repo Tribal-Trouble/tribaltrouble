@@ -35,7 +35,7 @@ public final class GUIRoot extends GUIObject {
     private static final Logger logger = Logger.getLogger(GUIRoot.class.getName());
     private static final ResourceBundle bundle = ResourceBundle.getBundle(GUIRoot.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -98,7 +98,8 @@ public final class GUIRoot extends GUIObject {
     /**
      * {@return the currently focused control}
      */
-    @NonNull GUIObject getGlobalFocus() {
+    @NonNull
+    GUIObject getGlobalFocus() {
         return global_focus;
     }
 
@@ -285,7 +286,8 @@ public final class GUIRoot extends GUIObject {
                 }
                 if (event.consumeAction(GameAction.GLOBAL_AGGRESSIVE_UNITS)) {
                     Settings.getSettings().aggressive_units = !Settings.getSettings().aggressive_units;
-                    info_printer.print(i18n(Settings.getSettings().aggressive_units ? "aggressive_unites_on" : "aggressive_unites_off"));
+                    info_printer.print(i18n(
+                            Settings.getSettings().aggressive_units ? "aggressive_unites_on" : "aggressive_unites_off"));
                     consumed = true;
                 }
                 if (event.consumeAction(GameAction.GLOBAL_TOGGLE_STATUS)) {
@@ -415,7 +417,8 @@ public final class GUIRoot extends GUIObject {
         }
     }
 
-    @NonNull GUIObject getCurrentGUIObject() {
+    @NonNull
+    GUIObject getCurrentGUIObject() {
         return current_gui_object;
     }
 
@@ -474,7 +477,8 @@ public final class GUIRoot extends GUIObject {
         float zNear = Globals.VIEW_MIN;
         float zFar = Globals.VIEW_MAX;
 
-        Matrix4f perspectiveMatrix = new Matrix4f().perspective((float) Math.toRadians(fovy), (float) getWidth() / getHeight(), zNear, zFar);
+        Matrix4f perspectiveMatrix = new Matrix4f().perspective((float) Math.toRadians(fovy),
+                (float) getWidth() / getHeight(), zNear, zFar);
         return matrix.mul(perspectiveMatrix);
     }
 

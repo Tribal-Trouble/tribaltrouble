@@ -88,9 +88,8 @@ public class KeyBindingPanel extends Panel {
         super(AbstractOptionsMenu.i18n("key_bindings_title"));
         this.gui_root = gui_root;
 
-        ColumnInfo[] infos = new ColumnInfo[]{
-                new ColumnInfo(AbstractOptionsMenu.i18n("column_action"), COL_ACTION_WIDTH),
-                new ColumnInfo(AbstractOptionsMenu.i18n("column_bindings"), COL_BINDINGS_WIDTH)
+        ColumnInfo[] infos = new ColumnInfo[]{new ColumnInfo(AbstractOptionsMenu.i18n("column_action"),
+                COL_ACTION_WIDTH), new ColumnInfo(AbstractOptionsMenu.i18n("column_bindings"), COL_BINDINGS_WIDTH)
         };
 
         list_box = new MultiColumnComboBox<>(gui_root, infos, 300, false);
@@ -114,10 +113,11 @@ public class KeyBindingPanel extends Panel {
         addChild(button_group);
 
         HorizButton btn_reset = new HorizButton(AbstractOptionsMenu.i18n("btn_reset_all"), 100);
-        btn_reset.addMouseClickListener((_, _, _, _) -> gui_root.addModalForm(new QuestionForm(AbstractOptionsMenu.i18n("confirm_reset_all"), (_, _, _, _) -> {
-            Renderer.getLocalInput().getInputManager().resetToDefaults();
-            updateList();
-        })));
+        btn_reset.addMouseClickListener((_, _, _, _) -> gui_root.addModalForm(new QuestionForm(AbstractOptionsMenu.i18n(
+                "confirm_reset_all"), (_, _, _, _) -> {
+                    Renderer.getLocalInput().getInputManager().resetToDefaults();
+                    updateList();
+                })));
         button_group.addChild(btn_reset);
 
         HorizButton btn_save = new HorizButton(AbstractOptionsMenu.i18n("btn_save_bindings"), 100);
@@ -159,11 +159,13 @@ public class KeyBindingPanel extends Panel {
             List<GameAction> actions = byCategory.get(category);
             if (actions == null || actions.isEmpty()) continue;
 
-            actions.sort((a, b) -> AbstractOptionsMenu.i18n("action." + a.name()).compareToIgnoreCase(AbstractOptionsMenu.i18n("action." + b.name())));
+            actions.sort((a, b) -> AbstractOptionsMenu.i18n("action." + a.name()).compareToIgnoreCase(
+                    AbstractOptionsMenu.i18n("action." + b.name())));
 
             int categoryBase = category.ordinal() * CATEGORY_STRIDE;
             String headerText = "-- " + AbstractOptionsMenu.i18n(category.i18nKey) + " --";
-            Label headerLeft = new SortedLabel(headerText, categoryBase, Skin.getSkin().getMultiColumnComboBoxData().font());
+            Label headerLeft = new SortedLabel(headerText, categoryBase,
+                    Skin.getSkin().getMultiColumnComboBoxData().font());
             headerLeft.setColor(HEADER_COLOR);
             Label headerRight = new Label("", Skin.getSkin().getMultiColumnComboBoxData().font());
             list_box.addRow(new Row<>(new Label[]{headerLeft, headerRight}, null));
@@ -176,7 +178,8 @@ public class KeyBindingPanel extends Panel {
                 Label l2;
 
                 if (bindings.isEmpty()) {
-                    l2 = new InvertedLabel(AbstractOptionsMenu.i18n("unassigned"), Skin.getSkin().getMultiColumnComboBoxData().font(), COL_BINDINGS_WIDTH);
+                    l2 = new InvertedLabel(AbstractOptionsMenu.i18n("unassigned"),
+                            Skin.getSkin().getMultiColumnComboBoxData().font(), COL_BINDINGS_WIDTH);
                 } else {
                     boolean isMac = System.getProperty("os.name", "").toLowerCase().contains("mac");
                     String bindingStr = bindings.stream().map(b -> {
@@ -197,8 +200,10 @@ public class KeyBindingPanel extends Panel {
                     l2 = new Label(bindingStr, Skin.getSkin().getMultiColumnComboBoxData().font());
                 }
 
-                Label l1 = new SortedLabel(name, categoryBase + withinCategory, Skin.getSkin().getMultiColumnComboBoxData().font());
-                if (!KeyBindingConflicts.findExistingConflicts(action, Renderer.getLocalInput().getInputManager()).isEmpty()) {
+                Label l1 = new SortedLabel(name, categoryBase + withinCategory,
+                        Skin.getSkin().getMultiColumnComboBoxData().font());
+                if (!KeyBindingConflicts.findExistingConflicts(action,
+                        Renderer.getLocalInput().getInputManager()).isEmpty()) {
                     l1.setColor(CONFLICT_COLOR);
                     l2.setColor(CONFLICT_COLOR);
                 }
@@ -223,7 +228,8 @@ public class KeyBindingPanel extends Panel {
             Renderer.getRenderer().toggleFullscreen();
         }
 
-        String path = TinyFileDialogs.tinyfd_saveFileDialog(AbstractOptionsMenu.i18n("dialog_save_bindings"), "", null, AbstractOptionsMenu.i18n("json_files"));
+        String path = TinyFileDialogs.tinyfd_saveFileDialog(AbstractOptionsMenu.i18n("dialog_save_bindings"), "", null,
+                AbstractOptionsMenu.i18n("json_files"));
         if (path != null) {
             String json = Renderer.getLocalInput().getInputManager().exportBindings();
             try {
@@ -244,7 +250,8 @@ public class KeyBindingPanel extends Panel {
             Renderer.getRenderer().toggleFullscreen();
         }
 
-        String path = TinyFileDialogs.tinyfd_openFileDialog(AbstractOptionsMenu.i18n("dialog_load_bindings"), "", null, AbstractOptionsMenu.i18n("json_files"), false);
+        String path = TinyFileDialogs.tinyfd_openFileDialog(AbstractOptionsMenu.i18n("dialog_load_bindings"), "", null,
+                AbstractOptionsMenu.i18n("json_files"), false);
         if (path != null) {
             try {
                 String json = Files.readString(Path.of(path));

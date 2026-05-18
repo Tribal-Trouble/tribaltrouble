@@ -129,10 +129,10 @@ public final class Utils {
 
     public static <T> T tryLoadObject(@NonNull URL url, boolean zipped) throws IOException, ClassNotFoundException {
         try (InputStream urlStream = url.openStream()) {
-            try (InputStream input_stream = zipped ? new GZIPInputStream(urlStream) : new BufferedInputStream(urlStream)) {
+            try (InputStream input_stream = zipped ? new GZIPInputStream(urlStream) : new BufferedInputStream(
+                    urlStream)) {
                 try (ObjectInputStream obj_stream = new ObjectInputStream(input_stream)) {
-                    @SuppressWarnings("unchecked")
-                    T obj = (T) obj_stream.readObject();
+                    @SuppressWarnings("unchecked") T obj = (T) obj_stream.readObject();
                     return obj;
                 }
             }

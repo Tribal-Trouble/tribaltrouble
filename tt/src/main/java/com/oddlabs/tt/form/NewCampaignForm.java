@@ -51,7 +51,7 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
     private final @NonNull CampaignForm campaign_form;
     private static final ResourceBundle bundle = ResourceBundle.getBundle(NewCampaignForm.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -62,7 +62,8 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
     private final @NonNull NetworkSelector network;
     private @NonNull CampaignState @Nullable [] campaign_states;
 
-    public NewCampaignForm(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Menu main_menu, @NonNull CampaignForm campaign_form) {
+    public NewCampaignForm(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Menu main_menu,
+            @NonNull CampaignForm campaign_form) {
         this.network = network;
         this.gui_root = gui_root;
         this.main_menu = main_menu;

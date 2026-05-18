@@ -34,7 +34,8 @@ public final class Cellular {
     public Channel dist2;
     public Channel dist3;
 
-    public Cellular(int width, int height, int x_order, int y_order, int checkradius, float randomness, float[] coefficients, long seed, int distribution_type, int metric_type, int value_type) {
+    public Cellular(int width, int height, int x_order, int y_order, int checkradius, float randomness,
+            float[] coefficients, long seed, int distribution_type, int metric_type, int value_type) {
         x_order = Math.max(1, x_order);
         y_order = Math.max(1, y_order);
         checkradius = Math.max(1, checkradius);
@@ -183,10 +184,12 @@ public final class Cellular {
                 // calculate final pixel values
                 switch (value_type) {
                     case DISTANCE:
-                        channel.putPixel(x, y, coefficients[0] * min1 + coefficients[1] * min2 + coefficients[2] * min3);
+                        channel.putPixel(x, y,
+                                coefficients[0] * min1 + coefficients[1] * min2 + coefficients[2] * min3);
                         break;
                     case HITPOINT:
-                        channel.putPixel(x, y, coefficients[0] * hitpoint1 + coefficients[1] * hitpoint2 + coefficients[2] * hitpoint3);
+                        channel.putPixel(x, y,
+                                coefficients[0] * hitpoint1 + coefficients[1] * hitpoint2 + coefficients[2] * hitpoint3);
                         break;
                     case HITCLIP:
                         if (coefficients[0] * min1 + coefficients[1] * min2 + coefficients[2] * min3 < pixelwidth) {

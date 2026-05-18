@@ -29,7 +29,8 @@ public final class PulldownButton<T> extends GUIObject {
     public @NonNull PulldownButton<T> setDim(int width, int height) {
         super.setDim(width, height);
         PulldownData data = Skin.getSkin().getPulldownData();
-        label.setDim(getWidth() - data.textOffsetLeft() - data.arrowOffsetRight() - data.arrow().quad(ModeIconQuads.Mode.NORMAL).getWidth(), label.getHeight());
+        label.setDim(getWidth() - data.textOffsetLeft() - data.arrowOffsetRight() - data.arrow().quad(
+                ModeIconQuads.Mode.NORMAL).getWidth(), label.getHeight());
         label.setPos(data.textOffsetLeft(), (getHeight() - label.getHeight()) / 2);
         if (menu instanceof ScrollablePulldownMenu<?> scrollable)
             scrollable.setButtonWidth(width);
@@ -43,11 +44,7 @@ public final class PulldownButton<T> extends GUIObject {
         PulldownData data = Skin.getSkin().getPulldownData();
         Horizontal pulldownButton = data.pulldownButton();
 
-        ModeIconQuads.Mode skinMode = isDisabled()
-                ? ModeIconQuads.Mode.DISABLED
-                : isActive()
-                  ? ModeIconQuads.Mode.ACTIVE
-                  : ModeIconQuads.Mode.NORMAL;
+        ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
 
         pulldownButton.render(renderer, 0, 0, getWidth(), skinMode);
 

@@ -51,7 +51,8 @@ public final class MapCamera extends Camera {
 
     private final @NonNull SelectionDelegate delegate;
     private final @NonNull CameraState original_camera_state;
-    private final Label label = new Label(Utils.getBundleString(ResourceBundle.getBundle(MapCamera.class.getName()), "map_mode"), Skin.getSkin().getHeadlineFont());
+    private final Label label = new Label(Utils.getBundleString(ResourceBundle.getBundle(MapCamera.class.getName()),
+            "map_mode"), Skin.getSkin().getHeadlineFont());
 
     private @NonNull MapMode map_mode = MapMode.TO_MAP;
     private float fogTime = 0f;
@@ -84,15 +85,12 @@ public final class MapCamera extends Camera {
         // Calculate transition progress (0.0 = at start, 1.0 = at map)
         float current_z = getState().getTargetZ();
         float total_dist = map_z - start_z;
-        float progress = (Math.abs(total_dist) > 0.001f)
-                ? Math.clamp((current_z - start_z) / total_dist, 0f, 1f)
-                : 1f;
+        float progress = (Math.abs(total_dist) > 0.001f) ? Math.clamp((current_z - start_z) / total_dist, 0f, 1f) : 1f;
 
         // Base organic fog pulse (sum of sines for non-predictable period)
         fogTime += t;
-        float pulse = (float) (Math.sin(fogTime * 0.4125f) * 0.5 +
-                Math.sin(fogTime * 0.8625f) * 0.3 +
-                Math.sin(fogTime * 1.7625f) * 0.2);
+        float pulse = (float) (Math.sin(fogTime * 0.4125f) * 0.5 + Math.sin(fogTime * 0.8625f) * 0.3 + Math.sin(
+                fogTime * 1.7625f) * 0.2);
         float baseDensity = 0.30f + pulse * 0.12f;
 
         // Apply transition
@@ -161,7 +159,8 @@ public final class MapCamera extends Camera {
             case TO_MAP -> {
             }
             case IN_MAP -> {
-                label.setPos((delegate.getGUIRoot().getWidth() - label.getWidth()) / 2, delegate.getGUIRoot().getHeight() - label.getHeight());
+                label.setPos((delegate.getGUIRoot().getWidth() - label.getWidth()) / 2,
+                        delegate.getGUIRoot().getHeight() - label.getHeight());
                 delegate.addChild(label);
             }
             case FROM_MAP -> {
@@ -212,7 +211,8 @@ public final class MapCamera extends Camera {
 
         if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
             if (event.consumeAction(GameAction.CAMERA_MAP_MODE)) {
-                changeMode((map_mode == MapMode.TO_MAP || map_mode == MapMode.IN_MAP) ? MapMode.FROM_MAP : MapMode.TO_MAP);
+                changeMode((map_mode == MapMode.TO_MAP
+                        || map_mode == MapMode.IN_MAP) ? MapMode.FROM_MAP : MapMode.TO_MAP);
                 event.consume();
             }
         }

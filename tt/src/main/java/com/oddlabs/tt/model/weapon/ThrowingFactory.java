@@ -9,7 +9,8 @@ import org.jspecify.annotations.NonNull;
 public final class ThrowingFactory<W extends ThrowingWeapon> extends WeaponFactory {
     @FunctionalInterface
     public interface WeaponConstructor<W extends ThrowingWeapon> {
-        W create(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target, @NonNull SpriteKey sprite_renderer, @NonNull Audio throw_sound, Audio @NonNull [] hit_sounds);
+        W create(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target, @NonNull SpriteKey sprite_renderer,
+                @NonNull Audio throw_sound, Audio @NonNull [] hit_sounds);
     }
 
     private final @NonNull Class<W> weapon_type;
@@ -18,7 +19,9 @@ public final class ThrowingFactory<W extends ThrowingWeapon> extends WeaponFacto
     private final @NonNull Audio throw_sound;
     private final @NonNull Audio @NonNull [] hit_sounds;
 
-    public ThrowingFactory(@NonNull Class<W> weapon_type, @NonNull WeaponConstructor<W> weapon_constructor, float hit_chance, float range, float release_ratio, @NonNull SpriteKey weapon_sprite, @NonNull Audio throw_sound, @NonNull Audio @NonNull [] hit_sounds) {
+    public ThrowingFactory(@NonNull Class<W> weapon_type, @NonNull WeaponConstructor<W> weapon_constructor,
+            float hit_chance, float range, float release_ratio, @NonNull SpriteKey weapon_sprite,
+            @NonNull Audio throw_sound, @NonNull Audio @NonNull [] hit_sounds) {
         super(hit_chance, range, release_ratio);
         this.weapon_type = weapon_type;
         this.weapon_constructor = weapon_constructor;

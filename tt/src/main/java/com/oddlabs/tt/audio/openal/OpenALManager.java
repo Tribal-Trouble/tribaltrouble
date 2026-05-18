@@ -75,10 +75,7 @@ public final class OpenALManager extends AudioManager {
 
         int[] attributes = {0};
         if (alcIsExtensionPresent(device, "ALC_SOFT_HRTF")) {
-            attributes = new int[]{
-                    ALC_HRTF_SOFT,
-                    Settings.getSettings().headphone_mode ? ALC_TRUE : ALC_FALSE,
-                    0
+            attributes = new int[]{ALC_HRTF_SOFT, Settings.getSettings().headphone_mode ? ALC_TRUE : ALC_FALSE, 0
             };
         }
 
@@ -114,15 +111,13 @@ public final class OpenALManager extends AudioManager {
 
     private static @NonNull OpenALAudioSource @NonNull [] generateSources(int max) {
         return Stream.generate(() -> {
-                    try {
-                        return new OpenALAudioSource();
-                    } catch (Exception _) {
-                        // If source generation fails, stop trying to create more
-                        return null;
-                    }
-                }).takeWhile(Objects::nonNull)
-                .limit(max)
-                .toArray(OpenALAudioSource[]::new);
+            try {
+                return new OpenALAudioSource();
+            } catch (Exception _) {
+                // If source generation fails, stop trying to create more
+                return null;
+            }
+        }).takeWhile(Objects::nonNull).limit(max).toArray(OpenALAudioSource[]::new);
     }
 
     @Override
@@ -183,7 +178,8 @@ public final class OpenALManager extends AudioManager {
     public static void checkALError(@NonNull String message) {
         int error = AL10.alGetError();
         if (error != AL10.AL_NO_ERROR) {
-            logger.log(Level.WARNING, "OpenAL Error (" + message + "): " + errorToString(error), new Throwable("stacktrace"));
+            logger.log(Level.WARNING, "OpenAL Error (" + message + "): " + errorToString(error), new Throwable(
+                    "stacktrace"));
         }
     }
 

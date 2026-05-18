@@ -92,10 +92,12 @@ public class EditLine extends TextField implements Clipped {
 
     protected void renderText(@NonNull GUIRenderer renderer, @NonNull Box box, int offset_x, int render_index) {
         var displayText = getDisplayText();
-        TextLineRenderer.render(renderer, getFont(), displayText, box.getLeftOffset() + offset_x, box.getBottomOffset(), box.getLeftOffset() + 1, getWidth() - box.getRightOffset() - 1, Color.WHITE);
+        TextLineRenderer.render(renderer, getFont(), displayText, box.getLeftOffset() + offset_x, box.getBottomOffset(),
+                box.getLeftOffset() + 1, getWidth() - box.getRightOffset() - 1, Color.WHITE);
         if (render_index != -1) {
             int cursorX = getRenderedWidth(displayText.subSequence(0, render_index));
-            Index.renderIndex(renderer, box.getLeftOffset() + offset_x + cursorX, box.getBottomOffset(), getFont(), Color.WHITE);
+            Index.renderIndex(renderer, box.getLeftOffset() + offset_x + cursorX, box.getBottomOffset(), getFont(),
+                    Color.WHITE);
         }
         renderSelectionHighlight(renderer, displayText, box, offset_x);
     }
@@ -115,7 +117,9 @@ public class EditLine extends TextField implements Clipped {
         errorFlashStart = System.currentTimeMillis();
         if (ERROR_SOUND_ENABLED) {
             try {
-                AudioManager.getManager().newAudio(new AudioParameters<>(ERROR_SOUND, 0f, 0f, 0f, AudioPlayer.AUDIO_RANK_NOTIFICATION, AudioPlayer.AUDIO_DISTANCE_NOTIFICATION, 0.5f, 1f, 0.5f, false, true));
+                AudioManager.getManager().newAudio(new AudioParameters<>(ERROR_SOUND, 0f, 0f, 0f,
+                        AudioPlayer.AUDIO_RANK_NOTIFICATION, AudioPlayer.AUDIO_DISTANCE_NOTIFICATION, 0.5f, 1f, 0.5f,
+                        false, true));
             } catch (Exception _) {
                 // Ignore audio errors
             }
@@ -183,7 +187,8 @@ public class EditLine extends TextField implements Clipped {
 
             // Consume printable keys in PRESSED phase to prevent bubbling (e.g. 'D' triggering debug bounds)
             // even if the character hasn't been typed yet (will come in REPEAT phase).
-            if (event.getPhase() == InputPhase.PRESSED && !event.isControlDown() && !event.isAltDown() && !event.isMetaDown()) {
+            if (event.getPhase() == InputPhase.PRESSED && !event.isControlDown() && !event.isAltDown()
+                    && !event.isMetaDown()) {
                 char c = event.getCharacter();
                 if (c != 0 && !Character.isISOControl(c)) {
                     event.consume();
@@ -197,7 +202,8 @@ public class EditLine extends TextField implements Clipped {
 
     @Override
     public final boolean isAllowed(char ch) {
-        return super.isAllowed(ch) && getFont().getQuad(ch) != null && (allowed_chars == null || allowed_chars.indexOf(ch) != -1);
+        return super.isAllowed(ch) && getFont().getQuad(ch) != null && (allowed_chars == null || allowed_chars.indexOf(
+                ch) != -1);
     }
 
     private void correctOffsetX() {
@@ -423,14 +429,18 @@ public class EditLine extends TextField implements Clipped {
 
     //region Selection Rendering
 
-    private void renderSelectionHighlight(@NonNull GUIRenderer renderer, @NonNull CharSequence displayText, @NonNull Box box, int offset_x) {
+    private void renderSelectionHighlight(@NonNull GUIRenderer renderer, @NonNull CharSequence displayText,
+            @NonNull Box box, int offset_x) {
         if (!hasSelection()) return;
         int selStartX = getRenderedWidth(displayText.subSequence(0, selectionStart));
         int selEndX = getRenderedWidth(displayText.subSequence(0, selectionEnd));
-        int highlightLeft = Math.max(box.getLeftOffset() + offset_x + Math.min(selStartX, selEndX), box.getLeftOffset() + 1);
-        int highlightRight = Math.min(box.getLeftOffset() + offset_x + Math.max(selStartX, selEndX), getWidth() - box.getRightOffset() - 1);
+        int highlightLeft = Math.max(box.getLeftOffset() + offset_x + Math.min(selStartX, selEndX),
+                box.getLeftOffset() + 1);
+        int highlightRight = Math.min(box.getLeftOffset() + offset_x + Math.max(selStartX, selEndX),
+                getWidth() - box.getRightOffset() - 1);
         if (highlightRight > highlightLeft) {
-            renderer.drawColoredQuad(highlightLeft, box.getBottomOffset(), highlightRight - highlightLeft, getFont().getHeight(), new Vector4f(0.3f, 0.5f, 1.0f, 0.4f));
+            renderer.drawColoredQuad(highlightLeft, box.getBottomOffset(), highlightRight - highlightLeft,
+                    getFont().getHeight(), new Vector4f(0.3f, 0.5f, 1.0f, 0.4f));
         }
     }
 

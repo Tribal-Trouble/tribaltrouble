@@ -95,14 +95,13 @@ public final class GUIRenderer {
         vao.unbind();
     }
 
-    public void renderFrame(@NonNull RenderContext context, float width, float height, @NonNull Runnable frameCommands) {
+    public void renderFrame(@NonNull RenderContext context, float width, float height,
+            @NonNull Runnable frameCommands) {
         GLUtils.checkGLError("Before GUI Render");
         this.currentContext = context;
 
-        try (var _ = shader.use();
-             var _ = context.withBlendMode(BlendMode.ALPHA);
-             var _ = context.withDepthMode(DepthMode.NONE);
-             var _ = context.withCullMode(CullMode.NONE)) {
+        try (var _ = shader.use(); var _ = context.withBlendMode(BlendMode.ALPHA); var _ = context.withDepthMode(
+                DepthMode.NONE); var _ = context.withCullMode(CullMode.NONE)) {
 
             projectionMatrix.identity().ortho(0, width, 0, height, -1, 1);
             shader.setUniformMatrix4(GUIShader.Uniforms.PROJECTION_MATRIX, false, projectionMatrix);
@@ -135,18 +134,22 @@ public final class GUIRenderer {
     }
 
     public void drawIcon(@NonNull IconQuad iconQuad, float x, float y) {
-        drawTexture(iconQuad.getTexture(), x, y, iconQuad.getWidth(), iconQuad.getHeight(), iconQuad.getU1(), iconQuad.getV1(), iconQuad.getU2(), iconQuad.getV2(), Color.WHITE);
+        drawTexture(iconQuad.getTexture(), x, y, iconQuad.getWidth(), iconQuad.getHeight(), iconQuad.getU1(),
+                iconQuad.getV1(), iconQuad.getU2(), iconQuad.getV2(), Color.WHITE);
     }
 
     public void drawIcon(@NonNull IconQuad iconQuad, float x, float y, @NonNull Vector4fc color) {
-        drawTexture(iconQuad.getTexture(), x, y, iconQuad.getWidth(), iconQuad.getHeight(), iconQuad.getU1(), iconQuad.getV1(), iconQuad.getU2(), iconQuad.getV2(), color);
+        drawTexture(iconQuad.getTexture(), x, y, iconQuad.getWidth(), iconQuad.getHeight(), iconQuad.getU1(),
+                iconQuad.getV1(), iconQuad.getU2(), iconQuad.getV2(), color);
     }
 
     public void drawIcon(@NonNull IconQuad iconQuad, float x, float y, float w, float h) {
-        drawTexture(iconQuad.getTexture(), x, y, w, h, iconQuad.getU1(), iconQuad.getV1(), iconQuad.getU2(), iconQuad.getV2(), Color.WHITE);
+        drawTexture(iconQuad.getTexture(), x, y, w, h, iconQuad.getU1(), iconQuad.getV1(), iconQuad.getU2(),
+                iconQuad.getV2(), Color.WHITE);
     }
 
-    public void drawTexture(@NonNull Texture texture, float x, float y, float w, float h, float u1, float v1, float u2, float v2, @NonNull Vector4fc tint) {
+    public void drawTexture(@NonNull Texture texture, float x, float y, float w, float h, float u1, float v1, float u2,
+            float v2, @NonNull Vector4fc tint) {
         if (quadCount >= MAX_QUADS) {
             flush();
         }
@@ -171,7 +174,8 @@ public final class GUIRenderer {
         return (float) textureCount++;
     }
 
-    private void putQuad(float x, float y, float w, float h, float u1, float v1, float u2, float v2, float texIndex, int color) {
+    private void putQuad(float x, float y, float w, float h, float u1, float v1, float u2, float v2, float texIndex,
+            int color) {
         Matrix4f mat = matrixStack.current();
 
         // Transform vertices on CPU
@@ -181,28 +185,28 @@ public final class GUIRenderer {
         float y2 = y + h;
 
         // P1 (x1, y1)
-        vertexBuffer.putFloat(mat.m00() * x1 + mat.m10() * y1 + mat.m30())
-                .putFloat(mat.m01() * x1 + mat.m11() * y1 + mat.m31())
-                .putFloat(mat.m02() * x1 + mat.m12() * y1 + mat.m32())
-                .putInt(color).putFloat(u1).putFloat(v1).putFloat(texIndex);
+        vertexBuffer.putFloat(mat.m00() * x1 + mat.m10() * y1 + mat.m30()).putFloat(
+                mat.m01() * x1 + mat.m11() * y1 + mat.m31()).putFloat(
+                        mat.m02() * x1 + mat.m12() * y1 + mat.m32()).putInt(color).putFloat(u1).putFloat(v1).putFloat(
+                                texIndex);
 
         // P2 (x2, y1)
-        vertexBuffer.putFloat(mat.m00() * x2 + mat.m10() * y1 + mat.m30())
-                .putFloat(mat.m01() * x2 + mat.m11() * y1 + mat.m31())
-                .putFloat(mat.m02() * x2 + mat.m12() * y1 + mat.m32())
-                .putInt(color).putFloat(u2).putFloat(v1).putFloat(texIndex);
+        vertexBuffer.putFloat(mat.m00() * x2 + mat.m10() * y1 + mat.m30()).putFloat(
+                mat.m01() * x2 + mat.m11() * y1 + mat.m31()).putFloat(
+                        mat.m02() * x2 + mat.m12() * y1 + mat.m32()).putInt(color).putFloat(u2).putFloat(v1).putFloat(
+                                texIndex);
 
         // P3 (x2, y2)
-        vertexBuffer.putFloat(mat.m00() * x2 + mat.m10() * y2 + mat.m30())
-                .putFloat(mat.m01() * x2 + mat.m11() * y2 + mat.m31())
-                .putFloat(mat.m02() * x2 + mat.m12() * y2 + mat.m32())
-                .putInt(color).putFloat(u2).putFloat(v2).putFloat(texIndex);
+        vertexBuffer.putFloat(mat.m00() * x2 + mat.m10() * y2 + mat.m30()).putFloat(
+                mat.m01() * x2 + mat.m11() * y2 + mat.m31()).putFloat(
+                        mat.m02() * x2 + mat.m12() * y2 + mat.m32()).putInt(color).putFloat(u2).putFloat(v2).putFloat(
+                                texIndex);
 
         // P4 (x1, y2)
-        vertexBuffer.putFloat(mat.m00() * x1 + mat.m10() * y2 + mat.m30())
-                .putFloat(mat.m01() * x1 + mat.m11() * y2 + mat.m31())
-                .putFloat(mat.m02() * x1 + mat.m12() * y2 + mat.m32())
-                .putInt(color).putFloat(u1).putFloat(v2).putFloat(texIndex);
+        vertexBuffer.putFloat(mat.m00() * x1 + mat.m10() * y2 + mat.m30()).putFloat(
+                mat.m01() * x1 + mat.m11() * y2 + mat.m31()).putFloat(
+                        mat.m02() * x1 + mat.m12() * y2 + mat.m32()).putInt(color).putFloat(u1).putFloat(v2).putFloat(
+                                texIndex);
 
         quadCount++;
     }

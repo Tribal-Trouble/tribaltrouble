@@ -61,12 +61,14 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
     private TimestampedGameSession spectated_session;
     private @Nullable ChatRoom current_room;
 
-    public Client(@NonNull MatchmakingServer server, AbstractConnection conn, InetAddress remote_address, InetAddress local_remote_address, String username, boolean guest, int revision, int host_id) {
+    public Client(@NonNull MatchmakingServer server, AbstractConnection conn, InetAddress remote_address,
+            InetAddress local_remote_address, String username, boolean guest, int revision, int host_id) {
         this.conn = conn;
         this.server = server;
         this.remote_address = remote_address;
         this.local_remote_address = local_remote_address;
-        this.client_interface = (MatchmakingClientInterface) ARMIEvent.createProxy(conn, MatchmakingClientInterface.class);
+        this.client_interface = (MatchmakingClientInterface) ARMIEvent.createProxy(conn,
+                MatchmakingClientInterface.class);
         this.username = username;
         this.guest = guest;
         this.revision = revision;
@@ -79,7 +81,8 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 
     public void requestProfiles() {
         if (!guest)
-            client_interface.updateProfileList(DBInterface.getProfiles(username, revision), DBInterface.getLastUsedProfile(username));
+            client_interface.updateProfileList(DBInterface.getProfiles(username, revision),
+                    DBInterface.getLastUsedProfile(username));
     }
 
     public void setProfile(String nick) {
@@ -210,10 +213,12 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
             getClientInterface().error(MatchmakingClientInterface.CHAT_ERROR_NO_SUCH_NICK);
             return;
         }
-        MatchmakingServer.getLogger().info(getUsername() + " requested to spectate " + nick + " in game " + game_session.getDatabaseID());
+        MatchmakingServer.getLogger().info(
+                getUsername() + " requested to spectate " + nick + " in game " + game_session.getDatabaseID());
         byte[] world_params_data = game_session.getWorldParamsData();
         if (world_params_data == null) {
-            MatchmakingServer.getLogger().warning("Game " + game_session.getDatabaseID() + ": no world params available for spectating");
+            MatchmakingServer.getLogger().warning(
+                    "Game " + game_session.getDatabaseID() + ": no world params available for spectating");
             getClientInterface().error(MatchmakingClientInterface.CHAT_ERROR_SPECTATE_FAILED);
             return;
         }
@@ -227,11 +232,9 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
         if (spectated_session == null) return;
         byte[] event_log_data = spectated_session.readEventLog();
         int current_tick = spectated_session.getLastTick();
-        int total_chunks = event_log_data.length == 0
-                ? 1
-                : (event_log_data.length + SPECTATOR_CHUNK_SIZE - 1) / SPECTATOR_CHUNK_SIZE;
-        MatchmakingServer.getLogger().info("Sending spectator event log for game " + spectated_session.getDatabaseID()
-                + ": " + event_log_data.length + " bytes in " + total_chunks + " chunks, tick=" + current_tick);
+        int total_chunks = event_log_data.length == 0 ? 1 : (event_log_data.length + SPECTATOR_CHUNK_SIZE - 1) / SPECTATOR_CHUNK_SIZE;
+        MatchmakingServer.getLogger().info(
+                "Sending spectator event log for game " + spectated_session.getDatabaseID() + ": " + event_log_data.length + " bytes in " + total_chunks + " chunks, tick=" + current_tick);
         for (int i = 0; i < total_chunks; i++) {
             int offset = i * SPECTATOR_CHUNK_SIZE;
             int length = Math.min(SPECTATOR_CHUNK_SIZE, event_log_data.length - offset);
@@ -274,7 +277,8 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
     }
 
     public void gameStartedNotify(GameSession game_session) {
-        if (game_session == null || game_session.getParticipants() == null || game_session.getParticipants().length == 0) {
+        if (game_session == null || game_session.getParticipants() == null
+                || game_session.getParticipants().length == 0) {
             MatchmakingServer.getLogger().warning("Invalid GameSession received from " + getUsername());
             return;
         }
@@ -288,7 +292,8 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
             }
             Profile p = client.getProfile();
             if (p == null || !p.getNick().equals(participants[i].getNick())) {
-                MatchmakingServer.getLogger().warning("Invalid nickparticipant in GameSession from " + getUsername() + " or " + client.getUsername() + " has given wrong nick");
+                MatchmakingServer.getLogger().warning(
+                        "Invalid nickparticipant in GameSession from " + getUsername() + " or " + client.getUsername() + " has given wrong nick");
                 break;
             }
             if (i == 0)
@@ -298,25 +303,30 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
             if (client_session != null && client_session.getSession().getID() == game_session.getID()) {
                 // If the session ids match, it must be the same game
                 if (!client_session.getSession().equals(game_session)) {
-                    MatchmakingServer.getLogger().warning("GameSession from " + getUsername() + " does not match the one from " + client.getUsername());
+                    MatchmakingServer.getLogger().warning(
+                            "GameSession from " + getUsername() + " does not match the one from " + client.getUsername());
                     break;
                 }
                 if (!client_session.join(server, this)) {
-                    MatchmakingServer.getLogger().warning(getUsername() + " joined session " + Integer.toHexString(game_session.getID()) + " too late or seat already taken");
+                    MatchmakingServer.getLogger().warning(getUsername() + " joined session " + Integer.toHexString(
+                            game_session.getID()) + " too late or seat already taken");
                     break;
                 }
-                MatchmakingServer.getLogger().info("GameSession " + Integer.toHexString(game_session.getID()) + " joined by " + getUsername());
+                MatchmakingServer.getLogger().info("GameSession " + Integer.toHexString(
+                        game_session.getID()) + " joined by " + getUsername());
                 setGameSession(client_session);
                 return;
             }
         }
-        MatchmakingServer.getLogger().info("Game " + database_id + ": New GameSession " + Integer.toHexString(game_session.getID()) + " started by " + getUsername());
+        MatchmakingServer.getLogger().info("Game " + database_id + ": New GameSession " + Integer.toHexString(
+                game_session.getID()) + " started by " + getUsername());
         TimestampedGameSession new_session = new TimestampedGameSession(game_session, database_id);
         if (new_session.join(server, this)) {
             setGameSession(new_session);
             DBInterface.startGame(new_session, server);
         } else {
-            MatchmakingServer.getLogger().warning("Game " + database_id + ": " + getUsername() + " could not join own game");
+            MatchmakingServer.getLogger().warning(
+                    "Game " + database_id + ": " + getUsername() + " could not join own game");
         }
     }
 
@@ -417,7 +427,8 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
                 ChatRoomEntry[] chat_rooms_chunk = new ChatRoomEntry[CHUNK_SIZE];
                 while (it.hasNext()) {
                     ChatRoom chat_room = (ChatRoom) it.next();
-                    chat_rooms_chunk[chunk_index++] = new ChatRoomEntry(chat_room.getName(), chat_room.getUsers().size());
+                    chat_rooms_chunk[chunk_index++] = new ChatRoomEntry(chat_room.getName(),
+                            chat_room.getUsers().size());
                     if (chunk_index == chat_rooms_chunk.length) {
                         client_interface.updateList(type, chat_rooms_chunk);
                         chunk_index = 0;
@@ -500,7 +511,8 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
         }
     }
 
-    private void tunnelOpened(HostSequenceID address_to, InetAddress inet_address_to, InetAddress local_inet_address_to, Profile profile, Client remote_client) {
+    private void tunnelOpened(HostSequenceID address_to, InetAddress inet_address_to, InetAddress local_inet_address_to,
+            Profile profile, Client remote_client) {
         tunnels.put(address_to, remote_client);
         client_interface.tunnelOpened(address_to, inet_address_to, local_inet_address_to, profile);
     }
@@ -549,8 +561,8 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
                 String formatted_message = getProfile().getNick() + " has created a game called \"" + current_game.getName() + "\".";
                 server.getChatLogger().info(formatted_message);
                 current_room.sendMessage("Server", formatted_message);
-                DiscordBotService.getInstance().getChatroomCoordinator()
-                        .ifPresent(coordinator -> coordinator.sendDiscordMessage(current_room, "Server", formatted_message));
+                DiscordBotService.getInstance().getChatroomCoordinator().ifPresent(
+                        coordinator -> coordinator.sendDiscordMessage(current_room, "Server", formatted_message));
             }
         }
     }
@@ -572,11 +584,13 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
             if (current_room == null && ChatRoom.isNameValid(room_name)) {
                 ChatRoom room = ChatRoom.getChatRoom(room_name);
                 if (room.join(this)) {
-                    MatchmakingServer.getLogger().info(getProfile().getNick() + " joined chat room, name = " + room.getName());
+                    MatchmakingServer.getLogger().info(
+                            getProfile().getNick() + " joined chat room, name = " + room.getName());
                     current_room = room;
                     client_interface.joiningChatRoom(current_room.getName());
                     room.sendUsers();
-                    client_interface.receiveChatRoomMessage("Server", "Welcome to the Tribal Trouble multiplayer server. Please keep a proper tone while playing online: All activity in the chatrooms and the game is logged and any abusive behavior will result in the immediate banning from the multiplayer server at Oddlabs' discretion.");
+                    client_interface.receiveChatRoomMessage("Server",
+                            "Welcome to the Tribal Trouble multiplayer server. Please keep a proper tone while playing online: All activity in the chatrooms and the game is logged and any abusive behavior will result in the immediate banning from the multiplayer server at Oddlabs' discretion.");
                 } else {
                     client_interface.error(MatchmakingClientInterface.CHAT_ERROR_TOO_MANY_USERS);
                 }
@@ -642,8 +656,9 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
             String formatted_message = formatChat(msg);
             server.getChatLogger().info(formatted_message);
             current_room.sendMessage(getProfile().getNick(), msg);
-            DiscordBotService.getInstance().getChatroomCoordinator()
-                    .ifPresent(coordinator -> coordinator.sendDiscordMessage(current_room, getProfile().getNick(), formatted_message));
+            DiscordBotService.getInstance().getChatroomCoordinator().ifPresent(
+                    coordinator -> coordinator.sendDiscordMessage(current_room, getProfile().getNick(),
+                            formatted_message));
         }
     }
 

@@ -46,7 +46,8 @@ public abstract class Delegate extends GUIObject {
         }
     }
 
-    public void render3D(@NonNull LandscapeRenderer renderer, @NonNull RenderQueues render_queues, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public void render3D(@NonNull LandscapeRenderer renderer, @NonNull RenderQueues render_queues,
+            @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
     }
 
     public void render2D(@NonNull GUIRenderer renderer) {

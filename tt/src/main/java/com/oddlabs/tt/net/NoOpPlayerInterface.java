@@ -47,7 +47,8 @@ public final class NoOpPlayerInterface implements PlayerInterface {
     }
 
     @Override
-    public void placeBuilding(Selectable<?> @NonNull [] selection, int template_id, int placing_grid_x, int placing_grid_y) {
+    public void placeBuilding(Selectable<?> @NonNull [] selection, int template_id, int placing_grid_x,
+            int placing_grid_y) {
     }
 
     @Override
@@ -55,7 +56,8 @@ public final class NoOpPlayerInterface implements PlayerInterface {
     }
 
     @Override
-    public void setTarget(Selectable<?> @NonNull [] selection, @NonNull Target target, @NonNull Action action, boolean aggressive) {
+    public void setTarget(Selectable<?> @NonNull [] selection, @NonNull Target target, @NonNull Action action,
+            boolean aggressive) {
     }
 
     @Override
@@ -63,7 +65,8 @@ public final class NoOpPlayerInterface implements PlayerInterface {
     }
 
     @Override
-    public void setLandscapeTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action, boolean aggressive) {
+    public void setLandscapeTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action,
+            boolean aggressive) {
     }
 
     @Override

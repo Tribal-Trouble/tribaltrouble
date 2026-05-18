@@ -23,14 +23,16 @@ public final class TreeRenderer extends TreePicker implements SceneRenderer {
     private final @Nullable Cheat cheat;
     private final Matrix4f tempMatrix = new Matrix4f();
 
-    TreeRenderer(@Nullable Cheat cheat, SpriteSorter sprite_sorter, RespondManager respond_manager, InstancedSpriteRenderer instancedSpriteRenderer) {
+    TreeRenderer(@Nullable Cheat cheat, SpriteSorter sprite_sorter, RespondManager respond_manager,
+            InstancedSpriteRenderer instancedSpriteRenderer) {
         super(sprite_sorter, respond_manager);
         this.cheat = cheat;
         this.instancedSpriteRenderer = instancedSpriteRenderer;
     }
 
     @Override
-    public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull MatrixStack modelViewStack,
+            @NonNull MatrixStack projectionStack) {
         if (!state.inNoDetailMode()) {
             wave_animation.setTime(LocalEventQueue.getQueue().getTime());
         }
@@ -80,14 +82,17 @@ public final class TreeRenderer extends TreePicker implements SceneRenderer {
         for (TreeSupply supply : render_list) {
             prepareMatrix(supply);
             // Render Crown (Sprite 0). Blend = false, DepthWrite = true for opaque trees.
-            instancedSpriteRenderer.add(crownList, 0, 0, 0f, 0, respond, false, true, true, tempMatrix, Color.WHITE, Color.WHITE);
+            instancedSpriteRenderer.add(crownList, 0, 0, 0f, 0, respond, false, true, true, tempMatrix, Color.WHITE,
+                    Color.WHITE);
             // Render Trunk (Sprite 0). Blend = false, DepthWrite = true.
-            instancedSpriteRenderer.add(trunkList, 0, 0, 0f, 0, respond, false, true, true, tempMatrix, Color.WHITE, Color.WHITE);
+            instancedSpriteRenderer.add(trunkList, 0, 0, 0f, 0, respond, false, true, true, tempMatrix, Color.WHITE,
+                    Color.WHITE);
         }
         render_list.clear();
     }
 
-    public void debugRender(@NonNull List<TreeSupply> @NonNull [] render_lists, @NonNull List<TreeSupply> @NonNull [] respond_render_lists) {
+    public void debugRender(@NonNull List<TreeSupply> @NonNull [] render_lists,
+            @NonNull List<TreeSupply> @NonNull [] respond_render_lists) {
         if (Globals.isBoundsEnabled(BoundingMode.PLAYERS)) {
             for (List<TreeSupply> render_list : render_lists) {
                 for (TreeSupply group : render_list) {

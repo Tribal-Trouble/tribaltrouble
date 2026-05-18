@@ -24,7 +24,9 @@ public final class EditBox extends TextBox {
         super.renderBox(renderer, isDisabled() ? ModeIconQuads.Mode.DISABLED : ModeIconQuads.Mode.NORMAL);
         var c = isDisabled() ? Label.DISABLED_COLOR : Color.WHITE;
 
-        TextLineRenderer.render(renderer, getTextLayout(), edit_box.getLeftOffset(), getHeight() - edit_box.getBottomOffset() - getFont().getHeight() + getOffsetY(), edit_box.getLeftOffset(), getWidth() - edit_box.getRightOffset(), c);
+        TextLineRenderer.render(renderer, getTextLayout(), edit_box.getLeftOffset(),
+                getHeight() - edit_box.getBottomOffset() - getFont().getHeight() + getOffsetY(),
+                edit_box.getLeftOffset(), getWidth() - edit_box.getRightOffset(), c);
 
         if (isActive()) {
             TextLayout layout = getTextLayout();
@@ -50,7 +52,8 @@ public final class EditBox extends TextBox {
                 int currentLine = getTextLayout().getCursorLine(index);
                 if (currentLine > 0) {
                     int xPos = getTextLayout().getCursorX(index);
-                    index = getTextLayout().getCharacterIndexAt(xPos, (currentLine - 0.5f) * getFont().getHeight(), getTextLayout().getTextHeight());
+                    index = getTextLayout().getCharacterIndexAt(xPos, (currentLine - 0.5f) * getFont().getHeight(),
+                            getTextLayout().getTextHeight());
                 } else {
                     index = 0;
                 }
@@ -58,7 +61,8 @@ public final class EditBox extends TextBox {
                 int currentLine = getTextLayout().getCursorLine(index);
                 if (currentLine < getTextLayout().getLines().size() - 1) {
                     int xPos = getTextLayout().getCursorX(index);
-                    index = getTextLayout().getCharacterIndexAt(xPos, (currentLine + 1.5f) * getFont().getHeight(), getTextLayout().getTextHeight());
+                    index = getTextLayout().getCharacterIndexAt(xPos, (currentLine + 1.5f) * getFont().getHeight(),
+                            getTextLayout().getTextHeight());
                 } else {
                     index = getText().length();
                 }

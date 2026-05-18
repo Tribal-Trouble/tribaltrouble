@@ -19,7 +19,8 @@ public final class AnimationInfo implements Serializable {
     private final float wpc;
     private final @NonNull String name;
 
-    public AnimationInfo(float @NonNull [] @NonNull [] frames, @NonNull AnimationType type, float wpc, @NonNull String name) {
+    public AnimationInfo(float @NonNull [] @NonNull [] frames, @NonNull AnimationType type, float wpc,
+            @NonNull String name) {
         this.frames = frames;
         this.type = type;
         this.wpc = wpc;

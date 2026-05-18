@@ -12,7 +12,7 @@ import java.util.ResourceBundle;
 public final class FreeQuitLabel extends Label implements Animated {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(FreeQuitLabel.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -46,4 +46,3 @@ public final class FreeQuitLabel extends Label implements Animated {
         }
     }
 }
-

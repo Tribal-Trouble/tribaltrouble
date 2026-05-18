@@ -62,7 +62,8 @@ public class FirstPersonDelegate extends InGameDelegate {
     }
 
     @Override
-    public void mouseDragged(@NonNull MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
+    public void mouseDragged(@NonNull MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x,
+            int absolute_y) {
         if (created_tick == LocalEventQueue.getQueue().getManager().getTick())
             return;
         if ((button == MouseButton.MIDDLE || key_pressed) && !done && getGUIRoot().getModalDelegate() == null) {

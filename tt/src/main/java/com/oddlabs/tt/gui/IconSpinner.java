@@ -13,7 +13,7 @@ import java.util.ResourceBundle;
 public abstract class IconSpinner extends GUIObject implements ToolTip {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(IconSpinner.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -29,14 +29,16 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 
     private int text_count = 0;
 
-    public IconSpinner(@NonNull WorldViewer viewer, @NonNull ModeIconQuads icon_quad, @NonNull String tool_tip, @NonNull IconQuad @Nullable [] tool_tip_icons, @NonNull String shortcut_key) {
+    public IconSpinner(@NonNull WorldViewer viewer, @NonNull ModeIconQuads icon_quad, @NonNull String tool_tip,
+            @NonNull IconQuad @Nullable [] tool_tip_icons, @NonNull String shortcut_key) {
         this.icon_quad = icon_quad;
         this.infinite_icon = GUIIcons.getIcons().getInfinite();
         this.tool_tip = tool_tip;
         this.tool_tip_icons = tool_tip_icons;
         this.viewer = viewer;
         setCanFocus(true);
-        setDim(icon_quad.quad(ModeIconQuads.Mode.NORMAL).getWidth(), icon_quad.quad(ModeIconQuads.Mode.NORMAL).getHeight());
+        setDim(icon_quad.quad(ModeIconQuads.Mode.NORMAL).getWidth(), icon_quad.quad(
+                ModeIconQuads.Mode.NORMAL).getHeight());
 
         String inc_str = i18n("increase", shortcut_key);
         button_plus = new IconSpinnerButton(Skin.getSkin().getPlusButton(), inc_str, this);
@@ -50,7 +52,8 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
         button_minus.addMouseButtonListener(new DecreaseListener());
         addChild(button_minus);
 
-        label = new Label("", Skin.getSkin().getHeadlineFont(), icon_quad.quad(ModeIconQuads.Mode.NORMAL).getWidth(), Origin.AT_MIDDLE);
+        label = new Label("", Skin.getSkin().getHeadlineFont(), icon_quad.quad(ModeIconQuads.Mode.NORMAL).getWidth(),
+                Origin.AT_MIDDLE);
         label.setPos(0, (getHeight() - label.getHeight()) / 2);
         addChild(label);
     }
@@ -129,11 +132,7 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
         int x = (getWidth() - icon_quad.quad(ModeIconQuads.Mode.NORMAL).getWidth()) / 2;
         int y = (getHeight() - icon_quad.quad(ModeIconQuads.Mode.NORMAL).getHeight()) / 2;
 
-        ModeIconQuads.Mode skinMode = isDisabled()
-                ? ModeIconQuads.Mode.DISABLED
-                : isHovered()
-                  ? ModeIconQuads.Mode.ACTIVE
-                  : ModeIconQuads.Mode.NORMAL;
+        ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isHovered() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
 
         renderer.drawIcon(icon_quad.quad(skinMode), x, y);
 

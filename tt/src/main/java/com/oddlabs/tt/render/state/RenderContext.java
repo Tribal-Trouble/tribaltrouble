@@ -39,15 +39,20 @@ public interface RenderContext {
 
     // Scoped State (Try-with-resources)
     // These return a Closeable that restores the PREVIOUS state.
-    @NonNull ScopedState withBlendMode(@NonNull BlendMode mode);
+    @NonNull
+    ScopedState withBlendMode(@NonNull BlendMode mode);
 
-    @NonNull ScopedState withDepthMode(@NonNull DepthMode mode);
+    @NonNull
+    ScopedState withDepthMode(@NonNull DepthMode mode);
 
-    @NonNull ScopedState withCullMode(@NonNull CullMode mode);
+    @NonNull
+    ScopedState withCullMode(@NonNull CullMode mode);
 
-    @NonNull ScopedState withColorMask(boolean r, boolean g, boolean b, boolean a);
+    @NonNull
+    ScopedState withColorMask(boolean r, boolean g, boolean b, boolean a);
 
-    @NonNull ScopedState withDepthFunc(int func);
+    @NonNull
+    ScopedState withDepthFunc(int func);
 
     // UBO Management
     void updateGlobalState(java.nio.@NonNull ByteBuffer data);

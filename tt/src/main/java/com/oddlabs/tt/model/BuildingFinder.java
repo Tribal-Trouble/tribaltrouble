@@ -18,10 +18,7 @@ public final class BuildingFinder implements FinderFilter<Building> {
 
     @Override
     public @Nullable Building getOccupantFromRegion(@NonNull Region region, boolean one_region) {
-        return region.getObjects(Building.class).stream()
-                .filter(this::accept)
-                .findFirst()
-                .orElse(null);
+        return region.getObjects(Building.class).stream().filter(this::accept).findFirst().orElse(null);
     }
 
     @Override

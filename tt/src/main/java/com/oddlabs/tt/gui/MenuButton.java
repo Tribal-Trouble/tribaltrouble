@@ -21,7 +21,8 @@ public final class MenuButton extends ButtonObject {
         this(caption, Skin.getSkin().getHeadlineFont(), color_normal, color_active);
     }
 
-    private MenuButton(@NonNull CharSequence text, @NonNull Font font, @NonNull Vector4fc color_normal, @NonNull Vector4fc color_active) {
+    private MenuButton(@NonNull CharSequence text, @NonNull Font font, @NonNull Vector4fc color_normal,
+            @NonNull Vector4fc color_active) {
         super(font);
         setDim(font.getWidth(text), font.getHeight());
         this.text = text;
@@ -38,15 +39,15 @@ public final class MenuButton extends ButtonObject {
 
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
-        renderer.getMatrixStack().push()
-                .translate(getWidth() / 2f, getHeight() / 2f, 0);
+        renderer.getMatrixStack().push().translate(getWidth() / 2f, getHeight() / 2f, 0);
         Vector4fc c;
         if (isActive()) {
             c = color_active;
             scaleHovered(renderer);
         } else c = isDisabled() ? Label.DISABLED_COLOR : color_normal;
 
-        TextLineRenderer.render(renderer, getFont(), text, -getWidth() / 2f, -getHeight() / 2f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, c);
+        TextLineRenderer.render(renderer, getFont(), text, -getWidth() / 2f, -getHeight() / 2f, Float.NEGATIVE_INFINITY,
+                Float.POSITIVE_INFINITY, c);
         renderer.getMatrixStack().pop();
     }
 

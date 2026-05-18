@@ -71,11 +71,11 @@ public final class ByteCompressedFloatArray implements Serializable {
         }
         return result;
     }
-/*
-	public static final void main(String[] args) {
-		float[] array = {200f, 30f, 23.7765f};
-		ByteCompressedFloatArray scfa = new ByteCompressedFloatArray(array, 1);
-System.out.println("array = " + scfa);
-	}
-*/
+    /*
+    	public static final void main(String[] args) {
+    		float[] array = {200f, 30f, 23.7765f};
+    		ByteCompressedFloatArray scfa = new ByteCompressedFloatArray(array, 1);
+    System.out.println("array = " + scfa);
+    	}
+    */
 }

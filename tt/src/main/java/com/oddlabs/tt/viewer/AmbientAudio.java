@@ -50,9 +50,15 @@ public final class AmbientAudio {
         ambient_forest_buffer = Resources.findResource(new AudioFile("/sfx/ambient_forest.ogg"));
         ambient_beach_buffer = Resources.findResource(new AudioFile("/sfx/ambient_beach.ogg"));
         ambient_wind_buffer = Resources.findResource(new AudioFile("/sfx/ambient_wind.ogg"));
-        ambient_forest = audio_implementation.newAudio(new AudioParameters<>(ambient_forest_buffer, 10000f, 10000f, 10000f, AudioPlayer.AUDIO_RANK_AMBIENT, AudioPlayer.AUDIO_DISTANCE_AMBIENT, AudioPlayer.AUDIO_GAIN_AMBIENT_FOREST, AudioPlayer.AUDIO_RADIUS_AMBIENT_FOREST, 1f, true, true, false));
-        ambient_beach = audio_implementation.newAudio(new AudioParameters<>(ambient_beach_buffer, 10000f, 10000f, 10000f, AudioPlayer.AUDIO_RANK_AMBIENT, AudioPlayer.AUDIO_DISTANCE_AMBIENT, AudioPlayer.AUDIO_GAIN_AMBIENT_BEACH, AudioPlayer.AUDIO_RADIUS_AMBIENT_BEACH, 1f, true, true, false));
-        ambient_wind = audio_implementation.newAudio(new AudioParameters<>(ambient_wind_buffer, 10000f, 10000f, 10000f, AudioPlayer.AUDIO_RANK_AMBIENT, AudioPlayer.AUDIO_DISTANCE_AMBIENT, AudioPlayer.AUDIO_GAIN_AMBIENT_WIND, AudioPlayer.AUDIO_RADIUS_AMBIENT_WIND, 1f, true, true, false));
+        ambient_forest = audio_implementation.newAudio(new AudioParameters<>(ambient_forest_buffer, 10000f, 10000f,
+                10000f, AudioPlayer.AUDIO_RANK_AMBIENT, AudioPlayer.AUDIO_DISTANCE_AMBIENT,
+                AudioPlayer.AUDIO_GAIN_AMBIENT_FOREST, AudioPlayer.AUDIO_RADIUS_AMBIENT_FOREST, 1f, true, true, false));
+        ambient_beach = audio_implementation.newAudio(new AudioParameters<>(ambient_beach_buffer, 10000f, 10000f,
+                10000f, AudioPlayer.AUDIO_RANK_AMBIENT, AudioPlayer.AUDIO_DISTANCE_AMBIENT,
+                AudioPlayer.AUDIO_GAIN_AMBIENT_BEACH, AudioPlayer.AUDIO_RADIUS_AMBIENT_BEACH, 1f, true, true, false));
+        ambient_wind = audio_implementation.newAudio(new AudioParameters<>(ambient_wind_buffer, 10000f, 10000f, 10000f,
+                AudioPlayer.AUDIO_RANK_AMBIENT, AudioPlayer.AUDIO_DISTANCE_AMBIENT, AudioPlayer.AUDIO_GAIN_AMBIENT_WIND,
+                AudioPlayer.AUDIO_RADIUS_AMBIENT_WIND, 1f, true, true, false));
         ambient_forest.registerAmbient();
         ambient_beach.registerAmbient();
         ambient_wind.registerAmbient();
@@ -125,9 +131,8 @@ public final class AmbientAudio {
                 FloatBuffer orientation_buffer = stack.mallocFloat(6);
                 f.get(orientation_buffer);
                 u.get(3, orientation_buffer);
-                AudioManager.getManager()
-                        .updatePosition(camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ())
-                        .updateOrientation(orientation_buffer);
+                AudioManager.getManager().updatePosition(camera.getCurrentX(), camera.getCurrentY(),
+                        camera.getCurrentZ()).updateOrientation(orientation_buffer);
             }
 
             int meters_per_world = heightmap.getMetersPerWorld();
@@ -136,7 +141,8 @@ public final class AmbientAudio {
             float dr = 2f * (float) Math.sqrt(dx * dx + dy * dy) / meters_per_world;
 
             // update placement and gain of ambient forest source
-            ambient_forest.setPos(0f, 0f, heightmap.getNearestHeight(camera.getCurrentX(), camera.getCurrentY()) - camera.getCurrentZ() + 8f);
+            ambient_forest.setPos(0f, 0f, heightmap.getNearestHeight(camera.getCurrentX(),
+                    camera.getCurrentY()) - camera.getCurrentZ() + 8f);
             ambient_forest.setGain(AudioPlayer.AUDIO_GAIN_AMBIENT_FOREST * Math.clamp(1f - dr + 0.5f, 0f, 1f));
 
             // update placement and gain of ambient beach source
@@ -145,8 +151,10 @@ public final class AmbientAudio {
                 factor = 1f / dr - 1f;
             float beach_x = camera.getCurrentX() * factor;
             float beach_y = camera.getCurrentY() * factor;
-            float beach_z = heightmap.getNearestHeight(camera.getCurrentX(), camera.getCurrentY()) - camera.getCurrentZ();
-            float beach_gain = AudioPlayer.AUDIO_GAIN_AMBIENT_BEACH * Math.clamp(1f - Math.abs(4f * dr - 3.75f), 0f, 1f);
+            float beach_z = heightmap.getNearestHeight(camera.getCurrentX(),
+                    camera.getCurrentY()) - camera.getCurrentZ();
+            float beach_gain = AudioPlayer.AUDIO_GAIN_AMBIENT_BEACH * Math.clamp(1f - Math.abs(4f * dr - 3.75f), 0f,
+                    1f);
             ambient_beach.setPos(beach_x, beach_y, beach_z);
             ambient_beach.setGain(beach_gain);
 
@@ -167,7 +175,8 @@ public final class AmbientAudio {
 
                         // Check for forest density
                         World world = heightmap.getWorld();
-                        TreeCounterVisitor treeVisitor = new TreeCounterVisitor(camX, camY, 25f, TREES_FOREST_THRESHOLD);
+                        TreeCounterVisitor treeVisitor = new TreeCounterVisitor(camX, camY, 25f,
+                                TREES_FOREST_THRESHOLD);
                         world.getTreeRoot().visit(treeVisitor);
 
                         if (treeVisitor.getCount() >= TREES_FOREST_THRESHOLD) {
@@ -184,7 +193,8 @@ public final class AmbientAudio {
 
                             // If average surrounding height is significantly higher than current ground position,
                             // we are likely in a valley or depression.
-                            efx.setReverb(avgSurround > hCurrent + 8.0f ? EFXManager.ReverbType.VALLEY : EFXManager.ReverbType.GENERIC);
+                            efx.setReverb(
+                                    avgSurround > hCurrent + 8.0f ? EFXManager.ReverbType.VALLEY : EFXManager.ReverbType.GENERIC);
                         }
                     }
                 }

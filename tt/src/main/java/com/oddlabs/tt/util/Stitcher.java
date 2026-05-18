@@ -8,7 +8,8 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public final class Stitcher {
-    public static <V extends Vertex<V>> @NonNull ShortBuffer stitch(@NonNull V @NonNull [] vertices) throws IllegalArgumentException {
+    public static <V extends Vertex<V>> @NonNull ShortBuffer stitch(
+            @NonNull V @NonNull [] vertices) throws IllegalArgumentException {
         ShortBuffer indices = Objects.requireNonNull(BufferUtils.createShortBuffer(vertices.length * 3));
         vertices = vertices.clone();
         Arrays.sort(vertices);
@@ -30,11 +31,11 @@ public final class Stitcher {
         return indices;
     }
 
-    private static <V extends Vertex<V>> int getStartIndex(@NonNull V @NonNull [] vertices) throws IllegalArgumentException {
+    private static <V extends Vertex<V>> int getStartIndex(
+            @NonNull V @NonNull [] vertices) throws IllegalArgumentException {
         int vertex_index;
         for (vertex_index = 0; vertex_index < vertices.length; vertex_index++) {
-            if (vertices[vertex_index % vertices.length].side >
-                    vertices[(vertex_index + 1) % vertices.length].side)
+            if (vertices[vertex_index % vertices.length].side > vertices[(vertex_index + 1) % vertices.length].side)
                 break;
         }
         if (vertex_index >= vertices.length)

@@ -20,7 +20,8 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 
     private final List<SocketChannel> incoming_connections = new LinkedList<>();
 
-    private static SelectionKey createServerSocket(@NonNull NetworkSelector network, InetAddress ip, int port) throws IOException {
+    private static SelectionKey createServerSocket(@NonNull NetworkSelector network, InetAddress ip,
+            int port) throws IOException {
         ServerSocketChannel server_channel = ServerSocketChannel.open();
         server_channel.configureBlocking(false);
         SocketAddress address = new InetSocketAddress(ip, port);
@@ -30,7 +31,8 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
         return key;
     }
 
-    public ConnectionListener(@NonNull NetworkSelector network, InetAddress ip, int port, ConnectionListenerInterface connection_listener_interface) {
+    public ConnectionListener(@NonNull NetworkSelector network, InetAddress ip, int port,
+            ConnectionListenerInterface connection_listener_interface) {
         super(connection_listener_interface);
         this.network = network;
         IOException exception;
@@ -49,7 +51,8 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
     }
 
     public int getPort() {
-        return network.getDeterministic().log(key != null ? ((ServerSocketChannel) key.channel()).socket().getLocalPort() : -1);
+        return network.getDeterministic().log(
+                key != null ? ((ServerSocketChannel) key.channel()).socket().getLocalPort() : -1);
     }
 
     @Override

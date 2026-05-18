@@ -86,7 +86,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 
     private static final ResourceBundle bundle = ResourceBundle.getBundle(SelectGameMenu.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -98,7 +98,8 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         this(network, gui_root, main_menu, 0);
     }
 
-    public SelectGameMenu(NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Menu main_menu, int panel_index) {
+    public SelectGameMenu(NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Menu main_menu,
+            int panel_index) {
         this.main_menu = main_menu;
         this.gui_root = gui_root;
         this.network = network;
@@ -109,11 +110,8 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         game_list_panel.addChild(label_headline);
         game_list_panel.addFocusListener(new GameListPanelListener());
         game_name_size = 340;
-        ColumnInfo[] infos = new ColumnInfo[]{
-                new ColumnInfo(i18n("game_name"), game_name_size),
-                new ColumnInfo(i18n("rated"), 120),
-                new ColumnInfo(i18n("speed"), 120),
-                new ColumnInfo(i18n("map_size"), 120)};
+        ColumnInfo[] infos = new ColumnInfo[]{new ColumnInfo(i18n("game_name"), game_name_size), new ColumnInfo(i18n(
+                "rated"), 120), new ColumnInfo(i18n("speed"), 120), new ColumnInfo(i18n("map_size"), 120)};
         game_list_box = new MultiColumnComboBox<>(gui_root, infos, 350);
         game_list_box.addRowListener(new GameDoubleClickedListener());
         game_list_panel.addChild(game_list_box);
@@ -155,13 +153,9 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         label_headline = new Label(i18n("league_description"), Skin.getSkin().getHeadlineFont());
         highscore_list_panel.addChild(label_headline);
         user_name_size = 250;
-        ColumnInfo[] score_infos = new ColumnInfo[]{
-                new ColumnInfo(i18n("rank"), 50),
-                new ColumnInfo(i18n("name"), user_name_size),
-                new ColumnInfo(i18n("rating"), 100),
-                new ColumnInfo(i18n("wins"), 100),
-                new ColumnInfo(i18n("losses"), 100),
-                new ColumnInfo(i18n("invalid"), 100)};
+        ColumnInfo[] score_infos = new ColumnInfo[]{new ColumnInfo(i18n("rank"), 50), new ColumnInfo(i18n("name"),
+                user_name_size), new ColumnInfo(i18n("rating"), 100), new ColumnInfo(i18n("wins"), 100), new ColumnInfo(
+                        i18n("losses"), 100), new ColumnInfo(i18n("invalid"), 100)};
         ranking_list_box = new MultiColumnComboBox<>(gui_root, score_infos, 350);
         highscore_list_panel.addChild(ranking_list_box);
 
@@ -184,9 +178,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         chat_room_list_panel.addChild(label_headline);
 
         room_name_size = 600;
-        infos = new ColumnInfo[]{
-                new ColumnInfo(i18n("room"), room_name_size),
-                new ColumnInfo(i18n("users"), 100)};
+        infos = new ColumnInfo[]{new ColumnInfo(i18n("room"), room_name_size), new ColumnInfo(i18n("users"), 100)};
         chat_room_list_box = new MultiColumnComboBox<>(gui_root, infos, 350);
         chat_room_list_box.addRowListener(new RoomDoubleClickedListener());
         chat_room_list_panel.addChild(chat_room_list_box);
@@ -255,13 +247,17 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
     }
 
     private @NonNull ChatPanel createChatRoomPanel(@NonNull ChatRoomInfo info) {
-        ChatPanel panel = new ChatPanel(gui_root, info, chat_room_list_panel.getWidth(), chat_room_list_panel.getHeight(), BUTTON_WIDTH_SHORT, new SendChatListener(), (_, _, _, _) -> leaveChatRoom());
+        ChatPanel panel = new ChatPanel(gui_root, info, chat_room_list_panel.getWidth(),
+                chat_room_list_panel.getHeight(), BUTTON_WIDTH_SHORT, new SendChatListener(), (_, _, _,
+                        _) -> leaveChatRoom());
         Network.getChatHub().addListener(panel);
         return panel;
     }
 
-    public void createGameMenu(@NonNull GameNetwork game_network, @NonNull Game game, WorldGenerator generator, int player_slot, int player_count) {
-        game_panel = new GameMenu(game_network, gui_root, this, game, generator, player_slot, game_list_panel.getWidth(), game_list_panel.getHeight(), BUTTON_WIDTH, player_count);
+    public void createGameMenu(@NonNull GameNetwork game_network, @NonNull Game game, WorldGenerator generator,
+            int player_slot, int player_count) {
+        game_panel = new GameMenu(game_network, gui_root, this, game, generator, player_slot,
+                game_list_panel.getWidth(), game_list_panel.getHeight(), BUTTON_WIDTH, player_count);
         setGameMenu(game_panel);
         game_network.getClient().setConfigurationListener(game_panel);
     }
@@ -383,13 +379,16 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
     }
 
     private void updateRankingList(@NonNull RankingEntry ranking) {
-        Row<RankingEntry, Label> row = new Row<>(new Label[]{
-                new IntegerLabel(ranking.getRanking(), Skin.getSkin().getMultiColumnComboBoxData().font()),
-                new Label(ranking.getName(), Skin.getSkin().getMultiColumnComboBoxData().font(), user_name_size),
-                new IntegerLabel(ranking.getRating(), Skin.getSkin().getMultiColumnComboBoxData().font()),
-                new IntegerLabel(ranking.getWins(), Skin.getSkin().getMultiColumnComboBoxData().font()),
-                new IntegerLabel(ranking.getLosses(), Skin.getSkin().getMultiColumnComboBoxData().font()),
-                new IntegerLabel(ranking.getInvalid(), Skin.getSkin().getMultiColumnComboBoxData().font())}, ranking);
+        Row<RankingEntry, Label> row = new Row<>(new Label[]{new IntegerLabel(ranking.getRanking(),
+                Skin.getSkin().getMultiColumnComboBoxData().font()), new Label(ranking.getName(),
+                        Skin.getSkin().getMultiColumnComboBoxData().font(), user_name_size), new IntegerLabel(
+                                ranking.getRating(),
+                                Skin.getSkin().getMultiColumnComboBoxData().font()), new IntegerLabel(ranking.getWins(),
+                                        Skin.getSkin().getMultiColumnComboBoxData().font()), new IntegerLabel(
+                                                ranking.getLosses(),
+                                                Skin.getSkin().getMultiColumnComboBoxData().font()), new IntegerLabel(
+                                                        ranking.getInvalid(),
+                                                        Skin.getSkin().getMultiColumnComboBoxData().font())}, ranking);
         ranking_list_box.addRow(row);
     }
 
@@ -398,11 +397,9 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         for (GameHost game_host : game_hosts) {
             String rated = ServerMessageBundler.getRatedString(game_host.getGame().isRated());
             String size = ServerMessageBundler.getSizeString(game_host.getGame().getSize());
-            Row<GameHost, Label> row = new Row<>(new Label[]{
-                    new Label(game_host.getGame().getName(), combofont, game_name_size),
-                    new Label(rated, combofont),
-                    new Label(ServerMessageBundler.getGamespeedString(game_host.getGame().getGamespeed()), combofont),
-                    new Label(size, combofont)},
+            Row<GameHost, Label> row = new Row<>(new Label[]{new Label(game_host.getGame().getName(), combofont,
+                    game_name_size), new Label(rated, combofont), new Label(ServerMessageBundler.getGamespeedString(
+                            game_host.getGame().getGamespeed()), combofont), new Label(size, combofont)},
                     game_host);
             game_list_box.addRow(row);
         }
@@ -411,10 +408,10 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
     private void updateChatRoomListGUI() {
         Font combofont = Skin.getSkin().getMultiColumnComboBoxData().font();
         for (ChatRoomEntry chat_room_info : chat_rooms) {
-            String users_and_max = i18n("users_and_max", chat_room_info.getNumJoined(), MatchmakingServerInterface.MAX_ROOM_USERS);
-            Row<ChatRoomEntry, Label> row = new Row<>(new Label[]{
-                    new Label(chat_room_info.getName(), combofont, room_name_size),
-                    new Label(users_and_max, combofont)},
+            String users_and_max = i18n("users_and_max", chat_room_info.getNumJoined(),
+                    MatchmakingServerInterface.MAX_ROOM_USERS);
+            Row<ChatRoomEntry, Label> row = new Row<>(new Label[]{new Label(chat_room_info.getName(), combofont,
+                    room_name_size), new Label(users_and_max, combofont)},
                     chat_room_info);
             chat_room_list_box.addRow(row);
         }
@@ -445,7 +442,9 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
                     gui_root.addModalForm(new MessageForm(min_wins));
                 } else {
                     Game game = selected_game.getGame();
-                    main_menu.joinGame(network, gui_root.getGUI(), selected_game.getHostID(), game.isRated(), game.getGamespeed(), game.getMapcode(), this, game.getRandomStartPos(), game.getMaxUnitCount(), game.getSize());
+                    main_menu.joinGame(network, gui_root.getGUI(), selected_game.getHostID(), game.isRated(),
+                            game.getGamespeed(), game.getMapcode(), this, game.getRandomStartPos(),
+                            game.getMaxUnitCount(), game.getSize());
                 }
             }
         }
