@@ -28,6 +28,7 @@ See what we're working on right now on the **[current roadmap](https://github.co
   - [Build Game Client for Distribution](#build-game-client-for-distribution)
   - [Build + Run Game Server](#build--run-game-server)
   - [Common Gradle Tasks](#common-gradle-tasks)
+  - [Code Formatting](#code-formatting)
 - [🚀 Releasing](#-releasing)
   - [Versioning](#versioning)
   - [Branches & CI Behavior](#branches--ci-behavior)
@@ -146,6 +147,17 @@ Quick reference for tasks you'll reach for often:
 - `./gradlew assets:geometry` - regenerate binary geometry files
 - `./gradlew assets:textures` - convert texture sources
 - `./gradlew tasks --all` - full list of available tasks
+- `./gradlew spotlessApply` - auto-fix Java formatting across all modules
+- `./gradlew spotlessCheck` - report formatting violations (what CI runs)
+
+### Code Formatting
+
+Java code style is enforced by [Spotless](https://github.com/diffplug/spotless) using the Eclipse JDT formatter, configured from `intellij-java-style.xml` (an export of the project's IntelliJ Java code style). CI runs `spotlessCheck` as a gating step — if any file isn't formatted, the rest of the pipeline doesn't run.
+
+Workflow:
+
+- IntelliJ's format-on-save handles most of it as you edit
+- Before committing, run `./gradlew spotlessApply` to smooth over the small gap between IntelliJ's formatter and the Eclipse engine Spotless uses
 
 ## 🚀 Releasing
 
