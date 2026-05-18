@@ -1,10 +1,12 @@
- import net.ltgt.gradle.errorprone.errorprone
+ import com.diffplug.gradle.spotless.SpotlessExtension
+import net.ltgt.gradle.errorprone.errorprone
 
 plugins {
     java
     id("net.ltgt.errorprone") version "5.1.0" apply false
     id("net.ltgt.nullaway") version "3.0.0" apply false
     id("com.smushytaco.lwjgl3") version "1.0.2" apply false
+    id("com.diffplug.spotless") version "7.0.4" apply false
 }
 
 allprojects {
@@ -15,6 +17,17 @@ allprojects {
 subprojects {
     apply(plugin = "java")
     apply(plugin = "net.ltgt.errorprone")
+    apply(plugin = "com.diffplug.spotless")
+
+    configure<SpotlessExtension> {
+        java {
+            target("src/**/*.java")
+            eclipse().configFile(rootProject.file("intellij-java-style.xml"))
+            removeUnusedImports()
+            trimTrailingWhitespace()
+            endWithNewline()
+        }
+    }
 
     dependencies {
         implementation("org.jspecify:jspecify:1.0.0")
