@@ -35,9 +35,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class PeerHub implements Animated, RouterHandler {
+    private static final Logger logger = Logger.getLogger(PeerHub.class.getName());
+
     public static final ResourceBundle bundle = ResourceBundle.getBundle(PeerHub.class.getName());
 
     private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
@@ -175,7 +178,7 @@ public final class PeerHub implements Animated, RouterHandler {
 
     @Override
     public void routerFailed(Exception e) {
-        IO.println("Router failed with exception: " + e);
+        logger.log(Level.WARNING, "Router failed", e);
         closeNetwork();
         stall_handler.peerhubFailed();
     }
