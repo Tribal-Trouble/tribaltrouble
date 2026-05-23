@@ -55,6 +55,8 @@ Builds from this repo (outside of Steam) are unsigned, so different OSes will re
   - Go to system settings > Privacy & Security and click Open Anyway:
     ![Not Opened on Mac](./.github/images/open_anyway_mac.png)
 
+Already played before Steam? See [Migrating Your Save to the Steam Version](./docs/migrate-save-to-steam.md) to bring your campaign progress over.
+
 ## 🛠️ Build Requirements
 
 ### Client + Server
