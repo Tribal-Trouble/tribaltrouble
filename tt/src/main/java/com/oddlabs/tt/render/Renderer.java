@@ -375,6 +375,7 @@ public final class Renderer implements AutoCloseable {
                 }
             } else if (os_name.contains("linux") || os_name.contains("unix")) {
                 Path legacyDot = userHome != null ? userHome.resolve(".tribaltrouble") : null;
+                Path omarDot = userHome != null ? userHome.resolve("." + Globals.GAME_NAME) : null;
                 Path currentDot = Path.of(".tribaltrouble");
 
                 Path xdg;
@@ -387,6 +388,7 @@ public final class Renderer implements AutoCloseable {
                 }
 
                 if (isUsable(legacyDot)) existing = legacyDot;
+                else if (isUsable(omarDot)) existing = omarDot;
                 else if (isUsable(currentDot)) existing = currentDot;
                 else if (isUsable(xdg)) existing = xdg;
 
