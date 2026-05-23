@@ -494,6 +494,7 @@ public final class Renderer implements AutoCloseable {
         boolean eventload = false;
         boolean zipped = false;
         boolean silent = false;
+        Path eventload_path = null;
         for (int i = 0; i < args.length; i++)
             switch (args[i]) {
                 case "--grabframes" -> grab_frames = true;
@@ -509,6 +510,10 @@ public final class Renderer implements AutoCloseable {
                         default:
                             throw new RuntimeException("Unknown event load mode: " + args[i]);
                     }
+                    if (i + 1 < args.length && !args[i + 1].startsWith("--")) {
+                        i++;
+                        eventload_path = Path.of(args[i]);
+                    }
                 }
                 case "--silent" -> silent = true;
                 default -> throw new IllegalArgumentException("Unknown command line flag: " + args[i]);
@@ -519,7 +524,7 @@ public final class Renderer implements AutoCloseable {
         settings.load(game_dir);
 
         if (eventload || grab_frames) {
-            Path last_event_log_path = settings.last_event_log_dir.resolve(zipped ? "event.log.gz" : "event.log");
+            Path last_event_log_path = eventload_path != null ? eventload_path : settings.last_event_log_dir.resolve(zipped ? "event.log.gz" : "event.log");
             logger.info("last_event_log_path = " + last_event_log_path);
             // Only use when anal debugging
 //			ChecksumLogger.initLogging();
@@ -528,7 +533,7 @@ public final class Renderer implements AutoCloseable {
 
         Path event_logs_dir = paths.logDir();
         Path event_log_dir = event_logs_dir.resolve(Long.toString(System.currentTimeMillis()));
-        if (settings.save_event_log) {
+        if (settings.save_event_log && !eventload) {
             setupLogging(event_log_dir, silent);
             LocalEventQueue.getQueue().setEventsLogged(event_log_dir.resolve(com.oddlabs.util.Utils.EVENT_LOG));
         }
