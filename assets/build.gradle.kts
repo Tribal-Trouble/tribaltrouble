@@ -1,7 +1,4 @@
 import com.smushytaco.lwjgl_gradle.Module
-import java.net.URI
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 import org.gradle.internal.os.OperatingSystem
 
 group = "com.oddlabs.tribaltrouble"
@@ -24,50 +21,6 @@ val converter by configurations.creating
 dependencies {
     converter(project(":common"))
     converter(project(":tools"))
-}
-
-// Asset release coordinates
-val assets = mapOf(
-    "group" to "SimoGecko",
-    "name" to "tribal_trouble_assets",
-    "version" to "V2.0"
-)
-
-val downloadAssets = tasks.register("downloadAssets") {
-    val outputDir = layout.buildDirectory.dir("external_source")
-    val modelsZip = outputDir.get().file("models.zip")
-    val texturesZip = outputDir.get().file("textures.zip")
-
-    outputs.dir(outputDir)
-    
-    doLast {
-        outputDir.get().asFile.mkdirs()
-        val baseUrl = "https://github.com/${assets["group"]}/${assets["name"]}/releases/download/${assets["version"]}"
-        
-        if (!modelsZip.asFile.exists()) {
-            println("Downloading assets ${assets["version"]}...")
-            URI("${baseUrl}/models.zip").toURL().openStream().use {
-                Files.copy(it, modelsZip.asFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            }
-        }
-        
-        if (!texturesZip.asFile.exists()) {
-            println("Downloading textures ${assets["version"]}...")
-            URI("${baseUrl}/textures.zip").toURL().openStream().use { 
-                Files.copy(it, texturesZip.asFile.toPath(), StandardCopyOption.REPLACE_EXISTING) 
-            }
-        }
-        
-        copy {
-            from(zipTree(modelsZip))
-            into(outputDir)
-        }
-        
-        copy {
-            from(zipTree(texturesZip))
-            into(outputDir.get().dir("textures"))
-        }
-    }
 }
 
 // Find basisu executable on system path
@@ -133,16 +86,14 @@ fun convertTexture(name: String, png: Any, outSubdir: String, vararg convertArgs
         outputs.file(outFile)
     }
 
-// 1. External Model Textures
-val convertExternalModels = convertBatch("convertExternalModels", 
-    layout.buildDirectory.dir("external_source/textures/textures/models"), "models",
+// 1. Model Textures
+val convertModelTextures = convertBatch("convertModelTextures",
+    "textures/models", "models",
     "-flip", "-gamma", "0.45454545454545453", "-mipmaps", "-gamma", "2.2", "-format", "dds")
-convertExternalModels.configure { dependsOn(downloadAssets) }
 
-val convertExternalDecals = convertBatch("convertExternalDecals",
-    layout.buildDirectory.dir("external_source/textures/textures/teamdecals"), "models",
+val convertTeamDecals = convertBatch("convertTeamDecals",
+    "textures/teamdecals", "models",
     "-half", "-flip", "-mipmaps", "-format", "dds")
-convertExternalDecals.configure { dependsOn(downloadAssets) }
 
 // 2. GUI Textures
 val convertGui = convertBatch("convertGui", "textures/gui", "gui", "-flip", "-format", "dds")
@@ -280,7 +231,7 @@ val geometry = tasks.register<JavaExec>("geometry") {
 }
 
 val textures = tasks.register("textures") {
-    dependsOn(convertExternalModels, convertExternalDecals,
+    dependsOn(convertModelTextures, convertTeamDecals,
               convertTahomaFont, convertImpactFont,
               convertInterLightFont, convertInterTightBlackFont,
               convertGui, convertPixelPerfect)
@@ -305,7 +256,6 @@ tasks.processResources {
     from("schemas") { into("schemas") }
     from("font") { into("font") }
     
-    // Everything else from repo, excluding legacy model/decal/gui folders
     from("textures") {
         into("textures")
         exclude("models/**", "teamdecals/**", "gui/**", "pointer/**", "pixelperfect/**")
