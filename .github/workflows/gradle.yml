@@ -257,6 +257,7 @@ jobs:
     if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: [ version, build-mac-arm64-app, build-mac-x86-app, build-windows, build-linux ]
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - name: Download Windows Artifact
         uses: actions/download-artifact@v4
@@ -312,6 +313,7 @@ jobs:
     if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: [ version, build-windows, build-linux, build-mac-arm64, build-mac-x86 ]
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
@@ -367,6 +369,7 @@ jobs:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/release') || github.event_name == 'workflow_dispatch'
     needs: [ version, build-linux, build-server, build-windows, build-mac-x86, build-mac-arm64 ]
     runs-on: ubuntu-latest
+    environment: release
     permissions:
       contents: write
     steps:
