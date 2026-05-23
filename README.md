@@ -96,7 +96,7 @@ Build output lands under `tt/build/dist/<platform>` (with shared staged files in
 
 > Each `package*` task only runs on its matching host OS `packageWindows` skips on Linux/Mac, and vice versa.
 
-> Don't want to build locally? CI builds per-platform artifacts on every push to `main` and `release`. Grab them from the [Actions tab](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml) — pick a successful run and download the platform artifact you want at the bottom of the page.
+> Don't want to build locally? CI builds per-platform artifacts on every push to `main` and `release`. Grab them from the [Actions tab](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml): pick a successful run and download the platform artifact you want at the bottom of the page.
 
 ### Build + Run Game Server
 
@@ -131,7 +131,7 @@ Build output lands under `tt/build/dist/<platform>` (with shared staged files in
      - **For dev** (foreground, console logs, picks up `server/server.properties`):
        - Matchmaker: `./gradlew server:runMatchmaker`
        - Router: `./gradlew server:runRouter`
-     - **For deployment** — extract the server bundle (grab it from the [Actions tab](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml) under the `server` artifact), edit `server.properties` in the extracted root, then launch via `bin/matchmaker` / `bin/router`, or the bundled `start.sh` / `start.bat` (which runs both with `nohup` and tees logs to `logs/`)
+     - **For deployment**: extract the server bundle (grab it from the [Actions tab](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml) under the `server` artifact), edit `server.properties` in the extracted root, then launch via `bin/matchmaker` / `bin/router`, or the bundled `start.sh` / `start.bat` (which runs both with `nohup` and tees logs to `logs/`)
 
 ### Common Gradle Tasks
 
@@ -149,7 +149,7 @@ Quick reference for tasks you'll reach for often:
 
 ### Code Formatting
 
-Java code style is enforced by [Spotless](https://github.com/diffplug/spotless) using the Eclipse JDT formatter, configured from `intellij-java-style.xml` (an export of the project's IntelliJ Java code style). CI runs `spotlessCheck` as a gating step — if any file isn't formatted, the rest of the pipeline doesn't run.
+Java code style is enforced by [Spotless](https://github.com/diffplug/spotless) using the Eclipse JDT formatter, configured from `intellij-java-style.xml` (an export of the project's IntelliJ Java code style). CI runs `spotlessCheck` as a gating step: if any file isn't formatted, the rest of the pipeline doesn't run.
 
 Workflow:
 
