@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main", "release" ]
   pull_request:
-    branches: [ "main", "release" ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -253,11 +253,28 @@ jobs:
           name: tribal-trouble-mac-arm64_${{ needs.version.outputs.full }}
           path: tt/build/dist/macosx-arm64/
 
-  steam-release:
+  prerelease-gate:
     if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    needs: [ version, build-mac-arm64-app, build-mac-x86-app, build-windows, build-linux ]
+    needs: [ version, build-linux, build-server, build-windows, build-mac-x86, build-mac-arm64, build-mac-arm64-app, build-mac-x86-app ]
     runs-on: ubuntu-latest
     environment: release
+    steps:
+      - name: Approval received
+        run: |
+          VERSION="${{ needs.version.outputs.full }}"
+          {
+            echo "## Prerelease publish approved"
+            echo ""
+            echo "Version **${VERSION}** approved for prerelease destinations:"
+            echo "- Steam \`prerelease\` branch"
+            echo "- itch \`*-prerelease\` channels"
+            echo "- GitHub Release as \`--prerelease\`"
+            echo "- Website \`/prerelease/\` subdir"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  steam-release:
+    needs: [ version, prerelease-gate ]
+    runs-on: ubuntu-latest
     steps:
       - name: Download Windows Artifact
         uses: actions/download-artifact@v4
@@ -280,7 +297,7 @@ jobs:
           name: tribal-trouble-linux-package_${{ needs.version.outputs.full }}
           path: tt/build/dist/linux/
       - name: Upload to steam (main game)
-        uses: game-ci/steam-deploy@v3
+        uses: game-ci/steam-deploy@8bd9baca6407f9abd210bd1eef3c45f56e12d8d9  # v3
         with:
           username: ${{ vars.STEAM_USER }}
           configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
@@ -296,7 +313,7 @@ jobs:
       - name: Reset BuildOutput between Steam uploads
         run: sudo rm -rf BuildOutput
       - name: Upload to steam (demo)
-        uses: game-ci/steam-deploy@v3
+        uses: game-ci/steam-deploy@8bd9baca6407f9abd210bd1eef3c45f56e12d8d9  # v3
         with:
           username: ${{ vars.STEAM_USER }}
           configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
@@ -310,10 +327,8 @@ jobs:
           releaseBranch: prerelease
 
   itch-release:
-    if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    needs: [ version, build-windows, build-linux, build-mac-arm64, build-mac-x86 ]
+    needs: [ version, prerelease-gate ]
     runs-on: ubuntu-latest
-    environment: release
     steps:
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
@@ -345,7 +360,7 @@ jobs:
              "dist/mac-arm64/tribal-trouble-mac-arm64_${VERSION}.dmg"
           mv dist/mac-x86/TribalTrouble-*.dmg \
              "dist/mac-x86/tribal-trouble-mac-x86_${VERSION}.dmg"
-          # Windows is a directory (jpackage app-image) — zip it with the desired name.
+          # Windows is a directory (jpackage app-image); zip it with the desired name.
           # itch app auto-extracts zip uploads on install, so end-user UX is unchanged.
           (cd dist/windows && zip -qr "../tribal-trouble-windows_${VERSION}.zip" .)
       - name: Install butler
@@ -354,22 +369,20 @@ jobs:
           unzip -q butler.zip
           chmod +x butler
           ./butler -V
-      - name: Push to itch.io
+      - name: Push to itch.io prerelease channels
         env:
           BUTLER_API_KEY: ${{ secrets.ITCH_BUTLER_API_KEY }}
         run: |
           VERSION="${{ needs.version.outputs.full }}"
           PROJECT="${{ vars.ITCH_PROJECT }}"
-          ./butler push "dist/tribal-trouble-windows_${VERSION}.zip"                "$PROJECT:windows"   --userversion "$VERSION"
-          ./butler push "dist/linux/tribal-trouble-linux-appimage_${VERSION}.AppImage" "$PROJECT:linux"     --userversion "$VERSION"
-          ./butler push "dist/mac-arm64/tribal-trouble-mac-arm64_${VERSION}.dmg"     "$PROJECT:osx-arm64" --userversion "$VERSION"
-          ./butler push "dist/mac-x86/tribal-trouble-mac-x86_${VERSION}.dmg"         "$PROJECT:osx-x86"   --userversion "$VERSION"
+          ./butler push "dist/tribal-trouble-windows_${VERSION}.zip"                   "$PROJECT:windows-prerelease"   --userversion "$VERSION"
+          ./butler push "dist/linux/tribal-trouble-linux-appimage_${VERSION}.AppImage" "$PROJECT:linux-prerelease"     --userversion "$VERSION"
+          ./butler push "dist/mac-arm64/tribal-trouble-mac-arm64_${VERSION}.dmg"       "$PROJECT:osx-arm64-prerelease" --userversion "$VERSION"
+          ./butler push "dist/mac-x86/tribal-trouble-mac-x86_${VERSION}.dmg"           "$PROJECT:osx-x86-prerelease"   --userversion "$VERSION"
 
   github-release:
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/release') || github.event_name == 'workflow_dispatch'
-    needs: [ version, build-linux, build-server, build-windows, build-mac-x86, build-mac-arm64 ]
+    needs: [ version, prerelease-gate ]
     runs-on: ubuntu-latest
-    environment: release
     permissions:
       contents: write
     steps:
@@ -383,10 +396,10 @@ jobs:
           TAG="${{ needs.version.outputs.full }}"
           if git rev-parse --verify "refs/tags/$TAG" >/dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
-            echo "Tag $TAG already exists — skipping release (bump version in build.gradle.kts to release again)"
+            echo "Tag $TAG already exists; skipping release (bump version in build.gradle.kts to release again)"
           else
             echo "exists=false" >> $GITHUB_OUTPUT
-            echo "Tag $TAG does not exist — proceeding with release"
+            echo "Tag $TAG does not exist, proceeding with release"
           fi
 
       - name: Download all artifacts
@@ -409,7 +422,7 @@ jobs:
             fi
             files=("$d"*)
             if [ ${#files[@]} -eq 1 ] && [ -f "${files[0]}" ]; then
-              # Single-file artifact (AppImage, DMG) — keep extension, prefix with artifact name
+              # Single-file artifact (AppImage, DMG); keep extension, prefix with artifact name
               src="${files[0]}"
               filename="$(basename "$src")"
               if [[ "$filename" == *.* ]]; then
@@ -420,7 +433,7 @@ jobs:
               fi
               rm -rf "$d"
             else
-              # Directory artifact (Windows, server) — zip the contents
+              # Directory artifact (Windows, server); zip the contents
               (cd "$d" && zip -r "../${name}.zip" .)
               rm -rf "$d"
             fi
@@ -445,3 +458,65 @@ jobs:
             --prerelease \
             dist/*
 
+  website-prerelease:
+    needs: [ version, prerelease-gate ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-windows_${{ needs.version.outputs.full }}
+          path: artifacts/windows/
+      - name: Download Linux AppImage
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-linux-appimage_${{ needs.version.outputs.full }}
+          path: artifacts/linux/
+      - name: Download Mac arm64 DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-mac-arm64_${{ needs.version.outputs.full }}
+          path: artifacts/mac-arm64/
+      - name: Download Mac x86 DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-mac-x86_${{ needs.version.outputs.full }}
+          path: artifacts/mac-x86/
+
+      - name: Stage with stable filenames matching Omar's pattern
+        run: |
+          mkdir staging
+          # Windows artifact is a jpackage app-image directory; zip it.
+          (cd artifacts/windows && zip -qr ../../staging/windows.zip .)
+          # Linux/Mac artifacts are bare files; wrap in zips matching Omar's existing layout.
+          (cd artifacts/linux     && zip -qj ../../staging/linux.zip     TribalTrouble-x86_64.AppImage)
+          (cd artifacts/mac-arm64 && zip -qj ../../staging/mac-arm64.zip TribalTrouble-*.dmg)
+          (cd artifacts/mac-x86   && zip -qj ../../staging/mac-x86.zip   TribalTrouble-*.dmg)
+          ls -lh staging/
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY_PROD }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ vars.DEPLOY_HOST_PROD }}" >> ~/.ssh/known_hosts
+
+      - name: Ensure prerelease dir exists on prod
+        run: |
+          ssh "${{ vars.DEPLOY_USER_PROD }}@${{ vars.DEPLOY_HOST_PROD }}" \
+            'mkdir -p /var/www/html/prerelease'
+
+      - name: Upload to website prerelease subdir (atomic)
+        run: |
+          rsync --delay-updates -v \
+            staging/windows.zip staging/linux.zip staging/mac-arm64.zip staging/mac-x86.zip \
+            "${{ vars.DEPLOY_USER_PROD }}@${{ vars.DEPLOY_HOST_PROD }}:/var/www/html/prerelease/"
+
+      - name: Summary
+        run: |
+          echo "## Deployed ${{ needs.version.outputs.full }} to tribaltrouble.org/prerelease/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- https://tribaltrouble.org/prerelease/windows.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- https://tribaltrouble.org/prerelease/linux.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- https://tribaltrouble.org/prerelease/mac-arm64.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- https://tribaltrouble.org/prerelease/mac-x86.zip" >> $GITHUB_STEP_SUMMARY

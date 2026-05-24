@@ -30,11 +30,6 @@ See what we're working on right now on the **[current roadmap](https://github.co
   - [Common Gradle Tasks](#common-gradle-tasks)
   - [Code Formatting](#code-formatting)
 - [🚀 Releasing](#-releasing)
-  - [Versioning](#versioning)
-  - [Branches & CI Behavior](#branches--ci-behavior)
-  - [How to Cut a Release](#how-to-cut-a-release)
-  - [Steam Setup](#steam-setup)
-  - [itch.io Setup](#itchio-setup)
 - [🤝 Contributing](#-contributing)
 - [🙏 About this fork](#-about-this-fork)
 
@@ -54,6 +49,8 @@ Builds from this repo (outside of Steam) are unsigned, so different OSes will re
   - A modal appears warning the application is unsigned and should be moved to the trash. Click done
   - Go to system settings > Privacy & Security and click Open Anyway:
     ![Not Opened on Mac](./.github/images/open_anyway_mac.png)
+
+Already played before Steam? See [Migrating Your Save to the Steam Version](./docs/migrate-save-to-steam.md) to bring your campaign progress over.
 
 ## 🛠️ Build Requirements
 
@@ -99,7 +96,7 @@ Build output lands under `tt/build/dist/<platform>` (with shared staged files in
 
 > Each `package*` task only runs on its matching host OS `packageWindows` skips on Linux/Mac, and vice versa.
 
-> Don't want to build locally? CI builds per-platform artifacts on every push to `main` and `release`. Grab them from the [Actions tab](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml) — pick a successful run and download the platform artifact you want at the bottom of the page.
+> Don't want to build locally? CI builds per-platform artifacts on every push to `main` and `release`. Grab them from the [Actions tab](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml): pick a successful run and download the platform artifact you want at the bottom of the page.
 
 ### Build + Run Game Server
 
@@ -134,7 +131,7 @@ Build output lands under `tt/build/dist/<platform>` (with shared staged files in
      - **For dev** (foreground, console logs, picks up `server/server.properties`):
        - Matchmaker: `./gradlew server:runMatchmaker`
        - Router: `./gradlew server:runRouter`
-     - **For deployment** — extract the server bundle (grab it from the [Actions tab](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml) under the `server` artifact), edit `server.properties` in the extracted root, then launch via `bin/matchmaker` / `bin/router`, or the bundled `start.sh` / `start.bat` (which runs both with `nohup` and tees logs to `logs/`)
+     - **For deployment**: extract the server bundle (grab it from the [Actions tab](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml) under the `server` artifact), edit `server.properties` in the extracted root, then launch via `bin/matchmaker` / `bin/router`, or the bundled `start.sh` / `start.bat` (which runs both with `nohup` and tees logs to `logs/`)
 
 ### Common Gradle Tasks
 
@@ -152,7 +149,7 @@ Quick reference for tasks you'll reach for often:
 
 ### Code Formatting
 
-Java code style is enforced by [Spotless](https://github.com/diffplug/spotless) using the Eclipse JDT formatter, configured from `intellij-java-style.xml` (an export of the project's IntelliJ Java code style). CI runs `spotlessCheck` as a gating step — if any file isn't formatted, the rest of the pipeline doesn't run.
+Java code style is enforced by [Spotless](https://github.com/diffplug/spotless) using the Eclipse JDT formatter, configured from `intellij-java-style.xml` (an export of the project's IntelliJ Java code style). CI runs `spotlessCheck` as a gating step: if any file isn't formatted, the rest of the pipeline doesn't run.
 
 Workflow:
 
@@ -161,69 +158,9 @@ Workflow:
 
 ## 🚀 Releasing
 
-### Versioning
+Releases happen in two halves: pushing to `release` publishes to every platform's **prerelease** location (Steam `prerelease` branch, itch `*-prerelease` channels, GitHub Release marked `--prerelease`, website `/prerelease/`). When you're ready to ship to all users, dispatch the **Promote Release to Stable** workflow with the tag. It moves everything to stable destinations. The Steam `default` branch is the one manual step (Valve doesn't let CI touch it).
 
-The canonical release identifier is **`v<MAJOR>.<MINOR>.<PATCH>-<API>`** (e.g., `v2.0.3-102`) and shows up everywhere: git tags, GitHub Release titles, artifact names, Steam build descriptions, the in-game about screen, and the matchmaker server logs.
-
-It's built from three sources:
-
-- **MAJOR.MINOR** — `version = "2.0"` in the root `build.gradle.kts`. Bump manually for a minor or major release.
-- **PATCH** — auto-computed: number of commits since the commit that introduced the current `version = "<MAJOR>.<MINOR>"` line in `build.gradle.kts`. You don't edit this anywhere. Every commit on top of the bump advances it by one
-- **API** — `public static final int API_VERSION = 102;` in `common/src/main/java/com/oddlabs/util/Compatibility.java`. Bump only when the wire protocol between client and server changes (mismatched clients get rejected at login).
-
-Both Gradle and CI compute PATCH from the same git history using identical logic (`git log -G'version = .<BASE>.' -- build.gradle.kts | head -1` as the anchor, then `git rev-list --count <anchor>..HEAD`), so the value the game and servers log (from the generated `BuildInfo.java` under `common/build/generated/sources/buildinfo/`) always matches the git tag and Steam build description of the build it came from. The matchmaker and router both log their version on startup (e.g. `Matchmaking server started: v2.0.3-102`, `Router started: v2.0.3-102`) — useful when triaging player-submitted log files.
-
-> When you bump `MAJOR.MINOR` (say `2.0` → `2.1`), that bump commit becomes the new anchor — so PATCH is `0` at the bump (yielding `v2.1.0-102`), `1` after the next commit (`v2.1.1-102`), and so on. PATCH resets cleanly on each minor bump.
-
-### Branches & CI Behavior
-
-**`main` is the integration branch** — all work (feature branches, PRs, fixes) lands here first. **`release` is the "ship it" branch** when `main` is ready to go out, merge `main` → `release` and push. Contributor PRs should target `main`.
-
-| Branch | On push: builds? | On push: tag + GitHub Release? | On push: Steam? | On push: itch.io? |
-|---|---|---|---|---|
-| `main` | ✅ | ❌ | ❌ | ❌ |
-| `release` | ✅ | ✅ | ✅ | ✅ |
-| pull requests | ✅ | ❌ | ❌ | ❌ |
-
-Push to `main` just builds artifacts for testing (downloadable from the Actions tab). Pushing to `release` triggers the full release pipeline.
-
-The CI is also reachable manually from the Actions tab via "Run workflow" — useful for re-running a release on demand.
-
-### How to Cut a Release
-
-1. On `main`, get everything ready (merge feature branches, polish, etc.).
-2. If the wire protocol changed, bump `API_VERSION` in `common/src/main/java/com/oddlabs/util/Compatibility.java`.
-3. Only edit `build.gradle.kts` if this release is a new minor or major (e.g., `2.0` → `2.1`). Patches are auto-counted from commits since the last tag; no edit needed.
-4. Merge `main` → `release` and push.
-5. CI computes the version (e.g., `v2.0.3-102` for the 3rd commit after `v2.0.0-102`) → builds → tags → creates a prerelease GitHub Release with all platform artifacts attached → pushes to Steam's `prerelease` branch → pushes Windows/Linux/Mac builds to itch.io.
-6. Promote on Steam (move the prerelease build to default) when you're ready for players to see it. itch.io builds go live immediately on the channel they're pushed to.
-
-Release notes are auto-generated by GitHub from commits + merged PRs since the last tag — no manual `CHANGELOG.md` editing required. You can edit the generated notes on the Release page afterward if you want to polish them.
-
-### Steam Setup
-
-The `steam-release` job needs the following set on the GitHub repo (Settings → Secrets and variables → Actions):
-
-| Type | Name | Value |
-|---|---|---|
-| Variable | `STEAM_USER` | Your Steam build account username |
-| Variable | `STEAM_APP_ID` | The Steam app ID (e.g., `3945720`) |
-| Secret | `STEAM_CONFIG_VDF` | Contents of your `config.vdf` (lets the action authenticate without 2FA) |
-
-The deploy uses `game-ci/steam-deploy@v3` and pushes Windows, Mac arm64, Mac x86, and Linux depots to the `prerelease` Steam branch. Promote it to `default` manually in Steamworks when you're ready.
-
-### itch.io Setup
-
-The `itch-release` job needs the following set on the GitHub repo (Settings → Secrets and variables → Actions):
-
-| Type | Name | Value |
-|---|---|---|
-| Variable | `ITCH_PROJECT` | Your itch.io project slug (e.g., `rcubdev/tribal-trouble-resurrected`) |
-| Secret | `ITCH_BUTLER_API_KEY` | A butler API key from [itch.io/user/settings/api-keys](https://itch.io/user/settings/api-keys) |
-
-The deploy downloads `butler` from `broth.itch.zone` and pushes to four channels: `windows`, `linux`, `osx-arm64`, `osx-x86`. The build's `--userversion` is set to the full version string (e.g., `v2.0.3-102`) so itch's build list lines up with git tags and Steam build descriptions.
-
-> First run requires the channels to exist or for butler to create them — it will. If a platform isn't set up yet on your itch.io project page, configure the platforms under **Edit game → "This file will be played in the browser / installed"** before the first push.
+For the full step-by-step, versioning logic, required secrets, and rollback procedure, see **[docs/releasing.md](./docs/releasing.md)**.
 
 ## 🤝 Contributing
 
@@ -231,7 +168,7 @@ Thanks for your interest in contributing. We have a channel in [discord](https:/
 
 See something you want or could improve upon? Make a PR or an issue! Don't have an idea? There's plenty of work to be done check out the active issues!
 
-> PRs should target `main` — that's where all work lands before being merged into `release` to ship. See [Branches & CI Behavior](#branches--ci-behavior) for the full flow.
+> PRs should target `main`; that's where all work lands before being merged into `release` to ship. See [docs/releasing.md](./docs/releasing.md) for the full flow.
 
 There are ways to contribute besides developing. If you have screenshots of the game from back in the day those are welcome.
 
