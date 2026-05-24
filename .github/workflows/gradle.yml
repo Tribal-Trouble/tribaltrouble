@@ -253,28 +253,11 @@ jobs:
           name: tribal-trouble-mac-arm64_${{ needs.version.outputs.full }}
           path: tt/build/dist/macosx-arm64/
 
-  prerelease-gate:
+  steam-prerelease:
     if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    needs: [ version, build-linux, build-server, build-windows, build-mac-x86, build-mac-arm64, build-mac-arm64-app, build-mac-x86-app ]
+    needs: [ version, build-mac-arm64-app, build-mac-x86-app, build-windows, build-linux ]
     runs-on: ubuntu-latest
     environment: release
-    steps:
-      - name: Approval received
-        run: |
-          VERSION="${{ needs.version.outputs.full }}"
-          {
-            echo "## Prerelease publish approved"
-            echo ""
-            echo "Version **${VERSION}** approved for prerelease destinations:"
-            echo "- Steam \`prerelease\` branch"
-            echo "- itch \`*-prerelease\` channels"
-            echo "- GitHub Release as \`--prerelease\`"
-            echo "- Website \`/prerelease/\` subdir"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-  steam-release:
-    needs: [ version, prerelease-gate ]
-    runs-on: ubuntu-latest
     steps:
       - name: Download Windows Artifact
         uses: actions/download-artifact@v4
@@ -326,9 +309,11 @@ jobs:
           depot4Path: linux
           releaseBranch: prerelease
 
-  itch-release:
-    needs: [ version, prerelease-gate ]
+  itch-prerelease:
+    if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [ version, build-windows, build-linux, build-mac-arm64, build-mac-x86 ]
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
@@ -380,9 +365,11 @@ jobs:
           ./butler push "dist/mac-arm64/tribal-trouble-mac-arm64_${VERSION}.dmg"       "$PROJECT:osx-arm64-prerelease" --userversion "$VERSION"
           ./butler push "dist/mac-x86/tribal-trouble-mac-x86_${VERSION}.dmg"           "$PROJECT:osx-x86-prerelease"   --userversion "$VERSION"
 
-  github-release:
-    needs: [ version, prerelease-gate ]
+  github-prerelease:
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/release') || github.event_name == 'workflow_dispatch'
+    needs: [ version, build-linux, build-server, build-windows, build-mac-x86, build-mac-arm64 ]
     runs-on: ubuntu-latest
+    environment: release
     permissions:
       contents: write
     steps:
@@ -459,8 +446,10 @@ jobs:
             dist/*
 
   website-prerelease:
-    needs: [ version, prerelease-gate ]
+    if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [ version, build-windows, build-linux, build-mac-arm64, build-mac-x86 ]
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
