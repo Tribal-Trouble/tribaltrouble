@@ -41,7 +41,7 @@ git push origin release
 This kicks off the `Build & Release` workflow. The flow:
 
 1. **Build wave**: `format-check`, `api-guard`, `version`, then all 6 platform builds (Linux AppImage, Windows app-image, Mac arm64 dmg/app, Mac x86 dmg/app, server bundle). The Mac `-app` variants are only built on `release` because they're only consumed by Steam.
-2. **Approval gate**: the `prerelease-gate` job sits at `environment: release` and waits for a reviewer click. This is your "yes, ship to prerelease destinations" confirmation.
+2. **Approval gate**: the four prerelease publisher jobs (`steam-prerelease`, `itch-prerelease`, `github-prerelease`, `website-prerelease`) all declare `environment: release` and wait on the same reviewer prompt. GitHub batches them so one click approves all four.
 3. **Prerelease publishes** (parallel after approval): Steam, itch (`*-prerelease` channels), GitHub Release (`--prerelease`), website (`/prerelease/`).
 
 If anything fails, fix it, push again. Re-pushing the same commit just builds and publishes the same version again (the `github-release` job has a "tag already exists" guard so it doesn't fail on the second pass).
@@ -105,8 +105,8 @@ Set under **Settings → Secrets and variables → Actions**.
 | Name | Used by | Value |
 |---|---|---|
 | `STEAM_USER` | `steam-release` | Steam build account username |
-| `STEAM_APP_ID` | `steam-release`, promote summary | Main app ID (`3945720`) |
-| `STEAM_DEMO_APP_ID` | `steam-release`, promote summary | Demo app ID (`3945722`) |
+| `STEAM_APP_ID` | `steam-release`, promote summary | Main game Steam app ID (`3945720`) |
+| `STEAM_DEMO_APP_ID` | `steam-release`, promote summary | Demo Steam app ID (find under Steamworks → App admin) |
 | `ITCH_PROJECT` | `itch-release`, promote | itch project slug (e.g., `rcubdev/tribal-trouble-resurrected`) |
 | `DEPLOY_HOST_PROD` | `website-prerelease`, promote | `tribaltrouble.org` |
 | `DEPLOY_USER_PROD` | `website-prerelease`, promote | SSH user on the prod box (typically `deploy`) |
@@ -121,7 +121,7 @@ Set under **Settings → Secrets and variables → Actions**.
 
 ### `release` environment
 
-Create under **Settings → Environments → release** with required reviewers set. This gates both `prerelease-gate` (in `gradle.yml`) and the `promote` job (in `promote-release.yml`).
+Create under **Settings → Environments → release** with required reviewers set. This gates the four prerelease publisher jobs in `gradle.yml` (one click batches them) and the `promote` job in `promote-release.yml`. All `secrets.*` and `vars.*` listed above live under this environment.
 
 ## Security notes
 
