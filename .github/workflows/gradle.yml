@@ -272,7 +272,7 @@ jobs:
             echo "- Website \`/prerelease/\` subdir"
           } >> "$GITHUB_STEP_SUMMARY"
 
-  steam-release:
+  steam-prerelease:
     needs: [ version, prerelease-gate ]
     runs-on: ubuntu-latest
     steps:
@@ -326,7 +326,7 @@ jobs:
           depot4Path: linux
           releaseBranch: prerelease
 
-  itch-release:
+  itch-prerelease:
     needs: [ version, prerelease-gate ]
     runs-on: ubuntu-latest
     steps:
@@ -380,7 +380,7 @@ jobs:
           ./butler push "dist/mac-arm64/tribal-trouble-mac-arm64_${VERSION}.dmg"       "$PROJECT:osx-arm64-prerelease" --userversion "$VERSION"
           ./butler push "dist/mac-x86/tribal-trouble-mac-x86_${VERSION}.dmg"           "$PROJECT:osx-x86-prerelease"   --userversion "$VERSION"
 
-  github-release:
+  github-prerelease:
     needs: [ version, prerelease-gate ]
     runs-on: ubuntu-latest
     permissions:
