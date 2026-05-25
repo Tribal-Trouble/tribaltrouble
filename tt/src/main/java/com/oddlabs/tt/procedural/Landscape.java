@@ -1019,24 +1019,24 @@ public final class Landscape {
         // place trees
         trees = placeSupplies(tree_channel, supplies, 64, (int) (vegetation_amount * max_trees * (accessible / area)),
                 0.33f);
-        access.channelSubtract(trees);
+        resources_access.channelSubtract(trees);
         if (DEBUG) trees.toLayer().saveAsPNG("supplies_trees_placed");
 
         // place palmtrees
         palmtrees = placeSupplies(palmtree_channel, supplies, 64,
                 (int) (vegetation_amount * max_palmtrees * (accessible / area)), 0.25f);
-        access.channelSubtract(palmtrees);
+        resources_access.channelSubtract(palmtrees);
         if (DEBUG) palmtrees.toLayer().saveAsPNG("supplies_palmtrees_placed");
 
         // place rock
         rock = placeSupplies(rock_channel, supplies, 64, (int) (supplies_amount * max_rock), 0f);
-        access.channelSubtract(rock);
+        resources_access.channelSubtract(rock);
         shadow.channelBrightest(rock.copy().multiply(0.5f));
         if (DEBUG) rock.toLayer().saveAsPNG("supplies_rock_placed");
 
         // place iron
         iron = placeSupplies(iron_channel, supplies, 64, (int) (supplies_amount * max_iron), 0f);
-        access.channelSubtract(iron);
+        resources_access.channelSubtract(iron);
         shadow.channelBrightest(iron.copy().multiply(0.5f));
         if (DEBUG) iron.toLayer().saveAsPNG("supplies_iron_placed");
 
