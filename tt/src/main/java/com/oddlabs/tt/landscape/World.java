@@ -1,5 +1,6 @@
 package com.oddlabs.tt.landscape;
 
+import com.oddlabs.matchmaking.GameMode;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.ProgressForm;
@@ -57,6 +58,7 @@ public final class World {
     private int global_checksum;
     private int gamespeed;
     private int map_size;
+    private final @NonNull GameMode mode;
 
     public static @NonNull LandscapeResources loadCommon(@NonNull RenderQueues queues) {
         LandscapeResources landscape_resources = new LandscapeResources(queues);
@@ -120,6 +122,10 @@ public final class World {
         return map_size;
     }
 
+    public @NonNull GameMode getGameMode() {
+        return mode;
+    }
+
     public float getSecondsPerTick() {
         return GAMESPEEDS[gamespeed];
     }
@@ -173,6 +179,7 @@ public final class World {
         this.notification_listener = notification_listener;
         this.gamespeed = world_params.getInitialGameSpeed();
         this.map_size = world_params.getMapSize();
+        this.mode = world_params.getMode();
         long time_start = System.currentTimeMillis();
 
         world = new HeightMap(this, world_info.meters_per_world(), world_info.sea_level_meters(),
