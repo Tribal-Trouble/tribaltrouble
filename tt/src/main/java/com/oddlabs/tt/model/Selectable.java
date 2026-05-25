@@ -29,11 +29,21 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
 
     private int grid_x;
     private int grid_y;
+    private int layer;
 
     protected Selectable(@NonNull Player owner, @NonNull T template) {
         super(owner.getWorld());
         this.owner = owner;
         this.template = template;
+        this.layer = UnitGrid.LAND;
+    }
+
+    public void setLayer(int layer) {
+        this.layer = layer;
+    }
+
+    public int getLayer() {
+        return layer;
     }
 
     @Override
@@ -97,10 +107,11 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
 
     public final void scanVicinity(@NonNull ScanFilter filter) {
         assert !isDead();
-        getUnitGrid().scan(filter, getGridX(), getGridY());
+        getUnitGrid().scan(filter, getGridX(), getGridY(), UnitGrid.LAND);
+        getUnitGrid().scan(filter, getGridX(), getGridY(), UnitGrid.SEA);
     }
 
-    private static boolean isAdjacent(@NonNull UnitGrid unit_grid, int grid_x, int grid_y, @NonNull Occupant occ) {
+    private static boolean isAdjacent(@NonNull UnitGrid unit_grid, int grid_x, int grid_y, @NonNull Occupant occ, int layer) {
         int t_x = occ.getGridX();
         int t_y = occ.getGridY();
         int dx = 0;
@@ -114,17 +125,30 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
         else if (t_y < grid_y)
             dy = -1;
         assert dx != 0 || dy != 0 : "occ = " + occ;
-        return unit_grid.getOccupant(grid_x + dx, grid_y + dy) == occ;
+        return unit_grid.getOccupant(grid_x + dx, grid_y + dy, layer) == occ;
     }
 
+    private static boolean isAdjacent(@NonNull UnitGrid unit_grid, int grid_x, int grid_y, @NonNull Occupant occ) {
+        return isAdjacent(unit_grid, grid_x, grid_y, occ, UnitGrid.LAND);
+    }
+
+    public final boolean isCloseEnough(float max_dist, @NonNull Target target, int layer) {
+        assert !isDead();
+        return isCloseEnough(getUnitGrid(), max_dist, getGridX(), getGridY(), target, layer);
+    }
+    
     public final boolean isCloseEnough(float max_dist, @NonNull Target target) {
         assert !isDead();
         return isCloseEnough(getUnitGrid(), max_dist, getGridX(), getGridY(), target);
     }
 
     public static boolean isCloseEnough(@NonNull UnitGrid unit_grid, float max_dist, int grid_x, int grid_y, @NonNull Target target) {
+        return isCloseEnough(unit_grid, max_dist, grid_x, grid_y, target, UnitGrid.LAND);
+    }
+
+    public static boolean isCloseEnough(@NonNull UnitGrid unit_grid, float max_dist, int grid_x, int grid_y, @NonNull Target target, int layer) {
         if (max_dist == 0f && target instanceof Occupant occupant) {
-            return isAdjacent(unit_grid, grid_x, grid_y, occupant);
+            return isAdjacent(unit_grid, grid_x, grid_y, occupant, layer);
         } else {
             int dx = grid_x - target.getGridX();
             int dy = grid_y - target.getGridY();

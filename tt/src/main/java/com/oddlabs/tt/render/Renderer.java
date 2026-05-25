@@ -691,7 +691,7 @@ public final class Renderer implements AutoCloseable {
     }
 
     private static @Nullable Runnable setupMainMenu(final @NonNull NetworkSelector network, @NonNull GUI gui, final boolean first_progress) {
-        final WorldGenerator generator = new IslandGenerator(256, Landscape.TerrainType.NATIVE, Globals.LANDSCAPE_HILLS, Globals.LANDSCAPE_VEGETATION, Globals.LANDSCAPE_RESOURCES, Globals.LANDSCAPE_SEED);
+        final WorldGenerator generator = new IslandGenerator(256, Landscape.TerrainType.NATIVE, Globals.LANDSCAPE_HILLS, Globals.LANDSCAPE_VEGETATION, Globals.LANDSCAPE_RESOURCES, Globals.LANDSCAPE_SEED, false);
         return ProgressForm.setProgressForm(network, gui, (GUIRoot gui_root) -> finishMainMenu(network, gui_root, first_progress, generator), first_progress);
     }
 

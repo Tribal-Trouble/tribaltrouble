@@ -1,13 +1,13 @@
 package com.oddlabs.tt.model;
 
 public class DeployContainer extends SupplyContainer {
-    private final Building building;
-    private final DeployType deploy_type;
-    private final Class<?> supply_type;
-    private final float seconds_per_deploy;
+    protected final Building building;
+    protected final DeployType deploy_type;
+    protected final Class<?> supply_type;
+    protected final float seconds_per_deploy;
 
-    private float time = 0;
-    private int num_orders = 0;
+    protected float time = 0;
+    protected int num_orders = 0;
 
 
     public DeployContainer(Building building, float seconds_per_deploy, DeployType deploy_type, Class<?> supply_type) {
@@ -39,16 +39,16 @@ public class DeployContainer extends SupplyContainer {
         }
     }
 
-    private void orderSupply(int amount, int orders) {
+    protected void orderSupply(int amount, int orders) {
         increaseSupply(amount);
         num_orders += orders;
     }
 
-    public final int getNumOrders() {
+    public int getNumOrders() {
         return num_orders;
     }
 
-    public final void deploy(float amount) {
+    public void deploy(float amount) {
         time += amount;
         if (time >= seconds_per_deploy) {
             time = 0;
@@ -57,7 +57,7 @@ public class DeployContainer extends SupplyContainer {
         }
     }
 
-    private void doDeploy() {
+    protected void doDeploy() {
         switch (deploy_type) {
             case ROCK_WARRIOR:
                 building.createArmy(0, 1, 0, 0);
@@ -105,7 +105,7 @@ public class DeployContainer extends SupplyContainer {
         return super.increaseSupply(amount);
     }
 
-    public final float getBuildProgress() {
+    public float getBuildProgress() {
         return time / seconds_per_deploy;
     }
 }

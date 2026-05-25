@@ -167,7 +167,7 @@ public final class World {
         this.map_size = world_params.getMapSize();
         long time_start = System.currentTimeMillis();
 
-        world = new HeightMap(this, world_info.meters_per_world(), world_info.sea_level_meters(), world_info.texels_per_colormap(), world_info.chunks_per_colormap(), world_info.heightmap(), world_info.trees(), world_info.access_grid(), world_info.build_grid());
+        world = new HeightMap(this, world_info.meters_per_world(), world_info.sea_level_meters(), world_info.texels_per_colormap(), world_info.chunks_per_colormap(), world_info.heightmap(), world_info.island_locations(), world_info.trees(), world_info.access_grid(), world_info.dock_grid(), world_info.water_grid(), world_info.sea_cost_map(), world_info.build_grid());
         animation_manager_game_time = new AnimationManager();
         animation_manager_real_time = new AnimationManager();
         random = new Random(42);

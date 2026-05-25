@@ -26,6 +26,8 @@ public final class Abilities {
     public static final int RALLY_TO = 256;
     // Can use magic
     public static final int MAGIC = 512;
+    // Can sail
+    public static final int SAIL = 1024;
 
     private int abilities;
 

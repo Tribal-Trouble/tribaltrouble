@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
 public final class UnitTemplate extends Template {
     private final float meters_per_second;
     private final @NonNull WeaponFactory weapon_factory;
-    private final @NonNull SpriteKey sprite_renderer;
+    private final @NonNull SpriteKey[] sprite_renderers;
     private final UnitSupplyContainerFactory supply_container_factory;
     private final @NonNull Audio death_sound;
     private final float death_pitch;
@@ -26,7 +26,7 @@ public final class UnitTemplate extends Template {
                         @NonNull Abilities abilities,
                         float meters_per_second,
                         @NonNull WeaponFactory weapon_factory,
-                        @NonNull SpriteKey sprite_renderer,
+                        @NonNull SpriteKey[] sprite_renderers,
                         float shadow_diameter,
                         @NonNull ShadowListKey shadow_renderer,
                         UnitSupplyContainerFactory supply_container_factory,
@@ -42,11 +42,13 @@ public final class UnitTemplate extends Template {
                         float stun_z,
                         int status_value) {
         super(abilities, shadow_diameter, shadow_renderer, hit_offset_z, no_detail_size, defense_chance, name);
+        assert sprite_renderers != null && sprite_renderers.length > 0
+                : "UnitTemplate must have at least one sprite renderer";
         this.selection_radius = selection_radius;
         this.selection_height = selection_height;
         this.meters_per_second = meters_per_second;
         this.weapon_factory = weapon_factory;
-        this.sprite_renderer = sprite_renderer;
+        this.sprite_renderers = sprite_renderers;
         this.supply_container_factory = supply_container_factory;
         this.death_sound = death_sound;
         this.death_pitch = death_pitch;
@@ -74,7 +76,15 @@ public final class UnitTemplate extends Template {
     }
 
     public @NonNull SpriteKey getSpriteRenderer() {
-        return sprite_renderer;
+        return sprite_renderers[0];
+    }
+    
+    public @NonNull SpriteKey getSpriteRenderer(int index) {
+        return sprite_renderers[index];
+    }
+    
+    public final int getNumSpriteRenderers() {
+        return sprite_renderers.length;
     }
 
     public UnitSupplyContainerFactory getUnitSupplyContainerFactory() {

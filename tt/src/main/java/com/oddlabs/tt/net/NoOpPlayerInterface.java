@@ -24,6 +24,8 @@ public final class NoOpPlayerInterface implements PlayerInterface {
     @Override public void setRallyPoint(@NonNull Building building, @NonNull Target target) {}
     @Override public void setTarget(Selectable<?> @NonNull [] selection, @NonNull Target target, @NonNull Action action, boolean aggressive) {}
     @Override public void setRallyPoint(@NonNull Building building, int grid_x, int grid_y) {}
+    @Override
+    public final void setSailingTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y) {}
     @Override public void setLandscapeTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action, boolean aggressive) {}
     @Override public void recallGatherers(@NonNull Building building, @NonNull Class<? extends Supply> supply_type, int amount) {}
     @Override public void setPreferredGamespeed(int speed) {}

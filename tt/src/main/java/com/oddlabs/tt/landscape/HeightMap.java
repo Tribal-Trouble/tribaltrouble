@@ -1,5 +1,6 @@
 package com.oddlabs.tt.landscape;
 
+import com.oddlabs.procedural.Channel;
 import com.oddlabs.tt.global.Globals;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
@@ -19,6 +20,10 @@ public final class HeightMap {
     private final LandscapeLeaf @NonNull [] @NonNull [] landscape_leaves;
     private final List<int @NonNull []> trees;
     private final boolean[][] access_grid;
+    private final boolean[][] dock_grid;
+    private final boolean[][] water_grid;
+    private final Channel sea_cost_map;
+    private final List<int[]> island_locations;
     private final byte[][] build_grid;
     private final int meters_per_world;
     private final int patches_per_world;
@@ -35,12 +40,29 @@ public final class HeightMap {
     private final World world_instance;
     private final com.oddlabs.tt.render.@NonNull Texture heightTexture;
 
-    public HeightMap(World world_instance, int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, float @NonNull [] @NonNull [] world, List<int[]> trees, boolean[][] access_grid, byte[][] build_grid) {
+    public HeightMap(
+            World world_instance,
+            int meters_per_world,
+            float sea_level_meters,
+            int texels_per_colormap,
+            int chunks_per_colormap,
+            float @NonNull [] @NonNull [] world,
+            List<int[]> island_locations,
+            List<int[]> trees,
+            boolean[][] access_grid,
+            boolean[][] dock_grid,
+            boolean[][] water_grid,
+            Channel sea_cost_map,
+            byte[][] build_grid) {
         this.world = world;
         this.world_instance = world_instance;
         this.trees = trees;
         this.access_grid = access_grid;
+        this.dock_grid = dock_grid;
+        this.water_grid = water_grid;
+        this.sea_cost_map = sea_cost_map;
         this.build_grid = build_grid;
+        this.island_locations = island_locations;
         this.meters_per_world = meters_per_world;
         this.sea_level_meters = sea_level_meters;
         patches_per_world = world.length / GRID_UNITS_PER_PATCH;
@@ -153,6 +175,22 @@ public final class HeightMap {
     public boolean[][] getAccessGrid() {
         return access_grid;
     }
+ 
+    public final boolean[][] getDockGrid() {
+        return dock_grid;
+    }
+
+    public final Channel getSeaCostMap() {
+        return sea_cost_map;
+    }
+
+    public final boolean[][] getWaterGrid() {
+        return water_grid;
+    }
+
+    public final List<int[]> getIslandLocations() {
+        return island_locations;
+    }
 
     void makePlaneVector(int x0, int y0, int x1, int y1, int x2, int y2, @NonNull Vector3f plane) {
         makePlaneVector(x0, y0, getWrappedHeight(x0, y0),
@@ -257,6 +295,12 @@ public final class HeightMap {
         grid_x = wrapGridCoord(grid_x);
         grid_y = wrapGridCoord(grid_y);
         return build_grid[grid_y][grid_x] >= val;
+    }
+
+    public final boolean canDock(int grid_x, int grid_y) {
+        grid_x = wrapGridCoord(grid_x);
+        grid_y = wrapGridCoord(grid_y);
+        return dock_grid[grid_y][grid_x];
     }
 
     public float getWrappedHeight(int grid_x, int grid_y) {

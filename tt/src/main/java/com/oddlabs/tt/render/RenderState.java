@@ -6,6 +6,7 @@ import com.oddlabs.tt.landscape.LandscapeTargetRespond;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.ElementVisitor;
+import com.oddlabs.tt.model.Element;
 import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.model.Plants;
 import com.oddlabs.tt.model.RacesResources;
@@ -122,7 +123,8 @@ final class RenderState implements ElementVisitor {
 
     @Override
     public void visitUnit(final @NonNull Unit unit) {
-        float z_offset = getVisuallyCorrectHeight(unit.getPositionX(), unit.getPositionY()) + unit.getOffsetZ();
+        Element ref = unit.getReference();
+        float z_offset = (ref == null) ? getVisuallyCorrectHeight(unit.getPositionX(), unit.getPositionY()) + unit.getOffsetZ() : ref.getPositionZ() + unit.getOffsetZ();
         visitSelectable(unit_visitor, unit, z_offset, unit.getTemplate().getSelectionRadius(), unit.getTemplate().getSelectionHeight());
     }
 

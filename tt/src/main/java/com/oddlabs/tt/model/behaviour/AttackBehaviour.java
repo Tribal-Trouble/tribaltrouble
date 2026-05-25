@@ -1,7 +1,11 @@
 package com.oddlabs.tt.model.behaviour;
 
 import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.model.Ship;
+import com.oddlabs.tt.model.ShipAllocation;
 import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.pathfinder.UnitGrid;
+
 import org.jspecify.annotations.NonNull;
 
 public final class AttackBehaviour implements Behaviour {
@@ -14,14 +18,27 @@ public final class AttackBehaviour implements Behaviour {
 
     private final @NonNull Selectable<?> target;
     private final @NonNull Unit unit;
+    private final ShipAllocation allocation;
+    private final Ship ship;
     private float anim_time;
     private @NonNull AttackState state = AttackState.THROWING;
 
     public AttackBehaviour(@NonNull Unit unit, @NonNull Selectable<?> target) {
         this.unit = unit;
         this.target = target;
+        this.allocation = null;
+        this.ship = null;
         anim_time = unit.getWeaponFactory().getSecondsPerRelease(1f / SECONDS_PER_ATTACK);
-        unit.switchAnimation(1f / SECONDS_PER_ATTACK, Unit.Animation.THROWING);
+        unit.switchAnimation(1f / SECONDS_PER_ATTACK, Unit.Animation.THROWING, 0);
+    }
+
+    public AttackBehaviour(@NonNull Unit unit, @NonNull Selectable target, ShipAllocation allocation, Ship ship) {
+        this.unit = unit;
+        this.target = target;
+        this.ship = ship;
+        this.allocation = allocation;
+        anim_time = unit.getWeaponFactory().getSecondsPerRelease(1f / SECONDS_PER_ATTACK);
+        unit.switchAnimation(1f / SECONDS_PER_ATTACK, Unit.Animation.THROWING, 0);
     }
 
     @Override
@@ -31,6 +48,23 @@ public final class AttackBehaviour implements Behaviour {
 
     @Override
     public @NonNull State animate(float t) {
+
+        if (ship != null) {
+            float x = ship.getPositionX();
+            float y = ship.getPositionY();
+            float dx = ship.getDirectionX();
+            float dy = ship.getDirectionY();
+            float ox = allocation.getOffset().x;
+            float oy = allocation.getOffset().y;
+            float gx = x + dx * ox - dy * oy;
+            float gy = y + dy * ox + dx * oy;
+            unit.setPosition(gx, gy);
+            unit.setGridPosition(UnitGrid.toGridCoordinate(gx), UnitGrid.toGridCoordinate(gy));
+            float rx = allocation.getRotation().x;
+            float ry = allocation.getRotation().y;
+            unit.setDirection(rx * dx - ry * dy, ry * dx + rx * dy);
+        }
+
         return switch (state) {
             case THROWING -> {
                 updateAttack(t);

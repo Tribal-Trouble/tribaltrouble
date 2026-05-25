@@ -267,7 +267,7 @@ public final class Player implements PlayerInterface {
         Building b = null;
         if (!target_list.isEmpty()) {
             Target t = target_list.getFirst();
-            b = new Building(this, getRace().getBuildingTemplate(building_type), t.getGridX(), t.getGridY());
+            b = getRace().getBuildingTemplate(building_type).create(this, t.getGridX(), t.getGridY());
             b.place();
             b.repair(1000);
         }
@@ -477,7 +477,8 @@ public final class Player implements PlayerInterface {
 
     @Override
     public void placeBuilding(Selectable<?> @NonNull [] selection, int template_id, int placing_grid_x, int placing_grid_y) {
-        Building building = new Building(this, getRace().getBuildingTemplate(template_id), placing_grid_x, placing_grid_y);
+        Building building = getRace().getBuildingTemplate(template_id).create(this, placing_grid_x, placing_grid_y);
+
         for (var selection1 : selection) {
             if (isValid(selection1)) {
                 selection1.initTarget(building, Action.DEFAULT, false);
@@ -510,6 +511,17 @@ public final class Player implements PlayerInterface {
             if (selection1 != null) {
                 selection1.hit(10000, 0f, 1f, this);
             }
+        }
+    }
+
+    @Override
+    public final void setSailingTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y) {
+        if (selection.length == 0) return;
+        int grid_size = world.getUnitGrid().getGridSize();
+        if (grid_x < 0 || grid_x >= grid_size || grid_y < 0 || grid_y >= grid_size) return;
+        Target target = new LandscapeTarget(grid_x, grid_y);
+        for (int i = 0; i < selection.length; i++) {
+            if (isValid(selection[i])) selection[i].initTarget(target, Action.MOVE, false);
         }
     }
 

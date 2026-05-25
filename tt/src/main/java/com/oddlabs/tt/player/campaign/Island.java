@@ -93,7 +93,7 @@ public abstract class Island {
                         Player.DEFAULT_MAX_UNIT_COUNT),
                 ingame_info,
                 init_action,
-                null, meters_per_world, terrain, hills, vegetation_amount, supplies_amount, seed, ai_names);
+                null, meters_per_world, terrain, hills, vegetation_amount, supplies_amount, seed, false, ai_names);
     }
 
     protected final @Nullable WorldViewer getViewer() {

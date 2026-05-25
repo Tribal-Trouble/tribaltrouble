@@ -29,12 +29,14 @@ public final class IslandGenerator implements WorldGenerator {
     private final float vegetation_amount;
     private final float supplies_amount;
     private final int seed;
+    private final boolean archipelago;
 
-    public IslandGenerator(int meters_per_world, Landscape.@NonNull TerrainType terrain, float hills, float vegetation_amount, float supplies_amount, int seed) {
+    public IslandGenerator(int meters_per_world, Landscape.@NonNull TerrainType terrain, float hills, float vegetation_amount, float supplies_amount, int seed, boolean archipelago) {
         this.hills = hills;
         this.vegetation_amount = vegetation_amount;
         this.supplies_amount = supplies_amount;
         this.seed = seed;
+        this.archipelago = archipelago;
         this.grid_units = meters_per_world / HeightMap.METERS_PER_UNIT_GRID;
         this.meters_per_world = meters_per_world;
         this.terrain = terrain;
@@ -79,7 +81,7 @@ public final class IslandGenerator implements WorldGenerator {
         float detail_prefade = IDEAL_DETAIL_ALPHA * (float) Math.pow(Globals.LANDSCAPE_DETAIL_FADEOUT_FACTOR, detail_prefade_level);
         base_level -= detail_mip_level;
         base_level = Math.min(base_level, 1);
-        Landscape landscape = new Landscape(num_players, meters_per_world, terrain, detail_prefade, hills, vegetation_amount, supplies_amount, seed, initial_unit_count, random_start_pos);
+        Landscape landscape = new Landscape(num_players, meters_per_world, terrain, detail_prefade, hills, vegetation_amount, supplies_amount, seed, initial_unit_count, random_start_pos, archipelago);
         Instant time_after = Instant.now();
         IO.println("Landscape created in " + Duration.between(time_before, time_after));
         BlendInfo[] blend_infos = landscape.getBlendInfos();
@@ -97,7 +99,7 @@ public final class IslandGenerator implements WorldGenerator {
                 colormap_size, chunks_per_colormap, null, maps, detail,
                 landscape.getHeight(),
                 landscape.getTrees(), landscape.getPalmtrees(), landscape.getRock(), landscape.getIron(), landscape.getPlants(),
-                landscape.getAccessGrid(), landscape.getBuildGrid(), landscape.getStartingLocations(),
+                landscape.getAccessGrid(), landscape.getDockGrid(), landscape.getWaterGrid(), landscape.getSeaCostMap(), landscape.getBuildGrid(), landscape.getIslandLocations(), landscape.getStartingLocations(),
                 blend_infos);
     }
 }

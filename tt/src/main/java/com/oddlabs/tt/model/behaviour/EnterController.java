@@ -3,6 +3,7 @@ package com.oddlabs.tt.model.behaviour;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Supply;
+import com.oddlabs.tt.model.UnitSupplyContainer;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.weapon.ThrowingFactory;
 import com.oddlabs.tt.model.weapon.ThrowingWeapon;
@@ -15,7 +16,7 @@ public final class EnterController extends Controller {
     public EnterController(@NonNull Unit unit, @NonNull Building building) {
         super(1);
         this.unit = unit;
-        this.building = building;
+        this.building = building.getEntrance();
     }
 
     @Override
@@ -24,11 +25,13 @@ public final class EnterController extends Controller {
             unit.popController();
         } else if (unit.isCloseEnough(0f, building)) {
             if (building.getUnitContainer() != null && building.getUnitContainer().canEnter(unit)) {
+                UnitSupplyContainer unitSupply = unit.getSupplyContainer();
+                int numSupply = (unitSupply != null) ? unitSupply.getNumSupplies() : 0;
                 if (building.getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER)) {
-                    if (unit.getAbilities().hasAbilities(Abilities.HARVEST)
-                            && unit.getSupplyContainer().getNumSupplies() > 0) {
-                        Class<? extends Supply> type = unit.getSupplyContainer().getSupplyType();
-                        building.getSupplyContainer(type).increaseSupply(unit.getSupplyContainer().getNumSupplies());
+                    if (unit.getAbilities().hasAbilities(Abilities.HARVEST) && numSupply > 0) {
+                        Class type = unitSupply.getSupplyType();
+                        building.getSupplyContainer(type).increaseSupply(numSupply);
+                        unitSupply.increaseSupply(-numSupply, type);
                     }
                     if (unit.getWeaponFactory() instanceof ThrowingFactory) {
                         Class<? extends ThrowingWeapon> type = unit.getWeaponFactory().getType();

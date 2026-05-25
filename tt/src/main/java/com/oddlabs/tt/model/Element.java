@@ -21,6 +21,8 @@ public abstract class Element<T extends Element<T>> extends BoundingBox implemen
     private float dir_x = 1f;
     private float dir_y = 0f;
 
+    private Element reference = null;
+
     protected Element(AbstractElementNode<T> element_root) {
         this.element_root = element_root;
     }
@@ -48,6 +50,14 @@ public abstract class Element<T extends Element<T>> extends BoundingBox implemen
         node_parent.removeElement(self());
         node_parent = null;
     }
+ 
+    public final Element getReference() {
+        return reference;
+    }
+
+    public final void setReference(Element ref) {
+        reference = ref;
+    }
 
     public final float getDirectionX() {
         return dir_x;
@@ -68,7 +78,7 @@ public abstract class Element<T extends Element<T>> extends BoundingBox implemen
         this.y = y;
     }
 
-    protected void setPositionZ(float z) {
+    public void setPositionZ(float z) {
         render_pos_z = z;
     }
 

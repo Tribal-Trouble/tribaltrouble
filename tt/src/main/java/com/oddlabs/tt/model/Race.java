@@ -11,8 +11,8 @@ public final class Race {
     public static final int BUILDING_QUARTERS = 0;
     public static final int BUILDING_ARMORY = 1;
     public static final int BUILDING_TOWER = 2;
-
-    public static final int NUM_BUILDINGS = 3;
+    public static final int BUILDING_SHIP = 3;
+    public static final int NUM_BUILDINGS = 4;
 
     public static final int UNIT_WARRIOR_ROCK = 0;
     public static final int UNIT_WARRIOR_IRON = 1;
@@ -30,18 +30,27 @@ public final class Race {
     private final @NonNull ChieftainAI chieftain_ai;
     private final @NonNull String music_path;
 
-    public Race(@NonNull BuildingTemplate quarters, @NonNull BuildingTemplate armory, @NonNull BuildingTemplate tower,
-                @NonNull UnitTemplate warrior_rock, @NonNull UnitTemplate warrior_iron, @NonNull UnitTemplate warrior_rubber,
-                @NonNull UnitTemplate peon, @NonNull UnitTemplate chieftain,
-                @NonNull SpriteKey rally_point,
-                @NonNull RaceIcons icons,
-                @NonNull Audio attack_notification, @NonNull Audio building_notification,
-                @NonNull MagicFactory @NonNull [] magic_factory,
-                @NonNull ChieftainAI chieftain_ai,
-                @NonNull String music_path) {
+    public Race(
+            @NonNull BuildingTemplate quarters,
+            @NonNull BuildingTemplate armory,
+            @NonNull BuildingTemplate tower,
+            @NonNull BuildingTemplate ship,
+            @NonNull UnitTemplate warrior_rock,
+            @NonNull UnitTemplate warrior_iron,
+            @NonNull UnitTemplate warrior_rubber,
+            @NonNull UnitTemplate peon,
+            @NonNull UnitTemplate chieftain,
+            @NonNull SpriteKey rally_point,
+            @NonNull RaceIcons icons,
+            @NonNull Audio attack_notification,
+            @NonNull Audio building_notification,
+            @NonNull MagicFactory @NonNull [] magic_factory,
+            @NonNull ChieftainAI chieftain_ai,
+            @NonNull String music_path) {
         buildings[BUILDING_QUARTERS] = quarters;
         buildings[BUILDING_ARMORY] = armory;
         buildings[BUILDING_TOWER] = tower;
+        buildings[BUILDING_SHIP] = ship;
         for (int i = 0; i < buildings.length; i++) {
             assert buildings[i].getTemplateID() == i;
         }

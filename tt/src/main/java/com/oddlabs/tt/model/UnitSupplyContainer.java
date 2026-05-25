@@ -26,6 +26,12 @@ public final class UnitSupplyContainer extends SupplyContainer {
         }
         return super.increaseSupply(amount);
     }
+    
+    public final void resetSupply(Class type) {
+        if (this.type == type) {
+            super.increaseSupply(-super.getNumSupplies());
+        }
+    }
 
     public Class<? extends Supply> getSupplyType() {
         return type;

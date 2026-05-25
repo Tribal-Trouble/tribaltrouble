@@ -6,6 +6,7 @@ import com.oddlabs.tt.delegate.CameraDelegate;
 import com.oddlabs.tt.delegate.PlacingDelegate;
 import com.oddlabs.tt.delegate.RallyPointDelegate;
 import com.oddlabs.tt.delegate.TargetDelegate;
+import com.oddlabs.tt.delegate.ShipTargetDelegate;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
@@ -13,11 +14,13 @@ import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.LandBuilding;
 import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.IronSupply;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RockSupply;
 import com.oddlabs.tt.model.RubberSupply;
+import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.model.SupplyCounter;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
@@ -47,6 +50,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
     private final Group quarters_group = new NonFocusGroup();
     private final Group status_group = new NonFocusGroup();
     private final Group armory_group = new NonFocusGroup();
+    private final Group ship_group = new NonFocusGroup();
     private final Group harvest_group = new NonFocusGroup();
     private final Group build_group = new NonFocusGroup();
     private final Group army_group = new NonFocusGroup();
@@ -66,11 +70,18 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
     //	private boolean armory_button_disabled;
     private final @NonNull NonFocusIconButton tower_button;
     //	private boolean tower_button_disabled;
+    private final @NonNull NonFocusIconButton ship_button;
     private final @NonNull NonFocusIconButton harvest_button;
     private final @NonNull NonFocusIconButton build_button;
     private final @NonNull NonFocusIconButton army_button;
     private final @NonNull NonFocusIconButton transport_button;
     private final @NonNull NonFocusIconButton rally_point_button;
+    private final @NonNull NonFocusIconButton ship_harvest_button;
+    private final @NonNull NonFocusIconButton ship_army_button;
+    private final @NonNull NonFocusIconButton ship_rally_point_button;
+    private final @NonNull NonFocusIconButton ship_transport_button;
+    private final @NonNull NonFocusIconButton ship_sail_button;
+
 
     private final @NonNull StatusIcon unit_status;
     private final @NonNull StatusIcon weapon_rock_status;
@@ -121,6 +132,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
     private boolean update = false;
     private boolean current_quarters = false;
     private boolean current_armory = false;
+    private boolean current_ship = false;
     private @Nullable Building current_building;
     private boolean current_unit = false;
     private boolean current_peon = false;
@@ -173,10 +185,16 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         peon_group.addChild(tower_button);
         tower_button.addMouseClickListener((_, _, _, _) -> pushDelegate(new PlacingDelegate(viewer, camera.getState(), Race.BUILDING_TOWER)));
         tower_button.setIconDisabler(() -> !viewer.getLocalPlayer().canBuild(Race.BUILDING_TOWER));
+
+        ship_button = new NonFocusIconButton(race_icons.shipIcon(), formatTip("ship_tip", "S"));
+        peon_group.addChild(ship_button);
+        ship_button.addMouseClickListener((_, _, _, _) -> pushDelegate(new PlacingDelegate(viewer, camera.getState(), Race.BUILDING_SHIP)));
+
         gather_repair_button.place();
         quarters_button.place(gather_repair_button, Placement.BOTTOM_MID);
         armory_button.place(quarters_button, Placement.BOTTOM_MID);
         tower_button.place(armory_button, Placement.BOTTOM_MID);
+        ship_button.place(tower_button, Placement.BOTTOM_MID);
         peon_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, 0);
 
         PlayerInterface player_interface = viewer.getPeerHub().getPlayerInterface();
@@ -298,6 +316,40 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         rally_point_button.place(transport_button, Placement.BOTTOM_MID);
         armory_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
 
+        ship_harvest_button = new NonFocusIconButton(icons.getHarvestIcon(), formatTip("gather_resources_tip", "G"));
+        ship_group.addChild(ship_harvest_button);
+        ship_harvest_button.addMouseClickListener((_, _, _, _) -> {
+            ship_group.remove();
+            addChild(harvest_group);
+            current_submenu = harvest_group;
+        });
+        ship_army_button = new NonFocusIconButton(race_icons.armyIcon(), formatTip("deploy_army_tip", "A"));
+        ship_group.addChild(ship_army_button);
+        ship_army_button.addMouseClickListener((_, _, _, _) -> {
+            ship_group.remove();
+            addChild(army_group);
+            current_submenu = army_group;
+        });
+        ship_transport_button = new NonFocusIconButton(race_icons.transportIcon(), formatTip("transport_resources_tip", "T"));
+        ship_group.addChild(ship_transport_button);
+        ship_transport_button.addMouseClickListener((_, _, _, _) -> {
+            ship_group.remove();
+            addChild(transport_group);
+            current_submenu = transport_group;
+        });
+        ship_rally_point_button = new NonFocusIconButton(race_icons.rallyPointIcon(), formatTip("rally_point_tip", "R"));
+        ship_group.addChild(ship_rally_point_button);
+        ship_rally_point_button.addMouseClickListener(this::setRallyPoint);
+        ship_harvest_button.place();
+        ship_army_button.place(ship_harvest_button, Placement.BOTTOM_MID);
+        ship_transport_button.place(ship_army_button, Placement.BOTTOM_MID);
+        ship_rally_point_button.place(ship_transport_button, Placement.BOTTOM_MID);
+        ship_sail_button = new NonFocusIconButton(race_icons.shipIcon(), formatTip("sail_tip", "S"));
+        ship_group.addChild(ship_sail_button);
+        ship_sail_button.addMouseClickListener((_, _, _, _) -> pushDelegate(new ShipTargetDelegate(viewer, camera, Action.MOVE)));
+        ship_sail_button.place(ship_rally_point_button, Placement.BOTTOM_MID);
+        ship_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
+
         Player local_player = viewer.getLocalPlayer();
         harvest_tree_button = new DeploySpinner(viewer, player_interface, icons.getTreeIcon(), i18n("harvest_tree_tip"), new IconQuad[]{race_icons.unitStatusIcon()}, "W", local_player, TreeSupply.class);
         harvest_group.addChild(harvest_tree_button);
@@ -317,11 +369,11 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         harvest_back_button.place(harvest_rubber_button, Placement.BOTTOM_MID);
         harvest_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
 
-        build_weapon_rock_button = new BuildSpinner(viewer, player_interface, race_icons.buildWeaponRockIcon(), i18n("build_rock_tip"), Building.COST_ROCK_WEAPON.toIconArray(), "R");
+        build_weapon_rock_button = new BuildSpinner(viewer, player_interface, race_icons.buildWeaponRockIcon(), i18n("build_rock_tip"), LandBuilding.COST_ROCK_WEAPON.toIconArray(), "R");
         build_group.addChild(build_weapon_rock_button);
-        build_weapon_iron_button = new BuildSpinner(viewer, player_interface, race_icons.buildWeaponIronIcon(), i18n("build_iron_tip"), Building.COST_IRON_WEAPON.toIconArray(), "I");
+        build_weapon_iron_button = new BuildSpinner(viewer, player_interface, race_icons.buildWeaponIronIcon(), i18n("build_iron_tip"), LandBuilding.COST_IRON_WEAPON.toIconArray(), "I");
         build_group.addChild(build_weapon_iron_button);
-        build_weapon_rubber_button = new BuildSpinner(viewer, player_interface, race_icons.buildWeaponRubberIcon(), i18n("build_chicken_tip"), Building.COST_RUBBER_WEAPON.toIconArray(), "C");
+        build_weapon_rubber_button = new BuildSpinner(viewer, player_interface, race_icons.buildWeaponRubberIcon(), i18n("build_chicken_tip"), LandBuilding.COST_RUBBER_WEAPON.toIconArray(), "C");
         build_group.addChild(build_weapon_rubber_button);
         build_back_button = new NonFocusIconButton(skin.getBackButton(), formatTip("back_tip", "Backspace"));
         build_back_button.addMouseClickListener(this::cancelSubMenu);
@@ -415,13 +467,15 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
         boolean new_quarters = current_building != null && current_building.getAbilities().hasAbilities(Abilities.REPRODUCE);
         boolean new_armory = current_building != null && current_building.getAbilities().hasAbilities(Abilities.BUILD_ARMIES);
+        boolean new_ship = current_building != null && current_building.getAbilities().hasAbilities(Abilities.SAIL);
         boolean new_unit = current_num_units > 0;
         boolean new_peon = current_num_peons > 0;
         boolean new_tower = current_building != null && current_building.getAbilities().hasAbilities(Abilities.ATTACK);
-        update = update || different_building || different_chieftain || new_quarters != current_quarters || new_armory != current_armory || new_unit != current_unit || new_peon != current_peon || new_tower != current_tower;
+        update = update || different_building || different_chieftain || new_quarters != current_quarters || new_armory != current_armory || new_ship != current_ship || new_unit != current_unit || new_peon != current_peon || new_tower != current_tower;
         if (update) {
             current_quarters = new_quarters;
             current_armory = new_armory;
+            current_ship = new_ship;
             current_tower = new_tower;
             current_unit = new_unit;
             current_peon = new_peon;
@@ -480,6 +534,16 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
                 }
                 updateCounters();
             }
+            if (current_ship) {
+                addChild(status_group);
+                addChild(ship_group);
+                if (viewer.getLocalPlayer().canUseRubber()) {
+                    army_group.addChild(army_warrior_rubber_button);
+                } else {
+                    army_warrior_rubber_button.remove();
+                }
+                updateCounters();
+            }
         }
         updateButtons();
     }
@@ -522,10 +586,38 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
             quarters_peon_button.doUpdate();
             quarters_chieftain_button.doUpdate();
+        } else if (current_building != null
+                && current_building.getAbilities().hasAbilities(Abilities.SAIL)) {
+            unit_status.doUpdate();
+            weapon_rock_status.doUpdate();
+            weapon_iron_status.doUpdate();
+            weapon_rubber_status.doUpdate();
+            tree_status.doUpdate();
+            rock_status.doUpdate();
+            iron_status.doUpdate();
+            rubber_status.doUpdate();
+
+            ship_harvest_button.doUpdate();
+            ship_army_button.doUpdate();
+            ship_sail_button.doUpdate();
+
+            harvest_tree_button.doUpdate();
+            harvest_rock_button.doUpdate();
+            harvest_iron_button.doUpdate();
+            harvest_rubber_button.doUpdate();
+            army_warrior_rubber_button.doUpdate();
+            army_warrior_iron_button.doUpdate();
+            army_warrior_rock_button.doUpdate();
+            army_peon_button.doUpdate();
+            transport_tree_button.doUpdate();
+            transport_rock_button.doUpdate();
+            transport_iron_button.doUpdate();
+            transport_rubber_button.doUpdate();
         } else if (current_peon) {
             quarters_button.doUpdate();
             armory_button.doUpdate();
             tower_button.doUpdate();
+            ship_button.doUpdate();
         }
         if (current_unit) {
             move_button.doUpdate();
@@ -547,6 +639,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         quarters_group.remove();
         status_group.remove();
         armory_group.remove();
+        ship_group.remove();
         harvest_group.remove();
         build_group.remove();
         army_group.remove();
@@ -625,6 +718,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         quarters_group.setPos(width - quarters_group.getWidth(), quarters_status_group.getY() - quarters_group.getHeight());
         status_group.setPos(width - status_group.getWidth(), height - status_group.getHeight());
         armory_group.setPos(width - armory_group.getWidth(), status_group.getY() - armory_group.getHeight());
+        ship_group.setPos(width - ship_group.getWidth(), status_group.getY() - ship_group.getHeight());
         harvest_group.setPos(width - harvest_group.getWidth(), status_group.getY() - harvest_group.getHeight());
         build_group.setPos(width - build_group.getWidth(), status_group.getY() - build_group.getHeight());
         army_group.setPos(width - army_group.getWidth(), status_group.getY() - army_group.getHeight());
@@ -643,6 +737,8 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
                 if (event.consumeAction(GameAction.UNIT_MOVE)) {
                     if (current_unit) {
                         move_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
+                    } else if (current_ship) {
+                        ship_sail_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
                     }
                 } else if (event.consumeAction(GameAction.UNIT_BUILD_QUARTERS)) {
                     if (current_unit && current_peon) {
@@ -663,6 +759,8 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
                         gather_repair_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
                     } else if (current_armory) {
                         harvest_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
+                    } else if (current_ship) {
+                        ship_harvest_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
                     }
                 } else if (event.consumeAction(GameAction.UNIT_BUILD_TOWER) || event.consumeAction(GameAction.PROD_TRANSPORT)) {
                     // T - Tower or Transport
@@ -670,6 +768,8 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
                         tower_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
                     } else if (current_armory && current_submenu == null) {
                         transport_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
+                    } else if (current_ship && current_submenu == null) {
+                        ship_transport_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
                     }
                 } else if (event.consumeAction(GameAction.TRAIN_CHIEFTAIN)) {
                     if (current_quarters) {

@@ -20,6 +20,38 @@ public final class Channel {
     public int height;
     private final boolean powerof2;
 
+    public class ChannelVisitor {
+        private int x = 0;
+        private int y = 0;
+        private boolean done = false;
+        private float value;
+        private Channel channel;
+
+        private ChannelVisitor(Channel channel, float value) {
+            this.channel = channel;
+            this.value = value;
+        }
+
+        public int[] visitNext() {
+            while (!done) {
+                if (channel.getPixel(x, y) == value) {
+                    break;
+                }
+                x++;
+                if (x >= channel.width) {
+                    x = 0;
+                    y++;
+                    if (y >= channel.height) {
+                        done = true;
+                        x = -1;
+                        y = -1;
+                    }
+                }
+            }
+            return new int[] {x, y};
+        }
+    }
+
     /**
      * Constructs a new Channel with the specified dimensions.
      *
@@ -35,6 +67,10 @@ public final class Channel {
         this.width = width;
         this.height = height;
         this.powerof2 = Utils.isPowerOf2(width) && Utils.isPowerOf2(height);
+    }
+
+    public final ChannelVisitor visitor(float value) {
+        return new ChannelVisitor(this, value);
     }
 
     /**
@@ -1139,7 +1175,7 @@ public final class Channel {
         return this;
     }
 
-    public @NonNull Channel floodfill(int init_x, int init_y, float value) {
+    public @NonNull Channel floodfill(int init_x, int init_y, float value, float tol, int[] count) {
         assert init_x < width && init_x >= 0 : "x coordinate outside image";
         assert init_y < height && init_y >= 0 : "y coordinate outside image";
         float oldval = getPixel(init_x, init_y);
@@ -1148,26 +1184,32 @@ public final class Channel {
         List<int[]> list = new java.util.LinkedList<>();
         list.add(new int[]{init_x, init_y});
 
+        count[0] = 1;
+
         while (!list.isEmpty()) {
             int[] coords = list.removeFirst();
             int x = coords[0];
             int y = coords[1];
             putPixel(x, y, value);
-            if (x > 0 && getPixel(x - 1, y) == oldval && !marked[x - 1][y]) {
+            if (x > 0 && Math.abs(getPixel(x - 1, y) - oldval) < tol && !marked[x - 1][y]) {
                 marked[x - 1][y] = true;
                 list.add(new int[]{x - 1, y});
+                count[0]++;
             }
-            if (x < width - 1 && getPixel(x + 1, y) == oldval && !marked[x + 1][y]) {
+            if (x < width - 1 && Math.abs(getPixel(x + 1, y) - oldval) < tol && !marked[x + 1][y]) {
                 marked[x + 1][y] = true;
                 list.add(new int[]{x + 1, y});
+                count[0]++;
             }
-            if (y > 0 && getPixel(x, y - 1) == oldval && !marked[x][y - 1]) {
+            if (y > 0 && Math.abs(getPixel(x, y - 1) - oldval) < tol && !marked[x][y - 1]) {
                 marked[x][y - 1] = true;
                 list.add(new int[]{x, y - 1});
+                count[0]++;
             }
-            if (y < height - 1 && getPixel(x, y + 1) == oldval && !marked[x][y + 1]) {
+            if (y < height - 1 && Math.abs(getPixel(x, y + 1) - oldval) < tol && !marked[x][y + 1]) {
                 marked[x][y + 1] = true;
                 list.add(new int[]{x, y + 1});
+                count[0]++;
             }
         }
         return this;

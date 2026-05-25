@@ -14,9 +14,17 @@ import com.oddlabs.tt.model.behaviour.IdleController;
 import com.oddlabs.tt.model.behaviour.MagicController;
 import com.oddlabs.tt.model.behaviour.PlaceBuildingController;
 import com.oddlabs.tt.model.behaviour.RepairController;
+import com.oddlabs.tt.model.behaviour.ShipAttackController;
+import com.oddlabs.tt.model.behaviour.SittingController;
 import com.oddlabs.tt.model.behaviour.StunController;
 import com.oddlabs.tt.model.behaviour.WalkBehaviour;
 import com.oddlabs.tt.model.behaviour.WalkController;
+import com.oddlabs.tt.model.weapon.IronAxeWeapon;
+import com.oddlabs.tt.model.weapon.IronSpearWeapon;
+import com.oddlabs.tt.model.weapon.RockAxeWeapon;
+import com.oddlabs.tt.model.weapon.RockSpearWeapon;
+import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
+import com.oddlabs.tt.model.weapon.RubberSpearWeapon;
 import com.oddlabs.tt.model.weapon.WeaponFactory;
 import com.oddlabs.tt.particle.BalancedParametricEmitter;
 import com.oddlabs.tt.particle.StunFunction;
@@ -46,13 +54,16 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     private static final int INITIAL_PATH_PENALTY = 5;
     private static final float[] MAX_MAGIC_ENERGY = new float[]{40f, 70f};
 
-    public enum Animation {
-        IDLING,
-        MOVING,
-        THROWING,
-        DYING,
-        MAGIC,
-        THOR
+    public class Animation {
+        public static final int IDLING = 0;
+        public static final int MOVING = 1;
+        public static final int THROWING = 2;
+        public static final int DYING = 3;
+        public static final int MAGIC = 4;
+        public static final int THOR = 5;
+        public static final int SITTING = 0;
+        public static final int ROWING_RIGHT = 1;
+        public static final int ROWING_LEFT = 2;
     }
 
     public static final int SPEAR_RELEASE_FRAME = 29;
@@ -65,7 +76,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
 
     private @Nullable BalancedParametricEmitter stun_marker;
     private int hit_points;
-    private @NonNull Animation animation = Animation.IDLING;
+    private @NonNull int animation = Animation.IDLING;
     private float anim_speed;
     private float anim_time;
     private int path_penalty;
@@ -76,6 +87,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     private float mount_offset = 0;
     private Building mounted_building;
     private float range_bonus;
+    private int current_sprite_index = 0;
 
     public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point, @NonNull UnitTemplate unit_template) {
         this(owner, x, y, rally_point, unit_template, null);
@@ -92,6 +104,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point, @NonNull UnitTemplate unit_template, @Nullable String name, boolean notify_by_chieftain, boolean grid_targets_only) {
         super(owner, unit_template);
         this.name = name;
+        this.current_sprite_index = 0;
         getAbilities().addAbilities(unit_template.getAbilities());
         register();
         hit_points = unit_template.getMaxHitPoints();
@@ -220,7 +233,9 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         mounted = false;
         mount_offset = 0;
         enable();
-        findInitialPosition(getPositionX(), getPositionY(), true);
+        Building entrance = mounted_building.getEntrance();
+        findInitialPosition(entrance.getPositionX(), entrance.getPositionY(), true);
+        mounted_building = null;
     }
 
     public final void mount(@NonNull Building building) {
@@ -233,6 +248,31 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         mounted = true;
         clearControllerStack();
         swapController(new IdleController(this, new AttackScanFilter(getOwner(), AttackScanFilter.TOWER_RANGE), false));
+    }
+
+    public final void mountDeck(Ship building, ShipAllocation ship_allocation) {
+        assert !isDead();
+        mounted_building = building;
+        mount_offset = ship_allocation.getOffset().z;
+        disable();
+        free();
+        mounted = true;
+        setReference(building);
+        clearControllerStack();
+        switch (ship_allocation.getRole()) {
+            case ShipAllocation.FIGHTING:
+                swapController(
+                        new ShipAttackController(
+                                this,
+                                building,
+                                new AttackScanFilter(
+                                        getOwner(), AttackScanFilter.TOWER_RANGE + 100),
+                                ship_allocation));
+                break;
+            default:
+                swapController(new SittingController(this, building, ship_allocation));
+                break;
+        }
     }
 
     public final boolean isMounted() {
@@ -264,7 +304,26 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
 
     public final void switchToIdleAnimation() {
         assert !isDead();
-        switchAnimation(IDLE_SPEED, Animation.IDLING);
+        switchAnimation(IDLE_SPEED, Animation.IDLING, 0);
+    }
+
+    public final void switchToSittingAnimation() {
+        assert !isDead();
+        switchAnimation(IDLE_SPEED, Animation.SITTING, 1);
+    }
+
+    public final void switchToRowingRightAnimation() {
+        assert !isDead();
+        assert supply_container != null;
+        switchAnimation(IDLE_SPEED, Animation.ROWING_RIGHT, 1);
+        supply_container.increaseSupply(1, RightPaddle.class);
+    }
+
+    public final void switchToRowingLeftAnimation() {
+        assert !isDead();
+        assert supply_container != null;
+        switchAnimation(IDLE_SPEED, Animation.ROWING_LEFT, 1);
+        supply_container.increaseSupply(1, LeftPaddle.class);
     }
 
     public final @NonNull WeaponFactory getWeaponFactory() {
@@ -285,15 +344,27 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
 
     @Override
     public final @NonNull SpriteKey getSpriteRenderer() {
-        return getTemplate().getSpriteRenderer();
+        return getTemplate().getSpriteRenderer(getSpriteIndex());
     }
+
+    public final void setSpriteIndex(int index) {
+        this.current_sprite_index = index;
+    }
+
+    public final int getSpriteIndex() {
+        return current_sprite_index;
+    }
+
+    public final int getNumSprites() {
+        return getTemplate().getNumSpriteRenderers();
+     }
 
     @Override
     public final void doAnimate(float t) {
         anim_time += anim_speed * t;
         if (isDead() || mounted)
             reinsert();
-        getOwner().getWorld().updateGlobalChecksum(animation.ordinal());
+        getOwner().getWorld().updateGlobalChecksum(animation);
 
         if (getAbilities().hasAbilities(Abilities.MAGIC)) {
             for (int i = 0; i < magic_energy.length; i++) {
@@ -386,31 +457,36 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         } else if (!isDead()) {
             hit_points = Math.clamp(hit_points - damage, 0, getTemplate().getMaxHitPoints());
             if (hit_points == 0) {
-                // stats
-                owner.unitKilled();
-                getOwner().unitLost();
-
-                pushController(new DieController(this));
-                forceDecide();
-                    /*
-				new AudioPlayer(getPositionX(), getPositionY(), getPositionZ(),
-						RacesResources.getUnitHitSound(),
-						AudioPlayer.AUDIO_RANK_DEATH,
-						AudioPlayer.AUDIO_DISTANCE_DEATH,
-						AudioPlayer.AUDIO_GAIN_DEATH,
-						AudioPlayer.AUDIO_RADIUS_DEATH,
-						1f + (World.getRandom().nextFloat() - .5f)*getUnitTemplate().getDeathPitch());
-                     */
-                getOwner().getWorld().getAudio().newAudio(new AudioParameters<>(getTemplate().getDeathSound(), getPositionX(), getPositionY(), getPositionZ(),
-                        AudioPlayer.AUDIO_RANK_DEATH,
-                        AudioPlayer.AUDIO_DISTANCE_DEATH,
-                        AudioPlayer.AUDIO_GAIN_DEATH,
-                        AudioPlayer.AUDIO_RADIUS_DEATH,
-                        1f + (getOwner().getWorld().getRandom().nextFloat() - .5f) * getTemplate().getDeathPitch()));
-                setDirection(-direction_x, -direction_y);
-                removeDying();
+                startDying();
             }
         }
+    }
+
+    public final void startDying() {
+        getOwner().unitLost();
+
+        mounted = false;
+        mount_offset = 0;
+
+        pushController(new DieController(this));
+        forceDecide();
+        getOwner()
+                .getWorld()
+                .getAudio()
+                .newAudio(
+                        new AudioParameters(
+                                getTemplate().getDeathSound(),
+                                getPositionX(),
+                                getPositionY(),
+                                getPositionZ(),
+                                AudioPlayer.AUDIO_RANK_DEATH,
+                                AudioPlayer.AUDIO_DISTANCE_DEATH,
+                                AudioPlayer.AUDIO_GAIN_DEATH,
+                                AudioPlayer.AUDIO_RADIUS_DEATH,
+                                1f
+                                        + (getOwner().getWorld().getRandom().nextFloat() - .5f)
+                                                * getTemplate().getDeathPitch()));
+        removeDying();
     }
 
     public final void stun(float time) {
@@ -424,6 +500,19 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         stun_marker = createStunStar(x, y, z, time, (float) Math.PI / 2);
         pushController(new StunController(this, time));
         forceDecide();
+    }
+
+    public final boolean isWarrior() {
+        Class type = getWeaponFactory().getType();
+        if (type == RockAxeWeapon.class
+                || type == IronAxeWeapon.class
+                || type == RubberAxeWeapon.class
+                || type == RockSpearWeapon.class
+                || type == IronSpearWeapon.class
+                || type == RubberSpearWeapon.class) {
+            return true;
+        }
+        return false;
     }
 
     private @NonNull BalancedParametricEmitter createStunStar(float x, float y, float z, float time, float velocity) {
@@ -464,7 +553,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
                 !getOwner().isEnemy(building.getOwner()) && building.isPlaced() && building.isDamaged();
     }
 
-    private boolean canEnter(@NonNull Target target) {
+    public boolean canEnter(@NonNull Target target) {
         return target instanceof Building building &&
                 !getAbilities().hasAbilities(Abilities.MAGIC) &&
                 building.getUnitContainer() != null &&
@@ -488,6 +577,9 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
             return;
         assert !target.isDead() : "Setting dead target";
         assert !mounted;
+        if (target instanceof Building) {
+            target = ((Building) target).getEntrance();
+        }
         switch (action) {
             case DEFAULT:
                 if (canBuild(target)) {
@@ -570,20 +662,29 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         return magic_energy[magic_index] / MAX_MAGIC_ENERGY[magic_index];
     }
 
-    public final void switchAnimation(float anim_speed, @NonNull Animation animation) {
+    public final void switchAnimation(float anim_speed, @NonNull int animation) {
+        switchAnimation(anim_speed, animation, 0);
+    }
+
+    public final void switchAnimation(float anim_speed, @NonNull int animation, int sprite) {
         assert !isDead();
+        setSpriteIndex(sprite);
+        if (supply_container != null) {
+            supply_container.resetSupply(LeftPaddle.class);
+            supply_container.resetSupply(RightPaddle.class);
+        }
         this.anim_speed = anim_speed;
         if (this.animation != animation) {
             this.animation = animation;
             this.anim_time = 0f;
-        } else if (getTemplate().getSpriteRenderer().getAnimationType(animation.ordinal()) == AnimationInfo.AnimationType.PLAIN.ordinal()) {
+        } else if (getTemplate().getSpriteRenderer(sprite).getAnimationType(animation) == AnimationInfo.AnimationType.PLAIN.ordinal()) {
             this.anim_time = 0f;
         }
     }
 
     @Override
     public final int getAnimation() {
-        return animation.ordinal();
+        return animation;
     }
 
     @Override

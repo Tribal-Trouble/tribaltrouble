@@ -62,7 +62,8 @@ import static com.oddlabs.tt.gui.Placement.TOP_LEFT;
 import static com.oddlabs.tt.gui.Placement.TOP_MID;
 
 public final class TerrainMenu extends Group {
-    private static final int[] SIZES = new int[]{256, 512, 1024, 2048};
+    private static final int[] SIZES = new int[]{256, 512, 1024, 2048, 2048};
+    private static final boolean[] ARCHIPELAGO = new boolean[] {false, false, false, false, true};
 
     private static final int SLIDER_LENGTH = 250;
     private static final int BUTTON_WIDTH = 100;
@@ -207,6 +208,7 @@ public final class TerrainMenu extends Group {
         pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_MEDIUM)));
         pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_LARGE)));
         pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_ENORMOUS)));
+        pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_ARCHIPELAGO)));
 
         var pb_size = new PulldownButton<>(gui_root, pulldown_size, 1, 150);
         group_size.addChild(pb_size);
@@ -747,6 +749,7 @@ public final class TerrainMenu extends Group {
                 vegetation_amount / (float) SLIDER_MAX_VALUE,
                 supplies_amount / (float) SLIDER_MAX_VALUE,
                 seed * seed,
+                ARCHIPELAGO[pulldown_size.getChosenItemIndex()],
                 ai_names,
                 player_count);
         game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN, race_pulldown_menus[0].getChosenItemIndex(), team_pulldown_menus[0].getChosenItemIndex(), !multiplayer, PlayerSlot.AI_NONE);

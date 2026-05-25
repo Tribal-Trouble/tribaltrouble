@@ -1,11 +1,17 @@
 package com.oddlabs.tt.model;
 
+import com.oddlabs.tt.pathfinder.UnitGrid;
+import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.ShadowListKey;
 import com.oddlabs.tt.render.SpriteKey;
 import org.jspecify.annotations.NonNull;
 
 public final class BuildingTemplate extends Template {
+    public static final int TYPE_BUILDING = 0;
+    public static final int TYPE_SHIP = 1;
+
     private final int template_id;
+    private final int type;
     private final int placing_size;
     private final float smoke_radius;
     private final float smoke_height;
@@ -28,9 +34,11 @@ public final class BuildingTemplate extends Template {
     private final float chimney_x;
     private final float chimney_y;
     private final float chimney_z;
+    private final boolean near_sea;
 
     public BuildingTemplate(
             int template_id,
+            int type,
             int placing_size,
             float smoke_radius,
             float smoke_height,
@@ -53,9 +61,11 @@ public final class BuildingTemplate extends Template {
             float chimney_x,
             float chimney_y,
             float chimney_z,
+            boolean near_sea,
             @NonNull String name) {
         super(abilities, shadow_diameter, shadow_renderer, hit_offset_z, no_detail_size, defense_chance, name);
         this.template_id = template_id;
+        this.type = type;
         this.built_selection_radius = built_selection_radius;
         this.built_selection_height = built_selection_height;
         this.halfbuilt_selection_radius = halfbuilt_selection_radius;
@@ -78,10 +88,29 @@ public final class BuildingTemplate extends Template {
         this.chimney_x = chimney_x;
         this.chimney_y = chimney_y;
         this.chimney_z = chimney_z;
+        this.near_sea = near_sea;
     }
 
     public int getTemplateID() {
         return template_id;
+    }
+
+    public final int getType() {
+        return type;
+    }
+
+    public final Building create(Player owner, int grid_x, int grid_y) {
+        if (type == TYPE_SHIP) {
+            return new Ship(owner, this, grid_x, grid_y);
+        }
+        return new LandBuilding(owner, this, grid_x, grid_y);
+    }
+
+    public final boolean isPlacingLegal(UnitGrid unit_grid, int grid_x, int grid_y) {
+        if (type == TYPE_SHIP) {
+            return Ship.isPlacingLegal(unit_grid, this, grid_x, grid_y);
+        }
+        return LandBuilding.isPlacingLegal(unit_grid, this, grid_x, grid_y);
     }
 
     public float getBuiltSelectionRadius() {
@@ -170,5 +199,9 @@ public final class BuildingTemplate extends Template {
 
     public float getChimneyZ() {
         return chimney_z;
+    }
+
+    public final boolean isNearSea() {
+        return near_sea;
     }
 }

@@ -162,7 +162,7 @@ public final class TutorialForm extends Form {
                 initial_action.run(world_viewer);
             MainMenu.completeGameSetupHack(world_viewer);
         };
-        return MainMenu.startNewGame(network, gui_root, null, new WorldParameters(Game.GAMESPEED_NORMAL, "Tutorial" + tutorial_num, initial_unit_count, Player.DEFAULT_MAX_UNIT_COUNT), ingame_info, compound_action, null, size, Landscape.TerrainType.NATIVE, hills, trees, 0f, seed, new String[]{ai_string + "0", ai_string + "1", ai_string + "2", ai_string + "3", ai_string + "4", ai_string + "5"});
+        return MainMenu.startNewGame(network, gui_root, null, new WorldParameters(Game.GAMESPEED_NORMAL, "Tutorial" + tutorial_num, initial_unit_count, Player.DEFAULT_MAX_UNIT_COUNT), ingame_info, compound_action, null, size, Landscape.TerrainType.NATIVE, hills, trees, 0f, seed, false, new String[]{ai_string + "0", ai_string + "1", ai_string + "2", ai_string + "3", ai_string + "4", ai_string + "5"});
     }
 
     public static boolean checkTutorial(GUIRoot gui_root, int tutorial_number) {

@@ -5,6 +5,8 @@ import com.oddlabs.tt.util.PocketList;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.*;
+
 public final class RegionBuilder {
     public static final int MAX_EXAMINED_NODES_PER_PATH = 600;
     public static final int REGION_PATH_MAX_COST = 70;
@@ -18,6 +20,8 @@ public final class RegionBuilder {
 
     public static void buildRegions(@NonNull UnitGrid unit_grid, float start_x_f, float start_y_f) {
         boolean[][] access_grid = unit_grid.getHeightMap().getAccessGrid();
+        boolean[][] dock_grid = unit_grid.getHeightMap().getDockGrid();
+        List<int[]> island_locations = unit_grid.getHeightMap().getIslandLocations();
         int grid_size = access_grid.length;
         int start_x = UnitGrid.toGridCoordinate(start_x_f);
         int start_y = UnitGrid.toGridCoordinate(start_y_f);
@@ -28,23 +32,40 @@ public final class RegionBuilder {
             for (int x = 0; x < grid_size; x++) {
                 RegionBuilderNode finder_node = new RegionBuilderNode(x, y);
                 dir_finder_grid[y][x] = finder_node;
-                if (!access_grid[y][x]) {
+                if (!access_grid[y][x] && !dock_grid[y][x]) {
                     unit_grid.occupyGrid(finder_node.getGridX(), finder_node.getGridY(), unreachable_obj);
                     num_occupied++;
                 }
             }
         }
-        RegionBuilderNode start_node = dir_finder_grid[start_y][start_x];
-        QueueArray start_nodes = new QueueArray(grid_size * grid_size);
-        PocketList<RegionBuilderNode> region_nodes = new PocketList<>(grid_size);
-        start_nodes.addLast(start_node);
+
+        ProgressForm.progress(.5f);
+
         int actual_num_regions = 0;
-        while ((start_node = findStartNode(unit_grid, region_nodes, start_nodes)) != null) {
-            assert !unit_grid.isGridOccupied(start_node.getGridX(), start_node.getGridY()) : "Starting location (" + start_x + "," + start_y + ") occupied";
-            Region region = new Region();
-            addRegionNodes(unit_grid, dir_finder_grid, start_nodes, region, start_node.getGridX(), start_node.getGridY(), region_nodes);
-            actual_num_regions++;
+        for (Object item : island_locations) {
+            int[] pos = (int[]) item;
+            RegionBuilderNode start_node = dir_finder_grid[pos[1]][pos[0]];
+            QueueArray start_nodes = new QueueArray(grid_size * grid_size);
+            PocketList region_nodes = new PocketList(grid_size);
+            start_nodes.addLast(start_node);
+            while ((start_node = findStartNode(unit_grid, region_nodes, start_nodes))
+                    != null) {
+                assert !unit_grid.isGridOccupied(
+                                start_node.getGridX(), start_node.getGridY())
+                        : "Starting location (" + pos[0] + "," + pos[1] + ") occupied";
+                Region region = new Region();
+                addRegionNodes(
+                        unit_grid,
+                        dir_finder_grid,
+                        start_nodes,
+                        region,
+                        start_node.getGridX(),
+                        start_node.getGridY(),
+                        region_nodes);
+                actual_num_regions++;
+            }
         }
+
         for (int y = 0; y < grid_size; y++) {
             for (int x = 0; x < grid_size; x++) {
                 Region region = unit_grid.getRegion(x, y);
@@ -52,7 +73,7 @@ public final class RegionBuilder {
                     updateRegionNeighbours(unit_grid, x, y, region);
             }
         }
-        ProgressForm.progress(1f);
+        ProgressForm.progress(.5f);
         IO.println("actual_num_regions = " + actual_num_regions);
     }
 

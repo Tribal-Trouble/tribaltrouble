@@ -7,6 +7,8 @@ import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FinderTrackerAlgorithm;
 import com.oddlabs.tt.pathfinder.TargetTrackerAlgorithm;
+import com.oddlabs.tt.pathfinder.TrackerAlgorithm;
+import com.oddlabs.tt.pathfinder.UnitGrid;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -19,13 +21,24 @@ public final class GatherController<S extends Supply> extends Controller {
     private final @NonNull Unit unit;
     private final @NonNull Class<S> supply_type;
     private @Nullable S supply;
-    private @Nullable FinderTrackerAlgorithm<Building> building_tracker;
+    private @Nullable FinderTrackerAlgorithm<Building> unknown_building_tracker;
+    private @Nullable TargetTrackerAlgorithm assigned_building_tracker;
+    private @Nullable Building assigned_building;
 
     public GatherController(@NonNull Unit unit, @Nullable S supply, @NonNull Class<S> supply_type) {
         super(State.values().length);
         this.unit = unit;
         this.supply = supply;
         this.supply_type = supply_type;
+        this.assigned_building = null;
+    }
+    
+    public GatherController(@NonNull Unit unit, @Nullable S supply, @NonNull Class<S> supply_type, Building building) {
+        super(State.values().length);
+        this.unit = unit;
+        this.supply = supply;
+        this.supply_type = supply_type;
+        this.assigned_building = building;
     }
 
     public @NonNull Class<S> getSupplyType() {
@@ -58,10 +71,19 @@ public final class GatherController<S extends Supply> extends Controller {
         }
     }
 
+    private @Nullable Building getBuilding() {
+        if (assigned_building != null) {
+            return assigned_building;
+        } else if (unknown_building_tracker != null) {
+            return unknown_building_tracker.getOccupant();
+        }
+        return null;
+    }
+
     private void dropoff() {
         resetGiveUpCounter(State.HARVEST.ordinal());
-        if (building_tracker != null && building_tracker.getOccupant() != null && unit.isCloseEnough(0f, building_tracker.getOccupant())) {
-            Building building = building_tracker.getOccupant();
+        Building building = getBuilding();
+        if (building != null && unit.isCloseEnough(0f, building)) {
             Class<? extends Supply> unit_supply_type = unit.getSupplyContainer().getSupplyType();
             int num_supplies = building.getSupplyContainer(unit_supply_type).increaseSupply(unit.getSupplyContainer().getNumSupplies());
             unit.getSupplyContainer().increaseSupply(-num_supplies, unit_supply_type);
@@ -71,11 +93,27 @@ public final class GatherController<S extends Supply> extends Controller {
             } else
                 gather();
         } else if (!shouldGiveUp(State.DROPOFF.ordinal())) {
-            building_tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new BuildingFinder(unit.getOwner(), Abilities.SUPPLY_CONTAINER));
-            unit.setBehaviour(new WalkBehaviour(unit, building_tracker, false));
+            // building_tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new BuildingFinder(unit.getOwner(), Abilities.SUPPLY_CONTAINER));
+            if (assigned_building == null || assigned_building.isDead()) {
+                unknown_building_tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new BuildingFinder(unit.getOwner(), Abilities.SUPPLY_CONTAINER));
+                assigned_building_tracker = null;
+            } else {
+                assigned_building_tracker =
+                        new TargetTrackerAlgorithm(
+                                unit.getUnitGrid(),
+                                0.0f,
+                                assigned_building.getEntrance());
+                unknown_building_tracker = null;
+            }
+
+            unit.setBehaviour(new WalkBehaviour(unit, getTracker(), false));
         } else {
             unit.popController();
         }
+    }
+
+    private TrackerAlgorithm getTracker() {
+        return assigned_building_tracker != null ? assigned_building_tracker : unknown_building_tracker;
     }
 
     @Override

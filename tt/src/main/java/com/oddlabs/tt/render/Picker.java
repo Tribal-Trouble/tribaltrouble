@@ -123,6 +123,29 @@ public final class Picker implements Updatable<TimerAnimation> {
         return gui_root.getGlobalScale();
     }
 
+    public final void pickSailingTarget(
+            Army selected_army,
+            CameraState camera,
+            PlayerInterface player_interface,
+            int x,
+            int y) {
+        setupPicking(camera, x, y, PICK_SIZE, PICK_SIZE);
+        pickObjects();
+        if (nearestLandscape(x, y)) {
+            Selectable[] selection = selected_army.filter(Abilities.TARGET);
+            UnitGrid grid = local_player.getWorld().getUnitGrid();
+            int grid_x = UnitGrid.toGridCoordinate(patch_hit_x);
+            int grid_y = UnitGrid.toGridCoordinate(patch_hit_y);
+            boolean dockable = grid.isDockable(grid_x, grid_y);
+            boolean valid_land = dockable && grid.getRegion(grid_x, grid_y, UnitGrid.LAND) != null;
+            boolean valid_water = grid.isWater(grid_x, grid_y) && !dockable;
+            if (valid_water || valid_land) {
+                new LandscapeTargetRespond(local_player.getWorld(), patch_hit_x, patch_hit_y);
+                player_interface.setSailingTarget(selection, grid_x, grid_y);
+            }
+        }
+    }
+
     public void pickTarget(@NonNull Army selected_army, @NonNull CameraState camera, @NonNull PlayerInterface player_interface, int x, int y, @NonNull Action action) {
         float scale = getScale();
         setupPicking(camera, x * scale, y * scale, PICK_SIZE, PICK_SIZE);
