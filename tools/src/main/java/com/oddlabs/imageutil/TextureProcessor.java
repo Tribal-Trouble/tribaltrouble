@@ -32,8 +32,10 @@ public final class TextureProcessor {
     /**
      * Processes a single file to a specific output file.
      */
-    public static void processFile(@NonNull Path infile, @NonNull List<String> operations, @NonNull Path outfile) throws IOException {
-        if (Files.exists(outfile) && Files.getLastModifiedTime(outfile).compareTo(Files.getLastModifiedTime(infile)) >= 0) {
+    public static void processFile(@NonNull Path infile, @NonNull List<String> operations,
+            @NonNull Path outfile) throws IOException {
+        if (Files.exists(outfile) && Files.getLastModifiedTime(outfile).compareTo(Files.getLastModifiedTime(
+                infile)) >= 0) {
             return;
         }
 
@@ -51,7 +53,8 @@ public final class TextureProcessor {
         }
     }
 
-    private static void processWithBasisu(@NonNull Path infile, @NonNull List<String> operations, @NonNull Path outfile, @NonNull String basisuPath) throws IOException {
+    private static void processWithBasisu(@NonNull Path infile, @NonNull List<String> operations, @NonNull Path outfile,
+            @NonNull String basisuPath) throws IOException {
         Path workDir = Files.createTempDirectory("basisu_work");
         try {
             // copy input to workDir to have a clean, known name
@@ -95,7 +98,7 @@ public final class TextureProcessor {
 
             execute(compressCmd, workDir);
 
-            // Step 2: Unpack to standard DDS. 
+            // Step 2: Unpack to standard DDS.
             // We force BC1/BC3 output to ensure maximum compatibility with older GL drivers.
             List<String> unpackCmd = new ArrayList<>();
             unpackCmd.add(basisuPath);
@@ -149,9 +152,7 @@ public final class TextureProcessor {
     }
 
     private static void execute(@NonNull List<String> command, @NonNull Path workingDir) throws IOException {
-        Process process = new ProcessBuilder(command)
-                .directory(workingDir.toFile())
-                .start();
+        Process process = new ProcessBuilder(command).directory(workingDir.toFile()).start();
         try {
             int exitCode = process.waitFor();
             if (exitCode != 0) {
@@ -168,7 +169,8 @@ public final class TextureProcessor {
     /**
      * Processes all PNG files in a directory into an output directory.
      */
-    public static void processBatch(@NonNull Path inputDir, @NonNull List<String> operations, @NonNull Path outputDir) throws IOException {
+    public static void processBatch(@NonNull Path inputDir, @NonNull List<String> operations,
+            @NonNull Path outputDir) throws IOException {
         String format = "dds";
         // Check for -format in operations
         for (int i = 0; i < operations.size(); i++) {
@@ -183,7 +185,8 @@ public final class TextureProcessor {
         try (Stream<Path> stream = Files.list(inputDir)) {
             stream.filter(p -> p.toString().endsWith(".png")).forEach(p -> {
                 try {
-                    String baseName = p.getFileName().toString().substring(0, p.getFileName().toString().lastIndexOf('.'));
+                    String baseName = p.getFileName().toString().substring(0, p.getFileName().toString().lastIndexOf(
+                            '.'));
                     Path target = outputDir.resolve(baseName + "." + finalFormat);
                     System.out.println("Batch processing: " + p.getFileName() + " -> " + target.getFileName());
                     processFile(p, operations, target);
@@ -204,7 +207,8 @@ public final class TextureProcessor {
         return images;
     }
 
-    private static Layer @NonNull [] applyOperation(@NonNull String op, @NonNull Iterator<String> args, Layer @NonNull [] images) {
+    private static Layer @NonNull [] applyOperation(@NonNull String op, @NonNull Iterator<String> args,
+            Layer @NonNull [] images) {
         switch (op) {
             case "-mipmaps":
                 if (images.length != 1)
@@ -341,7 +345,8 @@ public final class TextureProcessor {
                             }
                             blockBuffer.flip();
 
-                            long compressedBlockAddr = MemoryUtil.memAddress(compressedBuffer) + (long) (by * numBlocksX + bx) * blockSize;
+                            long compressedBlockAddr = MemoryUtil.memAddress(
+                                    compressedBuffer) + (long) (by * numBlocksX + bx) * blockSize;
                             STBDXT.nstb_compress_dxt_block(
                                     compressedBlockAddr,
                                     MemoryUtil.memAddress(blockBuffer),

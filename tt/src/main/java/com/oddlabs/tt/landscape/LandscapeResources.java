@@ -27,31 +27,23 @@ public final class LandscapeResources {
         int num_progress = 13;
         ProgressForm.progress(10f / num_progress);
 
-        var fragments = IntStream.rangeClosed(1, 5)
-                .mapToObj(i -> String.format("/geometry/misc/rock_%d.binsprite", i))
-                .map(rsrc -> new SpriteFile(rsrc, Globals.NO_MIPMAP_CUTOFF, true, true, true, false))
-                .toArray(SpriteFile[]::new);
+        var fragments = IntStream.rangeClosed(1, 5).mapToObj(i -> String.format("/geometry/misc/rock_%d.binsprite",
+                i)).map(rsrc -> new SpriteFile(rsrc, Globals.NO_MIPMAP_CUTOFF, true, true, true, false)).toArray(
+                        SpriteFile[]::new);
 
-        rock_fragment_sprites = Arrays.stream(fragments)
-                .map(queues::register)
-                .toArray(SpriteKey[]::new);
+        rock_fragment_sprites = Arrays.stream(fragments).map(queues::register).toArray(SpriteKey[]::new);
 
-        iron_fragment_sprites = Arrays.stream(fragments)
-                .map(spriteFile -> queues.register(spriteFile, 1))
-                .toArray(SpriteKey[]::new);
+        iron_fragment_sprites = Arrays.stream(fragments).map(spriteFile -> queues.register(spriteFile, 1)).toArray(
+                SpriteKey[]::new);
         ProgressForm.progress(1f / num_progress);
 
-        plant_sprites = new SpriteKey[][]{
-                IntStream.rangeClosed(1, 4)
-                        .mapToObj(i -> String.format("/geometry/misc/plant_%d.binsprite", i))
-                        .map(rsrc -> new SpriteFile(rsrc, Globals.NO_MIPMAP_CUTOFF, true, false, true, true, true))
-                        .map(queues::register)
-                        .toArray(SpriteKey[]::new),
-                IntStream.rangeClosed(1, 4)
-                        .mapToObj(i -> String.format("/geometry/misc/viking_plant_%d.binsprite", i))
-                        .map(rsrc -> new SpriteFile(rsrc, Globals.NO_MIPMAP_CUTOFF, true, false, true, true, true))
-                        .map(queues::register)
-                        .toArray(SpriteKey[]::new)
+        plant_sprites = new SpriteKey[][]{IntStream.rangeClosed(1, 4).mapToObj(i -> String.format(
+                "/geometry/misc/plant_%d.binsprite", i)).map(rsrc -> new SpriteFile(rsrc, Globals.NO_MIPMAP_CUTOFF,
+                        true, false, true, true, true)).map(queues::register).toArray(
+                                SpriteKey[]::new), IntStream.rangeClosed(1, 4).mapToObj(i -> String.format(
+                                        "/geometry/misc/viking_plant_%d.binsprite", i)).map(rsrc -> new SpriteFile(rsrc,
+                                                Globals.NO_MIPMAP_CUTOFF, true, false, true, true, true)).map(
+                                                        queues::register).toArray(SpriteKey[]::new)
         };
         ProgressForm.progress(1f / num_progress);
 
@@ -60,11 +52,8 @@ public final class LandscapeResources {
                 true, true, true, false);
         chicken = queues.register(sprite_list_chicken);
 
-        bird_idle_sound = IntStream.rangeClosed(1, 4)
-                .mapToObj(i -> String.format("/sfx/chicken_idle%d.ogg", i))
-                .map(AudioFile::new)
-                .map(Resources::findResource)
-                .toArray(Audio[]::new);
+        bird_idle_sound = IntStream.rangeClosed(1, 4).mapToObj(i -> String.format("/sfx/chicken_idle%d.ogg", i)).map(
+                AudioFile::new).map(Resources::findResource).toArray(Audio[]::new);
         bird_peck_sound = Resources.findResource(new AudioFile("/sfx/chicken_peck.ogg"));
         bird_death_sound = Resources.findResource(new AudioFile("/sfx/chicken_death.ogg"));
         ProgressForm.progress(1f / num_progress);

@@ -25,17 +25,20 @@ public final class FBO implements AutoCloseable {
         fbo.bind();
 
         // HDR Color Texture (Float16 for high dynamic range)
-        Texture color = new Texture(width, height, GL30.GL_RGBA16F, GL11.GL_LINEAR, GL11.GL_LINEAR, GL12.GL_CLAMP_TO_EDGE);
+        Texture color = new Texture(width, height, GL30.GL_RGBA16F, GL11.GL_LINEAR, GL11.GL_LINEAR,
+                GL12.GL_CLAMP_TO_EDGE);
         fbo.attachTexture(GL30.GL_COLOR_ATTACHMENT0, color);
         fbo.colorTexture = color;
 
         // Mask Texture (Standard RGBA for team color/stencil)
-        Texture mask = new Texture(width, height, GL11.GL_RGBA, GL11.GL_NEAREST, GL11.GL_NEAREST, GL12.GL_CLAMP_TO_EDGE);
+        Texture mask = new Texture(width, height, GL11.GL_RGBA, GL11.GL_NEAREST, GL11.GL_NEAREST,
+                GL12.GL_CLAMP_TO_EDGE);
         fbo.attachTexture(GL30.GL_COLOR_ATTACHMENT1, mask);
         fbo.maskTexture = mask;
 
         // Depth Texture (24-bit depth)
-        Texture depth = new Texture(width, height, GL30.GL_DEPTH_COMPONENT24, GL11.GL_NEAREST, GL11.GL_NEAREST, GL12.GL_CLAMP_TO_EDGE);
+        Texture depth = new Texture(width, height, GL30.GL_DEPTH_COMPONENT24, GL11.GL_NEAREST, GL11.GL_NEAREST,
+                GL12.GL_CLAMP_TO_EDGE);
         fbo.attachTexture(GL30.GL_DEPTH_ATTACHMENT, depth);
         fbo.depthTexture = depth;
 
@@ -56,16 +59,19 @@ public final class FBO implements AutoCloseable {
         if (colorTexture != null) {
             colorTexture.close();
             // Re-create color texture with new dimensions
-            colorTexture = new Texture(width, height, GL30.GL_RGBA16F, GL11.GL_LINEAR, GL11.GL_LINEAR, GL12.GL_CLAMP_TO_EDGE);
+            colorTexture = new Texture(width, height, GL30.GL_RGBA16F, GL11.GL_LINEAR, GL11.GL_LINEAR,
+                    GL12.GL_CLAMP_TO_EDGE);
         }
         if (maskTexture != null) {
             maskTexture.close();
-            maskTexture = new Texture(width, height, GL11.GL_RGBA, GL11.GL_NEAREST, GL11.GL_NEAREST, GL12.GL_CLAMP_TO_EDGE);
+            maskTexture = new Texture(width, height, GL11.GL_RGBA, GL11.GL_NEAREST, GL11.GL_NEAREST,
+                    GL12.GL_CLAMP_TO_EDGE);
         }
         if (depthTexture != null) {
             depthTexture.close();
             // Re-create depth texture with new dimensions
-            depthTexture = new Texture(width, height, GL30.GL_DEPTH_COMPONENT24, GL11.GL_NEAREST, GL11.GL_NEAREST, GL12.GL_CLAMP_TO_EDGE);
+            depthTexture = new Texture(width, height, GL30.GL_DEPTH_COMPONENT24, GL11.GL_NEAREST, GL11.GL_NEAREST,
+                    GL12.GL_CLAMP_TO_EDGE);
         }
 
         bind();
@@ -106,7 +112,8 @@ public final class FBO implements AutoCloseable {
     }
 
     public void attachTexture(int attachmentPoint, @NonNull Texture texture, int level) {
-        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, attachmentPoint, GL11.GL_TEXTURE_2D, texture.getHandle(), level);
+        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, attachmentPoint, GL11.GL_TEXTURE_2D, texture.getHandle(),
+                level);
     }
 
     public void checkStatus() {

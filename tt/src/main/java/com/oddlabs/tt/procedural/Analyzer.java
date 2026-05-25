@@ -65,9 +65,11 @@ public final class Analyzer {
         IO.println("Accessible area: " + (100f * access.count(1f) / (access.width * access.height)) + "%");
         Channel access_conn = access.copy().largestConnected(1f);
         access_conn.toLayer().saveAsPNG(name + "_access_conn");
-        IO.println("Largest connected accessible area: " + (100f * access_conn.count(1f) / (access_conn.width * access_conn.height)) + "%");
+        IO.println("Largest connected accessible area: " + (100f * access_conn.count(
+                1f) / (access_conn.width * access_conn.height)) + "%");
         float access_avrconn = access.averageConnected(1f);
-        IO.println("Average connected accessible area: " + (100f * access_avrconn / (access.width * access.height)) + "%");
+        IO.println(
+                "Average connected accessible area: " + (100f * access_avrconn / (access.width * access.height)) + "%");
 
         IO.println("Flatness map...");
         Channel flat = height.copy().lineart().threshold(0f, 0.0125f);
@@ -76,7 +78,8 @@ public final class Analyzer {
         IO.println("Flat area: " + (100f * flat.count(1f) / (flat.width * flat.height)) + "%");
         Channel flat_conn = flat.copy().largestConnected(1f);
         flat_conn.toLayer().saveAsPNG(name + "_flatness_conn");
-        IO.println("Largest connected flat area: " + (100f * flat_conn.count(1f) / (flat_conn.width * flat_conn.height)) + "%");
+        IO.println("Largest connected flat area: " + (100f * flat_conn.count(
+                1f) / (flat_conn.width * flat_conn.height)) + "%");
         float flat_avrconn = flat.averageConnected(1f);
         IO.println("Average connected flat area: " + (100f * flat_avrconn / (flat.width * flat.height)) + "%");
 
@@ -181,7 +184,8 @@ public final class Analyzer {
         Channel slope = height.copy().lineart();
         for (int i = 0; i < steps; i++) {
             //channel.channelBrightest(slope.copy().threshold(0f, 16f*i/(height.width*steps)).largestConnected(1f).multiply((float)(steps - i)/steps));
-            channel.channelAdd(slope.copy().threshold(0f, 16f * i / (height.width * steps)).largestConnected(1f).multiply(1f / steps));
+            channel.channelAdd(slope.copy().threshold(0f, 16f * i / (height.width * steps)).largestConnected(
+                    1f).multiply(1f / steps));
             IO.print(".");
         }
         IO.println("done");
@@ -189,7 +193,8 @@ public final class Analyzer {
     }
 
     public static float squareScore(@NonNull Channel height, float threshold, int square_size) {
-        return height.copy().lineart().threshold(0f, threshold).squareFit(1f, square_size).count(1f) / (float) (height.width * height.height);
+        return height.copy().lineart().threshold(0f, threshold).squareFit(1f, square_size).count(
+                1f) / (float) (height.width * height.height);
     }
 
     private Analyzer() {

@@ -20,7 +20,8 @@ public final class Horizontal {
         right_width = right.quad(ModeIconQuads.Mode.NORMAL).getWidth();
     }
 
-    public void render(@NonNull GUIRenderer renderer, float x, float y, int width, ModeIconQuads.@NonNull Mode skinMode) {
+    public void render(@NonNull GUIRenderer renderer, float x, float y, int width,
+            ModeIconQuads.@NonNull Mode skinMode) {
         int center_width = width - left_width - right_width;
 
         renderer.drawModeIcon(left, skinMode, x, y);

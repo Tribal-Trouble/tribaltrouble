@@ -16,10 +16,8 @@ public final class ArmyTrigger extends TutorialTrigger {
 
     @Override
     protected void run(@NonNull Tutorial tutorial) {
-        var count = tutorial.getViewer().getLocalPlayer().getUnits().getSet().stream()
-                .filter(s -> s instanceof Unit && s.getAbilities().hasAbilities(Abilities.THROW))
-                .limit(ARMY_SIZE)
-                .count();
+        var count = tutorial.getViewer().getLocalPlayer().getUnits().getSet().stream().filter(s -> s instanceof Unit
+                && s.getAbilities().hasAbilities(Abilities.THROW)).limit(ARMY_SIZE).count();
 
         if (count >= ARMY_SIZE)
             tutorial.done(TutorialForm.TUTORIAL_ARMORY);

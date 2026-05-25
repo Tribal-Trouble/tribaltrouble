@@ -18,7 +18,8 @@ public final class SpriteRenderer {
     private final @NonNull InstancedSpriteRenderer instancedSpriteRenderer;
     private final Matrix4f tempMatrix = new Matrix4f();
 
-    public SpriteRenderer(@NonNull SpriteList sprite_list, int tex_index, @NonNull InstancedSpriteRenderer spriteRenderer) {
+    public SpriteRenderer(@NonNull SpriteList sprite_list, int tex_index,
+            @NonNull InstancedSpriteRenderer spriteRenderer) {
         this.sprite_list = sprite_list;
         this.tex_index = tex_index;
         this.instancedSpriteRenderer = spriteRenderer;
@@ -83,7 +84,8 @@ public final class SpriteRenderer {
                 tempMatrix.identity().translation(x, y, z + 0.1f).scale(r * 2);
                 // Quads don't have animation, so pass 0, 0f
                 // Disable depth test for no-detail sprites (overlays). Enable blend. No Depth Write.
-                instancedSpriteRenderer.add(quadList, 0, 0, 0f, 0, false, true, false, false, tempMatrix, model.getTeamColor(), Color.TRANSPARENT);
+                instancedSpriteRenderer.add(quadList, 0, 0, 0f, 0, false, true, false, false, tempMatrix,
+                        model.getTeamColor(), Color.TRANSPARENT);
             }
         }
         clearRenderLists();

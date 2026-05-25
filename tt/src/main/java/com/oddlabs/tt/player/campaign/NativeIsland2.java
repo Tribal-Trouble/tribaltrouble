@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
 public final class NativeIsland2 extends Island {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(NativeIsland2.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -38,10 +38,9 @@ public final class NativeIsland2 extends Island {
 
     @Override
     public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-        String[] ai_names = IntStream.range(0, 6)
-                .mapToObj(i -> i18n("name" + i))
-                .toArray(String[]::new);
-        GameNetwork game_network = startNewGame(network, gui_root, 256, Landscape.TerrainType.VIKING, .75f, 1f, 1f, 10, 2, NativeCampaign.MAX_UNITS, ai_names);
+        String[] ai_names = IntStream.range(0, 6).mapToObj(i -> i18n("name" + i)).toArray(String[]::new);
+        GameNetwork game_network = startNewGame(network, gui_root, 256, Landscape.TerrainType.VIKING, .75f, 1f, 1f, 10,
+                2, NativeCampaign.MAX_UNITS, ai_names);
         game_network.getClient().getServerInterface().setPlayerSlot(0,
                 PlayerSlot.HUMAN,
                 RacesResources.RACE_NATIVES,
@@ -92,7 +91,8 @@ public final class NativeIsland2 extends Island {
         final Runnable prize = () -> {
             getCampaign().getState().setIslandState(2, CampaignState.ISLAND_COMPLETED);
             getCampaign().getState().setIslandState(3, CampaignState.ISLAND_AVAILABLE);
-            getCampaign().getState().setNumPeons(getCampaign().getState().getNumPeons() + captives.getUnitCountContainer().getNumSupplies());
+            getCampaign().getState().setNumPeons(
+                    getCampaign().getState().getNumPeons() + captives.getUnitCountContainer().getNumSupplies());
             getCampaign().victory(getViewer());
         };
         runnable = () -> {
@@ -112,20 +112,25 @@ public final class NativeIsland2 extends Island {
         int start_x = 100 * 2;
         int start_y = 73 * 2;
         ResourceBundle player_bundle = ResourceBundle.getBundle(Player.class.getName());
-        local_player.setActiveChieftain(new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN), Utils.getBundleString(player_bundle, "native_chieftain_name"), false));
+        local_player.setActiveChieftain(new Unit(local_player, start_x, start_y, null,
+                local_player.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN), Utils.getBundleString(player_bundle,
+                        "native_chieftain_name"), false));
         local_player.getChieftain().increaseMagicEnergy(0, 1000);
         local_player.getChieftain().increaseMagicEnergy(1, 1000);
         for (int i = 0; i < getCampaign().getState().getNumPeons(); i++) {
             new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(Race.UNIT_PEON));
         }
         for (int i = 0; i < getCampaign().getState().getNumRockWarriors(); i++) {
-            new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
+            new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_ROCK));
         }
         for (int i = 0; i < getCampaign().getState().getNumIronWarriors(); i++) {
-            new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
+            new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_IRON));
         }
         for (int i = 0; i < getCampaign().getState().getNumRubberWarriors(); i++) {
-            new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
+            new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_RUBBER));
         }
 
         // Move start position (for the camera)

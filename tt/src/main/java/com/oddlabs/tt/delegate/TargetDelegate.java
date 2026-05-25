@@ -48,7 +48,9 @@ public class TargetDelegate extends ControllableCameraDelegate {
     @Override
     public void mousePressed(@NonNull MouseButton button, int x, int y) {
         if (button == MouseButton.LEFT) {
-            getViewer().getPicker().pickTarget(getViewer().getSelection().getCurrentSelection(), getViewer().getGUIRoot().getDelegate().getCamera().getState(), getViewer().getPeerHub().getPlayerInterface(), x, y, action);
+            getViewer().getPicker().pickTarget(getViewer().getSelection().getCurrentSelection(),
+                    getViewer().getGUIRoot().getDelegate().getCamera().getState(),
+                    getViewer().getPeerHub().getPlayerInterface(), x, y, action);
             pop();
         } else {
             super.mousePressed(button, x, y);

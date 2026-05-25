@@ -32,7 +32,9 @@ public abstract class Emitter<P extends Particle> extends Element<Emitter<P>> im
     private float scale_z = 1f;
 
     @SuppressWarnings("unchecked")
-    public Emitter(@NonNull World world, @NonNull Vector3f position, int src_blend_func, int dst_blend_func, @NonNull TextureKey @NonNull [] textures, @NonNull SpriteKey @Nullable [] sprite_renderers, int types, @NonNull AnimationManager manager) {
+    public Emitter(@NonNull World world, @NonNull Vector3f position, int src_blend_func, int dst_blend_func,
+            @NonNull TextureKey @NonNull [] textures, @NonNull SpriteKey @Nullable [] sprite_renderers, int types,
+            @NonNull AnimationManager manager) {
         super(world.getElementRoot());
         this.world = world;
         this.position = position;
@@ -119,7 +121,8 @@ public abstract class Emitter<P extends Particle> extends Element<Emitter<P>> im
     public final void forceColorChange(float dr, float dg, float db, float da) {
         for (List<P> particle1 : particles) {
             for (Particle particle : particle1) {
-                particle.setColor(particle.getColorR() + dr, particle.getColorG() + dg, particle.getColorB() + db, particle.getColorA() + da);
+                particle.setColor(particle.getColorR() + dr, particle.getColorG() + dg, particle.getColorB() + db,
+                        particle.getColorA() + da);
             }
         }
     }

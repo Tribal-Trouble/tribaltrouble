@@ -36,5 +36,6 @@ public final class ShipUnitContainer extends UnitContainer {
         return super.increaseSupply(amount);
     }
 
-    public final void animate(float t) {}
+    public final void animate(float t) {
+    }
 }

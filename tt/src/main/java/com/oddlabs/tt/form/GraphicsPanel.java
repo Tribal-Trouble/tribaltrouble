@@ -35,7 +35,8 @@ public class GraphicsPanel extends Panel {
         // Fullscreen
         Group group_fullscreen = new Group();
         addChild(group_fullscreen);
-        CheckBox cb_fullscreen = new CheckBox(Settings.getSettings().fullscreen, AbstractOptionsMenu.i18n("fullscreen"), AbstractOptionsMenu.i18n("fullscreen_tip"));
+        CheckBox cb_fullscreen = new CheckBox(Settings.getSettings().fullscreen, AbstractOptionsMenu.i18n("fullscreen"),
+                AbstractOptionsMenu.i18n("fullscreen_tip"));
         cb_fullscreen.addCheckBoxListener(marked -> {
             DisplayChangeForm display_change_form = new DisplayChangeForm(
                     switch_now -> {
@@ -54,7 +55,8 @@ public class GraphicsPanel extends Panel {
         // Confine cursor
         Group group_confine_cursor = new Group();
         addChild(group_confine_cursor);
-        CheckBox cb_confine_cursor = new CheckBox(Settings.getSettings().confine_cursor, AbstractOptionsMenu.i18n("confine_cursor"), AbstractOptionsMenu.i18n("confine_cursor_tip"));
+        CheckBox cb_confine_cursor = new CheckBox(Settings.getSettings().confine_cursor, AbstractOptionsMenu.i18n(
+                "confine_cursor"), AbstractOptionsMenu.i18n("confine_cursor_tip"));
         cb_confine_cursor.addCheckBoxListener(marked -> {
             Settings.getSettings().confine_cursor = marked;
             var input = Renderer.getLocalInput().getInputProvider();
@@ -85,8 +87,8 @@ public class GraphicsPanel extends Panel {
             updateScaleLabel();
         });
 
-        slider_ui_scale.addReleaseListener(() ->
-                gui_root.displayChanged(Renderer.getRenderer().getWindow().getWidth(), Renderer.getRenderer().getWindow().getHeight())
+        slider_ui_scale.addReleaseListener(() -> gui_root.displayChanged(Renderer.getRenderer().getWindow().getWidth(),
+                Renderer.getRenderer().getWindow().getHeight())
         );
 
         label_ui_scale.place();
@@ -129,13 +131,15 @@ public class GraphicsPanel extends Panel {
 
         ColumnInfo[] mode_infos = new ColumnInfo[]{new ColumnInfo("", 150)};
 
-        MultiColumnComboBox<SerializableDisplayMode> mode_list_box = new MultiColumnComboBox<>(gui_root, mode_infos, 200, false);
+        MultiColumnComboBox<SerializableDisplayMode> mode_list_box = new MultiColumnComboBox<>(gui_root, mode_infos,
+                200, false);
         SerializableDisplayMode[] modes = Renderer.getRenderer().getWindow().getAvailableDisplayModes();
         SerializableDisplayMode current_mode = Renderer.getRenderer().getCurrentDisplayMode();
         Row<SerializableDisplayMode, Label> current_row = null;
         for (int i = 0; i < modes.length; i++) {
             if (modes[i].getBitsPerPixel() == current_mode.getBitsPerPixel()) {
-                String mode_string = AbstractOptionsMenu.i18n("mode", Integer.toString(modes[i].getWidth()), Integer.toString(modes[i].getHeight()), Integer.toString(modes[i].getFrequency()));
+                String mode_string = AbstractOptionsMenu.i18n("mode", Integer.toString(modes[i].getWidth()),
+                        Integer.toString(modes[i].getHeight()), Integer.toString(modes[i].getFrequency()));
                 Label label = new SortedLabel(mode_string, i, Skin.getSkin().getMultiColumnComboBoxData().font());
                 Row<SerializableDisplayMode, Label> row = new Row<>(new Label[]{label}, modes[i]);
                 mode_list_box.addRow(row);

@@ -24,7 +24,8 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
         this(gui_root, column_infos, height, true);
     }
 
-    public MultiColumnComboBox(@NonNull GUIRoot gui_root, @NonNull ColumnInfo @NonNull [] column_infos, int height, boolean use_buttons) {
+    public MultiColumnComboBox(@NonNull GUIRoot gui_root, @NonNull ColumnInfo @NonNull [] column_infos, int height,
+            boolean use_buttons) {
         this.gui_root = gui_root;
         this.column_infos = column_infos;
         this.use_buttons = use_buttons;
@@ -47,9 +48,11 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
         focus_group.setPos(0, 0);
         addChild(focus_group);
         if (use_buttons)
-            rows.setDim(width - box.getLeftOffset() - box.getRightOffset(), height - box.getBottomOffset() - box.getTopOffset() - group.getMarked().getHeight());
+            rows.setDim(width - box.getLeftOffset() - box.getRightOffset(),
+                    height - box.getBottomOffset() - box.getTopOffset() - group.getMarked().getHeight());
         else
-            rows.setDim(width - box.getLeftOffset() - box.getRightOffset(), height - box.getBottomOffset() - box.getTopOffset());
+            rows.setDim(width - box.getLeftOffset() - box.getRightOffset(),
+                    height - box.getBottomOffset() - box.getTopOffset());
         rows.setPos(box.getLeftOffset(), box.getBottomOffset());
         focus_group.addChild(rows);
         setCanFocus(true);
@@ -147,7 +150,8 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
     public void rightClickedRow(int x, int y) {
         if (pulldown_menu != null) {
             int pulldown_x = Math.clamp(x, 0, gui_root.getWidth() - pulldown_menu.getWidth());
-            int pulldown_y = Math.clamp(y - pulldown_menu.getHeight(), 0, gui_root.getHeight() - pulldown_menu.getHeight());
+            int pulldown_y = Math.clamp(y - pulldown_menu.getHeight(), 0,
+                    gui_root.getHeight() - pulldown_menu.getHeight());
             pulldown_menu.setPos(pulldown_x, pulldown_y);
             gui_root.getDelegate().addChild(pulldown_menu);
             pulldown_menu.setFocus();
@@ -159,7 +163,8 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         Box box = Skin.getSkin().getMultiColumnComboBoxData().box();
         var mode = (isActive() || getFocusedChild() != null) ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
-        box.render(renderer, 0f, 0f, getWidth() - scroll_bar.getWidth(), getHeight() - (use_buttons ? group.getMarked().getHeight() : 0), mode);
+        box.render(renderer, 0f, 0f, getWidth() - scroll_bar.getWidth(),
+                getHeight() - (use_buttons ? group.getMarked().getHeight() : 0), mode);
     }
 
     @Override

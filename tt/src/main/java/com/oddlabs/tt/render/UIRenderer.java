@@ -15,7 +15,8 @@ public interface UIRenderer {
 
     void pickHover(boolean can_hover_behind, CameraState camera, int x, int y);
 
-    @Nullable ToolTip getToolTip();
+    @Nullable
+    ToolTip getToolTip();
 
     boolean isCheater();
 

@@ -58,15 +58,13 @@ public final class Ripple {
                 if (dist7 > 1) dist7 = 1f;
                 if (dist8 > 1) dist8 = 1f;
 
-                float value = (float) (Math.cos(factor * dist) * (-dist + 1)
-                        + Math.cos(factor * dist1) * (-dist1 + 1)
-                        + Math.cos(factor * dist2) * (-dist2 + 1)
-                        + Math.cos(factor * dist3) * (-dist3 + 1)
-                        + Math.cos(factor * dist4) * (-dist4 + 1)
-                        + Math.cos(factor * dist5) * (-dist5 + 1)
-                        + Math.cos(factor * dist6) * (-dist6 + 1)
-                        + Math.cos(factor * dist7) * (-dist7 + 1)
-                        + Math.cos(factor * dist8) * (-dist8 + 1));
+                float value = (float) (Math.cos(factor * dist) * (-dist + 1) + Math.cos(
+                        factor * dist1) * (-dist1 + 1) + Math.cos(factor * dist2) * (-dist2 + 1) + Math.cos(
+                                factor * dist3) * (-dist3 + 1) + Math.cos(factor * dist4) * (-dist4 + 1) + Math.cos(
+                                        factor * dist5) * (-dist5 + 1) + Math.cos(
+                                                factor * dist6) * (-dist6 + 1) + Math.cos(
+                                                        factor * dist7) * (-dist7 + 1) + Math.cos(
+                                                                factor * dist8) * (-dist8 + 1));
                 //if (value < 0) {
                 //	value = -(float)Math.sqrt(-value);
                 //} else {

@@ -22,28 +22,28 @@ public final class UnitTemplate extends Template {
     private final int status_value;
 
     public UnitTemplate(float selection_radius,
-                        float selection_height,
-                        @NonNull Abilities abilities,
-                        float meters_per_second,
-                        @NonNull WeaponFactory weapon_factory,
-                        @NonNull SpriteKey[] sprite_renderers,
-                        float shadow_diameter,
-                        @NonNull ShadowListKey shadow_renderer,
-                        UnitSupplyContainerFactory supply_container_factory,
-                        @NonNull Audio death_sound,
-                        float death_pitch,
-                        float @NonNull [] hit_offset_z,
-                        float no_detail_size,
-                        float defense_chance,
-                        @NonNull String name,
-                        int max_hit_points,
-                        float stun_x,
-                        float stun_y,
-                        float stun_z,
-                        int status_value) {
+            float selection_height,
+            @NonNull Abilities abilities,
+            float meters_per_second,
+            @NonNull WeaponFactory weapon_factory,
+            @NonNull SpriteKey[] sprite_renderers,
+            float shadow_diameter,
+            @NonNull ShadowListKey shadow_renderer,
+            UnitSupplyContainerFactory supply_container_factory,
+            @NonNull Audio death_sound,
+            float death_pitch,
+            float @NonNull [] hit_offset_z,
+            float no_detail_size,
+            float defense_chance,
+            @NonNull String name,
+            int max_hit_points,
+            float stun_x,
+            float stun_y,
+            float stun_z,
+            int status_value) {
         super(abilities, shadow_diameter, shadow_renderer, hit_offset_z, no_detail_size, defense_chance, name);
-        assert sprite_renderers != null && sprite_renderers.length > 0
-                : "UnitTemplate must have at least one sprite renderer";
+        assert sprite_renderers != null
+                && sprite_renderers.length > 0 : "UnitTemplate must have at least one sprite renderer";
         this.selection_radius = selection_radius;
         this.selection_height = selection_height;
         this.meters_per_second = meters_per_second;
@@ -78,11 +78,11 @@ public final class UnitTemplate extends Template {
     public @NonNull SpriteKey getSpriteRenderer() {
         return sprite_renderers[0];
     }
-    
+
     public @NonNull SpriteKey getSpriteRenderer(int index) {
         return sprite_renderers[index];
     }
-    
+
     public final int getNumSpriteRenderers() {
         return sprite_renderers.length;
     }

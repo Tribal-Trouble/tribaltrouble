@@ -22,6 +22,8 @@ public final class MainMenu extends Menu {
     public MainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Camera camera) {
         super(network, gui_root, camera);
         reload();
+        SteamManager.clearRichPresence();
+        SteamManager.setInActiveWorld(false);
     }
 
     private void addGameTypeButtons() {
@@ -30,11 +32,13 @@ public final class MainMenu extends Menu {
         addChild(tutorial);
 
         MenuButton campaign_menu = new MenuButton(Menu.i18n("campaign"), COLOR_NORMAL, COLOR_ACTIVE);
-        campaign_menu.addMouseClickListener((_, _, _, _) -> setMenu(new CampaignForm(getNetwork(), getGUIRoot(), MainMenu.this)));
+        campaign_menu.addMouseClickListener((_, _, _, _) -> setMenu(new CampaignForm(getNetwork(), getGUIRoot(),
+                MainMenu.this)));
         addChild(campaign_menu);
 
         MenuButton single_player = new MenuButton(Menu.i18n("skirmish"), COLOR_NORMAL, COLOR_ACTIVE);
-        single_player.addMouseClickListener((_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(), MainMenu.this)));
+        single_player.addMouseClickListener((_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(),
+                MainMenu.this)));
         addChild(single_player);
 
         if (!Settings.getSettings().hide_multiplayer) {

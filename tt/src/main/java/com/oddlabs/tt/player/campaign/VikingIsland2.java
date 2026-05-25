@@ -25,7 +25,7 @@ import java.util.stream.IntStream;
 public final class VikingIsland2 extends Island {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland2.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -35,10 +35,9 @@ public final class VikingIsland2 extends Island {
 
     @Override
     public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-        String[] ai_names = IntStream.range(0, 6)
-                .mapToObj(i -> i18n("name" + i))
-                .toArray(String[]::new);
-        GameNetwork game_network = startNewGame(network, gui_root, 256, Landscape.TerrainType.NATIVE, .65f, 1f, .7f, 447363, 2, VikingCampaign.MAX_UNITS, ai_names);
+        String[] ai_names = IntStream.range(0, 6).mapToObj(i -> i18n("name" + i)).toArray(String[]::new);
+        GameNetwork game_network = startNewGame(network, gui_root, 256, Landscape.TerrainType.NATIVE, .65f, 1f, .7f,
+                447363, 2, VikingCampaign.MAX_UNITS, ai_names);
         game_network.getClient().getServerInterface().setPlayerSlot(0,
                 PlayerSlot.HUMAN,
                 RacesResources.RACE_VIKINGS,

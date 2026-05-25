@@ -25,8 +25,7 @@ public class ReactionRoleService {
         this.gateway = gateway;
         this.serverId = serverId;
         this.emojiRoleMappings = ServerConfiguration.getInstance().getEmojiRoleMappings();
-        this.messageId =
-                ServerConfiguration.getInstance().get(ServerConfiguration.REACTION_ROLE_MESSAGE_ID);
+        this.messageId = ServerConfiguration.getInstance().get(ServerConfiguration.REACTION_ROLE_MESSAGE_ID);
         setupReactionListeners();
     }
 
@@ -75,51 +74,37 @@ public class ReactionRoleService {
             return Mono.empty();
         }
 
-        return gateway.getGuildById(guildId)
-                .flatMap(
-                        guild ->
-                                guild.getMemberById(userId)
-                                        .flatMap(
-                                                member -> {
-                                                    Snowflake roleSnowflake = Snowflake.of(roleId);
-                                                    if (adding) {
-                                                        return addRoleToMember(
-                                                                member, roleSnowflake, guild);
-                                                    } else {
-                                                        return removeRoleFromMember(
-                                                                member, roleSnowflake, guild);
-                                                    }
-                                                }))
-                .onErrorResume(
-                        error -> {
-                            System.err.println(
-                                    "Error processing reaction role: " + error.getMessage());
-                            return Mono.empty();
-                        });
+        return gateway.getGuildById(guildId).flatMap(
+                guild -> guild.getMemberById(userId).flatMap(
+                        member -> {
+                            Snowflake roleSnowflake = Snowflake.of(roleId);
+                            if (adding) {
+                                return addRoleToMember(
+                                        member, roleSnowflake, guild);
+                            } else {
+                                return removeRoleFromMember(
+                                        member, roleSnowflake, guild);
+                            }
+                        })).onErrorResume(
+                                error -> {
+                                    System.err.println(
+                                            "Error processing reaction role: " + error.getMessage());
+                                    return Mono.empty();
+                                });
     }
 
     private Mono<Void> addRoleToMember(Member member, Snowflake roleId, Guild guild) {
-        return guild.getRoleById(roleId)
-                .flatMap(
-                        role -> {
-                            if (member.getRoleIds().contains(roleId)) {
-                                return Mono.empty();
-                            }
-                            return member.addRole(roleId)
-                                    .doOnSuccess(
-                                            v ->
-                                                    System.out.println(
-                                                            "Added role "
-                                                                    + role.getName()
-                                                                    + " to user "
-                                                                    + member.getDisplayName()))
-                                    .doOnError(
-                                            error ->
-                                                    System.err.println(
-                                                            "Failed to add role: "
-                                                                    + error.getMessage()));
-                        })
-                .onErrorResume(
+        return guild.getRoleById(roleId).flatMap(
+                role -> {
+                    if (member.getRoleIds().contains(roleId)) {
+                        return Mono.empty();
+                    }
+                    return member.addRole(roleId).doOnSuccess(
+                            v -> System.out.println(
+                                    "Added role " + role.getName() + " to user " + member.getDisplayName())).doOnError(
+                                            error -> System.err.println(
+                                                    "Failed to add role: " + error.getMessage()));
+                }).onErrorResume(
                         error -> {
                             System.err.println(
                                     "Role not found or error adding role: " + error.getMessage());
@@ -128,27 +113,17 @@ public class ReactionRoleService {
     }
 
     private Mono<Void> removeRoleFromMember(Member member, Snowflake roleId, Guild guild) {
-        return guild.getRoleById(roleId)
-                .flatMap(
-                        role -> {
-                            if (!member.getRoleIds().contains(roleId)) {
-                                return Mono.empty();
-                            }
-                            return member.removeRole(roleId)
-                                    .doOnSuccess(
-                                            v ->
-                                                    System.out.println(
-                                                            "Removed role "
-                                                                    + role.getName()
-                                                                    + " from user "
-                                                                    + member.getDisplayName()))
-                                    .doOnError(
-                                            error ->
-                                                    System.err.println(
-                                                            "Failed to remove role: "
-                                                                    + error.getMessage()));
-                        })
-                .onErrorResume(
+        return guild.getRoleById(roleId).flatMap(
+                role -> {
+                    if (!member.getRoleIds().contains(roleId)) {
+                        return Mono.empty();
+                    }
+                    return member.removeRole(roleId).doOnSuccess(
+                            v -> System.out.println(
+                                    "Removed role " + role.getName() + " from user " + member.getDisplayName())).doOnError(
+                                            error -> System.err.println(
+                                                    "Failed to remove role: " + error.getMessage()));
+                }).onErrorResume(
                         error -> {
                             System.err.println(
                                     "Role not found or error removing role: " + error.getMessage());
@@ -157,8 +132,7 @@ public class ReactionRoleService {
     }
 
     private String getEmojiIdentifier(ReactionEmoji emoji) {
-        return emoji.asCustomEmoji()
-                .map(customEmoji -> customEmoji.getId().asString())
-                .orElse(emoji.asUnicodeEmoji().map(unicode -> unicode.getRaw()).orElse(""));
+        return emoji.asCustomEmoji().map(customEmoji -> customEmoji.getId().asString()).orElse(
+                emoji.asUnicodeEmoji().map(unicode -> unicode.getRaw()).orElse(""));
     }
 }

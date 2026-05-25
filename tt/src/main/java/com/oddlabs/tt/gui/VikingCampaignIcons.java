@@ -62,7 +62,8 @@ public final class VikingCampaignIcons implements CampaignIcons {
         height = Icons.getInt(map_node, "height");
     }
 
-    private @NonNull MapIslandData loadMapIslandData(@NonNull Node root, @NonNull String name, @NonNull Texture texture) {
+    private @NonNull MapIslandData loadMapIslandData(@NonNull Node root, @NonNull String name,
+            @NonNull Texture texture) {
         Node node = Icons.getNodeByName(name, root);
         ModeIconQuads quads = Icons.getNamedIconQuads(node, "island", texture);
         Node n = Icons.getNodeByName("island", node);

@@ -66,7 +66,8 @@ public final class WalkBehaviour implements Behaviour {
     @Override
     public @NonNull State animate(float t) {
         retry_delay_counter -= t;
-        boolean blocker_moved = blocking_movable != null && (blocking_movable.getGridX() != blocker_x || blocking_movable.getGridY() != blocker_y);
+        boolean blocker_moved = blocking_movable != null && (blocking_movable.getGridX() != blocker_x
+                || blocking_movable.getGridY() != blocker_y);
         if (retry_delay_counter > 0 && !blocker_moved) {
             return State.INTERRUPTIBLE;
         }

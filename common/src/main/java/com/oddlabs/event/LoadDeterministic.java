@@ -28,9 +28,8 @@ public final class LoadDeterministic extends Deterministic {
         try {
             buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
             buffer.limit(0);
-            channel = zipped
-                    ? Channels.newChannel(new GZIPInputStream(Files.newInputStream(logging_file)))
-                    : Files.newByteChannel(logging_file);
+            channel = zipped ? Channels.newChannel(new GZIPInputStream(Files.newInputStream(
+                    logging_file))) : Files.newByteChannel(logging_file);
             IO.println("Reading log from " + logging_file);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

@@ -19,7 +19,8 @@ public interface AudioSource extends AutoCloseable {
     /**
      * @return the current state of the source
      */
-    @NonNull State getState();
+    @NonNull
+    State getState();
 
     /**
      * Sets the audio associated with this audio source.
@@ -146,7 +147,8 @@ public interface AudioSource extends AutoCloseable {
      *
      * @return The associated AbstractAudioPlayer.
      */
-    @Nullable AbstractAudioPlayer getAudioPlayer();
+    @Nullable
+    AbstractAudioPlayer getAudioPlayer();
 
     /**
      * Associates an audio player with this source.

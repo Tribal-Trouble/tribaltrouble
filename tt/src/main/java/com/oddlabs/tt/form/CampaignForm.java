@@ -41,7 +41,7 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
     private final @NonNull LoadCampaignBox load_campaign_box;
     private static final ResourceBundle bundle = ResourceBundle.getBundle(CampaignForm.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -59,8 +59,8 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
         button_delete.setDisabled(true);
 
         button_vikings = new HorizButton(i18n("new"), 120);
-        button_vikings.addMouseClickListener((_, _, _, _) ->
-                main_menu.setMenu(new NewCampaignForm(network, gui_root, main_menu, CampaignForm.this)));
+        button_vikings.addMouseClickListener((_, _, _, _) -> main_menu.setMenu(new NewCampaignForm(network, gui_root,
+                main_menu, CampaignForm.this)));
 
         button_load = new HorizButton(i18n("load"), 120);
         button_load.setDisabled(true);
@@ -120,9 +120,8 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
     }
 
     public void load(@NonNull CampaignState campaign_state) {
-        Campaign campaign = campaign_state.getRace() == CampaignState.RACE_VIKINGS
-                ? new VikingCampaign(network, gui_root, campaign_state)
-                : new NativeCampaign(network, gui_root, campaign_state);
+        Campaign campaign = campaign_state.getRace() == CampaignState.RACE_VIKINGS ? new VikingCampaign(network,
+                gui_root, campaign_state) : new NativeCampaign(network, gui_root, campaign_state);
         setDisabled(true);
         if (campaign_state.getIslandState(0) == CampaignState.ISLAND_COMPLETED) {
             campaign.pushDelegate(network, gui_root.getGUI());
@@ -167,8 +166,8 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
         CampaignState state = load_campaign_box.getSelected();
         if (state != null) {
             String confirm_str = i18n("confirm_delete", state.getName());
-            gui_root.addModalForm(new QuestionForm(confirm_str, (_, _, _, _) ->
-                    LoadCampaignBox.loadSavegames(CampaignForm.this)));
+            gui_root.addModalForm(new QuestionForm(confirm_str, (_, _, _, _) -> LoadCampaignBox.loadSavegames(
+                    CampaignForm.this)));
         }
     }
 }

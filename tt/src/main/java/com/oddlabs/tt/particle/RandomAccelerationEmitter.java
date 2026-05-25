@@ -25,34 +25,15 @@ public final class RandomAccelerationEmitter extends LinearEmitter {
     private float y_angle = 0;
 
     private RandomAccelerationEmitter(@NonNull World world, @NonNull Vector3f position, float offset_z,
-                                      float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
-                                      int num_particles, float particles_per_second,
-                                      @NonNull Vector3f velocity, @NonNull Vector3f acceleration, float acceleration_factor,
-                                      @NonNull Vector4f color, @NonNull Vector4f delta_color,
-                                      @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy, float friction,
-                                      int src_blend_func, int dst_blend_func,
-                                      TextureKey @NonNull [] textures, SpriteKey[] sprite_renderers, int types,
-                                      @NonNull AnimationManager manager) {
-        super(world, position,
-                offset_z,
-                emitter_radius,
-                emitter_height,
-                num_particles,
-                particles_per_second,
-                velocity,
-                acceleration,
-                color,
-                delta_color,
-                particle_radius,
-                growth_rate,
-                energy,
-                friction,
-                src_blend_func,
-                dst_blend_func,
-                textures,
-                sprite_renderers,
-                types,
-                manager);
+            float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
+            int num_particles, float particles_per_second,
+            @NonNull Vector3f velocity, @NonNull Vector3f acceleration, float acceleration_factor,
+            @NonNull Vector4f color, @NonNull Vector4f delta_color,
+            @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy, float friction,
+            int src_blend_func, int dst_blend_func,
+            TextureKey @NonNull [] textures, SpriteKey[] sprite_renderers, int types,
+            @NonNull AnimationManager manager) {
+        super(world, position, offset_z, emitter_radius, emitter_height, num_particles, particles_per_second, velocity, acceleration, color, delta_color, particle_radius, growth_rate, energy, friction, src_blend_func, dst_blend_func, textures, sprite_renderers, types, manager);
         this.random = world.getRandom();
         this.acceleration = acceleration;
         offset_acceleration = new Vector3f(acceleration.x(), acceleration.y(), acceleration.z());
@@ -62,74 +43,30 @@ public final class RandomAccelerationEmitter extends LinearEmitter {
     }
 
     public RandomAccelerationEmitter(@NonNull World world, @NonNull Vector3f position, float offset_z,
-                                     float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
-                                     int num_particles, float particles_per_second,
-                                     @NonNull Vector3f velocity, @NonNull Vector3f acceleration, float acceleration_factor,
-                                     @NonNull Vector4f color, @NonNull Vector4f delta_color,
-                                     @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy, float friction,
-                                     int src_blend_func, int dst_blend_func,
-                                     TextureKey @NonNull [] textures, @NonNull AnimationManager manager) {
-        this(world, position,
-                offset_z,
-                emitter_radius,
-                emitter_height,
-                angle_bound,
-                angle_max_jump,
-                num_particles,
-                particles_per_second,
-                velocity,
-                acceleration,
-                acceleration_factor,
-                color,
-                delta_color,
-                particle_radius,
-                growth_rate,
-                energy,
-                friction,
-                src_blend_func,
-                dst_blend_func,
-                textures,
-                null,
-                textures.length,
-                manager);
+            float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
+            int num_particles, float particles_per_second,
+            @NonNull Vector3f velocity, @NonNull Vector3f acceleration, float acceleration_factor,
+            @NonNull Vector4f color, @NonNull Vector4f delta_color,
+            @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy, float friction,
+            int src_blend_func, int dst_blend_func,
+            TextureKey @NonNull [] textures, @NonNull AnimationManager manager) {
+        this(world, position, offset_z, emitter_radius, emitter_height, angle_bound, angle_max_jump, num_particles, particles_per_second, velocity, acceleration, acceleration_factor, color, delta_color, particle_radius, growth_rate, energy, friction, src_blend_func, dst_blend_func, textures, null, textures.length, manager);
     }
 
     public RandomAccelerationEmitter(@NonNull World world, @NonNull Vector3f position, float offset_z,
-                                     float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
-                                     int num_particles, float particles_per_second,
-                                     @NonNull Vector3f velocity, @NonNull Vector3f acceleration, float acceleration_factor,
-                                     @NonNull Vector4f color, @NonNull Vector4f delta_color,
-                                     @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy, float friction,
-                                     SpriteKey @NonNull [] sprite_renderers, @NonNull AnimationManager manager) {
-        this(world, position,
-                offset_z,
-                emitter_radius,
-                emitter_height,
-                angle_bound,
-                angle_max_jump,
-                num_particles,
-                particles_per_second,
-                velocity,
-                acceleration,
-                acceleration_factor,
-                color,
-                delta_color,
-                particle_radius,
-                growth_rate,
-                energy,
-                friction,
-                0,
-                0,
-                null,
-                sprite_renderers,
-                sprite_renderers.length,
-                manager);
+            float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
+            int num_particles, float particles_per_second,
+            @NonNull Vector3f velocity, @NonNull Vector3f acceleration, float acceleration_factor,
+            @NonNull Vector4f color, @NonNull Vector4f delta_color,
+            @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy, float friction,
+            SpriteKey @NonNull [] sprite_renderers, @NonNull AnimationManager manager) {
+        this(world, position, offset_z, emitter_radius, emitter_height, angle_bound, angle_max_jump, num_particles, particles_per_second, velocity, acceleration, acceleration_factor, color, delta_color, particle_radius, growth_rate, energy, friction, 0, 0, null, sprite_renderers, sprite_renderers.length, manager);
     }
 
     @Override
     protected int initParticle(@NonNull Vector3f position, @NonNull Vector3fc velocity, @NonNull Vector3fc acceleration,
-                               @NonNull Vector4fc color, @NonNull Vector4fc delta_color,
-                               @NonNull Vector3fc particle_radius, @NonNull Vector3fc growth_rate, float energy) {
+            @NonNull Vector4fc color, @NonNull Vector4fc delta_color,
+            @NonNull Vector3fc particle_radius, @NonNull Vector3fc growth_rate, float energy) {
         randomizeAcceleration();
 
         LinearParticle particle = new LinearParticle(getWorld());

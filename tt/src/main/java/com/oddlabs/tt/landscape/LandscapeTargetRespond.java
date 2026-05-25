@@ -16,7 +16,8 @@ public final class LandscapeTargetRespond extends Element<LandscapeTargetRespond
         super(world.getElementRoot());
         setPosition(x, y);
         setPositionZ(world.getHeightMap().getNearestHeight(x, y));
-        setBounds(x - SIZE / 2, x + SIZE / 2, y - SIZE / 2, y + SIZE / 2, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        setBounds(x - SIZE / 2, x + SIZE / 2, y - SIZE / 2, y + SIZE / 2, Float.NEGATIVE_INFINITY,
+                Float.POSITIVE_INFINITY);
         register();
     }
 

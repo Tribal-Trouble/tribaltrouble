@@ -17,10 +17,11 @@ public final class ToolTipBox extends TextField {
 
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
-        throw new UnsupportedOperationException("ToolTipBox.renderGeometry should not be called directly. Use render(GUIRenderer, ...)");
+        throw new UnsupportedOperationException(
+                "ToolTipBox.renderGeometry should not be called directly. Use render(GUIRenderer, ...)");
     }
 
-    public void append(@NonNull IconQuad @Nullable ... icons) {
+    public void append(@NonNull IconQuad @Nullable... icons) {
         this.icons = icons;
     }
 
@@ -50,7 +51,8 @@ public final class ToolTipBox extends TextField {
 
         box.box().render(renderer, x, y, box_width, ModeIconQuads.Mode.NORMAL);
 
-        TextLineRenderer.render(renderer, getFont(), getText(), x + box.leftOffset(), y + box.bottomOffset(), Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Color.WHITE);
+        TextLineRenderer.render(renderer, getFont(), getText(), x + box.leftOffset(), y + box.bottomOffset(),
+                Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Color.WHITE);
         if (icons != null) {
             float render_x = box_width - box.rightOffset() - icons[icons.length - 1].getWidth();
             for (IconQuad icon : icons) {

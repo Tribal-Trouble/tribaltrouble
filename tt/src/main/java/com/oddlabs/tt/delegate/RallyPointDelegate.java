@@ -22,7 +22,8 @@ public final class RallyPointDelegate extends TargetDelegate {
             pop();
             return;
         }
-        Target target = getViewer().getPicker().pickRallyPoint(getViewer().getGUIRoot().getDelegate().getCamera().getState(), x, y, building);
+        Target target = getViewer().getPicker().pickRallyPoint(
+                getViewer().getGUIRoot().getDelegate().getCamera().getState(), x, y, building);
         if (target == null)
             return;
         if (building.isValidRallyPoint(target)) {

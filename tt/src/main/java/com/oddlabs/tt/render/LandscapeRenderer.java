@@ -18,7 +18,6 @@ import com.oddlabs.tt.render.state.DepthMode;
 import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.vbo.FloatVBO;
-import org.joml.Matrix4fc;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -84,17 +83,18 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
         doPrepareAll(camera, visible_override, aboveSea, render_list);
     }
 
-    private void doPrepareAll(@NonNull CameraState camera, final boolean visible_override, boolean aboveSea, @NonNull Collection<LandscapeLeaf> result) {
-        var patch_visitor = new Visitor(camera, visible_override, aboveSea, aboveSea ? world.getHeightMap() : null, result);
+    private void doPrepareAll(@NonNull CameraState camera, final boolean visible_override, boolean aboveSea,
+            @NonNull Collection<LandscapeLeaf> result) {
+        var patch_visitor = new Visitor(camera, visible_override, aboveSea, aboveSea ? world.getHeightMap() : null,
+                result);
         world.getPatchRoot().visit(patch_visitor);
     }
 
     @Override
-    public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
-        try (var _ = shader.use();
-             var _ = context.withBlendMode(BlendMode.NONE);
-             var _ = context.withDepthMode(DepthMode.READ_WRITE);
-             var _ = context.withCullMode(CullMode.NONE)) {
+    public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull MatrixStack modelViewStack,
+            @NonNull MatrixStack projectionStack) {
+        try (var _ = shader.use(); var _ = context.withBlendMode(BlendMode.NONE); var _ = context.withDepthMode(
+                DepthMode.READ_WRITE); var _ = context.withCullMode(CullMode.NONE)) {
 
             // Set VTF Uniforms
             shader.setUniform(LandscapeShader.Uniforms.WORLD_SIZE, (float) world.getHeightMap().getMetersPerWorld());
@@ -172,7 +172,8 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
     }
 
     // Shadow rendering supported
-    void renderShadow(@NonNull ShaderProgram shader, int patch_x, int patch_y, int start_x, int start_y, int end_x, int end_y) {
+    void renderShadow(@NonNull ShaderProgram shader, int patch_x, int patch_y, int start_x, int start_y, int end_x,
+            int end_y) {
         // Legacy shadow rendering (non-instanced for now as it renders specific sub-regions)
         // Would need to update shader to support instance attribute if we wanted to batch this too
         // But shadow rendering usually uses a specific projection/program
@@ -199,7 +200,8 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
         private final @Nullable HeightMap heightMap;
         private final @NonNull Collection<LandscapeLeaf> result;
 
-        private Visitor(@NonNull CameraState camera, boolean visible_override, boolean aboveSea, @Nullable HeightMap heightMap, @NonNull Collection<LandscapeLeaf> result) {
+        private Visitor(@NonNull CameraState camera, boolean visible_override, boolean aboveSea,
+                @Nullable HeightMap heightMap, @NonNull Collection<LandscapeLeaf> result) {
             this.camera = camera;
             this.visible_override = visible_override;
             this.aboveSea = aboveSea;
@@ -210,7 +212,8 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
         @Override
         public void visitGroup(@NonNull PatchGroup group) {
             RenderTools.FrustumIntersection frustum_state = RenderTools.FrustumIntersection.ALL_OUTSIDE;
-            if (visible_override || (frustum_state = RenderTools.inFrustum(group, camera.getFrustum())) != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
+            if (visible_override || (frustum_state = RenderTools.inFrustum(group,
+                    camera.getFrustum())) != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
                 boolean old_override = visible_override;
                 visible_override = visible_override || frustum_state == RenderTools.FrustumIntersection.ALL_INSIDE;
                 group.visitChildren(this);
@@ -220,7 +223,8 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
 
         @Override
         public void visitLeaf(@NonNull LandscapeLeaf leaf) {
-            if (visible_override || RenderTools.inFrustum(leaf, camera.getFrustum()) != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
+            if (visible_override || RenderTools.inFrustum(leaf,
+                    camera.getFrustum()) != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
                 if (!aboveSea || !heightMap.isBelowSeaLevel(leaf.getPatchX(), leaf.getPatchY())) {
                     result.add(leaf);
                 }

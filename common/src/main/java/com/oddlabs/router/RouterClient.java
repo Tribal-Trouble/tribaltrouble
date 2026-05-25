@@ -46,7 +46,8 @@ final class RouterClient implements ConnectionInterface {
         });
     }
 
-    @NonNull List<Integer> getChecksums() {
+    @NonNull
+    List<Integer> getChecksums() {
         return checksums;
     }
 
@@ -66,7 +67,8 @@ final class RouterClient implements ConnectionInterface {
         client_interface.heartbeat(millis);
     }
 
-    @NonNull RouterClientInterface getInterface() {
+    @NonNull
+    RouterClientInterface getInterface() {
         return client_interface;
     }
 
@@ -117,13 +119,20 @@ final class RouterClient implements ConnectionInterface {
         this.is_spectator = true;
         this.current_interface = new Interface(GameInterface.class, new GameInterface() {
             @Override
-            public void checksum(int checksum) {}
+            public void checksum(int checksum) {
+            }
+
             @Override
-            public void relayEventTo(int client_id, ARMIEvent event) {}
+            public void relayEventTo(int client_id, ARMIEvent event) {
+            }
+
             @Override
-            public void relayGameStateEvent(ARMIEvent event) {}
+            public void relayGameStateEvent(ARMIEvent event) {
+            }
+
             @Override
-            public void relayEvent(ARMIEvent event) {}
+            public void relayEvent(ARMIEvent event) {
+            }
         });
         session.addSpectator(this);
         logger.info("Spectator logged in: session = " + session);
@@ -132,14 +141,15 @@ final class RouterClient implements ConnectionInterface {
     private void doChecksum(int checksum) {
         checksums.add(checksum);
         session.checksum();
-/*		if (!session.checksum()) {
-			doError(true, new IOException("Checksum mismatch"));
-		}*/
+        /*		if (!session.checksum()) {
+        			doError(true, new IOException("Checksum mismatch"));
+        		}*/
     }
 
     private void doRelayGameStateEvent(final ARMIEvent event) {
         final int next_tick = session.getNextTick();
-        session.visit((RouterClient client) -> client.client_interface.receiveGameStateEvent(client_id, next_tick, event));
+        session.visit((RouterClient client) -> client.client_interface.receiveGameStateEvent(client_id, next_tick,
+                event));
     }
 
     private void doRelayEvent(final ARMIEvent event) {
@@ -179,7 +189,8 @@ final class RouterClient implements ConnectionInterface {
                 session.removeSpectator(this);
             } else {
                 session.removePlayer(this);
-                session.visit((RouterClient client) -> client.client_interface.playerDisconnected(client_id, checksum_error));
+                session.visit((RouterClient client) -> client.client_interface.playerDisconnected(client_id,
+                        checksum_error));
             }
         }
     }

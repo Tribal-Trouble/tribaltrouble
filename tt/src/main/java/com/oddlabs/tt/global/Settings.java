@@ -110,8 +110,7 @@ public final class Settings implements Serializable {
 
     private static Vector4f[] generateDefaultColours() {
         // 18 hand-picked colours that are visually distinct on terrain
-        Vector4f[] handPicked = {
-                Color.argb4v(0xFFFFBF00), /*  0 Orange */
+        Vector4f[] handPicked = {Color.argb4v(0xFFFFBF00), /*  0 Orange */
                 Color.argb4v(0xFF007FFF), /*  1 Royal Blue */
                 Color.argb4v(0xFFFF0040), /*  2 Red */
                 Color.argb4v(0xFF00FFBF), /*  3 Teal */
@@ -130,10 +129,12 @@ public final class Settings implements Serializable {
                 Color.argb4v(0xFF228B22), /* 16 Forest Green */
                 Color.argb4v(0xFF708090), /* 17 Slate */
         };
-        // Fill remaining slots (18-31) with HSB-generated colours
+        // Use the hand-picked palette up to MAX_PLAYERS; if MAX_PLAYERS exceeds the
+        // hand-picked count, fill remaining slots with evenly-spaced HSB-generated colours.
         Vector4f[] all = new Vector4f[MatchmakingServerInterface.MAX_PLAYERS];
-        System.arraycopy(handPicked, 0, all, 0, handPicked.length);
-        for (int i = handPicked.length; i < all.length; i++) {
+        int copyCount = Math.min(handPicked.length, all.length);
+        System.arraycopy(handPicked, 0, all, 0, copyCount);
+        for (int i = copyCount; i < all.length; i++) {
             float hue = (i - handPicked.length) / (float) (all.length - handPicked.length);
             int rgb = java.awt.Color.HSBtoRGB(hue, 0.8f, 0.9f);
             all[i] = Color.argb4v(0xFF000000 | (rgb & 0x00FFFFFF));
@@ -310,7 +311,8 @@ public final class Settings implements Serializable {
         }
     }
 
-    private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull String value, String defaultValue) {
+    private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull String value,
+            String defaultValue) {
         if (!value.equals(defaultValue)) {
             props.setProperty(key, value);
         }
@@ -334,12 +336,11 @@ public final class Settings implements Serializable {
         }
     }
 
-    private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull Vector4fc @NonNull [] value, @NonNull Vector4fc @NonNull [] defaultValue) {
+    private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull Vector4fc @NonNull [] value,
+            @NonNull Vector4fc @NonNull [] defaultValue) {
         if (!Arrays.equals(value, defaultValue)) {
-            String colors = Arrays.stream(value)
-                    .mapToInt(Color::argbi)
-                    .mapToObj(Integer::toHexString)
-                    .collect(Collectors.joining(","));
+            String colors = Arrays.stream(value).mapToInt(Color::argbi).mapToObj(Integer::toHexString).collect(
+                    Collectors.joining(","));
 
             props.setProperty(key, colors);
         }
@@ -363,7 +364,8 @@ public final class Settings implements Serializable {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException _) {
-            logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+            logger.warning(
+                    "WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
             return defaultValue;
         }
     }
@@ -376,7 +378,8 @@ public final class Settings implements Serializable {
         try {
             return Float.parseFloat(value);
         } catch (NumberFormatException _) {
-            logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+            logger.warning(
+                    "WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
             return defaultValue;
         }
     }
@@ -389,12 +392,14 @@ public final class Settings implements Serializable {
         try {
             return Path.of(value);
         } catch (InvalidPathException _) {
-            logger.warning("Invalid path for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+            logger.warning(
+                    "Invalid path for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
             return defaultValue;
         }
     }
 
-    private static Vector4f @NonNull [] getColours(@NonNull Properties props, @NonNull String key, Vector4f @NonNull [] defaultValue) {
+    private static Vector4f @NonNull [] getColours(@NonNull Properties props, @NonNull String key,
+            Vector4f @NonNull [] defaultValue) {
         String value = props.getProperty(key);
         if (value == null) {
             return defaultValue;
@@ -411,7 +416,8 @@ public final class Settings implements Serializable {
             }
             return result;
         } catch (Exception e) {
-            logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value. Error: " + e);
+            logger.warning(
+                    "WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value. Error: " + e);
             return defaultValue;
         }
     }

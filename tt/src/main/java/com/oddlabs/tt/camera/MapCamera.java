@@ -25,6 +25,8 @@ public final class MapCamera extends Camera {
     private static final float MAP_TIME_FACTOR = 1000f;
     private static final float SMOOTHNESS_FACTOR = 200f;
     public static final float MAP_Z_FACTOR = 1.3f;
+    private static final float LANDING_ANGLE = -(float) Math.PI / 4f;
+    private static final float MIN_LANDING_DISTANCE = 20f;
 
     private static final Set<GameAction> BLOCKED_ACTIONS = EnumSet.of(
             GameAction.CAMERA_PAN_LEFT,
@@ -49,8 +51,8 @@ public final class MapCamera extends Camera {
 
     private final @NonNull SelectionDelegate delegate;
     private final @NonNull CameraState original_camera_state;
-    private final float distance_to_landscape;
-    private final Label label = new Label(Utils.getBundleString(ResourceBundle.getBundle(MapCamera.class.getName()), "map_mode"), Skin.getSkin().getHeadlineFont());
+    private final Label label = new Label(Utils.getBundleString(ResourceBundle.getBundle(MapCamera.class.getName()),
+            "map_mode"), Skin.getSkin().getHeadlineFont());
 
     private @NonNull MapMode map_mode = MapMode.TO_MAP;
     private float fogTime = 0f;
@@ -63,11 +65,6 @@ public final class MapCamera extends Camera {
         mapCameraState.setFog(radialFog);
         super(old_camera.getHeightMap(), mapCameraState);
         this.delegate = delegate;
-        float[] target = old_camera.getRotationPoint();
-        float dx = target[0] - original_camera_state.getTargetX();
-        float dy = target[1] - original_camera_state.getTargetY();
-        float dz = getHeightMap().getNearestHeight(target[0], target[1]) - original_camera_state.getTargetZ();
-        distance_to_landscape = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
 
         setSmoothnessFactor(SMOOTHNESS_FACTOR);
         getState().setNoDetailMode(true);
@@ -88,15 +85,12 @@ public final class MapCamera extends Camera {
         // Calculate transition progress (0.0 = at start, 1.0 = at map)
         float current_z = getState().getTargetZ();
         float total_dist = map_z - start_z;
-        float progress = (Math.abs(total_dist) > 0.001f)
-                ? Math.clamp((current_z - start_z) / total_dist, 0f, 1f)
-                : 1f;
+        float progress = (Math.abs(total_dist) > 0.001f) ? Math.clamp((current_z - start_z) / total_dist, 0f, 1f) : 1f;
 
         // Base organic fog pulse (sum of sines for non-predictable period)
         fogTime += t;
-        float pulse = (float) (Math.sin(fogTime * 0.4125f) * 0.5 +
-                Math.sin(fogTime * 0.8625f) * 0.3 +
-                Math.sin(fogTime * 1.7625f) * 0.2);
+        float pulse = (float) (Math.sin(fogTime * 0.4125f) * 0.5 + Math.sin(fogTime * 0.8625f) * 0.3 + Math.sin(
+                fogTime * 1.7625f) * 0.2);
         float baseDensity = 0.30f + pulse * 0.12f;
 
         // Apply transition
@@ -165,7 +159,8 @@ public final class MapCamera extends Camera {
             case TO_MAP -> {
             }
             case IN_MAP -> {
-                label.setPos((delegate.getGUIRoot().getWidth() - label.getWidth()) / 2, delegate.getGUIRoot().getHeight() - label.getHeight());
+                label.setPos((delegate.getGUIRoot().getWidth() - label.getWidth()) / 2,
+                        delegate.getGUIRoot().getHeight() - label.getHeight());
                 delegate.addChild(label);
             }
             case FROM_MAP -> {
@@ -180,18 +175,26 @@ public final class MapCamera extends Camera {
 
     public void mapGoto(float x, float y, boolean override) {
         if (map_mode == MapMode.IN_MAP || override) {
-            //	float radius = (float)Math.cos(getVertAngle());
-            //	float old_dir_x = (float)Math.cos(getHorizAngle())*radius;
-            //	float old_dir_y = (float)Math.sin(getHorizAngle())*radius;
-            //	float old_dir_z = (float)Math.sin(getVertAngle());
-            float radius = (float) Math.cos(original_camera_state.getTargetVertAngle());
+            // Land the eye near the click using a fixed 45° angle (avoids weird views
+            // when the prior tilt was near horizontal). Preserve the user's absolute
+            // eye Z so a fully-zoomed-out camera stays fully zoomed out across the
+            // teleport — matching what they'd see if they scrolled there manually,
+            // since scroll/bounce only push the eye up, never down. Then derive
+            // landing_distance so the 45° ray from the eye hits the clicked point.
+            float clickGroundZ = getHeightMap().getNearestHeight(x, y);
+            float sinDown = -(float) Math.sin(LANDING_ANGLE);
+            float minEyeZ = clickGroundZ + MIN_LANDING_DISTANCE * sinDown;
+            float landingEyeZ = Math.min(
+                    Math.max(minEyeZ, original_camera_state.getTargetZ()),
+                    GameCamera.MAX_Z);
+            float landing_distance = Math.max(MIN_LANDING_DISTANCE, (landingEyeZ - clickGroundZ) / sinDown);
+            float radius = (float) Math.cos(LANDING_ANGLE);
             float old_dir_x = (float) Math.cos(getState().getHorizAngle()) * radius;
             float old_dir_y = (float) Math.sin(getState().getHorizAngle()) * radius;
-            float old_dir_z = (float) Math.sin(original_camera_state.getTargetVertAngle());
             // Adjust the position of the original camera.
-            original_camera_state.setTargetX(x - old_dir_x * distance_to_landscape);
-            original_camera_state.setTargetY(y - old_dir_y * distance_to_landscape);
-            original_camera_state.setTargetZ(getHeightMap().getNearestHeight(x, y) - old_dir_z * distance_to_landscape);
+            original_camera_state.setTargetX(x - old_dir_x * landing_distance);
+            original_camera_state.setTargetY(y - old_dir_y * landing_distance);
+            original_camera_state.setTargetZ(landingEyeZ);
             changeMode(MapMode.FROM_MAP);
         }
     }
@@ -208,7 +211,8 @@ public final class MapCamera extends Camera {
 
         if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
             if (event.consumeAction(GameAction.CAMERA_MAP_MODE)) {
-                changeMode((map_mode == MapMode.TO_MAP || map_mode == MapMode.IN_MAP) ? MapMode.FROM_MAP : MapMode.TO_MAP);
+                changeMode((map_mode == MapMode.TO_MAP
+                        || map_mode == MapMode.IN_MAP) ? MapMode.FROM_MAP : MapMode.TO_MAP);
                 event.consume();
             }
         }

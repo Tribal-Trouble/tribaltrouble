@@ -2,7 +2,6 @@ package com.oddlabs.matchserver.discord;
 
 import com.oddlabs.matchmaking.GamePlayer;
 import com.oddlabs.matchmaking.GameSession;
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.PlayerTypes;
 import com.oddlabs.matchserver.DBInterface;
 import com.oddlabs.matchserver.WebsiteLinkHelper;
@@ -16,10 +15,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
 
-/** Helpers for quickly and safely sending different Discord embed messages. */
+/**
+ * Helpers for quickly and safely sending different Discord embed messages.
+ */
 public class DiscordEmbedCreator {
 
-    private DiscordEmbedCreator() {}
+    private DiscordEmbedCreator() {
+    }
 
     /**
      * Returns a map of team index to a comma-separated string of player nicknames. Example: {0:
@@ -35,20 +37,22 @@ public class DiscordEmbedCreator {
             if (!currentTeamList.isEmpty()) {
                 currentTeamList += ", ";
             }
-            currentTeamList += NickUtils.toDisplayName(player.getNick());
+            currentTeamList += player.getNick();
             teamPlayers.put(team, currentTeamList);
         }
         return teamPlayers;
     }
 
-    /** Returns a formatted string of all human player nicknames. */
+    /**
+     * Returns a formatted string of all human player nicknames.
+     */
     public static String getFormattedHumanNicks(GamePlayer[] players) {
         StringJoiner allNicks = new StringJoiner(", ");
 
         for (GamePlayer player : players) {
             if (player.getPlayerType() == PlayerTypes.Human) {
                 if (allNicks.length() > 0) {
-                    allNicks.add(NickUtils.toDisplayName(player.getNick()));
+                    allNicks.add(player.getNick());
                 }
             }
         }
@@ -58,12 +62,12 @@ public class DiscordEmbedCreator {
     /**
      * Core builder/sender to eliminate repetition.
      *
-     * @param gameId The ID of the game.
+     * @param gameId               The ID of the game.
      * @param includeMapCodeLookup Whether to include a link to look up the map code
-     * @param session The game session object.
-     * @param color The color of the embed sidebar.
-     * @param descriptionPrefix A prefix for the description, e.g. "Team 2 Won" or "Player lost
-     *     playing vs AI".
+     * @param session              The game session object.
+     * @param color                The color of the embed sidebar.
+     * @param descriptionPrefix    A prefix for the description, e.g. "Team 2 Won" or "Player lost
+     *                             playing vs AI".
      */
     private static void buildAndSendEmbed(
             int gameId,
@@ -71,7 +75,7 @@ public class DiscordEmbedCreator {
             GameSession session,
             Color color,
             String descriptionPrefix // eg. Team 2 Won, or Player lost playing vs AI
-            ) {
+    ) {
 
         if (!DiscordBotService.getInstance().isInitialized()) {
             return;
@@ -90,8 +94,8 @@ public class DiscordEmbedCreator {
 
         // Start building the embed
 
-        EmbedCreateSpec.Builder embed =
-                EmbedCreateSpec.builder().title(gameName).color(color).description(desc.toString());
+        EmbedCreateSpec.Builder embed = EmbedCreateSpec.builder().title(gameName).color(color).description(
+                desc.toString());
 
         // Add a field for each team
         Map<Integer, String> teamLineup = getTeamLineup(session.getPlayerInfo());
@@ -109,44 +113,50 @@ public class DiscordEmbedCreator {
         EmbedCreateSpec builtEmbed = embed.build();
 
         // Send to the Correct Channel
-        TextChannel gameActivityChannel =
-                DiscordBotService.getInstance().getGameActivityChannel().orElse(null);
+        TextChannel gameActivityChannel = DiscordBotService.getInstance().getGameActivityChannel().orElse(null);
 
-        DiscordBotService.getInstance()
-                .getChatroomCoordinator()
-                .ifPresent(
-                        coordinator ->
-                                coordinator.sendDiscordEmbed(gameActivityChannel, builtEmbed));
+        DiscordBotService.getInstance().getChatroomCoordinator().ifPresent(
+                coordinator -> coordinator.sendDiscordEmbed(gameActivityChannel, builtEmbed));
     }
 
-    /** Sends a Discord embed message when humans lose to bots */
+    /**
+     * Sends a Discord embed message when humans lose to bots
+     */
     public static void SendHumansLoseToBotsDiscordEmbed(GameSession session, int gameID) {
         String nicks = getFormattedHumanNicks(session.getPlayerInfo());
         String prefix = (nicks.isEmpty() ? "Human" : nicks) + " lost playing against AI!";
         buildAndSendEmbed(gameID, true, session, Color.RED, prefix);
     }
 
-    /** Sends a Discord embed message when humans Win Vs Humans (and maybe bots) */
+    /**
+     * Sends a Discord embed message when humans Win Vs Humans (and maybe bots)
+     */
     public static void SendHumansWinAgainstOtherHumans(
             int winning_team_index, GameSession session, int gameID) {
         String prefix = "Team " + (winning_team_index + 1) + " Won!";
         buildAndSendEmbed(gameID, true, session, Color.GREEN, prefix);
     }
 
-    /** Sends a Discord embed message when Humans Win Vs Bots */
+    /**
+     * Sends a Discord embed message when Humans Win Vs Bots
+     */
     public static void SendHumansWinAgainstBotsDiscordEmbed(
             int winning_team_index, GameSession session, int gameID) {
         String prefix = "Team " + (winning_team_index + 1) + " Won playing against AI!";
         buildAndSendEmbed(gameID, true, session, Color.GREEN, prefix);
     }
 
-    /** Sends a Discord embed message when the game was invalidated */
+    /**
+     * Sends a Discord embed message when the game was invalidated
+     */
     public static void SendInvalidatedGameDiscordEmbed(GameSession session, int gameID) {
         String prefix = "Game Invalidated! Someone may have cheated!";
         buildAndSendEmbed(gameID, true, session, Color.RED, prefix);
     }
 
-    /** Sends a Discord embed message when the game starts. */
+    /**
+     * Sends a Discord embed message when the game starts.
+     */
     public static void SendGameStartedDiscordEmbed(GameSession session, int gameID) {
         String prefix = "Game Started!";
         buildAndSendEmbed(gameID, true, session, Color.GRAY, prefix);

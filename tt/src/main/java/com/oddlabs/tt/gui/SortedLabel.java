@@ -19,4 +19,3 @@ public final class SortedLabel extends Label {
             return -1;
     }
 }
-

@@ -11,7 +11,8 @@ final class ARMIInvocationHandler implements InvocationHandler {
     private final ARMIEventWriter broker;
     private final ARMIArgumentWriter writer;
 
-    public ARMIInvocationHandler(ARMIEventWriter broker, ARMIArgumentWriter writer, ARMIInterfaceMethods armi_interface_methods) {
+    public ARMIInvocationHandler(ARMIEventWriter broker, ARMIArgumentWriter writer,
+            ARMIInterfaceMethods armi_interface_methods) {
         this.broker = broker;
         this.writer = writer;
         this.armi_interface_methods = armi_interface_methods;

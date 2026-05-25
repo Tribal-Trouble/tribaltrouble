@@ -49,7 +49,9 @@ public final class LightningCloud implements Magic {
     private boolean lighted = false;
     private boolean first_run = true;
 
-    public LightningCloud(@NonNull World world, float offset_x, float offset_y, float offset_z, float seconds_to_live, float seconds_per_hit, float seconds_to_init, float meters_per_second, float hit_chance, int damage, float height, @NonNull Unit src) {
+    public LightningCloud(@NonNull World world, float offset_x, float offset_y, float offset_z, float seconds_to_live,
+            float seconds_per_hit, float seconds_to_init, float meters_per_second, float hit_chance, int damage,
+            float height, @NonNull Unit src) {
         this.seconds_to_live = seconds_to_live;
 
         this.seconds_per_hit = seconds_per_hit;
@@ -71,7 +73,8 @@ public final class LightningCloud implements Magic {
                 GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, world.getRacesResources().getSmokeTextures(),
                 world.getAnimationManagerGameTime());
 
-        bubbling_sound = world.getAudio().newAudio(new AudioParameters<>(world.getRacesResources().getBubblingSound(), position.x(), position.y(), world.getHeightMap().getNearestHeight(position.x(), position.y()),
+        bubbling_sound = world.getAudio().newAudio(new AudioParameters<>(world.getRacesResources().getBubblingSound(),
+                position.x(), position.y(), world.getHeightMap().getNearestHeight(position.x(), position.y()),
                 AudioPlayer.AUDIO_RANK_MAGIC,
                 AudioPlayer.AUDIO_DISTANCE_MAGIC,
                 AudioPlayer.AUDIO_GAIN_BUBBLING,
@@ -82,7 +85,8 @@ public final class LightningCloud implements Magic {
     @Override
     public void animate(float t) {
         if (first_run) {
-            cloud_sound = owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getCloudSound(), position.x(), position.y(), position.z(),
+            cloud_sound = owner.getWorld().getAudio().newAudio(new AudioParameters<>(
+                    owner.getWorld().getRacesResources().getCloudSound(), position.x(), position.y(), position.z(),
                     AudioPlayer.AUDIO_RANK_MAGIC,
                     AudioPlayer.AUDIO_DISTANCE_MAGIC,
                     AudioPlayer.AUDIO_GAIN_CLOUD,
@@ -107,9 +111,11 @@ public final class LightningCloud implements Magic {
 
         if (hit_timer > seconds_per_hit) {
             if (target == null) {
-                target = owner.findNearestEnemy(UnitGrid.toGridCoordinate(position.x()), UnitGrid.toGridCoordinate(position.y()), prev_target);
+                target = owner.findNearestEnemy(UnitGrid.toGridCoordinate(position.x()), UnitGrid.toGridCoordinate(
+                        position.y()), prev_target);
                 if (target == null) {
-                    target = owner.findNearestEnemy(UnitGrid.toGridCoordinate(position.x()), UnitGrid.toGridCoordinate(position.y()), null);
+                    target = owner.findNearestEnemy(UnitGrid.toGridCoordinate(position.x()), UnitGrid.toGridCoordinate(
+                            position.y()), null);
                     if (target == null) {
                         return;
                     }
@@ -122,13 +128,15 @@ public final class LightningCloud implements Magic {
             dx /= dist;
             dy /= dist;
             if (dist < meters_per_second * t) {
-                if (!target.isDead() && owner.getWorld().getRandom().nextFloat() < hit_chance * (1 - target.getDefenseChance())) {
+                if (!target.isDead()
+                        && owner.getWorld().getRandom().nextFloat() < hit_chance * (1 - target.getDefenseChance())) {
                     target.hit(damage, dx, dy, owner);
                 }
                 float x = target.getPositionX();
                 float y = target.getPositionY();
                 float z = owner.getWorld().getHeightMap().getNearestHeight(x, y);
-                owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getLightningSound(), x, y, z,
+                owner.getWorld().getAudio().newAudio(new AudioParameters<>(
+                        owner.getWorld().getRacesResources().getLightningSound(), x, y, z,
                         AudioPlayer.AUDIO_RANK_MAGIC,
                         AudioPlayer.AUDIO_DISTANCE_MAGIC,
                         AudioPlayer.AUDIO_GAIN_LIGHTNING,
@@ -145,11 +153,12 @@ public final class LightningCloud implements Magic {
                 float z = owner.getWorld().getHeightMap().getNearestHeight(x, y) + height;
                 position.set(x, y, z);
             }
-        } else if (prev_target != null && strike_counter < NUM_STRIKES - 1 && hit_timer > (strike_counter + 1) * SECONDS_BETWEEN_STRIKES) {
-            strike(prev_target);
-            strike(prev_target);
-            strike_counter++;
-        }
+        } else if (prev_target != null && strike_counter < NUM_STRIKES - 1
+                && hit_timer > (strike_counter + 1) * SECONDS_BETWEEN_STRIKES) {
+                    strike(prev_target);
+                    strike(prev_target);
+                    strike_counter++;
+                }
     }
 
     private void strike(@NonNull Target target) {

@@ -26,7 +26,8 @@ public final class NearArmyTrigger extends IntervalTrigger {
             if (unit.isDead()) {
                 continue;
             }
-            FindOccupantFilter<Unit> filter = new FindOccupantFilter<>(unit.getPositionX(), unit.getPositionY(), r, unit, Unit.class);
+            FindOccupantFilter<Unit> filter = new FindOccupantFilter<>(unit.getPositionX(), unit.getPositionY(), r,
+                    unit, Unit.class);
             player.getWorld().getUnitGrid().scan(filter, unit.getGridX(), unit.getGridY());
             for (Unit filtered : filter.getResult()) {
                 if (!filtered.isDead() && filtered.getOwner() == player) {

@@ -72,7 +72,8 @@ public final class TimestampedGameSession {
         String nicks = " ";
         for (int i = 0; i < num_participants; i++)
             nicks += session.getParticipants()[i].getNick() + " ";
-        MatchmakingServer.getLogger().info("Game " + database_id + " created. [" + nicks + "] " + getParticipantStates());
+        MatchmakingServer.getLogger().info(
+                "Game " + database_id + " created. [" + nicks + "] " + getParticipantStates());
 
         try {
             String dirPath = ServerConfiguration.getInstance().get(ServerConfiguration.SPECTATOR_DATA_DIR);
@@ -83,7 +84,8 @@ public final class TimestampedGameSession {
             commandEventFile = new File(spectatorDir, database_id + ".events");
             commandEventStream = new DataOutputStream(new FileOutputStream(commandEventFile));
         } catch (IOException e) {
-            MatchmakingServer.getLogger().warning("Failed to create spectator files for game " + database_id + ": " + e.getMessage());
+            MatchmakingServer.getLogger().warning(
+                    "Failed to create spectator files for game " + database_id + ": " + e.getMessage());
         }
     }
 
@@ -120,7 +122,8 @@ public final class TimestampedGameSession {
             if (num_joined == participant_state.length) {
                 start_timestamp = System.currentTimeMillis();
                 game_state = GAME_ALL_JOINED;
-                MatchmakingServer.getLogger().info("Game " + database_id + ": all joined game " + getParticipantStates());
+                MatchmakingServer.getLogger().info(
+                        "Game " + database_id + ": all joined game " + getParticipantStates());
 
                 DiscordEmbedCreator.SendGameStartedDiscordEmbed(session, database_id);
 
@@ -189,7 +192,8 @@ public final class TimestampedGameSession {
                 spectatorTicksWritten.add(tick);
             }
         } catch (IOException e) {
-            MatchmakingServer.getLogger().warning("Error writing spectator data for game " + database_id + ": " + e.getMessage());
+            MatchmakingServer.getLogger().warning(
+                    "Error writing spectator data for game " + database_id + ": " + e.getMessage());
         }
     }
 
@@ -217,7 +221,8 @@ public final class TimestampedGameSession {
             commandEventStream.write(event_data, 0, event_size);
             commandEventStream.flush();
         } catch (IOException e) {
-            MatchmakingServer.getLogger().warning("Error writing command event for game " + database_id + ": " + e.getMessage());
+            MatchmakingServer.getLogger().warning(
+                    "Error writing command event for game " + database_id + ": " + e.getMessage());
         }
     }
 
@@ -229,7 +234,8 @@ public final class TimestampedGameSession {
                 return fis.readAllBytes();
             }
         } catch (IOException e) {
-            MatchmakingServer.getLogger().warning("Error reading event log for game " + database_id + ": " + e.getMessage());
+            MatchmakingServer.getLogger().warning(
+                    "Error reading event log for game " + database_id + ": " + e.getMessage());
             return new byte[0];
         }
     }
@@ -282,7 +288,8 @@ public final class TimestampedGameSession {
 
         if (!free_quit && !(participant_state[index] == PARTICIPANT_FREE_QUIT)) {
             game_state = GAME_INVALID;
-            MatchmakingServer.getLogger().warning("Game " + database_id + " is now invalid. " + client.getUsername() + " tried to free_quit. " + getParticipantStates());
+            MatchmakingServer.getLogger().warning(
+                    "Game " + database_id + " is now invalid. " + client.getUsername() + " tried to free_quit. " + getParticipantStates());
         }
         gameDone(server, client, PARTICIPANT_QUIT, "quit");
     }
@@ -295,7 +302,8 @@ public final class TimestampedGameSession {
         int index = findIndex(server, client);
         if (participant_state[index] == PARTICIPANT_FREE_QUIT) {
             game_state = GAME_INVALID;
-            MatchmakingServer.getLogger().warning("Game " + database_id + " is now invalid. " + client.getUsername() + " tried to win while having free_quit. " + getParticipantStates());
+            MatchmakingServer.getLogger().warning(
+                    "Game " + database_id + " is now invalid. " + client.getUsername() + " tried to win while having free_quit. " + getParticipantStates());
         }
         gameDone(server, client, PARTICIPANT_WON, "won");
     }
@@ -312,7 +320,8 @@ public final class TimestampedGameSession {
 
     private void gameDone(MatchmakingServer server, Client client, int result, String result_string) {
         participant_state[findIndex(server, client)] = result;
-        MatchmakingServer.getLogger().info("Game " + database_id + ": " + client.getUsername() + " finished. Result " + result_string + " " + getParticipantStates());
+        MatchmakingServer.getLogger().info(
+                "Game " + database_id + ": " + client.getUsername() + " finished. Result " + result_string + " " + getParticipantStates());
         //if (game_state != GAME_STARTING)
         evaluateGame(server);
     }
@@ -355,14 +364,15 @@ public final class TimestampedGameSession {
             DBInterface.endGame(this, end_time, -1);
             DiscordEmbedCreator.SendHumansLoseToBotsDiscordEmbed(session, database_id);
             game_ended = true;
-        closeSpectatorStreams();
+            closeSpectatorStreams();
             return; // last players disconnected
         }
 
         if (winning_teams > 1 || game_state == GAME_INVALID) {
             winning_team_index = getWinningTeamFromLastStatus();
             if (winning_team_index != -1) {
-                MatchmakingServer.getLogger().info("Game " + database_id + ". Team " + (winning_team_index + 1) + " won from status reports. " + getParticipantStates());
+                MatchmakingServer.getLogger().info(
+                        "Game " + database_id + ". Team " + (winning_team_index + 1) + " won from status reports. " + getParticipantStates());
                 teams_lost = true;
                 for (int i = 0; i < team_result.length; i++)
                     if (i == winning_team_index)
@@ -373,17 +383,19 @@ public final class TimestampedGameSession {
                 // someone cheated - everyone gets an invalid_game
                 for (int i = 0; i < participants.length; i++) {
                     String nick = participants[i].getNick();
-                    MatchmakingServer.getLogger().warning("Game " + database_id + ". " + nick + " ended invalid game " + getParticipantStates());
+                    MatchmakingServer.getLogger().warning(
+                            "Game " + database_id + ". " + nick + " ended invalid game " + getParticipantStates());
                     DBInterface.increaseInvalidGames(nick);
                     Client client = server.getClientFromID(participants[i].getMatchID());
                     if (client != null)
                         client.updateProfile();
                 }
-                MatchmakingServer.getLogger().warning("Game " + database_id + " was invalid. " + winning_teams + " winning teams. " + getParticipantStates());
+                MatchmakingServer.getLogger().warning(
+                        "Game " + database_id + " was invalid. " + winning_teams + " winning teams. " + getParticipantStates());
                 DBInterface.endGame(this, end_time, -1);
                 DiscordEmbedCreator.SendInvalidatedGameDiscordEmbed(session, database_id);
                 game_ended = true;
-        closeSpectatorStreams();
+                closeSpectatorStreams();
                 return;
             }
         }
@@ -391,11 +403,12 @@ public final class TimestampedGameSession {
         if (teams_lost)
             teamWon(server, team_result);
         else {
-            MatchmakingServer.getLogger().warning("Game " + database_id + ". No one lost. Playing agains AI " + getParticipantStates());
+            MatchmakingServer.getLogger().warning(
+                    "Game " + database_id + ". No one lost. Playing agains AI " + getParticipantStates());
             DBInterface.endGame(this, end_time, -1);
             DiscordEmbedCreator.SendHumansWinAgainstBotsDiscordEmbed(winning_team_index, session, database_id);
             game_ended = true;
-        closeSpectatorStreams();
+            closeSpectatorStreams();
             return;
         }
 
@@ -410,7 +423,8 @@ public final class TimestampedGameSession {
             if (commandEventStream != null) commandEventStream.close();
             if (spectatorFileWriter != null) spectatorFileWriter.close();
         } catch (IOException e) {
-            MatchmakingServer.getLogger().warning("Error closing spectator streams for game " + database_id + ": " + e.getMessage());
+            MatchmakingServer.getLogger().warning(
+                    "Error closing spectator streams for game " + database_id + ": " + e.getMessage());
         }
     }
 
@@ -463,11 +477,11 @@ public final class TimestampedGameSession {
                 }
 
                 DBInterface.updateStreaks(nick, currentStreak, bestStreak);
-                MatchmakingServer.getLogger().info("Game " + database_id + ". Updated streaks for " + nick
-                        + " (currentStreak=" + currentStreak + ", bestStreak=" + bestStreak + ")");
+                MatchmakingServer.getLogger().info(
+                        "Game " + database_id + ". Updated streaks for " + nick + " (currentStreak=" + currentStreak + ", bestStreak=" + bestStreak + ")");
             } catch (SQLException e) {
-                MatchmakingServer.getLogger().warning("Game " + database_id
-                        + ". SQLException while updating streaks for " + nick + ": " + e.getMessage());
+                MatchmakingServer.getLogger().warning(
+                        "Game " + database_id + ". SQLException while updating streaks for " + nick + ": " + e.getMessage());
             }
         }
     }
@@ -479,8 +493,8 @@ public final class TimestampedGameSession {
 
         // Only count games with all human players (no AI)
         if (session.getParticipants().length != session.getPlayerInfo().length) {
-            MatchmakingServer.getLogger().info("Game " + database_id
-                    + ". Skipping Steam achievements update - game includes AI players");
+            MatchmakingServer.getLogger().info(
+                    "Game " + database_id + ". Skipping Steam achievements update - game includes AI players");
             return;
         }
 
@@ -502,15 +516,15 @@ public final class TimestampedGameSession {
                         steamId, totalWins, totalLosses, streaks[0], streaks[1]);
 
                 if (success) {
-                    MatchmakingServer.getLogger().info("Game " + database_id
-                            + ". Updated Steam achievements for " + nick);
+                    MatchmakingServer.getLogger().info(
+                            "Game " + database_id + ". Updated Steam achievements for " + nick);
                 } else {
-                    MatchmakingServer.getLogger().warning("Game " + database_id
-                            + ". Failed to update Steam achievements for " + nick);
+                    MatchmakingServer.getLogger().warning(
+                            "Game " + database_id + ". Failed to update Steam achievements for " + nick);
                 }
             } catch (SQLException e) {
-                MatchmakingServer.getLogger().warning("Game " + database_id
-                        + ". SQLException while reading stats for Steam achievements for " + nick + ": " + e.getMessage());
+                MatchmakingServer.getLogger().warning(
+                        "Game " + database_id + ". SQLException while reading stats for Steam achievements for " + nick + ": " + e.getMessage());
             }
         }
     }

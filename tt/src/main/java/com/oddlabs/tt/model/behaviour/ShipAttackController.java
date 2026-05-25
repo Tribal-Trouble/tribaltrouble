@@ -6,7 +6,6 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.model.ShipAllocation;
 import com.oddlabs.tt.model.Unit;
-import org.jspecify.annotations.NonNull;
 
 public final class ShipAttackController extends Controller {
     private static final float MIN_SCAN_DELAY = 0.1f;
@@ -37,10 +36,7 @@ public final class ShipAttackController extends Controller {
     public final void decide() {
         unit.setBehaviour(ship_attack_behaviour);
         if (shouldSleep(0f)) return;
-        redecide_time =
-                MIN_SCAN_DELAY
-                        + unit.getOwner().getWorld().getRandom().nextFloat()
-                                * (MAX_SCAN_DELAY - MIN_SCAN_DELAY);
+        redecide_time = MIN_SCAN_DELAY + unit.getOwner().getWorld().getRandom().nextFloat() * (MAX_SCAN_DELAY - MIN_SCAN_DELAY);
         if (unit.getAbilities().hasAbilities(Abilities.ATTACK)) unit.scanVicinity(scan_filter);
         Selectable s = scan_filter.removeTarget();
         if (s != null) {
@@ -49,8 +45,7 @@ public final class ShipAttackController extends Controller {
     }
 
     public String getKey() {
-        return super.getKey()
-                + unit.getAbilities().hasAbilities(Abilities.BUILD)
-                + unit.getAbilities().hasAbilities(Abilities.MAGIC);
+        return super.getKey() + unit.getAbilities().hasAbilities(Abilities.BUILD) + unit.getAbilities().hasAbilities(
+                Abilities.MAGIC);
     }
 }

@@ -1,18 +1,98 @@
-name: Gradle Build + Publish
+name: Build & Release
 
 on:
   push:
-    branches: [ "port/bondolo-clean" ]
+    branches: [ "main", "release" ]
   pull_request:
-    branches: [ "port/bondolo-clean" ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
+  format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26-ea'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Verify code is formatted
+        run: ./gradlew spotlessCheck
+
+  api-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require API_VERSION bump when wire interfaces change
+        run: |
+          LAST_API_BUMP=$(git log -1 --format=%H -G"API_VERSION =" -- common/src/main/java/com/oddlabs/util/Compatibility.java)
+          if [ -z "$LAST_API_BUMP" ]; then
+            echo "Could not locate last API_VERSION bump; skipping check"
+            exit 0
+          fi
+          echo "Last API_VERSION bump: $LAST_API_BUMP"
+
+          INTERFACE_FILES=(
+            common/src/main/java/com/oddlabs/matchmaking/MatchmakingServerInterface.java
+            common/src/main/java/com/oddlabs/matchmaking/MatchmakingClientInterface.java
+            common/src/main/java/com/oddlabs/matchmaking/MatchmakingServerLoginInterface.java
+            common/src/main/java/com/oddlabs/router/RouterInterface.java
+            common/src/main/java/com/oddlabs/router/RouterClientInterface.java
+            common/src/main/java/com/oddlabs/router/GameInterface.java
+            common/src/main/java/com/oddlabs/registration/RegClientInterface.java
+          )
+
+          failed=0
+          for f in "${INTERFACE_FILES[@]}"; do
+            if ! git diff --quiet "$LAST_API_BUMP" HEAD -- "$f"; then
+              echo "::error file=$f::Wire-protocol interface changed since last API_VERSION bump. Bump API_VERSION in common/src/main/java/com/oddlabs/util/Compatibility.java"
+              failed=1
+            fi
+          done
+
+          if [ $failed -eq 0 ]; then
+            echo "OK: no tracked interface changed since last API_VERSION bump"
+          fi
+          exit $failed
+
+  version:
+    needs: [api-guard, format-check]
+    runs-on: ubuntu-latest
+    outputs:
+      full: ${{ steps.compute.outputs.full }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: compute
+        name: Compute version string
+        run: |
+          BASE=$(grep 'version = "' build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          API=$(grep 'API_VERSION' common/src/main/java/com/oddlabs/util/Compatibility.java | sed 's/.*= \([0-9]*\);/\1/')
+          # PATCH = commits since the bump commit that introduced the current MAJOR.MINOR.
+          VERSION_PATTERN="version = .$(echo "$BASE" | sed 's/\./\\./g')."
+          ANCHOR=$(git log --format=%H -G"$VERSION_PATTERN" -- build.gradle.kts | head -1)
+          if [ -z "$ANCHOR" ]; then
+            PATCH=0
+          else
+            PATCH=$(git rev-list --count "${ANCHOR}..HEAD")
+          fi
+          echo "full=v${BASE}.${PATCH}-${API}" >> $GITHUB_OUTPUT
+          echo "Resolved version: v${BASE}.${PATCH}-${API} (base=${BASE}, patch=${PATCH}, api=${API}, anchor=${ANCHOR:-none})"
+
   build-linux:
+    needs: [version]
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # generateBuildInfo needs full history to find the bump-commit anchor
       - name: Set up JDK 26
         uses: actions/setup-java@v4
         with:
@@ -25,100 +105,23 @@ jobs:
       - name: Upload Linux AppImage
         uses: actions/upload-artifact@v4
         with:
-          name: linux-appimage
+          name: tribal-trouble-linux-appimage_${{ needs.version.outputs.full }}
           path: tt/build/dist/linux/TribalTrouble-x86_64.AppImage
       - name: Upload Linux Package
         uses: actions/upload-artifact@v4
         with:
-          name: linux-package
+          name: tribal-trouble-linux-package_${{ needs.version.outputs.full }}
           path: tt/build/dist/linux/TribalTrouble.AppDir
 
-  build-server:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 26
-        uses: actions/setup-java@v4
-        with:
-          java-version: '26-ea'
-          distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-      - name: Build Server Distribution
-        run: ./gradlew :server:installDist
-      - name: Upload server
-        uses: actions/upload-artifact@v4
-        with:
-          name: server
-          path: server/build/install/server/
-
-  build-windows:
-    runs-on: windows-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 26
-        uses: actions/setup-java@v4
-        with:
-          java-version: '26-ea'
-          distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-      - name: Build Windows Package
-        run: ./gradlew :tt:packageWindows
-      - name: Upload files
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows
-          path: tt/build/dist/windows/
-
-  build-mac-x86:
-    runs-on: macos-15-intel
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 26
-        uses: actions/setup-java@v4
-        with:
-          java-version: '26-ea'
-          distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-      - name: Build mac binaries
-        run: ./gradlew :tt:packageMacX86
-      - name: Upload files
-        uses: actions/upload-artifact@v4
-        with:
-          name: mac-x86
-          path: tt/build/dist/macosx-x86/
-
-  build-mac-arm64:
-    runs-on: macos-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 26
-        uses: actions/setup-java@v4
-        with:
-          java-version: '26-ea'
-          distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-      - name: Build mac binaries
-        run: ./gradlew :tt:packageMacArm64
-      - name: Upload files
-        uses: actions/upload-artifact@v4
-        with:
-          name: mac-arm64
-          path: tt/build/dist/macosx-arm64/
-
   build-mac-arm64-app:
-    if: github.ref == 'refs/heads/steam'
+    if: github.ref == 'refs/heads/release'
+    needs: [version]
     runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # generateBuildInfo needs full history to find the bump-commit anchor
       - name: Set up JDK 26
         uses: actions/setup-java@v4
         with:
@@ -131,15 +134,18 @@ jobs:
       - name: Upload files
         uses: actions/upload-artifact@v4
         with:
-          name: mac-arm64-app
+          name: tribal-trouble-mac-arm64-app_${{ needs.version.outputs.full }}
           path: tt/build/dist/macosx-arm64-app/
 
   build-mac-x86-app:
-    if: github.ref == 'refs/heads/steam'
+    if: github.ref == 'refs/heads/release'
+    needs: [version]
     runs-on: macos-15-intel
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # generateBuildInfo needs full history to find the bump-commit anchor
       - name: Set up JDK 26
         uses: actions/setup-java@v4
         with:
@@ -152,41 +158,134 @@ jobs:
       - name: Upload files
         uses: actions/upload-artifact@v4
         with:
-          name: mac-x86-app
+          name: tribal-trouble-mac-x86-app_${{ needs.version.outputs.full }}
           path: tt/build/dist/macosx-x86-app/
 
-  deploy-to-steam:
-    if: github.ref == 'refs/heads/steam'
-    needs: [ build-mac-arm64-app, build-mac-x86-app, build-windows, build-linux ]
+  build-server:
+    needs: [version]
     runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # generateBuildInfo needs full history to find the bump-commit anchor
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26-ea'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build Server Distribution
+        run: ./gradlew :server:installDist
+      - name: Upload server
+        uses: actions/upload-artifact@v4
+        with:
+          name: tribal-trouble-server_${{ needs.version.outputs.full }}
+          path: server/build/install/server/
+
+  build-windows:
+    needs: [version]
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # generateBuildInfo needs full history to find the bump-commit anchor
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26-ea'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build Windows Package
+        run: ./gradlew :tt:packageWindows
+      - name: Upload files
+        uses: actions/upload-artifact@v4
+        with:
+          name: tribal-trouble-windows_${{ needs.version.outputs.full }}
+          path: tt/build/dist/windows/
+
+  build-mac-x86:
+    needs: [version]
+    runs-on: macos-15-intel
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # generateBuildInfo needs full history to find the bump-commit anchor
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26-ea'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build mac binaries
+        run: ./gradlew :tt:packageMacX86
+      - name: Upload files
+        uses: actions/upload-artifact@v4
+        with:
+          name: tribal-trouble-mac-x86_${{ needs.version.outputs.full }}
+          path: tt/build/dist/macosx-x86/
+
+  build-mac-arm64:
+    needs: [version]
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # generateBuildInfo needs full history to find the bump-commit anchor
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26-ea'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build mac binaries
+        run: ./gradlew :tt:packageMacArm64
+      - name: Upload files
+        uses: actions/upload-artifact@v4
+        with:
+          name: tribal-trouble-mac-arm64_${{ needs.version.outputs.full }}
+          path: tt/build/dist/macosx-arm64/
+
+  steam-prerelease:
+    if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [ version, build-mac-arm64-app, build-mac-x86-app, build-windows, build-linux ]
+    runs-on: ubuntu-latest
+    environment: release
     steps:
       - name: Download Windows Artifact
         uses: actions/download-artifact@v4
         with:
-          name: windows
+          name: tribal-trouble-windows_${{ needs.version.outputs.full }}
           path: tt/build/dist/windows/
       - name: Download Mac x86 Artifact
         uses: actions/download-artifact@v4
         with:
-          name: mac-x86-app
+          name: tribal-trouble-mac-x86-app_${{ needs.version.outputs.full }}
           path: tt/build/dist/macosx-x86-app/
       - name: Download Mac arm64 Artifact
         uses: actions/download-artifact@v4
         with:
-          name: mac-arm64-app
+          name: tribal-trouble-mac-arm64-app_${{ needs.version.outputs.full }}
           path: tt/build/dist/macosx-arm64-app/
       - name: Download Linux Artifact
         uses: actions/download-artifact@v4
         with:
-          name: linux-package
+          name: tribal-trouble-linux-package_${{ needs.version.outputs.full }}
           path: tt/build/dist/linux/
-      - name: Upload to steam
-        uses: game-ci/steam-deploy@v3
+      - name: Upload to steam (main game)
+        uses: game-ci/steam-deploy@8bd9baca6407f9abd210bd1eef3c45f56e12d8d9  # v3
         with:
           username: ${{ vars.STEAM_USER }}
           configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
           appId: ${{ vars.STEAM_APP_ID }}
-          buildDescription: v1.2.3-${{ github.run_number }}
+          buildDescription: ${{ needs.version.outputs.full }}.${{ github.run_number }}
           firstDepotIdOverride: 3945722
           rootPath: tt/build/dist/
           depot1Path: windows
@@ -194,3 +293,219 @@ jobs:
           depot3Path: macosx-x86-app
           depot4Path: linux
           releaseBranch: prerelease
+      - name: Reset BuildOutput between Steam uploads
+        run: sudo rm -rf BuildOutput
+      - name: Upload to steam (demo)
+        uses: game-ci/steam-deploy@8bd9baca6407f9abd210bd1eef3c45f56e12d8d9  # v3
+        with:
+          username: ${{ vars.STEAM_USER }}
+          configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
+          appId: ${{ vars.STEAM_DEMO_APP_ID }}
+          buildDescription: ${{ needs.version.outputs.full }}.${{ github.run_number }}
+          rootPath: tt/build/dist/
+          depot1Path: windows
+          depot2Path: macosx-arm64-app
+          depot3Path: macosx-x86-app
+          depot4Path: linux
+          releaseBranch: prerelease
+
+  itch-prerelease:
+    if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [ version, build-windows, build-linux, build-mac-arm64, build-mac-x86 ]
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-windows_${{ needs.version.outputs.full }}
+          path: dist/windows/
+      - name: Download Linux AppImage
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-linux-appimage_${{ needs.version.outputs.full }}
+          path: dist/linux/
+      - name: Download Mac arm64 DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-mac-arm64_${{ needs.version.outputs.full }}
+          path: dist/mac-arm64/
+      - name: Download Mac x86 DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-mac-x86_${{ needs.version.outputs.full }}
+          path: dist/mac-x86/
+      - name: Rename artifacts to match GitHub Release naming
+        run: |
+          VERSION="${{ needs.version.outputs.full }}"
+          # Single-file artifacts: rename in place (itch shows the filename verbatim)
+          mv dist/linux/TribalTrouble-x86_64.AppImage \
+             "dist/linux/tribal-trouble-linux-appimage_${VERSION}.AppImage"
+          mv dist/mac-arm64/TribalTrouble-*.dmg \
+             "dist/mac-arm64/tribal-trouble-mac-arm64_${VERSION}.dmg"
+          mv dist/mac-x86/TribalTrouble-*.dmg \
+             "dist/mac-x86/tribal-trouble-mac-x86_${VERSION}.dmg"
+          # Windows is a directory (jpackage app-image); zip it with the desired name.
+          # itch app auto-extracts zip uploads on install, so end-user UX is unchanged.
+          (cd dist/windows && zip -qr "../tribal-trouble-windows_${VERSION}.zip" .)
+      - name: Install butler
+        run: |
+          curl -L -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip -q butler.zip
+          chmod +x butler
+          ./butler -V
+      - name: Push to itch.io prerelease channels
+        env:
+          BUTLER_API_KEY: ${{ secrets.ITCH_BUTLER_API_KEY }}
+        run: |
+          VERSION="${{ needs.version.outputs.full }}"
+          PROJECT="${{ vars.ITCH_PROJECT }}"
+          ./butler push "dist/tribal-trouble-windows_${VERSION}.zip"                   "$PROJECT:windows-prerelease"   --userversion "$VERSION"
+          ./butler push "dist/linux/tribal-trouble-linux-appimage_${VERSION}.AppImage" "$PROJECT:linux-prerelease"     --userversion "$VERSION"
+          ./butler push "dist/mac-arm64/tribal-trouble-mac-arm64_${VERSION}.dmg"       "$PROJECT:osx-arm64-prerelease" --userversion "$VERSION"
+          ./butler push "dist/mac-x86/tribal-trouble-mac-x86_${VERSION}.dmg"           "$PROJECT:osx-x86-prerelease"   --userversion "$VERSION"
+
+  github-prerelease:
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/release') || github.event_name == 'workflow_dispatch'
+    needs: [ version, build-linux, build-server, build-windows, build-mac-x86, build-mac-arm64 ]
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if tag already exists
+        id: check
+        run: |
+          TAG="${{ needs.version.outputs.full }}"
+          if git rev-parse --verify "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag $TAG already exists; skipping release (bump version in build.gradle.kts to release again)"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Tag $TAG does not exist, proceeding with release"
+          fi
+
+      - name: Download all artifacts
+        if: steps.check.outputs.exists == 'false'
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
+
+      - name: Package artifacts for release
+        if: steps.check.outputs.exists == 'false'
+        working-directory: dist
+        run: |
+          # Skip artifacts that aren't useful for direct download
+          # (-app variants are Steam-only depot contents; linux-package is the AppDir, redundant with the AppImage)
+          for d in */; do
+            name="${d%/}"
+            if [[ "$name" == *"-app_"* ]] || [[ "$name" == *"linux-package"* ]]; then
+              rm -rf "$d"
+              continue
+            fi
+            files=("$d"*)
+            if [ ${#files[@]} -eq 1 ] && [ -f "${files[0]}" ]; then
+              # Single-file artifact (AppImage, DMG); keep extension, prefix with artifact name
+              src="${files[0]}"
+              filename="$(basename "$src")"
+              if [[ "$filename" == *.* ]]; then
+                ext="${filename##*.}"
+                mv "$src" "${name}.${ext}"
+              else
+                mv "$src" "$name"
+              fi
+              rm -rf "$d"
+            else
+              # Directory artifact (Windows, server); zip the contents
+              (cd "$d" && zip -r "../${name}.zip" .)
+              rm -rf "$d"
+            fi
+          done
+          ls -lh
+
+      - name: Tag commit and create GitHub Release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ needs.version.outputs.full }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --generate-notes \
+            --target "${{ github.ref_name }}" \
+            --prerelease \
+            dist/*
+
+  website-prerelease:
+    if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [ version, build-windows, build-linux, build-mac-arm64, build-mac-x86 ]
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-windows_${{ needs.version.outputs.full }}
+          path: artifacts/windows/
+      - name: Download Linux AppImage
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-linux-appimage_${{ needs.version.outputs.full }}
+          path: artifacts/linux/
+      - name: Download Mac arm64 DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-mac-arm64_${{ needs.version.outputs.full }}
+          path: artifacts/mac-arm64/
+      - name: Download Mac x86 DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-mac-x86_${{ needs.version.outputs.full }}
+          path: artifacts/mac-x86/
+
+      - name: Stage with stable filenames matching Omar's pattern
+        run: |
+          mkdir staging
+          # Windows artifact is a jpackage app-image directory; zip it.
+          (cd artifacts/windows && zip -qr ../../staging/windows.zip .)
+          # Linux/Mac artifacts are bare files; wrap in zips matching Omar's existing layout.
+          (cd artifacts/linux     && zip -qj ../../staging/linux.zip     TribalTrouble-x86_64.AppImage)
+          (cd artifacts/mac-arm64 && zip -qj ../../staging/mac-arm64.zip TribalTrouble-*.dmg)
+          (cd artifacts/mac-x86   && zip -qj ../../staging/mac-x86.zip   TribalTrouble-*.dmg)
+          ls -lh staging/
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY_PROD }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ vars.DEPLOY_HOST_PROD }}" >> ~/.ssh/known_hosts
+
+      - name: Ensure prerelease dir exists on prod
+        run: |
+          ssh "${{ vars.DEPLOY_USER_PROD }}@${{ vars.DEPLOY_HOST_PROD }}" \
+            'mkdir -p /var/www/html/prerelease'
+
+      - name: Upload to website prerelease subdir (atomic)
+        run: |
+          rsync --delay-updates -v \
+            staging/windows.zip staging/linux.zip staging/mac-arm64.zip staging/mac-x86.zip \
+            "${{ vars.DEPLOY_USER_PROD }}@${{ vars.DEPLOY_HOST_PROD }}:/var/www/html/prerelease/"
+
+      - name: Summary
+        run: |
+          echo "## Deployed ${{ needs.version.outputs.full }} to tribaltrouble.org/prerelease/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- https://tribaltrouble.org/prerelease/windows.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- https://tribaltrouble.org/prerelease/linux.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- https://tribaltrouble.org/prerelease/mac-arm64.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- https://tribaltrouble.org/prerelease/mac-x86.zip" >> $GITHUB_STEP_SUMMARY

@@ -67,8 +67,7 @@ public final class ShortCompressedFloatArray implements Serializable {
     @Override
     public @NonNull String toString() {
         float[] array = getFloatArray();
-        return IntStream.range(0, array.length)
-                .mapToObj(i -> Float.toString(array[i]))
-                .collect(Collectors.joining(", "));
+        return IntStream.range(0, array.length).mapToObj(i -> Float.toString(array[i])).collect(Collectors.joining(
+                ", "));
     }
 }

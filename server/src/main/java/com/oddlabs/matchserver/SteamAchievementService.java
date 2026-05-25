@@ -11,12 +11,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** Service for updating player stats and achievements via Steam Web API. */
+/**
+ * Service for updating player stats and achievements via Steam Web API.
+ */
 public final class SteamAchievementService {
     private static final Logger logger = MatchmakingServer.getLogger();
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String STEAM_API_URL =
-            "https://partner.steam-api.com/ISteamUserStats/SetUserStatsForGame/v1/";
+    private static final String STEAM_API_URL = "https://partner.steam-api.com/ISteamUserStats/SetUserStatsForGame/v1/";
 
     private SteamAchievementService() {
     }
@@ -24,20 +25,20 @@ public final class SteamAchievementService {
     /**
      * Updates player stats on Steam which will trigger achievement unlocks.
      *
-     * @param steamId The player's Steam ID (64-bit)
-     * @param totalWins Total multiplayer wins
-     * @param totalLosses Total multiplayer losses
+     * @param steamId       The player's Steam ID (64-bit)
+     * @param totalWins     Total multiplayer wins
+     * @param totalLosses   Total multiplayer losses
      * @param currentStreak Current win streak
-     * @param bestStreak Best win streak ever achieved
+     * @param bestStreak    Best win streak ever achieved
      * @return true if the update was successful, false otherwise
      */
     public static boolean updatePlayerStats(
             long steamId, int totalWins, int totalLosses, int currentStreak, int bestStreak) {
         ServerConfiguration config = ServerConfiguration.getInstance();
         String apiKey = config.get(ServerConfiguration.STEAM_WEB_API_KEY);
-        String appId = config.get(ServerConfiguration.STEAM_APP_ID);
+        int appId = config.getMainSteamAppId();
 
-        if (apiKey == null || apiKey.isEmpty() || appId == null || appId.isEmpty()) {
+        if (apiKey == null || apiKey.isEmpty() || appId == -1) {
             logger.warning("Steam Web API key or App ID not configured");
             return false;
         }
@@ -47,19 +48,23 @@ public final class SteamAchievementService {
             StringBuilder postData = new StringBuilder();
             postData.append("key=").append(URLEncoder.encode(apiKey, StandardCharsets.UTF_8));
             postData.append("&steamid=").append(steamId);
-            postData.append("&appid=").append(URLEncoder.encode(appId, StandardCharsets.UTF_8));
+            postData.append("&appid=").append(appId);
             postData.append("&count=4");
 
-            postData.append("&name[0]=").append(URLEncoder.encode(SteamStatConstants.MP_TOTAL_WINS, StandardCharsets.UTF_8));
+            postData.append("&name[0]=").append(URLEncoder.encode(SteamStatConstants.MP_TOTAL_WINS,
+                    StandardCharsets.UTF_8));
             postData.append("&value[0]=").append(totalWins);
 
-            postData.append("&name[1]=").append(URLEncoder.encode(SteamStatConstants.MP_TOTAL_LOSSES, StandardCharsets.UTF_8));
+            postData.append("&name[1]=").append(URLEncoder.encode(SteamStatConstants.MP_TOTAL_LOSSES,
+                    StandardCharsets.UTF_8));
             postData.append("&value[1]=").append(totalLosses);
 
-            postData.append("&name[2]=").append(URLEncoder.encode(SteamStatConstants.MP_CURRENT_WIN_STREAK, StandardCharsets.UTF_8));
+            postData.append("&name[2]=").append(URLEncoder.encode(SteamStatConstants.MP_CURRENT_WIN_STREAK,
+                    StandardCharsets.UTF_8));
             postData.append("&value[2]=").append(currentStreak);
 
-            postData.append("&name[3]=").append(URLEncoder.encode(SteamStatConstants.MP_BEST_WIN_STREAK, StandardCharsets.UTF_8));
+            postData.append("&name[3]=").append(URLEncoder.encode(SteamStatConstants.MP_BEST_WIN_STREAK,
+                    StandardCharsets.UTF_8));
             postData.append("&value[3]=").append(bestStreak);
 
             byte[] postDataBytes = postData.toString().getBytes(StandardCharsets.UTF_8);

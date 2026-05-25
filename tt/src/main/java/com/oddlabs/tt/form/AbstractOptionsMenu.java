@@ -21,7 +21,7 @@ public abstract class AbstractOptionsMenu extends Form {
     private static final int BUTTON_WIDTH = 100;
     public static final ResourceBundle bundle = ResourceBundle.getBundle(OptionsMenu.class.getName());
 
-    static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 

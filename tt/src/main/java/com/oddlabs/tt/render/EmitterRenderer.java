@@ -65,13 +65,14 @@ public final class EmitterRenderer implements AutoCloseable {
         vao.unbind();
     }
 
-    public void render(@NonNull RenderContext context, @NonNull RenderQueues render_queues, @NonNull Queue<? extends Emitter<?>> emitters, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public void render(@NonNull RenderContext context, @NonNull RenderQueues render_queues,
+            @NonNull Queue<? extends Emitter<?>> emitters, @NonNull CameraState state,
+            @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         if (emitters.isEmpty()) return;
 
         vao.bind();
-        try (var _ = shader.use();
-             var _ = context.withBlendMode(BlendMode.ALPHA);
-             var _ = context.withDepthMode(DepthMode.READ_ONLY)) {
+        try (var _ = shader.use(); var _ = context.withBlendMode(BlendMode.ALPHA); var _ = context.withDepthMode(
+                DepthMode.READ_ONLY)) {
 
             shader.setUniformMatrix4(ParticleShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
 
@@ -96,15 +97,18 @@ public final class EmitterRenderer implements AutoCloseable {
 
     private <P extends Particle> void renderParticle(@NonNull P particle, @NonNull Emitter<P> emitter) {
         particle_buffer.put(particle.getPosX()).put(particle.getPosY()).put(particle.getPosZ()); // Center Position
-        particle_buffer.put(particle.getRadiusX() * emitter.getScaleX()).put(particle.getRadiusY() * emitter.getScaleY()).put(particle.getRadiusZ() * emitter.getScaleZ()); // Size (3D)
-        particle_buffer.put(particle.getColorR()).put(particle.getColorG()).put(particle.getColorB()).put(Math.min(particle.getColorA(), 1.0f)); // Color
+        particle_buffer.put(particle.getRadiusX() * emitter.getScaleX()).put(
+                particle.getRadiusY() * emitter.getScaleY()).put(particle.getRadiusZ() * emitter.getScaleZ()); // Size (3D)
+        particle_buffer.put(particle.getColorR()).put(particle.getColorG()).put(particle.getColorB()).put(Math.min(
+                particle.getColorA(), 1.0f)); // Color
         // UV Info 1: u1, v1, u2, v2
         particle_buffer.put(particle.getU1()).put(particle.getV1()).put(particle.getU2()).put(particle.getV2());
         // UV Info 2: u3, v3, u4, v4
         particle_buffer.put(particle.getU3()).put(particle.getV3()).put(particle.getU4()).put(particle.getV4());
     }
 
-    private <P extends Particle> void collectParticles(@NonNull RenderQueues render_queues, @NonNull Emitter<P> emitter, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    private <P extends Particle> void collectParticles(@NonNull RenderQueues render_queues, @NonNull Emitter<P> emitter,
+            @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         TextureKey[] textures = emitter.getTextures();
         List<@NonNull P>[] particles = emitter.getParticles();
         SpriteKey[] sprite_renderers = emitter.getSpriteRenderers();
@@ -120,7 +124,8 @@ public final class EmitterRenderer implements AutoCloseable {
             for (int j = 0; j < particles.length; j++) {
                 SpriteRenderer renderer = render_queues.getRenderer(sprite_renderers[j]);
                 for (Particle particle : particles[j]) {
-                    renderer.addToRenderList(PolyDetail.LOW_POLY, new ParticleModelState(particle, state.getModelView()), false);
+                    renderer.addToRenderList(PolyDetail.LOW_POLY, new ParticleModelState(particle,
+                            state.getModelView()), false);
                 }
             }
         }
@@ -144,7 +149,8 @@ public final class EmitterRenderer implements AutoCloseable {
         }
     }
 
-    private <P extends Particle> int processBatch(@NonNull BatchEntry<P> batch, int floatsPerParticle, int particleCount) {
+    private <P extends Particle> int processBatch(@NonNull BatchEntry<P> batch, int floatsPerParticle,
+            int particleCount) {
         var particles = batch.particles();
         var emitter = batch.emitter();
 

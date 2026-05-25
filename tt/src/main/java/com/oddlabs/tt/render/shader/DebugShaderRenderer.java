@@ -20,7 +20,8 @@ public final class DebugShaderRenderer extends ShaderRenderer {
      *
      * @param shader The shader program to use for rendering.
      */
-    public DebugShaderRenderer(@NonNull ShaderProgram shader, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public DebugShaderRenderer(@NonNull ShaderProgram shader, @NonNull MatrixStack modelViewStack,
+            @NonNull MatrixStack projectionStack) {
         super(shader, modelViewStack, projectionStack);
     }
 
@@ -69,8 +70,7 @@ public final class DebugShaderRenderer extends ShaderRenderer {
     public void end() {
         RenderContext context = Renderer.getRenderer().getRenderContext();
 
-        try (var _ = context.withDepthMode(DepthMode.NONE);
-             var _ = context.withBlendMode(BlendMode.ALPHA)) {
+        try (var _ = context.withDepthMode(DepthMode.NONE); var _ = context.withBlendMode(BlendMode.ALPHA)) {
 
             GL11.glDepthMask(false);
             try {
@@ -81,7 +81,8 @@ public final class DebugShaderRenderer extends ShaderRenderer {
         }
     }
 
-    public void drawAxes(float center, float z, float @NonNull [] xAxisColor, float @NonNull [] yAxisColor, float @NonNull [] zAxisColor) {
+    public void drawAxes(float center, float z, float @NonNull [] xAxisColor, float @NonNull [] yAxisColor,
+            float @NonNull [] zAxisColor) {
         begin(GL11.GL_LINES);
         try {
             // X axis - red

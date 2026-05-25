@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 public final class VikingIsland9 extends Island {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland9.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -39,11 +39,10 @@ public final class VikingIsland9 extends Island {
 
     @Override
     public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-        String[] ai_names = IntStream.range(0, 6)
-                .mapToObj(i -> i18n("name" + i))
-                .toArray(String[]::new);
+        String[] ai_names = IntStream.range(0, 6).mapToObj(i -> i18n("name" + i)).toArray(String[]::new);
         // gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
-        GameNetwork game_network = startNewGame(network, gui_root, 256, Landscape.TerrainType.NATIVE, 1f, .85f, .85f, 777777777, 9, VikingCampaign.MAX_UNITS, ai_names);
+        GameNetwork game_network = startNewGame(network, gui_root, 256, Landscape.TerrainType.NATIVE, 1f, .85f, .85f,
+                777777777, 9, VikingCampaign.MAX_UNITS, ai_names);
         game_network.getClient().getServerInterface().setPlayerSlot(0,
                 PlayerSlot.HUMAN,
                 RacesResources.RACE_VIKINGS,
@@ -90,7 +89,8 @@ public final class VikingIsland9 extends Island {
         new GameStartedTrigger(getViewer().getWorld(), runnable);
 
         // Insert native chieftain
-        chief_tribe.setActiveChieftain(new Unit(chief_tribe, 56 * 2, 110 * 2, null, chief_tribe.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN)));
+        chief_tribe.setActiveChieftain(new Unit(chief_tribe, 56 * 2, 110 * 2, null,
+                chief_tribe.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN)));
 
         // Defeat if netrauls eleminated
         runnable = () -> getCampaign().defeated(getViewer(), i18n("game_over"));

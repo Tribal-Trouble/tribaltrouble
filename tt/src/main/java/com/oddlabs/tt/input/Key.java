@@ -110,8 +110,8 @@ public enum Key {
 
     private final int glfwCode;
 
-    private static final Map<Integer, Key> from_glfw_map =
-            Arrays.stream(values()).collect(Collectors.toMap(Key::getGlfwCode, Function.identity()));
+    private static final Map<Integer, Key> from_glfw_map = Arrays.stream(values()).collect(Collectors.toMap(
+            Key::getGlfwCode, Function.identity()));
 
     Key(int glfwCode) {
         this.glfwCode = glfwCode;

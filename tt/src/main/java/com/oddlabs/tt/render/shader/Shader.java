@@ -60,4 +60,3 @@ public interface Shader {
 
     void setUniformMatrix4(@NonNull String name, boolean transpose, @NonNull FloatBuffer matrix);
 }
-

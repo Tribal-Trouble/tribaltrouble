@@ -18,8 +18,7 @@ public final class ChatRoom {
 
     public ChatRoom(String name) {
         this.name = name;
-        DiscordBotService.getInstance().getChatroomCoordinator()
-                .ifPresent(x -> x.addChatroom(this));
+        DiscordBotService.getInstance().getChatroomCoordinator().ifPresent(x -> x.addChatroom(this));
     }
 
     public static Map<String, ChatRoom> getChatRooms() {
@@ -101,8 +100,7 @@ public final class ChatRoom {
         if (users.contains(client)) {
             users.remove(client);
             if (users.size() == 0) {
-                DiscordBotService.getInstance().getChatroomCoordinator()
-                        .ifPresent(x -> x.removeChatroom(this));
+                DiscordBotService.getInstance().getChatroomCoordinator().ifPresent(x -> x.removeChatroom(this));
                 chat_rooms.remove(getName());
             } else {
                 sendUsers();

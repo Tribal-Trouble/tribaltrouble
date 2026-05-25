@@ -58,7 +58,9 @@ public final class ErosionHydraulic {
     }
 
     private static void transport() {
-        float h, h1, h2, h3, h4, h5, h6, h7, h8, d1, d2, d3, d4, d5, d6, d7, d8, total_height, total_height_d, min_d, avr_height, water_amount, h_new, sum_d, factor, water_transport, sediment_amount, sediment_per_height, sediment_transport;
+        float h, h1, h2, h3, h4, h5, h6, h7, h8, d1, d2, d3, d4, d5, d6, d7, d8, total_height, total_height_d, min_d,
+                avr_height, water_amount, h_new, sum_d, factor, water_transport, sediment_amount, sediment_per_height,
+                sediment_transport;
         int cells;
         for (int y = 1; y < height.height - 1; y++) {
             for (int x = 1; x < height.width - 1; x++) {

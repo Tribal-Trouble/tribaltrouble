@@ -20,7 +20,7 @@ import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 public final class WelcomeForm extends Form {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(WelcomeForm.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 

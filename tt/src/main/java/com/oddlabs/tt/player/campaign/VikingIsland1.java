@@ -31,16 +31,15 @@ public final class VikingIsland1 extends Island {
         super(campaign);
     }
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
     @Override
     public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-        String[] ai_names = IntStream.range(0, 6)
-                .mapToObj(i -> i18n("name" + i))
-                .toArray(String[]::new);
-        GameNetwork game_network = startNewGame(network, gui_root, 256, Landscape.TerrainType.NATIVE, .75f, 1f, .5f, 97455, 1, VikingCampaign.MAX_UNITS, ai_names);
+        String[] ai_names = IntStream.range(0, 6).mapToObj(i -> i18n("name" + i)).toArray(String[]::new);
+        GameNetwork game_network = startNewGame(network, gui_root, 256, Landscape.TerrainType.NATIVE, .75f, 1f, .5f,
+                97455, 1, VikingCampaign.MAX_UNITS, ai_names);
         game_network.getClient().getServerInterface().setPlayerSlot(0,
                 PlayerSlot.HUMAN,
                 RacesResources.RACE_VIKINGS,
@@ -95,7 +94,8 @@ public final class VikingIsland1 extends Island {
                         // Winner prize
                         getCampaign().getState().setIslandState(1, CampaignState.ISLAND_COMPLETED);
                         getCampaign().getState().setIslandState(2, CampaignState.ISLAND_AVAILABLE);
-                        getCampaign().getState().setNumPeons(getCampaign().getState().getNumPeons() + captives.getUnitCountContainer().getNumSupplies());
+                        getCampaign().getState().setNumPeons(
+                                getCampaign().getState().getNumPeons() + captives.getUnitCountContainer().getNumSupplies());
                         getCampaign().victory(getViewer());
                     });
             addModalForm(dialog);

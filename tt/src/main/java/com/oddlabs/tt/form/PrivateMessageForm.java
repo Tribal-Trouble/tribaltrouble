@@ -1,6 +1,5 @@
 package com.oddlabs.tt.form;
 
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.tt.gui.ButtonObject;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.EditLine;
@@ -27,7 +26,7 @@ public final class PrivateMessageForm extends Form {
     private static final int EDITLINE_WIDTH = 240;
     private static final ResourceBundle bundle = ResourceBundle.getBundle(PrivateMessageForm.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -42,7 +41,7 @@ public final class PrivateMessageForm extends Form {
         Label label_headline = new Label(i18n("private_message_caption"), Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
 
-        Label label_name = new Label(i18n("to", NickUtils.toDisplayName(nick)), Skin.getSkin().getEditFont());
+        Label label_name = new Label(i18n("to", nick), Skin.getSkin().getEditFont());
         editline_name = new EditLine(EDITLINE_WIDTH, 256);
         editline_name.addEnterListener(_ -> send());
 

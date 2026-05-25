@@ -17,13 +17,12 @@ import javax.sql.DataSource;
 public final class DBUtils {
     private static DataSource ds;
 
-    public static final void initConnection(String address, String user, String password)
-            throws ClassNotFoundException {
+    public static final void initConnection(String address, String user,
+            String password) throws ClassNotFoundException {
         Class.forName("com.mysql.cj.jdbc.Driver");
         GenericObjectPool connectionPool = new GenericObjectPool(null);
         connectionPool.setMaxActive(100);
-        ConnectionFactory connectionFactory =
-                new DriverManagerConnectionFactory(address, user, password);
+        ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(address, user, password);
         KeyedObjectPoolFactory keyed_factory = new StackKeyedObjectPoolFactory();
         new PoolableConnectionFactory(
                 connectionFactory, connectionPool, keyed_factory, null, false, true);
@@ -39,9 +38,8 @@ public final class DBUtils {
     }
 
     public static void postHermesMessage(String message) throws SQLException {
-        try (Connection conn = createDatabaseConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT INTO messages (time, message) VALUES (NOW(), ?)")) {
+        try (Connection conn = createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO messages (time, message) VALUES (NOW(), ?)")) {
             stmt.setString(1, message);
             int row_count = stmt.executeUpdate();
             assert row_count == 1;

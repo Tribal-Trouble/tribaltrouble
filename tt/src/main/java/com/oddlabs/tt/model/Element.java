@@ -50,7 +50,7 @@ public abstract class Element<T extends Element<T>> extends BoundingBox implemen
         node_parent.removeElement(self());
         node_parent = null;
     }
- 
+
     public final Element getReference() {
         return reference;
     }

@@ -12,7 +12,8 @@ public class ChieftainButton extends NonFocusIconButton implements ToolTip {
     private final @NonNull PlayerInterface player_interface;
     private @Nullable Building current_building;
 
-    public ChieftainButton(@NonNull WorldViewer viewer, @NonNull PlayerInterface player_interface, @NonNull ModeIconQuads icon, @NonNull String tool_tip) {
+    public ChieftainButton(@NonNull WorldViewer viewer, @NonNull PlayerInterface player_interface,
+            @NonNull ModeIconQuads icon, @NonNull String tool_tip) {
         super(icon, tool_tip);
         this.player_interface = player_interface;
         setCanFocus(true);

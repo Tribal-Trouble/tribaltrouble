@@ -20,7 +20,8 @@ public final class Vertical {
         width = bottom.quad(ModeIconQuads.Mode.NORMAL).getWidth();
     }
 
-    public void render(@NonNull GUIRenderer renderer, float x, float y, int height, ModeIconQuads.@NonNull Mode skinMode) {
+    public void render(@NonNull GUIRenderer renderer, float x, float y, int height,
+            ModeIconQuads.@NonNull Mode skinMode) {
         int center_height = height - bottom_height - top_height;
 
         renderer.drawModeIcon(bottom, skinMode, x, y);

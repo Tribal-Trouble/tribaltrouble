@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 public final class VikingIsland6 extends Island {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland6.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -34,11 +34,10 @@ public final class VikingIsland6 extends Island {
 
     @Override
     public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-        String[] ai_names = IntStream.range(0, 6)
-                .mapToObj(i -> i18n("name" + i))
-                .toArray(String[]::new);
+        String[] ai_names = IntStream.range(0, 6).mapToObj(i -> i18n("name" + i)).toArray(String[]::new);
         // gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
-        GameNetwork game_network = startNewGame(network, gui_root, 256, Landscape.TerrainType.NATIVE, .75f, 1f, .5f, 13462, 6, VikingCampaign.MAX_UNITS, ai_names);
+        GameNetwork game_network = startNewGame(network, gui_root, 256, Landscape.TerrainType.NATIVE, .75f, 1f, .5f,
+                13462, 6, VikingCampaign.MAX_UNITS, ai_names);
         game_network.getClient().getServerInterface().setPlayerSlot(0,
                 PlayerSlot.HUMAN,
                 RacesResources.RACE_VIKINGS,
@@ -115,7 +114,8 @@ public final class VikingIsland6 extends Island {
             getCampaign().getState().setIslandState(6, CampaignState.ISLAND_COMPLETED);
             getCampaign().getState().setIslandState(5, CampaignState.ISLAND_AVAILABLE);
             getCampaign().getState().setIslandState(7, CampaignState.ISLAND_AVAILABLE);
-            getCampaign().getState().setNumPeons(getCampaign().getState().getNumPeons() + stranded.getUnitCountContainer().getNumSupplies());
+            getCampaign().getState().setNumPeons(
+                    getCampaign().getState().getNumPeons() + stranded.getUnitCountContainer().getNumSupplies());
             getCampaign().victory(getViewer());
         };
         runnable = () -> {

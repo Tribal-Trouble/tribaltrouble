@@ -1,4 +1,5 @@
 package com.oddlabs.tt.landscape;
+
 import java.nio.IntBuffer;
 
 import org.jspecify.annotations.NonNull;
@@ -14,7 +15,9 @@ import com.oddlabs.tt.resource.BlendInfo;
 import com.oddlabs.tt.resource.BlendLighting;
 import com.oddlabs.tt.resource.StructureBlend;
 import com.oddlabs.tt.resource.WorldInfo;
+
 import static com.oddlabs.tt.util.GLUtils.checkGLError;
+
 import com.oddlabs.tt.vbo.QuadVBO;
 
 
@@ -41,21 +44,21 @@ public final class LandscapeBaker {
             uniform int u_Mode; // 0 = Blend, 1 = Light
             uniform float u_TextureScale;
             uniform vec3 u_Color;
-            
+
             in vec2 v_texCoord;
-            
+
             layout(location = 0) out vec4 out_Diffuse;
             layout(location = 1) out vec4 out_Normal;
-            
+
             void main() {
                 vec4 baseDiff = texture(u_BaseDiffuse, v_texCoord);
                 vec4 baseNorm = texture(u_BaseNormal, v_texCoord);
                 float alpha = texture(u_AlphaMap, v_texCoord).r;
-            
+
                 if (u_Mode == 0) { // Structure Blend
                     vec4 layerDiff = texture(u_LayerDiffuse, v_texCoord * u_TextureScale);
                     vec4 layerNorm = texture(u_LayerNormal, v_texCoord * u_TextureScale);
-            
+
                     out_Diffuse = mix(baseDiff, layerDiff, alpha);
                     out_Normal = mix(baseNorm, layerNorm, alpha);
                 } else { // Lighting Blend
@@ -80,9 +83,11 @@ public final class LandscapeBaker {
         Texture[] normal = new Texture[2];
 
         for (int i = 0; i < 2; i++) {
-            diffuse[i] = new Texture(colormapSize, colormapSize, GL11.GL_RGBA8, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT);
+            diffuse[i] = new Texture(colormapSize, colormapSize, GL11.GL_RGBA8, GL11.GL_LINEAR, GL11.GL_LINEAR,
+                    GL11.GL_REPEAT);
             checkGLError("After diffuse texture " + i);
-            normal[i] = new Texture(colormapSize, colormapSize, GL11.GL_RGBA8, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT);
+            normal[i] = new Texture(colormapSize, colormapSize, GL11.GL_RGBA8, GL11.GL_LINEAR, GL11.GL_LINEAR,
+                    GL11.GL_REPEAT);
             checkGLError("After normal texture " + i);
         }
 
@@ -91,9 +96,8 @@ public final class LandscapeBaker {
             IntBuffer viewport = stack.mallocInt(4);
             GL11.glGetIntegerv(GL11.GL_VIEWPORT, viewport);
 
-            try (FBO fbo = new FBO(colormapSize, colormapSize);
-                 BlendShader shader = new BlendShader();
-                 QuadVBO quad = new QuadVBO()) {
+            try (FBO fbo = new FBO(colormapSize,
+                    colormapSize); BlendShader shader = new BlendShader(); QuadVBO quad = new QuadVBO()) {
 
                 checkGLError("After resource creation");
 
@@ -124,7 +128,7 @@ public final class LandscapeBaker {
                         checkGLError("After FBO setup " + i);
 
                         // We don't clear here because we are blending on top of previous result
-                        // GL11.glClear(GL11.GL_COLOR_BUFFER_BIT); 
+                        // GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
                         GL13.glActiveTexture(GL13.GL_TEXTURE0);
                         GL11.glBindTexture(GL11.GL_TEXTURE_2D, diffuse[src].getHandle());

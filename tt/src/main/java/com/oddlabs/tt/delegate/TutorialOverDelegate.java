@@ -25,7 +25,7 @@ public final class TutorialOverDelegate extends CameraDelegate<StaticCamera> imp
     private static final float DELAY = 1f;
     private static final ResourceBundle bundle = ResourceBundle.getBundle(TutorialOverDelegate.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -34,7 +34,8 @@ public final class TutorialOverDelegate extends CameraDelegate<StaticCamera> imp
     private final @NonNull TutorialInGameInfo tutorial_info;
     private final @NonNull WorldViewer viewer;
 
-    public TutorialOverDelegate(final @NonNull WorldViewer viewer, @NonNull TutorialInGameInfo tutorial_info, @NonNull Camera old_camera, int tutorial_number) {
+    public TutorialOverDelegate(final @NonNull WorldViewer viewer, @NonNull TutorialInGameInfo tutorial_info,
+            @NonNull Camera old_camera, int tutorial_number) {
         super(viewer.getGUIRoot(), new StaticCamera(old_camera.getState()));
         this.viewer = viewer;
         this.tutorial_info = tutorial_info;
@@ -67,7 +68,8 @@ public final class TutorialOverDelegate extends CameraDelegate<StaticCamera> imp
         if (tutorial_number < TutorialForm.NUM_TUTORIALS)
             button_next.place(button_restart, LEFT_MID);
         group_buttons.compileCanvas();
-        group_buttons.setPos((getWidth() - group_buttons.getWidth()) / 2, (getHeight() - group_buttons.getHeight()) * 1 / 3);
+        group_buttons.setPos((getWidth() - group_buttons.getWidth()) / 2,
+                (getHeight() - group_buttons.getHeight()) * 1 / 3);
 
         delay_timer.start();
     }

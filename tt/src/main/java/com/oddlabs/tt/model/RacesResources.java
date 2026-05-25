@@ -51,7 +51,8 @@ public final class RacesResources {
     public static final int ARMORY_SIZE = 5;
     public static final int TOWER_SIZE = 3;
     public static final int SHIP_SIZE = 7;
-    public static final int MAX_BUILDING_SIZE = IntStream.of(QUARTERS_SIZE, ARMORY_SIZE, TOWER_SIZE).max().orElseThrow();
+    public static final int MAX_BUILDING_SIZE = IntStream.of(QUARTERS_SIZE, ARMORY_SIZE,
+            TOWER_SIZE).max().orElseThrow();
     public static final int QUARTERS_HIT_POINTS = 200;
     public static final int ARMORY_HIT_POINTS = 200;
     public static final int TOWER_HIT_POINTS = 100;
@@ -69,17 +70,17 @@ public final class RacesResources {
     public static final int INDEX_MAGIC_BLAST = 1;
     public static final float THROW_RANGE = 6f;
 
-    public static final GeneratorHalos DEFAULT_SHADOW_DESC = new GeneratorHalos(128, new float[][]{{0f, 0.75f}, {0.5f, 0f}}, new float[][]{{0.40f, 0f}, {0.41f, 1f}, {0.48f, 1f}, {0.49f, 0f}});
+    public static final GeneratorHalos DEFAULT_SHADOW_DESC = new GeneratorHalos(128,
+            new float[][]{{0f, 0.75f}, {0.5f, 0f}}, new float[][]{{0.40f, 0f}, {0.41f, 1f}, {0.48f, 1f}, {0.49f, 0f}});
 
     private static final ResourceBundle bundle = ResourceBundle.getBundle(RacesResources.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
-    private static final String[] race_names = {
-            Utils.getBundleString(bundle, "natives"),
-            Utils.getBundleString(bundle, "vikings")
+    private static final String[] race_names = {Utils.getBundleString(bundle, "natives"), Utils.getBundleString(bundle,
+            "vikings")
     };
     private static final int MAX_UNIT_RESOURCES = 1;
 
@@ -147,7 +148,8 @@ public final class RacesResources {
 
         final float ring_mid = 0.38f;
         final float fadeout = 0.005f;
-        Supplier<Texture[]> building_shadow_desc = new GeneratorHalos(256, new float[][]{{0.15f, 0.5f}, {0.5f, 0f}}, new float[][]{{ring_mid - ring_thickness / 2 - fadeout, 0f}, {ring_mid - ring_thickness / 2, 1f}, {ring_mid + ring_thickness / 2, 1f}, {ring_mid + ring_thickness / 2 + fadeout, 0f}});
+        Supplier<Texture[]> building_shadow_desc = new GeneratorHalos(256, new float[][]{{0.15f, 0.5f}, {0.5f, 0f}},
+                new float[][]{{ring_mid - ring_thickness / 2 - fadeout, 0f}, {ring_mid - ring_thickness / 2, 1f}, {ring_mid + ring_thickness / 2, 1f}, {ring_mid + ring_thickness / 2 + fadeout, 0f}});
         ShadowListKey shadow_renderer = queues.registerSelectableShadowList(building_shadow_desc);
         SpriteFile building = new SpriteFile(built_name,
                 Globals.NO_MIPMAP_CUTOFF,
@@ -205,22 +207,20 @@ public final class RacesResources {
         SpriteFile native_rubber_sprite = new SpriteFile("/geometry/natives/rubber_resource.binsprite",
                 Globals.NO_MIPMAP_CUTOFF,
                 true, true, true, false);
-        SpriteFile native_right_paddle_sprite =
-                new SpriteFile(
-                        "/geometry/natives/right_paddle.binsprite",
-                        Globals.NO_MIPMAP_CUTOFF,
-                        true,
-                        true,
-                        true,
-                        false);
-        SpriteFile native_left_paddle_sprite =
-                new SpriteFile(
-                        "/geometry/natives/left_paddle.binsprite",
-                        Globals.NO_MIPMAP_CUTOFF,
-                        true,
-                        true,
-                        true,
-                        false);
+        SpriteFile native_right_paddle_sprite = new SpriteFile(
+                "/geometry/natives/right_paddle.binsprite",
+                Globals.NO_MIPMAP_CUTOFF,
+                true,
+                true,
+                true,
+                false);
+        SpriteFile native_left_paddle_sprite = new SpriteFile(
+                "/geometry/natives/left_paddle.binsprite",
+                Globals.NO_MIPMAP_CUTOFF,
+                true,
+                true,
+                true,
+                false);
         ProgressForm.progress(1f / num_progress);
         Map<Class<? extends Supply>, SpriteKey> native_supply_sprite_lists = Map.of(
                 TreeSupply.class, queues.register(native_wood_sprite),
@@ -241,22 +241,20 @@ public final class RacesResources {
         SpriteFile viking_rock_sprite = new SpriteFile("/geometry/vikings/rock_resource.binsprite",
                 Globals.NO_MIPMAP_CUTOFF,
                 true, true, true, false);
-        SpriteFile viking_right_paddle_sprite =
-                new SpriteFile(
-                        "/geometry/vikings/right_paddle.binsprite",
-                        Globals.NO_MIPMAP_CUTOFF,
-                        true,
-                        true,
-                        true,
-                        false);
-        SpriteFile viking_left_paddle_sprite =
-                new SpriteFile(
-                        "/geometry/vikings/left_paddle.binsprite",
-                        Globals.NO_MIPMAP_CUTOFF,
-                        true,
-                        true,
-                        true,
-                        false);
+        SpriteFile viking_right_paddle_sprite = new SpriteFile(
+                "/geometry/vikings/right_paddle.binsprite",
+                Globals.NO_MIPMAP_CUTOFF,
+                true,
+                true,
+                true,
+                false);
+        SpriteFile viking_left_paddle_sprite = new SpriteFile(
+                "/geometry/vikings/left_paddle.binsprite",
+                Globals.NO_MIPMAP_CUTOFF,
+                true,
+                true,
+                true,
+                false);
 
         ProgressForm.progress(1f / num_progress);
         Map<Class<? extends Supply>, SpriteKey> viking_supply_sprite_lists = Map.of(
@@ -299,18 +297,17 @@ public final class RacesResources {
         Audio axe_throw_sound = Resources.findResource(new AudioFile("/sfx/weapon_axe.ogg"));
         Audio spear_throw_sound = Resources.findResource(new AudioFile("/sfx/weapon_spear.ogg"));
 
-        tree_fall_sound = new Audio[]{
-                Resources.findResource(new AudioFile("/sfx/felling_tree.ogg")),
-                Resources.findResource(new AudioFile("/sfx/felling_palmtree.ogg"))
+        tree_fall_sound = new Audio[]{Resources.findResource(new AudioFile(
+                "/sfx/felling_tree.ogg")), Resources.findResource(new AudioFile("/sfx/felling_palmtree.ogg"))
         };
 
         ProgressForm.progress(1f / num_progress);
 
-        building_hit_sound = new Audio[]{
-                Resources.findResource(new AudioFile("/sfx/impact_wood1.ogg")),
-                Resources.findResource(new AudioFile("/sfx/impact_wood2.ogg")),
-                Resources.findResource(new AudioFile("/sfx/impact_wood3.ogg")),
-                Resources.findResource(new AudioFile("/sfx/impact_wood4.ogg"))
+        building_hit_sound = new Audio[]{Resources.findResource(new AudioFile(
+                "/sfx/impact_wood1.ogg")), Resources.findResource(new AudioFile(
+                        "/sfx/impact_wood2.ogg")), Resources.findResource(new AudioFile(
+                                "/sfx/impact_wood3.ogg")), Resources.findResource(new AudioFile(
+                                        "/sfx/impact_wood4.ogg"))
         };
 
         gas_sound = Resources.findResource(new AudioFile("/sfx/gas.ogg"));
@@ -322,43 +319,40 @@ public final class RacesResources {
 
         building_collapse_sound = Resources.findResource(new AudioFile("/sfx/building_crash.ogg"));
 
-        stun_sound = new Audio[]{
-                Resources.findResource(new AudioFile("/sfx/lur_stun1.ogg")),
-                Resources.findResource(new AudioFile("/sfx/lur_stun2.ogg")),
-                Resources.findResource(new AudioFile("/sfx/lur_stun3.ogg"))
+        stun_sound = new Audio[]{Resources.findResource(new AudioFile("/sfx/lur_stun1.ogg")), Resources.findResource(
+                new AudioFile("/sfx/lur_stun2.ogg")), Resources.findResource(new AudioFile("/sfx/lur_stun3.ogg"))
         };
 
-        blast_lur_sound = new Audio[]{
-                Resources.findResource(new AudioFile("/sfx/lur_blast1.ogg")),
-                Resources.findResource(new AudioFile("/sfx/lur_blast2.ogg")),
-                Resources.findResource(new AudioFile("/sfx/lur_blast3.ogg"))
+        blast_lur_sound = new Audio[]{Resources.findResource(new AudioFile(
+                "/sfx/lur_blast1.ogg")), Resources.findResource(new AudioFile(
+                        "/sfx/lur_blast2.ogg")), Resources.findResource(new AudioFile("/sfx/lur_blast3.ogg"))
         };
         blast_rumble_sound = Resources.findResource(new AudioFile("/sfx/rumble.ogg"));
         blast_blast_sound = Resources.findResource(new AudioFile("/sfx/lurblast.ogg"));
 
-        Audio[] tree_cut_sound = new Audio[]{
-                Resources.findResource(new AudioFile("/sfx/axe_cutting_wood1.ogg")),
-                Resources.findResource(new AudioFile("/sfx/axe_cutting_wood2.ogg")),
-                Resources.findResource(new AudioFile("/sfx/axe_cutting_wood3.ogg")),
-                Resources.findResource(new AudioFile("/sfx/axe_cutting_wood4.ogg")),
-                Resources.findResource(new AudioFile("/sfx/axe_cutting_wood5.ogg")),
-                Resources.findResource(new AudioFile("/sfx/axe_cutting_wood6.ogg"))
+        Audio[] tree_cut_sound = new Audio[]{Resources.findResource(new AudioFile(
+                "/sfx/axe_cutting_wood1.ogg")), Resources.findResource(new AudioFile(
+                        "/sfx/axe_cutting_wood2.ogg")), Resources.findResource(new AudioFile(
+                                "/sfx/axe_cutting_wood3.ogg")), Resources.findResource(new AudioFile(
+                                        "/sfx/axe_cutting_wood4.ogg")), Resources.findResource(new AudioFile(
+                                                "/sfx/axe_cutting_wood5.ogg")), Resources.findResource(new AudioFile(
+                                                        "/sfx/axe_cutting_wood6.ogg"))
         };
 
-        Audio[] rock_cut_sound = new Audio[]{
-                Resources.findResource(new AudioFile("/sfx/axe_cutting_stone1.ogg")),
-                Resources.findResource(new AudioFile("/sfx/axe_cutting_stone2.ogg")),
-                Resources.findResource(new AudioFile("/sfx/axe_cutting_stone3.ogg")),
-                Resources.findResource(new AudioFile("/sfx/axe_cutting_stone4.ogg")),
-                Resources.findResource(new AudioFile("/sfx/axe_cutting_stone5.ogg"))
+        Audio[] rock_cut_sound = new Audio[]{Resources.findResource(new AudioFile(
+                "/sfx/axe_cutting_stone1.ogg")), Resources.findResource(new AudioFile(
+                        "/sfx/axe_cutting_stone2.ogg")), Resources.findResource(new AudioFile(
+                                "/sfx/axe_cutting_stone3.ogg")), Resources.findResource(new AudioFile(
+                                        "/sfx/axe_cutting_stone4.ogg")), Resources.findResource(new AudioFile(
+                                                "/sfx/axe_cutting_stone5.ogg"))
         };
 
-        Audio[] meat_cut_sound = new Audio[]{
-                Resources.findResource(new AudioFile("/sfx/impact_meat1.ogg")),
-                Resources.findResource(new AudioFile("/sfx/impact_meat2.ogg")),
-                Resources.findResource(new AudioFile("/sfx/impact_meat3.ogg")),
-                Resources.findResource(new AudioFile("/sfx/impact_meat4.ogg")),
-                Resources.findResource(new AudioFile("/sfx/impact_meat5.ogg"))
+        Audio[] meat_cut_sound = new Audio[]{Resources.findResource(new AudioFile(
+                "/sfx/impact_meat1.ogg")), Resources.findResource(new AudioFile(
+                        "/sfx/impact_meat2.ogg")), Resources.findResource(new AudioFile(
+                                "/sfx/impact_meat3.ogg")), Resources.findResource(new AudioFile(
+                                        "/sfx/impact_meat4.ogg")), Resources.findResource(new AudioFile(
+                                                "/sfx/impact_meat5.ogg"))
         };
 
         ProgressForm.progress(1f / num_progress);
@@ -398,7 +392,8 @@ public final class RacesResources {
                 5f, 1f,
                 22f, .001f, ARMORY_SIZE, 6f, 9f, 30, ARMORY_HIT_POINTS,
                 new WorkerUnitContainerFactory(),
-                new Abilities(Abilities.SUPPLY_CONTAINER | Abilities.BUILD_ARMIES | Abilities.RALLY_TO | Abilities.TARGET),
+                new Abilities(
+                        Abilities.SUPPLY_CONTAINER | Abilities.BUILD_ARMIES | Abilities.RALLY_TO | Abilities.TARGET),
                 new float[]{0f, 1f, 3f}, 0f, 6f,
                 0f, 2.25f, 10f,
                 .25f, -2.8f, 13.1f,
@@ -455,7 +450,8 @@ public final class RacesResources {
                 5f, 1f,
                 16f, .004f, ARMORY_SIZE, 6f, 9f, 30, ARMORY_HIT_POINTS,
                 new WorkerUnitContainerFactory(),
-                new Abilities(Abilities.SUPPLY_CONTAINER | Abilities.BUILD_ARMIES | Abilities.RALLY_TO | Abilities.TARGET),
+                new Abilities(
+                        Abilities.SUPPLY_CONTAINER | Abilities.BUILD_ARMIES | Abilities.RALLY_TO | Abilities.TARGET),
                 new float[]{0f, 1f, 3f}, 0f, 6f,
                 0f, -.4f, 12f,
                 0f, -1f, 11.5f,
@@ -482,84 +478,76 @@ public final class RacesResources {
                 i18n("tower"));
         ProgressForm.progress(1f / num_progress);
 
-        BuildingTemplate native_ship_template =
-                createBuildingTemplate(
-                        queues,
-                        Race.BUILDING_SHIP,
-                        BuildingTemplate.TYPE_SHIP,
-                        "/geometry/natives/ship.binsprite",
-                        3.5f,
-                        7f,
-                        "/geometry/natives/ship_halfbuilt.binsprite",
-                        3.5f,
-                        6f,
-                        "/geometry/natives/ship_start.binsprite",
-                        5f,
-                        1f,
-                        22f,
-                        .001f,
-                        SHIP_SIZE,
-                        6f,
-                        9f,
-                        100,
-                        SHIP_HIT_POINTS,
-                        null,
-                        new Abilities(
-                                Abilities.SUPPLY_CONTAINER
-                                        | Abilities.SAIL
-                                        | Abilities.RALLY_TO
-                                        | Abilities.TARGET),
-                        new float[] {0f, 1f, 3f},
-                        1.9f,
-                        6f,
-                        -0.5f,
-                        -2.0f,
-                        3.4f,
-                        1.0f,
-                        0.0f,
-                        5.0f,
-                        true,
-                        Utils.getBundleString(bundle, "ship"));
+        BuildingTemplate native_ship_template = createBuildingTemplate(
+                queues,
+                Race.BUILDING_SHIP,
+                BuildingTemplate.TYPE_SHIP,
+                "/geometry/natives/ship.binsprite",
+                3.5f,
+                7f,
+                "/geometry/natives/ship_halfbuilt.binsprite",
+                3.5f,
+                6f,
+                "/geometry/natives/ship_start.binsprite",
+                5f,
+                1f,
+                22f,
+                .001f,
+                SHIP_SIZE,
+                6f,
+                9f,
+                100,
+                SHIP_HIT_POINTS,
+                null,
+                new Abilities(
+                        Abilities.SUPPLY_CONTAINER | Abilities.SAIL | Abilities.RALLY_TO | Abilities.TARGET),
+                new float[]{0f, 1f, 3f},
+                1.9f,
+                6f,
+                -0.5f,
+                -2.0f,
+                3.4f,
+                1.0f,
+                0.0f,
+                5.0f,
+                true,
+                Utils.getBundleString(bundle, "ship"));
         ProgressForm.progress(1f / num_progress);
 
-        BuildingTemplate viking_ship_template =
-                createBuildingTemplate(
-                        queues,
-                        Race.BUILDING_SHIP,
-                        BuildingTemplate.TYPE_SHIP,
-                        "/geometry/vikings/ship.binsprite",
-                        3.5f,
-                        7f,
-                        "/geometry/vikings/ship_halfbuilt.binsprite",
-                        3.5f,
-                        6f,
-                        "/geometry/vikings/ship_start.binsprite",
-                        5f,
-                        1f,
-                        22f,
-                        .001f,
-                        SHIP_SIZE,
-                        6f,
-                        9f,
-                        100,
-                        SHIP_HIT_POINTS,
-                        null,
-                        new Abilities(
-                                Abilities.SUPPLY_CONTAINER
-                                        | Abilities.SAIL
-                                        | Abilities.RALLY_TO
-                                        | Abilities.TARGET),
-                        new float[] {0f, 1f, 3f},
-                        1.9f,
-                        6f,
-                        -0.5f,
-                        -2.0f,
-                        3.4f,
-                        1.0f,
-                        0.0f,
-                        5.0f,
-                        true,
-                        Utils.getBundleString(bundle, "ship"));
+        BuildingTemplate viking_ship_template = createBuildingTemplate(
+                queues,
+                Race.BUILDING_SHIP,
+                BuildingTemplate.TYPE_SHIP,
+                "/geometry/vikings/ship.binsprite",
+                3.5f,
+                7f,
+                "/geometry/vikings/ship_halfbuilt.binsprite",
+                3.5f,
+                6f,
+                "/geometry/vikings/ship_start.binsprite",
+                5f,
+                1f,
+                22f,
+                .001f,
+                SHIP_SIZE,
+                6f,
+                9f,
+                100,
+                SHIP_HIT_POINTS,
+                null,
+                new Abilities(
+                        Abilities.SUPPLY_CONTAINER | Abilities.SAIL | Abilities.RALLY_TO | Abilities.TARGET),
+                new float[]{0f, 1f, 3f},
+                1.9f,
+                6f,
+                -0.5f,
+                -2.0f,
+                3.4f,
+                1.0f,
+                0.0f,
+                5.0f,
+                true,
+                Utils.getBundleString(bundle, "ship"));
         ProgressForm.progress(1f / num_progress);
 
         final float shadow_diameter_warrior = 1.9f;
@@ -606,49 +594,51 @@ public final class RacesResources {
                 true, true, true, false);
         ProgressForm.progress(1f / num_progress);
 
-        Audio[] unit_hit_sounds = new Audio[]{
-                Resources.findResource(new AudioFile("/sfx/impact_meat1.ogg")),
-                Resources.findResource(new AudioFile("/sfx/impact_meat2.ogg")),
-                Resources.findResource(new AudioFile("/sfx/impact_meat3.ogg")),
-                Resources.findResource(new AudioFile("/sfx/impact_meat4.ogg")),
-                Resources.findResource(new AudioFile("/sfx/impact_meat5.ogg"))
+        Audio[] unit_hit_sounds = new Audio[]{Resources.findResource(new AudioFile(
+                "/sfx/impact_meat1.ogg")), Resources.findResource(new AudioFile(
+                        "/sfx/impact_meat2.ogg")), Resources.findResource(new AudioFile(
+                                "/sfx/impact_meat3.ogg")), Resources.findResource(new AudioFile(
+                                        "/sfx/impact_meat4.ogg")), Resources.findResource(new AudioFile(
+                                                "/sfx/impact_meat5.ogg"))
         };
-        WeaponFactory viking_warrior_rock_weapon = new ThrowingFactory<>(RockAxeWeapon.class, RockAxeWeapon::new, 0.5f, THROW_RANGE, 29f / 58f,
+        WeaponFactory viking_warrior_rock_weapon = new ThrowingFactory<>(RockAxeWeapon.class, RockAxeWeapon::new, 0.5f,
+                THROW_RANGE, 29f / 58f,
                 queues.register(viking_warrior_axe, Race.UNIT_WARRIOR_ROCK),
                 axe_throw_sound,
                 unit_hit_sounds);
-        WeaponFactory viking_warrior_iron_weapon = new ThrowingFactory<>(IronAxeWeapon.class, IronAxeWeapon::new, 0.75f, THROW_RANGE, 29f / 58f,
+        WeaponFactory viking_warrior_iron_weapon = new ThrowingFactory<>(IronAxeWeapon.class, IronAxeWeapon::new, 0.75f,
+                THROW_RANGE, 29f / 58f,
                 queues.register(viking_warrior_axe, Race.UNIT_WARRIOR_IRON),
                 axe_throw_sound,
                 unit_hit_sounds);
-        WeaponFactory viking_warrior_rubber_weapon = new ThrowingFactory<>(RubberAxeWeapon.class, RubberAxeWeapon::new, 0.95f, THROW_RANGE, 29f / 58f,
+        WeaponFactory viking_warrior_rubber_weapon = new ThrowingFactory<>(RubberAxeWeapon.class, RubberAxeWeapon::new,
+                0.95f, THROW_RANGE, 29f / 58f,
                 queues.register(viking_warrior_axe, Race.UNIT_WARRIOR_RUBBER),
                 axe_throw_sound,
                 unit_hit_sounds);
-        WeaponFactory native_warrior_rock_weapon = new ThrowingFactory<>(RockSpearWeapon.class, RockSpearWeapon::new, 0.5f, THROW_RANGE, 46f / 100f,
+        WeaponFactory native_warrior_rock_weapon = new ThrowingFactory<>(RockSpearWeapon.class, RockSpearWeapon::new,
+                0.5f, THROW_RANGE, 46f / 100f,
                 queues.register(native_warrior_spear, Race.UNIT_WARRIOR_ROCK),
                 spear_throw_sound,
                 unit_hit_sounds);
-        WeaponFactory native_warrior_iron_weapon = new ThrowingFactory<>(IronSpearWeapon.class, IronSpearWeapon::new, 0.75f, THROW_RANGE, 46f / 100f,
+        WeaponFactory native_warrior_iron_weapon = new ThrowingFactory<>(IronSpearWeapon.class, IronSpearWeapon::new,
+                0.75f, THROW_RANGE, 46f / 100f,
                 queues.register(native_warrior_spear, Race.UNIT_WARRIOR_IRON),
                 spear_throw_sound,
                 unit_hit_sounds);
-        WeaponFactory native_warrior_rubber_weapon = new ThrowingFactory<>(RubberSpearWeapon.class, RubberSpearWeapon::new, 0.95f, THROW_RANGE, 46f / 100f,
+        WeaponFactory native_warrior_rubber_weapon = new ThrowingFactory<>(RubberSpearWeapon.class,
+                RubberSpearWeapon::new, 0.95f, THROW_RANGE, 46f / 100f,
                 queues.register(native_warrior_spear, Race.UNIT_WARRIOR_RUBBER),
                 spear_throw_sound,
                 unit_hit_sounds);
 
-        Audio[] native_chieftain_hit_sounds = new Audio[]{
-                Resources.findResource(new AudioFile("/sfx/hit3.ogg")),
-                Resources.findResource(new AudioFile("/sfx/hit4.ogg")),
-                Resources.findResource(new AudioFile("/sfx/hit5.ogg")),
-                Resources.findResource(new AudioFile("/sfx/hit6.ogg"))
+        Audio[] native_chieftain_hit_sounds = new Audio[]{Resources.findResource(new AudioFile(
+                "/sfx/hit3.ogg")), Resources.findResource(new AudioFile("/sfx/hit4.ogg")), Resources.findResource(
+                        new AudioFile("/sfx/hit5.ogg")), Resources.findResource(new AudioFile("/sfx/hit6.ogg"))
         };
-        Audio[] viking_chieftain_hit_sounds = new Audio[]{
-                Resources.findResource(new AudioFile("/sfx/hit1.ogg")),
-                Resources.findResource(new AudioFile("/sfx/hit2.ogg")),
-                Resources.findResource(new AudioFile("/sfx/hit6.ogg")),
-                Resources.findResource(new AudioFile("/sfx/hit7.ogg"))
+        Audio[] viking_chieftain_hit_sounds = new Audio[]{Resources.findResource(new AudioFile(
+                "/sfx/hit1.ogg")), Resources.findResource(new AudioFile("/sfx/hit2.ogg")), Resources.findResource(
+                        new AudioFile("/sfx/hit6.ogg")), Resources.findResource(new AudioFile("/sfx/hit7.ogg"))
         };
 
         ProgressForm.progress(1f / num_progress);
@@ -658,8 +648,7 @@ public final class RacesResources {
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
                 4f,
                 viking_warrior_rock_weapon,
-                new SpriteKey[]{
-                    queues.register(sprite_list_warrior, Race.UNIT_WARRIOR_ROCK)
+                new SpriteKey[]{queues.register(sprite_list_warrior, Race.UNIT_WARRIOR_ROCK)
                 },
                 shadow_diameter_warrior,
                 default_shadow_list,
@@ -678,8 +667,7 @@ public final class RacesResources {
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
                 4f,
                 viking_warrior_iron_weapon,
-                new SpriteKey[] {
-                    queues.register(sprite_list_warrior, Race.UNIT_WARRIOR_IRON)
+                new SpriteKey[]{queues.register(sprite_list_warrior, Race.UNIT_WARRIOR_IRON)
                 },
                 shadow_diameter_warrior,
                 default_shadow_list,
@@ -698,8 +686,7 @@ public final class RacesResources {
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
                 4f,
                 viking_warrior_rubber_weapon,
-                new SpriteKey[] {
-                    queues.register(sprite_list_warrior, Race.UNIT_WARRIOR_RUBBER)
+                new SpriteKey[]{queues.register(sprite_list_warrior, Race.UNIT_WARRIOR_RUBBER)
                 },
                 shadow_diameter_warrior,
                 default_shadow_list,
@@ -718,8 +705,7 @@ public final class RacesResources {
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
                 4f,
                 native_warrior_rock_weapon,
-                new SpriteKey[] {
-                    queues.register(sprite_list_native_warrior, Race.UNIT_WARRIOR_ROCK)
+                new SpriteKey[]{queues.register(sprite_list_native_warrior, Race.UNIT_WARRIOR_ROCK)
                 },
                 shadow_diameter_warrior,
                 default_shadow_list,
@@ -738,8 +724,7 @@ public final class RacesResources {
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
                 4f,
                 native_warrior_iron_weapon,
-                new SpriteKey[] {
-                    queues.register(sprite_list_native_warrior, Race.UNIT_WARRIOR_IRON)
+                new SpriteKey[]{queues.register(sprite_list_native_warrior, Race.UNIT_WARRIOR_IRON)
                 },
                 shadow_diameter_warrior,
                 default_shadow_list,
@@ -758,8 +743,7 @@ public final class RacesResources {
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
                 4f,
                 native_warrior_rubber_weapon,
-                new SpriteKey[] {
-                    queues.register(sprite_list_native_warrior, Race.UNIT_WARRIOR_RUBBER)
+                new SpriteKey[]{queues.register(sprite_list_native_warrior, Race.UNIT_WARRIOR_RUBBER)
                 },
                 shadow_diameter_warrior,
                 default_shadow_list,
@@ -778,9 +762,7 @@ public final class RacesResources {
                 new Abilities(Abilities.BUILD | Abilities.HARVEST | Abilities.ATTACK | Abilities.TARGET),
                 5f,
                 new InstantHitFactory(1 / 5f, 0f, 11f / 38f, unit_hit_sounds),
-                new SpriteKey[] {
-                    queues.register(sprite_list_peon),
-                    queues.register(sprite_list_peon2)
+                new SpriteKey[]{queues.register(sprite_list_peon), queues.register(sprite_list_peon2)
                 },
                 shadow_diameter_peon,
                 default_shadow_list,
@@ -799,9 +781,7 @@ public final class RacesResources {
                 new Abilities(Abilities.BUILD | Abilities.HARVEST | Abilities.ATTACK | Abilities.TARGET),
                 5f,
                 new InstantHitFactory(1 / 5f, 0f, 51f / 83f, unit_hit_sounds),
-                new SpriteKey[] {
-                    queues.register(sprite_list_native_peon),
-                    queues.register(sprite_list_native_peon2)
+                new SpriteKey[]{queues.register(sprite_list_native_peon), queues.register(sprite_list_native_peon2)
                 },
                 shadow_diameter_peon,
                 default_shadow_list,
@@ -820,8 +800,7 @@ public final class RacesResources {
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.MAGIC),
                 4f,
                 new InstantHitFactory(3 / 4f, 0f, 75f / 119f, viking_chieftain_hit_sounds),
-                new SpriteKey[]{
-                    queues.register(sprite_list_chieftain)
+                new SpriteKey[]{queues.register(sprite_list_chieftain)
                 },
                 shadow_diameter_chieftain,
                 default_shadow_list,
@@ -840,8 +819,7 @@ public final class RacesResources {
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.MAGIC),
                 4f,
                 new InstantHitFactory(3 / 4f, 0f, 75f / 129f, native_chieftain_hit_sounds),
-                new SpriteKey[]{
-                    queues.register(sprite_list_native_chieftain)
+                new SpriteKey[]{queues.register(sprite_list_native_chieftain)
                 },
                 shadow_diameter_chieftain,
                 default_shadow_list,
@@ -857,12 +835,15 @@ public final class RacesResources {
                 40);
 
         MagicFactory[] native_magic = new MagicFactory[NUM_MAGIC];
-        native_magic[INDEX_MAGIC_POISON] = new PoisonFogFactory(0.9f, 0f, 0.55f, 26f, .5f, 2f, 20f, 10, 5f, 80f / 224f, 163f / 224f);
-        native_magic[INDEX_MAGIC_LIGHTNING] = new LightningCloudFactory(0.9f, 0f, 0.55f, 22f, 1f, 8f, 1f, 30, 18f, 5f, 80f / 224f, 163f / 224f);
+        native_magic[INDEX_MAGIC_POISON] = new PoisonFogFactory(0.9f, 0f, 0.55f, 26f, .5f, 2f, 20f, 10, 5f, 80f / 224f,
+                163f / 224f);
+        native_magic[INDEX_MAGIC_LIGHTNING] = new LightningCloudFactory(0.9f, 0f, 0.55f, 22f, 1f, 8f, 1f, 30, 18f, 5f,
+                80f / 224f, 163f / 224f);
 
         MagicFactory[] viking_magic = new MagicFactory[NUM_MAGIC];
         viking_magic[INDEX_MAGIC_STUN] = new StunFactory(2.57f, 0f, 3.8f, 36f, 30f, 10f, 6f, 57f / 159f, 100f / 159f);
-        viking_magic[INDEX_MAGIC_BLAST] = new SonicBlastFactory(2.57f, 0f, 3.8f, 36f, 17f, 2f, 150, 30, .8f, 6f, 57f / 159f, 100f / 159f);
+        viking_magic[INDEX_MAGIC_BLAST] = new SonicBlastFactory(2.57f, 0f, 3.8f, 36f, 17f, 2f, 150, 30, .8f, 6f,
+                57f / 159f, 100f / 159f);
 
         ProgressForm.progress(1f / num_progress);
         GUIIcons icons = GUIIcons.getIcons();

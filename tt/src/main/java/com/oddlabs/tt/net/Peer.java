@@ -20,7 +20,8 @@ public final class Peer implements PeerHubInterface {
     private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(PlayerInterface.class);
     private final PeerHubInterface peerhub_interface;
 
-    public Peer(PeerHub peer_hub, int peer_index, Player player, GameArgumentReader argument_reader, PeerHubInterface peerhub_interface) {
+    public Peer(PeerHub peer_hub, int peer_index, Player player, GameArgumentReader argument_reader,
+            PeerHubInterface peerhub_interface) {
         this.peerhub_interface = peerhub_interface;
         this.peer_index = peer_index;
         this.peer_hub = peer_hub;

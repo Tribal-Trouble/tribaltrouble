@@ -10,11 +10,9 @@ public final class VertexLayout<A extends Enum<A> & VertexAttribute> {
     private final int stride;
 
     @SafeVarargs
-    public VertexLayout(@NonNull A @NonNull ... attributes) {
+    public VertexLayout(@NonNull A @NonNull... attributes) {
         this.attributes = List.of(attributes);
-        this.stride = this.attributes.stream()
-                .mapToInt(VertexAttribute::getSizeBytes)
-                .sum();
+        this.stride = this.attributes.stream().mapToInt(VertexAttribute::getSizeBytes).sum();
     }
 
     public int getStride() {

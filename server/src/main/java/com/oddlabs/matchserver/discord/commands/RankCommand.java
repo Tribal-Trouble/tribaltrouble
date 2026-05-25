@@ -1,6 +1,5 @@
 package com.oddlabs.matchserver.discord.commands;
 
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.RankingEntry;
 import com.oddlabs.matchserver.DBInterface;
 import com.oddlabs.matchserver.ServerConfiguration;
@@ -19,12 +18,12 @@ import reactor.core.publisher.Mono;
 
 public class RankCommand extends DiscordCommand {
     private String command_name = "rank";
-    private String command_description =
-            "Shows the rank of a user and users around them on the leaderboard";
+    private String command_description = "Shows the rank of a user and users around them on the leaderboard";
     private String command_option_lookup_name = "tt_user";
     private String command_option_range = "range";
 
-    public RankCommand() {}
+    public RankCommand() {
+    }
 
     @Override
     public String getCommandName() {
@@ -33,17 +32,12 @@ public class RankCommand extends DiscordCommand {
 
     @Override
     public Mono<Void> executeCommand(ChatInputInteractionEvent event) {
-        String nick =
-                event.getOption(command_option_lookup_name)
-                        .flatMap(ApplicationCommandInteractionOption::getValue)
-                        .map(ApplicationCommandInteractionOptionValue::asString)
-                        .orElse(null);
+        String nick = event.getOption(command_option_lookup_name).flatMap(
+                ApplicationCommandInteractionOption::getValue).map(
+                        ApplicationCommandInteractionOptionValue::asString).orElse(null);
 
-        long range =
-                event.getOption(command_option_range)
-                        .flatMap(ApplicationCommandInteractionOption::getValue)
-                        .map(ApplicationCommandInteractionOptionValue::asLong)
-                        .orElse(2L);
+        long range = event.getOption(command_option_range).flatMap(ApplicationCommandInteractionOption::getValue).map(
+                ApplicationCommandInteractionOptionValue::asLong).orElse(2L);
         if (range > 10) {
             range = 10;
         }
@@ -58,25 +52,21 @@ public class RankCommand extends DiscordCommand {
 
         // Reply with the ranking information
 
-        EmbedCreateSpec.Builder builder =
-                EmbedCreateSpec.builder()
-                        .color(Color.BLUE)
-                        .title(String.format("%s ranking", NickUtils.toDisplayName(nick)));
+        EmbedCreateSpec.Builder builder = EmbedCreateSpec.builder().color(Color.BLUE).title(String.format("%s ranking",
+                nick));
 
         for (RankingEntry entry : rankingEntry) {
-            String displayName = NickUtils.toDisplayName(entry.getName());
+            String displayName = entry.getName();
             String profileLink = WebsiteLinkHelper.getProfileLink("Profile", entry.getName());
             builder.addField(
                     String.format(
                             "%d. %s %s",
                             entry.getRanking(),
                             displayName,
-                            entry.getName()
-                                            .equalsIgnoreCase(
-                                                    nick) // Allows for case insensitive match
-                                    ? ServerConfiguration.getInstance()
-                                            .get(ServerConfiguration.VIKING_CHIEF_EMOJI)
-                                    : ""),
+                            entry.getName().equalsIgnoreCase(
+                                    nick) // Allows for case insensitive match
+                                            ? ServerConfiguration.getInstance().get(
+                                                    ServerConfiguration.VIKING_CHIEF_EMOJI) : ""),
                     String.format(
                             "Rating: %d, Wins: %d, Losses: %d, Invalid: %d, %s",
                             entry.getRating(),
@@ -95,27 +85,17 @@ public class RankCommand extends DiscordCommand {
      */
     @Override
     public ApplicationCommandRequest getCommand() {
-        ApplicationCommandRequest rankCommand =
-                ApplicationCommandRequest.builder()
-                        .name(command_name)
-                        .description(command_description)
-                        .addOption(
-                                ApplicationCommandOptionData.builder()
-                                        .name(command_option_lookup_name)
-                                        .description("The tribal trouble profile name to lookup")
-                                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                                        .required(true)
-                                        .build())
-                        .addOption(
-                                ApplicationCommandOptionData.builder()
-                                        .name(command_option_range)
-                                        .description(
-                                                "The range of users to display around the looked up"
-                                                        + " user")
-                                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
-                                        .required(false)
-                                        .build())
-                        .build();
+        ApplicationCommandRequest rankCommand = ApplicationCommandRequest.builder().name(command_name).description(
+                command_description).addOption(
+                        ApplicationCommandOptionData.builder().name(command_option_lookup_name).description(
+                                "The tribal trouble profile name to lookup").type(
+                                        ApplicationCommandOption.Type.STRING.getValue()).required(
+                                                true).build()).addOption(
+                                                        ApplicationCommandOptionData.builder().name(
+                                                                command_option_range).description(
+                                                                        "The range of users to display around the looked up" + " user").type(
+                                                                                ApplicationCommandOption.Type.INTEGER.getValue()).required(
+                                                                                        false).build()).build();
 
         return rankCommand;
     }

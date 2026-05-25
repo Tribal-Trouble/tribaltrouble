@@ -24,7 +24,7 @@ public final class GlobalsInit {
         int max_size = GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE);
         IO.println("Maximum texture size " + max_size);
         Globals.MAX_TEXTURE_SIZE = max_size;
-        for (tex_pow = 0; max_size != 1; max_size >>= 1, tex_pow++) ;
+        for (tex_pow = 0; max_size != 1; max_size >>= 1, tex_pow++);
         Globals.MAX_TEXTURE_POWER = tex_pow;
 
         Globals.TEXTURE_SIZES = new int[Globals.MAX_TEXTURE_SIZE];

@@ -9,30 +9,24 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.NativeCampaignIcons;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
 public final class NativeCampaign extends Campaign {
     public static final int MAX_UNITS = 41;
     private static final int[] INITIAL_STATES = new int[]{
-/*
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE,
-		CampaignState.ISLAND_AVAILABLE};
-*/
-            CampaignState.ISLAND_AVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_UNAVAILABLE,
-            CampaignState.ISLAND_HIDDEN};
+            /*
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE,
+            		CampaignState.ISLAND_AVAILABLE};
+            */
+            CampaignState.ISLAND_AVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_HIDDEN};
 
     private final Island @NonNull [] islands;
 
@@ -93,6 +87,8 @@ public final class NativeCampaign extends Campaign {
     @Override
     public void startIsland(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
         getState().setCurrentIsland(number);
+        SteamManager.setCampaignRichPresence("Natives");
+        SteamManager.setInActiveWorld(true);
         islands[number].chosen(network, gui_root);
     }
 }

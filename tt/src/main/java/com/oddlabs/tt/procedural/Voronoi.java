@@ -1,8 +1,8 @@
 /*
-TODO
-
-omskriv if-check ved modulo til (x+n)%n
-*/
+ * TODO
+ *
+ * omskriv if-check ved modulo til (x+n)%n
+ */
 
 package com.oddlabs.tt.procedural;
 
@@ -28,7 +28,8 @@ public final class Voronoi {
         this(size, x_domains, y_domains, checkradius, randomness, seed, false);
     }
 
-    public Voronoi(int size, int x_domains, int y_domains, int checkradius, float randomness, long seed, boolean border) {
+    public Voronoi(int size, int x_domains, int y_domains, int checkradius, float randomness, long seed,
+            boolean border) {
         this.size = size;
         x_domains = Math.max(1, x_domains);
         y_domains = Math.max(1, y_domains);
@@ -131,7 +132,8 @@ public final class Voronoi {
         Channel channel = new Channel(size, size);
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
-                channel.putPixel(x, y, c1 * dist1.getPixel(x, y) + c2 * dist2.getPixel(x, y) + c3 * dist3.getPixel(x, y));
+                channel.putPixel(x, y, c1 * dist1.getPixel(x, y) + c2 * dist2.getPixel(x, y) + c3 * dist3.getPixel(x,
+                        y));
             }
         }
         return channel.dynamicRange();

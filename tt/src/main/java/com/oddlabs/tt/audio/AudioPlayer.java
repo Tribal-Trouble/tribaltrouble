@@ -100,7 +100,8 @@ public final class AudioPlayer extends AbstractAudioPlayer {
         source.setMaxGain(1f);
         source.setPitch(params.pitch);
 
-        if (!CLASSIC_AUDIO && source instanceof OpenALAudioSource alSource && AudioManager.getManager() instanceof OpenALManager alManager) {
+        if (!CLASSIC_AUDIO && source instanceof OpenALAudioSource alSource
+                && AudioManager.getManager() instanceof OpenALManager alManager) {
             EFXManager efx = alManager.getEfxManager();
             if (efx.isSupported()) {
                 boolean useReverb = params.rank != AUDIO_RANK_MUSIC && params.rank != AUDIO_RANK_NOTIFICATION;

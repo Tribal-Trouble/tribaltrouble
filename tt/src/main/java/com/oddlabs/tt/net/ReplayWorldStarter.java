@@ -17,7 +17,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Launches a world for spectating — no game session registration, no participant tracking. */
+/**
+ * Launches a world for spectating — no game session registration, no participant tracking.
+ */
 final class ReplayWorldStarter implements LoadCallback {
     private final UnitInfo[] unit_infos;
     private final PlayerSlot[] player_slots;
@@ -30,8 +32,8 @@ final class ReplayWorldStarter implements LoadCallback {
     private final int session_id;
 
     ReplayWorldStarter(NetworkSelector network, int session_id, WorldGenerator generator, WorldParameters world_params,
-                       PlayerSlot[] player_slots, UnitInfo[] unit_infos, short player_slot,
-                       InGameInfo ingame_info, @Nullable WorldInitAction initial_action) {
+            PlayerSlot[] player_slots, UnitInfo[] unit_infos, short player_slot,
+            InGameInfo ingame_info, @Nullable WorldInitAction initial_action) {
         this.initial_action = initial_action;
         this.session_id = session_id;
         this.world_params = world_params;

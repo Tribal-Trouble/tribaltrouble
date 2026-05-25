@@ -1,0 +1,32 @@
+// Steam Rich Presence localization tokens for Tribal Trouble.
+//
+// This file is the source of truth for the strings that show up under a
+// player's name in the Steam friends list. It is NOT loaded by the game —
+// it must be uploaded to the Steamworks dashboard:
+//
+//   https://partner.steamgames.com/apps/richpresenceloc/<APP_ID>
+//
+// The keys here correspond to what the code passes to setRichPresence(...)
+// in com.oddlabs.tt.steam.SteamManager:
+//
+//   steam_display = "#Status_InLobby"          (set by setLobbyRichPresence)
+//   steam_display = "#Status_InGame"           (set by setMultiplayerInGameRichPresence)
+//   steam_display = "#Status_CampaignVikings"  (set by setCampaignRichPresence)
+//   steam_display = "#Status_CampaignNatives"  (set by setCampaignRichPresence)
+//
+// After editing, paste each language block into the matching tab on the
+// Steamworks page and click PUBLISH (saving alone keeps it as a draft).
+
+"lang"
+{
+    "english"
+    {
+        "tokens"
+        {
+            "#Status_InLobby"          "In a multiplayer lobby"
+            "#Status_InGame"           "In a multiplayer game"
+            "#Status_CampaignVikings"  "Playing the Viking campaign"
+            "#Status_CampaignNatives"  "Playing the Native campaign"
+        }
+    }
+}

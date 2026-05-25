@@ -2,7 +2,6 @@ package com.oddlabs.tt.model.behaviour;
 
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
-import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.UnitSupplyContainer;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.weapon.ThrowingFactory;

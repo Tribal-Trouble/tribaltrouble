@@ -5,6 +5,7 @@ import com.oddlabs.event.NotDeterministic;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.router.Router;
 import com.oddlabs.matchserver.ServerConfiguration;
+import com.oddlabs.util.BuildInfo;
 import com.oddlabs.util.DBUtils;
 
 import java.util.logging.FileHandler;
@@ -30,20 +31,20 @@ public final class RouterServer {
     private static void run() throws Exception {
         final Deterministic deterministic;
         deterministic = new NotDeterministic();
-/*		File log_file = new File("event.log");
-		if (log_file.exists())
-			deterministic = new LoadDeterministic(log_file, false);
-		else
-			deterministic = new SaveDeterministic(log_file);
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public final void run() {
-				deterministic.endLog();
-			}
-		});*/
+        /*		File log_file = new File("event.log");
+        		if (log_file.exists())
+        			deterministic = new LoadDeterministic(log_file, false);
+        		else
+        			deterministic = new SaveDeterministic(log_file);
+        		Runtime.getRuntime().addShutdownHook(new Thread() {
+        			public final void run() {
+        				deterministic.endLog();
+        			}
+        		});*/
         try {
             NetworkSelector network = new NetworkSelector(deterministic);
             Router router = new Router(network, logger);
-            logger.info("Router started.");
+            logger.log(Level.INFO, "Router started: {0}", BuildInfo.FULL_VERSION);
             while (true) {
                 long timeout = router.getNextTimeout();
 //logger.finer("timeout: " + timeout);

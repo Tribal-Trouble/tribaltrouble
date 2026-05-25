@@ -8,7 +8,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class UnitGrid {
-   private final @NonNull HeightMap heightmap;
+    private final @NonNull HeightMap heightmap;
 
     public static final int LAND = 0;
     public static final int SEA = 1;
@@ -17,6 +17,7 @@ public final class UnitGrid {
     static class Layer {
         final @NonNull Region @NonNull [] @NonNull [] regions;
         final @Nullable Occupant @NonNull [] @NonNull [] occupants;
+
         Layer(int size) {
             occupants = new Occupant[size][size];
             regions = new Region[size][size];
@@ -43,12 +44,14 @@ public final class UnitGrid {
             return false;
         return filter.filter(x, y, occupants[y][x]);
     }
-    
-    public Target @NonNull [] findGridTargets(int center_grid_x, int center_grid_y, int num_targets, boolean grid_targets_only) {
+
+    public Target @NonNull [] findGridTargets(int center_grid_x, int center_grid_y, int num_targets,
+            boolean grid_targets_only) {
         return findGridTargets(center_grid_x, center_grid_y, num_targets, grid_targets_only, LAND);
     }
 
-    public Target @NonNull [] findGridTargets(int center_grid_x, int center_grid_y, int num_targets, boolean grid_targets_only, int layer) {
+    public Target @NonNull [] findGridTargets(int center_grid_x, int center_grid_y, int num_targets,
+            boolean grid_targets_only, int layer) {
         Occupant[][] occupants = layers[layer].occupants;
         FindTargetsFilter filter = new FindTargetsFilter(num_targets, occupants.length, grid_targets_only);
         scan(filter, center_grid_x, center_grid_y, layer);
@@ -58,7 +61,7 @@ public final class UnitGrid {
     public void scan(@NonNull ScanFilter filter, int center_grid_x, int center_grid_y) {
         scan(filter, center_grid_x, center_grid_y, LAND);
     }
-    
+
     public void scan(@NonNull ScanFilter filter, int center_grid_x, int center_grid_y, int layer) {
         int radius = filter.getMinRadius();
         if (radius == 0) {
@@ -122,7 +125,7 @@ public final class UnitGrid {
     public boolean isGridOccupied(int grid_x, int grid_y) {
         return isGridOccupied(grid_x, grid_y, LAND);
     }
-    
+
     public boolean isGridOccupied(int grid_x, int grid_y, int layer) {
         return layers[layer].occupants[grid_y][grid_x] != null;
     }
@@ -138,7 +141,7 @@ public final class UnitGrid {
     public void occupyGrid(int grid_x, int grid_y, Occupant occupant) {
         occupyGrid(grid_x, grid_y, occupant, LAND);
     }
-    
+
     public void occupyGrid(int grid_x, int grid_y, Occupant occupant, int layer) {
         assert !isGridOccupied(grid_x, grid_y, layer);
         layers[layer].occupants[grid_y][grid_x] = occupant;
@@ -155,7 +158,7 @@ public final class UnitGrid {
     public void freeGrid(int grid_x, int grid_y, Occupant occupant) {
         freeGrid(grid_x, grid_y, occupant, LAND);
     }
-    
+
     public void freeGrid(int grid_x, int grid_y, Occupant occupant, int layer) {
         assert layers[layer].occupants[grid_y][grid_x] == occupant : occupant + " trying to free " + grid_x + " " + grid_y + " where " + layers[layer].occupants[grid_y][grid_x] + " is.";
         layers[layer].occupants[grid_y][grid_x] = null;

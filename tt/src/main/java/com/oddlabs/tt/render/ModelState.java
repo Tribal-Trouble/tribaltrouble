@@ -7,13 +7,18 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 interface ModelState<M extends Model> extends LODObject {
-    @NonNull Matrix4f getTransform(@NonNull Matrix4f dest);
+    @NonNull
+    Matrix4f getTransform(@NonNull Matrix4f dest);
 
-    @NonNull Vector4fc getTeamColor();
+    @NonNull
+    Vector4fc getTeamColor();
 
-    @NonNull Vector4fc getSelectionColor();
+    @NonNull
+    Vector4fc getSelectionColor();
 
-    @NonNull Vector4fc getColor();
+    @NonNull
+    Vector4fc getColor();
 
-    @Nullable M getModel();
+    @Nullable
+    M getModel();
 }

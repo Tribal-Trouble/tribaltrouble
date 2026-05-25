@@ -35,7 +35,8 @@ public final class SkeletonLoader {
 
     private static @NonNull Skeleton parseSkeleton(@NonNull Node skel_node) {
         Map<String, Bone> name_to_bone_map = new HashMap<>();
-        Map<String, float[]> initial_pose = AnimationLoader.parseFrame(ConvertToBinary.getNodeByName("init_pose", skel_node));
+        Map<String, float[]> initial_pose = AnimationLoader.parseFrame(ConvertToBinary.getNodeByName("init_pose",
+                skel_node));
         NodeList bone_list = ConvertToBinary.getNodeByName("bones", skel_node).getChildNodes();
         Map<String, String> bone_parent_map = new HashMap<>();
         for (int i = 0; i < bone_list.getLength(); i++) {
@@ -66,7 +67,9 @@ public final class SkeletonLoader {
         return new Skeleton(bone_root, initial_pose, name_to_bone_map);
     }
 
-    private static @NonNull Bone buildBone(byte index, @NonNull Map<@NonNull String, @NonNull List<@NonNull String>> bone_children_map, @NonNull String bone_name, @NonNull Map<@NonNull String, @NonNull Bone> name_to_bone_map) {
+    private static @NonNull Bone buildBone(byte index,
+            @NonNull Map<@NonNull String, @NonNull List<@NonNull String>> bone_children_map, @NonNull String bone_name,
+            @NonNull Map<@NonNull String, @NonNull Bone> name_to_bone_map) {
         List<String> children_list = bone_children_map.getOrDefault(bone_name, List.of());
         Bone[] children_array = new Bone[children_list.size()];
         for (int i = 0; i < children_array.length; i++) {

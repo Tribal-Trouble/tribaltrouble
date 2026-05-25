@@ -38,9 +38,11 @@ public final class FinderTrackerAlgorithm<O extends Occupant> implements Tracker
     }
 
     @Override
-    public @Nullable GridPathNode findPathGrid(@NonNull Region target_region, @NonNull Region next_region, int src_x, int src_y, boolean allow_secondary_targets) {
+    public @Nullable GridPathNode findPathGrid(@NonNull Region target_region, @NonNull Region next_region, int src_x,
+            int src_y, boolean allow_secondary_targets) {
         O hint_occupant = filter.getOccupantFromRegion(target_region, true);
-        TargetFinderAlgorithm<O> grid_finder = new TargetFinderAlgorithm<>(unit_grid, filter, next_region, hint_occupant.getGridX(), hint_occupant.getGridY(), allow_secondary_targets);
+        TargetFinderAlgorithm<O> grid_finder = new TargetFinderAlgorithm<>(unit_grid, filter, next_region,
+                hint_occupant.getGridX(), hint_occupant.getGridY(), allow_secondary_targets);
         GridPathNode path = PathFinder.findPathGrid(unit_grid, grid_finder, src_x, src_y);
         target = grid_finder.getOccupant();
         return path;

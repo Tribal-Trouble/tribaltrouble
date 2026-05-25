@@ -20,7 +20,8 @@ public final class MeshLoader {
     private MeshLoader() {
     }
 
-    public static @NonNull ModelInfo loadMesh(@NonNull Path file, @Nullable Map<@NonNull String, @NonNull Bone> name_to_bone_map, float scale) {
+    public static @NonNull ModelInfo loadMesh(@NonNull Path file,
+            @Nullable Map<@NonNull String, @NonNull Bone> name_to_bone_map, float scale) {
         try (var input_stream = Files.newInputStream(file)) {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setValidating(true);
@@ -34,7 +35,8 @@ public final class MeshLoader {
         }
     }
 
-    private static @NonNull ModelInfo createModelInfo(@NonNull Node node, @Nullable Map<String, Bone> name_to_bone_map, float scale) {
+    private static @NonNull ModelInfo createModelInfo(@NonNull Node node, @Nullable Map<String, Bone> name_to_bone_map,
+            float scale) {
 //		String texture_name = cutTextureName(node.getAttributes().getNamedItem("texture").getNodeValue());
 
         NodeList polygon_list = ConvertToBinary.getNodeByName("polygons", node).getChildNodes();
@@ -119,7 +121,8 @@ public final class MeshLoader {
             }
         }
         assert polygon_index == num_polygons;
-        return Optimizer.optimize(/*texture_name, */num_vertices, vertices, normals, colors, uvs, uvs2, skin_names, skin_weights);
+        return Optimizer.optimize(/*texture_name, */num_vertices, vertices, normals, colors, uvs, uvs2, skin_names,
+                skin_weights);
     }
 
     private static @NonNull String cutTextureName(@NonNull String name) {

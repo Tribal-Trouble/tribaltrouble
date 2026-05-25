@@ -14,7 +14,8 @@ public final class StunFactory implements MagicFactory {
     private final float init_ratio;
     private final float release_ratio;
 
-    public StunFactory(float offset_x, float offset_y, float offset_z, float hit_radius, float stun_time_closest, float stun_time_farthest, float seconds_per_anim, float init_ratio, float release_ratio) {
+    public StunFactory(float offset_x, float offset_y, float offset_z, float hit_radius, float stun_time_closest,
+            float stun_time_farthest, float seconds_per_anim, float init_ratio, float release_ratio) {
         this.offset_x = offset_x;
         this.offset_y = offset_y;
         this.offset_z = offset_z;

@@ -15,11 +15,13 @@ public final class WorldParameters implements Serializable {
     private final int initial_game_speed;
     private final int map_size;
 
-    public WorldParameters(int initial_game_speed, @NonNull String map_code, int initial_unit_count, int max_unit_count) {
+    public WorldParameters(int initial_game_speed, @NonNull String map_code, int initial_unit_count,
+            int max_unit_count) {
         this(initial_game_speed, map_code, initial_unit_count, max_unit_count, Game.SIZE_NONE);
     }
 
-    public WorldParameters(int initial_game_speed, @NonNull String map_code, int initial_unit_count, int max_unit_count, int map_size) {
+    public WorldParameters(int initial_game_speed, @NonNull String map_code, int initial_unit_count, int max_unit_count,
+            int map_size) {
         this.map_code = map_code;
         this.initial_unit_count = initial_unit_count;
         this.max_unit_count = max_unit_count;

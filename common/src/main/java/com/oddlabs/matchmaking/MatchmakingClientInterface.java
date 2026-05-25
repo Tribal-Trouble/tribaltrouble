@@ -68,5 +68,5 @@ public interface MatchmakingClientInterface {
 
     void receiveSpectatorData(byte[] world_params_data);
 
-    void receiveSpectatorEventLog(byte[] event_log_data, int current_tick);
+    void receiveSpectatorEventLog(byte[] chunk, int chunk_index, int total_chunks, int current_tick);
 }

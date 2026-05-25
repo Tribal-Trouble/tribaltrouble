@@ -84,12 +84,8 @@ public class Form extends Group {
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         var data = Skin.getSkin().getFormData();
-        var form = caption != null
-                ? data.form()
-                : data.slimForm();
-        var skinMode = isDisabled()
-                ? ModeIconQuads.Mode.DISABLED
-                : isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+        var form = caption != null ? data.form() : data.slimForm();
+        var skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
         form.render(renderer, 0f, 0f, getWidth(), getHeight(), skinMode);
     }
 
@@ -105,7 +101,8 @@ public class Form extends Group {
     }
 
     @Override
-    public final void mouseDragged(@NonNull MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
+    public final void mouseDragged(@NonNull MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x,
+            int abs_y) {
         if (drag)
             setPos(getX() + rel_x, getY() + rel_y);
     }
@@ -208,7 +205,8 @@ public class Form extends Group {
         }
 
         @Override
-        public void mouseDragged(@NonNull MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
+        public void mouseDragged(@NonNull MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x,
+                int abs_y) {
             owner.mouseDragged(button, x, y, rel_x, rel_y, abs_x, abs_y);
         }
 

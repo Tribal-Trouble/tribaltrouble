@@ -20,7 +20,7 @@ import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
 public final class CreatingProfileForm extends Form implements ProfileListener {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(CreatingProfileForm.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -65,7 +65,7 @@ public final class CreatingProfileForm extends Form implements ProfileListener {
             case MatchmakingClientInterface.PROFILE_ERROR_GUEST -> i18n("profile_error_guest", "Guest");
             case MatchmakingClientInterface.USERNAME_ERROR_ALREADY_EXISTS -> i18n("username_error_already_exists");
             case MatchmakingClientInterface.USERNAME_ERROR_INVALID_CHARACTERS ->
-                    i18n("username_error_invalid_characters");
+                i18n("username_error_invalid_characters");
             case MatchmakingClientInterface.USERNAME_ERROR_TOO_LONG -> i18n("username_error_too_long");
             case MatchmakingClientInterface.USERNAME_ERROR_TOO_SHORT -> i18n("username_error_too_short");
             default -> throw new IllegalArgumentException("Unknown error code: " + error_code);

@@ -41,7 +41,8 @@ public abstract class AbstractTreeGroup extends BoundingBox {
         return num_responding_trees > 0;
     }
 
-    public static @NonNull AbstractTreeGroup newRoot(@NonNull World world, @NonNull List<int[]> tree_positions, @NonNull List<int[]> palm_tree_positions, Landscape.@NonNull TerrainType terrain) {
+    public static @NonNull AbstractTreeGroup newRoot(@NonNull World world, @NonNull List<int[]> tree_positions,
+            @NonNull List<int[]> palm_tree_positions, Landscape.@NonNull TerrainType terrain) {
         AbstractTreeGroup root = new TreeGroup(null, 0);
 
         switch (terrain) {
@@ -59,20 +60,13 @@ public abstract class AbstractTreeGroup extends BoundingBox {
         return root;
     }
 
-    private void buildTrees(final @NonNull World world, final @NonNull TreeType tree_type, final int grid_size, final float radius, @NonNull List<int[]> tree_positions, float scale_factor, float min_size) {
+    private void buildTrees(final @NonNull World world, final @NonNull TreeType tree_type, final int grid_size,
+            final float radius, @NonNull List<int[]> tree_positions, float scale_factor, float min_size) {
         Matrix4f matrix2 = new Matrix4f();
         Vector3f vector = new Vector3f();
         // Generate dummy bounding box vertices for culling (Radius + Height 15m)
         float h = 15f;
-        final float[] tree_low_vertices = new float[]{
-                -radius, -radius, 0,
-                radius, -radius, 0,
-                radius, radius, 0,
-                -radius, radius, 0,
-                -radius, -radius, h,
-                radius, -radius, h,
-                radius, radius, h,
-                -radius, radius, h
+        final float[] tree_low_vertices = new float[]{-radius, -radius, 0, radius, -radius, 0, radius, radius, 0, -radius, radius, 0, -radius, -radius, h, radius, -radius, h, radius, radius, h, -radius, radius, h
         };
 
         for (int[] coords : tree_positions) {
@@ -100,7 +94,8 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 
                 @Override
                 public void visitLeaf(@NonNull TreeLeaf tree_leaf) {
-                    TreeSupply tree = new TreeSupply(world, tree_leaf, tree_x, tree_y, center_grid_x, center_grid_y, grid_size, radius, matrix, tree_type, tree_low_vertices);
+                    TreeSupply tree = new TreeSupply(world, tree_leaf, tree_x, tree_y, center_grid_x, center_grid_y,
+                            grid_size, radius, matrix, tree_type, tree_low_vertices);
                     tree_leaf.insertTree(tree);
                 }
 

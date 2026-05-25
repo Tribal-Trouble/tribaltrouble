@@ -41,7 +41,8 @@ public final class Tutorial {
     void done(int next_tutorial) {
         timer.stop();
         removeInfo();
-        viewer.getGUIRoot().pushDelegate(new TutorialOverDelegate(viewer, tutorial_info, viewer.getGUIRoot().getDelegate().getCamera(), next_tutorial));
+        viewer.getGUIRoot().pushDelegate(new TutorialOverDelegate(viewer, tutorial_info,
+                viewer.getGUIRoot().getDelegate().getCamera(), next_tutorial));
     }
 
     void next(final @NonNull TutorialTrigger trigger) {
@@ -64,12 +65,17 @@ public final class Tutorial {
     }
 
     private void next1(final @NonNull TutorialTrigger trigger) {
-        String text = Utils.getBundleString(ResourceBundle.getBundle(TutorialTrigger.class.getName()), trigger.getTextKey(), trigger.getFormatArgs());
+        String text = Utils.getBundleString(ResourceBundle.getBundle(TutorialTrigger.class.getName()),
+                trigger.getTextKey(), trigger.getFormatArgs());
         info = new LabelBox(text, Skin.getSkin().getEditFont(), 400);
         info.setPos(BORDER_OFFSET, viewer.getGUIRoot().getHeight() - BORDER_OFFSET - info.getHeight());
         viewer.getGUIRoot().addChild(info);
-        viewer.getWorld().getAudio().newAudio(new AudioParameters<>(viewer.getLocalPlayer().getRace().getBuildingNotificationAudio(), 0f, 0f, 0f, AudioPlayer.AUDIO_RANK_NOTIFICATION, AudioPlayer.AUDIO_DISTANCE_NOTIFICATION, .25f, 1f, 1f, false, true));
-        timer = new TimerAnimation(viewer.getAnimationManagerLocal(), _ -> trigger.run(Tutorial.this), trigger.getCheckInterval());
+        viewer.getWorld().getAudio().newAudio(new AudioParameters<>(
+                viewer.getLocalPlayer().getRace().getBuildingNotificationAudio(), 0f, 0f, 0f,
+                AudioPlayer.AUDIO_RANK_NOTIFICATION, AudioPlayer.AUDIO_DISTANCE_NOTIFICATION, .25f, 1f, 1f, false,
+                true));
+        timer = new TimerAnimation(viewer.getAnimationManagerLocal(), _ -> trigger.run(Tutorial.this),
+                trigger.getCheckInterval());
         timer.start();
     }
 }

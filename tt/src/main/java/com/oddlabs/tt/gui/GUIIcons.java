@@ -16,7 +16,7 @@ import java.util.ResourceBundle;
 public class GUIIcons {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(Icons.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -74,7 +74,8 @@ public class GUIIcons {
                 com.oddlabs.tt.model.RubberSupply.class, new IconQuad[]{rubber_status_icon});
     }
 
-    private static @NonNull RaceIcons parseRaceIcons(@NonNull Node n, @NonNull String head, @NonNull String magic1_desc, @NonNull String magic2_desc, @NonNull Texture texture) {
+    private static @NonNull RaceIcons parseRaceIcons(@NonNull Node n, @NonNull String head, @NonNull String magic1_desc,
+            @NonNull String magic2_desc, @NonNull Texture texture) {
         return new RaceIcons(Icons.getNamedIconQuad(n, head + "_unit_status_icon", texture),
                 Icons.getNamedIconQuad(n, head + "_weapon_rock_status_icon", texture),
                 Icons.getNamedIconQuad(n, head + "_weapon_iron_status_icon", texture),
@@ -210,7 +211,8 @@ public class GUIIcons {
             }
         }
 
-        Texture texture = new Texture(new GLImage[]{image}, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR, GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
+        Texture texture = new Texture(new GLImage[]{image}, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR,
+                GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
 
         IconQuad[] icons = new IconQuad[numIcons];
         for (int i = 0; i < numIcons; i++) {

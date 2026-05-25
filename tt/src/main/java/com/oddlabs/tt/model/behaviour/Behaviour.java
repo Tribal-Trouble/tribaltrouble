@@ -4,10 +4,13 @@ import org.jspecify.annotations.NonNull;
 
 public interface Behaviour {
     enum State {
-        UNINTERRUPTIBLE, INTERRUPTIBLE, DONE
+        UNINTERRUPTIBLE,
+        INTERRUPTIBLE,
+        DONE
     }
 
-    @NonNull State animate(float t);
+    @NonNull
+    State animate(float t);
 
     boolean isBlocking();
 

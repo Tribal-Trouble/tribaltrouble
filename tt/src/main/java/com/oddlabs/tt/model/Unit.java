@@ -89,19 +89,24 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     private float range_bonus;
     private int current_sprite_index = 0;
 
-    public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point, @NonNull UnitTemplate unit_template) {
+    public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point,
+            @NonNull UnitTemplate unit_template) {
         this(owner, x, y, rally_point, unit_template, null);
     }
 
-    public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point, @NonNull UnitTemplate unit_template, @Nullable String name) {
+    public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point,
+            @NonNull UnitTemplate unit_template, @Nullable String name) {
         this(owner, x, y, rally_point, unit_template, name, true);
     }
 
-    public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point, @NonNull UnitTemplate unit_template, @Nullable String name, boolean notify_by_chieftain) {
+    public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point,
+            @NonNull UnitTemplate unit_template, @Nullable String name, boolean notify_by_chieftain) {
         this(owner, x, y, rally_point, unit_template, name, notify_by_chieftain, false);
     }
 
-    public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point, @NonNull UnitTemplate unit_template, @Nullable String name, boolean notify_by_chieftain, boolean grid_targets_only) {
+    public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point,
+            @NonNull UnitTemplate unit_template, @Nullable String name, boolean notify_by_chieftain,
+            boolean grid_targets_only) {
         super(owner, unit_template);
         this.name = name;
         this.current_sprite_index = 0;
@@ -175,7 +180,8 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
 
     private void findInitialPosition(float x, float y, boolean grid_targets_only) {
         UnitGrid unit_grid = getUnitGrid();
-        Target reserved_target = unit_grid.findGridTargets(UnitGrid.toGridCoordinate(x), UnitGrid.toGridCoordinate(y), 1, grid_targets_only)[0];
+        Target reserved_target = unit_grid.findGridTargets(UnitGrid.toGridCoordinate(x), UnitGrid.toGridCoordinate(y),
+                1, grid_targets_only)[0];
         setGridPosition(reserved_target.getGridX(), reserved_target.getGridY());
         setPosition(reserved_target.getPositionX(), reserved_target.getPositionY());
 
@@ -208,9 +214,8 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     @Override
     public final AttackScanFilter.@NonNull Priority getAttackPriority() {
         assert !isDead();
-        return getAbilities().hasAbilities(Abilities.BUILD)
-                ? AttackScanFilter.Priority.PEON
-                : AttackScanFilter.Priority.WARRIOR;
+        return getAbilities().hasAbilities(
+                Abilities.BUILD) ? AttackScanFilter.Priority.PEON : AttackScanFilter.Priority.WARRIOR;
     }
 
     @Override
@@ -357,7 +362,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
 
     public final int getNumSprites() {
         return getTemplate().getNumSpriteRenderers();
-     }
+    }
 
     @Override
     public final void doAnimate(float t) {
@@ -445,9 +450,9 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     /*	public final void moveNextAnimate() {
-		WalkBehaviour behaviour = (WalkBehaviour)getCurrentBehaviour();
-		behaviour.moveNextAnimate();
-	}
+    	WalkBehaviour behaviour = (WalkBehaviour)getCurrentBehaviour();
+    	behaviour.moveNextAnimate();
+    }
      */
     @Override
     public final void hit(int damage, float direction_x, float direction_y, @NonNull Player owner) {
@@ -470,22 +475,17 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
 
         pushController(new DieController(this));
         forceDecide();
-        getOwner()
-                .getWorld()
-                .getAudio()
-                .newAudio(
-                        new AudioParameters(
-                                getTemplate().getDeathSound(),
-                                getPositionX(),
-                                getPositionY(),
-                                getPositionZ(),
-                                AudioPlayer.AUDIO_RANK_DEATH,
-                                AudioPlayer.AUDIO_DISTANCE_DEATH,
-                                AudioPlayer.AUDIO_GAIN_DEATH,
-                                AudioPlayer.AUDIO_RADIUS_DEATH,
-                                1f
-                                        + (getOwner().getWorld().getRandom().nextFloat() - .5f)
-                                                * getTemplate().getDeathPitch()));
+        getOwner().getWorld().getAudio().newAudio(
+                new AudioParameters(
+                        getTemplate().getDeathSound(),
+                        getPositionX(),
+                        getPositionY(),
+                        getPositionZ(),
+                        AudioPlayer.AUDIO_RANK_DEATH,
+                        AudioPlayer.AUDIO_DISTANCE_DEATH,
+                        AudioPlayer.AUDIO_GAIN_DEATH,
+                        AudioPlayer.AUDIO_RADIUS_DEATH,
+                        1f + (getOwner().getWorld().getRandom().nextFloat() - .5f) * getTemplate().getDeathPitch()));
         removeDying();
     }
 
@@ -523,7 +523,8 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
                 num_particles, 0f, 2f,
                 new Vector4f(1f, 1f, 1f, 1f), new Vector4f(0f, 0f, 0f, 0f),
                 new Vector3f(.1f, .1f, .1f), new Vector3f(0f, 0f, 0f), time,
-                GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, getOwner().getWorld().getRacesResources().getStarTextures(),
+                GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
+                getOwner().getWorld().getRacesResources().getStarTextures(),
                 getOwner().getWorld().getAnimationManagerGameTime());
     }
 
@@ -548,7 +549,8 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     private boolean canRepair(@NonNull Target target, boolean action_repair) {
         return target instanceof Building building &&
                 getAbilities().hasAbilities(Abilities.BUILD) &&
-                (action_repair || !building.getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER) || !building.isComplete()) &&
+                (action_repair || !building.getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER)
+                        || !building.isComplete()) &&
                 // getOwner() == building.getOwner() && building.isPlaced() && building.isDamaged();
                 !getOwner().isEnemy(building.getOwner()) && building.isPlaced() && building.isDamaged();
     }
@@ -638,7 +640,8 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     public final boolean canDoMagic(int magic_index) {
-        return !isDead() && magic_index >= 0 && magic_index < RacesResources.NUM_MAGIC && getOwner().canDoMagic(magic_index) && magic_energy[magic_index] == MAX_MAGIC_ENERGY[magic_index];
+        return !isDead() && magic_index >= 0 && magic_index < RacesResources.NUM_MAGIC && getOwner().canDoMagic(
+                magic_index) && magic_energy[magic_index] == MAX_MAGIC_ENERGY[magic_index];
     }
 
     public final void doMagic(int magic_index, boolean clear_stack) {
@@ -677,9 +680,10 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         if (this.animation != animation) {
             this.animation = animation;
             this.anim_time = 0f;
-        } else if (getTemplate().getSpriteRenderer(sprite).getAnimationType(animation) == AnimationInfo.AnimationType.PLAIN.ordinal()) {
-            this.anim_time = 0f;
-        }
+        } else if (getTemplate().getSpriteRenderer(sprite).getAnimationType(
+                animation) == AnimationInfo.AnimationType.PLAIN.ordinal()) {
+                    this.anim_time = 0f;
+                }
     }
 
     @Override

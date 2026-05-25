@@ -1,6 +1,5 @@
 package com.oddlabs.tt.render;
 
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.tt.gui.GUIIcons;
 import com.oddlabs.tt.gui.IconQuad;
 import com.oddlabs.tt.gui.ToolTipBox;
@@ -32,7 +31,7 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
     }
 
     private void visitPlayer(@NonNull Player player) {
-        tool_tip_box.append(NickUtils.toDisplayName(player.getPlayerInfo().getName()));
+        tool_tip_box.append(player.getPlayerInfo().getName());
         tool_tip_box.append(" - ");
         //      tool_tip_box.append(team_tip);
         //      tool_tip_box.append(" ");
@@ -46,10 +45,10 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
     private void visitSelectable(@NonNull Selectable<?> selectable) {
         assert !selectable.isDead();
         visitPlayer(selectable.getOwner());
-		/*      if (Settings.getSettings().developer_mode) {
-				if (getCurrentBehaviour() instanceof WalkBehaviour)
-				((WalkBehaviour)getCurrentBehaviour()).appendToolTip(tool_tip_box);
-				else*/
+        /*      if (Settings.getSettings().developer_mode) {
+        		if (getCurrentBehaviour() instanceof WalkBehaviour)
+        		((WalkBehaviour)getCurrentBehaviour()).appendToolTip(tool_tip_box);
+        		else*/
         //tool_tip_box.append(getPrimaryController().getClass().getName());
         //}
     }
@@ -78,7 +77,8 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
         visitSelectable(building);
         tool_tip_box.append(building.getTemplate().getName());
         IconQuad[] watch = GUIIcons.getIcons().getWatch();
-        tool_tip_box.append(watch[((watch.length - 1) * building.getHitPoints() / building.getTemplate().getMaxHitPoints())]);
+        tool_tip_box.append(
+                watch[((watch.length - 1) * building.getHitPoints() / building.getTemplate().getMaxHitPoints())]);
         //      if (getUnitContainer() != null && Settings.getSettings().developer_mode) {
         //          tool_tip_box.append(" units_in_building ");
         //          tool_tip_box.append(getUnitContainer().getNumSupplies());
@@ -104,8 +104,8 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
         } else if (unit.getOwner() == local_player && c instanceof GatherController<?> gc) {
             tool_tip_box.append(GUIIcons.getIcons().getToolTipIcon(gc.getSupplyType()));
         }
-		/*      if (getCurrentBehaviour() instanceof WalkBehaviour)
-				((WalkBehaviour)getCurrentBehaviour()).appendToolTip(tool_tip_box);*/
+        /*      if (getCurrentBehaviour() instanceof WalkBehaviour)
+        		((WalkBehaviour)getCurrentBehaviour()).appendToolTip(tool_tip_box);*/
 
     }
 }

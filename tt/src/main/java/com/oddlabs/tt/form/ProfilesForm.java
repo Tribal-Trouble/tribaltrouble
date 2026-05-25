@@ -35,7 +35,7 @@ public final class ProfilesForm extends Form {
     private final @NonNull GUIRoot gui_root;
     private static final ResourceBundle bundle = ResourceBundle.getBundle(ProfilesForm.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -50,12 +50,9 @@ public final class ProfilesForm extends Form {
         Label label_headline = new Label(i18n("profiles_caption"), Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
 
-        ColumnInfo[] infos = new ColumnInfo[]{
-                new ColumnInfo(i18n("nick"), NICK_SIZE),
-                new ColumnInfo(i18n("rating"), 120),
-                new ColumnInfo(i18n("wins"), 100),
-                new ColumnInfo(i18n("losses"), 100),
-                new ColumnInfo(i18n("invalid"), 100)};
+        ColumnInfo[] infos = new ColumnInfo[]{new ColumnInfo(i18n("nick"), NICK_SIZE), new ColumnInfo(i18n("rating"),
+                120), new ColumnInfo(i18n("wins"), 100), new ColumnInfo(i18n("losses"), 100), new ColumnInfo(i18n(
+                        "invalid"), 100)};
         profile_list_box = new MultiColumnComboBox<>(gui_root, infos, 200);
         profile_list_box.addRowListener(new RowListener<>() {
             @Override
@@ -119,12 +116,13 @@ public final class ProfilesForm extends Form {
         profile_list_box.clear();
         Row<String, Label> selected_row = null;
         for (Profile p : profiles) {
-            Row<String, Label> row = new Row<>(new Label[]{
-                    new Label(p.getNick(), Skin.getSkin().getMultiColumnComboBoxData().font(), NICK_SIZE),
-                    new IntegerLabel(p.getRating(), Skin.getSkin().getMultiColumnComboBoxData().font()),
-                    new IntegerLabel(p.getWins(), Skin.getSkin().getMultiColumnComboBoxData().font()),
-                    new IntegerLabel(p.getLosses(), Skin.getSkin().getMultiColumnComboBoxData().font()),
-                    new IntegerLabel(p.getInvalid(), Skin.getSkin().getMultiColumnComboBoxData().font())}, p.getNick());
+            Row<String, Label> row = new Row<>(new Label[]{new Label(p.getNick(),
+                    Skin.getSkin().getMultiColumnComboBoxData().font(), NICK_SIZE), new IntegerLabel(p.getRating(),
+                            Skin.getSkin().getMultiColumnComboBoxData().font()), new IntegerLabel(p.getWins(),
+                                    Skin.getSkin().getMultiColumnComboBoxData().font()), new IntegerLabel(p.getLosses(),
+                                            Skin.getSkin().getMultiColumnComboBoxData().font()), new IntegerLabel(
+                                                    p.getInvalid(),
+                                                    Skin.getSkin().getMultiColumnComboBoxData().font())}, p.getNick());
             profile_list_box.addRow(row);
             if (p.getNick().equalsIgnoreCase(last_nick))
                 selected_row = row;

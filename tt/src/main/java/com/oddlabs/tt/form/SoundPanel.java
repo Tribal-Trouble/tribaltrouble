@@ -39,7 +39,8 @@ public class SoundPanel extends Panel {
         Label label_music = new Label(AbstractOptionsMenu.i18n("music_volume"), Skin.getSkin().getEditFont());
         group_music.addChild(label_music);
 
-        Slider slider_music = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, (int) (Settings.getSettings().music_gain * (MAX_VALUE)));
+        Slider slider_music = new Slider(SLIDER_WIDTH, 0, MAX_VALUE,
+                (int) (Settings.getSettings().music_gain * (MAX_VALUE)));
         slider_music.setDisabled(TEMPORARILY_DISABLE_MUSIC_CONTROLS || !cb_music.isMarked());
         group_music.addChild(slider_music);
 
@@ -74,7 +75,8 @@ public class SoundPanel extends Panel {
         Label label_sound = new Label(AbstractOptionsMenu.i18n("sound_effects_volume"), Skin.getSkin().getEditFont());
         group_sound.addChild(label_sound);
 
-        Slider slider_sound = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, (int) (Settings.getSettings().sound_gain * (MAX_VALUE)));
+        Slider slider_sound = new Slider(SLIDER_WIDTH, 0, MAX_VALUE,
+                (int) (Settings.getSettings().sound_gain * (MAX_VALUE)));
         slider_sound.setDisabled(!cb_sound.isMarked());
         group_sound.addChild(slider_sound);
 
@@ -143,7 +145,8 @@ public class SoundPanel extends Panel {
         group_output.compileCanvas();
 
         // Classic audio toggle
-        CheckBox cb_classic = new CheckBox(Settings.getSettings().classic_audio, AbstractOptionsMenu.i18n("classic_audio"));
+        CheckBox cb_classic = new CheckBox(Settings.getSettings().classic_audio, AbstractOptionsMenu.i18n(
+                "classic_audio"));
         addChild(cb_classic);
         if (Settings.getSettings().classic_audio) {
             group_output.setDisabled(true);

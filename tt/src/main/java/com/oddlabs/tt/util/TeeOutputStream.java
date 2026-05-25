@@ -12,7 +12,7 @@ import java.util.Arrays;
 public final class TeeOutputStream extends OutputStream {
     private final OutputStream @NonNull [] streams;
 
-    public TeeOutputStream(OutputStream @NonNull ... streams) {
+    public TeeOutputStream(OutputStream @NonNull... streams) {
         this.streams = Arrays.copyOf(streams, streams.length);
     }
 

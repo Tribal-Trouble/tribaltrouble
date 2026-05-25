@@ -19,7 +19,8 @@ public final class RenderTools {
      * The rotation is calculated from the direction vector (dir_x, dir_y).
      */
     static void translateAndRotate(@NonNull Model model, @NonNull MatrixStack stack) {
-        translateAndRotate(model.getPositionX(), model.getPositionY(), model.getPositionZ(), model.getDirectionX(), model.getDirectionY(), stack);
+        translateAndRotate(model.getPositionX(), model.getPositionY(), model.getPositionZ(), model.getDirectionX(),
+                model.getDirectionY(), stack);
     }
 
     /**

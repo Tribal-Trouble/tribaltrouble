@@ -58,16 +58,12 @@ public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
     }
 
     private @Nullable S findClosest(@NonNull List<S> supplies) {
-        return supplies.stream()
-                .min(Comparator.comparingInt(this::distanceSquared))
-                .orElse(null);
+        return supplies.stream().min(Comparator.comparingInt(this::distanceSquared)).orElse(null);
     }
 
     private @Nullable S findClosest() {
-        S closest = region_list.stream()
-                .flatMap(List::stream)
-                .min(Comparator.comparingInt(this::distanceSquared))
-                .orElse(null);
+        S closest = region_list.stream().flatMap(List::stream).min(Comparator.comparingInt(
+                this::distanceSquared)).orElse(null);
         region_list.clear();
         return closest;
     }

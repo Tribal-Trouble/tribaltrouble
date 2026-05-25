@@ -94,13 +94,13 @@ public final class EFXManager {
                 // Already handled above, but exhaustive switch required.
             }
             case GENERIC -> // Open Plains: Very light reverb, short decay
-                    setEAXReverb(0.1f, 0.1f, 0.1f, 0.8f, 0.5f, 0.1f, 0.02f, 0.0f, 0.994f);
+                setEAXReverb(0.1f, 0.1f, 0.1f, 0.8f, 0.5f, 0.1f, 0.02f, 0.0f, 0.994f);
             case FOREST -> // Forest: Absorptive, very short decay, dampened
-                    setEAXReverb(0.1f, 0.1f, 0.15f, 0.2f, 0.4f, 0.1f, 0.02f, 0.0f, 0.9f);
+                setEAXReverb(0.1f, 0.1f, 0.15f, 0.2f, 0.4f, 0.1f, 0.02f, 0.0f, 0.9f);
             case VALLEY -> // Valley: Echoey but not overwhelming
-                    setEAXReverb(0.2f, 0.3f, 0.4f, 0.5f, 1.2f, 0.3f, 0.1f, 0.1f, 0.994f);
+                setEAXReverb(0.2f, 0.3f, 0.4f, 0.5f, 1.2f, 0.3f, 0.1f, 0.1f, 0.994f);
             case UNDERWATER -> // Underwater: Muffled, boomy
-                    setEAXReverb(1.0f, 0.1f, 0.8f, 0.1f, 1.2f, 0.01f, 0.01f, 0.0f, 0.9f);
+                setEAXReverb(1.0f, 0.1f, 0.8f, 0.1f, 1.2f, 0.01f, 0.01f, 0.0f, 0.9f);
         }
 
         // Bind effect to slot
@@ -109,7 +109,8 @@ public final class EFXManager {
     }
 
     // Helper to set EAX Reverb properties (simplified subset)
-    private void setEAXReverb(float density, float diffusion, float gain, float gainHF, float decayTime, float reflectionsGain, float reflectionsDelay, float lateReverbDelay, float airAbsorption) {
+    private void setEAXReverb(float density, float diffusion, float gain, float gainHF, float decayTime,
+            float reflectionsGain, float reflectionsDelay, float lateReverbDelay, float airAbsorption) {
         alEffectf(reverbEffect, AL_EAXREVERB_DENSITY, density);
         alEffectf(reverbEffect, AL_EAXREVERB_DIFFUSION, diffusion);
         alEffectf(reverbEffect, AL_EAXREVERB_GAIN, gain);

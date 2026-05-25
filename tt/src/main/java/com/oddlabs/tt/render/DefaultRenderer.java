@@ -84,13 +84,17 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         }
     }
 
-    public DefaultRenderer(@Nullable Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues, @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker, @NonNull Selection selection, @NonNull WorldGenerator generator, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public DefaultRenderer(@Nullable Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues,
+            @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker,
+            @NonNull Selection selection, @NonNull WorldGenerator generator, @NonNull MatrixStack modelViewStack,
+            @NonNull MatrixStack projectionStack) {
         this.world = local_player.getWorld();
         this.cheat = cheat;
         this.render_queues = render_queues;
         this.picker = picker;
         this.selection = selection;
-        this.element_renderer = new ElementRenderer<>(local_player, render_queues, picker, false, sprite_sorter, selection);
+        this.element_renderer = new ElementRenderer<>(local_player, render_queues, picker, false, sprite_sorter,
+                selection);
         this.tree_renderer = new TreeRenderer(cheat, sprite_sorter, picker.getRespondManager(), treeSpriteRenderer);
         this.landscape_renderer = landscape_renderer;
         this.sky = new Sky(landscape_renderer, generator.getTerrainType(), world_info.detail());
@@ -128,8 +132,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     private static final SpriteShader spriteShader = new SpriteShader(); // For rally point
 
     private void doRenderRallyPoint(@NonNull RenderContext context, @NonNull CameraState camera_state) {
-        try (var _ = spriteShader.use();
-             var _ = context.withBlendMode(BlendMode.ALPHA)) {
+        try (var _ = spriteShader.use(); var _ = context.withBlendMode(BlendMode.ALPHA)) {
 
             Target rally_point = selected_building.getRallyPoint();
             Race race = selected_building.getOwner().getRace();
@@ -219,9 +222,9 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     }
 
     private void renderScene(@NonNull RenderContext context, @NonNull CameraState frustum_state,
-                             @NonNull GUIRoot gui_root, boolean includeWater,
-                             @Nullable Texture reflectionTexture, @Nullable Matrix4f reflectionVP,
-                             boolean aboveSea) {
+            @NonNull GUIRoot gui_root, boolean includeWater,
+            @Nullable Texture reflectionTexture, @Nullable Matrix4f reflectionVP,
+            boolean aboveSea) {
         if (Globals.line_mode || (cheat != null && cheat.line_mode)) {
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
         }
@@ -272,7 +275,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
             render_queues.renderNoDetail();
         }
 
-        gui_root.getDelegate().render3D(landscape_renderer, render_queues, frustum_state, modelViewStack, projectionStack);
+        gui_root.getDelegate().render3D(landscape_renderer, render_queues, frustum_state, modelViewStack,
+                projectionStack);
 
         if (Globals.debugRenderingEnabled()) {
             renderDebugElements(frustum_state);
@@ -284,20 +288,24 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         // Usually a scene would be rendered with water included. But when rendering the scene from the water's point of view,
         // it's meaningless to render the water when the render pass itself is for the water.
         if (includeWater && Globals.draw_water) {
-            water.render(context, frustum_state, landscape_renderer.getVisiblePatches(), reflectionTexture, reflectionVP);
+            water.render(context, frustum_state, landscape_renderer.getVisiblePatches(), reflectionTexture,
+                    reflectionVP);
         }
 
         if (Globals.process_misc)
             render_queues.renderBlends(context, frustum_state, projectionStack);
 
-        lightningRenderer.render(context, render_queues, element_renderer.getRenderState().getLightningQueue(), frustum_state, modelViewStack, projectionStack);
-        emitterRenderer.render(context, render_queues, element_renderer.getRenderState().getEmitterQueue(), frustum_state, modelViewStack, projectionStack);
+        lightningRenderer.render(context, render_queues, element_renderer.getRenderState().getLightningQueue(),
+                frustum_state, modelViewStack, projectionStack);
+        emitterRenderer.render(context, render_queues, element_renderer.getRenderState().getEmitterQueue(),
+                frustum_state, modelViewStack, projectionStack);
         // Flush sprite-based particles (e.g. building debris) that were deferred to
         // SpriteListRenderer during emitter collection. This must happen after emitter pass.
         render_queues.renderEmitterSprites(context, frustum_state, projectionStack);
 
         if (world.getRacesResources() != null) {
-            sonicBlastRenderer.render(context, render_queues, element_renderer.getRenderState().getSonicBlastQueue(), frustum_state, modelViewStack, projectionStack, world.getRacesResources().getPoisonTextures()[0]);
+            sonicBlastRenderer.render(context, render_queues, element_renderer.getRenderState().getSonicBlastQueue(),
+                    frustum_state, modelViewStack, projectionStack, world.getRacesResources().getPoisonTextures()[0]);
         }
 
         // Rally point uses SpriteShader (Mask) -> Enable
@@ -319,7 +327,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     }
 
     @Override
-    public void render(@NonNull RenderContext context, @NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root) {
+    public void render(@NonNull RenderContext context, @NonNull AmbientAudio ambient,
+            @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root) {
         suppressTeamHighlight = frustum_state.inNoDetailMode();
         if (postProcessor.resize(frustum_state.getWidth(), frustum_state.getHeight())) {
             reflectionFBO.resize(frustum_state.getWidth(), frustum_state.getHeight());
@@ -329,8 +338,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
         Vector3f ga = Globals.classic_lighting ? globalAmbientClassic : globalAmbientEnhanced;
         Vector3f gga = Globals.classic_lighting ? groundAmbientClassic : groundAmbientEnhanced;
-        
-        // Rendering everything from the water's point of view. It's as if we put the camera underwater and 
+
+        // Rendering everything from the water's point of view. It's as if we put the camera underwater and
         // rendered from there. The output image will be used to color the water as if it's a reflection
         CameraState waterCamera = frustum_state.reflectCamera(world.getHeightMap().getSeaLevelMeters());
         globalUniforms.update(waterCamera, sunDirection, ga, gga, LocalEventQueue.getQueue().getTime());
@@ -347,7 +356,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         projectionStack.current().set(frustum_state.getProjectionMatrix());
         postProcessor.bindSceneFBO();
         context.clear(true, true);
-        renderScene(context, frustum_state, gui_root, true, reflectionFBO.getColorTexture(), waterCamera.getProjectionModelView(), false);
+        renderScene(context, frustum_state, gui_root, true, reflectionFBO.getColorTexture(),
+                waterCamera.getProjectionModelView(), false);
     }
 
     @Override

@@ -50,7 +50,7 @@ public abstract class GLImage {
                 yield GL11.GL_UNSIGNED_BYTE;
             }
             case GL11.GL_LUMINANCE, GL13.GL_COMPRESSED_LUMINANCE, GL11.GL_ALPHA, GL13.GL_COMPRESSED_ALPHA,
-                 GL11.GL_RED -> {
+                    GL11.GL_RED -> {
                 // assert width * height == pixel_data.remaining();
                 yield GL11.GL_UNSIGNED_BYTE;
             }
@@ -70,7 +70,8 @@ public abstract class GLImage {
         return buildMipMaps(10000, 1.0f, false, false);
     }
 
-    public final @NonNull GLImage @NonNull [] buildMipMaps(int base_fadeout_level, float fadeout_factor, boolean wrapping, boolean max_alpha) {
+    public final @NonNull GLImage @NonNull [] buildMipMaps(int base_fadeout_level, float fadeout_factor,
+            boolean wrapping, boolean max_alpha) {
         int max = Math.max(height, width);
         int max_level = (int) (Math.log(max) / Math.log(2));
         GLImage[] result = new GLImage[max_level + 1];
@@ -88,7 +89,8 @@ public abstract class GLImage {
 
             for (int y = 0; y < current_height; y++) {
                 for (int x = 0; x < current_width; x++) {
-                    result[i].putPixel(x, y, averagePixel(prev, x * width_div, y * height_div, height_div, width_div, base_fadeout_level, fadeout_factor, i, max_alpha));
+                    result[i].putPixel(x, y, averagePixel(prev, x * width_div, y * height_div, height_div, width_div,
+                            base_fadeout_level, fadeout_factor, i, max_alpha));
                 }
             }
         }
@@ -127,7 +129,8 @@ public abstract class GLImage {
      * @param height             The height of the area to modify.
      * @param max_alpha          If true, only pixels with full alpha (255) are faded.
      */
-    public static void updateMipMapsArea(GLImage @NonNull [] mipmaps, int base_fadeout_level, float fadeout_factor, int start_x, int start_y, int width, int height, boolean max_alpha) {
+    public static void updateMipMapsArea(GLImage @NonNull [] mipmaps, int base_fadeout_level, float fadeout_factor,
+            int start_x, int start_y, int width, int height, boolean max_alpha) {
         for (int i = 1; i < mipmaps.length; i++) {
             int height_div = mipmaps[i - 1].getHeight() / mipmaps[i].getHeight();
             int width_div = mipmaps[i - 1].getWidth() / mipmaps[i].getWidth();
@@ -137,15 +140,18 @@ public abstract class GLImage {
             height = (int) Math.ceil((float) height / height_div);
             for (int y = start_y; y < start_y + height; y++) {
                 for (int x = start_x; x < start_x + width; x++) {
-                    mipmaps[i].putPixel(x, y, averagePixel(mipmaps[i - 1], width_div * x, height_div * y, height_div, width_div, base_fadeout_level, fadeout_factor, i, max_alpha));
+                    mipmaps[i].putPixel(x, y, averagePixel(mipmaps[i - 1], width_div * x, height_div * y, height_div,
+                            width_div, base_fadeout_level, fadeout_factor, i, max_alpha));
                 }
             }
         }
     }
 
-    public static void blendMipMapsArea(GLImage @NonNull [] dest_mipmaps, GLImage @NonNull [] source_mipmaps, int base_fadeout_level, float fadeout_factor, int start_x, int start_y, int width, int height) {
+    public static void blendMipMapsArea(GLImage @NonNull [] dest_mipmaps, GLImage @NonNull [] source_mipmaps,
+            int base_fadeout_level, float fadeout_factor, int start_x, int start_y, int width, int height) {
         int mip_map_level = 0;
-        while (source_mipmaps[0].getWidth() != dest_mipmaps[mip_map_level].getWidth() && source_mipmaps[0].getHeight() != dest_mipmaps[mip_map_level].getHeight())
+        while (source_mipmaps[0].getWidth() != dest_mipmaps[mip_map_level].getWidth()
+                && source_mipmaps[0].getHeight() != dest_mipmaps[mip_map_level].getHeight())
             mip_map_level++;
         for (int i = 1; i < dest_mipmaps.length; i++) {
             int height_div = dest_mipmaps[i - 1].getHeight() / dest_mipmaps[i].getHeight();
@@ -156,7 +162,8 @@ public abstract class GLImage {
             height = (int) Math.ceil((float) height / height_div);
             if (i >= base_fadeout_level) {
                 if (i >= mip_map_level)
-                    dest_mipmaps[i].drawImageBlended(source_mipmaps[i - mip_map_level], start_x, start_y, start_x, start_y, width, height, 1.0f - fadeout_factor);
+                    dest_mipmaps[i].drawImageBlended(source_mipmaps[i - mip_map_level], start_x, start_y, start_x,
+                            start_y, width, height, 1.0f - fadeout_factor);
                 fadeout_factor *= fadeout_factor;
             }
         }
@@ -179,7 +186,8 @@ public abstract class GLImage {
      *                           otherwise, it's the average.
      * @return The calculated 32-bit ARGB pixel value.
      */
-    private static int averagePixel(@NonNull GLImage last_img, int x, int y, int height_div, int width_div, int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
+    private static int averagePixel(@NonNull GLImage last_img, int x, int y, int height_div, int width_div,
+            int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
         float inv_num_averaged = 1f / (height_div * width_div);
         int a_acc = 0;
         long r_acc = 0; // Use long to prevent overflow during weighted sum
@@ -264,7 +272,8 @@ public abstract class GLImage {
      * @return The calculated 32-bit ARGB pixel value.
      */
 
-    private static int averagePixelThreshold(@NonNull GLImage last_img, int x, int y, int height_div, int width_div, int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
+    private static int averagePixelThreshold(@NonNull GLImage last_img, int x, int y, int height_div, int width_div,
+            int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
         float inv_num_averaged = 1f / (height_div * width_div);
         int col1 = 0; // Alpha (MSB)
         int col2 = 0; // Blue
@@ -315,7 +324,8 @@ public abstract class GLImage {
         }
     }
 
-    public final void drawImageBlended(@NonNull GLImage img, int dx, int dy, int sx, int sy, int w, int h, float alpha_factor) {
+    public final void drawImageBlended(@NonNull GLImage img, int dx, int dy, int sx, int sy, int w, int h,
+            float alpha_factor) {
         int spixel;
         int dpixel;
         int sr;
@@ -352,7 +362,8 @@ public abstract class GLImage {
                 dg = dpixel >>> 8 & 0xff;
                 db = dpixel & 0xff;
                 da = dpixel >>> 24;
-                putPixel(x + dx, y + dy, (((sa * sa + da * sa_inverse) / 255) << 24) + (((sr * sa + dr * sa_inverse) / 255) << 16) + (((sg * sa + dg * sa_inverse) / 255) << 8) + ((sb * sa + db * sa_inverse) / 255));
+                putPixel(x + dx, y + dy,
+                        (((sa * sa + da * sa_inverse) / 255) << 24) + (((sr * sa + dr * sa_inverse) / 255) << 16) + (((sg * sa + dg * sa_inverse) / 255) << 8) + ((sb * sa + db * sa_inverse) / 255));
 //				System.out.println("result dp " + Integer.toHexString(pixels[x+dy_loop]) + " sp " + Integer.toHexString(spixel) + " dp " + Integer.toHexString(dpixel) + " sa " + Integer.toHexString(sa) + " sa_inv " + Integer.toHexString(sa_inverse) + " sr " + Integer.toHexString(sr) + " sg " + Integer.toHexString(sg) + " sb " + Integer.toHexString(sb) + " dr " + Integer.toHexString(dr) + " dg " + Integer.toHexString(dg)  + " db " + Integer.toHexString(db) + " da " + Integer.toHexString(da));
             }
         }

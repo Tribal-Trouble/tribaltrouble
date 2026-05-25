@@ -14,6 +14,7 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.UnitInfo;
 import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.resource.WorldGenerator;
+import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
@@ -33,7 +34,9 @@ final class WorldStarter implements LoadCallback {
     private final @Nullable WorldInitAction initial_action;
     private final int session_id;
 
-    WorldStarter(NetworkSelector network, int session_id, WorldGenerator generator, WorldParameters world_params, PlayerSlot[] player_slots, UnitInfo[] unit_infos, short player_slot, InGameInfo ingame_info, @Nullable WorldInitAction initial_action) {
+    WorldStarter(NetworkSelector network, int session_id, WorldGenerator generator, WorldParameters world_params,
+            PlayerSlot[] player_slots, UnitInfo[] unit_infos, short player_slot, InGameInfo ingame_info,
+            @Nullable WorldInitAction initial_action) {
         this.initial_action = initial_action;
         this.session_id = session_id;
         this.world_params = world_params;
@@ -62,17 +65,19 @@ final class WorldStarter implements LoadCallback {
         assert corrected_player_slot != -1;
         PlayerSlot[] player_slots = player_slot_list.toArray(new PlayerSlot[0]);
         UnitInfo[] corrected_unit_infos = unit_info_list.toArray(new UnitInfo[0]);
-        WorldViewer viewer = new WorldViewer(network, gui_root, world_params, ingame_info, generator, player_slots, corrected_unit_infos, corrected_player_slot, new SessionID(session_id));
+        WorldViewer viewer = new WorldViewer(network, gui_root, world_params, ingame_info, generator, player_slots,
+                corrected_unit_infos, corrected_player_slot, new SessionID(session_id));
         if (initial_action != null)
             initial_action.run(viewer);
         Participant[] participants = getParticipants(viewer, player_slots);
         GamePlayer[] gamePlayers = getGamePlayers(viewer, player_slots);
         if (Network.getMatchmakingClient().isConnected()) {
-            Network.getMatchmakingClient().clearChatRoomInfo();
             GameSession game_session = new GameSession(session_id, participants, ingame_info.isRated(), gamePlayers);
             Network.getMatchmakingClient().getInterface().gameStartedNotify(game_session);
             sendWorldParams(player_slots, corrected_unit_infos);
+            SteamManager.setMultiplayerInGameRichPresence();
         }
+        SteamManager.setInActiveWorld(true);
         IO.println("PeerHub created (session_id = " + session_id + ") Player list:");
         return viewer.getRenderer();
     }
@@ -96,7 +101,8 @@ final class WorldStarter implements LoadCallback {
         }
     }
 
-    private static @NonNull Participant @NonNull [] getParticipants(@NonNull WorldViewer viewer, @NonNull PlayerSlot @NonNull [] player_slots) {
+    private static @NonNull Participant @NonNull [] getParticipants(@NonNull WorldViewer viewer,
+            @NonNull PlayerSlot @NonNull [] player_slots) {
         List<Participant> participant_list = new ArrayList<>();
         Player[] players = viewer.getWorld().getPlayers();
         for (short i = 0; i < players.length; i++) {
@@ -104,19 +110,22 @@ final class WorldStarter implements LoadCallback {
                 continue;
             Player player = players[i];
             int host_id = player_slots[i].getAddress() != null ? player_slots[i].getAddress().getHostID() : -1;
-            participant_list.add(new Participant(host_id, player.getPlayerInfo().getName(), player.getPlayerInfo().getTeam(), player.getPlayerInfo().getRace()));
+            participant_list.add(new Participant(host_id, player.getPlayerInfo().getName(),
+                    player.getPlayerInfo().getTeam(), player.getPlayerInfo().getRace()));
         }
         return participant_list.toArray(new Participant[0]);
     }
 
-    private static @NonNull GamePlayer @NonNull [] getGamePlayers(@NonNull WorldViewer viewer, @NonNull PlayerSlot @NonNull [] player_slots) {
+    private static @NonNull GamePlayer @NonNull [] getGamePlayers(@NonNull WorldViewer viewer,
+            @NonNull PlayerSlot @NonNull [] player_slots) {
         Player[] players = viewer.getWorld().getPlayers();
         GamePlayer[] gamePlayers = new GamePlayer[players.length];
         for (short i = 0; i < players.length; i++) {
             Player player = players[i];
             PlayerTypes playerType = mapPlayerType(player_slots[i]);
             String name = player_slots[i].getType() == PlayerSlot.HUMAN ? player.getPlayerInfo().getName() : null;
-            gamePlayers[i] = new GamePlayer(name, player.getPlayerInfo().getTeam(), player.getPlayerInfo().getRace(), playerType);
+            gamePlayers[i] = new GamePlayer(name, player.getPlayerInfo().getTeam(), player.getPlayerInfo().getRace(),
+                    playerType);
         }
         return gamePlayers;
     }

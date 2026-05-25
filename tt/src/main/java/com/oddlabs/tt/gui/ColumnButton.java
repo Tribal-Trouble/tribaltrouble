@@ -12,7 +12,8 @@ public final class ColumnButton<T> extends RadioButtonGroupElement {
     private boolean sorted_descending;
     private boolean pressed = false;
 
-    ColumnButton(@NonNull RadioButtonGroup group, @NonNull RowCollection<T> rows, @NonNull ColumnInfo info, int column_index, boolean sorted_descending) {
+    ColumnButton(@NonNull RadioButtonGroup group, @NonNull RowCollection<T> rows, @NonNull ColumnInfo info,
+            int column_index, boolean sorted_descending) {
         super(column_index == 0, group);
         this.rows = rows;
         this.column_index = column_index;
@@ -53,18 +54,12 @@ public final class ColumnButton<T> extends RadioButtonGroupElement {
 
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
-        ModeIconQuads.Mode skinMode = isDisabled()
-                ? ModeIconQuads.Mode.DISABLED
-                : isHovered() && pressed
-                  ? ModeIconQuads.Mode.ACTIVE
-                  : isActive()
-                    ? ModeIconQuads.Mode.ACTIVE
-                    : ModeIconQuads.Mode.NORMAL;
+        ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isHovered()
+                && pressed ? ModeIconQuads.Mode.ACTIVE : isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
 
         var data = Skin.getSkin().getMultiColumnComboBoxData();
-        Horizontal buttonHorizontal = skinMode == ModeIconQuads.Mode.ACTIVE && isHovered() && pressed
-                ? data.buttonPressed()
-                : data.buttonUnpressed();
+        Horizontal buttonHorizontal = skinMode == ModeIconQuads.Mode.ACTIVE && isHovered()
+                && pressed ? data.buttonPressed() : data.buttonUnpressed();
 
         buttonHorizontal.render(renderer, 0, 0, getWidth(), skinMode);
         if (isMarked())
@@ -73,9 +68,7 @@ public final class ColumnButton<T> extends RadioButtonGroupElement {
 
     private void renderMark(@NonNull GUIRenderer renderer, ModeIconQuads.@NonNull Mode skinMode) {
         var data = Skin.getSkin().getMultiColumnComboBoxData();
-        ModeIconQuads arrow = sorted_descending
-                ? data.descending()
-                : data.ascending();
+        ModeIconQuads arrow = sorted_descending ? data.descending() : data.ascending();
 
         IconQuad arrowQuad = arrow.quad(skinMode);
         renderer.drawIcon(arrowQuad, arrow_offset, (getHeight() - arrowQuad.getHeight()) / 2f);

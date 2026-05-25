@@ -10,7 +10,7 @@ public interface MatchmakingServerLoginInterface {
 
     void loginAsGuest(int revision);
 
-    void loginWithSteam(long steamAccountId, String personaName, byte[] authTicket, int revision);
+    void loginWithSteam(long steamAccountId, String personaName, byte[] authTicket, int appId, int revision);
 
     void createUser(Login login, LoginDetails login_details, SignedObject reg_key, int revision);
 }

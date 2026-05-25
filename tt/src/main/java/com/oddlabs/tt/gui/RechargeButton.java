@@ -11,7 +11,8 @@ public class RechargeButton extends NonFocusIconButton implements ToolTip {
     private final int magic_index;
     private Unit unit;
 
-    public RechargeButton(@NonNull PlayerInterface player_interface, @NonNull ModeIconQuads icon, @NonNull String tool_tip, int magic_index) {
+    public RechargeButton(@NonNull PlayerInterface player_interface, @NonNull ModeIconQuads icon,
+            @NonNull String tool_tip, int magic_index) {
         super(icon, tool_tip);
         this.player_interface = player_interface;
         this.magic_index = magic_index;

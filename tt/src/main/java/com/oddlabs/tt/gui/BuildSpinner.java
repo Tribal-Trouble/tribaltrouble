@@ -24,8 +24,8 @@ public final class BuildSpinner extends IconSpinner {
     private boolean infinite;
 
     BuildSpinner(@NonNull WorldViewer viewer, @NonNull PlayerInterface player_interface,
-                 @NonNull ModeIconQuads icon_quad, @NonNull String tool_tip, @NonNull IconQuad @Nullable [] tool_tip_icons,
-                 @NonNull String shortcut_key) {
+            @NonNull ModeIconQuads icon_quad, @NonNull String tool_tip, @NonNull IconQuad @Nullable [] tool_tip_icons,
+            @NonNull String shortcut_key) {
         super(viewer, icon_quad, tool_tip, tool_tip_icons, shortcut_key);
         this.player_interface = player_interface;
     }
@@ -76,9 +76,8 @@ public final class BuildSpinner extends IconSpinner {
 
     @Override
     protected float getProgress() {
-        return current_building.isDead()
-                ? 0
-                : ((BuildProductionContainer) current_building.getBuildSupplyContainer(type)).getBuildProgress();
+        return current_building.isDead() ? 0 : ((BuildProductionContainer) current_building.getBuildSupplyContainer(
+                type)).getBuildProgress();
     }
 
     Building getBuilding() {
@@ -86,9 +85,8 @@ public final class BuildSpinner extends IconSpinner {
     }
 
     private int getOrderDiff() {
-        return current_building.isDead()
-                ? 0
-                : num_orders - current_building.getBuildSupplyContainer(type).getNumOrders();
+        return current_building.isDead() ? 0 : num_orders - current_building.getBuildSupplyContainer(
+                type).getNumOrders();
     }
 
     @Override

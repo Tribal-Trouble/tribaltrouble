@@ -236,7 +236,8 @@ public final class CameraState {
     private static final Vector3f tmp = new Vector3f();
     private static final Vector3f tmp2 = new Vector3f();
 
-    private static void updateDirectionAndNormal(float hangle, float vangle, @NonNull Vector3f f, @NonNull Vector3f u, @NonNull Vector3f s) {
+    private static void updateDirectionAndNormal(float hangle, float vangle, @NonNull Vector3f f, @NonNull Vector3f u,
+            @NonNull Vector3f s) {
         float radius = (float) Math.cos(vangle);
         float dir_x = (float) Math.cos(hangle);
         float dir_y = (float) Math.sin(hangle);
@@ -329,7 +330,8 @@ public final class CameraState {
 
         for (float[] frustum1 : frustum) {
             /* Normalize the result */
-            float length_inv = 1f / ((float) java.lang.Math.sqrt(frustum1[0] * frustum1[0] + frustum1[1] * frustum1[1] + frustum1[2] * frustum1[2]));
+            float length_inv = 1f / ((float) java.lang.Math.sqrt(
+                    frustum1[0] * frustum1[0] + frustum1[1] * frustum1[1] + frustum1[2] * frustum1[2]));
             frustum1[0] *= length_inv;
             frustum1[1] *= length_inv;
             frustum1[2] *= length_inv;

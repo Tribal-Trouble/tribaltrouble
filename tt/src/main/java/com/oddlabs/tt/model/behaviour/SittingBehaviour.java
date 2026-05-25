@@ -1,6 +1,5 @@
 package com.oddlabs.tt.model.behaviour;
 
-import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.model.ShipAllocation;
 import com.oddlabs.tt.model.Unit;
@@ -63,5 +62,6 @@ public final class SittingBehaviour implements Behaviour {
         return false;
     }
 
-    public final void forceInterrupted() {}
+    public final void forceInterrupted() {
+    }
 }

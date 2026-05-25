@@ -70,7 +70,8 @@ public abstract class ControllableCameraDelegate extends InGameDelegate {
     }
 
     @Override
-    public void mouseDragged(@NonNull MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
+    public void mouseDragged(@NonNull MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x,
+            int absolute_y) {
         if (button == MouseButton.MIDDLE && first_person_delegate != null) {
             first_person_delegate.mouseDragged(button, x, y, relative_x, relative_y, absolute_x, absolute_y);
         }

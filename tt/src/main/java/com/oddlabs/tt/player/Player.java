@@ -118,9 +118,7 @@ public final class Player implements PlayerInterface {
     }
 
     public int getGamespeed() {
-        return World.isValidGamespeed(preferred_speed)
-                ? preferred_speed
-                : world.getGamespeed();
+        return World.isValidGamespeed(preferred_speed) ? preferred_speed : world.getGamespeed();
     }
 
     public int getPreferredGamespeed() {
@@ -261,7 +259,8 @@ public final class Player implements PlayerInterface {
     }
 
     public @Nullable Building buildBuilding(int building_type, int grid_x, int grid_y) {
-        BuildingSiteScanFilter filter = new BuildingSiteScanFilter(world.getUnitGrid(), getRace().getBuildingTemplate(building_type), 40, true);
+        BuildingSiteScanFilter filter = new BuildingSiteScanFilter(world.getUnitGrid(), getRace().getBuildingTemplate(
+                building_type), 40, true);
         world.getUnitGrid().scan(filter, grid_x, grid_y);
         List<LandscapeTarget> target_list = filter.getResult();
         Building b = null;
@@ -291,7 +290,8 @@ public final class Player implements PlayerInterface {
         return getUnits().getSet().stream().mapToInt(Selectable::getStatusValue).sum();
     }
 
-    public @Nullable Selectable<?> findNearestEnemy(int start_x, int start_y, Selectable<?> target, @NonNull Class<? extends Selectable<?>> type) {
+    public @Nullable Selectable<?> findNearestEnemy(int start_x, int start_y, Selectable<?> target,
+            @NonNull Class<? extends Selectable<?>> type) {
         int best_dist_squared = Integer.MAX_VALUE;
         Selectable<?> best_target = null;
         for (Player player : world.getPlayers()) {
@@ -337,7 +337,8 @@ public final class Player implements PlayerInterface {
         Selectable<?>[][] lists = classifyUnits();
         for (Selectable<?>[] list : lists) {
             Selectable<?> s = list[0];
-            if (s.getPrimaryController() instanceof NullController && s.getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
+            if (s.getPrimaryController() instanceof NullController && s.getAbilities().hasAbilities(
+                    Abilities.BUILD_ARMIES)) {
                 return (Building) s;
             }
         }
@@ -348,7 +349,8 @@ public final class Player implements PlayerInterface {
         Selectable<?>[][] lists = classifyUnits();
         for (Selectable<?>[] list : lists) {
             Selectable<?> s = list[0];
-            if (s.getPrimaryController() instanceof NullController && s.getAbilities().hasAbilities(Abilities.REPRODUCE)) {
+            if (s.getPrimaryController() instanceof NullController && s.getAbilities().hasAbilities(
+                    Abilities.REPRODUCE)) {
                 return (Building) s;
             }
         }
@@ -476,7 +478,8 @@ public final class Player implements PlayerInterface {
     }
 
     @Override
-    public void placeBuilding(Selectable<?> @NonNull [] selection, int template_id, int placing_grid_x, int placing_grid_y) {
+    public void placeBuilding(Selectable<?> @NonNull [] selection, int template_id, int placing_grid_x,
+            int placing_grid_y) {
         Building building = getRace().getBuildingTemplate(template_id).create(this, placing_grid_x, placing_grid_y);
 
         for (var selection1 : selection) {
@@ -498,7 +501,8 @@ public final class Player implements PlayerInterface {
     }
 
     @Override
-    public void setTarget(Selectable<?> @NonNull [] selection, @NonNull Target target, @NonNull Action action, boolean aggressive) {
+    public void setTarget(Selectable<?> @NonNull [] selection, @NonNull Target target, @NonNull Action action,
+            boolean aggressive) {
         for (Selectable<?> selection1 : selection) {
             if (isValid(selection1)) {
                 selection1.initTarget(target, action, aggressive);
@@ -526,7 +530,8 @@ public final class Player implements PlayerInterface {
     }
 
     @Override
-    public void setLandscapeTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action, boolean aggressive) {
+    public void setLandscapeTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action,
+            boolean aggressive) {
         if (selection.length == 0)
             return;
         int grid_size = world.getUnitGrid().getGridSize();
@@ -569,7 +574,8 @@ public final class Player implements PlayerInterface {
 
     public boolean teamHasBuilding() {
         for (Player player : world.getPlayers()) {
-            if (player.getPlayerInfo().getTeam() == player_info.getTeam() && player.getBuildingCountContainer().getNumSupplies() > 0) {
+            if (player.getPlayerInfo().getTeam() == player_info.getTeam()
+                    && player.getBuildingCountContainer().getNumSupplies() > 0) {
                 return true;
             }
         }
@@ -581,11 +587,9 @@ public final class Player implements PlayerInterface {
     }
 
     public @NonNull Selectable<?> @NonNull [] @NonNull [] classifyUnits() {
-        Map<String, List<Selectable<?>>> map = units.getSet().stream()
-                .collect(Collectors.groupingBy(u -> u.getPrimaryController().getKey()));
-        return map.values().stream()
-                .map(list -> list.toArray(Selectable[]::new))
-                .toArray(Selectable[][]::new);
+        Map<String, List<Selectable<?>>> map = units.getSet().stream().collect(Collectors.groupingBy(
+                u -> u.getPrimaryController().getKey()));
+        return map.values().stream().map(list -> list.toArray(Selectable[]::new)).toArray(Selectable[][]::new);
     }
 
     public void magicCast() {

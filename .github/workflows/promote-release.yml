@@ -1,0 +1,121 @@
+name: Promote Release to Stable
+
+# Manual workflow_dispatch to promote a previously-released tag from prerelease
+# destinations to stable: itch stable channels, website root (replacing /prerelease/
+# zips at the homepage URLs), and the GitHub Release `latest` flag.
+#
+# Steam still requires a manual partner-dashboard promotion (Valve restriction).
+# The summary at the end of this workflow tells you what to do there.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to promote (e.g. v2.0.14-103)'
+        required: true
+        type: string
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+    steps:
+      - name: Verify tag exists on GitHub
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ inputs.tag }}"
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::Release '$TAG' not found. Available: gh release list --repo $GITHUB_REPOSITORY"
+            exit 1
+          fi
+          echo "Release $TAG found, proceeding."
+
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir release-assets
+          gh release download "${{ inputs.tag }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --dir release-assets \
+            --pattern 'tribal-trouble-windows_*.zip' \
+            --pattern 'tribal-trouble-linux-appimage_*.AppImage' \
+            --pattern 'tribal-trouble-mac-arm64_*.dmg' \
+            --pattern 'tribal-trouble-mac-x86_*.dmg'
+          ls -lh release-assets/
+
+      - name: Install butler
+        run: |
+          curl -L -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip -q butler.zip
+          chmod +x butler
+          ./butler -V
+
+      - name: Push to itch.io stable channels
+        env:
+          BUTLER_API_KEY: ${{ secrets.ITCH_BUTLER_API_KEY }}
+        run: |
+          TAG="${{ inputs.tag }}"
+          PROJECT="${{ vars.ITCH_PROJECT }}"
+          ./butler push release-assets/tribal-trouble-windows_*.zip             "$PROJECT:windows"   --userversion "$TAG"
+          ./butler push release-assets/tribal-trouble-linux-appimage_*.AppImage "$PROJECT:linux"     --userversion "$TAG"
+          ./butler push release-assets/tribal-trouble-mac-arm64_*.dmg           "$PROJECT:osx-arm64" --userversion "$TAG"
+          ./butler push release-assets/tribal-trouble-mac-x86_*.dmg             "$PROJECT:osx-x86"   --userversion "$TAG"
+
+      - name: Stage with stable filenames
+        run: |
+          mkdir staging
+          # Windows asset is already a zip; rename.
+          mv release-assets/tribal-trouble-windows_*.zip staging/windows.zip
+          # Linux/Mac assets are bare files; wrap in zips to match the homepage pattern.
+          (cd release-assets && zip -qj ../staging/linux.zip     tribal-trouble-linux-appimage_*.AppImage)
+          (cd release-assets && zip -qj ../staging/mac-arm64.zip tribal-trouble-mac-arm64_*.dmg)
+          (cd release-assets && zip -qj ../staging/mac-x86.zip   tribal-trouble-mac-x86_*.dmg)
+          ls -lh staging/
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY_PROD }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ vars.DEPLOY_HOST_PROD }}" >> ~/.ssh/known_hosts
+
+      - name: Upload to website root (atomic)
+        run: |
+          rsync --delay-updates -v \
+            staging/windows.zip staging/linux.zip staging/mac-arm64.zip staging/mac-x86.zip \
+            "${{ vars.DEPLOY_USER_PROD }}@${{ vars.DEPLOY_HOST_PROD }}:/var/www/html/"
+
+      - name: Flip GitHub Release to latest (not prerelease)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ inputs.tag }}"
+          gh release edit "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --prerelease=false \
+            --latest
+          echo "$TAG: prerelease=false, latest=true"
+
+      - name: Summary
+        run: |
+          TAG="${{ inputs.tag }}"
+          {
+            echo "## Promoted ${TAG} to stable"
+            echo ""
+            echo "Updated:"
+            echo "- itch stable channels: \`windows\`, \`linux\`, \`osx-arm64\`, \`osx-x86\`"
+            echo "- Website root: https://tribaltrouble.org/{windows,linux,mac-arm64,mac-x86}.zip"
+            echo "- GitHub Release \`${TAG}\` flipped to \`latest\` (no longer prerelease)"
+            echo ""
+            echo "### Manual step still required: Steam"
+            echo ""
+            echo "Steam does not allow CI to push to the \`default\` branch. Open the partner dashboard,"
+            echo "find the build for \`${TAG}\`, and set its branch from \`prerelease\` to \`default\`:"
+            echo ""
+            echo "- Main game: <https://partner.steamgames.com/apps/builds/${{ vars.STEAM_APP_ID }}>"
+            echo "- Demo:      <https://partner.steamgames.com/apps/builds/${{ vars.STEAM_DEMO_APP_ID }}>"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -48,12 +48,12 @@ public final class LocalEventQueue implements AutoCloseable {
     //public static Deterministic stack_deterministic;
     public void loadEvents(@NonNull Path log_file, boolean zipped) {
         this.deterministic = new LoadDeterministic(log_file, zipped);
-/*		File stack_file = new File("stack.log");
-		if (stack_file.exists())
-			stack_deterministic = new LoadDeterministic(stack_file, false);
-		else
-			stack_deterministic = new SaveDeterministic(stack_file);
-		this.deterministic = new StackTraceDeterministic(deterministic, stack_deterministic);*/
+        /*		File stack_file = new File("stack.log");
+        		if (stack_file.exists())
+        			stack_deterministic = new LoadDeterministic(stack_file, false);
+        		else
+        			stack_deterministic = new SaveDeterministic(stack_file);
+        		this.deterministic = new StackTraceDeterministic(deterministic, stack_deterministic);*/
     }
 
     public @NonNull AnimationManager getHighPrecisionManager() {

@@ -176,11 +176,13 @@ public final class GameCamera extends Camera {
             float dx = (temp_x - mid);
             float dy = (temp_y - mid);
             float squared_dist = dx * dx + dy * dy;
-            if (squared_dist < getHeightMap().getMetersPerWorld() * getHeightMap().getMetersPerWorld() && temp_z < MAX_Z) {
+            if (squared_dist < getHeightMap().getMetersPerWorld() * getHeightMap().getMetersPerWorld()
+                    && temp_z < MAX_Z) {
                 getState().setTargetX(temp_x);
                 getState().setTargetY(temp_y);
                 getState().setTargetZ(temp_z);
-                if (bounce(getState().getTargetX(), getState().getTargetY(), getState().getTargetZ(), viewer.getGUIRoot().getWidth(), viewer.getGUIRoot().getHeight())) {
+                if (bounce(getState().getTargetX(), getState().getTargetY(), getState().getTargetZ(),
+                        viewer.getGUIRoot().getWidth(), viewer.getGUIRoot().getHeight())) {
                     getState().setTargetX(backup_x);
                     getState().setTargetY(backup_y);
                     getState().setTargetZ(backup_z);
@@ -198,13 +200,13 @@ public final class GameCamera extends Camera {
         float scroll_factor = time_delta * scroll_speed;
         boolean blocked = viewer.getGUIRoot().getDelegate().keyboardBlocked();
 
-        scrolling_x = inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !inputManager.isActive(GameAction.CAMERA_PAN_RIGHT) && !blocked
-                ? -1f : inputManager.isActive(GameAction.CAMERA_PAN_RIGHT) && !inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !blocked
-                        ? 1f : scroll_x;
+        scrolling_x = inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !inputManager.isActive(
+                GameAction.CAMERA_PAN_RIGHT) && !blocked ? -1f : inputManager.isActive(GameAction.CAMERA_PAN_RIGHT)
+                        && !inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !blocked ? 1f : scroll_x;
 
-        scrolling_y = inputManager.isActive(GameAction.CAMERA_PAN_DOWN) && !inputManager.isActive(GameAction.CAMERA_PAN_UP) && !blocked
-                ? -1f : inputManager.isActive(GameAction.CAMERA_PAN_UP) && !inputManager.isActive(GameAction.CAMERA_PAN_DOWN) && !blocked
-                        ? 1f : scroll_y;
+        scrolling_y = inputManager.isActive(GameAction.CAMERA_PAN_DOWN) && !inputManager.isActive(
+                GameAction.CAMERA_PAN_UP) && !blocked ? -1f : inputManager.isActive(GameAction.CAMERA_PAN_UP)
+                        && !inputManager.isActive(GameAction.CAMERA_PAN_DOWN) && !blocked ? 1f : scroll_y;
 
         float new_x = getState().getTargetX() - (scrolling_x * left_dir_x + scrolling_y * -left_dir_y) * scroll_factor;
         float new_y = getState().getTargetY() - (scrolling_x * left_dir_y + scrolling_y * left_dir_x) * scroll_factor;
@@ -214,8 +216,8 @@ public final class GameCamera extends Camera {
             checkPosition();
         }
 
-        scroll_acceleration_seconds =
-                Math.min(scroll_acceleration_seconds + time_delta, SCROLL_ACCELERATION_SECONDS_MAX);
+        scroll_acceleration_seconds = Math.min(scroll_acceleration_seconds + time_delta,
+                SCROLL_ACCELERATION_SECONDS_MAX);
     }
 
     private void doPitch(float time_delta) {

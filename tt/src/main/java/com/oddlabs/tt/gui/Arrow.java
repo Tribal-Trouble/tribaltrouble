@@ -19,7 +19,8 @@ public final class Arrow extends GUIObject {
     private final boolean show_always;
     private final @NonNull GUIRoot gui_root;
 
-    public Arrow(@NonNull HeightMap heightmap, @NonNull GUIRoot gui_root, float target_x, float target_y, float r, float g, float b, boolean show_always) {
+    public Arrow(@NonNull HeightMap heightmap, @NonNull GUIRoot gui_root, float target_x, float target_y, float r,
+            float g, float b, boolean show_always) {
         this.gui_root = gui_root;
         this.target_x = target_x;
         this.target_y = target_y;
@@ -44,7 +45,8 @@ public final class Arrow extends GUIObject {
         if (point.w < .1f)
             point.w = .1f;
         float inv_w = 1 / point.w;
-        point.set((point.x * inv_w + 1) * .5f * gui_root.getWidth(), (point.y * inv_w + 1) * .5f * gui_root.getHeight(), 0, 0);
+        point.set((point.x * inv_w + 1) * .5f * gui_root.getWidth(), (point.y * inv_w + 1) * .5f * gui_root.getHeight(),
+                0, 0);
         return point;
     }
 

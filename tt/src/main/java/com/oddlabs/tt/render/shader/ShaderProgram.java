@@ -85,7 +85,8 @@ public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program
         this(vertexSource, fragmentSource, null);
     }
 
-    public ShaderProgram(@NonNull String vertexSource, @NonNull String fragmentSource, @Nullable String geometrySource) throws IllegalArgumentException {
+    public ShaderProgram(@NonNull String vertexSource, @NonNull String fragmentSource,
+            @Nullable String geometrySource) throws IllegalArgumentException {
         super(new Program(
                 compileShader(GL20.GL_VERTEX_SHADER, vertexSource),
                 compileShader(GL20.GL_FRAGMENT_SHADER, fragmentSource),

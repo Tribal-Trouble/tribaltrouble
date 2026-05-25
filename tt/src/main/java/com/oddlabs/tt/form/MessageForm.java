@@ -20,7 +20,8 @@ public class MessageForm extends Form {
         this(head, message, null, null);
     }
 
-    public MessageForm(@NonNull String head, @NonNull String message, @Nullable String button, @NonNull MouseClickListener listener) {
+    public MessageForm(@NonNull String head, @NonNull String message, @Nullable String button,
+            @NonNull MouseClickListener listener) {
         int head_width = Math.min(MAX_WIDTH, Skin.getSkin().getHeadlineFont().getWidth(head));
         int message_width = Math.min(MAX_WIDTH, Skin.getSkin().getEditFont().getWidth(message));
         int width = Math.max(head_width, message_width);

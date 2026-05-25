@@ -9,7 +9,8 @@ import java.util.Random;
 public final class IFS {
     public final @NonNull Channel channel;
 
-    public IFS(int width, int height, int maxpoints, int seed, float @NonNull [] @NonNull [] @NonNull [] transformations, float[] probabilities) {
+    public IFS(int width, int height, int maxpoints, int seed,
+            float @NonNull [] @NonNull [] @NonNull [] transformations, float[] probabilities) {
         channel = new Channel(width, height);
         Random random = new Random(seed);
 

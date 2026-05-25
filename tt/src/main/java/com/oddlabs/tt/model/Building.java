@@ -1,43 +1,22 @@
 package com.oddlabs.tt.model;
 
-import com.oddlabs.tt.audio.AudioParameters;
-import com.oddlabs.tt.audio.AudioPlayer;
-import com.oddlabs.tt.gui.BuildSpinner;
 import com.oddlabs.tt.landscape.TreeSupply;
-import com.oddlabs.tt.landscape.World;
-import com.oddlabs.tt.model.behaviour.AttackController;
-import com.oddlabs.tt.model.behaviour.GatherController;
-import com.oddlabs.tt.model.behaviour.NullController;
-import com.oddlabs.tt.model.behaviour.StunController;
-import com.oddlabs.tt.model.behaviour.TransferUnitController;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
-import com.oddlabs.tt.model.weapon.IronSpearWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
-import com.oddlabs.tt.model.weapon.RockSpearWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
-import com.oddlabs.tt.model.weapon.RubberSpearWeapon;
 import com.oddlabs.tt.model.weapon.ThrowingWeapon;
-import com.oddlabs.tt.particle.LinearEmitter;
-import com.oddlabs.tt.particle.RandomAccelerationEmitter;
-import com.oddlabs.tt.particle.RandomVelocityEmitter;
 import com.oddlabs.tt.pathfinder.Occupant;
-import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
-import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.Target;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class Building extends Selectable<BuildingTemplate> implements Occupant {
     public enum BuildState {
-        START, HALFBUILT, BUILT
+        START,
+        HALFBUILT,
+        BUILT
     }
 
     public Building(@NonNull Player owner, @NonNull BuildingTemplate template) {
@@ -45,35 +24,65 @@ public abstract class Building extends Selectable<BuildingTemplate> implements O
     }
 
     public abstract boolean hasRallyPoint();
+
     public abstract Target getRallyPoint();
+
     public abstract @Nullable UnitContainer getUnitContainer();
+
     public abstract @Nullable SupplyContainer getSupplyContainer(@NonNull Class<?> key);
+
     public abstract @Nullable BuildSupplyContainer getBuildSupplyContainer(@NonNull Class<?> key);
+
     public abstract DeployContainer getDeployContainer(DeployType type);
+
     public abstract @Nullable ChieftainContainer getChieftainContainer();
+
     public abstract int getUnitCount();
+
     public abstract boolean canExitTower();
+
     public abstract void exitTower();
+
     public abstract void deployUnits(@NonNull DeployType type, int num_units);
+
     public abstract void createHarvesters(int num_tree, int num_rock, int num_iron, int num_rubber);
+
     public abstract void buildWeapons(@NonNull Class<? extends ThrowingWeapon> type, int num_weapons, boolean infinite);
+
     public abstract boolean canBuildChieftain();
+
     public abstract boolean canStopChieftain();
+
     public abstract void trainChieftain(boolean start);
+
     public abstract void deployChieftain();
+
     public abstract void createArmy(int num_peon, int num_rock, int num_iron, int num_rubber);
+
     public abstract void createTransporters(int num_tree, int num_rock, int num_iron, int num_rubber);
+
     public abstract boolean isDamaged();
+
     public abstract int getHitPoints();
+
     public abstract void repair(int amount);
+
     public abstract boolean isPlacingLegal();
+
     public abstract boolean isPlaced();
+
     public abstract boolean isComplete();
+
     public abstract void place();
+
     public abstract boolean isValidRallyPoint(Target t);
+
     public abstract void setRallyPoint(@NonNull Target target);
+
     public abstract void fillSupplies(@NonNull Class<?> key, int max);
+
     public abstract void removeSupplies(@NonNull Class<?> key);
+
     public abstract @NonNull BuildState getRenderLevel();
 
     public Building getEntrance() {

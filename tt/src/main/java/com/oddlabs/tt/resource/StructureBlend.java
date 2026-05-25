@@ -11,7 +11,8 @@ public final class StructureBlend extends BlendInfo {
     private final @NonNull Texture normal_map;
 
     private @NonNull Texture createStructureMap(GLIntImage structure_image) {
-        return new Texture(new GLIntImage[]{structure_image}, GL11.GL_RGB, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
+        return new Texture(new GLIntImage[]{structure_image}, GL11.GL_RGB, GL11.GL_LINEAR, GL11.GL_LINEAR,
+                GL11.GL_REPEAT, GL11.GL_REPEAT);
     }
 
     public StructureBlend(GLIntImage structure_image, GLIntImage normal_image, @NonNull GLByteImage alpha_image) {

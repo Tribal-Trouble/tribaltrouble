@@ -219,11 +219,11 @@ public final class InputManager {
         def(GameAction.DEBUG_DUMP_ANIMATIONS, Key.F1);
     }
 
-    private static void def(@NonNull GameAction action, @NonNull Key key, @NonNull Modifier @NonNull ... modifiers) {
+    private static void def(@NonNull GameAction action, @NonNull Key key, @NonNull Modifier @NonNull... modifiers) {
         Set<Modifier> modSet = EnumSet.noneOf(Modifier.class);
         Collections.addAll(modSet, modifiers);
-        DEFAULT_BINDINGS.computeIfAbsent(action, k -> new CopyOnWriteArraySet<>())
-                .add(new InputBinding(key, modSet, action));
+        DEFAULT_BINDINGS.computeIfAbsent(action, k -> new CopyOnWriteArraySet<>()).add(new InputBinding(key, modSet,
+                action));
     }
 
     private final List<@NonNull InputBinding> bindings = new ArrayList<>();
@@ -287,9 +287,7 @@ public final class InputManager {
     }
 
     public @NonNull List<InputBinding> getBindings(GameAction action) {
-        return bindings.stream()
-                .filter(b -> b.action() == action)
-                .collect(Collectors.toList());
+        return bindings.stream().filter(b -> b.action() == action).collect(Collectors.toList());
     }
 
     public @NonNull List<@NonNull InputBinding> getDefaultBindings(GameAction action) {
@@ -363,14 +361,9 @@ public final class InputManager {
     }
 
     private @NonNull String serializeBindings(@NonNull Collection<InputBinding> set) {
-        return set.stream()
-                .map(b -> "{\"key\":\"" + b.key().name() + "\"" +
-                        (b.shift() ? ", \"shift\":true" : "") +
-                        (b.control() ? ", \"control\":true" : "") +
-                        (b.alt() ? ", \"alt\":true" : "") +
-                        (b.meta() ? ", \"meta\":true" : "") +
-                        "}")
-                .collect(Collectors.joining(", ", "[", "]"));
+        return set.stream().map(
+                b -> "{\"key\":\"" + b.key().name() + "\"" + (b.shift() ? ", \"shift\":true" : "") + (b.control() ? ", \"control\":true" : "") + (b.alt() ? ", \"alt\":true" : "") + (b.meta() ? ", \"meta\":true" : "") + "}").collect(
+                        Collectors.joining(", ", "[", "]"));
     }
 
     private @NonNull Set<InputBinding> parseBindings(@NonNull String json, @NonNull GameAction action) {

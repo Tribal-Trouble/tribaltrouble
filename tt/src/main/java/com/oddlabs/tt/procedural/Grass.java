@@ -68,7 +68,8 @@ public final class Grass {
             if (p2_y < 0.2 && random.nextFloat() < 0.5) {
                 p3_y = Math.clamp(p2_y * (random.nextFloat() + 1f), 0.025f, 0.975f);
             } else {
-                p3_y = Math.clamp(p2_y + 1.25f * p2_y * Tools.gaussify(random.nextFloat()) - 0.5f * p2_y, 0.025f, 0.975f);
+                p3_y = Math.clamp(p2_y + 1.25f * p2_y * Tools.gaussify(random.nextFloat()) - 0.5f * p2_y, 0.025f,
+                        0.975f);
             }
             p2_x = (p1_x + p3_x) / 2f;
             if (p2_y < 0.25) {
@@ -171,7 +172,8 @@ public final class Grass {
                                     alpha = 1f;
                                 }
                                 if (dist >= rd - 1 && dist < rd + 1) {
-                                    alpha = Math.max(Tools.interpolateLinear(1f, 0f, (dist - rd) / 2f), a.getPixel(u, v));
+                                    alpha = Math.max(Tools.interpolateLinear(1f, 0f, (dist - rd) / 2f), a.getPixel(u,
+                                            v));
                                 }
                                 if (t < fadein) {
                                     alpha = Math.min(alpha, Tools.interpolateLinear(0f, 1f, t / fadein));

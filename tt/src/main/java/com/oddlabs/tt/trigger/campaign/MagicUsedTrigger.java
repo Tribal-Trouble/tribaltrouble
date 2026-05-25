@@ -31,7 +31,8 @@ public final class MagicUsedTrigger extends IntervalTrigger {
         float dy = chieftain.getPositionY() - y;
         if (!chieftain.isDead()) {
             if (r * r > dx * dx + dy * dy) {
-                if (!blowing && chieftain.getPrimaryController() instanceof MagicController && chieftain.getLastMagicIndex() == index)
+                if (!blowing && chieftain.getPrimaryController() instanceof MagicController
+                        && chieftain.getLastMagicIndex() == index)
                     blowing = true;
                 if (blowing && !(chieftain.getPrimaryController() instanceof MagicController))
                     triggered();

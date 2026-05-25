@@ -7,7 +7,8 @@ import java.util.function.Supplier;
 
 @FunctionalInterface
 interface FormFactory<F extends Form> extends Supplier<F> {
-    @NonNull F create();
+    @NonNull
+    F create();
 
     default @NonNull F get() {
         return create();

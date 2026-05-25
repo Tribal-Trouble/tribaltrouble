@@ -13,6 +13,8 @@ import com.codedisaster.steamworks.SteamUser;
 import com.codedisaster.steamworks.SteamUserCallback;
 import com.codedisaster.steamworks.SteamUserStats;
 import com.codedisaster.steamworks.SteamUserStatsCallback;
+import com.codedisaster.steamworks.SteamUtils;
+import com.codedisaster.steamworks.SteamUtilsCallback;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
@@ -20,16 +22,18 @@ import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class SteamManager implements SteamUserCallback, SteamFriendsCallback, SteamUserStatsCallback {
+public final class SteamManager implements SteamUserCallback, SteamFriendsCallback, SteamUserStatsCallback, SteamUtilsCallback {
     private static final Logger logger = Logger.getLogger(SteamManager.class.getName());
     private static final Duration TICKET_MAX_AGE = Duration.ofHours(1);
     private static final String WEB_API_IDENTITY = "tribaltrouble.org";
 
     private static @Nullable SteamManager instance;
+    private static volatile boolean inActiveWorld = false;
 
     private final SteamUser steamUser;
     private final SteamFriends steamFriends;
     private final SteamUserStats steamUserStats;
+    private final SteamUtils steamUtils;
 
     private @Nullable SteamAuthTicket currentAuthTicket;
     private byte @Nullable [] cachedTicketData;
@@ -40,6 +44,7 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
         steamUser = new SteamUser(this);
         steamFriends = new SteamFriends(this);
         steamUserStats = new SteamUserStats(this);
+        steamUtils = new SteamUtils(this);
     }
 
     public static @Nullable SteamManager getInstance() {
@@ -62,6 +67,51 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
         }
     }
 
+    public static void setLobbyRichPresence(String roomName) {
+        if (instance == null) return;
+        instance.steamFriends.setRichPresence("steam_display", "#Status_InLobby");
+    }
+
+    /**
+     * Sets rich presence for an active multiplayer game. Clears the {@code connect}
+     * key so the friend list shows no "Join Game" button — joining a started match
+     * isn't supported (spectate would be a future addition).
+     */
+    public static void setMultiplayerInGameRichPresence() {
+        if (instance == null) return;
+        instance.steamFriends.clearRichPresence();
+        instance.steamFriends.setRichPresence("steam_display", "#Status_InGame");
+    }
+
+    public static void clearRichPresence() {
+        if (instance == null) return;
+        instance.steamFriends.clearRichPresence();
+    }
+
+    /**
+     * Marks the local user as being inside an active world (multiplayer game,
+     * skirmish, or campaign mission). While set, an inbound Steam join is
+     * dropped — yanking someone out of an active match would lose progress
+     * and drop teammates. The friend can re-invite once the match ends.
+     */
+    public static void setInActiveWorld(boolean active) {
+        inActiveWorld = active;
+    }
+
+    /**
+     * Sets rich presence for a single-player campaign mission. Intentionally clears
+     * any previous keys first so friends don't see leftover lobby/in-game state.
+     *
+     * @param race "Vikings" or "Natives" — used to pick a localization token
+     *             {@code #Status_CampaignVikings} / {@code #Status_CampaignNatives}.
+     */
+    public static void setCampaignRichPresence(String race) {
+        if (instance == null) return;
+        instance.steamFriends.clearRichPresence();
+        instance.steamFriends.setRichPresence("steam_display", "#Status_Campaign" + race);
+        instance.steamFriends.setRichPresence("race", race);
+    }
+
     public static void unlockAchievement(String achievementId) {
         if (instance == null) return;
         if (instance.steamUserStats.isAchieved(achievementId, false)) return;
@@ -80,6 +130,7 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
             instance.steamUserStats.dispose();
             instance.steamUser.dispose();
             instance.steamFriends.dispose();
+            instance.steamUtils.dispose();
             instance = null;
         }
         SteamAPI.shutdown();
@@ -95,6 +146,10 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
         return steamUser.getSteamID().getAccountID();
     }
 
+    public int getAppID() {
+        return steamUtils.getAppID();
+    }
+
     public String getPersonaName() {
         return steamFriends.getPersonaName();
     }
@@ -104,7 +159,8 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
      * {@link #onGetTicketForWebApi}. Reuses a cached ticket if it's less than 1 hour old.
      */
     public void requestWebApiTicket() {
-        if (ticketReady && ticketTimestamp != null && Duration.between(ticketTimestamp, Instant.now()).compareTo(TICKET_MAX_AGE) < 0) {
+        if (ticketReady && ticketTimestamp != null && Duration.between(ticketTimestamp, Instant.now()).compareTo(
+                TICKET_MAX_AGE) < 0) {
             logger.info("Web API ticket still fresh, reusing");
             return;
         }
@@ -191,7 +247,8 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
     }
 
     @Override
-    public void onValidateAuthTicket(SteamID steamID, SteamAuth.AuthSessionResponse authSessionResponse, SteamID ownerSteamID) {
+    public void onValidateAuthTicket(SteamID steamID, SteamAuth.AuthSessionResponse authSessionResponse,
+            SteamID ownerSteamID) {
     }
 
     @Override
@@ -237,7 +294,8 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
     }
 
     @Override
-    public void onUserAchievementStored(long gameId, boolean groupAchievement, String achievementName, int curProgress, int maxProgress) {
+    public void onUserAchievementStored(long gameId, boolean groupAchievement, String achievementName, int curProgress,
+            int maxProgress) {
     }
 
     @Override
@@ -245,11 +303,13 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
     }
 
     @Override
-    public void onLeaderboardScoresDownloaded(SteamLeaderboardHandle leaderboard, SteamLeaderboardEntriesHandle entries, int numEntries) {
+    public void onLeaderboardScoresDownloaded(SteamLeaderboardHandle leaderboard, SteamLeaderboardEntriesHandle entries,
+            int numEntries) {
     }
 
     @Override
-    public void onLeaderboardScoreUploaded(boolean success, SteamLeaderboardHandle leaderboard, int score, boolean scoreChanged, int globalRankNew, int globalRankPrevious) {
+    public void onLeaderboardScoreUploaded(boolean success, SteamLeaderboardHandle leaderboard, int score,
+            boolean scoreChanged, int globalRankNew, int globalRankPrevious) {
     }
 
     @Override
@@ -258,5 +318,10 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
 
     @Override
     public void onGlobalStatsReceived(long gameId, SteamResult result) {
+    }
+
+    // SteamUtilsCallback
+    @Override
+    public void onSteamShutdown() {
     }
 }

@@ -32,7 +32,8 @@ public final class InstantHitFactory extends WeaponFactory {
         float dir_len_inv = 1f / (float) Math.sqrt(dx * dx + dy * dy);
         if (target instanceof Unit) {
             World world = src.getOwner().getWorld();
-            world.getAudio().newAudio(new AudioParameters<>(sounds[world.getRandom().nextInt(sounds.length)], target.getPositionX(), target.getPositionY(), target.getPositionZ(),
+            world.getAudio().newAudio(new AudioParameters<>(sounds[world.getRandom().nextInt(sounds.length)],
+                    target.getPositionX(), target.getPositionY(), target.getPositionZ(),
                     AudioPlayer.AUDIO_RANK_DEATH,
                     AudioPlayer.AUDIO_DISTANCE_DEATH,
                     AudioPlayer.AUDIO_GAIN_DEATH,

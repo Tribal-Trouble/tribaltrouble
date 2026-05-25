@@ -62,7 +62,8 @@ public final class Water implements AutoCloseable {
     private float lastTime = 0f;
     private final Random random = new Random();
 
-    public Water(@NonNull HeightMap heightmap, Landscape.@NonNull TerrainType terrain, @NonNull Sky sky, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public Water(@NonNull HeightMap heightmap, Landscape.@NonNull TerrainType terrain, @NonNull Sky sky,
+            @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         TextureGenerator ocean_desc = new GeneratorOcean(terrain);
         ocean = Resources.findResource(ocean_desc);
         this.heightMap = heightmap;
@@ -94,13 +95,13 @@ public final class Water implements AutoCloseable {
     }
 
 
-    public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull List<LandscapeLeaf> visiblePatches, @Nullable Texture reflectionTexture, @Nullable Matrix4f reflectionVP) {
+    public void render(@NonNull RenderContext context, @NonNull CameraState state,
+            @NonNull List<LandscapeLeaf> visiblePatches, @Nullable Texture reflectionTexture,
+            @Nullable Matrix4f reflectionVP) {
         updateAnimation();
 
-        try (var _ = waterShader.use();
-             var _ = context.withBlendMode(BlendMode.ALPHA);
-             var _ = context.withDepthMode(DepthMode.READ_WRITE);
-             var _ = context.withCullMode(CullMode.NONE)) {
+        try (var _ = waterShader.use(); var _ = context.withBlendMode(BlendMode.ALPHA); var _ = context.withDepthMode(
+                DepthMode.READ_WRITE); var _ = context.withCullMode(CullMode.NONE)) {
 
             context.setBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -109,7 +110,8 @@ public final class Water implements AutoCloseable {
             waterShader.setUniform(WaterShader.Uniforms.SCROLL_OFFSET_0, scrollOffset0[0], scrollOffset0[1]);
             waterShader.setUniform(WaterShader.Uniforms.SCROLL_OFFSET_1, scrollOffset1[0], scrollOffset1[1]);
 
-            waterShader.setUniform(WaterShader.Uniforms.CAMERA_POS, state.getCurrentX(), state.getCurrentY(), state.getCurrentZ());
+            waterShader.setUniform(WaterShader.Uniforms.CAMERA_POS, state.getCurrentX(), state.getCurrentY(),
+                    state.getCurrentZ());
 
             context.setTexture(0, ocean[0]);
             waterShader.setUniform(WaterShader.Uniforms.TEXTURE_0, 0);
@@ -167,7 +169,8 @@ public final class Water implements AutoCloseable {
                     int requiredBytes = count * 2 * Float.BYTES;
                     if (instanceVBO.capacity() < requiredBytes) {
                         instanceVBO.close();
-                        instanceVBO = new FloatVBO(GL15.GL_STREAM_DRAW, Math.max(instanceVBO.capacity() * 2, requiredBytes));
+                        instanceVBO = new FloatVBO(GL15.GL_STREAM_DRAW, Math.max(instanceVBO.capacity() * 2,
+                                requiredBytes));
                     }
 
                     instanceVBO.makeCurrent();

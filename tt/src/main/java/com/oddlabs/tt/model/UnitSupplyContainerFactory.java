@@ -8,7 +8,8 @@ import java.util.Map;
 public final class UnitSupplyContainerFactory extends SupplyContainerFactory {
     private final Map<Class<? extends Supply>, SpriteKey> supply_sprite_lists;
 
-    public UnitSupplyContainerFactory(int max_resource_count, Map<Class<? extends Supply>, SpriteKey> supply_sprite_lists) {
+    public UnitSupplyContainerFactory(int max_resource_count,
+            Map<Class<? extends Supply>, SpriteKey> supply_sprite_lists) {
         super(max_resource_count);
         this.supply_sprite_lists = supply_sprite_lists;
     }

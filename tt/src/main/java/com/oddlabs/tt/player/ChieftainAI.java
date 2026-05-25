@@ -10,10 +10,7 @@ public abstract class ChieftainAI {
 
     protected final int numEnemyUnits(@NonNull Player owner) {
         Player[] players = owner.getWorld().getPlayers();
-        int count = Arrays.stream(players)
-                .filter(owner::isEnemy)
-                .mapToInt(p -> p.getUnits().size())
-                .sum();
+        int count = Arrays.stream(players).filter(owner::isEnemy).mapToInt(p -> p.getUnits().size()).sum();
         return count;
     }
 }

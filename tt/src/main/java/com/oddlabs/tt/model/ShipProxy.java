@@ -9,7 +9,6 @@ import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.Target;
 
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 public final class ShipProxy extends Building {
     private final Ship ship;
@@ -36,13 +35,16 @@ public final class ShipProxy extends Building {
     }
 
     @Override
-    protected void setTarget(@NonNull Target target, @NonNull Action action, boolean aggressive) {}
+    protected void setTarget(@NonNull Target target, @NonNull Action action, boolean aggressive) {
+    }
 
     @Override
-    public final void visit(ElementVisitor visitor) {}
+    public final void visit(ElementVisitor visitor) {
+    }
 
     @Override
-    public final void visit(ToolTipVisitor visitor) {}
+    public final void visit(ToolTipVisitor visitor) {
+    }
 
     public final void occupy() {
         UnitGrid grid = getUnitGrid();
@@ -201,7 +203,8 @@ public final class ShipProxy extends Building {
         ship.createTransporters(num_tree, num_rock, num_iron, num_rubber);
     }
 
-    public final void buildWeapons(Class type, int num_weapons, boolean infinite) {}
+    public final void buildWeapons(Class type, int num_weapons, boolean infinite) {
+    }
 
     public final boolean canBuildChieftain() {
         return false;
@@ -211,15 +214,18 @@ public final class ShipProxy extends Building {
         return false;
     }
 
-    public final void trainChieftain(boolean start) {}
+    public final void trainChieftain(boolean start) {
+    }
 
-    public final void deployChieftain() {}
+    public final void deployChieftain() {
+    }
 
     public final boolean canExitTower() {
         return false;
     }
 
-    public final void exitTower() {}
+    public final void exitTower() {
+    }
 
     public final void fillSupplies(Class key, int max) {
         ship.fillSupplies(key, max);
@@ -233,5 +239,6 @@ public final class ShipProxy extends Building {
         return ship.getStatusValue();
     }
 
-    public final void printDebugInfo() {}
+    public final void printDebugInfo() {
+    }
 }

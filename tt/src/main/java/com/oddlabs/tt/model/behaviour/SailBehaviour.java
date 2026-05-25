@@ -43,7 +43,8 @@ public final class SailBehaviour implements Behaviour {
         public float directionX;
         public float directionY;
 
-        public TrajectoryPoint() {}
+        public TrajectoryPoint() {
+        }
 
         public TrajectoryPoint(int x, int y) {
             gridX = x;
@@ -123,11 +124,8 @@ public final class SailBehaviour implements Behaviour {
             rotated.directionX = directionX * cos - directionY * sin;
             rotated.directionY = directionX * sin + directionY * cos;
 
-            float len =
-                    (float)
-                            StrictMath.sqrt(
-                                    rotated.directionX * rotated.directionX
-                                            + rotated.directionY * rotated.directionY);
+            float len = (float) StrictMath.sqrt(
+                    rotated.directionX * rotated.directionX + rotated.directionY * rotated.directionY);
             if (len > 0.0001f) {
                 rotated.directionX /= len;
                 rotated.directionY /= len;
@@ -160,8 +158,7 @@ public final class SailBehaviour implements Behaviour {
             float dy = p.positionY - positionY;
             return (float) StrictMath.sqrt(dx * dx + dy * dy);
         }
-    }
-    ;
+    };
 
     class TrajectorySegment {
         public TrajectoryPoint p0;
@@ -388,10 +385,9 @@ public final class SailBehaviour implements Behaviour {
             return result;
         } else {
             // Midpoint of the segment and perpendicular probes toward each side of the grid.
-            TrajectoryPoint pmid =
-                    new TrajectoryPoint(
-                            (int) StrictMath.round((p0.gridX + p1.gridX) * 0.5f),
-                            (int) StrictMath.round((p0.gridY + p1.gridY) * 0.5f));
+            TrajectoryPoint pmid = new TrajectoryPoint(
+                    (int) StrictMath.round((p0.gridX + p1.gridX) * 0.5f),
+                    (int) StrictMath.round((p0.gridY + p1.gridY) * 0.5f));
 
             float dir_x = p1.gridX - p0.gridX;
             float dir_y = p1.gridY - p0.gridY;
@@ -409,34 +405,26 @@ public final class SailBehaviour implements Behaviour {
             float perp_y = dir_x;
             int grid_size = ship.getUnitGrid().getGridSize();
             int reach = grid_size;
-            int pleftx =
-                    (int)
-                            StrictMath.max(
-                                    0,
-                                    StrictMath.min(
-                                            grid_size - 1,
-                                            StrictMath.round(pmid.gridX + perp_x * reach)));
-            int plefty =
-                    (int)
-                            StrictMath.max(
-                                    0,
-                                    StrictMath.min(
-                                            grid_size - 1,
-                                            StrictMath.round(pmid.gridY + perp_y * reach)));
-            int prightx =
-                    (int)
-                            StrictMath.max(
-                                    0,
-                                    StrictMath.min(
-                                            grid_size - 1,
-                                            StrictMath.round(pmid.gridX - perp_x * reach)));
-            int prighty =
-                    (int)
-                            StrictMath.max(
-                                    0,
-                                    StrictMath.min(
-                                            grid_size - 1,
-                                            StrictMath.round(pmid.gridY - perp_y * reach)));
+            int pleftx = (int) StrictMath.max(
+                    0,
+                    StrictMath.min(
+                            grid_size - 1,
+                            StrictMath.round(pmid.gridX + perp_x * reach)));
+            int plefty = (int) StrictMath.max(
+                    0,
+                    StrictMath.min(
+                            grid_size - 1,
+                            StrictMath.round(pmid.gridY + perp_y * reach)));
+            int prightx = (int) StrictMath.max(
+                    0,
+                    StrictMath.min(
+                            grid_size - 1,
+                            StrictMath.round(pmid.gridX - perp_x * reach)));
+            int prighty = (int) StrictMath.max(
+                    0,
+                    StrictMath.min(
+                            grid_size - 1,
+                            StrictMath.round(pmid.gridY - perp_y * reach)));
 
             TrajectoryPoint pleft = new TrajectoryPoint(pleftx, plefty);
             TrajectoryPoint pright = new TrajectoryPoint(prightx, prighty);
@@ -602,8 +590,7 @@ public final class SailBehaviour implements Behaviour {
         // Emit alternating straight and arc segments.
         for (int i = 0; i < n - 1; i++) {
             TrajectoryPoint segment_start = has_arc[i] ? arc_out[i] : (TrajectoryPoint) path.get(i);
-            TrajectoryPoint segment_end =
-                    has_arc[i + 1] ? arc_in[i + 1] : (TrajectoryPoint) path.get(i + 1);
+            TrajectoryPoint segment_end = has_arc[i + 1] ? arc_in[i + 1] : (TrajectoryPoint) path.get(i + 1);
 
             if (segment_start.distanceTo(segment_end) > EPSILON) {
                 result.add(makeStraightSegment(segment_start, segment_end));
@@ -748,10 +735,9 @@ public final class SailBehaviour implements Behaviour {
                 }
                 run_length++;
                 if (run_length >= minSize) {
-                    result =
-                            new TrajectoryPoint(
-                                    (int) StrictMath.round((run_start_x + current_x) * 0.5f),
-                                    (int) StrictMath.round((run_start_y + current_y) * 0.5f));
+                    result = new TrajectoryPoint(
+                            (int) StrictMath.round((run_start_x + current_x) * 0.5f),
+                            (int) StrictMath.round((run_start_y + current_y) * 0.5f));
                     if (run_length >= maxSize) {
                         return result;
                     }
@@ -864,10 +850,8 @@ public final class SailBehaviour implements Behaviour {
                 float forward_offset_y = dir_y * i;
                 float perp_offset_x = perp_x * j;
                 float perp_offset_y = perp_y * j;
-                int check_grid_x =
-                        ship_grid_x + (int) StrictMath.round(forward_offset_x + perp_offset_x);
-                int check_grid_y =
-                        ship_grid_y + (int) StrictMath.round(forward_offset_y + perp_offset_y);
+                int check_grid_x = ship_grid_x + (int) StrictMath.round(forward_offset_x + perp_offset_x);
+                int check_grid_y = ship_grid_y + (int) StrictMath.round(forward_offset_y + perp_offset_y);
                 if (check_grid_x >= 0
                         && check_grid_x < grid.getGridSize()
                         && check_grid_y >= 0
@@ -957,8 +941,7 @@ public final class SailBehaviour implements Behaviour {
             return State.DONE;
         }
 
-        TrajectorySegment current_segment =
-                (TrajectorySegment) trajectory.get(trajectorySegmentIndex);
+        TrajectorySegment current_segment = (TrajectorySegment) trajectory.get(trajectorySegmentIndex);
         Vector4f new_pose = sampleTrajectoryPose(current_segment, trajectorySegmentDistance);
 
         int new_x = UnitGrid.toGridCoordinate(new_pose.x);
@@ -992,5 +975,6 @@ public final class SailBehaviour implements Behaviour {
         return State.UNINTERRUPTIBLE;
     }
 
-    public final void forceInterrupted() {}
+    public final void forceInterrupted() {
+    }
 }

@@ -18,7 +18,7 @@ public final class LinearSolver {
 //dumpEquation(eq_system);
         reduce(eq_system);
         /*System.out.println("reduced system:");
-dumpEquation(eq_system);*/
+        dumpEquation(eq_system);*/
         assert checkEquation(eq_system);
         assignSolutions(eq_system, solution);
 //dumpSolution(solution);
@@ -139,10 +139,10 @@ dumpEquation(eq_system);*/
     }
 
     /*	private static final void dumpEquation(float[][] eq_system) {
-		for (int row = 0; row < eq_system.length; row++)
-			dumpSolution(eq_system[row]);
-		System.out.println();
-	}
+    	for (int row = 0; row < eq_system.length; row++)
+    		dumpSolution(eq_system[row]);
+    	System.out.println();
+    }
      */
     public static void dumpSolution(float @NonNull [] solution) {
         for (float v : solution) {
@@ -152,19 +152,19 @@ dumpEquation(eq_system);*/
     }
 
     /*	public static final void main(String[] args) {
-		float[][] system0 = new float[][]{{1, 2, 1, 3}, {3, -1, -3, -1}, {2, 3, 1, 4}};
-		float[][] system1 = new float[][]{{0, -1, -1, 1, 0}, {1, 1, 1, 1, 6}, {2, 4, 1, -2, -1}, {3, 1, -2, 2, 3}};
-		float[][] system2 = new float[][]{{1, 1, 1, 1, 1, 1}, {-1, -1, 0, 0, 1, -1}, {-2, -2, 0, 0, 3, 1}, {0, 0, 1, 1, 3, -1}, {1, 1, 2, 2, 4, 1}};
-		float[][] system3 = new float[][]{{1, 1, 1, 1, 1, 1}, {-1, -1, 0, 0, 1, -1}, {-2, -2, 0, 0, 3, 1}, {0, 0, 1, 1, 3, 3}, {1, 1, 2, 2, 4, 4}};
-		float[] solution0 = new float[system0[0].length - 1];
-		float[] solution1 = new float[system1[0].length - 1];
-		float[] solution2 = new float[system2[0].length - 1];
-		float[] solution3 = new float[system3[0].length - 1];
-		solve(system0, solution0);
-		solve(system1, solution1);
-//		solve(system2, solution2);
-		solve(system3, solution3);
-	}*/
+    	float[][] system0 = new float[][]{{1, 2, 1, 3}, {3, -1, -3, -1}, {2, 3, 1, 4}};
+    	float[][] system1 = new float[][]{{0, -1, -1, 1, 0}, {1, 1, 1, 1, 6}, {2, 4, 1, -2, -1}, {3, 1, -2, 2, 3}};
+    	float[][] system2 = new float[][]{{1, 1, 1, 1, 1, 1}, {-1, -1, 0, 0, 1, -1}, {-2, -2, 0, 0, 3, 1}, {0, 0, 1, 1, 3, -1}, {1, 1, 2, 2, 4, 1}};
+    	float[][] system3 = new float[][]{{1, 1, 1, 1, 1, 1}, {-1, -1, 0, 0, 1, -1}, {-2, -2, 0, 0, 3, 1}, {0, 0, 1, 1, 3, 3}, {1, 1, 2, 2, 4, 4}};
+    	float[] solution0 = new float[system0[0].length - 1];
+    	float[] solution1 = new float[system1[0].length - 1];
+    	float[] solution2 = new float[system2[0].length - 1];
+    	float[] solution3 = new float[system3[0].length - 1];
+    	solve(system0, solution0);
+    	solve(system1, solution1);
+    //		solve(system2, solution2);
+    	solve(system3, solution3);
+    }*/
     private LinearSolver() {
     }
 }

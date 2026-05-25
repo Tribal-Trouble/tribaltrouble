@@ -34,13 +34,15 @@ public interface PlayerInterface {
 
     void setRallyPoint(@NonNull Building building, @NonNull Target target);
 
-    void setTarget(Selectable<?> @NonNull [] selection, @NonNull Target target, @NonNull Action action, boolean aggressive);
+    void setTarget(Selectable<?> @NonNull [] selection, @NonNull Target target, @NonNull Action action,
+            boolean aggressive);
 
     void setRallyPoint(@NonNull Building building, int grid_x, int grid_y);
 
     void setSailingTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y);
 
-    void setLandscapeTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action, boolean aggressive);
+    void setLandscapeTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action,
+            boolean aggressive);
 
     void recallGatherers(@NonNull Building building, @NonNull Class<? extends Supply> supply_type, int amount);
 

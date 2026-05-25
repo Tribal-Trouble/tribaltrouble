@@ -16,12 +16,15 @@ public final class DebugRender {
     private static final Vector4fc AXIS_Y_COLOR = Color.argb4v(0xFF_00_FF_00);
     private static final Vector4fc AXIS_Z_COLOR = Color.argb4v(0xFF_00_00_FF);
 
-    public static final Vector4fc[] debug_colors = {
-            Color.argb4v(0xFF_7f_1f_1f), Color.argb4v(0xFF_7f_1f_00), Color.argb4v(0xFF_7f_00_1f), Color.argb4v(0xFF_3f_7f_00),
-            Color.argb4v(0xFF_00_1f_1f), Color.argb4v(0xFF_00_1f_00), Color.argb4v(0xFF_00_00_1f), Color.argb4v(0xFF_00_00_00),
-            Color.argb4v(0xFF_00_5f_5f), Color.argb4v(0xFF_00_5f_00), Color.argb4v(0xFF_00_00_5f), Color.argb4v(0xFF_5f_8f_8f),
-            Color.argb4v(0xFF_3f_5f_1f), Color.argb4v(0xFF_5f_5f_8f), Color.argb4v(0xFF_3f_2f_5f), Color.argb4v(0xFF_3f_3f_3f),
-            Color.argb4v(0xFF_5f_1f_1f), Color.argb4v(0xFF_5f_1f_5f), Color.argb4v(0xFF_5f_5f_1f), Color.argb4v(0xFF_5f_5f_5f)
+    public static final Vector4fc[] debug_colors = {Color.argb4v(0xFF_7f_1f_1f), Color.argb4v(
+            0xFF_7f_1f_00), Color.argb4v(0xFF_7f_00_1f), Color.argb4v(0xFF_3f_7f_00), Color.argb4v(
+                    0xFF_00_1f_1f), Color.argb4v(0xFF_00_1f_00), Color.argb4v(0xFF_00_00_1f), Color.argb4v(
+                            0xFF_00_00_00), Color.argb4v(0xFF_00_5f_5f), Color.argb4v(0xFF_00_5f_00), Color.argb4v(
+                                    0xFF_00_00_5f), Color.argb4v(0xFF_5f_8f_8f), Color.argb4v(
+                                            0xFF_3f_5f_1f), Color.argb4v(0xFF_5f_5f_8f), Color.argb4v(
+                                                    0xFF_3f_2f_5f), Color.argb4v(0xFF_3f_3f_3f), Color.argb4v(
+                                                            0xFF_5f_1f_1f), Color.argb4v(0xFF_5f_1f_5f), Color.argb4v(
+                                                                    0xFF_5f_5f_1f), Color.argb4v(0xFF_5f_5f_5f)
     };
     private static final float CIRCLE_DELTA = (float) java.lang.Math.PI / 2;
     private static final float ANGLE_DELTA = (float) java.lang.Math.PI / 20;
@@ -90,7 +93,8 @@ public final class DebugRender {
     /**
      * Draws a wireframe box.
      */
-    public static void drawBox(float bmin_x, float bmax_x, float bmin_y, float bmax_y, float bmin_z, float bmax_z, float r, float g, float b) {
+    public static void drawBox(float bmin_x, float bmax_x, float bmin_y, float bmax_y, float bmin_z, float bmax_z,
+            float r, float g, float b) {
         if (null == shaderRenderer) return;
 
         // Bottom face
@@ -163,7 +167,8 @@ public final class DebugRender {
     /**
      * Draws a wireframe quad.
      */
-    public static void drawQuad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float z, float r, float g, float b) {
+    public static void drawQuad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float z,
+            float r, float g, float b) {
         if (null == shaderRenderer) return;
         drawLine(x1, y1, z, x2, y2, z, r, g, b);
         drawLine(x2, y2, z, x3, y3, z, r, g, b);
@@ -174,7 +179,8 @@ public final class DebugRender {
     /**
      * Draws a wireframe cylinder composed of multiple circles.
      */
-    public static void drawCylinder(float origin_x, float origin_y, float origin_z, float radius, int num_circles, float r, float g, float b) {
+    public static void drawCylinder(float origin_x, float origin_y, float origin_z, float radius, int num_circles,
+            float r, float g, float b) {
         if (null == shaderRenderer) return;
         float z = 0f;
         for (int i = 0; i < num_circles; i++) {
@@ -186,7 +192,8 @@ public final class DebugRender {
     /**
      * Draws a wireframe circle.
      */
-    private static void drawCircle(float radius, float origin_x, float origin_y, float origin_z, float r, float g, float b) {
+    private static void drawCircle(float radius, float origin_x, float origin_y, float origin_z, float r, float g,
+            float b) {
         if (null == shaderRenderer) return;
         float prevX = radius * (float) java.lang.Math.cos(0) + origin_x;
         float prevY = radius * (float) java.lang.Math.sin(0) + origin_y;
@@ -206,7 +213,8 @@ public final class DebugRender {
     /**
      * Draws a wireframe sphere.
      */
-    public static void drawSphere(float origin_x, float origin_y, float origin_z, float radius, float r, float g, float b) {
+    public static void drawSphere(float origin_x, float origin_y, float origin_z, float radius, float r, float g,
+            float b) {
         if (null == shaderRenderer) return;
         for (float phi = 0; phi < (float) java.lang.Math.PI; phi += CIRCLE_DELTA) {
             float prevX = 0, prevY = 0, prevZ = 0;

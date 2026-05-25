@@ -1,6 +1,5 @@
 package com.oddlabs.tt.viewer;
 
-import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.tt.delegate.GameStatsDelegate;
 import com.oddlabs.tt.delegate.InGameMainMenu;
 import com.oddlabs.tt.delegate.Menu;
@@ -25,7 +24,6 @@ import java.util.ResourceBundle;
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 import static com.oddlabs.tt.gui.Placement.LEFT_MID;
-import static com.oddlabs.tt.gui.Placement.RIGHT_TOP;
 
 public class DefaultInGameInfo implements InGameInfo {
     private static final ResourceBundle terrain_menu_bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
@@ -47,11 +45,13 @@ public class DefaultInGameInfo implements InGameInfo {
     }
 
     @Override
-    public void addGameOverGUI(@NonNull WorldViewer viewer, @NonNull GameStatsDelegate delegate, int header_y, @NonNull Group group) {
+    public void addGameOverGUI(@NonNull WorldViewer viewer, @NonNull GameStatsDelegate delegate, int header_y,
+            @NonNull Group group) {
         addGameOverGUI(viewer, delegate, header_y, group, true);
     }
 
-    protected final void addGameOverGUI(final @NonNull WorldViewer viewer, final @NonNull GameStatsDelegate delegate, int header_y, @NonNull Group group, boolean replay) {
+    protected final void addGameOverGUI(final @NonNull WorldViewer viewer, final @NonNull GameStatsDelegate delegate,
+            int header_y, @NonNull Group group, boolean replay) {
         String map_code_str = GameStatsDelegate.i18n("map_code", viewer.getParameters().getMapcode());
         Label map_code = new Label(map_code_str, Skin.getSkin().getEditFont());
         delegate.addChild(map_code);
@@ -90,7 +90,7 @@ public class DefaultInGameInfo implements InGameInfo {
         var nameLabels = new java.util.ArrayList<Label>();
         int largestLabel = 0;
         for (Player player : players) {
-            Label name = new Label(NickUtils.toDisplayName(player.getPlayerInfo().getName()), Skin.getSkin().getHeadlineFont());
+            Label name = new Label(player.getPlayerInfo().getName(), Skin.getSkin().getHeadlineFont());
             nameLabels.add(name);
             if (name.getWidth() > largestLabel)
                 largestLabel = name.getWidth();
@@ -100,7 +100,8 @@ public class DefaultInGameInfo implements InGameInfo {
         for (int i = 0; i < players.length; i++) {
             PlayerInfo player_info = players[i].getPlayerInfo();
             var color_floats = players[i].getColor();
-            Vector4fc color = viewer.getPeerHub().isAlive(players[i]) ? color_floats : new Vector4f(color_floats.x(), color_floats.y(), color_floats.z(), .25f);
+            Vector4fc color = viewer.getPeerHub().isAlive(players[i]) ? color_floats : new Vector4f(color_floats.x(),
+                    color_floats.y(), color_floats.z(), .25f);
 
             Label name = nameLabels.get(i);
             name.setDim(largestLabel, name.getHeight());
@@ -108,7 +109,8 @@ public class DefaultInGameInfo implements InGameInfo {
 
             String race_str = RacesResources.getRaceName(player_info.getRace());
             Label race = new Label(race_str, Skin.getSkin().getHeadlineFont()).setColor(color);
-            String team_str = Utils.getBundleString(terrain_menu_bundle, "team", Integer.toString(player_info.getTeam() + 1));
+            String team_str = Utils.getBundleString(terrain_menu_bundle, "team", Integer.toString(
+                    player_info.getTeam() + 1));
             Label team = new Label(team_str, Skin.getSkin().getHeadlineFont()).setColor(color);
 
             scrollable.addChild(name);
@@ -147,7 +149,8 @@ public class DefaultInGameInfo implements InGameInfo {
 
     @Override
     public final void abort(@NonNull WorldViewer viewer) {
-        viewer.getGUIRoot().pushDelegate(new GameStatsDelegate(viewer, viewer.getGUIRoot().getDelegate().getCamera(), Menu.i18n("game_aborted")));
+        viewer.getGUIRoot().pushDelegate(new GameStatsDelegate(viewer, viewer.getGUIRoot().getDelegate().getCamera(),
+                Menu.i18n("game_aborted")));
     }
 
     @Override

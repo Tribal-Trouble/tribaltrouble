@@ -72,7 +72,7 @@ public final class Renderer implements AutoCloseable {
     private static final Logger logger = Logger.getLogger(Renderer.class.getName());
     private static final ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
 
-    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -83,7 +83,8 @@ public final class Renderer implements AutoCloseable {
 
     private static boolean grab_frames = false;
 
-    private final Locale default_locale = Locale.of(Locale.getDefault().getLanguage(), Locale.getDefault().getCountry(), "default");
+    private final Locale default_locale = Locale.of(Locale.getDefault().getLanguage(), Locale.getDefault().getCountry(),
+            "default");
 
     private AbstractAudioPlayer music;
     private String music_path;
@@ -204,7 +205,7 @@ public final class Renderer implements AutoCloseable {
      *
      * @param property name of the system property
      * @return Path to a directory or null if filesystem operations don't
-     * generally seem to work.
+     *         generally seem to work.
      */
     public static @Nullable Path getPropertyPath(@NonNull String property) {
         String propertyValue;
@@ -246,7 +247,7 @@ public final class Renderer implements AutoCloseable {
      * directory.
      *
      * @return Path to a directory or null if filesystem operations don't
-     * generally seem to work.
+     *         generally seem to work.
      */
     public static @Nullable Path getUserHomePath() {
         return getPropertyPath("user.home");
@@ -481,7 +482,7 @@ public final class Renderer implements AutoCloseable {
         return new GamePaths(dataDir, logDir);
     }
 
-    public void run(@NonNull String @NonNull ... args) throws IOException {
+    public void run(@NonNull String @NonNull... args) throws IOException {
         Instant start_time = Instant.now();
         logger.info("CWD: " + System.getProperty("user.dir"));
         boolean first_frame = true;
@@ -497,26 +498,26 @@ public final class Renderer implements AutoCloseable {
         Path eventload_path = null;
         for (int i = 0; i < args.length; i++)
             switch (args[i]) {
-                case "--grabframes" -> grab_frames = true;
-                case "--eventload" -> {
-                    eventload = true;
-                    i++;
-                    switch (args[i]) {
-                        case "zipped":
-                            zipped = true;
-                            break;
-                        case "normal":
-                            break;
-                        default:
-                            throw new RuntimeException("Unknown event load mode: " + args[i]);
-                    }
-                    if (i + 1 < args.length && !args[i + 1].startsWith("--")) {
-                        i++;
-                        eventload_path = Path.of(args[i]);
-                    }
+            case "--grabframes" -> grab_frames = true;
+            case "--eventload" -> {
+                eventload = true;
+                i++;
+                switch (args[i]) {
+                    case "zipped":
+                        zipped = true;
+                        break;
+                    case "normal":
+                        break;
+                    default:
+                        throw new RuntimeException("Unknown event load mode: " + args[i]);
                 }
-                case "--silent" -> silent = true;
-                default -> throw new IllegalArgumentException("Unknown command line flag: " + args[i]);
+                if (i + 1 < args.length && !args[i + 1].startsWith("--")) {
+                    i++;
+                    eventload_path = Path.of(args[i]);
+                }
+            }
+            case "--silent" -> silent = true;
+            default -> throw new IllegalArgumentException("Unknown command line flag: " + args[i]);
             }
 
         // fetch initial settings
@@ -524,7 +525,8 @@ public final class Renderer implements AutoCloseable {
         settings.load(game_dir);
 
         if (eventload || grab_frames) {
-            Path last_event_log_path = eventload_path != null ? eventload_path : settings.last_event_log_dir.resolve(zipped ? "event.log.gz" : "event.log");
+            Path last_event_log_path = eventload_path != null ? eventload_path : settings.last_event_log_dir.resolve(
+                    zipped ? "event.log.gz" : "event.log");
             logger.info("last_event_log_path = " + last_event_log_path);
             // Only use when anal debugging
 //			ChecksumLogger.initLogging();
@@ -551,7 +553,8 @@ public final class Renderer implements AutoCloseable {
         Settings.setSettings(settings);
         Path last_event_log_dir = settings.last_event_log_dir;
         boolean crashed = settings.crashed;
-        NetworkSelector network = new NetworkSelector(LocalEventQueue.getQueue().getDeterministic(), LocalEventQueue.getQueue()::getMillis);
+        NetworkSelector network = new NetworkSelector(LocalEventQueue.getQueue().getDeterministic(),
+                LocalEventQueue.getQueue()::getMillis);
         initNetwork(network);
         Renderer.getLocalInput().settings(game_dir, event_log_dir, settings);
         try {
@@ -690,12 +693,16 @@ public final class Renderer implements AutoCloseable {
         setupMainMenu(network, gui, false);
     }
 
-    private static @Nullable Runnable setupMainMenu(final @NonNull NetworkSelector network, @NonNull GUI gui, final boolean first_progress) {
-        final WorldGenerator generator = new IslandGenerator(256, Landscape.TerrainType.NATIVE, Globals.LANDSCAPE_HILLS, Globals.LANDSCAPE_VEGETATION, Globals.LANDSCAPE_RESOURCES, Globals.LANDSCAPE_SEED, false);
-        return ProgressForm.setProgressForm(network, gui, (GUIRoot gui_root) -> finishMainMenu(network, gui_root, first_progress, generator), first_progress);
+    private static @Nullable Runnable setupMainMenu(final @NonNull NetworkSelector network, @NonNull GUI gui,
+            final boolean first_progress) {
+        final WorldGenerator generator = new IslandGenerator(256, Landscape.TerrainType.NATIVE, Globals.LANDSCAPE_HILLS,
+                Globals.LANDSCAPE_VEGETATION, Globals.LANDSCAPE_RESOURCES, Globals.LANDSCAPE_SEED, false);
+        return ProgressForm.setProgressForm(network, gui, (GUIRoot gui_root) -> finishMainMenu(network, gui_root,
+                first_progress, generator), first_progress);
     }
 
-    private static @NonNull UIRenderer finishMainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, boolean first_progress, @NonNull WorldGenerator generator) {
+    private static @NonNull UIRenderer finishMainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root,
+            boolean first_progress, @NonNull WorldGenerator generator) {
         AnimationManager.freezeTime();
         PlayerInfo player_info = new PlayerInfo(0, 0, "");
         MatrixStack modelViewStack = new MatrixStack();
@@ -712,13 +719,16 @@ public final class Renderer implements AutoCloseable {
         LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, manager);
         Player local_player = world.getPlayers()[0];
         Selection selection = new Selection(local_player);
-        UIRenderer renderer = new DefaultRenderer(getRenderer().cheat, local_player, render_queues, world_info, landscape_renderer, new Picker(manager, local_player, gui_root, render_queues, landscape_renderer, selection), selection, generator, modelViewStack, projectionStack);
+        UIRenderer renderer = new DefaultRenderer(getRenderer().cheat, local_player, render_queues, world_info,
+                landscape_renderer, new Picker(manager, local_player, gui_root, render_queues, landscape_renderer,
+                        selection), selection, generator, modelViewStack, projectionStack);
         Renderer.getRenderer().setMusicPath("/music/menu.ogg", 0f);
         MainMenu main_menu = new MainMenu(network, gui_root, new MenuCamera(world, manager));
         gui_root.pushDelegate(main_menu);
         if (first_progress && Settings.getSettings().warning_no_sound && !Renderer.getLocalInput().audioIsCreated()) {
             ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
-            gui_root.addModalForm(new WarningForm(i18n("sound_not_available_caption"), i18n("sound_not_available_message")));
+            gui_root.addModalForm(new WarningForm(i18n("sound_not_available_caption"), i18n(
+                    "sound_not_available_message")));
         }
         if (!initNetwork(network)) {
 //			if (true) {
@@ -729,11 +739,11 @@ public final class Renderer implements AutoCloseable {
         }
         // We'll leave out the reporting, since checksum errors can happen when a peer is disconnected halfway through it's EOT
         // broadcast
-		/*		if (Globals.checksum_error_in_last_game) {
-				Globals.checksum_error_in_last_game = false;
-				ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
-				GUIRoot.getGUIRoot().addModalForm(new QuestionForm(i18n("checksum_error_message"), new BugReportListener()));
-				}*/
+        /*		if (Globals.checksum_error_in_last_game) {
+        		Globals.checksum_error_in_last_game = false;
+        		ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
+        		GUIRoot.getGUIRoot().addModalForm(new QuestionForm(i18n("checksum_error_message"), new BugReportListener()));
+        		}*/
         return renderer;
     }
 
@@ -765,8 +775,7 @@ public final class Renderer implements AutoCloseable {
     }
 
     public @NonNull SerializableDisplayMode getCurrentDisplayMode() {
-        return LocalEventQueue.getQueue().getDeterministic()
-                .log(window.getDisplayMode());
+        return LocalEventQueue.getQueue().getDeterministic().log(window.getDisplayMode());
     }
 
     public static void resetInput() {
@@ -836,13 +845,20 @@ public final class Renderer implements AutoCloseable {
     public static void dumpWindowInfo() {
         try {
             GLUtils.checkGLError("Pre-dumpWindowInfo");
-            int r = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL11.GL_BACK_LEFT, GL30.GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE);
-            int g = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL11.GL_BACK_LEFT, GL30.GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE);
-            int b = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL11.GL_BACK_LEFT, GL30.GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE);
-            int a = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL11.GL_BACK_LEFT, GL30.GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE);
-            int depth = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH, GL30.GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE);
-            int stencil = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL30.GL_STENCIL, GL30.GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE);
-            logger.info("Window Info: r=" + r + " g=" + g + " b=" + b + " a=" + a + " depth=" + depth + " stencil=" + stencil);
+            int r = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL11.GL_BACK_LEFT,
+                    GL30.GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE);
+            int g = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL11.GL_BACK_LEFT,
+                    GL30.GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE);
+            int b = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL11.GL_BACK_LEFT,
+                    GL30.GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE);
+            int a = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL11.GL_BACK_LEFT,
+                    GL30.GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE);
+            int depth = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH,
+                    GL30.GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE);
+            int stencil = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL30.GL_STENCIL,
+                    GL30.GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE);
+            logger.info(
+                    "Window Info: r=" + r + " g=" + g + " b=" + b + " a=" + a + " depth=" + depth + " stencil=" + stencil);
         } catch (Exception e) {
             logger.log(Level.WARNING, "Failed to dump window info", e);
         }
@@ -895,7 +911,8 @@ public final class Renderer implements AutoCloseable {
                 target_mode = new SerializableDisplayMode(width, height, bpp, freq);
             }
 
-            boolean fs = Settings.getSettings().fullscreen && (!LocalEventQueue.getQueue().getDeterministic().isPlayback() || grab_frames);
+            boolean fs = Settings.getSettings().fullscreen
+                    && (!LocalEventQueue.getQueue().getDeterministic().isPlayback() || grab_frames);
             window.create(target_mode, fs);
             setModeToNearest(target_mode);
 
@@ -933,7 +950,8 @@ public final class Renderer implements AutoCloseable {
         int num_combined_tex_units = GL11.glGetInteger(GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
         logger.info("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: " + num_combined_tex_units);
         if (num_combined_tex_units < 8) {
-            throw new RuntimeException("Number of combined texture image units " + num_combined_tex_units + " is less than the required 8.");
+            throw new RuntimeException(
+                    "Number of combined texture image units " + num_combined_tex_units + " is less than the required 8.");
         }
 
         resetInput();

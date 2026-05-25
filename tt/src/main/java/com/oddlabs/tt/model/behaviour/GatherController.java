@@ -8,7 +8,6 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FinderTrackerAlgorithm;
 import com.oddlabs.tt.pathfinder.TargetTrackerAlgorithm;
 import com.oddlabs.tt.pathfinder.TrackerAlgorithm;
-import com.oddlabs.tt.pathfinder.UnitGrid;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -32,7 +31,7 @@ public final class GatherController<S extends Supply> extends Controller {
         this.supply_type = supply_type;
         this.assigned_building = null;
     }
-    
+
     public GatherController(@NonNull Unit unit, @Nullable S supply, @NonNull Class<S> supply_type, Building building) {
         super(State.values().length);
         this.unit = unit;
@@ -85,7 +84,8 @@ public final class GatherController<S extends Supply> extends Controller {
         Building building = getBuilding();
         if (building != null && unit.isCloseEnough(0f, building)) {
             Class<? extends Supply> unit_supply_type = unit.getSupplyContainer().getSupplyType();
-            int num_supplies = building.getSupplyContainer(unit_supply_type).increaseSupply(unit.getSupplyContainer().getNumSupplies());
+            int num_supplies = building.getSupplyContainer(unit_supply_type).increaseSupply(
+                    unit.getSupplyContainer().getNumSupplies());
             unit.getSupplyContainer().increaseSupply(-num_supplies, unit_supply_type);
             if (unit.getSupplyContainer().getNumSupplies() > 0) {
                 unit.popController();
@@ -95,14 +95,14 @@ public final class GatherController<S extends Supply> extends Controller {
         } else if (!shouldGiveUp(State.DROPOFF.ordinal())) {
             // building_tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new BuildingFinder(unit.getOwner(), Abilities.SUPPLY_CONTAINER));
             if (assigned_building == null || assigned_building.isDead()) {
-                unknown_building_tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new BuildingFinder(unit.getOwner(), Abilities.SUPPLY_CONTAINER));
+                unknown_building_tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new BuildingFinder(
+                        unit.getOwner(), Abilities.SUPPLY_CONTAINER));
                 assigned_building_tracker = null;
             } else {
-                assigned_building_tracker =
-                        new TargetTrackerAlgorithm(
-                                unit.getUnitGrid(),
-                                0.0f,
-                                assigned_building.getEntrance());
+                assigned_building_tracker = new TargetTrackerAlgorithm(
+                        unit.getUnitGrid(),
+                        0.0f,
+                        assigned_building.getEntrance());
                 unknown_building_tracker = null;
             }
 
@@ -118,7 +118,8 @@ public final class GatherController<S extends Supply> extends Controller {
 
     @Override
     public void decide() {
-        if (unit.getSupplyContainer().getNumSupplies() > 0 && unit.getSupplyContainer().getSupplyType() == supply_type) {
+        if (unit.getSupplyContainer().getNumSupplies() > 0
+                && unit.getSupplyContainer().getSupplyType() == supply_type) {
             dropoff();
         } else {
             gather();

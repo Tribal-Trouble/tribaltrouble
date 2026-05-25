@@ -26,7 +26,8 @@ final class QueuedAudioPlayer extends AbstractAudioPlayer {
     private @Nullable OGGStream ogg_stream;
     private int oldest_buffer = 0;
 
-    QueuedAudioPlayer(@Nullable AudioSource source, @NonNull AudioParameters<@NonNull String> params) throws IOException {
+    QueuedAudioPlayer(@Nullable AudioSource source,
+            @NonNull AudioParameters<@NonNull String> params) throws IOException {
         super(source, params);
         this.url = Utils.makeURL(params.sound);
         this.pcmBuffer = BufferUtils.createShortBuffer(16384);
@@ -108,8 +109,8 @@ final class QueuedAudioPlayer extends AbstractAudioPlayer {
 //System.out.println("oldest_buffer = " + oldest_buffer + " | processed = " + processed + " | capacity = " + buffer_streams[oldest_buffer].buffer().capacity() + " | position " + buffer_streams[oldest_buffer].buffer().position() + " | limit " + buffer_streams[oldest_buffer].buffer().limit() + " al_size = " + AL10.alGetBufferi(al_buffers.get(oldest_buffer), AL10.AL_SIZE));
             oldest_buffer = (oldest_buffer + 1) % NUM_BUFFERS;
             processed--;
-/*			int test_processed = AL10.alGetSourcei(source.getSource(), AL10.AL_BUFFERS_PROCESSED);
-			assert test_processed >= processed: test_processed + " " + processed;*/
+            /*			int test_processed = AL10.alGetSourcei(source.getSource(), AL10.AL_BUFFERS_PROCESSED);
+            			assert test_processed >= processed: test_processed + " " + processed;*/
         }
         if (source.getState() == AudioSource.State.STOPPED)
             source.play();

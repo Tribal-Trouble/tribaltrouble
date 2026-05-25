@@ -16,7 +16,8 @@ public final class HttpRequestParameters {
         this.parameters = parameters;
     }
 
-    @NonNull String createQueryString() {
+    @NonNull
+    String createQueryString() {
         if (parameters == null || parameters.isEmpty())
             return "";
         StringBuilder buffer = new StringBuilder();

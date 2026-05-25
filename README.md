@@ -1,84 +1,183 @@
-Tribal Trouble
-==============
-(this section preserved from the [upstream repo](https://github.com/sunenielsen/tribaltrouble))
 
-Tribal Trouble is a realtime strategy game released by Oddlabs in 2004. In 2014 the source was released under GPL2
-license, and can be found in this repository.
+# Tribal Trouble
 
-The source is released "as is", and Oddlabs will not be available for help building it, modifying it or any other kind
-of support. Due to the age of the game, it is reasonable to expect there to be some problems on some systems. Oddlabs
-has not released updates to the game for years, and do not intend to start updating it now that it is open sourced.
+![Tribal Trouble](./.github/images/tt_logo.png)
 
-**If** you know how to code Java, configure Gradle, use MySQL, and have a **genuine intention** of actually working on
-the game, you can create an issue for detailed questions about the source.
+[![License](https://img.shields.io/badge/license-GPLv2-orange.svg)](LICENSE)
+[![Build Status](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml/badge.svg?branch=main)](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml?query=branch%3Amain)
+[![](https://dcbadge.limes.pink/api/server/https://discord.gg/tribaltrouble?style=flat)](https://discord.gg/tribaltrouble?style=flat)
 
-About this fork
----------------
+Tribal Trouble is a realtime strategy game released by Oddlabs in 2004. In 2014 the source was released under GPL2 license.
 
-I ([bondolo](https://github.com/bondolo)) have been working on restoring this enjoyable game to working order with
-modern Java and OpenGL. This has included updating to more recent LWJGL, OpenGL, GLFW and OpenAL, removing the need for 
-registration, removing demo mode, removing updater as well as many Java modernizations and cleanups. The build 
-system has been migrated from Ant to Gradle for better dependency management and faster builds.
+This fork aims to:
 
-This is a *restoration* fork. While the implementation has been modernized the gameplay intentionally remains as
-close as possible to the original game but with better graphics, sound and fluidity. Some essential accessibility
-features have been added including UI magnification, high contrast filter, color vision difference correction, team
-color editing, keyboard control remapping and unit/building team color overlays.
+1. Bring the game back online and make it available for everyone to play as it was originally✅
+2. Ensure it is easy to build and contribute to development of the game 🚧
+3. Remaster and modernize the graphics 🚧
+4. Add more playable features later 🚧
 
-If you are looking for multiplayer or new features there is another fork of the game which has focused on that and
-has a great community of contributors and players. See **[Tribal Trouble:Resurrected](https://tribaltrouble.org/)**
+See what we're working on right now on the **[current roadmap](https://github.com/users/OmarAMokhtar/projects/1)**.
 
-**Disclaimer**: This fork of Tribal Trouble is a derived work by an opensource effort based on the original Oddlabs
-version. It aims to revive the original game and modernize the implementation so that the game may be played long in to
-the future. The current maintainers for this edition have no affiliation with Oddlabs.
+## Table of Contents
 
-Building
---------
-Clone the repository:
+- [🎮 How to play?](#-how-to-play)
+- [🛠️ Build Requirements](#️-build-requirements)
+- [🏗️ Building](#️-building)
+  - [Repository Setup](#repository-setup)
+  - [Build + Run Game Client](#build--run-game-client)
+  - [Build Game Client for Distribution](#build-game-client-for-distribution)
+  - [Build + Run Game Server](#build--run-game-server)
+  - [Common Gradle Tasks](#common-gradle-tasks)
+  - [Code Formatting](#code-formatting)
+- [🚀 Releasing](#-releasing)
+- [🤝 Contributing](#-contributing)
+- [🙏 About this fork](#-about-this-fork)
 
-```
-git clone https://github.com/bondolo/tribaltrouble.git
-cd tribaltrouble
-```
+## 🎮 How to play?
 
-Requirements:
+The easiest way to play is on **[Steam - Tribal Trouble: Resurrected](https://store.steampowered.com/app/3945720/Tribal_Trouble_Resurrected/)**. You can also grab a build from [tribaltrouble.org](https://tribaltrouble.org) or the releases section of this repo. Come join us on [discord](https://discord.gg/tribaltrouble) - we're still a small community!
 
-- Java SDK 26 or later
-- Gradle 9.2+ (or use included wrapper)
-- Basis Universal 2.10.0 (optional)
+Builds from this repo (outside of Steam) are unsigned, so different OSes will respond differently when you launch:
 
-Build and run the game:
+- Linux
+  - Launch the `TribalTrouble-x86_64.AppImage`
+- Windows
+  - Launch the `TribalTrouble.exe`
+  - A windows defender modal will pop up. Click more info > run anyway
+- Mac
+  - Launch the application
+  - A modal appears warning the application is unsigned and should be moved to the trash. Click done
+  - Go to system settings > Privacy & Security and click Open Anyway:
+    ![Not Opened on Mac](./.github/images/open_anyway_mac.png)
 
-```
-gradle :tt:run
-```
+Already played before Steam? See [Migrating Your Save to the Steam Version](./docs/migrate-save-to-steam.md) to bring your campaign progress over.
 
-Build all modules:
+## 🛠️ Build Requirements
 
-```
-gradle build
-```
+### Client + Server
 
-Repository Configuration
-------------------------
-To ensure that formatting-only commits do not clutter `git blame` results, this repository includes a `.gitconfig` 
-file. For security reasons, Git does not automatically load configuration from the repository root.
+- [Java SDK 26](https://www.oracle.com/java/technologies/downloads/) (or Open-JDK-26)
+- The bundled Gradle wrapper (`./gradlew` / `gradlew.bat`)
 
-To apply these settings to your local clone, run the following command once from the project root:
+### Server
+
+- [mySQL](https://dev.mysql.com/downloads/mysql/)
+
+## 🏗️ Building
+
+Each instruction below assumes you are in a terminal at the root of the repository. Examples use `./gradlew`; on Windows use `gradlew.bat` (or `.\gradlew.bat`) instead.
+
+### Repository Setup
+
+This repo ships a `.gitconfig` with a `.git-blame-ignore-revs` file so the mass-reformat commits don't pollute `git blame`. Git won't auto-load it for security reasons. Run this once from the project root after cloning:
 
 ```bash
 git config --local include.path ../.gitconfig
 ```
 
-This will configure Git to respect the `.git-blame-ignore-revs` file and any other shared project settings.
+### Build + Run Game Client
 
-Common tasks:
+- `./gradlew tt:run`
 
-- `gradle clean` - Clean all build outputs
-- `gradle :assets:geometry` - Generate geometry files
-- `gradle :assets:textures` - Convert texture files
-- `gradle :tt:build` - Build game client
-- `gradle :tt:run` - Run the game
+> Steam integration is optional at runtime: `tt:run` works fine without Steam installed or running. If the Steam client is running and `tt/steam_appid.txt` is present (it's committed to the repo), the game will use Steam features (rich presence, achievements, etc.) where it can.
 
-Note: Server and servlet modules are excluded due to missing dependencies.
+### Build Game Client for Distribution
 
+Build output lands under `tt/build/dist/<platform>` (with shared staged files in `tt/build/dist/common`).
+
+- Linux
+  - `./gradlew tt:packageLinux`
+- Windows
+  - `gradlew.bat tt:packageWindows`
+- Mac x86
+  - `./gradlew tt:packageMacX86`
+- Mac arm64
+  - `./gradlew tt:packageMacArm64`
+
+> Each `package*` task only runs on its matching host OS `packageWindows` skips on Linux/Mac, and vice versa.
+
+> Don't want to build locally? CI builds per-platform artifacts on every push to `main` and `release`. Grab them from the [Actions tab](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml): pick a successful run and download the platform artifact you want at the bottom of the page.
+
+### Build + Run Game Server
+
+1. mySQL Setup
+    - Run `initmysql.sql` against your MySQL server this creates the `oddlabs` database and all base tables.
+    - Create the `matchmaker` user and grant it access to the `oddlabs` database (pick any password remember it for the next step):
+
+      ```sql
+      CREATE USER 'matchmaker'@'localhost' IDENTIFIED BY '<your-password>';
+      GRANT ALL PRIVILEGES ON oddlabs.* TO 'matchmaker'@'localhost';
+      FLUSH PRIVILEGES;
+      ```
+
+    - Run each migration script in `database/` in numeric order (`001` → `002` → `003` → `004`). They assume you're already in the `oddlabs` database.
+
+2. Server Configuration
+    - Copy `server/server.properties.template` to `server/server.properties`
+    - Edit the `server.properties` file with your configuration:
+      - `SQL_PASS`* - The password for the matchmaker database user
+      - `DISCORD_BOT_TOKEN` - Your Discord bot token
+      - `DISCORD_SERVER_ID` - Your Discord server ID
+      - `WEBSITE_DOMAIN` - Your website domain
+      - `NATIVE_CHIEF_EMOJI` and `VIKING_CHIEF_EMOJI` - Emoji IDs for game factions
+      - `EMOJI_ROLE_MAPPINGS` - JSON array for Discord role mappings
+        > Example: [{"role id":"\<numeric discord role id>","emoji id":"<custom emoji id or unicode (U+1F602)>"}]
+      - `REACTION_ROLE_MESSAGE_ID` - Discord message ID for reaction roles
+
+    > Those marked with \* are required to run the game server. Those without \* are optional settings. That are generally used for things like discord integration
+
+3. Run the servers
+     - There are two main servers needed. The matchmaker and the router. The matchmaker is what runs the game and most the server logic. The router sends and receives chat messages and other messages from the client
+     - **For dev** (foreground, console logs, picks up `server/server.properties`):
+       - Matchmaker: `./gradlew server:runMatchmaker`
+       - Router: `./gradlew server:runRouter`
+     - **For deployment**: extract the server bundle (grab it from the [Actions tab](https://github.com/OmarAMokhtar/tribaltrouble/actions/workflows/gradle.yml) under the `server` artifact), edit `server.properties` in the extracted root, then launch via `bin/matchmaker` / `bin/router`, or the bundled `start.sh` / `start.bat` (which runs both with `nohup` and tees logs to `logs/`)
+
+### Common Gradle Tasks
+
+Quick reference for tasks you'll reach for often:
+
+- `./gradlew clean` - wipe all build outputs
+- `./gradlew build` - build every module
+- `./gradlew tt:run` - run the game client
+- `./gradlew tt:build` - build just the client
+- `./gradlew assets:geometry` - regenerate binary geometry files
+- `./gradlew assets:textures` - convert texture sources
+- `./gradlew tasks --all` - full list of available tasks
+- `./gradlew spotlessApply` - auto-fix Java formatting across all modules
+- `./gradlew spotlessCheck` - report formatting violations (what CI runs)
+
+### Code Formatting
+
+Java code style is enforced by [Spotless](https://github.com/diffplug/spotless) using the Eclipse JDT formatter, configured from `intellij-java-style.xml` (an export of the project's IntelliJ Java code style). CI runs `spotlessCheck` as a gating step: if any file isn't formatted, the rest of the pipeline doesn't run.
+
+Workflow:
+
+- IntelliJ's format-on-save handles most of it as you edit
+- Before committing, run `./gradlew spotlessApply` to smooth over the small gap between IntelliJ's formatter and the Eclipse engine Spotless uses
+
+## 🚀 Releasing
+
+Releases happen in two halves: pushing to `release` publishes to every platform's **prerelease** location (Steam `prerelease` branch, itch `*-prerelease` channels, GitHub Release marked `--prerelease`, website `/prerelease/`). When you're ready to ship to all users, dispatch the **Promote Release to Stable** workflow with the tag. It moves everything to stable destinations. The Steam `default` branch is the one manual step (Valve doesn't let CI touch it).
+
+For the full step-by-step, versioning logic, required secrets, and rollback procedure, see **[docs/releasing.md](./docs/releasing.md)**.
+
+## 🤝 Contributing
+
+Thanks for your interest in contributing. We have a channel in [discord](https://discord.gg/tribaltrouble) that is active with contributors if you have any questions on setup or where to find things. Come chat, play some games!
+
+See something you want or could improve upon? Make a PR or an issue! Don't have an idea? There's plenty of work to be done check out the active issues!
+
+> PRs should target `main`; that's where all work lands before being merged into `release` to ship. See [docs/releasing.md](./docs/releasing.md) for the full flow.
+
+There are ways to contribute besides developing. If you have screenshots of the game from back in the day those are welcome.
+
+> For example a screenshot of the old the leaderboards.
+
+Being an active member in the [discord](https://discord.gg/tribaltrouble) and playing games also will help keep the game going!
+
+## 🙏 About this fork
+
+Accessibility features carried over from the restoration work include UI magnification, high-contrast filter, color-vision-difference correction, editable team colors, keyboard control remapping, and unit/building team-color overlays.
+
+Much of the modernization work this fork is built on came from [bondolo's restoration fork](https://github.com/bondolo/tribaltrouble). If you're looking for the pure restoration experience (no multiplayer/new-feature focus), check it out.

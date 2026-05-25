@@ -25,7 +25,8 @@ public class BoundingBox {
         return "bmx " + bmin_x + " bmy " + bmin_y + " bmz " + bmin_z + " bxx " + bmax_x + " bxy " + bmax_y + " bxz " + bmax_z;
     }
 
-    protected final boolean collides(float bmin_x, float bmax_x, float bmin_y, float bmax_y, float bmin_z, float bmax_z) {
+    protected final boolean collides(float bmin_x, float bmax_x, float bmin_y, float bmax_y, float bmin_z,
+            float bmax_z) {
         return (bmin_x <= this.bmax_x && bmax_x > this.bmin_x &&
                 bmin_y <= this.bmax_y && bmax_y > this.bmin_y &&
                 bmin_z <= this.bmax_z && bmax_z > this.bmin_z);
@@ -35,7 +36,8 @@ public class BoundingBox {
         return collides(other.bmin_x, other.bmax_x, other.bmin_y, other.bmax_y, other.bmin_z, other.bmax_z);
     }
 
-    protected final boolean contains(float bmin_x, float bmax_x, float bmin_y, float bmax_y, float bmin_z, float bmax_z) {
+    protected final boolean contains(float bmin_x, float bmax_x, float bmin_y, float bmax_y, float bmin_z,
+            float bmax_z) {
         return (bmax_x <= this.bmax_x && bmin_x > this.bmin_x &&
                 bmax_y <= this.bmax_y && bmin_y > this.bmin_y &&
                 bmax_z <= this.bmax_z && bmin_z > this.bmin_z);
@@ -55,7 +57,8 @@ public class BoundingBox {
         float radius_squared_x = cx - bmin_x;
         float radius_squared_y = cy - bmin_y;
         float radius_squared_z = cz - bmin_z;
-        return (float) Math.sqrt(radius_squared_x * radius_squared_x + radius_squared_y * radius_squared_y + radius_squared_z * radius_squared_z);
+        return (float) Math.sqrt(
+                radius_squared_x * radius_squared_x + radius_squared_y * radius_squared_y + radius_squared_z * radius_squared_z);
     }
 
     public final float getCX() {
@@ -197,9 +200,12 @@ public class BoundingBox {
         computeXYCenter();
     }
 
-    public final void setBoundsFromLandscape(@NonNull HeightMap heightmap, int start_x, int start_y, int size_x, int size_y) {
+    public final void setBoundsFromLandscape(@NonNull HeightMap heightmap, int start_x, int start_y, int size_x,
+            int size_y) {
         float corner1 = heightmap.getWrappedHeight(start_x, start_y);
-        setBounds(start_x * HeightMap.METERS_PER_UNIT_GRID, (start_x + size_x) * HeightMap.METERS_PER_UNIT_GRID, start_y * HeightMap.METERS_PER_UNIT_GRID, (start_y + size_y) * HeightMap.METERS_PER_UNIT_GRID, corner1, corner1);
+        setBounds(start_x * HeightMap.METERS_PER_UNIT_GRID, (start_x + size_x) * HeightMap.METERS_PER_UNIT_GRID,
+                start_y * HeightMap.METERS_PER_UNIT_GRID, (start_y + size_y) * HeightMap.METERS_PER_UNIT_GRID, corner1,
+                corner1);
         for (int grid_y = 0; grid_y <= size_x; grid_y++) {
             for (int grid_x = 0; grid_x <= size_y; grid_x++) {
                 float height = heightmap.getWrappedHeight(start_x + grid_x, start_y + grid_y);

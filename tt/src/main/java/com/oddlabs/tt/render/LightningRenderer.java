@@ -37,7 +37,8 @@ public final class LightningRenderer implements AutoCloseable {
             LightningShader.Attribute.COLOR
     );
 
-    private final FloatBuffer particle_buffer = Objects.requireNonNull(BufferUtils.createFloatBuffer(MAX_PARTICLES * VERTICES_PER_PARTICLE * FLOATS_PER_VERTEX));
+    private final FloatBuffer particle_buffer = Objects.requireNonNull(BufferUtils.createFloatBuffer(
+            MAX_PARTICLES * VERTICES_PER_PARTICLE * FLOATS_PER_VERTEX));
     private final FloatVBO particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
     private final @NonNull ShortVBO particle_ibo;
 
@@ -48,7 +49,8 @@ public final class LightningRenderer implements AutoCloseable {
     public LightningRenderer() {
         shader = new LightningShader();
 
-        ShortBuffer iboBuffer = Objects.requireNonNull(BufferUtils.createShortBuffer(MAX_PARTICLES * INDICES_PER_PARTICLE));
+        ShortBuffer iboBuffer = Objects.requireNonNull(BufferUtils.createShortBuffer(
+                MAX_PARTICLES * INDICES_PER_PARTICLE));
         for (int i = 0; i < MAX_PARTICLES; i++) {
             int offset = i * VERTICES_PER_PARTICLE;
             // First quad, first triangle
@@ -77,12 +79,13 @@ public final class LightningRenderer implements AutoCloseable {
         vao.unbind();
     }
 
-    public void render(@NonNull RenderContext context, @NonNull RenderQueues render_queues, @NonNull Queue<@NonNull Lightning> queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public void render(@NonNull RenderContext context, @NonNull RenderQueues render_queues,
+            @NonNull Queue<@NonNull Lightning> queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack,
+            @NonNull MatrixStack projectionStack) {
         if (queue.isEmpty()) return;
 
-        try (var _ = shader.use();
-             var _ = context.withBlendMode(BlendMode.ADDITIVE);
-             var _ = context.withDepthMode(DepthMode.READ_ONLY)) {
+        try (var _ = shader.use(); var _ = context.withBlendMode(BlendMode.ADDITIVE); var _ = context.withDepthMode(
+                DepthMode.READ_ONLY)) {
 
             Matrix4fc mv = modelViewStack.current();
             shader.setUniformMatrix4(LightningShader.Uniforms.MODEL_VIEW_MATRIX, false, mv);
@@ -133,7 +136,8 @@ public final class LightningRenderer implements AutoCloseable {
         particle_buffer.put(src_x).put(src_y - sw).put(src_z).put(0f).put(1f).put(r).put(g).put(b).put(a);
     }
 
-    private void renderInternal(@NonNull RenderContext context, @NonNull RenderQueues render_queues, @NonNull Lightning lightning) {
+    private void renderInternal(@NonNull RenderContext context, @NonNull RenderQueues render_queues,
+            @NonNull Lightning lightning) {
         context.setTexture(0, render_queues.getTexture(lightning.getTexture()));
         // Blend Func handled by Context
 
@@ -163,7 +167,8 @@ public final class LightningRenderer implements AutoCloseable {
         }
 
         particle_vbo.putSubData(vbo_offset * VERTICES_PER_PARTICLE * FLOATS_PER_VERTEX, particle_buffer);
-        GL11.glDrawElements(GL11.GL_TRIANGLES, count * INDICES_PER_PARTICLE, GL11.GL_UNSIGNED_SHORT, (long) vbo_offset * INDICES_PER_PARTICLE * Short.BYTES);
+        GL11.glDrawElements(GL11.GL_TRIANGLES, count * INDICES_PER_PARTICLE, GL11.GL_UNSIGNED_SHORT,
+                (long) vbo_offset * INDICES_PER_PARTICLE * Short.BYTES);
 
         vbo_offset += count;
     }

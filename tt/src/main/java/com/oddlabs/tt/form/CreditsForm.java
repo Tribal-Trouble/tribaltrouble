@@ -11,6 +11,7 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.TextBox;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
+import com.oddlabs.util.BuildInfo;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
@@ -20,7 +21,7 @@ import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 public final class CreditsForm extends Form {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(CreditsForm.class.getName());
 
-    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -29,7 +30,8 @@ public final class CreditsForm extends Form {
         addChild(head_label);
         head_label.place();
 
-        PanelGroup panel_group = new PanelGroup(createAboutPanel(bundle), createCreditsPanel(bundle), createThanksPanel(bundle));
+        PanelGroup panel_group = new PanelGroup(createAboutPanel(bundle), createCreditsPanel(bundle), createThanksPanel(
+                bundle));
         addChild(panel_group);
         panel_group.place(head_label, BOTTOM_LEFT);
 
@@ -45,6 +47,7 @@ public final class CreditsForm extends Form {
         Panel about = new Panel(i18n("about"));
         TextBox about_box = new TextBox(400, 300, Skin.getSkin().getEditFont(), 100000);
         about.addChild(about_box);
+        about_box.append(BuildInfo.FULL_VERSION + "\n\n");
         String about_text = i18n("about_text", Integer.toString(Renderer.getLocalInput().getRevision()));
         about_box.append(about_text);
 

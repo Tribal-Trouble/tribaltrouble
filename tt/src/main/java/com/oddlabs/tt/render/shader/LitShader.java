@@ -16,20 +16,20 @@ public interface LitShader extends Shader {
                 vec3 dp2 = dFdy(p);
                 vec2 duv1 = dFdx(uv);
                 vec2 duv2 = dFdy(uv);
-            
+
                 // solve the linear system
                 vec3 dp2perp = cross(dp2, N);
                 vec3 dp1perp = cross(N, dp1);
                 vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
                 vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
-            
-                // construct a scale-invariant frame 
+
+                // construct a scale-invariant frame
                 float invmax = inversesqrt(max(dot(T,T), dot(B,B)));
                 return mat3(T * invmax, B * invmax, N);
             }
-            
+
             vec3 perturbNormal(vec3 N, vec3 V, vec2 texcoord, vec3 map) {
-                // assume N, the interpolated vertex normal and 
+                // assume N, the interpolated vertex normal and
                 // V, the view vector (vertex to eye)
                 map = map * 255./127. - 128./127.;
                 mat3 TBN = cotangent_frame(N, -V, texcoord);
@@ -42,19 +42,19 @@ public interface LitShader extends Shader {
      */
     String VERTEX_LIGHTING_FUNCTION = """
             vec4 calculateVertexLighting(
-                vec3 normal, 
-                vec4 materialColor, 
+                vec3 normal,
+                vec4 materialColor,
                 mat4 modelViewMatrix
             ) {
                 // Transform normal to view space
                 vec3 transformedNormal = normalize((modelViewMatrix * vec4(normal, 0.0)).xyz);
-            
+
                 // Calculate diffuse lighting component
                 float diffuse = max(dot(transformedNormal, normalize(u_lightDirection)), 0.0);
-            
+
                 // Combine ambient and diffuse
                 vec3 light = u_globalAmbient + vec3(diffuse);
-            
+
                 // Apply lighting to material color
                 return vec4(materialColor.rgb * clamp(light, 0.0, 1.0), materialColor.a);
             }

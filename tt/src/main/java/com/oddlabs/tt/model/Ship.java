@@ -16,7 +16,6 @@ import com.oddlabs.tt.model.weapon.RockSpearWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberSpearWeapon;
 import com.oddlabs.tt.particle.LinearEmitter;
-import com.oddlabs.tt.particle.RandomAccelerationEmitter;
 import com.oddlabs.tt.particle.RandomVelocityEmitter;
 import com.oddlabs.tt.pathfinder.Movable;
 import com.oddlabs.tt.pathfinder.Occupant;
@@ -30,7 +29,6 @@ import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.EnumMap;
@@ -43,16 +41,14 @@ public class Ship extends Building implements Movable {
     private static final int OCCUPY_LENGTH_CELLS = 8;
     private static final int OCCUPY_WIDTH_CELLS = 2;
 
-    public static final Cost COST_ROCK_WEAPON =
-            new Cost(new Class[] {TreeSupply.class, RockSupply.class}, new int[] {2, 1});
-    public static final Cost COST_IRON_WEAPON =
-            new Cost(new Class[] {TreeSupply.class, IronSupply.class}, new int[] {2, 1});
-    public static final Cost COST_RUBBER_WEAPON =
-            new Cost(
-                    new Class[] {
-                        TreeSupply.class, RockSupply.class, IronSupply.class, RubberSupply.class
-                    },
-                    new int[] {2, 1, 1, 1});
+    public static final Cost COST_ROCK_WEAPON = new Cost(new Class[]{TreeSupply.class, RockSupply.class},
+            new int[]{2, 1});
+    public static final Cost COST_IRON_WEAPON = new Cost(new Class[]{TreeSupply.class, IronSupply.class},
+            new int[]{2, 1});
+    public static final Cost COST_RUBBER_WEAPON = new Cost(
+            new Class[]{TreeSupply.class, RockSupply.class, IronSupply.class, RubberSupply.class
+            },
+            new int[]{2, 1, 1, 1});
 
     public static final int KEY_DEPLOY_ROCK_WARRIOR = 0;
     public static final int KEY_DEPLOY_IRON_WARRIOR = 1;
@@ -86,7 +82,8 @@ public class Ship extends Building implements Movable {
 
     private final Map<@NonNull Class<?>, @NonNull SupplyContainer> supply_containers = new HashMap<>();
     private final Map<@NonNull Class<?>, @NonNull BuildProductionContainer> build_containers = new HashMap<>();
-    private final Map<@NonNull DeployType, @NonNull ShipDeployContainer> deploy_containers = new EnumMap<>(DeployType.class);
+    private final Map<@NonNull DeployType, @NonNull ShipDeployContainer> deploy_containers = new EnumMap<>(
+            DeployType.class);
     private final LinearEmitter damaged_emitter;
 
     private float remove_delay = 0;
@@ -111,25 +108,25 @@ public class Ship extends Building implements Movable {
         super.setPosition(x, y);
         setPositionZ(
                 Math.max(
-                                unit_grid.getHeightMap().getSeaLevelMeters(),
-                                unit_grid.getHeightMap().getNearestHeight(x, y))
-                        + getOffsetZ());
+                        unit_grid.getHeightMap().getSeaLevelMeters(),
+                        unit_grid.getHeightMap().getNearestHeight(x, y)) + getOffsetZ());
 
         setInitialShipDirection();
 
         pushController(new NullController(this));
-        
-/*
-   Vector3f position, float offset_z, float uv_angle,
-   float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
-   int num_particles, float particles_per_second,
-   Vector3f velocity, Vector3f acceleration,
-   Vector4f color, Vector4f delta_color,
-   Vector3f particle_radius, Vector3f growth_rate, int energy, float friction,
-   int src_blend_func, int dst_blend_func,
-   Texture texture
-*/
-        damaged_emitter = new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(), getPositionZ() + getHitOffsetZ()), 0f, 0f,
+
+        /*
+           Vector3f position, float offset_z, float uv_angle,
+           float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
+           int num_particles, float particles_per_second,
+           Vector3f velocity, Vector3f acceleration,
+           Vector4f color, Vector4f delta_color,
+           Vector3f particle_radius, Vector3f growth_rate, int energy, float friction,
+           int src_blend_func, int dst_blend_func,
+           Texture texture
+        */
+        damaged_emitter = new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(),
+                getPositionZ() + getHitOffsetZ()), 0f, 0f,
                 0.01f, 0.01f, 0.5f, .7f,
                 -1, 4f,
                 new Vector3f(0f, 0f, 5f), new Vector3f(0f, 0f, 0f),
@@ -242,7 +239,8 @@ public class Ship extends Building implements Movable {
                 float energy = 3f;
                 float fade_speed = 2.5f;
 
-                new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(), getPositionZ()), 0f,
+                new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(),
+                        getPositionZ()), 0f,
                         getTemplate().getSmokeRadius(), getTemplate().getSmokeHeight(), 0.05f, (float) Math.PI,
                         getTemplate().getNumFragments(), getTemplate().getNumFragments(),
                         new Vector3f(0f, 0f, 5f), new Vector3f(0f, 0f, -25f),
@@ -301,8 +299,7 @@ public class Ship extends Building implements Movable {
 
     private void createProxy() {
         UnitGrid grid = getUnitGrid();
-        float half_length_meters =
-                (OCCUPY_LENGTH_CELLS + 8) * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
+        float half_length_meters = (OCCUPY_LENGTH_CELLS + 8) * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
         int cx = UnitGrid.toGridCoordinate(getPositionX() + getDirectionX() * half_length_meters);
         int cy = UnitGrid.toGridCoordinate(getPositionY() + getDirectionY() * half_length_meters);
         int grid_size = grid.getGridSize();
@@ -329,7 +326,8 @@ public class Ship extends Building implements Movable {
         return false;
     }
 
-    public final void exitTower() {}
+    public final void exitTower() {
+    }
 
     @Override
     public void deployUnits(@NonNull DeployType type, int num_units) {
@@ -367,9 +365,11 @@ public class Ship extends Building implements Movable {
         return false;
     }
 
-    public final void trainChieftain(boolean start) {}
+    public final void trainChieftain(boolean start) {
+    }
 
-    public final void deployChieftain() {}
+    public final void deployChieftain() {
+    }
 
     private @NonNull Unit createUnit(Target rally_point, @NonNull UnitTemplate template) {
         Unit unit = ship_hr.exitUnit(template);
@@ -393,9 +393,8 @@ public class Ship extends Building implements Movable {
         for (int i = 0; i < amount; i++) {
             getUnitContainer().prepareDeploy(-1);
             getUnitContainer().exit();
-            Unit unit =
-                    createUnit(
-                            hasRallyPoint() ? rally_point : null, race.getUnitTemplate(template));
+            Unit unit = createUnit(
+                    hasRallyPoint() ? rally_point : null, race.getUnitTemplate(template));
         }
     }
 
@@ -417,13 +416,11 @@ public class Ship extends Building implements Movable {
         for (int i = 0; i < amount; i++) {
             getUnitContainer().prepareDeploy(-1);
             getUnitContainer().exit();
-            Unit unit =
-                    createUnit(
-                            hasRallyPoint() ? rally_point : null,
-                            race.getUnitTemplate(Race.UNIT_PEON));
+            Unit unit = createUnit(
+                    hasRallyPoint() ? rally_point : null,
+                    race.getUnitTemplate(Race.UNIT_PEON));
             if (unit != null) {
-                unit.getSupplyContainer()
-                        .increaseSupply(unit.getSupplyContainer().getMaxSupplyCount(), supply);
+                unit.getSupplyContainer().increaseSupply(unit.getSupplyContainer().getMaxSupplyCount(), supply);
             }
         }
     }
@@ -441,14 +438,10 @@ public class Ship extends Building implements Movable {
         final float MIN_ENERGY = 3f;
         final float MAX_ENERGY = 5f;
         final int START_SMOKE = getBuildingTemplate().getMaxHitPoints() / 2;
-        hit_points =
-                StrictMath.max(
-                        StrictMath.min(new_hit_points, getBuildingTemplate().getMaxHitPoints()), 0);
+        hit_points = StrictMath.max(
+                StrictMath.min(new_hit_points, getBuildingTemplate().getMaxHitPoints()), 0);
         if (build_points == getBuildingTemplate().getMaxHitPoints() && hit_points < START_SMOKE) {
-            float energy =
-                    MIN_ENERGY
-                            + ((1 - (float) hit_points / (START_SMOKE))
-                                    * (MAX_ENERGY - MIN_ENERGY));
+            float energy = MIN_ENERGY + ((1 - (float) hit_points / (START_SMOKE)) * (MAX_ENERGY - MIN_ENERGY));
             damaged_emitter.start();
             damaged_emitter.setDeltaColor(
                     new Vector4f(0f, 0f, 0f, -DAMAGED_PARTICLE_ALPHA / energy));
@@ -490,18 +483,30 @@ public class Ship extends Building implements Movable {
                     supply_containers.put(RubberAxeWeapon.class, rubber_weapon_container);
                     supply_containers.put(RubberSpearWeapon.class, rubber_weapon_container);
 
-                    deploy_containers.put(DeployType.ROCK_WARRIOR, new ShipDeployContainer(this, 1f, DeployType.ROCK_WARRIOR, RockAxeWeapon.class, false));
-                    deploy_containers.put(DeployType.IRON_WARRIOR, new ShipDeployContainer(this, 1.5f, DeployType.IRON_WARRIOR, IronAxeWeapon.class, false));
-                    deploy_containers.put(DeployType.RUBBER_WARRIOR, new ShipDeployContainer(this, 2f, DeployType.RUBBER_WARRIOR, RubberAxeWeapon.class, false));
-                    deploy_containers.put(DeployType.PEON, new ShipDeployContainer(this, .5f, DeployType.PEON, null, false));
-                    deploy_containers.put(DeployType.PEON_HARVEST_TREE, new ShipDeployContainer(this, .5f, DeployType.PEON_HARVEST_TREE, null, false));
-                    deploy_containers.put(DeployType.PEON_TRANSPORT_TREE, new ShipDeployContainer(this, .5f, DeployType.PEON_TRANSPORT_TREE, TreeSupply.class, true));
-                    deploy_containers.put(DeployType.PEON_HARVEST_ROCK, new ShipDeployContainer(this, .5f, DeployType.PEON_HARVEST_ROCK, null, false));
-                    deploy_containers.put(DeployType.PEON_TRANSPORT_ROCK, new ShipDeployContainer(this, .5f, DeployType.PEON_TRANSPORT_ROCK, RockSupply.class, true));
-                    deploy_containers.put(DeployType.PEON_HARVEST_IRON, new ShipDeployContainer(this, .5f, DeployType.PEON_HARVEST_IRON, null, false));
-                    deploy_containers.put(DeployType.PEON_TRANSPORT_IRON, new ShipDeployContainer(this, .5f, DeployType.PEON_TRANSPORT_IRON, IronSupply.class, true));
-                    deploy_containers.put(DeployType.PEON_HARVEST_RUBBER, new ShipDeployContainer(this, .5f, DeployType.PEON_HARVEST_RUBBER, null, false));
-                    deploy_containers.put(DeployType.PEON_TRANSPORT_RUBBER, new ShipDeployContainer(this, .5f, DeployType.PEON_TRANSPORT_RUBBER, RubberSupply.class, true));
+                    deploy_containers.put(DeployType.ROCK_WARRIOR, new ShipDeployContainer(this, 1f,
+                            DeployType.ROCK_WARRIOR, RockAxeWeapon.class, false));
+                    deploy_containers.put(DeployType.IRON_WARRIOR, new ShipDeployContainer(this, 1.5f,
+                            DeployType.IRON_WARRIOR, IronAxeWeapon.class, false));
+                    deploy_containers.put(DeployType.RUBBER_WARRIOR, new ShipDeployContainer(this, 2f,
+                            DeployType.RUBBER_WARRIOR, RubberAxeWeapon.class, false));
+                    deploy_containers.put(DeployType.PEON, new ShipDeployContainer(this, .5f, DeployType.PEON, null,
+                            false));
+                    deploy_containers.put(DeployType.PEON_HARVEST_TREE, new ShipDeployContainer(this, .5f,
+                            DeployType.PEON_HARVEST_TREE, null, false));
+                    deploy_containers.put(DeployType.PEON_TRANSPORT_TREE, new ShipDeployContainer(this, .5f,
+                            DeployType.PEON_TRANSPORT_TREE, TreeSupply.class, true));
+                    deploy_containers.put(DeployType.PEON_HARVEST_ROCK, new ShipDeployContainer(this, .5f,
+                            DeployType.PEON_HARVEST_ROCK, null, false));
+                    deploy_containers.put(DeployType.PEON_TRANSPORT_ROCK, new ShipDeployContainer(this, .5f,
+                            DeployType.PEON_TRANSPORT_ROCK, RockSupply.class, true));
+                    deploy_containers.put(DeployType.PEON_HARVEST_IRON, new ShipDeployContainer(this, .5f,
+                            DeployType.PEON_HARVEST_IRON, null, false));
+                    deploy_containers.put(DeployType.PEON_TRANSPORT_IRON, new ShipDeployContainer(this, .5f,
+                            DeployType.PEON_TRANSPORT_IRON, IronSupply.class, true));
+                    deploy_containers.put(DeployType.PEON_HARVEST_RUBBER, new ShipDeployContainer(this, .5f,
+                            DeployType.PEON_HARVEST_RUBBER, null, false));
+                    deploy_containers.put(DeployType.PEON_TRANSPORT_RUBBER, new ShipDeployContainer(this, .5f,
+                            DeployType.PEON_TRANSPORT_RUBBER, RubberSupply.class, true));
                 }
             }
         }
@@ -545,8 +550,7 @@ public class Ship extends Building implements Movable {
                         || current_grid_y >= unit_grid.getGridSize()
                         || current_grid_x < 0
                         || current_grid_y < 0) return false;
-                boolean occupied =
-                        unit_grid.isGridOccupied(current_grid_x, current_grid_y, UnitGrid.LAND);
+                boolean occupied = unit_grid.isGridOccupied(current_grid_x, current_grid_y, UnitGrid.LAND);
                 if (occupied) {
                     return false;
                 }
@@ -625,22 +629,16 @@ public class Ship extends Building implements Movable {
                 getOwner().getWorld().getAnimationManagerRealTime());
 
         remove_delay = REMOVE_DELAY;
-        getOwner()
-                .getWorld()
-                .getAudio()
-                .newAudio(
-                        new AudioParameters(
-                                getOwner()
-                                        .getWorld()
-                                        .getRacesResources()
-                                        .getBuildingCollapseSound(),
-                                getPositionX(),
-                                getPositionY(),
-                                getPositionZ(),
-                                AudioPlayer.AUDIO_RANK_BUILDING_COLLAPSE,
-                                AudioPlayer.AUDIO_DISTANCE_BUILDING_COLLAPSE,
-                                AudioPlayer.AUDIO_GAIN_BUILDING_COLLAPSE,
-                                AudioPlayer.AUDIO_RADIUS_BUILDING_COLLAPSE));
+        getOwner().getWorld().getAudio().newAudio(
+                new AudioParameters(
+                        getOwner().getWorld().getRacesResources().getBuildingCollapseSound(),
+                        getPositionX(),
+                        getPositionY(),
+                        getPositionZ(),
+                        AudioPlayer.AUDIO_RANK_BUILDING_COLLAPSE,
+                        AudioPlayer.AUDIO_DISTANCE_BUILDING_COLLAPSE,
+                        AudioPlayer.AUDIO_GAIN_BUILDING_COLLAPSE,
+                        AudioPlayer.AUDIO_RADIUS_BUILDING_COLLAPSE));
         free();
         int result = getOwner().getBuildingCountContainer().increaseSupply(-1);
         assert result == -1;
@@ -662,11 +660,8 @@ public class Ship extends Building implements Movable {
         if (isValidRallyPoint(target)) {
             rally_point = target;
         } else {
-            rally_point =
-                    getUnitGrid()
-                            .findGridTargets(
-                                    target.getGridX(), target.getGridY(), 1, false, UnitGrid.LAND)[
-                            0];
+            rally_point = getUnitGrid().findGridTargets(
+                    target.getGridX(), target.getGridY(), 1, false, UnitGrid.LAND)[0];
         }
     }
 
@@ -722,13 +717,9 @@ public class Ship extends Building implements Movable {
 
         float half_length_meters = OCCUPY_LENGTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
         float half_width_meters = OCCUPY_WIDTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
-        float half_diagonal_meters =
-                (float)
-                        StrictMath.sqrt(
-                                half_length_meters * half_length_meters
-                                        + half_width_meters * half_width_meters);
-        int radius_cells =
-                (int) StrictMath.ceil(half_diagonal_meters / HeightMap.METERS_PER_UNIT_GRID) + 1;
+        float half_diagonal_meters = (float) StrictMath.sqrt(
+                half_length_meters * half_length_meters + half_width_meters * half_width_meters);
+        int radius_cells = (int) StrictMath.ceil(half_diagonal_meters / HeightMap.METERS_PER_UNIT_GRID) + 1;
         int grid_size = grid.getGridSize();
         int start_x = StrictMath.max(0, getGridX() - radius_cells);
         int end_x = StrictMath.min(grid_size - 1, getGridX() + radius_cells);
@@ -765,13 +756,9 @@ public class Ship extends Building implements Movable {
 
         float half_length_meters = OCCUPY_LENGTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
         float half_width_meters = OCCUPY_WIDTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
-        float half_diagonal_meters =
-                (float)
-                        StrictMath.sqrt(
-                                half_length_meters * half_length_meters
-                                        + half_width_meters * half_width_meters);
-        int radius_cells =
-                (int) StrictMath.ceil(half_diagonal_meters / HeightMap.METERS_PER_UNIT_GRID) + 1;
+        float half_diagonal_meters = (float) StrictMath.sqrt(
+                half_length_meters * half_length_meters + half_width_meters * half_width_meters);
+        int radius_cells = (int) StrictMath.ceil(half_diagonal_meters / HeightMap.METERS_PER_UNIT_GRID) + 1;
         int grid_size = grid.getGridSize();
         int start_x = StrictMath.max(0, getGridX() - radius_cells);
         int end_x = StrictMath.min(grid_size - 1, getGridX() + radius_cells);
@@ -803,18 +790,16 @@ public class Ship extends Building implements Movable {
         if (!isDead()) {
             setHitPoints(hit_points - damage);
             World world = getOwner().getWorld();
-            world.getAudio()
-                    .newAudio(
-                            new AudioParameters(
-                                    world.getRacesResources()
-                                            .getBuildingHitSound(world.getRandom()),
-                                    getPositionX(),
-                                    getPositionY(),
-                                    getPositionZ(),
-                                    AudioPlayer.AUDIO_RANK_WEAPON_HIT,
-                                    AudioPlayer.AUDIO_DISTANCE_WEAPON_HIT,
-                                    AudioPlayer.AUDIO_GAIN_WEAPON_HIT,
-                                    AudioPlayer.AUDIO_RADIUS_WEAPON_HIT));
+            world.getAudio().newAudio(
+                    new AudioParameters(
+                            world.getRacesResources().getBuildingHitSound(world.getRandom()),
+                            getPositionX(),
+                            getPositionY(),
+                            getPositionZ(),
+                            AudioPlayer.AUDIO_RANK_WEAPON_HIT,
+                            AudioPlayer.AUDIO_DISTANCE_WEAPON_HIT,
+                            AudioPlayer.AUDIO_GAIN_WEAPON_HIT,
+                            AudioPlayer.AUDIO_RADIUS_WEAPON_HIT));
             if (hit_points == 0) {
                 // stats
                 getOwner().buildingLost();
@@ -840,10 +825,9 @@ public class Ship extends Building implements Movable {
         SupplyContainer container = getSupplyContainer(key);
         if (container != null) {
             container.increaseSupply(
-                    (int)
-                            StrictMath.min(
-                                    container.getMaxSupplyCount() - container.getNumSupplies(),
-                                    max));
+                    (int) StrictMath.min(
+                            container.getMaxSupplyCount() - container.getNumSupplies(),
+                            max));
         }
     }
 
@@ -912,11 +896,13 @@ public class Ship extends Building implements Movable {
         occupy();
     }
 
-    public final void markBlocking() {}
+    public final void markBlocking() {
+    }
 
     public final BuildSupplyContainer getBuildSupplyContainer(Class key) {
         return null;
     }
 
-    public final void buildWeapons(Class type, int num_weapons, boolean infinite) {}
+    public final void buildWeapons(Class type, int num_weapons, boolean infinite) {
+    }
 }

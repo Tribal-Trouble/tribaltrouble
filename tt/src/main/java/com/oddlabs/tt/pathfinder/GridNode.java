@@ -91,7 +91,8 @@ final class GridNode extends Node {
             return pathfinder_grid[local_y][local_x];
     }
 
-    private boolean addNeighbour(@NonNull PathFinderAlgorithm finder, @NonNull UnitGrid unit_grid, int x, int y, int cost) {
+    private boolean addNeighbour(@NonNull PathFinderAlgorithm finder, @NonNull UnitGrid unit_grid, int x, int y,
+            int cost) {
         GridNode node = getPathfinderNode(offset, x, y);
         if (node == null || node.isVisited())
             return false;

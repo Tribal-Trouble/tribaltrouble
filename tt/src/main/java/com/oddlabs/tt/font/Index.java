@@ -32,11 +32,13 @@ public final class Index implements Updatable<TimerAnimation> {
         timer.resetTime();
     }
 
-    public static void renderIndex(@NonNull GUIRenderer renderer, int render_x, int render_y, @NonNull Font font, @NonNull Vector4fc color) {
+    public static void renderIndex(@NonNull GUIRenderer renderer, int render_x, int render_y, @NonNull Font font,
+            @NonNull Vector4fc color) {
         index.doRenderIndex(renderer, render_x, render_y, font, color);
     }
 
-    private void doRenderIndex(@NonNull GUIRenderer renderer, int render_x, int render_y, @NonNull Font font, @NonNull Vector4fc color) {
+    private void doRenderIndex(@NonNull GUIRenderer renderer, int render_x, int render_y, @NonNull Font font,
+            @NonNull Vector4fc color) {
         if (blink_on) {
             renderer.drawColoredQuad(render_x, render_y + 3, INDEX_WIDTH, font.getHeight() - 6, color);
         }

@@ -73,7 +73,6 @@ import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
-import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 
 public final class LWJGL3Window implements Window {
 
@@ -109,7 +108,8 @@ public final class LWJGL3Window implements Window {
                 GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
                 if (vidmode != null) {
                     glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
-                    glfwSetWindowMonitor(windowHandle, MemoryUtil.NULL, 0, 0, vidmode.width(), vidmode.height(), GLFW_DONT_CARE);
+                    glfwSetWindowMonitor(windowHandle, MemoryUtil.NULL, 0, 0, vidmode.width(), vidmode.height(),
+                            GLFW_DONT_CARE);
                 }
             } else {
                 // Windowed mode: decorated, centered
@@ -119,7 +119,8 @@ public final class LWJGL3Window implements Window {
                 if (vidmode != null) {
                     int x = (vidmode.width() - mode.getWidth()) / 2;
                     int y = (vidmode.height() - mode.getHeight()) / 2;
-                    glfwSetWindowMonitor(windowHandle, MemoryUtil.NULL, x, y, mode.getWidth(), mode.getHeight(), GLFW_DONT_CARE);
+                    glfwSetWindowMonitor(windowHandle, MemoryUtil.NULL, x, y, mode.getWidth(), mode.getHeight(),
+                            GLFW_DONT_CARE);
                 }
                 glfwSetWindowSize(windowHandle, mode.getWidth(), mode.getHeight());
             }
@@ -393,22 +394,17 @@ public final class LWJGL3Window implements Window {
 
         if (modes == null) return new SerializableDisplayMode[0];
 
-        return modes.stream()
-                .map(m -> {
-                    int bpp = m.redBits() + m.greenBits() + m.blueBits();
-                    if (bpp == 24) bpp = 32; // Assume 32-bit if RGB is 24-bit
-                    return new SerializableDisplayMode(m.width(), m.height(), bpp, m.refreshRate());
-                })
-                .filter(SerializableDisplayMode::isModeValid)
-                .collect(Collectors.toMap(
-                        // Only offer one mode per resolution, the highest bpp and frequency
-                        mode -> (mode.getWidth() << 16) + mode.getHeight(),
-                        Function.identity(),
-                        BinaryOperator.maxBy(Comparator.comparing(SerializableDisplayMode::getBitsPerPixel)
-                                .thenComparing(SerializableDisplayMode::getFrequency))
-                )).values().stream()
-                .sorted(Comparator.reverseOrder())
-                .toArray(SerializableDisplayMode[]::new);
+        return modes.stream().map(m -> {
+            int bpp = m.redBits() + m.greenBits() + m.blueBits();
+            if (bpp == 24) bpp = 32; // Assume 32-bit if RGB is 24-bit
+            return new SerializableDisplayMode(m.width(), m.height(), bpp, m.refreshRate());
+        }).filter(SerializableDisplayMode::isModeValid).collect(Collectors.toMap(
+                // Only offer one mode per resolution, the highest bpp and frequency
+                mode -> (mode.getWidth() << 16) + mode.getHeight(),
+                Function.identity(),
+                BinaryOperator.maxBy(Comparator.comparing(SerializableDisplayMode::getBitsPerPixel).thenComparing(
+                        SerializableDisplayMode::getFrequency))
+        )).values().stream().sorted(Comparator.reverseOrder()).toArray(SerializableDisplayMode[]::new);
     }
 
     @Override
@@ -443,7 +439,8 @@ public final class LWJGL3Window implements Window {
         // Try to match with available modes to ensure exact equality (for UI selection)
         try {
             for (SerializableDisplayMode m : getAvailableDisplayModes()) {
-                if (m.getWidth() == width && m.getHeight() == height && m.getBitsPerPixel() == bpp && m.getFrequency() == freq) {
+                if (m.getWidth() == width && m.getHeight() == height && m.getBitsPerPixel() == bpp
+                        && m.getFrequency() == freq) {
                     return m;
                 }
             }

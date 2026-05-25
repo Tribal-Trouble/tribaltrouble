@@ -40,7 +40,8 @@ public final class PoisonFog implements Magic {
     private int num_hits = 0;
     private boolean first_run = true;
 
-    public PoisonFog(float offset_x, float offset_y, float offset_z, float hit_radius, float hit_chance, float interval, float time, int damage, @NonNull Unit src) {
+    public PoisonFog(float offset_x, float offset_y, float offset_z, float hit_radius, float hit_chance, float interval,
+            float time, int damage, @NonNull Unit src) {
         this.hit_radius = hit_radius;
         this.hit_chance = hit_chance;
         this.interval = interval;
@@ -52,7 +53,9 @@ public final class PoisonFog implements Magic {
         start_x = src.getPositionX() + offset_x * src.getDirectionX() - offset_y * (-src.getDirectionY());
         start_y = src.getPositionY() + offset_x * src.getDirectionY() + offset_y * src.getDirectionX();
 
-        bubbling_sound = owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getBubblingSound(), start_x, start_y, owner.getWorld().getHeightMap().getNearestHeight(start_x, start_y),
+        bubbling_sound = owner.getWorld().getAudio().newAudio(new AudioParameters<>(
+                owner.getWorld().getRacesResources().getBubblingSound(), start_x, start_y,
+                owner.getWorld().getHeightMap().getNearestHeight(start_x, start_y),
                 AudioPlayer.AUDIO_RANK_MAGIC,
                 AudioPlayer.AUDIO_DISTANCE_MAGIC,
                 AudioPlayer.AUDIO_GAIN_BUBBLING,
@@ -72,7 +75,8 @@ public final class PoisonFog implements Magic {
         }
 
         if (bursts * SECONDS_BETWEEN_BURSTS < time) {
-            float gaussian = (float) (GAUSSIAN_LIMIT - Math.abs(Math.max(-GAUSSIAN_LIMIT, Math.min(GAUSSIAN_LIMIT, owner.getWorld().getRandom().nextGaussian())))) / GAUSSIAN_LIMIT;
+            float gaussian = (float) (GAUSSIAN_LIMIT - Math.abs(Math.max(-GAUSSIAN_LIMIT, Math.min(GAUSSIAN_LIMIT,
+                    owner.getWorld().getRandom().nextGaussian())))) / GAUSSIAN_LIMIT;
             float r = gaussian * (hit_radius - BURST_RADIUS - 5f);
             float a = owner.getWorld().getRandom().nextFloat() * (float) Math.PI * 2;
             float x = start_x + (float) Math.cos(a) * r;
@@ -81,7 +85,8 @@ public final class PoisonFog implements Magic {
             float alpha = 8f;
             float energy = 2f;
 
-            new RandomVelocityEmitter(owner.getWorld(), new Vector3f(x, y, z), OFFSET_Z, owner.getWorld().getRandom().nextFloat() * (float) Math.PI * 2,
+            new RandomVelocityEmitter(owner.getWorld(), new Vector3f(x, y, z), OFFSET_Z,
+                    owner.getWorld().getRandom().nextFloat() * (float) Math.PI * 2,
                     BURST_RADIUS, 0f, 0f, 0f,
                     PARTICLES_PER_BURST, PARTICLES_PER_BURST,
                     new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 0f),
@@ -92,7 +97,8 @@ public final class PoisonFog implements Magic {
                     owner.getWorld().getAnimationManagerGameTime());
             if (bursts % next_sound == 0) {
                 next_sound = MIN_BURSTS_PER_SOUND + owner.getWorld().getRandom().nextInt(5);
-                owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getGasSound(), x, y, z,
+                owner.getWorld().getAudio().newAudio(new AudioParameters<>(
+                        owner.getWorld().getRacesResources().getGasSound(), x, y, z,
                         AudioPlayer.AUDIO_RANK_GAS,
                         AudioPlayer.AUDIO_DISTANCE_MAGIC,
                         AudioPlayer.AUDIO_GAIN_GAS,
@@ -116,9 +122,11 @@ public final class PoisonFog implements Magic {
             float dx = s.getPositionX() - start_x;
             float dy = s.getPositionY() - start_y;
             float squared_dist = dx * dx + dy * dy;
-            if (!s.isDead() && ((owner.isEnemy(s.getOwner()) && owner.getWorld().getRandom().nextFloat() < hit_chance * (1 - s.getDefenseChance()))
-                    || (!owner.isEnemy(s.getOwner()) && owner.getWorld().getRandom().nextFloat() < (hit_chance / 4f) * (1 - s.getDefenseChance())
-                    && s != owner.getChieftain()))) {
+            if (!s.isDead() && ((owner.isEnemy(s.getOwner())
+                    && owner.getWorld().getRandom().nextFloat() < hit_chance * (1 - s.getDefenseChance()))
+                    || (!owner.isEnemy(s.getOwner())
+                            && owner.getWorld().getRandom().nextFloat() < (hit_chance / 4f) * (1 - s.getDefenseChance())
+                            && s != owner.getChieftain()))) {
                 float inv_dist = 1f / ((float) Math.sqrt(squared_dist));
                 s.hit(damage, dx * inv_dist, dy * inv_dist, owner);
             }

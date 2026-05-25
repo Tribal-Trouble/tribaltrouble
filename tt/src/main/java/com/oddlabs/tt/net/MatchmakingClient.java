@@ -28,6 +28,7 @@ import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
@@ -55,7 +56,8 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
     private @Nullable MatchmakingServerLoginInterface matchmaking_login_interface;
     private @Nullable TunnelledConnectionListener tunnelled_listener;
     private TunnelAddress local_address;
-    private String username = Utils.getBundleString(ResourceBundle.getBundle(MatchmakingClient.class.getName()), "player");
+    private String username = Utils.getBundleString(ResourceBundle.getBundle(MatchmakingClient.class.getName()),
+            "player");
     private @Nullable Profile active_profile = null;
     private int state = STATE_NOT_CONNECTED;
     private boolean update_allowed;
@@ -98,7 +100,8 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
             this.username = username;
             this.local_address = address;
             this.matchmaking_login_interface = null;
-            this.matchmaking_interface = (MatchmakingServerInterface) ARMIEvent.createProxy(conn.getWrappedConnectionAndShutdown(), MatchmakingServerInterface.class);
+            this.matchmaking_interface = (MatchmakingServerInterface) ARMIEvent.createProxy(
+                    conn.getWrappedConnectionAndShutdown(), MatchmakingServerInterface.class);
             state = STATE_LOGGED_IN;
             MatchmakingListener listener = Network.getMatchmakingListener();
             listener.loggedIn();
@@ -215,6 +218,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         chat_room_info = new ChatRoomInfo(room_name, null);
 
         chat_room_history.clear();
+        SteamManager.setLobbyRichPresence(room_name);
         MatchmakingListener listener = Network.getMatchmakingListener();
         if (listener != null)
             listener.joinedChat(chat_room_info);
@@ -269,10 +273,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         if (isConnected())
             getInterface().leaveRoom();
         chat_room_info = null;
-    }
-
-    public void clearChatRoomInfo() {
-        chat_room_info = null;
+        SteamManager.clearRichPresence();
     }
 
     public @Nullable ChatRoomInfo getChatRoomInfo() {
@@ -294,8 +295,11 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
     private void open(@NonNull NetworkSelector network) {
         close();
         this.network = network;
-        this.conn = new SecureConnection(network.getDeterministic(), new Connection(network, Settings.getSettings().getMatchmakingAddress(), MatchmakingServerInterface.MATCHMAKING_SERVER_PORT, this), null);
-        this.matchmaking_login_interface = (MatchmakingServerLoginInterface) ARMIEvent.createProxy(conn, MatchmakingServerLoginInterface.class);
+        this.conn = new SecureConnection(network.getDeterministic(), new Connection(network,
+                Settings.getSettings().getMatchmakingAddress(), MatchmakingServerInterface.MATCHMAKING_SERVER_PORT,
+                this), null);
+        this.matchmaking_login_interface = (MatchmakingServerLoginInterface) ARMIEvent.createProxy(conn,
+                MatchmakingServerLoginInterface.class);
     }
 
     public void login(@NonNull NetworkSelector network, Login login, LoginDetails login_details) {
@@ -337,9 +341,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
             var bais = new java.io.ByteArrayInputStream(world_params_data);
             var ois = new java.io.ObjectInputStream(bais);
             ois.setObjectInputFilter(java.io.ObjectInputFilter.Config.createFilter(
-                    "com.oddlabs.**;"
-                    + "java.lang.*;java.net.*;"
-                    + "!*"));
+                    "com.oddlabs.**;" + "java.lang.*;java.net.*;" + "!*"));
             var generator = (com.oddlabs.tt.resource.WorldGenerator) ois.readObject();
             var world_params = (com.oddlabs.tt.landscape.WorldParameters) ois.readObject();
             var player_slots = (PlayerSlot[]) ois.readObject();
@@ -361,11 +363,24 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         }
     }
 
+    private @Nullable ByteArrayOutputStream pendingSpectatorEventLog;
+    private int pendingSpectatorEventLogTotal;
+
     @Override
-    public void receiveSpectatorEventLog(byte[] event_log_data, int current_tick) {
-        PeerHubSpectatorController controller = PeerHubSpectatorController.getInstance();
-        if (controller == null) return;
-        controller.fastForward(event_log_data, current_tick);
+    public void receiveSpectatorEventLog(byte[] chunk, int chunk_index, int total_chunks, int current_tick) {
+        if (chunk_index == 0) {
+            pendingSpectatorEventLog = new java.io.ByteArrayOutputStream();
+            pendingSpectatorEventLogTotal = total_chunks;
+        }
+        if (pendingSpectatorEventLog == null) return;  // missed chunk 0; can't reassemble
+        pendingSpectatorEventLog.write(chunk, 0, chunk.length);
+        if (chunk_index == pendingSpectatorEventLogTotal - 1) {
+            byte[] full = pendingSpectatorEventLog.toByteArray();
+            pendingSpectatorEventLog = null;
+            PeerHubSpectatorController controller = PeerHubSpectatorController.getInstance();
+            if (controller == null) return;
+            controller.fastForward(full, current_tick);
+        }
     }
 
     public @Nullable MatchmakingServerLoginInterface getLoginInterface() {
@@ -446,7 +461,8 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
     }
 
     @Override
-    public void tunnelOpened(@NonNull HostSequenceID from, InetAddress inet_from, InetAddress local_inet_from, Profile other) {
+    public void tunnelOpened(@NonNull HostSequenceID from, InetAddress inet_from, InetAddress local_inet_from,
+            Profile other) {
         if (tunnelled_listener != null) {
             tunnelled_listener.requestTunnelledConnection(from, inet_from, local_inet_from, other);
         } else
@@ -502,7 +518,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
                 handleError(new IOException("Steam Web API ticket was null after awaiting"));
                 return;
             }
-            matchmaking_login_interface.loginWithSteam(accountId, personaName, authTicket, revision);
+            matchmaking_login_interface.loginWithSteam(accountId, personaName, authTicket, steam.getAppID(), revision);
         } else if (!Renderer.isRegistered()) {
             matchmaking_login_interface.loginAsGuest(revision);
         } else if (login_details != null) {
@@ -544,5 +560,6 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         matchmaking_interface = null;
         active_profile = null;
         chat_room_info = null;
+        SteamManager.clearRichPresence();
     }
 }

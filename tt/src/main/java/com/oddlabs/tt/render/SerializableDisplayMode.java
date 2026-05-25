@@ -36,15 +36,10 @@ public final class SerializableDisplayMode implements Serializable, Comparable<S
         int freq_dist2 = Math.abs(o.getFrequency() - DEFAULT_MODE.getFrequency());
         int bpp_dist1 = Math.abs(this.getBitsPerPixel() - DEFAULT_MODE.getBitsPerPixel());
         int bpp_dist2 = Math.abs(this.getBitsPerPixel() - DEFAULT_MODE.getBitsPerPixel());
-        return getDistanceFromBestMode(this) < getDistanceFromBestMode(o)
-                ? -1
-                : getDistanceFromBestMode(this) > getDistanceFromBestMode(o)
-                  ? 1
-                  : bpp_dist1 < bpp_dist2
-                    ? -1
-                    : bpp_dist1 > bpp_dist2
-                      ? 1
-                      : Integer.compare(freq_dist1, freq_dist2);
+        return getDistanceFromBestMode(this) < getDistanceFromBestMode(o) ? -1 : getDistanceFromBestMode(
+                this) > getDistanceFromBestMode(
+                        o) ? 1 : bpp_dist1 < bpp_dist2 ? -1 : bpp_dist1 > bpp_dist2 ? 1 : Integer.compare(freq_dist1,
+                                freq_dist2);
     }
 
     private static int getDistanceFromBestMode(@NonNull SerializableDisplayMode mode) {
@@ -55,7 +50,8 @@ public final class SerializableDisplayMode implements Serializable, Comparable<S
 
 
     public static boolean isModeValid(@NonNull SerializableDisplayMode mode) {
-        return mode.getWidth() >= 800 && mode.getHeight() >= 600 && mode.getBitsPerPixel() >= 8 && mode.getFrequency() >= 24;
+        return mode.getWidth() >= 800 && mode.getHeight() >= 600 && mode.getBitsPerPixel() >= 8
+                && mode.getFrequency() >= 24;
     }
 
     @Override

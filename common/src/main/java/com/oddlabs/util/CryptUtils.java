@@ -75,13 +75,13 @@ public final class CryptUtils {
         https_connection.setSSLSocketFactory(ssl_context.getSocketFactory());
         https_connection.setHostnameVerifier((String _, SSLSession _) -> true);
     }
-/*
-	public static final void main(String[] args) {
-//		String bla = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.:;?+={}[]()/&%¤#!1§<\\>'*";
-System.out.println("		digest(\"xarerenlamer4kasbdvljh\") = " + 		digest("xarerenlamer4kasbdvljh"));
-//		digest(bla);
-	}
-	*/
+    /*
+    	public static final void main(String[] args) {
+    //		String bla = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.:;?+={}[]()/&%¤#!1§<\\>'*";
+    System.out.println("		digest(\"xarerenlamer4kasbdvljh\") = " + 		digest("xarerenlamer4kasbdvljh"));
+    //		digest(bla);
+    	}
+    	*/
 
     private CryptUtils() {
     }

@@ -43,17 +43,20 @@ public final class Connection extends AbstractConnection implements Handler, Con
             if (!back_log_list.isEmpty() || !writeEvent(event))
                 back_log_list.add(event);
         };
-        this.peer_interface = (ConnectionPeerInterface) ARMIEvent.createProxy(event_writer, ConnectionPeerInterface.class);
+        this.peer_interface = (ConnectionPeerInterface) ARMIEvent.createProxy(event_writer,
+                ConnectionPeerInterface.class);
         peer_interface.ping();
     }
 
-    public Connection(@NonNull NetworkSelector network, String dns_name, int port, ConnectionInterface connection_interface) {
+    public Connection(@NonNull NetworkSelector network, String dns_name, int port,
+            ConnectionInterface connection_interface) {
         this(network, true);
         setConnectionInterface(connection_interface);
         network.asyncConnect(dns_name, port, this);
     }
 
-    public Connection(@NonNull NetworkSelector network, SocketAddress address, ConnectionInterface connection_interface) {
+    public Connection(@NonNull NetworkSelector network, SocketAddress address,
+            ConnectionInterface connection_interface) {
         this(network, true);
         setConnectionInterface(connection_interface);
         connect(address);
@@ -255,7 +258,8 @@ public final class Connection extends AbstractConnection implements Handler, Con
         read_buffer.limit(new_position);
         read_buffer.position(old_position);
         network.getDeterministic().log(read_buffer);
-        assert read_buffer.position() == new_position && !read_buffer.hasRemaining() : read_buffer.position() + " " + new_position + " " + !read_buffer.hasRemaining();
+        assert read_buffer.position() == new_position
+                && !read_buffer.hasRemaining() : read_buffer.position() + " " + new_position + " " + !read_buffer.hasRemaining();
         read_buffer.limit(old_limit);
         return num_bytes_read;
     }
@@ -291,7 +295,8 @@ public final class Connection extends AbstractConnection implements Handler, Con
                 }
                 read_buffer.compact();
             }
-        } while (bytes_read && network.getDeterministic().log(network.getDeterministic().isPlayback() || channel.isOpen()));
+        } while (bytes_read && network.getDeterministic().log(network.getDeterministic().isPlayback()
+                || channel.isOpen()));
     }
 
     @Override
@@ -325,7 +330,8 @@ public final class Connection extends AbstractConnection implements Handler, Con
             int new_ops = (interest_ops | SelectionKey.OP_READ) & ~SelectionKey.OP_CONNECT;
             if (!network.getDeterministic().isPlayback())
                 key.interestOps(new_ops);
-            connected(network.getDeterministic().log(network.getDeterministic().isPlayback() ? null : channel.socket().getLocalAddress()));
+            connected(network.getDeterministic().log(
+                    network.getDeterministic().isPlayback() ? null : channel.socket().getLocalAddress()));
         } else {
             network.getDeterministic().checkpoint();
             if (writing)
@@ -336,7 +342,8 @@ public final class Connection extends AbstractConnection implements Handler, Con
 
     private boolean isKeyValid() {
         // double negation because we want to the common result to be false, the default logger value
-        return !network.getDeterministic().log(network.getDeterministic().isPlayback() || !(key != null && key.isValid()));
+        return !network.getDeterministic().log(network.getDeterministic().isPlayback() || !(key != null
+                && key.isValid()));
     }
 
     @Override

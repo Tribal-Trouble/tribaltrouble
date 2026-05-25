@@ -63,8 +63,7 @@ public final class ShipHR {
                 float x = x_positions[r];
                 float y = lower_deck_left_y + range_y * (((float) c) / (NUM_LOWER_DECK_COLS - 1));
                 float z = lower_deck_z;
-                allocations[index] =
-                        new ShipAllocation(new Vector3f(x, y, z), fwd, ShipAllocation.SITTING);
+                allocations[index] = new ShipAllocation(new Vector3f(x, y, z), fwd, ShipAllocation.SITTING);
                 index++;
             }
         }
@@ -83,17 +82,17 @@ public final class ShipHR {
                 float x = upper_deck_min_x + range_x * (((float) r) / (NUM_UPPER_DECK_ROWS - 1));
                 float y = upper_deck_min_y + range_y * (((float) c) / (NUM_UPPER_DECK_COLS - 1));
                 float z = upper_deck_z;
-                allocations[index] =
-                        new ShipAllocation(
-                                new Vector3f(x, y, z),
-                                c == 0 ? right : left,
-                                ShipAllocation.FIGHTING);
+                allocations[index] = new ShipAllocation(
+                        new Vector3f(x, y, z),
+                        c == 0 ? right : left,
+                        ShipAllocation.FIGHTING);
                 index++;
             }
         }
     }
 
-    public ShipHR() {}
+    public ShipHR() {
+    }
 
     public boolean canAllocate(Unit unit) {
         if (!unit.isWarrior()) {

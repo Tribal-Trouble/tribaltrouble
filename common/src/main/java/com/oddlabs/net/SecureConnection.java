@@ -28,7 +28,8 @@ public final class SecureConnection extends AbstractConnection implements Secure
     private Cipher decrypt_cipher;
     private Cipher encrypt_cipher;
 
-    public SecureConnection(Deterministic deterministic, @NonNull AbstractConnection wrapped_conn, @Nullable AlgorithmParameterSpec param_spec) {
+    public SecureConnection(Deterministic deterministic, @NonNull AbstractConnection wrapped_conn,
+            @Nullable AlgorithmParameterSpec param_spec) {
         this.deterministic = deterministic;
         setConnectionInterface(wrapped_conn.getConnectionInterface());
         this.wrapped_connection = wrapped_conn;
@@ -52,7 +53,8 @@ public final class SecureConnection extends AbstractConnection implements Secure
                 SecureConnection.this.writeBufferDrained();
             }
         });
-        this.secure_interface = (SecureConnectionInterface) ARMIEvent.createProxy(wrapped_connection, SecureConnectionInterface.class);
+        this.secure_interface = (SecureConnectionInterface) ARMIEvent.createProxy(wrapped_connection,
+                SecureConnectionInterface.class);
         if (param_spec != null) {
             KeyPair key_pair = KeyManager.generateInitialKeyPair(param_spec);
             this.key_agreement = KeyManager.generateAgreement(key_pair.getPrivate());

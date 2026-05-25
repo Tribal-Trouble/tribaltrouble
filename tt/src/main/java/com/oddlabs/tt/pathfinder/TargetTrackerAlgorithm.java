@@ -28,18 +28,15 @@ public final class TargetTrackerAlgorithm implements TrackerAlgorithm {
 
     @Override
     public @Nullable Region findPathRegion(int src_x, int src_y) {
-        return target.isDead()
-                ? null
-                : PathFinder.findPathRegion(unit_grid,
+        return target.isDead() ? null : PathFinder.findPathRegion(unit_grid,
                 unit_grid.getRegion(src_x, src_y),
                 unit_grid.getRegion(target.getGridX(), target.getGridY()));
     }
 
     @Override
-    public @Nullable GridPathNode findPathGrid(@NonNull Region target_region, @NonNull Region next_region, int src_x, int src_y, boolean allow_secondary_targets) {
-        return target.isDead()
-                ? null
-                : PathFinder.findPathGrid(unit_grid, next_region, null,
+    public @Nullable GridPathNode findPathGrid(@NonNull Region target_region, @NonNull Region next_region, int src_x,
+            int src_y, boolean allow_secondary_targets) {
+        return target.isDead() ? null : PathFinder.findPathGrid(unit_grid, next_region, null,
                 src_x, src_y,
                 target.getGridX(), target.getGridY(),
                 target, max_dist, allow_secondary_targets);

@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
 public final class VikingIsland10 extends Island {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland10.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -40,11 +40,10 @@ public final class VikingIsland10 extends Island {
 
     @Override
     public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-        String[] ai_names = IntStream.range(0, 6)
-                .mapToObj(i -> i18n("name" + i))
-                .toArray(String[]::new);
+        String[] ai_names = IntStream.range(0, 6).mapToObj(i -> i18n("name" + i)).toArray(String[]::new);
         // gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
-        GameNetwork game_network = startNewGame(network, gui_root, 512, Landscape.TerrainType.NATIVE, 1f, 1f, 0f, -1442873271, 10, VikingCampaign.MAX_UNITS, ai_names);
+        GameNetwork game_network = startNewGame(network, gui_root, 512, Landscape.TerrainType.NATIVE, 1f, 1f, 0f,
+                -1442873271, 10, VikingCampaign.MAX_UNITS, ai_names);
         game_network.getClient().getServerInterface().setPlayerSlot(0,
                 PlayerSlot.HUMAN,
                 RacesResources.RACE_VIKINGS,
@@ -73,7 +72,8 @@ public final class VikingIsland10 extends Island {
         getViewer().getCamera().setPos(177 * 2, 156 * 2);
 
         // Introduction
-        final Runnable camera_jump = () -> getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), getViewer().getCamera(), 142 * 2, 182 * 2, 200f, 3f));
+        final Runnable camera_jump = () -> getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(),
+                getViewer().getCamera(), 142 * 2, 182 * 2, 200f, 3f));
         runnable = () -> {
             CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header0"),
                     i18n("dialog0"),
@@ -91,7 +91,9 @@ public final class VikingIsland10 extends Island {
 
         // Insert viking men
         ResourceBundle player_bundle = ResourceBundle.getBundle(Player.class.getName());
-        local_player.setActiveChieftain(new Unit(local_player, 142 * 2, 182 * 2, null, local_player.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN), Utils.getBundleString(player_bundle, "chieftain_name"), false));
+        local_player.setActiveChieftain(new Unit(local_player, 142 * 2, 182 * 2, null,
+                local_player.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN), Utils.getBundleString(player_bundle,
+                        "chieftain_name"), false));
         local_player.getChieftain().increaseMagicEnergy(0, 1000);
         local_player.getChieftain().increaseMagicEnergy(1, 1000);
         // 5 peons
@@ -99,15 +101,14 @@ public final class VikingIsland10 extends Island {
             new Unit(local_player, 142 * 2, 182 * 2, null, local_player.getRace().getUnitTemplate(Race.UNIT_PEON));
         }
         // rest as warriors
-        int unit_count = getCampaign().getState().getNumPeons()
-                + getCampaign().getState().getNumRockWarriors()
-                + getCampaign().getState().getNumIronWarriors()
-                + getCampaign().getState().getNumRubberWarriors() - 5;
+        int unit_count = getCampaign().getState().getNumPeons() + getCampaign().getState().getNumRockWarriors() + getCampaign().getState().getNumIronWarriors() + getCampaign().getState().getNumRubberWarriors() - 5;
         for (int i = 0; i < unit_count; i++) {
             if (getCampaign().getState().getDifficulty() == CampaignState.DIFFICULTY_EASY)
-                new Unit(local_player, 142 * 2, 182 * 2, null, local_player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
+                new Unit(local_player, 142 * 2, 182 * 2, null, local_player.getRace().getUnitTemplate(
+                        Race.UNIT_WARRIOR_IRON));
             else
-                new Unit(local_player, 142 * 2, 182 * 2, null, local_player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
+                new Unit(local_player, 142 * 2, 182 * 2, null, local_player.getRace().getUnitTemplate(
+                        Race.UNIT_WARRIOR_ROCK));
         }
 
         // Winner prize
@@ -218,7 +219,8 @@ public final class VikingIsland10 extends Island {
         // Insert statue
         float shadow_diameter = 2.6f;
         float offset = HeightMap.METERS_PER_UNIT_GRID / 2f;
-        new SceneryModel(getViewer().getWorld(), 173 * 2 + offset, 153 * 2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[2], shadow_diameter, true, i18n("statue"));
+        new SceneryModel(getViewer().getWorld(), 173 * 2 + offset, 153 * 2 + offset, 0, 1,
+                getViewer().getWorld().getRacesResources().getTreasures()[2], shadow_diameter, true, i18n("statue"));
 
         // Insert native towers
         insertGuardTower(enemy, Race.UNIT_WARRIOR_IRON, 177, 159);//*

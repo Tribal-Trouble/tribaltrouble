@@ -15,19 +15,19 @@ public final class GUIShader extends ShaderProgram {
      */
     private static final String VERTEX_SHADER = """
             #version 410 core
-            
+
             uniform mat4 u_projectionMatrix;
             uniform mat4 u_modelViewMatrix;
-            
+
             layout(location = 0) in vec3 in_Position;
             layout(location = 3) in vec4 in_Color;
             layout(location = 2) in vec2 in_TexCoord;
             layout(location = 4) in float in_TexIndex;
-            
+
             out vec4 v_Color;
             out vec2 v_TexCoord;
             flat out int v_TexIndex;
-            
+
             void main() {
                 gl_Position = u_projectionMatrix * u_modelViewMatrix * vec4(in_Position, 1.0);
                 v_Color = in_Color;
@@ -41,16 +41,16 @@ public final class GUIShader extends ShaderProgram {
      */
     private static final String FRAGMENT_SHADER = """
             #version 410 core
-            
+
             uniform sampler2D u_textures[8];
-            
+
             in vec4 v_Color;
             in vec2 v_TexCoord;
             flat in int v_TexIndex;
-            
+
             layout(location = 0) out vec4 out_FragColor;
             layout(location = 1) out vec4 out_MaskColor;
-            
+
             void main() {
                 if (v_TexIndex < 0) {
                     out_FragColor = v_Color;

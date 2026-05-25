@@ -10,7 +10,8 @@ public final class AnimObjectInfo extends ObjectInfo {
     private final AnimationInfo.@NonNull AnimationType type;
     private final @NonNull String name;
 
-    public AnimObjectInfo(@NonNull Path file, float wpc, AnimationInfo.@NonNull AnimationType type, @NonNull String name) {
+    public AnimObjectInfo(@NonNull Path file, float wpc, AnimationInfo.@NonNull AnimationType type,
+            @NonNull String name) {
         super(file);
         this.wpc = wpc;
         this.type = type;

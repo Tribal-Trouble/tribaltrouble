@@ -14,6 +14,8 @@ EMOJI_ROLE_MAPPINGS=
 REACTION_ROLE_MESSAGE_ID=
 
 # Steam API (leave empty to disable)
+# STEAM_APP_ID is comma-separated for multi-app deployments (e.g., main + demo + playtest).
+# The first ID is used as the target for multiplayer stats and achievement pushes.
 STEAM_WEB_API_KEY=
 STEAM_APP_ID=
 STEAM_ONLY_AUTH=false

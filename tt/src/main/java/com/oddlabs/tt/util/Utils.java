@@ -28,10 +28,12 @@ public final class Utils {
             return i18n(key, args);
         }
 
-        @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args);
+        @NonNull
+        String i18n(@NonNull String key, @NonNull Object @NonNull... args);
     }
 
-    public static @NonNull String getBundleString(@NonNull ResourceBundle bundle, @NonNull String key, Object... object_array) {
+    public static @NonNull String getBundleString(@NonNull ResourceBundle bundle, @NonNull String key,
+            Object... object_array) {
         return MessageFormat.format(bundle.getString(key), object_array);
     }
 
@@ -40,15 +42,11 @@ public final class Utils {
     }
 
     public static @NonNull FloatBuffer toBuffer(float @NonNull [] floats) {
-        return BufferUtils.createFloatBuffer(floats.length)
-                .put(floats)
-                .rewind();
+        return BufferUtils.createFloatBuffer(floats.length).put(floats).rewind();
     }
 
     public static @NonNull ShortBuffer toBuffer(short @NonNull [] shorts) {
-        return BufferUtils.createShortBuffer(shorts.length)
-                .put(shorts)
-                .rewind();
+        return BufferUtils.createShortBuffer(shorts.length).put(shorts).rewind();
     }
 
     public static @NonNull ByteBuffer ioResourceToByteBuffer(@NonNull URL url) throws IOException {

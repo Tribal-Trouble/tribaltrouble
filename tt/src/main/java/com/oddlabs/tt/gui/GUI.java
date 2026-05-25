@@ -69,7 +69,8 @@ public final class GUI implements Animated {
         return current_root;
     }
 
-    @Nullable Fade getFade() {
+    @Nullable
+    Fade getFade() {
         return fade;
     }
 
@@ -120,7 +121,8 @@ public final class GUI implements Animated {
         GUIRoot guiRoot = getGUIRoot();
         guiRenderer.renderFrame(context, guiRoot.getWidth(), guiRoot.getHeight(), () -> {
             guiRoot.render(guiRenderer);
-            guiRoot.renderTopmost(guiRenderer, renderer != null ? renderer.getToolTip() : null, renderer != null && renderer.isCheater());
+            guiRoot.renderTopmost(guiRenderer, renderer != null ? renderer.getToolTip() : null, renderer != null
+                    && renderer.isCheater());
         });
     }
 }

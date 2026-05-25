@@ -14,7 +14,8 @@ public final class Bricks {
     public static final int BUMP = 1;
     public static final int COLOR = 2;
 
-    public Bricks(int width, int height, int bricks, int layers, float x_mortar, float y_mortar, float stagger, float randomness, long seed, int type) {
+    public Bricks(int width, int height, int bricks, int layers, float x_mortar, float y_mortar, float stagger,
+            float randomness, long seed, int type) {
 
         random = new Random(seed);
         float[][] cells = new float[bricks][layers];
@@ -38,7 +39,8 @@ public final class Bricks {
                     x_coord_mod = Tools.modulo(x_coord, 1f);
                 }
                 float y_coord = (y - cellheight * (int) (y / cellheight)) / cellheight;
-                if (x_coord_mod < x_mortar || x_coord_mod > 1 - x_mortar || y_coord < y_mortar || y_coord > 1 - y_mortar) {
+                if (x_coord_mod < x_mortar || x_coord_mod > 1 - x_mortar || y_coord < y_mortar
+                        || y_coord > 1 - y_mortar) {
                     channel.putPixel(x, y, 0f);
                 } else {
                     switch (type) {
@@ -47,7 +49,8 @@ public final class Bricks {
                             break;
                         case COLOR:
                             if (x_coord < 0 || x_coord > 1) {
-                                channel.putPixel(x, y, cells[Tools.modulo(x_cell + Math.round(x_coord - x_coord_mod), bricks)][y_cell]);
+                                channel.putPixel(x, y, cells[Tools.modulo(x_cell + Math.round(x_coord - x_coord_mod),
+                                        bricks)][y_cell]);
                             } else {
                                 channel.putPixel(x, y, cells[x_cell][y_cell]);
                             }

@@ -21,7 +21,9 @@ public class Notification implements Updatable<TimerAnimation> {
     private final @NonNull TimerAnimation timer;
     private final @NonNull Arrow arrow;
 
-    public Notification(@NonNull World world, @NonNull GUIRoot gui_root, float x, float y, @NonNull NotificationManager manager, float r, float g, float b, @NonNull Audio sound, boolean show_always, @NonNull AnimationManager animation_manager) {
+    public Notification(@NonNull World world, @NonNull GUIRoot gui_root, float x, float y,
+            @NonNull NotificationManager manager, float r, float g, float b, @NonNull Audio sound, boolean show_always,
+            @NonNull AnimationManager animation_manager) {
         this.center_x = x;
         this.center_y = y;
         this.manager = manager;
@@ -29,7 +31,8 @@ public class Notification implements Updatable<TimerAnimation> {
         timer.start();
         this.arrow = new Arrow(world.getHeightMap(), gui_root, center_x, center_y, r, g, b, show_always);
         gui_root.addChild(arrow);
-        world.getAudio().newAudio(new AudioParameters<>(sound, 0f, 0f, 0f, AudioPlayer.AUDIO_RANK_NOTIFICATION, AudioPlayer.AUDIO_DISTANCE_NOTIFICATION, .25f, 1f, 1f, false, true));
+        world.getAudio().newAudio(new AudioParameters<>(sound, 0f, 0f, 0f, AudioPlayer.AUDIO_RANK_NOTIFICATION,
+                AudioPlayer.AUDIO_DISTANCE_NOTIFICATION, .25f, 1f, 1f, false, true));
     }
 
     public void remove() {

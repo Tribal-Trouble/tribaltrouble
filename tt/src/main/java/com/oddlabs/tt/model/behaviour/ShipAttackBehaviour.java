@@ -1,6 +1,5 @@
 package com.oddlabs.tt.model.behaviour;
 
-import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.model.ShipAllocation;
 import com.oddlabs.tt.model.Unit;
@@ -48,5 +47,6 @@ public final class ShipAttackBehaviour implements Behaviour {
         return true;
     }
 
-    public final void forceInterrupted() {}
+    public final void forceInterrupted() {
+    }
 }

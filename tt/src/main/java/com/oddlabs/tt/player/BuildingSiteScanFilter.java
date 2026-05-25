@@ -2,7 +2,6 @@ package com.oddlabs.tt.player;
 
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeTarget;
-import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.BuildingTemplate;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.ScanFilter;

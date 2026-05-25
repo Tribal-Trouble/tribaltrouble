@@ -158,7 +158,8 @@ final class RowCollection<T> extends GUIObject implements Clipped {
         return selected_row != null ? selected_row.getContentObject() : null;
     }
 
-    @NonNull Row<T, ?> selectRow(@NonNull Row<T, ?> row) {
+    @NonNull
+    Row<T, ?> selectRow(@NonNull Row<T, ?> row) {
         assert rows.contains(row);
         if (selected_row != null)
             selected_row.mark(false);

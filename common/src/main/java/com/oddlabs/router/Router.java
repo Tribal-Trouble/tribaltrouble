@@ -27,7 +27,8 @@ public final class Router implements ConnectionListenerInterface {
         this(network, null, RouterInterface.PORT, logger, null);
     }
 
-    public Router(@NonNull NetworkSelector network, InetAddress address, int port, Logger logger, RouterListener router_listener) {
+    public Router(@NonNull NetworkSelector network, InetAddress address, int port, Logger logger,
+            RouterListener router_listener) {
         this.manager = new SessionManager(network.getTimeManager(), logger);
         this.logger = logger;
         this.router_listener = router_listener;

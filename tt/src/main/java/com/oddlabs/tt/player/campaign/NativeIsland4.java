@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
 public final class NativeIsland4 extends Island {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(NativeIsland4.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -43,10 +43,9 @@ public final class NativeIsland4 extends Island {
 
     @Override
     public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-        String[] ai_names = IntStream.range(0, 6)
-                .mapToObj(i -> i18n("name" + i))
-                .toArray(String[]::new);
-        GameNetwork game_network = startNewGame(network, gui_root, 512, Landscape.TerrainType.VIKING, .8f, .8f, .8f, 19 * 19, 4, NativeCampaign.MAX_UNITS, ai_names);
+        String[] ai_names = IntStream.range(0, 6).mapToObj(i -> i18n("name" + i)).toArray(String[]::new);
+        GameNetwork game_network = startNewGame(network, gui_root, 512, Landscape.TerrainType.VIKING, .8f, .8f, .8f,
+                19 * 19, 4, NativeCampaign.MAX_UNITS, ai_names);
         game_network.getClient().getServerInterface().setPlayerSlot(0,
                 PlayerSlot.HUMAN,
                 RacesResources.RACE_NATIVES,
@@ -88,17 +87,17 @@ public final class NativeIsland4 extends Island {
         final Player enemy = getViewer().getWorld().getPlayers()[2];
 
         // Introduction
-        new GameStartedTrigger(getViewer().getWorld(), () ->
-                addModalForm(new InGameCampaignDialogForm(getViewer(), i18n("header0"),
-                        i18n("dialog0"),
-                        getCampaign().getIcons().getFaces()[2],
-                        Origin.AT_END,
-                        () -> addModalForm(new InGameCampaignDialogForm(getViewer(), i18n("header1"),
-                                i18n("dialog1"),
-                                getCampaign().getIcons().getFaces()[0],
-                                Origin.AT_START)
-                        ))
-                )
+        new GameStartedTrigger(getViewer().getWorld(), () -> addModalForm(new InGameCampaignDialogForm(getViewer(),
+                i18n("header0"),
+                i18n("dialog0"),
+                getCampaign().getIcons().getFaces()[2],
+                Origin.AT_END,
+                () -> addModalForm(new InGameCampaignDialogForm(getViewer(), i18n("header1"),
+                        i18n("dialog1"),
+                        getCampaign().getIcons().getFaces()[0],
+                        Origin.AT_START)
+                ))
+        )
         );
 
         // Move start position and insert men
@@ -106,20 +105,25 @@ public final class NativeIsland4 extends Island {
         final int start_y = 44 * 2;
         getViewer().getCamera().reset(start_x, start_y);
         ResourceBundle player_bundle = ResourceBundle.getBundle(Player.class.getName());
-        local_player.setActiveChieftain(new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN), Utils.getBundleString(player_bundle, "native_chieftain_name"), false));
+        local_player.setActiveChieftain(new Unit(local_player, start_x, start_y, null,
+                local_player.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN), Utils.getBundleString(player_bundle,
+                        "native_chieftain_name"), false));
         local_player.getChieftain().increaseMagicEnergy(0, 1000);
         local_player.getChieftain().increaseMagicEnergy(1, 1000);
         for (int i = 0; i < getCampaign().getState().getNumPeons(); i++) {
             new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(Race.UNIT_PEON));
         }
         for (int i = 0; i < getCampaign().getState().getNumRockWarriors(); i++) {
-            new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
+            new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_ROCK));
         }
         for (int i = 0; i < getCampaign().getState().getNumIronWarriors(); i++) {
-            new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
+            new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_IRON));
         }
         for (int i = 0; i < getCampaign().getState().getNumRubberWarriors(); i++) {
-            new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
+            new Unit(local_player, start_x, start_y, null, local_player.getRace().getUnitTemplate(
+                    Race.UNIT_WARRIOR_RUBBER));
         }
 
 
@@ -134,22 +138,23 @@ public final class NativeIsland4 extends Island {
         new TimeTrigger(getViewer().getWorld(), minutes * 60f, () -> {
             // Winner prize
             getCampaign().getState().setIslandState(4, CampaignState.ISLAND_COMPLETED);
-            getCampaign().getState().setNumPeons(getCampaign().getState().getNumPeons() + captives.getUnitCountContainer().getNumSupplies());
+            getCampaign().getState().setNumPeons(
+                    getCampaign().getState().getNumPeons() + captives.getUnitCountContainer().getNumSupplies());
             if (isAlive()) {
                 removeCounter();
             }
             getCampaign().victory(getViewer());
         });
-/*
-// done by DefeatTrigger in super
-		// Remove counter if defeated
-		runnable = new Runnable() {
-			public final void run() {
-				counter.remove();
-			}
-		};
-		new DefeatTrigger(getCampaign(), local_player.getChieftain(), runnable);
-*/
+        /*
+        // done by DefeatTrigger in super
+        		// Remove counter if defeated
+        		runnable = new Runnable() {
+        			public final void run() {
+        				counter.remove();
+        			}
+        		};
+        		new DefeatTrigger(getCampaign(), local_player.getChieftain(), runnable);
+        */
         // Insert native towers
         insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 125, 161);
         insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 125, 150);
@@ -202,7 +207,8 @@ public final class NativeIsland4 extends Island {
                 attack6 = 90;
                 break;
             default:
-                throw new IllegalArgumentException("unexpected difficulty: " + getCampaign().getState().getDifficulty());
+                throw new IllegalArgumentException(
+                        "unexpected difficulty: " + getCampaign().getState().getDifficulty());
         }
 
         // Fill native armory with units and weapons

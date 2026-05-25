@@ -21,7 +21,8 @@ public final class InputEvent {
 
     private boolean consumed;
 
-    public InputEvent(@NonNull KeyboardEvent keyboardEvent, @NonNull Set<@NonNull GameAction> actions, @NonNull InputPhase phase) {
+    public InputEvent(@NonNull KeyboardEvent keyboardEvent, @NonNull Set<@NonNull GameAction> actions,
+            @NonNull InputPhase phase) {
         this.actions = EnumSet.copyOf(actions);
         this.phase = phase;
         this.keyCode = keyboardEvent.keyCode();

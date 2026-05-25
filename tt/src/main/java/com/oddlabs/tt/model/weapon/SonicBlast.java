@@ -33,7 +33,8 @@ public final class SonicBlast implements Magic {
 
     private boolean first_ring_sent = false;
 
-    public SonicBlast(float offset_x, float offset_y, float offset_z, float hit_radius, float hit_chance_closest, float hit_chance_farthest, int damage_closest, int damage_farthest, float seconds, @NonNull Unit src) {
+    public SonicBlast(float offset_x, float offset_y, float offset_z, float hit_radius, float hit_chance_closest,
+            float hit_chance_farthest, int damage_closest, int damage_farthest, float seconds, @NonNull Unit src) {
         this.hit_radius = hit_radius;
         this.hit_chance_closest = hit_chance_closest;
         this.hit_chance_farthest = hit_chance_farthest;
@@ -46,20 +47,26 @@ public final class SonicBlast implements Magic {
         start_y = src.getPositionY() + offset_x * src.getDirectionY() + offset_y * src.getDirectionX();
         start_z = src.getPositionZ() + offset_z;
 
-        var filter = new FindOccupantFilter<>(src.getPositionX(), src.getPositionY(), hit_radius, src, Selectable.genericClass());
+        var filter = new FindOccupantFilter<>(src.getPositionX(), src.getPositionY(), hit_radius, src,
+                Selectable.genericClass());
         UnitGrid unit_grid = owner.getWorld().getUnitGrid();
-        unit_grid.scan(filter, UnitGrid.toGridCoordinate(src.getPositionX()), UnitGrid.toGridCoordinate(src.getPositionY()));
+        unit_grid.scan(filter, UnitGrid.toGridCoordinate(src.getPositionX()), UnitGrid.toGridCoordinate(
+                src.getPositionY()));
         blast_targets = filter.getResult();
 
-        sonicBlastEffect = new SonicBlastEffect(owner.getWorld(), new Vector3f(start_x, start_y, start_z), hit_radius, seconds);
+        sonicBlastEffect = new SonicBlastEffect(owner.getWorld(), new Vector3f(start_x, start_y, start_z), hit_radius,
+                seconds);
 
-        lur = owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getBlastLurSound(owner.getWorld().getRandom()), start_x, start_y, start_z,
+        lur = owner.getWorld().getAudio().newAudio(new AudioParameters<>(
+                owner.getWorld().getRacesResources().getBlastLurSound(owner.getWorld().getRandom()), start_x, start_y,
+                start_z,
                 AudioPlayer.AUDIO_RANK_MAGIC,
                 AudioPlayer.AUDIO_DISTANCE_MAGIC,
                 AudioPlayer.AUDIO_GAIN_BLAST_LUR,
                 AudioPlayer.AUDIO_RADIUS_BLAST_LUR,
                 1f));
-        rumble = owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getBlastRumbleSound(), start_x, start_y, start_z,
+        rumble = owner.getWorld().getAudio().newAudio(new AudioParameters<>(
+                owner.getWorld().getRacesResources().getBlastRumbleSound(), start_x, start_y, start_z,
                 AudioPlayer.AUDIO_RANK_MAGIC,
                 AudioPlayer.AUDIO_DISTANCE_MAGIC,
                 AudioPlayer.AUDIO_GAIN_BLAST_RUMBLE,
@@ -77,7 +84,8 @@ public final class SonicBlast implements Magic {
         if (!first_ring_sent) {
             first_ring_sent = true;
 
-            owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getBlastBlastSound(), start_x, start_y, start_z,
+            owner.getWorld().getAudio().newAudio(new AudioParameters<>(
+                    owner.getWorld().getRacesResources().getBlastBlastSound(), start_x, start_y, start_z,
                     AudioPlayer.AUDIO_RANK_MAGIC,
                     AudioPlayer.AUDIO_DISTANCE_MAGIC,
                     AudioPlayer.AUDIO_GAIN_BLAST_BLAST,
@@ -100,9 +108,11 @@ public final class SonicBlast implements Magic {
             float squared_dist = dx * dx + dy * dy;
             if (squared_dist < squared_radius) {
                 if (!s.isDead()) {
-                    float hit_chance = calculateValueFromCurrentRadius(current_radius, hit_chance_closest, hit_chance_farthest);
+                    float hit_chance = calculateValueFromCurrentRadius(current_radius, hit_chance_closest,
+                            hit_chance_farthest);
                     if (owner.getWorld().getRandom().nextFloat() < hit_chance * (1 - s.getDefenseChance())) {
-                        int damage = (int) calculateValueFromCurrentRadius(current_radius, damage_closest, damage_farthest);
+                        int damage = (int) calculateValueFromCurrentRadius(current_radius, damage_closest,
+                                damage_farthest);
                         float inv_dist = 1f / ((float) Math.sqrt(squared_dist));
                         s.hit(damage, dx * inv_dist, dy * inv_dist, owner);
                     }

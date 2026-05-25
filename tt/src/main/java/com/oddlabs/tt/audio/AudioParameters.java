@@ -27,19 +27,23 @@ public final class AudioParameters<S> {
         this(sound, x, y, z, rank, distance, 1f, .5f);
     }
 
-    public AudioParameters(@NonNull S sound, float x, float y, float z, int rank, float distance, float gain, float radius) {
+    public AudioParameters(@NonNull S sound, float x, float y, float z, int rank, float distance, float gain,
+            float radius) {
         this(sound, x, y, z, rank, distance, gain, radius, 1f);
     }
 
-    public AudioParameters(@NonNull S sound, float x, float y, float z, int rank, float distance, float gain, float radius, float pitch) {
+    public AudioParameters(@NonNull S sound, float x, float y, float z, int rank, float distance, float gain,
+            float radius, float pitch) {
         this(sound, x, y, z, rank, distance, gain, radius, pitch, false, false);
     }
 
-    public AudioParameters(@NonNull S sound, float x, float y, float z, int rank, float distance, float gain, float radius, float pitch, boolean looping, boolean relative) {
+    public AudioParameters(@NonNull S sound, float x, float y, float z, int rank, float distance, float gain,
+            float radius, float pitch, boolean looping, boolean relative) {
         this(sound, x, y, z, rank, distance, gain, radius, pitch, looping, relative, false);
     }
 
-    public AudioParameters(@NonNull S sound, float x, float y, float z, int rank, float distance, float gain, float radius, float pitch, boolean looping, boolean relative, boolean music) {
+    public AudioParameters(@NonNull S sound, float x, float y, float z, int rank, float distance, float gain,
+            float radius, float pitch, boolean looping, boolean relative, boolean music) {
         this.sound = Objects.requireNonNull(sound, "sound");
         this.x = x;
         this.y = y;

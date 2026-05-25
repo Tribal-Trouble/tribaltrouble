@@ -23,11 +23,12 @@ public final class IconQuad extends Quad {
      * @param width   the width of the quad in pixels
      * @param height  the height of the quad in pixels
      * @param texture the source texture
-     * @throws IllegalArgumentException if width or height are negative, if texture coordinates are not finite, or if u1/v1 are greater than u2/v2.
+     * @throws IllegalArgumentException if width or height are negative, if texture coordinates are not finite, or if
+     *                                  u1/v1 are greater than u2/v2.
      * @throws NullPointerException     if the texture is null
      */
-    public IconQuad(float u1, float v1, float u2, float v2, int width, int height, @NonNull Texture texture)
-            throws IllegalArgumentException, NullPointerException {
+    public IconQuad(float u1, float v1, float u2, float v2, int width, int height,
+            @NonNull Texture texture) throws IllegalArgumentException, NullPointerException {
         if (!Float.isFinite(u1) || !Float.isFinite(v1) || !Float.isFinite(u2) || !Float.isFinite(v2)) {
             throw new IllegalArgumentException("Texture coordinates must be finite numbers.");
         }
@@ -36,7 +37,8 @@ public final class IconQuad extends Quad {
                     "u1/v1 must be less than or equal to u2/v2, but got: u1=" + u1 + ", v1=" + v1 + ", u2=" + u2 + ", v2=" + v2);
         }
         if (width < 0 || height < 0) {
-            throw new IllegalArgumentException("Width and height must be non-negative. Got: width=" + width + ", height=" + height);
+            throw new IllegalArgumentException(
+                    "Width and height must be non-negative. Got: width=" + width + ", height=" + height);
         }
         super(u1, v1, u2, v2, width, height);
         this.atlas = texture;
@@ -53,15 +55,10 @@ public final class IconQuad extends Quad {
      * @throws IndexOutOfBoundsException if the defined area is outside the texture bounds
      * @throws NullPointerException      if the texture is null
      */
-    public IconQuad(int x, int y, int width, int height, @NonNull Texture texture)
-            throws IndexOutOfBoundsException, NullPointerException {
-        this((float) x / getCheckedTexture(x, y, width, height, texture).getWidth(),
-                (float) y / texture.getHeight(),
-                (float) (x + width) / texture.getWidth(),
-                (float) (y + height) / texture.getHeight(),
-                width,
-                height,
-                texture);
+    public IconQuad(int x, int y, int width, int height,
+            @NonNull Texture texture) throws IndexOutOfBoundsException, NullPointerException {
+        this((float) x / getCheckedTexture(x, y, width, height,
+                texture).getWidth(), (float) y / texture.getHeight(), (float) (x + width) / texture.getWidth(), (float) (y + height) / texture.getHeight(), width, height, texture);
     }
 
     private static @NonNull Texture getCheckedTexture(int x, int y, int width, int height, @NonNull Texture texture) {
