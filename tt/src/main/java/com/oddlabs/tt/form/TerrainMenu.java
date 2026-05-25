@@ -709,10 +709,19 @@ public final class TerrainMenu extends Group {
                 return false;
             }
             float random_start_pos = LocalEventQueue.getQueue().getTime() % 1f;
-            game = new Game(game_name, (byte) pulldown_size.getChosenItemIndex(), (byte) terrain_type.ordinal(),
-                    (byte) hills, (byte) vegetation_amount, (byte) supplies_amount, rated,
-                    (byte) (pm_gamespeed.getChosenItemIndex() + 1), label_mapcode.getContents(), random_start_pos,
-                    Player.DEFAULT_MAX_UNIT_COUNT);
+            game = Game.builder()
+                    .name(game_name)
+                    .size((byte) pulldown_size.getChosenItemIndex())
+                    .terrain((byte) terrain_type.ordinal())
+                    .hills((byte) hills)
+                    .trees((byte) vegetation_amount)
+                    .supplies((byte) supplies_amount)
+                    .rated(rated)
+                    .gamespeed((byte) (pm_gamespeed.getChosenItemIndex() + 1))
+                    .mapcode(label_mapcode.getContents())
+                    .randomStartPos(random_start_pos)
+                    .maxUnitCount(Player.DEFAULT_MAX_UNIT_COUNT)
+                    .build();
         } else {
             boolean has_enemy = false;
             for (int i = 1; i < player_count; i++) {
