@@ -675,7 +675,7 @@ public final class LandBuilding extends Building {
     @SuppressWarnings("unchecked")
     private void occupy() {
         UnitGrid grid = getUnitGrid();
-        grid.getRegion(getGridX(), getGridY()).registerObject((Class<LandBuilding>) getClass(), this);
+        grid.getRegion(getGridX(), getGridY()).registerObject(Building.class, this);
         int size = getTemplate().getPlacingSize() * 2 - 1;
         for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
@@ -687,7 +687,7 @@ public final class LandBuilding extends Building {
     @SuppressWarnings("unchecked")
     private void free() {
         UnitGrid grid = getUnitGrid();
-        grid.getRegion(getGridX(), getGridY()).unregisterObject((Class<LandBuilding>) getClass(), this);
+        grid.getRegion(getGridX(), getGridY()).unregisterObject(Building.class, this);
         int size = getTemplate().getPlacingSize() * 2 - 1;
         for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {

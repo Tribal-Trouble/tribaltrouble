@@ -49,13 +49,13 @@ public final class ShipProxy extends Building {
     public final void occupy() {
         UnitGrid grid = getUnitGrid();
         last_region = grid.getRegion(getGridX(), getGridY(), UnitGrid.LAND);
-        if (last_region != null) last_region.registerObject((Class<ShipProxy>) getClass(), this);
+        if (last_region != null) last_region.registerObject(Building.class, this);
         grid.occupyGrid(getGridX(), getGridY(), this, UnitGrid.LAND);
     }
 
     public final void free() {
         if (last_region != null) {
-            last_region.unregisterObject((Class<ShipProxy>) getClass(), this);
+            last_region.unregisterObject(Building.class, this);
             last_region = null;
         }
         getUnitGrid().freeGrid(getGridX(), getGridY(), this, UnitGrid.LAND);
