@@ -794,6 +794,8 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
                         attack_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
                     } else if (current_armory && current_submenu == null) {
                         army_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
+                    } else if (current_ship && current_submenu == null) {
+                        ship_army_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
                     } else if (current_tower) {
                         tower_attack_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
                     }
@@ -850,6 +852,9 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
                                                 GameAction.UNIT_SET_RALLY)) {
                                                     if (current_armory && current_submenu == null)
                                                         rally_point_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
+                                                    else if (current_ship && current_submenu == null)
+                                                        ship_rally_point_button.mouseClickedAll(MouseButton.LEFT, 0, 0,
+                                                                1);
                                                     else if (current_quarters)
                                                         quarters_rally_point_button.mouseClickedAll(MouseButton.LEFT, 0,
                                                                 0, 1);
@@ -880,7 +885,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
                 if (peon.active()) {
                     if (current_quarters) {
                         quarters_peon_button.shortcutPressed(peon.decrement(), peon.batch());
-                    } else if (current_armory && current_submenu == army_group) {
+                    } else if ((current_armory || current_ship) && current_submenu == army_group) {
                         army_peon_button.shortcutPressed(peon.decrement(), peon.batch());
                     }
                     event.getActions().clear();
@@ -930,7 +935,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
                         GameAction.TRAIN_PEON_BATCH, GameAction.TRAIN_PEON_BATCH_DEC);
                 if (peon.active()) {
                     if (current_quarters) quarters_peon_button.shortcutReleased(peon.decrement(), peon.batch());
-                    else if (current_armory && current_submenu == army_group)
+                    else if ((current_armory || current_ship) && current_submenu == army_group)
                         army_peon_button.shortcutReleased(peon.decrement(), peon.batch());
                 } else {
                     var iron = checkResourceAction(event, GameAction.RES_IRON, GameAction.RES_IRON_DEC,
@@ -954,6 +959,8 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
                                     GameAction.PROD_TRANSPORT)) {
                                         if (current_armory && current_submenu == null) {
                                             transport_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
+                                        } else if (current_ship && current_submenu == null) {
+                                            ship_transport_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
                                         }
                                     }
                         }
@@ -980,7 +987,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
             @Nullable IconSpinner buildBtn,
             @Nullable IconSpinner armyBtn,
             @Nullable IconSpinner transportBtn) {
-        if (!current_armory) return;
+        if (!current_armory && !current_ship) return;
 
         IconSpinner target = null;
         if (current_submenu == harvest_group) target = harvestBtn;
