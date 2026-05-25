@@ -784,6 +784,10 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
                     if (current_unit && current_peon) {
                         quarters_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
                     }
+                } else if (event.consumeAction(GameAction.UNIT_BUILD_SHIP)) {
+                    if (current_unit && current_peon) {
+                        ship_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
+                    }
                 } else if (event.consumeAction(GameAction.UNIT_ATTACK) || event.consumeAction(GameAction.PROD_ARMY)) {
                     // A - Attack or Army
                     if (current_unit) {
