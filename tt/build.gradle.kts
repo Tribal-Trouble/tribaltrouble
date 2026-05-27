@@ -28,6 +28,8 @@ application {
     )
     if (System.getProperty("os.name").lowercase().contains("mac")) {
         args.add("-XstartOnFirstThread")
+        args.add("-Xdock:name=TribalTrouble")
+        args.add("-Xdock:icon=" + project.projectDir.resolve("icons/DesktopIconImage.png").absolutePath)
     }
     applicationDefaultJvmArgs = args
 }
@@ -106,6 +108,7 @@ val packageWindows by tasks.registering(Exec::class) {
     executable("jpackage")
     args(
         "--name", "TribalTrouble",
+        "--icon", project.projectDir.resolve("icons/TribalTrouble.ico").absolutePath,
         "--dest", destDir.get().asFile.absolutePath,
         "--input", distCommon.get().asFile.absolutePath,
         "--main-jar", mainJarFile.get(),
@@ -133,6 +136,7 @@ fun registerMacPackage(
     executable("jpackage")
     args(
         "--name", "TribalTrouble",
+        "--icon", project.projectDir.resolve("icons/TribalTrouble.icns").absolutePath,
         "--dest", destDir.get().asFile.absolutePath,
         "--input", distCommon.get().asFile.absolutePath,
         "--main-jar", mainJarFile.get(),
