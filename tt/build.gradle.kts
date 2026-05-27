@@ -28,6 +28,8 @@ application {
     )
     if (System.getProperty("os.name").lowercase().contains("mac")) {
         args.add("-XstartOnFirstThread")
+        args.add("-Xdock:name=TribalTrouble")
+        args.add("-Xdock:icon=" + project.projectDir.resolve("icons/DesktopIconImage.png").absolutePath)
     }
     applicationDefaultJvmArgs = args
 }
