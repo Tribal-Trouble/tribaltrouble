@@ -914,9 +914,9 @@ public final class Renderer implements AutoCloseable {
             window.create(target_mode, fs);
             setModeToNearest(target_mode);
 
-            Path iconPath = Path.of("assets/widget/TribalTrouble.wdgt/Icon.png");
+            Path iconPath = Path.of("tt/icons/DesktopIconImage.png");
             if (!Files.exists(iconPath)) {
-                iconPath = Path.of("../assets/widget/TribalTrouble.wdgt/Icon.png");
+                iconPath = Path.of("icons/DesktopIconImage.png");
             }
             logger.info("Setting icon from: " + iconPath.toAbsolutePath());
             window.setIcon(iconPath);

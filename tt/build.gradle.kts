@@ -106,6 +106,7 @@ val packageWindows by tasks.registering(Exec::class) {
     executable("jpackage")
     args(
         "--name", "TribalTrouble",
+        "--icon", project.projectDir.resolve("icons/TribalTrouble.ico").absolutePath,
         "--dest", destDir.get().asFile.absolutePath,
         "--input", distCommon.get().asFile.absolutePath,
         "--main-jar", mainJarFile.get(),
@@ -133,6 +134,7 @@ fun registerMacPackage(
     executable("jpackage")
     args(
         "--name", "TribalTrouble",
+        "--icon", project.projectDir.resolve("icons/TribalTrouble.icns").absolutePath,
         "--dest", destDir.get().asFile.absolutePath,
         "--input", distCommon.get().asFile.absolutePath,
         "--main-jar", mainJarFile.get(),
