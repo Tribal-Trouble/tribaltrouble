@@ -41,6 +41,7 @@ import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.util.GLUtils;
+import com.oddlabs.tt.util.OsPlatform;
 import com.oddlabs.tt.util.StatCounter;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.vbo.VBO;
@@ -606,8 +607,10 @@ public final class Renderer implements AutoCloseable {
                     if (window.wasResized()) {
                         int width = window.getWidth();
                         int height = window.getHeight();
-                        Settings.getSettings().view_width = width;
-                        Settings.getSettings().view_height = height;
+                        // Persist logical (point) dims so the saved value is what glfwCreateWindow
+                        // will accept on next launch; using framebuffer dims doubles on retina.
+                        Settings.getSettings().view_width = window.getLogicalWidth();
+                        Settings.getSettings().view_height = window.getLogicalHeight();
                         GL11.glViewport(0, 0, width, height);
                         initGL();
                         gui.getGUIRoot().displayChanged(width, height);
@@ -806,7 +809,7 @@ public final class Renderer implements AutoCloseable {
 
     public void setModeToNearest(@NonNull SerializableDisplayMode mode) {
         // Use window create to ensure window is created/resized
-        boolean fs = Settings.getSettings().fullscreen;
+        boolean fs = Settings.getSettings().fullscreen && !OsPlatform.IS_MAC;
         window.create(mode, fs);
         modeSwitchedNow(mode);
     }
@@ -909,7 +912,10 @@ public final class Renderer implements AutoCloseable {
                 target_mode = new SerializableDisplayMode(width, height, bpp, freq);
             }
 
+            // On macOS, ignore the persisted fullscreen flag — GLFW fullscreen has known issues
+            // there and users get a better experience via the native green button.
             boolean fs = Settings.getSettings().fullscreen
+                    && !OsPlatform.IS_MAC
                     && (!LocalEventQueue.getQueue().getDeterministic().isPlayback() || grab_frames);
             window.create(target_mode, fs);
             setModeToNearest(target_mode);
