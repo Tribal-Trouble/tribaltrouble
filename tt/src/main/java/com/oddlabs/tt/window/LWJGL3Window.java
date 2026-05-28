@@ -2,6 +2,7 @@ package com.oddlabs.tt.window;
 
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.render.SerializableDisplayMode;
+import com.oddlabs.tt.util.OsPlatform;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -78,8 +79,6 @@ import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 
 public final class LWJGL3Window implements Window {
 
-    private static final boolean IS_MAC = System.getProperty("os.name", "").toLowerCase().contains("mac");
-
     private long windowHandle = MemoryUtil.NULL;
     private @NonNull String title = "Tribal Trouble";
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
@@ -143,7 +142,7 @@ public final class LWJGL3Window implements Window {
             glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
         }
 
-        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+        if (OsPlatform.IS_MAC) {
             glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
         }
 
@@ -268,8 +267,7 @@ public final class LWJGL3Window implements Window {
     public void setIcon(@NonNull Path imagePath) {
         if (windowHandle == MemoryUtil.NULL) return;
 
-        String os = System.getProperty("os.name").toLowerCase();
-        if (os.contains("mac")) {
+        if (OsPlatform.IS_MAC) {
             return;
         }
 
@@ -394,7 +392,7 @@ public final class LWJGL3Window implements Window {
         if (monitor == MemoryUtil.NULL) {
             return new SerializableDisplayMode[0];
         }
-        if (IS_MAC) {
+        if (OsPlatform.IS_MAC) {
             return getMacWindowedModes(monitor);
         }
         GLFWVidMode.Buffer modes = glfwGetVideoModes(monitor);
