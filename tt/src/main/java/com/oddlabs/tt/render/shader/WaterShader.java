@@ -16,7 +16,6 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
         String WATER_REPEAT_RATE = "u_waterRepeatRate";
         String WATER_DETAIL_REPEAT_RATE = "u_waterDetailRepeatRate";
         String ENABLE_DETAIL = "u_enableDetail";
-        String LOW_DETAIL = "u_lowDetail";
         String SCROLL_OFFSET_0 = "u_scrollOffset0";
         String SCROLL_OFFSET_1 = "u_scrollOffset1";
         String LIGHT_DIR = LitShader.Uniforms.LIGHT_DIR;
@@ -78,7 +77,6 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
             uniform sampler2D u_reflectionTexture;
             uniform bool u_enableDetail;
             uniform bool u_hasReflection;
-            uniform bool u_lowDetail;
             uniform vec3 u_cameraPos;
 
             in vec2 v_texCoord0;
@@ -103,12 +101,6 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
 
             void main() {
                 vec4 baseColor = texture(u_texture0, v_texCoord0);
-
-                if (u_lowDetail) {
-                    float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
-                    out_FragColor = vec4(mix(u_fogColor.rgb, baseColor.rgb, fogFactor), baseColor.a);
-                    return;
-                }
 
                 vec2 grad1 = getGradient(v_texCoord0);
                 vec2 grad2 = getGradient(v_texCoord1);

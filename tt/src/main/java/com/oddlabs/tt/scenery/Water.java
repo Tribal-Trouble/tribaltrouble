@@ -3,7 +3,6 @@ package com.oddlabs.tt.scenery;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeLeaf;
 import com.oddlabs.tt.procedural.GeneratorOcean;
@@ -114,13 +113,10 @@ public final class Water implements AutoCloseable {
             waterShader.setUniform(WaterShader.Uniforms.CAMERA_POS, state.getCurrentX(), state.getCurrentY(),
                     state.getCurrentZ());
 
-            boolean lowDetail = Settings.getSettings().graphic_detail == Globals.DETAIL_LOW;
-            waterShader.setUniform(WaterShader.Uniforms.LOW_DETAIL, lowDetail);
-
             context.setTexture(0, ocean[0]);
             waterShader.setUniform(WaterShader.Uniforms.TEXTURE_0, 0);
 
-            if (Globals.draw_detail && !lowDetail) {
+            if (Globals.draw_detail) {
                 context.setTexture(1, ocean[1]);
                 waterShader.setUniform(WaterShader.Uniforms.TEXTURE_1, 1);
                 waterShader.setUniform(WaterShader.Uniforms.WATER_DETAIL_REPEAT_RATE, Globals.WATER_DETAIL_REPEAT_RATE);
@@ -129,7 +125,7 @@ public final class Water implements AutoCloseable {
                 waterShader.setUniform(WaterShader.Uniforms.ENABLE_DETAIL, false);
             }
 
-            if (reflectionTexture != null && reflectionVP != null && !lowDetail) {
+            if (reflectionTexture != null && reflectionVP != null) {
                 context.setTexture(2, reflectionTexture);
                 waterShader.setUniform(WaterShader.Uniforms.REFLECTION_TEXTURE, 2);
                 waterShader.setUniformMatrix4(WaterShader.Uniforms.REFLECTION_VP, false, reflectionVP);
