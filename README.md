@@ -52,6 +52,8 @@ Builds from this repo (outside of Steam) are unsigned, so different OSes will re
 
 Already played before Steam? See [Migrating Your Save to the Steam Version](./docs/migrate-save-to-steam.md) to bring your campaign progress over.
 
+Reporting a bug or trying to reproduce one? See [Event Logs](./docs/event-logs.md) for where the game writes its per-run logs on each platform and how to replay an `event.log` with `--eventload`.
+
 ## 🛠️ Build Requirements
 
 ### Client + Server
