@@ -606,8 +606,10 @@ public final class Renderer implements AutoCloseable {
                     if (window.wasResized()) {
                         int width = window.getWidth();
                         int height = window.getHeight();
-                        Settings.getSettings().view_width = width;
-                        Settings.getSettings().view_height = height;
+                        // Persist logical (point) dims so the saved value is what glfwCreateWindow
+                        // will accept on next launch; using framebuffer dims doubles on retina.
+                        Settings.getSettings().view_width = window.getLogicalWidth();
+                        Settings.getSettings().view_height = window.getLogicalHeight();
                         GL11.glViewport(0, 0, width, height);
                         initGL();
                         gui.getGUIRoot().displayChanged(width, height);
