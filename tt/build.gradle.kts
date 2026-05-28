@@ -155,7 +155,10 @@ fun registerMacPackage(
         "--main-jar", mainJarFile.get(),
         "--main-class", "com.oddlabs.tt.Main",
         "--java-options",
-        "-ea -XstartOnFirstThread -cp \$APPDIR:\$APPDIR/* -Djdk.crypto.KeyAgreement.legacyKDF=true",
+        // -Xdock:icon/-Xdock:name ensure the dock icon is set when the inner launcher is invoked
+        // directly (e.g. by Steam) and LaunchServices doesn't read the bundle Info.plist for us.
+        "-ea -XstartOnFirstThread -cp \$APPDIR:\$APPDIR/* -Djdk.crypto.KeyAgreement.legacyKDF=true " +
+                "-Xdock:name=TribalTrouble -Xdock:icon=\$APPDIR/../Resources/TribalTrouble.icns",
         "--type", jpackageType,
     )
 }
