@@ -89,6 +89,9 @@ val stageDist by tasks.registering(Sync::class) {
     from(project(":assets").layout.buildDirectory.dir("geometry")) {
         into("geometry")
     }
+    from("icons/DesktopIconImage.png") {
+        into("icons")
+    }
     from(layout.buildDirectory.file("revision_number"))
 }
 
