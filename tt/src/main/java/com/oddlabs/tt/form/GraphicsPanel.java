@@ -19,7 +19,9 @@ import com.oddlabs.tt.gui.SortedLabel;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.SerializableDisplayMode;
+import com.oddlabs.tt.util.OsPlatform;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
@@ -32,39 +34,47 @@ public class GraphicsPanel extends Panel {
         super(AbstractOptionsMenu.i18n("graphics_caption"));
         var labelFont = Skin.getSkin().getEditFont();
 
-        // Fullscreen
-        Group group_fullscreen = new Group();
-        addChild(group_fullscreen);
-        CheckBox cb_fullscreen = new CheckBox(Settings.getSettings().fullscreen, AbstractOptionsMenu.i18n("fullscreen"),
-                AbstractOptionsMenu.i18n("fullscreen_tip"));
-        cb_fullscreen.addCheckBoxListener(marked -> {
-            DisplayChangeForm display_change_form = new DisplayChangeForm(
-                    switch_now -> {
-                        if (switch_now) {
-                            Renderer.getRenderer().toggleFullscreen();
-                        } else {
-                            Settings.getSettings().fullscreen = marked;
-                        }
-                    });
-            gui_root.addModalForm(display_change_form);
-        });
-        group_fullscreen.addChild(cb_fullscreen);
-        cb_fullscreen.place();
-        group_fullscreen.compileCanvas();
+        // Fullscreen + Confine Cursor are hidden on macOS: the native green button gives a better
+        // fullscreen experience, and GLFW_CURSOR_CAPTURED hides the cursor on mac instead of
+        // confining it.
+        @Nullable Group group_fullscreen = null;
+        @Nullable CheckBox cb_fullscreen = null;
+        @Nullable Group group_confine_cursor = null;
+        if (!OsPlatform.IS_MAC) {
+            // Fullscreen
+            group_fullscreen = new Group();
+            addChild(group_fullscreen);
+            cb_fullscreen = new CheckBox(Settings.getSettings().fullscreen, AbstractOptionsMenu.i18n("fullscreen"),
+                    AbstractOptionsMenu.i18n("fullscreen_tip"));
+            cb_fullscreen.addCheckBoxListener(marked -> {
+                DisplayChangeForm display_change_form = new DisplayChangeForm(
+                        switch_now -> {
+                            if (switch_now) {
+                                Renderer.getRenderer().toggleFullscreen();
+                            } else {
+                                Settings.getSettings().fullscreen = marked;
+                            }
+                        });
+                gui_root.addModalForm(display_change_form);
+            });
+            group_fullscreen.addChild(cb_fullscreen);
+            cb_fullscreen.place();
+            group_fullscreen.compileCanvas();
 
-        // Confine cursor
-        Group group_confine_cursor = new Group();
-        addChild(group_confine_cursor);
-        CheckBox cb_confine_cursor = new CheckBox(Settings.getSettings().confine_cursor, AbstractOptionsMenu.i18n(
-                "confine_cursor"), AbstractOptionsMenu.i18n("confine_cursor_tip"));
-        cb_confine_cursor.addCheckBoxListener(marked -> {
-            Settings.getSettings().confine_cursor = marked;
-            var input = Renderer.getLocalInput().getInputProvider();
-            input.setGrabbed(input.isGrabbed());
-        });
-        group_confine_cursor.addChild(cb_confine_cursor);
-        cb_confine_cursor.place();
-        group_confine_cursor.compileCanvas();
+            // Confine cursor
+            group_confine_cursor = new Group();
+            addChild(group_confine_cursor);
+            CheckBox cb_confine_cursor = new CheckBox(Settings.getSettings().confine_cursor, AbstractOptionsMenu.i18n(
+                    "confine_cursor"), AbstractOptionsMenu.i18n("confine_cursor_tip"));
+            cb_confine_cursor.addCheckBoxListener(marked -> {
+                Settings.getSettings().confine_cursor = marked;
+                var input = Renderer.getLocalInput().getInputProvider();
+                input.setGrabbed(input.isGrabbed());
+            });
+            group_confine_cursor.addChild(cb_confine_cursor);
+            cb_confine_cursor.place();
+            group_confine_cursor.compileCanvas();
+        }
 
         // UI Scale
         Group group_ui_scale = new Group();
@@ -167,17 +177,23 @@ public class GraphicsPanel extends Panel {
         mode_label.place();
         mode_list_box.place(mode_label, BOTTOM_LEFT);
         mode_group.compileCanvas();
-        mode_group.setDisabled(Settings.getSettings().fullscreen);
-
-        // Toggle resolution list when fullscreen changes
-        cb_fullscreen.addCheckBoxListener(marked -> mode_group.setDisabled(marked));
+        if (cb_fullscreen != null) {
+            mode_group.setDisabled(Settings.getSettings().fullscreen);
+            // Toggle resolution list when fullscreen changes
+            cb_fullscreen.addCheckBoxListener(marked -> mode_group.setDisabled(marked));
+        }
 
         // Placement
         mode_group.place();
         group_detail.place(mode_group, RIGHT_TOP);
         group_ui_scale.place(group_detail, BOTTOM_LEFT);
-        group_fullscreen.place(group_ui_scale, BOTTOM_LEFT);
-        group_confine_cursor.place(group_fullscreen, BOTTOM_LEFT);
+        if (group_fullscreen != null) {
+            group_fullscreen.place(group_ui_scale, BOTTOM_LEFT);
+        }
+        
+        if (group_confine_cursor != null && group_fullscreen != null) {
+            group_confine_cursor.place(group_fullscreen, BOTTOM_LEFT);
+        }
         compileCanvas();
     }
 

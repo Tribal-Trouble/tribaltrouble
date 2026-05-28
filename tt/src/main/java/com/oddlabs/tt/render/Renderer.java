@@ -41,6 +41,7 @@ import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.util.GLUtils;
+import com.oddlabs.tt.util.OsPlatform;
 import com.oddlabs.tt.util.StatCounter;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.vbo.VBO;
@@ -806,7 +807,7 @@ public final class Renderer implements AutoCloseable {
 
     public void setModeToNearest(@NonNull SerializableDisplayMode mode) {
         // Use window create to ensure window is created/resized
-        boolean fs = Settings.getSettings().fullscreen;
+        boolean fs = Settings.getSettings().fullscreen && !OsPlatform.IS_MAC;
         window.create(mode, fs);
         modeSwitchedNow(mode);
     }
@@ -909,7 +910,10 @@ public final class Renderer implements AutoCloseable {
                 target_mode = new SerializableDisplayMode(width, height, bpp, freq);
             }
 
+            // On macOS, ignore the persisted fullscreen flag — GLFW fullscreen has known issues
+            // there and users get a better experience via the native green button.
             boolean fs = Settings.getSettings().fullscreen
+                    && !OsPlatform.IS_MAC
                     && (!LocalEventQueue.getQueue().getDeterministic().isPlayback() || grab_frames);
             window.create(target_mode, fs);
             setModeToNearest(target_mode);
