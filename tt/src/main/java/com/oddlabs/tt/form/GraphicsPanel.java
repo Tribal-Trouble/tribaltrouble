@@ -190,7 +190,7 @@ public class GraphicsPanel extends Panel {
         if (group_fullscreen != null) {
             group_fullscreen.place(group_ui_scale, BOTTOM_LEFT);
         }
-        
+
         if (group_confine_cursor != null && group_fullscreen != null) {
             group_confine_cursor.place(group_fullscreen, BOTTOM_LEFT);
         }
