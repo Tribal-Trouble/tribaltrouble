@@ -112,6 +112,7 @@ public final class TerrainMenu extends Group {
     private final @NonNull GUIRoot gui_root;
     private final @NonNull NetworkSelector network;
     private final @NonNull PresetLibrary preset_library = new PresetLibrary();
+    private final @Nullable RosterPanel roster_panel;
     private static final int DEFAULT_PLAYER_COUNT = 6;
     private int player_count = DEFAULT_PLAYER_COUNT;
     private int seed;
@@ -162,7 +163,7 @@ public final class TerrainMenu extends Group {
                 : null;
         Panel standard = new Panel(i18n("standard_options"));
         Panel advanced = new Panel(i18n("advanced_options"));
-        RosterPanel roster_panel = multiplayer ? new RosterPanel() : null;
+        roster_panel = multiplayer ? new RosterPanel() : null;
         Group group_map_options = new Group();
 
         // game name
@@ -331,7 +332,9 @@ public final class TerrainMenu extends Group {
         race_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
         team_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
         ScrollableGroup group_race_team = buildPlayerSlots(player_count);
-        if (!multiplayer) {
+        if (multiplayer) {
+            roster_panel.setRoster(group_race_team);
+        } else {
             standard.addChild(group_race_team);
         }
 
@@ -899,18 +902,19 @@ public final class TerrainMenu extends Group {
         @Override
         public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
             player_count = item_index + DEFAULT_PLAYER_COUNT;
-            if (multiplayer) return;
 
-            // Rebuild player slot UI
-            if (current_race_team != null) {
-                standard.removeChild(current_race_team);
-            }
             ScrollableGroup new_group = buildPlayerSlots(player_count);
+            if (multiplayer) {
+                roster_panel.setRoster(new_group);
+            } else {
+                if (current_race_team != null) {
+                    standard.removeChild(current_race_team);
+                }
+                new_group.place();
+                standard.addChild(new_group);
+            }
             current_race_team = new_group;
-            new_group.place();
-            standard.addChild(new_group);
 
-            // Setup defaults for new slots
             for (int i = 0; i < player_count; i++) {
                 if (i == 0) {
                     team_pulldown_menus[i].chooseItem(0);
