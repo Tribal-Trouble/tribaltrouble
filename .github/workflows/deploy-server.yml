@@ -1,63 +1,50 @@
-name: Deploy Server
+name: Deploy Server (test)
 
-# Manually deploy a previously-released server build to the test or prod box.
+# Deploys the matchmaker + router to the TEST box and restarts them.
 #
-# You pick a release tag and a target environment. The exact server zip that was
-# attached to that GitHub Release is downloaded and shipped (no rebuild), the
-# 'current' symlink on the box is swapped atomically, and the matchmaker + router
-# systemd services are restarted and health-checked. A failed health check rolls
-# back to the previous release automatically.
+# Runs on push to 'release' ONLY when server-affecting code changed (server/ or
+# common/) -- a client-only or assets-only release skips this entirely, so the
+# live test server is not restarted for nothing. This is the prerelease moment:
+# the same push that publishes to the prerelease channels refreshes the test
+# server, so you can validate there before promoting to prod.
 #
-# Per-environment SSH details come from GitHub Environments named 'test' and
-# 'prod'. Each environment must define:
-#   vars:    DEPLOY_HOST, DEPLOY_USER
-#   secrets: DEPLOY_SSH_KEY
-# (prod can also carry a required-reviewers protection rule for a manual gate.)
+# Prod is handled separately, in promote-release.yml (deploy on promote).
+#
+# SSH details come from repo-level secrets/vars for the test box:
+#   vars: DEPLOY_HOST_TEST, DEPLOY_USER_TEST   secret: DEPLOY_SSH_KEY_TEST
 
 on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Release tag to deploy (e.g. v2.0.14-103)'
-        required: true
-        type: string
-      target:
-        description: 'Target environment'
-        required: true
-        type: choice
-        options: [test, prod]
-        default: test
+  push:
+    branches: [release]
+    paths:
+      - 'server/**'
+      - 'common/**'
+  workflow_dispatch:  # manual re-deploy to test from any ref
 
 jobs:
-  deploy-server:
+  deploy-test:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.target }}
     steps:
-      - name: Checkout deploy scripts at tag
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag }}
+          fetch-depth: 0  # generateBuildInfo needs full history to find the version anchor
 
-      - name: Verify release and download server build
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          TAG="${{ inputs.tag }}"
-          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "::error::Release '$TAG' not found. List with: gh release list --repo $GITHUB_REPOSITORY"
-            exit 1
-          fi
-          mkdir -p download
-          gh release download "$TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --dir download \
-            --pattern 'tribal-trouble-server_*.zip'
-          ls -lh download/
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26-ea'
+          distribution: 'temurin'
 
-      - name: Stage payload for the box
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build server distribution
+        run: ./gradlew :server:installDist
+
+      - name: Bundle server build and deploy scripts
         run: |
-          mkdir -p incoming/dist
-          unzip -q download/tribal-trouble-server_*.zip -d incoming/dist
+          mkdir -p incoming
+          cp -a server/build/install/server incoming/dist
           cp server/deploy/deploy.sh incoming/
           cp server/deploy/matchmaker.service server/deploy/router.service incoming/
           chmod +x incoming/deploy.sh
@@ -65,28 +52,30 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          echo "${{ secrets.DEPLOY_SSH_KEY_TEST }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H "${{ vars.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ vars.DEPLOY_HOST_TEST }}" >> ~/.ssh/known_hosts
 
-      - name: Upload payload to box
+      - name: Copy files to the test server
         run: |
-          TARGET="${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}"
+          TARGET="${{ vars.DEPLOY_USER_TEST }}@${{ vars.DEPLOY_HOST_TEST }}"
           ssh "$TARGET" 'rm -rf ~/incoming && mkdir -p ~/incoming'
           rsync -a --delay-updates incoming/ "$TARGET:incoming/"
 
-      - name: Provision, deploy, restart, health-check
+      - name: Deploy and restart the server
         run: |
-          ssh "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}" \
-            "bash ~/incoming/deploy.sh '${{ inputs.tag }}'"
+          RELEASE="${{ github.ref_name }}-${{ github.run_number }}"
+          ssh "${{ vars.DEPLOY_USER_TEST }}@${{ vars.DEPLOY_HOST_TEST }}" \
+            "bash ~/incoming/deploy.sh '$RELEASE'"
 
       - name: Summary
         if: always()
         run: |
           {
-            echo "## Server deploy: ${{ inputs.tag }} → ${{ inputs.target }}"
+            echo "## Test server deploy"
             echo ""
-            echo "- host: \`${{ vars.DEPLOY_HOST }}\`"
-            echo "- services: matchmaker (:33214), router (:11221) restarted and health-checked"
-            echo "- on health-check failure the box auto-rolls-back to the previous release"
+            echo "- host: \`${{ vars.DEPLOY_HOST_TEST }}\`"
+            echo "- built from: \`${{ github.ref_name }}\` @ \`${{ github.sha }}\`"
+            echo "- matchmaker (:33214) + router (:11221) restarted and health-checked"
+            echo "- auto-rolls-back to the previous release on health-check failure"
           } >> "$GITHUB_STEP_SUMMARY"
