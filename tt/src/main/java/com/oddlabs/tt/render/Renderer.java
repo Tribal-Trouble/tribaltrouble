@@ -859,7 +859,8 @@ public final class Renderer implements AutoCloseable {
             int stencil = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL30.GL_STENCIL,
                     GL30.GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE);
             logger.info(
-                    "Window Info: r=" + r + " g=" + g + " b=" + b + " a=" + a + " depth=" + depth + " stencil=" + stencil);
+                    "Window Info: r=" + r + " g=" + g + " b=" + b + " a=" + a + " depth=" + depth + " stencil="
+                            + stencil);
         } catch (Exception e) {
             logger.log(Level.WARNING, "Failed to dump window info", e);
         }
@@ -955,7 +956,8 @@ public final class Renderer implements AutoCloseable {
         logger.info("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: " + num_combined_tex_units);
         if (num_combined_tex_units < 8) {
             throw new RuntimeException(
-                    "Number of combined texture image units " + num_combined_tex_units + " is less than the required 8.");
+                    "Number of combined texture image units " + num_combined_tex_units
+                            + " is less than the required 8.");
         }
 
         resetInput();

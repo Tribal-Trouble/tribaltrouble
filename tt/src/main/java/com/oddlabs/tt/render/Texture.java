@@ -101,13 +101,18 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
     }
 
     public Texture(@NonNull TextureFile texture_file) {
-        this(texture_file.isDXTImage() ? texture_file.getDXTImage() : null, !texture_file.isDXTImage() ? texture_file.getImage() : null, texture_file.getInternalFormat(), texture_file.getMinFilter(), texture_file.getMagFilter(), texture_file.getWrapS(), texture_file.getWrapT(), texture_file.getMaxMipmapLevel(), texture_file.getBaseFadeoutLevel(), texture_file.getFadeoutFactor(), texture_file.hasMaxAlpha());
+        this(texture_file.isDXTImage() ? texture_file.getDXTImage() : null, !texture_file.isDXTImage() ? texture_file
+                .getImage() : null, texture_file.getInternalFormat(), texture_file.getMinFilter(), texture_file
+                        .getMagFilter(), texture_file.getWrapS(), texture_file.getWrapT(), texture_file
+                                .getMaxMipmapLevel(), texture_file.getBaseFadeoutLevel(), texture_file
+                                        .getFadeoutFactor(), texture_file.hasMaxAlpha());
     }
 
     private Texture(@Nullable DXTImage dxtImage, @Nullable GLImage image, int internalFormat, int minFilter,
             int magFilter, int wrapS, int wrapT, int maxMipmapLevel, int baseFadeoutLevel, float fadeoutFactor,
             boolean max_alpha) {
-        this(dxtImage != null ? dxtImage.getWidth() : image.getWidth(), dxtImage != null ? dxtImage.getHeight() : image.getHeight(), minFilter, magFilter, wrapS, wrapT, maxMipmapLevel);
+        this(dxtImage != null ? dxtImage.getWidth() : image.getWidth(), dxtImage != null ? dxtImage.getHeight() : image
+                .getHeight(), minFilter, magFilter, wrapS, wrapT, maxMipmapLevel);
 
         int total_size;
         if (dxtImage != null) {
@@ -176,7 +181,8 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
     public Texture(@NonNull GLImage @NonNull [] mipmaps, int internal_format, int min_filter, int mag_filter,
             int wrap_s, int wrap_t, int max_mipmap_level) throws IllegalArgumentException, NullPointerException {
         this(getCheckedMipmaps(
-                mipmaps)[0].getWidth(), mipmaps[0].getHeight(), min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level);
+                mipmaps)[0].getWidth(), mipmaps[0].getHeight(), min_filter, mag_filter, wrap_s, wrap_t,
+                max_mipmap_level);
         int total_size = uploadTexture(mipmaps, internal_format, max_mipmap_level);
         setSize(total_size);
     }
@@ -214,8 +220,9 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
     private int uploadDXTTexture(@NonNull DXTImage dxt_image, int internalFormat, int max_mipmap_level) {
         if (logger.isLoggable(Level.FINE)) {
             logger.fine(
-                    "Uploading DXT texture: handle=" + getHandle() + ", " + dxt_image.getWidth() + "x" + dxt_image.getHeight() + ", internalFormat=0x" + Integer.toHexString(
-                            internalFormat) + ", mips=" + dxt_image.getNumMipMaps());
+                    "Uploading DXT texture: handle=" + getHandle() + ", " + dxt_image.getWidth() + "x" + dxt_image
+                            .getHeight() + ", internalFormat=0x" + Integer.toHexString(
+                                    internalFormat) + ", mips=" + dxt_image.getNumMipMaps());
         }
         GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
         GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
@@ -238,8 +245,9 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
     private int uploadTexture(@NonNull GLImage @NonNull [] mipmaps, int internal_format, int max_mipmap_level) {
         if (logger.isLoggable(Level.FINE)) {
             logger.fine(
-                    "Uploading standard texture: handle=" + getHandle() + ", " + mipmaps[0].getWidth() + "x" + mipmaps[0].getHeight() + ", internal_format=0x" + Integer.toHexString(
-                            internal_format) + ", mips=" + mipmaps.length);
+                    "Uploading standard texture: handle=" + getHandle() + ", " + mipmaps[0].getWidth() + "x"
+                            + mipmaps[0].getHeight() + ", internal_format=0x" + Integer.toHexString(
+                                    internal_format) + ", mips=" + mipmaps.length);
         }
         GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
         GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);

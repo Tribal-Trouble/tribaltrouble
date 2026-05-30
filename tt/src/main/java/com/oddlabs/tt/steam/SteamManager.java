@@ -22,7 +22,8 @@ import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class SteamManager implements SteamUserCallback, SteamFriendsCallback, SteamUserStatsCallback, SteamUtilsCallback {
+public final class SteamManager implements SteamUserCallback, SteamFriendsCallback, SteamUserStatsCallback,
+        SteamUtilsCallback {
     private static final Logger logger = Logger.getLogger(SteamManager.class.getName());
     private static final Duration TICKET_MAX_AGE = Duration.ofHours(1);
     private static final String WEB_API_IDENTITY = "tribaltrouble.org";

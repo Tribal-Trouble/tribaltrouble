@@ -134,7 +134,8 @@ public final class ServerConfiguration {
         } catch (NumberFormatException e) {
             if (!emojiId.startsWith("U+")) {
                 logger.warning(
-                        "The argument(s) to this method should use the \"U+\" notation for" + " codepoints. Skipping mapping: " + emojiId);
+                        "The argument(s) to this method should use the \"U+\" notation for"
+                                + " codepoints. Skipping mapping: " + emojiId);
                 return null;
             }
         }

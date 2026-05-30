@@ -30,7 +30,8 @@ public final class RadioButton extends RadioButtonGroupElement {
 
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
-        ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+        ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isActive()
+                ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
 
         // When unpressed, active, pressed, and hovered, it should show the marked state
         IconQuad quad_to_render = isMarked() ? Skin.getSkin().getRadioButtonMarked().quad(

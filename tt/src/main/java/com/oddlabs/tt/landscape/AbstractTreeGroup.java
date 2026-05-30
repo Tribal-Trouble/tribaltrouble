@@ -66,7 +66,8 @@ public abstract class AbstractTreeGroup extends BoundingBox {
         Vector3f vector = new Vector3f();
         // Generate dummy bounding box vertices for culling (Radius + Height 15m)
         float h = 15f;
-        final float[] tree_low_vertices = new float[]{-radius, -radius, 0, radius, -radius, 0, radius, radius, 0, -radius, radius, 0, -radius, -radius, h, radius, -radius, h, radius, radius, h, -radius, radius, h
+        final float[] tree_low_vertices = new float[]{-radius, -radius, 0, radius, -radius, 0, radius, radius, 0,
+                -radius, radius, 0, -radius, -radius, h, radius, -radius, h, radius, radius, h, -radius, radius, h
         };
 
         for (int[] coords : tree_positions) {

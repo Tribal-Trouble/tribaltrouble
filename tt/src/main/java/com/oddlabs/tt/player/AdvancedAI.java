@@ -498,8 +498,10 @@ public final class AdvancedAI extends AI {
             return null;
         }
 
-        int squared_dist_building = (best_building.getGridX() - start_x) * (best_building.getGridX() - start_x) + (best_building.getGridY() - start_y) * (best_building.getGridY() - start_y);
-        int squared_dist_target = (best_target.getGridX() - start_x) * (best_target.getGridX() - start_x) + (best_target.getGridY() - start_y) * (best_target.getGridY() - start_y);
+        int squared_dist_building = (best_building.getGridX() - start_x) * (best_building.getGridX() - start_x)
+                + (best_building.getGridY() - start_y) * (best_building.getGridY() - start_y);
+        int squared_dist_target = (best_target.getGridX() - start_x) * (best_target.getGridX() - start_x) + (best_target
+                .getGridY() - start_y) * (best_target.getGridY() - start_y);
 
         return squared_dist_target < squared_dist_building / 2 ? best_target : best_building;
     }

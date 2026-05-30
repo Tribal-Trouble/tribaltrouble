@@ -70,12 +70,14 @@ public final class CheckBox extends GUIObject implements ToolTip {
 
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
-        ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+        ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isActive()
+                ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
 
         // When marked, active, pressed, and hovered, it should show the unmarked state
         // When unmarked, active, pressed, and hovered, it should show the marked state
         ModeIconQuads quad_to_render = isMarked() ? (skinMode == ModeIconQuads.Mode.ACTIVE && pressed
-                && isHovered() ? Skin.getSkin().getCheckBoxUnmarked() : Skin.getSkin().getCheckBoxMarked()) : (skinMode == ModeIconQuads.Mode.ACTIVE
+                && isHovered() ? Skin.getSkin().getCheckBoxUnmarked() : Skin.getSkin().getCheckBoxMarked()) : (skinMode
+                        == ModeIconQuads.Mode.ACTIVE
                         && pressed
                         && isHovered() ? Skin.getSkin().getCheckBoxMarked() : Skin.getSkin().getCheckBoxUnmarked());
 

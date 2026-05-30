@@ -34,7 +34,8 @@ public final class IconQuad extends Quad {
         }
         if (u1 > u2 || v1 > v2) {
             throw new IllegalArgumentException(
-                    "u1/v1 must be less than or equal to u2/v2, but got: u1=" + u1 + ", v1=" + v1 + ", u2=" + u2 + ", v2=" + v2);
+                    "u1/v1 must be less than or equal to u2/v2, but got: u1=" + u1 + ", v1=" + v1 + ", u2=" + u2
+                            + ", v2=" + v2);
         }
         if (width < 0 || height < 0) {
             throw new IllegalArgumentException(
@@ -58,7 +59,8 @@ public final class IconQuad extends Quad {
     public IconQuad(int x, int y, int width, int height,
             @NonNull Texture texture) throws IndexOutOfBoundsException, NullPointerException {
         this((float) x / getCheckedTexture(x, y, width, height,
-                texture).getWidth(), (float) y / texture.getHeight(), (float) (x + width) / texture.getWidth(), (float) (y + height) / texture.getHeight(), width, height, texture);
+                texture).getWidth(), (float) y / texture.getHeight(), (float) (x + width) / texture.getWidth(),
+                (float) (y + height) / texture.getHeight(), width, height, texture);
     }
 
     private static @NonNull Texture getCheckedTexture(int x, int y, int width, int height, @NonNull Texture texture) {

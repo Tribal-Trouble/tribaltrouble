@@ -32,7 +32,11 @@ public final class VikingCampaign extends Campaign {
             		CampaignState.ISLAND_AVAILABLE,
             		CampaignState.ISLAND_AVAILABLE};
             */
-            CampaignState.ISLAND_AVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_HIDDEN, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE};
+            CampaignState.ISLAND_AVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_HIDDEN, CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE};
 
     private final @NonNull Island @NonNull [] islands;
 

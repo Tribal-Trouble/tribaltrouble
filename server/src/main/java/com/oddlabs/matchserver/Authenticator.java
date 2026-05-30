@@ -167,7 +167,8 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
         if (!revisionOK(revision)) return;
 
         MatchmakingServer.getLogger().info(
-                "Steam login attempt: accountId=" + steamAccountId + " persona=" + personaName + " appId=" + appId + " ticketLen=" + (authTicket != null ? authTicket.length : 0));
+                "Steam login attempt: accountId=" + steamAccountId + " persona=" + personaName + " appId=" + appId
+                        + " ticketLen=" + (authTicket != null ? authTicket.length : 0));
 
         if (!SteamAuthValidator.validateTicket(steamAccountId, authTicket, appId)) {
             client_interface.loginError(MatchmakingClientInterface.USER_ERROR_NO_SUCH_USER);

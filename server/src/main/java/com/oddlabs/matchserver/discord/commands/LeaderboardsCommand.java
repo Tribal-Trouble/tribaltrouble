@@ -111,8 +111,9 @@ public class LeaderboardsCommand extends DiscordCommand {
                                                         ApplicationCommandOptionData.builder().name(
                                                                 command_option_count).description(
                                                                         "Number of ranks to show").type(
-                                                                                ApplicationCommandOption.Type.INTEGER.getValue()).required(
-                                                                                        false).build()).build();
+                                                                                ApplicationCommandOption.Type.INTEGER
+                                                                                        .getValue()).required(
+                                                                                                false).build()).build();
 
         return leaderboardCommand;
     }

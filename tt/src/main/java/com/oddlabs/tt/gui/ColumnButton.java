@@ -55,7 +55,8 @@ public final class ColumnButton<T> extends RadioButtonGroupElement {
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isHovered()
-                && pressed ? ModeIconQuads.Mode.ACTIVE : isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+                && pressed ? ModeIconQuads.Mode.ACTIVE : isActive() ? ModeIconQuads.Mode.ACTIVE
+                : ModeIconQuads.Mode.NORMAL;
 
         var data = Skin.getSkin().getMultiColumnComboBoxData();
         Horizontal buttonHorizontal = skinMode == ModeIconQuads.Mode.ACTIVE && isHovered()

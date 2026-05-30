@@ -289,7 +289,8 @@ public final class TimestampedGameSession {
         if (!free_quit && !(participant_state[index] == PARTICIPANT_FREE_QUIT)) {
             game_state = GAME_INVALID;
             MatchmakingServer.getLogger().warning(
-                    "Game " + database_id + " is now invalid. " + client.getUsername() + " tried to free_quit. " + getParticipantStates());
+                    "Game " + database_id + " is now invalid. " + client.getUsername() + " tried to free_quit. "
+                            + getParticipantStates());
         }
         gameDone(server, client, PARTICIPANT_QUIT, "quit");
     }
@@ -303,7 +304,8 @@ public final class TimestampedGameSession {
         if (participant_state[index] == PARTICIPANT_FREE_QUIT) {
             game_state = GAME_INVALID;
             MatchmakingServer.getLogger().warning(
-                    "Game " + database_id + " is now invalid. " + client.getUsername() + " tried to win while having free_quit. " + getParticipantStates());
+                    "Game " + database_id + " is now invalid. " + client.getUsername()
+                            + " tried to win while having free_quit. " + getParticipantStates());
         }
         gameDone(server, client, PARTICIPANT_WON, "won");
     }
@@ -321,7 +323,8 @@ public final class TimestampedGameSession {
     private void gameDone(MatchmakingServer server, Client client, int result, String result_string) {
         participant_state[findIndex(server, client)] = result;
         MatchmakingServer.getLogger().info(
-                "Game " + database_id + ": " + client.getUsername() + " finished. Result " + result_string + " " + getParticipantStates());
+                "Game " + database_id + ": " + client.getUsername() + " finished. Result " + result_string + " "
+                        + getParticipantStates());
         //if (game_state != GAME_STARTING)
         evaluateGame(server);
     }
@@ -372,7 +375,8 @@ public final class TimestampedGameSession {
             winning_team_index = getWinningTeamFromLastStatus();
             if (winning_team_index != -1) {
                 MatchmakingServer.getLogger().info(
-                        "Game " + database_id + ". Team " + (winning_team_index + 1) + " won from status reports. " + getParticipantStates());
+                        "Game " + database_id + ". Team " + (winning_team_index + 1) + " won from status reports. "
+                                + getParticipantStates());
                 teams_lost = true;
                 for (int i = 0; i < team_result.length; i++)
                     if (i == winning_team_index)
@@ -391,7 +395,8 @@ public final class TimestampedGameSession {
                         client.updateProfile();
                 }
                 MatchmakingServer.getLogger().warning(
-                        "Game " + database_id + " was invalid. " + winning_teams + " winning teams. " + getParticipantStates());
+                        "Game " + database_id + " was invalid. " + winning_teams + " winning teams. "
+                                + getParticipantStates());
                 DBInterface.endGame(this, end_time, -1);
                 DiscordEmbedCreator.SendInvalidatedGameDiscordEmbed(session, database_id);
                 game_ended = true;
@@ -478,10 +483,12 @@ public final class TimestampedGameSession {
 
                 DBInterface.updateStreaks(nick, currentStreak, bestStreak);
                 MatchmakingServer.getLogger().info(
-                        "Game " + database_id + ". Updated streaks for " + nick + " (currentStreak=" + currentStreak + ", bestStreak=" + bestStreak + ")");
+                        "Game " + database_id + ". Updated streaks for " + nick + " (currentStreak=" + currentStreak
+                                + ", bestStreak=" + bestStreak + ")");
             } catch (SQLException e) {
                 MatchmakingServer.getLogger().warning(
-                        "Game " + database_id + ". SQLException while updating streaks for " + nick + ": " + e.getMessage());
+                        "Game " + database_id + ". SQLException while updating streaks for " + nick + ": " + e
+                                .getMessage());
             }
         }
     }
@@ -524,7 +531,8 @@ public final class TimestampedGameSession {
                 }
             } catch (SQLException e) {
                 MatchmakingServer.getLogger().warning(
-                        "Game " + database_id + ". SQLException while reading stats for Steam achievements for " + nick + ": " + e.getMessage());
+                        "Game " + database_id + ". SQLException while reading stats for Steam achievements for " + nick
+                                + ": " + e.getMessage());
             }
         }
     }

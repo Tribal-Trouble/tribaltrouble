@@ -54,15 +54,19 @@ public final class BezierPath {
         float b1 = 3 * t3 - 6 * t2 + 4;
         float b2 = -3 * t3 + 3 * t2 + 3 * t + 1;
         float b3 = t3;
-        point[0] = (1f / 6f) * (points[PREVIOUS][0] * b0 + points[START][0] * b1 + points[END][0] * b2 + points[NEXT][0] * b3);
-        point[1] = (1f / 6f) * (points[PREVIOUS][1] * b0 + points[START][1] * b1 + points[END][1] * b2 + points[NEXT][1] * b3);
+        point[0] = (1f / 6f) * (points[PREVIOUS][0] * b0 + points[START][0] * b1 + points[END][0] * b2 + points[NEXT][0]
+                * b3);
+        point[1] = (1f / 6f) * (points[PREVIOUS][1] * b0 + points[START][1] * b1 + points[END][1] * b2 + points[NEXT][1]
+                * b3);
 
         float db0 = -3 + 6 * t - 3 * t2;
         float db1 = 9 * t2 - 12 * t;
         float db2 = -9 * t2 + 6 * t + 3;
         float db3 = 3 * t2;
-        float dx = (1f / 6f) * (points[PREVIOUS][0] * db0 + points[START][0] * db1 + points[END][0] * db2 + points[NEXT][0] * db3);
-        float dy = (1f / 6f) * (points[PREVIOUS][1] * db0 + points[START][1] * db1 + points[END][1] * db2 + points[NEXT][1] * db3);
+        float dx = (1f / 6f) * (points[PREVIOUS][0] * db0 + points[START][0] * db1 + points[END][0] * db2
+                + points[NEXT][0] * db3);
+        float dy = (1f / 6f) * (points[PREVIOUS][1] * db0 + points[START][1] * db1 + points[END][1] * db2
+                + points[NEXT][1] * db3);
         float dir_len_inv = 1f / (float) Math.sqrt(dx * dx + dy * dy);
         dir[0] = dx * dir_len_inv;
         dir[1] = dy * dir_len_inv;

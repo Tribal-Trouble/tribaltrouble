@@ -103,8 +103,9 @@ public class MatchupCommand extends DiscordCommand {
                                                         ApplicationCommandOptionData.builder().name(
                                                                 command_option_p2).description(
                                                                         "Second player to compare").type(
-                                                                                ApplicationCommandOption.Type.STRING.getValue()).required(
-                                                                                        true).build()).build();
+                                                                                ApplicationCommandOption.Type.STRING
+                                                                                        .getValue()).required(
+                                                                                                true).build()).build();
 
         return matchupCommand;
     }

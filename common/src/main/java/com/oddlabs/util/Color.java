@@ -72,7 +72,8 @@ public final class Color {
     }
 
     public static int abgri(float a, float b, float g, float r) {
-        return ((int) (a * NORMALIZE_8_BIT) << 24) | ((int) (b * NORMALIZE_8_BIT) << 16) | ((int) (g * NORMALIZE_8_BIT) << 8) | ((int) (r * NORMALIZE_8_BIT));
+        return ((int) (a * NORMALIZE_8_BIT) << 24) | ((int) (b * NORMALIZE_8_BIT) << 16) | ((int) (g * NORMALIZE_8_BIT)
+                << 8) | ((int) (r * NORMALIZE_8_BIT));
     }
 
     /**

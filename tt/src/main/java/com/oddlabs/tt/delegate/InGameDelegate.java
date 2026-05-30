@@ -38,7 +38,8 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
 
         if (actions.contains(GameAction.CHEAT_1)) {
             // F1 creates a peon at the center of the view unless the player already has maximum units.
-            if (viewer.getLocalPlayer().getUnitCountContainer().getNumSupplies() != viewer.getParameters().getMaxUnitCount()) {
+            if (viewer.getLocalPlayer().getUnitCountContainer().getNumSupplies() != viewer.getParameters()
+                    .getMaxUnitCount()) {
                 new Unit(viewer.getLocalPlayer(), landscape_x, landscape_y, null,
                         viewer.getLocalPlayer().getRace().getUnitTemplate(Race.UNIT_PEON));
                 return true;
@@ -46,7 +47,8 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
         }
         if (actions.contains(GameAction.CHEAT_2)) {
             // F2 creates a rock warrior at the center of the view unless the player already has maximum units.
-            if (viewer.getLocalPlayer().getUnitCountContainer().getNumSupplies() != viewer.getParameters().getMaxUnitCount()) {
+            if (viewer.getLocalPlayer().getUnitCountContainer().getNumSupplies() != viewer.getParameters()
+                    .getMaxUnitCount()) {
                 new Unit(viewer.getLocalPlayer(), landscape_x, landscape_y, null,
                         viewer.getLocalPlayer().getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
                 return true;
@@ -54,7 +56,8 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
         }
         if (actions.contains(GameAction.CHEAT_3)) {
             // F3 creates an iron warrior at the center of the view unless the player already has maximum units.
-            if (viewer.getLocalPlayer().getUnitCountContainer().getNumSupplies() != viewer.getParameters().getMaxUnitCount()) {
+            if (viewer.getLocalPlayer().getUnitCountContainer().getNumSupplies() != viewer.getParameters()
+                    .getMaxUnitCount()) {
                 new Unit(viewer.getLocalPlayer(), landscape_x, landscape_y, null,
                         viewer.getLocalPlayer().getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
                 return true;
@@ -62,7 +65,8 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
         }
         if (actions.contains(GameAction.CHEAT_4)) {
             // F4 creates a chicken warrior at the center of the view unless the player already has maximum units.
-            if (viewer.getLocalPlayer().getUnitCountContainer().getNumSupplies() != viewer.getParameters().getMaxUnitCount()) {
+            if (viewer.getLocalPlayer().getUnitCountContainer().getNumSupplies() != viewer.getParameters()
+                    .getMaxUnitCount()) {
                 new Unit(viewer.getLocalPlayer(), landscape_x, landscape_y, null,
                         viewer.getLocalPlayer().getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
                 return true;
@@ -94,7 +98,8 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
         }
         if (actions.contains(GameAction.CHEAT_9)) {
             // F9 toggles fog
-            com.oddlabs.tt.resource.FogInfo fog_info = viewer.getGUIRoot().getDelegate().getCamera().getState().getFog();
+            com.oddlabs.tt.resource.FogInfo fog_info = viewer.getGUIRoot().getDelegate().getCamera().getState()
+                    .getFog();
             fog_info.setEnabled(!fog_info.isEnabled());
             return true;
         }

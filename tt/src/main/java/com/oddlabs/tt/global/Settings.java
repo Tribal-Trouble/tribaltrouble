@@ -365,7 +365,8 @@ public final class Settings implements Serializable {
             return Integer.parseInt(value);
         } catch (NumberFormatException _) {
             logger.warning(
-                    "WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+                    "WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '"
+                            + defaultValue + "'.");
             return defaultValue;
         }
     }
@@ -379,7 +380,8 @@ public final class Settings implements Serializable {
             return Float.parseFloat(value);
         } catch (NumberFormatException _) {
             logger.warning(
-                    "WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+                    "WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '"
+                            + defaultValue + "'.");
             return defaultValue;
         }
     }
@@ -393,7 +395,8 @@ public final class Settings implements Serializable {
             return Path.of(value);
         } catch (InvalidPathException _) {
             logger.warning(
-                    "Invalid path for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+                    "Invalid path for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue
+                            + "'.");
             return defaultValue;
         }
     }
@@ -417,7 +420,8 @@ public final class Settings implements Serializable {
             return result;
         } catch (Exception e) {
             logger.warning(
-                    "WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value. Error: " + e);
+                    "WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value. Error: "
+                            + e);
             return defaultValue;
         }
     }

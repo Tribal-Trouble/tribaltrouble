@@ -329,17 +329,19 @@ final class RenderState implements ElementVisitor {
         }
     }
 
-    private static final ModelVisitor<DirectedThrowingWeapon> directed_weapon_model_visitor = new WhiteModelVisitor<>() {
-        @Override
-        public void getTransform(@NonNull ElementRenderState<DirectedThrowingWeapon> render_state,
-                @NonNull Matrix4f dest) {
-            DirectedThrowingWeapon model = render_state.getModel();
-            float yawRad = (float) Math.atan2(model.getDirectionY(), model.getDirectionX());
-            float pitchRad = (float) Math.toRadians(model.getAngle());
-            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ()).rotate(yawRad, 0f, 0f,
-                    1f).rotate(-pitchRad, 0f, 1f, 0f);
-        }
-    };
+    private static final ModelVisitor<DirectedThrowingWeapon> directed_weapon_model_visitor
+            = new WhiteModelVisitor<>() {
+                @Override
+                public void getTransform(@NonNull ElementRenderState<DirectedThrowingWeapon> render_state,
+                        @NonNull Matrix4f dest) {
+                    DirectedThrowingWeapon model = render_state.getModel();
+                    float yawRad = (float) Math.atan2(model.getDirectionY(), model.getDirectionX());
+                    float pitchRad = (float) Math.toRadians(model.getAngle());
+                    dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ()).rotate(yawRad,
+                            0f, 0f,
+                            1f).rotate(-pitchRad, 0f, 1f, 0f);
+                }
+            };
 
     @Override
     public void visitDirectedThrowingWeapon(final @NonNull DirectedThrowingWeapon model) {
@@ -348,17 +350,19 @@ final class RenderState implements ElementVisitor {
         }
     }
 
-    private static final ModelVisitor<RotatingThrowingWeapon> rotating_weapon_model_visitor = new WhiteModelVisitor<>() {
-        @Override
-        public void getTransform(@NonNull ElementRenderState<RotatingThrowingWeapon> render_state,
-                @NonNull Matrix4f dest) {
-            RotatingThrowingWeapon model = render_state.getModel();
-            float yawRad = (float) Math.atan2(model.getDirectionY(), model.getDirectionX());
-            float spinRad = (float) Math.toRadians(model.getAngle());
-            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ()).rotate(yawRad, 0f, 0f,
-                    1f).rotate(spinRad, 0f, 1f, 0f);
-        }
-    };
+    private static final ModelVisitor<RotatingThrowingWeapon> rotating_weapon_model_visitor
+            = new WhiteModelVisitor<>() {
+                @Override
+                public void getTransform(@NonNull ElementRenderState<RotatingThrowingWeapon> render_state,
+                        @NonNull Matrix4f dest) {
+                    RotatingThrowingWeapon model = render_state.getModel();
+                    float yawRad = (float) Math.atan2(model.getDirectionY(), model.getDirectionX());
+                    float spinRad = (float) Math.toRadians(model.getAngle());
+                    dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ()).rotate(yawRad,
+                            0f, 0f,
+                            1f).rotate(spinRad, 0f, 1f, 0f);
+                }
+            };
 
     @Override
     public void visitRotatingThrowingWeapon(final @NonNull RotatingThrowingWeapon model) {

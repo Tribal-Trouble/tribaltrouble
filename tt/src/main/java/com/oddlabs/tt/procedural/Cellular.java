@@ -50,8 +50,10 @@ public final class Cellular {
             case SINGULAR:
                 for (int j = 0; j < y_order; j++) {
                     for (int i = 0; i < x_order; i++) {
-                        domains[i][j][X] = (1 - randomness) * ((i + 0.5f) / x_order) + randomness * ((i + random.nextFloat()) / x_order);
-                        domains[i][j][Y] = (1 - randomness) * ((j + 0.5f) / y_order) + randomness * ((j + random.nextFloat()) / y_order);
+                        domains[i][j][X] = (1 - randomness) * ((i + 0.5f) / x_order) + randomness * ((i + random
+                                .nextFloat()) / x_order);
+                        domains[i][j][Y] = (1 - randomness) * ((j + 0.5f) / y_order) + randomness * ((j + random
+                                .nextFloat()) / y_order);
                         domains[i][j][SEED] = random.nextFloat();
                     }
                 }
@@ -60,11 +62,14 @@ public final class Cellular {
                 for (int j = 0; j < y_order; j++) {
                     for (int i = 0; i < x_order; i++) {
                         if ((j & 0x1) == 0) {
-                            domains[i][j][X] = (1 - randomness) * ((float) i / x_order) + randomness * ((i + random.nextFloat()) / x_order);
+                            domains[i][j][X] = (1 - randomness) * ((float) i / x_order) + randomness * ((i + random
+                                    .nextFloat()) / x_order);
                         } else {
-                            domains[i][j][X] = (1 - randomness) * ((i + 0.5f) / x_order) + randomness * ((i + random.nextFloat()) / x_order);
+                            domains[i][j][X] = (1 - randomness) * ((i + 0.5f) / x_order) + randomness * ((i + random
+                                    .nextFloat()) / x_order);
                         }
-                        domains[i][j][Y] = (1 - randomness) * ((float) j / y_order) + randomness * ((j + random.nextFloat()) / y_order);
+                        domains[i][j][Y] = (1 - randomness) * ((float) j / y_order) + randomness * ((j + random
+                                .nextFloat()) / y_order);
                         domains[i][j][SEED] = random.nextFloat();
                     }
                 }
@@ -189,7 +194,8 @@ public final class Cellular {
                         break;
                     case HITPOINT:
                         channel.putPixel(x, y,
-                                coefficients[0] * hitpoint1 + coefficients[1] * hitpoint2 + coefficients[2] * hitpoint3);
+                                coefficients[0] * hitpoint1 + coefficients[1] * hitpoint2 + coefficients[2]
+                                        * hitpoint3);
                         break;
                     case HITCLIP:
                         if (coefficients[0] * min1 + coefficients[1] * min2 + coefficients[2] * min3 < pixelwidth) {

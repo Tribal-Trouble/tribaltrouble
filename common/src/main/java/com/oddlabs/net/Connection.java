@@ -259,7 +259,8 @@ public final class Connection extends AbstractConnection implements Handler, Con
         read_buffer.position(old_position);
         network.getDeterministic().log(read_buffer);
         assert read_buffer.position() == new_position
-                && !read_buffer.hasRemaining() : read_buffer.position() + " " + new_position + " " + !read_buffer.hasRemaining();
+                && !read_buffer.hasRemaining() : read_buffer.position() + " " + new_position + " " + !read_buffer
+                        .hasRemaining();
         read_buffer.limit(old_limit);
         return num_bytes_read;
     }

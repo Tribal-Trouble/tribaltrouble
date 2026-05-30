@@ -102,7 +102,8 @@ public final class PeerHub implements Animated, RouterHandler {
             @NonNull Player local_player, PlayerSlot[] player_slots, @NonNull NetworkSelector network, GUIRoot gui_root,
             NotificationManager notification_manager, DistributableTable distributable_table, SessionID session_id,
             StallHandler stall_handler) {
-        this(manager, is_multiplayer, is_rated, false, local_player, player_slots, network, gui_root, notification_manager, distributable_table, session_id, stall_handler);
+        this(manager, is_multiplayer, is_rated, false, local_player, player_slots, network, gui_root,
+                notification_manager, distributable_table, session_id, stall_handler);
     }
 
     public PeerHub(@NonNull AnimationManager manager, boolean is_multiplayer, boolean is_rated, boolean is_spectator,

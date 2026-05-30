@@ -32,7 +32,8 @@ import java.util.logging.Logger;
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 
-public final class CampaignForm extends Form implements DeterministicSerializerLoopbackInterface<@NonNull CampaignState[]> {
+public final class CampaignForm extends Form implements DeterministicSerializerLoopbackInterface<
+        @NonNull CampaignState[]> {
     private static final Logger logger = Logger.getLogger(CampaignForm.class.getSimpleName());
 
     private final @NonNull HorizButton button_vikings;

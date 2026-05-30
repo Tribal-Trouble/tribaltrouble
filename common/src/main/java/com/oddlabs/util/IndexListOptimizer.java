@@ -150,7 +150,8 @@ public final class IndexListOptimizer {
 
         @Override
         public @NonNull String toString() {
-            return "[index = " + index + " score = " + score + " round = " + round_added + " num_triangles = " + triangle_list.size() + "]";
+            return "[index = " + index + " score = " + score + " round = " + round_added + " num_triangles = "
+                    + triangle_list.size() + "]";
         }
     }
 

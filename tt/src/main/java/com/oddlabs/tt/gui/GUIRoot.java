@@ -287,7 +287,8 @@ public final class GUIRoot extends GUIObject {
                 if (event.consumeAction(GameAction.GLOBAL_AGGRESSIVE_UNITS)) {
                     Settings.getSettings().aggressive_units = !Settings.getSettings().aggressive_units;
                     info_printer.print(i18n(
-                            Settings.getSettings().aggressive_units ? "aggressive_unites_on" : "aggressive_unites_off"));
+                            Settings.getSettings().aggressive_units ? "aggressive_unites_on"
+                                    : "aggressive_unites_off"));
                     consumed = true;
                 }
                 if (event.consumeAction(GameAction.GLOBAL_TOGGLE_STATUS)) {

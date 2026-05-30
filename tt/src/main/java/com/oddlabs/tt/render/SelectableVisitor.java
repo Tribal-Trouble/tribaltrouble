@@ -40,7 +40,8 @@ class SelectableVisitor<S extends Selectable<?>> extends ModelVisitor<S> {
                 model) ? model.getOwner() == local_player ? COLOR_GREEN : local_player.isEnemy(
                         model.getOwner()) ? COLOR_RED : COLOR_BLUE : render_state.render_state.isHovered(
                                 model) ? model.getOwner() == local_player ? COLOR_GREEN_HOVER : local_player.isEnemy(
-                                        model.getOwner()) ? COLOR_RED_HOVER : COLOR_BLUE_HOVER : model.getOwner().getColor();
+                                        model.getOwner()) ? COLOR_RED_HOVER : COLOR_BLUE_HOVER : model.getOwner()
+                                                .getColor();
     }
 
     @Override

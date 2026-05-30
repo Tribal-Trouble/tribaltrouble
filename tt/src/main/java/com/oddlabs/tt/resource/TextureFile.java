@@ -78,7 +78,8 @@ public final class TextureFile extends File<Texture> {
 
     public TextureFile(String location, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t,
             int max_mipmap_level, int base_fadeout_level, float fadeout_factor) {
-        this(location, internal_format, min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level, base_fadeout_level, fadeout_factor, false);
+        this(location, internal_format, min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level, base_fadeout_level,
+                fadeout_factor, false);
     }
 
     public TextureFile(String location, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t,

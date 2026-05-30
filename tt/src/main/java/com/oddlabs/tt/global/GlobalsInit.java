@@ -16,7 +16,8 @@ public final class GlobalsInit {
         for (; texture_max < Globals.MAX_TEXTURE_SIZE; texture_min = texture_max, texture_max <<= 1) {
             if (texture_max >= size) break;
         }
-        return size + texture_min * (Globals.TEXTURE_WEIGHT - 1.0f) - texture_max * Globals.TEXTURE_WEIGHT > 0 ? texture_max : texture_min;
+        return size + texture_min * (Globals.TEXTURE_WEIGHT - 1.0f) - texture_max * Globals.TEXTURE_WEIGHT > 0
+                ? texture_max : texture_min;
     }
 
     private static void initTextureSize() {

@@ -98,7 +98,8 @@ public final class UnitGrid {
     }
 
     public void freeGrid(int grid_x, int grid_y, Occupant occupant) {
-        assert occupants[grid_y][grid_x] == occupant : occupant + " trying to free " + grid_x + " " + grid_y + " where " + occupants[grid_y][grid_x] + " is.";
+        assert occupants[grid_y][grid_x] == occupant : occupant + " trying to free " + grid_x + " " + grid_y + " where "
+                + occupants[grid_y][grid_x] + " is.";
         occupants[grid_y][grid_x] = null;
     }
 

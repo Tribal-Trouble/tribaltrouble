@@ -250,8 +250,13 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
         paginatedPlayerStats = new int[paginatedPlayers.length][];
         for (int i = 0; i < paginatedPlayers.length; i++) {
             Player player = paginatedPlayers[i];
-            int total_score = player.getUnitsKilled() * 10 + player.getBuildingsDestroyed() * 100 + player.getTreeHarvested() + player.getRockHarvested() + player.getIronHarvested() * 2 + player.getRubberHarvested() * 4;
-            paginatedPlayerStats[i] = new int[]{player.getUnitsLost(), player.getUnitsKilled(), player.getBuildingsLost(), player.getBuildingsDestroyed(), player.getTreeHarvested(), player.getRockHarvested(), player.getIronHarvested(), player.getRubberHarvested(), player.getUnitsMoved() * 2, player.getWeaponsThrown(), player.getMagics(), total_score
+            int total_score = player.getUnitsKilled() * 10 + player.getBuildingsDestroyed() * 100 + player
+                    .getTreeHarvested() + player.getRockHarvested() + player.getIronHarvested() * 2 + player
+                            .getRubberHarvested() * 4;
+            paginatedPlayerStats[i] = new int[]{player.getUnitsLost(), player.getUnitsKilled(), player
+                    .getBuildingsLost(), player.getBuildingsDestroyed(), player.getTreeHarvested(), player
+                            .getRockHarvested(), player.getIronHarvested(), player.getRubberHarvested(), player
+                                    .getUnitsMoved() * 2, player.getWeaponsThrown(), player.getMagics(), total_score
             };
         }
 

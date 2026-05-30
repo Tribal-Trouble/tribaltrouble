@@ -186,7 +186,9 @@ public final class AnimationManager {
                     int logged_checksum = deterministic.log(checksum);
                     if (checksum != logged_checksum && checksum_complain) {
                         logger.severe(
-                                "********** ERROR: Checksum mismatch at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " | checksum = " + checksum + " | logged_checksum = " + logged_checksum + " **********");
+                                "********** ERROR: Checksum mismatch at tick " + LocalEventQueue.getQueue()
+                                        .getHighPrecisionManager().getTick() + " | checksum = " + checksum
+                                        + " | logged_checksum = " + logged_checksum + " **********");
                         checksum_complain = false;
                     }
                 }

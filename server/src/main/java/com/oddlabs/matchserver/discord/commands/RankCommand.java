@@ -93,9 +93,12 @@ public class RankCommand extends DiscordCommand {
                                                 true).build()).addOption(
                                                         ApplicationCommandOptionData.builder().name(
                                                                 command_option_range).description(
-                                                                        "The range of users to display around the looked up" + " user").type(
-                                                                                ApplicationCommandOption.Type.INTEGER.getValue()).required(
-                                                                                        false).build()).build();
+                                                                        "The range of users to display around the looked up"
+                                                                                + " user").type(
+                                                                                        ApplicationCommandOption.Type.INTEGER
+                                                                                                .getValue()).required(
+                                                                                                        false).build())
+                .build();
 
         return rankCommand;
     }

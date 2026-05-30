@@ -233,9 +233,11 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
         if (spectated_session == null) return;
         byte[] event_log_data = spectated_session.readEventLog();
         int current_tick = spectated_session.getLastTick();
-        int total_chunks = event_log_data.length == 0 ? 1 : (event_log_data.length + SPECTATOR_CHUNK_SIZE - 1) / SPECTATOR_CHUNK_SIZE;
+        int total_chunks = event_log_data.length == 0 ? 1 : (event_log_data.length + SPECTATOR_CHUNK_SIZE - 1)
+                / SPECTATOR_CHUNK_SIZE;
         MatchmakingServer.getLogger().info(
-                "Sending spectator event log for game " + spectated_session.getDatabaseID() + ": " + event_log_data.length + " bytes in " + total_chunks + " chunks, tick=" + current_tick);
+                "Sending spectator event log for game " + spectated_session.getDatabaseID() + ": "
+                        + event_log_data.length + " bytes in " + total_chunks + " chunks, tick=" + current_tick);
         for (int i = 0; i < total_chunks; i++) {
             int offset = i * SPECTATOR_CHUNK_SIZE;
             int length = Math.min(SPECTATOR_CHUNK_SIZE, event_log_data.length - offset);
@@ -294,7 +296,8 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
             Profile p = client.getProfile();
             if (p == null || !p.getNick().equals(participants[i].getNick())) {
                 MatchmakingServer.getLogger().warning(
-                        "Invalid nickparticipant in GameSession from " + getUsername() + " or " + client.getUsername() + " has given wrong nick");
+                        "Invalid nickparticipant in GameSession from " + getUsername() + " or " + client.getUsername()
+                                + " has given wrong nick");
                 break;
             }
             if (i == 0)
@@ -305,7 +308,8 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
                 // If the session ids match, it must be the same game
                 if (!client_session.getSession().equals(game_session)) {
                     MatchmakingServer.getLogger().warning(
-                            "GameSession from " + getUsername() + " does not match the one from " + client.getUsername());
+                            "GameSession from " + getUsername() + " does not match the one from " + client
+                                    .getUsername());
                     break;
                 }
                 if (!client_session.join(server, this)) {
@@ -559,7 +563,8 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
             DBInterface.createGame(game, getProfile().getNick());
 
             if (current_room != null) {
-                String formatted_message = getProfile().getNick() + " has created a game called \"" + current_game.getName() + "\".";
+                String formatted_message = getProfile().getNick() + " has created a game called \"" + current_game
+                        .getName() + "\".";
                 server.getChatLogger().info(formatted_message);
                 current_room.sendMessage("Server", formatted_message);
                 DiscordBotService.getInstance().getChatroomCoordinator().ifPresent(

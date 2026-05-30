@@ -35,11 +35,13 @@ public final class Gradient {
                         switch (interpolation) {
                             case LINEAR:
                                 value = Tools.interpolateLinear(gradient_list[index - 1][1], gradient_list[index][1],
-                                        (x_coord - gradient_list[index - 1][0]) / (gradient_list[index][0] - gradient_list[index - 1][0]));
+                                        (x_coord - gradient_list[index - 1][0]) / (gradient_list[index][0]
+                                                - gradient_list[index - 1][0]));
                                 break;
                             case SMOOTH:
                                 value = Tools.interpolateSmooth(gradient_list[index - 1][1], gradient_list[index][1],
-                                        (x_coord - gradient_list[index - 1][0]) / (gradient_list[index][0] - gradient_list[index - 1][0]));
+                                        (x_coord - gradient_list[index - 1][0]) / (gradient_list[index][0]
+                                                - gradient_list[index - 1][0]));
                                 break;
                             default:
                                 assert false : "incorrect interpolation method";

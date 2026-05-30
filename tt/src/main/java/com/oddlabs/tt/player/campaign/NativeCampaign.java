@@ -26,7 +26,9 @@ public final class NativeCampaign extends Campaign {
             		CampaignState.ISLAND_AVAILABLE,
             		CampaignState.ISLAND_AVAILABLE};
             */
-            CampaignState.ISLAND_AVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_HIDDEN};
+            CampaignState.ISLAND_AVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_HIDDEN};
 
     private final Island @NonNull [] islands;
 

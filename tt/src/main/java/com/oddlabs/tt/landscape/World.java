@@ -31,7 +31,9 @@ import java.util.Random;
 public final class World {
     public static final int GAMESPEED_DONTCARE = -2;
 
-    private static final float[] GAMESPEEDS = new float[]{0f, AnimationManager.ANIMATION_SECONDS_PER_TICK / 2, AnimationManager.ANIMATION_SECONDS_PER_TICK, AnimationManager.ANIMATION_SECONDS_PER_TICK * 1.75f, AnimationManager.ANIMATION_SECONDS_PER_TICK * 4
+    private static final float[] GAMESPEEDS = new float[]{0f, AnimationManager.ANIMATION_SECONDS_PER_TICK / 2,
+            AnimationManager.ANIMATION_SECONDS_PER_TICK, AnimationManager.ANIMATION_SECONDS_PER_TICK * 1.75f,
+            AnimationManager.ANIMATION_SECONDS_PER_TICK * 4
     };
 
     private final @NonNull HeightMap world;
@@ -164,7 +166,8 @@ public final class World {
             Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos,
             @NonNull FogInfo fog) {
         IO.println(
-                "****************** Generating landscape at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " ********************");
+                "****************** Generating landscape at tick " + LocalEventQueue.getQueue()
+                        .getHighPrecisionManager().getTick() + " ********************");
         this.fog = fog;
         this.landscape_resources = landscape_resources;
         this.races_resources = races_resources;
@@ -188,7 +191,8 @@ public final class World {
 
         long time_stop = System.currentTimeMillis();
         IO.println(
-                "****************** Finished landscape in " + ((time_stop - time_start) / 1000f) + " sec ********************");
+                "****************** Finished landscape in " + ((time_stop - time_start) / 1000f)
+                        + " sec ********************");
         this.supply_managers = new SupplyManagers(this);
         this.unit_grid = new UnitGrid(world);
         RegionBuilder.buildRegions(unit_grid, world_info.starting_locations()[0][0],

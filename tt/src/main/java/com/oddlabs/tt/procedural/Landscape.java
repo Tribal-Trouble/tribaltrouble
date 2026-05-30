@@ -1161,7 +1161,8 @@ public final class Landscape {
             angle += angle_step;
             location_quarters = buildmap.findNoWrap((unit_grids_per_world >> 1), x, y, 1f);
             for (int k = -(RacesResources.QUARTERS_SIZE/* - 1*/); k <= (RacesResources.QUARTERS_SIZE/* - 1*/); k++) {
-                for (int l = -(RacesResources.QUARTERS_SIZE/* - 1*/); l <= (RacesResources.QUARTERS_SIZE/* - 1*/); l++) {
+                for (int l = -(RacesResources.QUARTERS_SIZE/* - 1*/); l
+                        <= (RacesResources.QUARTERS_SIZE/* - 1*/); l++) {
                     access.putPixelWrap(location_quarters[0] + k, location_quarters[1] + l, 0f);
                     buildmap.putPixelWrap(location_quarters[0] + k, location_quarters[1] + l, 0f);
                 }
