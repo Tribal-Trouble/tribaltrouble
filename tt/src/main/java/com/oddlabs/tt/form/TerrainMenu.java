@@ -153,10 +153,10 @@ public final class TerrainMenu extends Group {
         // headline
         Label label_headline = new Label(i18n(multiplayer ? "new_game" : "skirmish"), Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
-        Panel mode_and_presets = multiplayer ? new Panel(i18n("mode_and_presets")) : null;
+        ModeAndPresetsPanel mode_and_presets = multiplayer ? new ModeAndPresetsPanel() : null;
         Panel standard = new Panel(i18n("standard_options"));
         Panel advanced = new Panel(i18n("advanced_options"));
-        Panel roster_panel = multiplayer ? new Panel(i18n("roster")) : null;
+        RosterPanel roster_panel = multiplayer ? new RosterPanel() : null;
         Group group_map_options = new Group();
 
         // game name
@@ -381,11 +381,6 @@ public final class TerrainMenu extends Group {
         group_num_players.place(group_sliders, BOTTOM_LEFT, Skin.getSkin().getFormData().sectionSpacing());
         group_seed.place(group_num_players, BOTTOM_LEFT, Skin.getSkin().getFormData().sectionSpacing());
         advanced.compileCanvas();
-
-        if (multiplayer) {
-            mode_and_presets.compileCanvas();
-            roster_panel.compileCanvas();
-        }
 
         PanelGroup panel_group = multiplayer
                 ? new PanelGroup(1, mode_and_presets, standard, advanced, roster_panel)
