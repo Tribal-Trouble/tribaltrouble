@@ -22,7 +22,8 @@ public final class BalancedParametricEmitter extends ParametricEmitter {
             Vector3fc particle_radius, Vector3fc growth_rate, float energy,
             int src_blend_func, int dst_blend_func, TextureKey @NonNull [] textures,
             @NonNull AnimationManager manager) {
-        super(world, function, position, 0f, 0f, velocity_u, velocity_v, 0f, num_particles, Float.MAX_VALUE, color, delta_color, particle_radius, growth_rate, energy, src_blend_func, dst_blend_func, textures, manager);
+        super(world, function, position, 0f, 0f, velocity_u, velocity_v, 0f, num_particles, Float.MAX_VALUE, color,
+                delta_color, particle_radius, growth_rate, energy, src_blend_func, dst_blend_func, textures, manager);
         this.num_particles = num_particles;
         this.dist_u = dist_u;
         this.dist_v = dist_v;

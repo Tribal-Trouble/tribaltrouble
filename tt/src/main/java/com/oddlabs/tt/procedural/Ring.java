@@ -43,10 +43,12 @@ public final class Ring {
                         value = switch (interpolation) {
                             case LINEAR ->
                                 Tools.interpolateLinear(gradient_list[index - 1][1], gradient_list[index][1],
-                                        (radius - gradient_list[index - 1][0]) / (gradient_list[index][0] - gradient_list[index - 1][0]));
+                                        (radius - gradient_list[index - 1][0]) / (gradient_list[index][0]
+                                                - gradient_list[index - 1][0]));
                             case SMOOTH ->
                                 Tools.interpolateSmooth(gradient_list[index - 1][1], gradient_list[index][1],
-                                        (radius - gradient_list[index - 1][0]) / (gradient_list[index][0] - gradient_list[index - 1][0]));
+                                        (radius - gradient_list[index - 1][0]) / (gradient_list[index][0]
+                                                - gradient_list[index - 1][0]));
                         };
                     }
                 }

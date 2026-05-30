@@ -25,7 +25,8 @@ public final class Wave {
             AudioFormat audio_format = ais.getFormat();
             format = getFormat(audio_format.getChannels(), audio_format.getSampleSizeInBits());
 
-            byte[] temp_buffer = new byte[audio_format.getChannels() * (int) ais.getFrameLength() * audio_format.getSampleSizeInBits() / 8];
+            byte[] temp_buffer = new byte[audio_format.getChannels() * (int) ais.getFrameLength() * audio_format
+                    .getSampleSizeInBits() / 8];
             int read = 0;
             int total = 0;
             while ((total < temp_buffer.length) && (read = ais.read(temp_buffer, total,

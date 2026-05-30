@@ -71,7 +71,8 @@ public class EditLine extends TextField implements Clipped {
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         Box edit_box = Skin.getSkin().getEditBox();
-        var mode = isDisabled() ? ModeIconQuads.Mode.DISABLED : (isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL);
+        var mode = isDisabled() ? ModeIconQuads.Mode.DISABLED : (isActive() ? ModeIconQuads.Mode.ACTIVE
+                : ModeIconQuads.Mode.NORMAL);
         edit_box.render(renderer, 0f, 0f, getWidth(), getHeight(), mode);
 
         long elapsed = System.currentTimeMillis() - errorFlashStart;

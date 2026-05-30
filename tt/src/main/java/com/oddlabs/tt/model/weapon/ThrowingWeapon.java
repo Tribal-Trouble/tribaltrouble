@@ -72,7 +72,8 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 
     @Override
     public @NonNull String toString() {
-        return "ThrowingWeapon: start_x = " + start_x + " | start_y = " + start_y + " | end_x = " + end_x + " | end_y = " + end_y + " | target = " + target + "  " + super.toString();
+        return "ThrowingWeapon: start_x = " + start_x + " | start_y = " + start_y + " | end_x = " + end_x
+                + " | end_y = " + end_y + " | target = " + target + "  " + super.toString();
     }
 
     protected final void setTarget(@NonNull Selectable<?> target) {
@@ -169,7 +170,8 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
                     AudioPlayer.AUDIO_DISTANCE_DEATH,
                     AudioPlayer.AUDIO_GAIN_DEATH,
                     AudioPlayer.AUDIO_RADIUS_DEATH,
-                    1f + (owner.getWorld().getRandom().nextFloat() - .5f) * ((UnitTemplate) target.getTemplate()).getDeathPitch()));
+                    1f + (owner.getWorld().getRandom().nextFloat() - .5f) * ((UnitTemplate) target.getTemplate())
+                            .getDeathPitch()));
         }
         target.hit(getDamage(), dir_x, dir_y, owner);
     }

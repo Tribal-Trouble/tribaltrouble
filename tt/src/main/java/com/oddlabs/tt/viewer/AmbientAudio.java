@@ -194,7 +194,8 @@ public final class AmbientAudio {
                             // If average surrounding height is significantly higher than current ground position,
                             // we are likely in a valley or depression.
                             efx.setReverb(
-                                    avgSurround > hCurrent + 8.0f ? EFXManager.ReverbType.VALLEY : EFXManager.ReverbType.GENERIC);
+                                    avgSurround > hCurrent + 8.0f ? EFXManager.ReverbType.VALLEY
+                                            : EFXManager.ReverbType.GENERIC);
                         }
                     }
                 }

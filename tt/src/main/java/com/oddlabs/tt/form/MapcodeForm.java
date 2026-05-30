@@ -81,7 +81,8 @@ public final class MapcodeForm extends Form {
         @Override
         public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
             Random random = new Random(
-                    LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * (long) LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
+                    LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * (long) LocalEventQueue.getQueue()
+                            .getHighPrecisionManager().getTick());
             random.nextInt();
             BigInteger rand_int = new BigInteger(60, random);
             String rand_string = WordsEncoding.encode(rand_int);

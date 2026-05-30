@@ -101,7 +101,8 @@ public final class VikingIsland10 extends Island {
             new Unit(local_player, 142 * 2, 182 * 2, null, local_player.getRace().getUnitTemplate(Race.UNIT_PEON));
         }
         // rest as warriors
-        int unit_count = getCampaign().getState().getNumPeons() + getCampaign().getState().getNumRockWarriors() + getCampaign().getState().getNumIronWarriors() + getCampaign().getState().getNumRubberWarriors() - 5;
+        int unit_count = getCampaign().getState().getNumPeons() + getCampaign().getState().getNumRockWarriors()
+                + getCampaign().getState().getNumIronWarriors() + getCampaign().getState().getNumRubberWarriors() - 5;
         for (int i = 0; i < unit_count; i++) {
             if (getCampaign().getState().getDifficulty() == CampaignState.DIFFICULTY_EASY)
                 new Unit(local_player, 142 * 2, 182 * 2, null, local_player.getRace().getUnitTemplate(

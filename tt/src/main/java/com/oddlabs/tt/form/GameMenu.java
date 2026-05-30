@@ -150,7 +150,9 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
             addChild(start_button);
             start_button.addMouseClickListener(new StartListener());
         }
-        int height = compare_height - pdata.getTopOffset() - pdata.getBottomOffset() - chat_info.getHeight() - chat_line.getHeight() - game_name_label.getHeight() - player_group.getHeight() - start_button.getHeight() - 5 * fdata.objectSpacing();
+        int height = compare_height - pdata.getTopOffset() - pdata.getBottomOffset() - chat_info.getHeight() - chat_line
+                .getHeight() - game_name_label.getHeight() - player_group.getHeight() - start_button.getHeight() - 5
+                        * fdata.objectSpacing();
         chat_box = new TextBox(width, height, Skin.getSkin().getEditFont(), Integer.MAX_VALUE);
         addChild(chat_box);
         ready_button = new HorizButton(i18n("ready"), button_width);

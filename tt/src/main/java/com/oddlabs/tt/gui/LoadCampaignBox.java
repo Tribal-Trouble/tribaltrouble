@@ -21,7 +21,8 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class LoadCampaignBox extends GUIObject implements DeterministicSerializerLoopbackInterface<CampaignState[]> {
+public final class LoadCampaignBox extends GUIObject implements DeterministicSerializerLoopbackInterface<
+        CampaignState[]> {
     private static final Logger logger = Logger.getLogger(LoadCampaignBox.class.getSimpleName());
     private static final int WIDTH_NAME = 210;
     private static final int WIDTH_RACE = 70;

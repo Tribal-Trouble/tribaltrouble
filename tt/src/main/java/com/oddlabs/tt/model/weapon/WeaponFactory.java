@@ -41,7 +41,8 @@ public abstract class WeaponFactory {
         /* GAMEPLAY: Terrain bonus, according to who is positioned highest */
         float terrain_bonus = computeTerrainBonus(src.getOwner().getWorld().getHeightMap(), src, target);
         float difficulty_bonus = src.getOwner().getHitBonus();
-        boolean hit = target.getOwner().getWorld().getRandom().nextFloat() < factor * (difficulty_bonus + terrain_bonus + hit_chance) * (1 - target.getDefenseChance());
+        boolean hit = target.getOwner().getWorld().getRandom().nextFloat() < factor * (difficulty_bonus + terrain_bonus
+                + hit_chance) * (1 - target.getDefenseChance());
         doAttack(hit, src, target);
     }
 

@@ -442,7 +442,8 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
                     build_containers.put(RockAxeWeapon.class, rock_axe_weapon);
                     build_containers.put(IronAxeWeapon.class, iron_axe_weapon);
                     build_containers.put(RubberAxeWeapon.class, rubber_axe_weapon);
-                    BuildProductionContainer[] production_containers = new BuildProductionContainer[]{rock_axe_weapon, iron_axe_weapon, rubber_axe_weapon};
+                    BuildProductionContainer[] production_containers = new BuildProductionContainer[]{rock_axe_weapon,
+                            iron_axe_weapon, rubber_axe_weapon};
 
                     weapons_producer = new WeaponsProducer(this, (WorkerUnitContainer) getUnitContainer(),
                             production_containers, production_emitter);
@@ -622,7 +623,8 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
     }
 
     public @NonNull BuildState getRenderLevel() {
-        return build_points == getTemplate().getMaxHitPoints() ? BuildState.BUILT : (float) build_points / getTemplate().getMaxHitPoints() < .5 ? BuildState.START : BuildState.HALFBUILT;
+        return build_points == getTemplate().getMaxHitPoints() ? BuildState.BUILT : (float) build_points / getTemplate()
+                .getMaxHitPoints() < .5 ? BuildState.START : BuildState.HALFBUILT;
     }
 
     @Override

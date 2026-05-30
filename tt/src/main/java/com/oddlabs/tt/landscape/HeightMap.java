@@ -54,7 +54,8 @@ public final class HeightMap {
         quadtree_min_level = (int) (Math.log(chunks_per_colormap) / Math.log(2));
         patches_per_chunk = meters_per_chunk / getMetersPerPatch();
 
-        int texels_per_colormap_noborder = texels_per_colormap - 2 * Globals.TEXELS_PER_CHUNK_BORDER * chunks_per_colormap;
+        int texels_per_colormap_noborder = texels_per_colormap - 2 * Globals.TEXELS_PER_CHUNK_BORDER
+                * chunks_per_colormap;
         float meters_per_texel = (float) getMetersPerWorld() / texels_per_colormap_noborder;
         meters_per_chunk_border = meters_per_texel * Globals.TEXELS_PER_CHUNK_BORDER;
         chunk_tex_scale = 1f / (meters_per_chunk + 2f * meters_per_chunk_border);

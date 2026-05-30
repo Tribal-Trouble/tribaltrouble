@@ -362,8 +362,10 @@ public final class InputManager {
 
     private @NonNull String serializeBindings(@NonNull Collection<InputBinding> set) {
         return set.stream().map(
-                b -> "{\"key\":\"" + b.key().name() + "\"" + (b.shift() ? ", \"shift\":true" : "") + (b.control() ? ", \"control\":true" : "") + (b.alt() ? ", \"alt\":true" : "") + (b.meta() ? ", \"meta\":true" : "") + "}").collect(
-                        Collectors.joining(", ", "[", "]"));
+                b -> "{\"key\":\"" + b.key().name() + "\"" + (b.shift() ? ", \"shift\":true" : "") + (b.control()
+                        ? ", \"control\":true" : "") + (b.alt() ? ", \"alt\":true" : "") + (b.meta() ? ", \"meta\":true"
+                                : "") + "}").collect(
+                                        Collectors.joining(", ", "[", "]"));
     }
 
     private @NonNull Set<InputBinding> parseBindings(@NonNull String json, @NonNull GameAction action) {

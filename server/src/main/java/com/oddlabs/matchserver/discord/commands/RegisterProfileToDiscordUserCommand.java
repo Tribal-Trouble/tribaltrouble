@@ -18,7 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RegisterProfileToDiscordUserCommand extends DiscordCommand {
     private boolean debug = false;
     private String command_name = "register-user";
-    private String command_description = "Registers a tribal trouble user profile to the Discord user. TT user must reply in" + " game.";
+    private String command_description
+            = "Registers a tribal trouble user profile to the Discord user. TT user must reply in" + " game.";
     private String command_option_profile_name = "profile_name";
 
     @Override
@@ -53,7 +54,8 @@ public class RegisterProfileToDiscordUserCommand extends DiscordCommand {
                             RegisterProfileToDiscordUserCommand.processingProfiles.remove(
                                     profile_name);
                             event.createFollowup(
-                                    "No response from tribal trouble user. Profile" + " registration timed out.").then().subscribe();
+                                    "No response from tribal trouble user. Profile" + " registration timed out.").then()
+                                    .subscribe();
                             printDebug(
                                     "Timeout: Removed " + profile_name + " from processingProfiles");
                         }
@@ -87,8 +89,9 @@ public class RegisterProfileToDiscordUserCommand extends DiscordCommand {
         if (DBInterface.isProfileRegisteredToDiscord(profileToRegisterName)) {
             return event.createFollowup("Profile is already registered to a Discord user.").withEphemeral(true).then();
         }
-        com.oddlabs.matchserver.Client client = (com.oddlabs.matchserver.Client) com.oddlabs.matchserver.Client.getActiveClients().get(
-                profileToRegisterName.toLowerCase());
+        com.oddlabs.matchserver.Client client = (com.oddlabs.matchserver.Client) com.oddlabs.matchserver.Client
+                .getActiveClients().get(
+                        profileToRegisterName.toLowerCase());
         if (client != null) {
             // Found the client with the matching profile name
             // You can now send a private message or perform other actions
@@ -110,7 +113,8 @@ public class RegisterProfileToDiscordUserCommand extends DiscordCommand {
                     profileToRegisterName,
                     "A discord user is requesting to register this profile. Allow this? Reply with" + " y/n");
             return event.createFollowup(
-                    "Sent registration request to profile: " + profileToRegisterName + ". Please respond in-game.").withEphemeral(
+                    "Sent registration request to profile: " + profileToRegisterName + ". Please respond in-game.")
+                    .withEphemeral(
                             true).then();
         } else {
             // Handle not found

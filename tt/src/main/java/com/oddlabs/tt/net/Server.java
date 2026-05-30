@@ -262,7 +262,8 @@ public final class Server implements ConnectionListenerInterface {
                 (remote_address instanceof TunnelIdentifier identifier && game != null && game.isRated() &&
                         identifier.profile().getWins() < GameSession.MIN_WINS_FOR_RANKING)) {
             IO.println(
-                    "rejecting incoming connection since state = " + state + " | locateAvailableSlot() = " + available_slot + " remote_address = " + remote_address);
+                    "rejecting incoming connection since state = " + state + " | locateAvailableSlot() = "
+                            + available_slot + " remote_address = " + remote_address);
             connection_listener.rejectConnection();
             return;
         }

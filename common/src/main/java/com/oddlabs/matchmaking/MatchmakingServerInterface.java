@@ -16,7 +16,8 @@ public interface MatchmakingServerInterface {
     int MIN_ROOM_NAME_LENGTH = 1;
     int MAX_ROOM_NAME_LENGTH = 20;
     int MAX_ROOM_USERS = 50;
-    String ALLOWED_ROOM_CHARS = "abcdefghijklmnopqrstuvwxyzæøåABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ0123456789èéêëìíîïðñòóôõöùúûüýÿ-_,.:;?+={}[]()/&%#!<\\>'*";
+    String ALLOWED_ROOM_CHARS
+            = "abcdefghijklmnopqrstuvwxyzæøåABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ0123456789èéêëìíîïðñòóôõöùúûüýÿ-_,.:;?+={}[]()/&%#!<\\>'*";
 
     void setProfile(String nick);
 

@@ -363,7 +363,8 @@ public abstract class GLImage {
                 db = dpixel & 0xff;
                 da = dpixel >>> 24;
                 putPixel(x + dx, y + dy,
-                        (((sa * sa + da * sa_inverse) / 255) << 24) + (((sr * sa + dr * sa_inverse) / 255) << 16) + (((sg * sa + dg * sa_inverse) / 255) << 8) + ((sb * sa + db * sa_inverse) / 255));
+                        (((sa * sa + da * sa_inverse) / 255) << 24) + (((sr * sa + dr * sa_inverse) / 255) << 16)
+                                + (((sg * sa + dg * sa_inverse) / 255) << 8) + ((sb * sa + db * sa_inverse) / 255));
 //				System.out.println("result dp " + Integer.toHexString(pixels[x+dy_loop]) + " sp " + Integer.toHexString(spixel) + " dp " + Integer.toHexString(dpixel) + " sa " + Integer.toHexString(sa) + " sa_inv " + Integer.toHexString(sa_inverse) + " sr " + Integer.toHexString(sr) + " sg " + Integer.toHexString(sg) + " sb " + Integer.toHexString(sb) + " dr " + Integer.toHexString(dr) + " dg " + Integer.toHexString(dg)  + " db " + Integer.toHexString(db) + " da " + Integer.toHexString(da));
             }
         }

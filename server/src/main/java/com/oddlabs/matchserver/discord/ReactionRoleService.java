@@ -120,9 +120,10 @@ public class ReactionRoleService {
                     }
                     return member.removeRole(roleId).doOnSuccess(
                             v -> System.out.println(
-                                    "Removed role " + role.getName() + " from user " + member.getDisplayName())).doOnError(
-                                            error -> System.err.println(
-                                                    "Failed to remove role: " + error.getMessage()));
+                                    "Removed role " + role.getName() + " from user " + member.getDisplayName()))
+                            .doOnError(
+                                    error -> System.err.println(
+                                            "Failed to remove role: " + error.getMessage()));
                 }).onErrorResume(
                         error -> {
                             System.err.println(

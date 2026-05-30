@@ -20,7 +20,8 @@ public final class AudioParameters<S> {
     public final boolean music;
 
     public AudioParameters(@NonNull S music_path) {
-        this(music_path, 0f, 0f, 0f, AudioPlayer.AUDIO_RANK_MUSIC, AudioPlayer.AUDIO_DISTANCE_MUSIC, Settings.getSettings().music_gain, 1f, 1f, true, true, true);
+        this(music_path, 0f, 0f, 0f, AudioPlayer.AUDIO_RANK_MUSIC, AudioPlayer.AUDIO_DISTANCE_MUSIC, Settings
+                .getSettings().music_gain, 1f, 1f, true, true, true);
     }
 
     public AudioParameters(@NonNull S sound, float x, float y, float z, int rank, float distance) {

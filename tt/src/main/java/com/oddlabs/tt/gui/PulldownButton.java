@@ -44,7 +44,8 @@ public final class PulldownButton<T> extends GUIObject {
         PulldownData data = Skin.getSkin().getPulldownData();
         Horizontal pulldownButton = data.pulldownButton();
 
-        ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+        ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isActive()
+                ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
 
         pulldownButton.render(renderer, 0, 0, getWidth(), skinMode);
 

@@ -32,7 +32,8 @@ public final class EditBox extends TextBox {
             TextLayout layout = getTextLayout();
             int cursorLine = layout.getCursorLine(index);
             int cursorX = layout.getCursorX(index);
-            int cursorY = getHeight() - edit_box.getBottomOffset() - getFont().getHeight() - (cursorLine * getFont().getHeight()) + getOffsetY();
+            int cursorY = getHeight() - edit_box.getBottomOffset() - getFont().getHeight() - (cursorLine * getFont()
+                    .getHeight()) + getOffsetY();
             Index.renderIndex(renderer, edit_box.getLeftOffset() + cursorX, cursorY, getFont(), c);
         }
     }

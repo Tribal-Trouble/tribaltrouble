@@ -85,7 +85,8 @@ public class Form extends Group {
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         var data = Skin.getSkin().getFormData();
         var form = caption != null ? data.form() : data.slimForm();
-        var skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+        var skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isActive() ? ModeIconQuads.Mode.ACTIVE
+                : ModeIconQuads.Mode.NORMAL;
         form.render(renderer, 0f, 0f, getWidth(), getHeight(), skinMode);
     }
 

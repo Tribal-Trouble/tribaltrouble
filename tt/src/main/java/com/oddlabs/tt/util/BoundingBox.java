@@ -22,7 +22,8 @@ public class BoundingBox {
 
     @Override
     public String toString() {
-        return "bmx " + bmin_x + " bmy " + bmin_y + " bmz " + bmin_z + " bxx " + bmax_x + " bxy " + bmax_y + " bxz " + bmax_z;
+        return "bmx " + bmin_x + " bmy " + bmin_y + " bmz " + bmin_z + " bxx " + bmax_x + " bxy " + bmax_y + " bxz "
+                + bmax_z;
     }
 
     protected final boolean collides(float bmin_x, float bmax_x, float bmin_y, float bmax_y, float bmin_z,
@@ -58,7 +59,8 @@ public class BoundingBox {
         float radius_squared_y = cy - bmin_y;
         float radius_squared_z = cz - bmin_z;
         return (float) Math.sqrt(
-                radius_squared_x * radius_squared_x + radius_squared_y * radius_squared_y + radius_squared_z * radius_squared_z);
+                radius_squared_x * radius_squared_x + radius_squared_y * radius_squared_y + radius_squared_z
+                        * radius_squared_z);
     }
 
     public final float getCX() {

@@ -56,7 +56,8 @@ public final class DBInterface {
 
     public static boolean queryUser(String username, String password) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "SELECT username, password FROM registrations R WHERE lower(R.username)" + " = lower(?) AND R.password = ? AND NOT R.disabled AND NOT R.banned")) {
+                "SELECT username, password FROM registrations R WHERE lower(R.username)"
+                        + " = lower(?) AND R.password = ? AND NOT R.disabled AND NOT R.banned")) {
             stmt.setString(1, username);
             stmt.setString(2, CryptUtils.digest(password));
             try (ResultSet result = stmt.executeQuery()) {
@@ -71,7 +72,8 @@ public final class DBInterface {
 
     public static Profile[] getProfiles(String username, int revision) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "SELECT nick, rating, wins, losses, invalid FROM profiles P," + " registrations R WHERE P.reg_id = R.id AND R.username = ?")) {
+                "SELECT nick, rating, wins, losses, invalid FROM profiles P,"
+                        + " registrations R WHERE P.reg_id = R.id AND R.username = ?")) {
             stmt.setString(1, username);
             try (ResultSet result = stmt.executeQuery()) {
                 List<Profile> profiles = new ArrayList<>();
@@ -94,7 +96,8 @@ public final class DBInterface {
 
     public static Profile getProfile(String username, String nick, int revision) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "SELECT rating, wins, losses, invalid FROM profiles P, registrations R" + " WHERE P.reg_id = R.id AND R.username = ? AND P.nick = ?")) {
+                "SELECT rating, wins, losses, invalid FROM profiles P, registrations R"
+                        + " WHERE P.reg_id = R.id AND R.username = ? AND P.nick = ?")) {
             stmt.setString(1, username);
             stmt.setString(2, nick);
             try (ResultSet result = stmt.executeQuery()) {
@@ -207,7 +210,8 @@ public final class DBInterface {
     public static void createProfile(String username, String nick) {
         int reg_id = getRegID(username);
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "INSERT INTO profiles (reg_id, nick, rating, wins, losses, invalid) " + "VALUES (?, ?, 1000, 0, 0, 0)")) {
+                "INSERT INTO profiles (reg_id, nick, rating, wins, losses, invalid) "
+                        + "VALUES (?, ?, 1000, 0, 0, 0)")) {
             stmt.setInt(1, reg_id);
             stmt.setString(2, nick);
             int row_count = stmt.executeUpdate();
@@ -224,7 +228,8 @@ public final class DBInterface {
         if (profile != null) {
             int reg_id = getRegID(username);
             try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                    "INSERT INTO deleted_profiles (reg_id, nick, rating, wins, losses," + " invalid) VALUES (?, ?, ?, ?, ?, ?)")) {
+                    "INSERT INTO deleted_profiles (reg_id, nick, rating, wins, losses,"
+                            + " invalid) VALUES (?, ?, ?, ?, ?, ?)")) {
                 stmt.setInt(1, reg_id);
                 stmt.setString(2, profile.getNick());
                 stmt.setInt(3, profile.getRating());
@@ -288,7 +293,8 @@ public final class DBInterface {
         String email = "steam_" + steamId + "@steam.internal";
 
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "INSERT INTO registrations (username, email, password, steam_id," + " disabled, banned) VALUES (?, ?, 'LOCKED', ?, 0, 0)")) {
+                "INSERT INTO registrations (username, email, password, steam_id,"
+                        + " disabled, banned) VALUES (?, ?, 'LOCKED', ?, 0, 0)")) {
             stmt.setString(1, username);
             stmt.setString(2, email);
             stmt.setLong(3, steamId);
@@ -305,7 +311,8 @@ public final class DBInterface {
 
     public static String getProfileNickBySteamId(long steamId) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "SELECT p.nick FROM profiles p INNER JOIN registrations r ON p.reg_id =" + " r.id WHERE r.steam_id = ?")) {
+                "SELECT p.nick FROM profiles p INNER JOIN registrations r ON p.reg_id ="
+                        + " r.id WHERE r.steam_id = ?")) {
             stmt.setLong(1, steamId);
             try (ResultSet result = stmt.executeQuery()) {
                 if (result.next()) {
@@ -322,7 +329,8 @@ public final class DBInterface {
 
     public static Long getSteamIdByNick(String nick) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "SELECT r.steam_id FROM profiles p INNER JOIN registrations r ON" + " p.reg_id = r.id WHERE p.nick = ?")) {
+                "SELECT r.steam_id FROM profiles p INNER JOIN registrations r ON"
+                        + " p.reg_id = r.id WHERE p.nick = ?")) {
             stmt.setString(1, nick);
             try (ResultSet result = stmt.executeQuery()) {
                 if (result.next()) {
@@ -449,7 +457,13 @@ public final class DBInterface {
     }
 
     public static RankingEntry[] getRankings(String nick, int radius) {
-        String sql = "SELECT nick, rating, wins, losses, invalid, row_num FROM (  SELECT nick," + " rating, wins, losses, invalid, ROW_NUMBER() OVER (ORDER BY rating DESC," + " (wins - losses) DESC, wins DESC) AS row_num   FROM profiles) ranked" + " WHERE ABS(CAST(row_num AS SIGNED) - (  SELECT CAST(row_num AS SIGNED)" + " FROM (    SELECT nick, ROW_NUMBER() OVER (ORDER BY rating DESC, (wins -" + " losses) DESC, wins DESC) AS row_num FROM profiles  ) sub WHERE nick =" + " ?)) <= ? ORDER BY row_num";
+        String sql = "SELECT nick, rating, wins, losses, invalid, row_num FROM (  SELECT nick,"
+                + " rating, wins, losses, invalid, ROW_NUMBER() OVER (ORDER BY rating DESC,"
+                + " (wins - losses) DESC, wins DESC) AS row_num   FROM profiles) ranked"
+                + " WHERE ABS(CAST(row_num AS SIGNED) - (  SELECT CAST(row_num AS SIGNED)"
+                + " FROM (    SELECT nick, ROW_NUMBER() OVER (ORDER BY rating DESC, (wins -"
+                + " losses) DESC, wins DESC) AS row_num FROM profiles  ) sub WHERE nick ="
+                + " ?)) <= ? ORDER BY row_num";
 
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
                 sql)) {
@@ -478,7 +492,9 @@ public final class DBInterface {
 
     public static RankingEntry[] getRankings(int start, int count) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "SELECT nick, rating, wins, losses, invalid FROM profiles P WHERE" + " (P.wins > 0 OR P.losses > 0) ORDER BY rating DESC, (wins -" + " losses) DESC, wins DESC LIMIT ? OFFSET ?")) {
+                "SELECT nick, rating, wins, losses, invalid FROM profiles P WHERE"
+                        + " (P.wins > 0 OR P.losses > 0) ORDER BY rating DESC, (wins -"
+                        + " losses) DESC, wins DESC LIMIT ? OFFSET ?")) {
             stmt.setInt(1, count);
             stmt.setInt(2, start);
             try (ResultSet result = stmt.executeQuery()) {
@@ -504,7 +520,9 @@ public final class DBInterface {
 
     public static RankingEntry[] getTopRankings(int number) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "SELECT nick, rating, wins, losses, invalid FROM profiles P WHERE" + " P.wins >= " + GameSession.MIN_WINS_FOR_RANKING + " ORDER BY rating DESC, (wins - losses) DESC, wins DESC LIMIT ?")) {
+                "SELECT nick, rating, wins, losses, invalid FROM profiles P WHERE" + " P.wins >= "
+                        + GameSession.MIN_WINS_FOR_RANKING
+                        + " ORDER BY rating DESC, (wins - losses) DESC, wins DESC LIMIT ?")) {
             stmt.setInt(1, number);
             try (ResultSet result = stmt.executeQuery()) {
                 List<RankingEntry> rankings = new ArrayList<>();
@@ -529,7 +547,8 @@ public final class DBInterface {
 
     public static void createGame(Game game, String nick) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "INSERT INTO games (time_create, name, rated, speed, size, hills," + " trees, resources, mapcode, status) VALUES (?, ?, ?, ?, ?, ?, ?," + " ?, ?, ?)",
+                "INSERT INTO games (time_create, name, rated, speed, size, hills,"
+                        + " trees, resources, mapcode, status) VALUES (?, ?, ?, ?, ?, ?, ?," + " ?, ?, ?)",
                 java.sql.Statement.RETURN_GENERATED_KEYS)) {
             stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
             stmt.setString(2, game.getName());
@@ -556,7 +575,8 @@ public final class DBInterface {
 
     public static GameDataModel getGame(int game_id, boolean get_player_data) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "SELECT time_create,name,rated,speed,size,hills,trees,resources,mapcode," + "status,id,winner,time_stop,time_start FROM games G WHERE G.id = ?")) {
+                "SELECT time_create,name,rated,speed,size,hills,trees,resources,mapcode,"
+                        + "status,id,winner,time_stop,time_start FROM games G WHERE G.id = ?")) {
             stmt.setInt(1, game_id);
             try (ResultSet result = stmt.executeQuery()) {
                 if (result.next()) {
@@ -599,8 +619,9 @@ public final class DBInterface {
 
                     if (get_player_data) {
                         System.out.println("Fetching player data for game ID: " + game_id);
-                        try (Connection conn2 = DBUtils.createDatabaseConnection(); PreparedStatement playerStmt = conn2.prepareStatement(
-                                "SELECT * FROM game_players WHERE game_id = ?")) {
+                        try (Connection conn2 = DBUtils.createDatabaseConnection(); PreparedStatement playerStmt = conn2
+                                .prepareStatement(
+                                        "SELECT * FROM game_players WHERE game_id = ?")) {
                             playerStmt.setInt(1, game_id);
                             try (ResultSet playerResult = playerStmt.executeQuery()) {
                                 ArrayList<GamePlayerModel> nicks = new ArrayList<>();
@@ -661,7 +682,15 @@ public final class DBInterface {
 
     public static VersusMatchupResultModel getMatchupStats(
             String player1, String player2, boolean only1v1Matchups) {
-        String query = "WITH two_player_games AS (   SELECT game_id FROM game_players GROUP BY game_id" + " HAVING COUNT(*) = 2 ) SELECT g.id AS game_id, CASE   WHEN g.winner =" + " gp.team THEN 'Player1'   WHEN g.winner = gp2.team THEN 'Player2'   ELSE" + " 'Neither' END AS vsResult, gp.nick AS player1_name, gp2.nick AS" + " player2_name,  g.name, g.mapcode, g.time_start FROM game_players gp   INNER" + " JOIN game_players gp2 ON gp.game_id = gp2.game_id AND gp.team <> gp2.team  " + " INNER JOIN games g ON g.id = gp.game_id   INNER JOIN two_player_games tpg" + " ON tpg.game_id = g.id WHERE g.winner IS NOT NULL   AND gp.nick = ?   AND" + " gp2.nick = ?   AND gp.team <> gp2.team ORDER BY gp.game_id DESC;";
+        String query = "WITH two_player_games AS (   SELECT game_id FROM game_players GROUP BY game_id"
+                + " HAVING COUNT(*) = 2 ) SELECT g.id AS game_id, CASE   WHEN g.winner ="
+                + " gp.team THEN 'Player1'   WHEN g.winner = gp2.team THEN 'Player2'   ELSE"
+                + " 'Neither' END AS vsResult, gp.nick AS player1_name, gp2.nick AS"
+                + " player2_name,  g.name, g.mapcode, g.time_start FROM game_players gp   INNER"
+                + " JOIN game_players gp2 ON gp.game_id = gp2.game_id AND gp.team <> gp2.team  "
+                + " INNER JOIN games g ON g.id = gp.game_id   INNER JOIN two_player_games tpg"
+                + " ON tpg.game_id = g.id WHERE g.winner IS NOT NULL   AND gp.nick = ?   AND"
+                + " gp2.nick = ?   AND gp.team <> gp2.team ORDER BY gp.game_id DESC;";
 
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
                 query)) {
@@ -782,7 +811,8 @@ public final class DBInterface {
 
     public static void dropGame(String nick) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "UPDATE games G inner join game_players GP on G.id = GP.id SET G.status" + " = ? WHERE GP.nick = ? AND G.status = ?")) {
+                "UPDATE games G inner join game_players GP on G.id = GP.id SET G.status"
+                        + " = ? WHERE GP.nick = ? AND G.status = ?")) {
             stmt.setString(1, "dropped");
             stmt.setString(2, nick);
             stmt.setString(3, "created");

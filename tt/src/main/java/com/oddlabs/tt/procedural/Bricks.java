@@ -33,7 +33,8 @@ public final class Bricks {
             for (int y = 0; y < height; y++) {
                 int x_cell = (int) (((float) x / width) * bricks);
                 int y_cell = (int) (((float) y / height) * layers);
-                float x_coord = (x - cellwidth * (int) (x / cellwidth)) / cellwidth + y_cell * stagger + randomness * (cells[0][y_cell] - 0.5f);
+                float x_coord = (x - cellwidth * (int) (x / cellwidth)) / cellwidth + y_cell * stagger + randomness
+                        * (cells[0][y_cell] - 0.5f);
                 float x_coord_mod = x_coord;
                 if (x_coord < 0 || x_coord > 1) {
                     x_coord_mod = Tools.modulo(x_coord, 1f);

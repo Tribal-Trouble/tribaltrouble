@@ -95,7 +95,8 @@ public final class VikingIsland1 extends Island {
                         getCampaign().getState().setIslandState(1, CampaignState.ISLAND_COMPLETED);
                         getCampaign().getState().setIslandState(2, CampaignState.ISLAND_AVAILABLE);
                         getCampaign().getState().setNumPeons(
-                                getCampaign().getState().getNumPeons() + captives.getUnitCountContainer().getNumSupplies());
+                                getCampaign().getState().getNumPeons() + captives.getUnitCountContainer()
+                                        .getNumSupplies());
                         getCampaign().victory(getViewer());
                     });
             addModalForm(dialog);

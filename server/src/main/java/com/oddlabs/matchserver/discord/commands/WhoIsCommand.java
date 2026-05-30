@@ -16,7 +16,8 @@ public class WhoIsCommand extends DiscordCommand {
 
     private boolean debug = false;
     private String command_name = "whois";
-    private String command_description = "Displays tribal trouble profiles associated with the discord user and vice versa.";
+    private String command_description
+            = "Displays tribal trouble profiles associated with the discord user and vice versa.";
     private String command_option_lookup_name = "user";
 
     public WhoIsCommand() {

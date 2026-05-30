@@ -67,7 +67,8 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
         start_grid_y = grid_y;
         this.spawn_x = spawn_x;
         this.spawn_y = spawn_y;
-        this.spawn_z = offset_z = world.getRandom().nextFloat() * (MAX_TREE_FALL_HEIGHT - MIN_TREE_FALL_HEIGHT) + MIN_TREE_FALL_HEIGHT;
+        this.spawn_z = offset_z = world.getRandom().nextFloat() * (MAX_TREE_FALL_HEIGHT - MIN_TREE_FALL_HEIGHT)
+                + MIN_TREE_FALL_HEIGHT;
         spawning = true;
         float dx = x - spawn_x;
         float dy = y - spawn_y;

@@ -21,7 +21,8 @@ public final class RenderQueues implements AutoCloseable {
 
     private final List<@NonNull SpriteRenderer> sprite_list_lookup = new ArrayList<>();
     private final List<@NonNull ShadowListRenderer> shadow_renderer_lookup = new ArrayList<>();
-    private final Map<@NonNull Supplier<@NonNull Texture @NonNull []>, @NonNull ShadowListKey> desc_to_shadow_key = new HashMap<>();
+    private final Map<@NonNull Supplier<@NonNull Texture @NonNull []>, @NonNull ShadowListKey> desc_to_shadow_key
+            = new HashMap<>();
     private final List<@NonNull Texture> texture_lookup = new ArrayList<>();
     private final InstancedSpriteRenderer spriteRenderer = new InstancedSpriteRenderer();
 

@@ -38,7 +38,8 @@ public final class InstantHitFactory extends WeaponFactory {
                     AudioPlayer.AUDIO_DISTANCE_DEATH,
                     AudioPlayer.AUDIO_GAIN_DEATH,
                     AudioPlayer.AUDIO_RADIUS_DEATH,
-                    1f + (world.getRandom().nextFloat() - .5f) * ((UnitTemplate) target.getTemplate()).getDeathPitch()));
+                    1f + (world.getRandom().nextFloat() - .5f) * ((UnitTemplate) target.getTemplate())
+                            .getDeathPitch()));
         }
         target.hit(damage, dx * dir_len_inv, dy * dir_len_inv, src.getOwner());
     }

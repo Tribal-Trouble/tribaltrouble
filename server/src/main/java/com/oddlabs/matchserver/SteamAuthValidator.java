@@ -18,7 +18,8 @@ import com.oddlabs.matchserver.models.SteamAuthResponse;
 public final class SteamAuthValidator {
     private static final Logger logger = MatchmakingServer.getLogger();
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String STEAM_API_URL = "https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/";
+    private static final String STEAM_API_URL
+            = "https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/";
     private static final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
 
     // Steam ID 64 base offset (converts account ID to full Steam ID)
@@ -70,7 +71,8 @@ public final class SteamAuthValidator {
             if (authResponse.response.params == null) {
                 if (authResponse.response.error != null) {
                     logger.warning(
-                            "Steam API error " + authResponse.response.error.errorcode + ": " + authResponse.response.error.errordesc);
+                            "Steam API error " + authResponse.response.error.errorcode + ": "
+                                    + authResponse.response.error.errordesc);
                 } else {
                     logger.warning("Missing params in Steam API response: " + response.body());
                 }
@@ -85,7 +87,8 @@ public final class SteamAuthValidator {
             String expectedSteamId = String.valueOf(steamAccountId + STEAM_ID_BASE);
             if (!expectedSteamId.equals(authResponse.response.params.steamid)) {
                 logger.warning(
-                        "Steam ID mismatch: expected " + expectedSteamId + ", got " + authResponse.response.params.steamid);
+                        "Steam ID mismatch: expected " + expectedSteamId + ", got "
+                                + authResponse.response.params.steamid);
                 return false;
             }
 

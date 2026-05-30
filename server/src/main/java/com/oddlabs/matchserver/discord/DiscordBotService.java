@@ -147,13 +147,15 @@ public class DiscordBotService {
                                                     System.out.println(
                                                             "Error executing command: " + e.getMessage());
                                                     return event.reply(
-                                                            "An error occurred" + " while executing" + " the command.").withEphemeral(
+                                                            "An error occurred" + " while executing" + " the command.")
+                                                            .withEphemeral(
                                                                     true);
                                                 }
                                             }).orElseGet(
                                                     () -> {
                                                         System.out.println(
-                                                                "No matching command found for: " + event.getCommandName());
+                                                                "No matching command found for: " + event
+                                                                        .getCommandName());
                                                         return event.reply("Unknown command").withEphemeral(true);
                                                     });
                         }).subscribe());
@@ -227,8 +229,9 @@ public class DiscordBotService {
         long guildId = serverId; // Discord4J's server ID.
 
         // Get the commands from discord as a Map
-        Map<String, ApplicationCommandData> discordCommands = gateway.getRestClient().getApplicationService().getGuildApplicationCommands(
-                getBotId().asLong(), guildId).collectMap(ApplicationCommandData::name).block();
+        Map<String, ApplicationCommandData> discordCommands = gateway.getRestClient().getApplicationService()
+                .getGuildApplicationCommands(
+                        getBotId().asLong(), guildId).collectMap(ApplicationCommandData::name).block();
 
         for (ApplicationCommandData data : discordCommands.values()) {
             System.out.println("Deleting command: " + data.name());
@@ -253,10 +256,11 @@ public class DiscordBotService {
                                                 () -> {
                                                     System.out.println(
                                                             "Registering new command: " + command.getCommandName());
-                                                    gateway.getRestClient().getApplicationService().createGuildApplicationCommand(
-                                                            gateway.getRestClient().getApplicationId().block(),
-                                                            serverId,
-                                                            command.getCommand()).subscribe();
+                                                    gateway.getRestClient().getApplicationService()
+                                                            .createGuildApplicationCommand(
+                                                                    gateway.getRestClient().getApplicationId().block(),
+                                                                    serverId,
+                                                                    command.getCommand()).subscribe();
                                                 });
                             }
                         });

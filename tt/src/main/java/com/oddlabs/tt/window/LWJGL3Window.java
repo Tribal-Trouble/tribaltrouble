@@ -444,7 +444,8 @@ public final class LWJGL3Window implements Window {
         final int finalFreq = freq;
         final int finalBpp = bpp;
 
-        int[][] candidates = {{1024, 640}, {1280, 720}, {1280, 800}, {1440, 900}, {1600, 900}, {1600, 1000}, {1680, 1050}, {1920, 1080}, {1920, 1200}, {2240, 1260}, {2560, 1440}, {2560, 1600},
+        int[][] candidates = {{1024, 640}, {1280, 720}, {1280, 800}, {1440, 900}, {1600, 900}, {1600, 1000}, {1680,
+                1050}, {1920, 1080}, {1920, 1200}, {2240, 1260}, {2560, 1440}, {2560, 1600},
         };
         return Stream.of(candidates).filter(d -> d[0] <= maxW && d[1] <= maxH).map(d -> new SerializableDisplayMode(
                 d[0], d[1], finalBpp, finalFreq)).sorted(Comparator.reverseOrder()).toArray(

@@ -160,7 +160,8 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     @Override
     public final String toString() {
         if (!isDead())
-            return "Unit: " + hashCode() + " | getOwner() = " + getOwner() + " | mounted = " + mounted + " | getGridX() = " + getGridX() + " | getGridY() = " + getGridY();
+            return "Unit: " + hashCode() + " | getOwner() = " + getOwner() + " | mounted = " + mounted
+                    + " | getGridX() = " + getGridX() + " | getGridY() = " + getGridY();
         else
             return super.toString();
     }
@@ -420,8 +421,10 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     public final void stun(float time) {
-        float x = getPositionX() + getTemplate().getStunX() * getDirectionX() + getTemplate().getStunY() * (-getDirectionY());
-        float y = getPositionY() + getTemplate().getStunX() * getDirectionY() + getTemplate().getStunY() * getDirectionX();
+        float x = getPositionX() + getTemplate().getStunX() * getDirectionX() + getTemplate().getStunY()
+                * (-getDirectionY());
+        float y = getPositionY() + getTemplate().getStunX() * getDirectionY() + getTemplate().getStunY()
+                * getDirectionX();
         float z = getOwner().getWorld().getHeightMap().getNearestHeight(x, y) + getTemplate().getStunZ() + mount_offset;
 
         if (stun_marker != null) {

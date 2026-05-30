@@ -23,7 +23,8 @@ public final class WatchStatusIcon extends StatusIcon {
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         super.renderGeometry(renderer);
         if (!building.isDead() && !building.getChieftainContainer().isTraining()
-                && building.getOwner().getUnitCountContainer().getNumSupplies() < building.getOwner().getWorld().getMaxUnitCount()) {
+                && building.getOwner().getUnitCountContainer().getNumSupplies() < building.getOwner().getWorld()
+                        .getMaxUnitCount()) {
             IconQuad[] watch = GUIIcons.getIcons().getWatch();
             float progress = ((ReproduceUnitContainer) (building.getUnitContainer())).getBuildProgress();
             int index = (int) (progress * (watch.length - 1));

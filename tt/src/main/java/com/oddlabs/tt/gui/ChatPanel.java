@@ -63,10 +63,13 @@ public class ChatPanel extends Panel implements ChatListener {
         Label label_headline = new Label(info.name(), Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
 
-        int edit_line_height = edata.getBottomOffset() + edata.getTopOffset() + Skin.getSkin().getEditFont().getHeight();
-        int height = compare_height - pdata.getTopOffset() - pdata.getBottomOffset() - edit_line_height - label_headline.getHeight() - 2 * fdata.objectSpacing();
+        int edit_line_height = edata.getBottomOffset() + edata.getTopOffset() + Skin.getSkin().getEditFont()
+                .getHeight();
+        int height = compare_height - pdata.getTopOffset() - pdata.getBottomOffset() - edit_line_height - label_headline
+                .getHeight() - 2 * fdata.objectSpacing();
         int user_list_height = (height - Skin.getSkin().getFormData().objectSpacing()) / 2;//- Skin.getSkin().editFont().getHeight();
-        user_list_width = 2 * button_width + 2 * fdata.objectSpacing() - Skin.getSkin().getScrollBarData().scrollBar().getWidth();
+        user_list_width = 2 * button_width + 2 * fdata.objectSpacing() - Skin.getSkin().getScrollBarData().scrollBar()
+                .getWidth();
 
         ColumnInfo[] lobby_infos = new ColumnInfo[]{new ColumnInfo(getI18N("lobby"), user_list_width)};
         lobby_users_list_box = new MultiColumnComboBox<>(gui_root, lobby_infos, user_list_height, true);
@@ -136,7 +139,8 @@ public class ChatPanel extends Panel implements ChatListener {
             lobby_users_list_box.clear();
             playing_users_list_box.clear();
             for (ChatRoomUser user : users) {
-                int label_width = user_list_width - (Skin.getSkin().getMultiColumnComboBoxData().box().getLeftOffset() + Skin.getSkin().getMultiColumnComboBoxData().box().getRightOffset());
+                int label_width = user_list_width - (Skin.getSkin().getMultiColumnComboBoxData().box().getLeftOffset()
+                        + Skin.getSkin().getMultiColumnComboBoxData().box().getRightOffset());
                 Label label = new Label(user.getNick(), Skin.getSkin().getMultiColumnComboBoxData().font(),
                         label_width);
                 Row<ChatRoomUser, Label> row = new Row<>(new Label[]{label}, user);

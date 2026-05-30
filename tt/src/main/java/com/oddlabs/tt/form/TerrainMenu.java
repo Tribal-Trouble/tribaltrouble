@@ -617,7 +617,8 @@ public final class TerrainMenu extends Group {
     private ScrollableGroup buildPlayerSlots(int count) {
         ScrollableGroup inner = new ScrollableGroup(200, 64);
         Random random = new Random(
-                LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * (long) LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
+                LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * (long) LocalEventQueue.getQueue()
+                        .getHighPrecisionManager().getTick());
         random.nextFloat();
         for (int i = 0; i < count; i++) {
             difficulty_pulldown_menus[i] = new PulldownMenu<>();
@@ -676,7 +677,8 @@ public final class TerrainMenu extends Group {
 
     private void randomize() {
         Random random = new Random(
-                LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * (long) LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
+                LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * (long) LocalEventQueue.getQueue()
+                        .getHighPrecisionManager().getTick());
         random.nextInt();
         BigInteger rand_int = new BigInteger(100, random);
         parseBigIntegerLegacy(rand_int);
@@ -736,7 +738,9 @@ public final class TerrainMenu extends Group {
             menu = (SelectGameMenu) owner;
         int gametype;
         IO.println(
-                "hills = " + hills / (float) SLIDER_MAX_VALUE + " | vegetation_amount = " + vegetation_amount / (float) SLIDER_MAX_VALUE + " | supplies_amount = " + supplies_amount / (float) SLIDER_MAX_VALUE + " | seed = " + seed * seed);
+                "hills = " + hills / (float) SLIDER_MAX_VALUE + " | vegetation_amount = " + vegetation_amount
+                        / (float) SLIDER_MAX_VALUE + " | supplies_amount = " + supplies_amount
+                                / (float) SLIDER_MAX_VALUE + " | seed = " + seed * seed);
         String ai_string = i18n("ai");
         String[] ai_names = new String[MatchmakingServerInterface.MAX_PLAYERS];
         for (int i = 0; i < ai_names.length; i++) {

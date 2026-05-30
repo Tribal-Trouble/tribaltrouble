@@ -30,7 +30,8 @@ public class DiscordChatroomCoordinator {
             chatRoomChannels.put(chatroom, discordChannel);
             subscribeToDiscordMessages(chatroom);
             LogDebug(
-                    "Discord channel for " + chatroom.getName() + " found: " + discordChannel.getName() + ". Registered to coordinator.");
+                    "Discord channel for " + chatroom.getName() + " found: " + discordChannel.getName()
+                            + ". Registered to coordinator.");
         }
     }
 

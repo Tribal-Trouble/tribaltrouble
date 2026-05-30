@@ -186,7 +186,8 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
             unoccupyTree();
             world.getSupplyManager(getClass()).emptySupply(this);
             world.getAudio().newAudio(new AudioParameters<>(
-                    world.getRacesResources().getTreeFallSound()[tree_type.ordinal() % 2]/* reusing native tree sounds*/,
+                    world.getRacesResources().getTreeFallSound()[tree_type.ordinal()
+                            % 2]/* reusing native tree sounds*/,
                     getCX(), getCY(), getCZ(), AudioPlayer.AUDIO_RANK_TREE_FALL, AudioPlayer.AUDIO_DISTANCE_TREE_FALL,
                     AudioPlayer.AUDIO_GAIN_TREE_FALL, AudioPlayer.AUDIO_RADIUS_TREE_FALL));
             world.getAnimationManagerRealTime().registerAnimation(this);

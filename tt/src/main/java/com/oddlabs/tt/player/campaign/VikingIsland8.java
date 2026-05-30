@@ -101,7 +101,8 @@ public final class VikingIsland8 extends Island {
                         "chieftain_name"), false));
         local_player.getChieftain().increaseMagicEnergy(0, 1000);
         local_player.getChieftain().increaseMagicEnergy(1, 1000);
-        int unit_count = getCampaign().getState().getNumPeons() + getCampaign().getState().getNumRockWarriors() + getCampaign().getState().getNumIronWarriors() + getCampaign().getState().getNumRubberWarriors();
+        int unit_count = getCampaign().getState().getNumPeons() + getCampaign().getState().getNumRockWarriors()
+                + getCampaign().getState().getNumIronWarriors() + getCampaign().getState().getNumRubberWarriors();
         for (int i = 0; i < unit_count; i++) {
             new Unit(local_player, 170 * 2, 160 * 2, null, local_player.getRace().getUnitTemplate(
                     Race.UNIT_WARRIOR_ROCK));

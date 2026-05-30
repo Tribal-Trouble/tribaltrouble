@@ -63,7 +63,8 @@ public final class FontRenderer {
         int physical_font_size = Math.round(logical_font_size * scale_factor);
 
         IO.println(
-                "Rendering " + codepoints.length + " codepoints of " + src_font_name + " size " + logical_font_size + " (phys: " + physical_font_size + ")");
+                "Rendering " + codepoints.length + " codepoints of " + src_font_name + " size " + logical_font_size
+                        + " (phys: " + physical_font_size + ")");
         String dest_font_name = src_font_name.toLowerCase();
         java.awt.Font src_font;
         try (InputStream font_is = new BufferedInputStream(Files.newInputStream(font_file))) {
