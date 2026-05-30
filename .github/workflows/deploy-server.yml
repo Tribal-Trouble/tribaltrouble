@@ -1,25 +1,21 @@
 name: Deploy Server (test)
 
-# Deploys the matchmaker + router to the TEST box and restarts them.
+# Deploys a released server build to the TEST box and restarts it.
 #
-# Runs on push to 'release' ONLY when server-affecting code changed (server/ or
-# common/) -- a client-only or assets-only release skips this entirely, so the
-# live test server is not restarted for nothing. This is the prerelease moment:
-# the same push that publishes to the prerelease channels refreshes the test
-# server, so you can validate there before promoting to prod.
+# Pick a release tag; the exact server zip attached to that GitHub Release is
+# downloaded (the same artifact published to players) and shipped -- no separate
+# build. Prod is deployed the same way from promote-release.yml.
 #
-# Prod is handled separately, in promote-release.yml (deploy on promote).
-#
-# SSH details come from repo-level secrets/vars for the test box:
+# Runs under the 'release' environment guard. Test-box SSH details:
 #   vars: DEPLOY_HOST_TEST, DEPLOY_USER_TEST   secret: DEPLOY_SSH_KEY_TEST
 
 on:
-  push:
-    branches: [release]
-    paths:
-      - 'server/**'
-      - 'common/**'
-  workflow_dispatch:  # manual re-deploy to test from any ref
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to deploy (e.g. v2.0.14-103)'
+        required: true
+        type: string
 
 jobs:
   deploy-test:
@@ -28,24 +24,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # generateBuildInfo needs full history to find the version anchor
+          ref: ${{ inputs.tag }}  # deploy.sh + unit files as they were at the tag
 
-      - name: Set up JDK 26
-        uses: actions/setup-java@v4
-        with:
-          java-version: '26-ea'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Build server distribution
-        run: ./gradlew :server:installDist
+      - name: Verify release and download server build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ inputs.tag }}"
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::Release '$TAG' not found. List with: gh release list --repo $GITHUB_REPOSITORY"
+            exit 1
+          fi
+          mkdir -p download
+          gh release download "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --dir download \
+            --pattern 'tribal-trouble-server_*.zip'
+          ls -lh download/
 
       - name: Bundle server build and deploy scripts
         run: |
           mkdir -p incoming
-          cp -a server/build/install/server incoming/dist
+          unzip -q download/tribal-trouble-server_*.zip -d incoming/dist
           cp server/deploy/deploy.sh incoming/
           cp server/deploy/matchmaker.service server/deploy/router.service incoming/
           chmod +x incoming/deploy.sh
@@ -65,18 +65,16 @@ jobs:
 
       - name: Deploy and restart the server
         run: |
-          RELEASE="${{ github.ref_name }}-${{ github.run_number }}"
           ssh "${{ vars.DEPLOY_USER_TEST }}@${{ vars.DEPLOY_HOST_TEST }}" \
-            "bash ~/incoming/deploy.sh '$RELEASE'"
+            "bash ~/incoming/deploy.sh '${{ inputs.tag }}'"
 
       - name: Summary
         if: always()
         run: |
           {
-            echo "## Test server deploy"
+            echo "## Test server deploy: ${{ inputs.tag }}"
             echo ""
             echo "- host: \`${{ vars.DEPLOY_HOST_TEST }}\`"
-            echo "- built from: \`${{ github.ref_name }}\` @ \`${{ github.sha }}\`"
             echo "- matchmaker (:33214) + router (:11221) restarted and health-checked"
             echo "- auto-rolls-back to the previous release on health-check failure"
           } >> "$GITHUB_STEP_SUMMARY"
