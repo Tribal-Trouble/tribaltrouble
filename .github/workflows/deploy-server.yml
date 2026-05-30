@@ -1,0 +1,82 @@
+name: Deploy Server (test)
+
+# Deploys the matchmaker + router to the TEST box and restarts them.
+#
+# Runs on push to 'release' ONLY when server-affecting code changed (server/ or
+# common/) -- a client-only or assets-only release skips this entirely, so the
+# live test server is not restarted for nothing. This is the prerelease moment:
+# the same push that publishes to the prerelease channels refreshes the test
+# server, so you can validate there before promoting to prod.
+#
+# Prod is handled separately, in promote-release.yml (deploy on promote).
+#
+# SSH details come from repo-level secrets/vars for the test box:
+#   vars: DEPLOY_HOST_TEST, DEPLOY_USER_TEST   secret: DEPLOY_SSH_KEY_TEST
+
+on:
+  push:
+    branches: [release]
+    paths:
+      - 'server/**'
+      - 'common/**'
+  workflow_dispatch:  # manual re-deploy to test from any ref
+
+jobs:
+  deploy-test:
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # generateBuildInfo needs full history to find the version anchor
+
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26-ea'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build server distribution
+        run: ./gradlew :server:installDist
+
+      - name: Bundle server build and deploy scripts
+        run: |
+          mkdir -p incoming
+          cp -a server/build/install/server incoming/dist
+          cp server/deploy/deploy.sh incoming/
+          cp server/deploy/matchmaker.service server/deploy/router.service incoming/
+          chmod +x incoming/deploy.sh
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY_TEST }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ vars.DEPLOY_HOST_TEST }}" >> ~/.ssh/known_hosts
+
+      - name: Copy files to the test server
+        run: |
+          TARGET="${{ vars.DEPLOY_USER_TEST }}@${{ vars.DEPLOY_HOST_TEST }}"
+          ssh "$TARGET" 'rm -rf ~/incoming && mkdir -p ~/incoming'
+          rsync -a --delay-updates incoming/ "$TARGET:incoming/"
+
+      - name: Deploy and restart the server
+        run: |
+          RELEASE="${{ github.ref_name }}-${{ github.run_number }}"
+          ssh "${{ vars.DEPLOY_USER_TEST }}@${{ vars.DEPLOY_HOST_TEST }}" \
+            "bash ~/incoming/deploy.sh '$RELEASE'"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Test server deploy"
+            echo ""
+            echo "- host: \`${{ vars.DEPLOY_HOST_TEST }}\`"
+            echo "- built from: \`${{ github.ref_name }}\` @ \`${{ github.sha }}\`"
+            echo "- matchmaker (:33214) + router (:11221) restarted and health-checked"
+            echo "- auto-rolls-back to the previous release on health-check failure"
+          } >> "$GITHUB_STEP_SUMMARY"

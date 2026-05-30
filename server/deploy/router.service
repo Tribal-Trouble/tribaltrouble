@@ -1,0 +1,17 @@
+[Unit]
+Description=Tribal Trouble game router
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__SERVICE_USER__
+WorkingDirectory=/opt/tribaltrouble/current
+ExecStart=/opt/tribaltrouble/current/bin/router
+Restart=always
+RestartSec=5
+# systemctl stop sends SIGTERM; the JVM exits 143 (128+15). Treat as clean.
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

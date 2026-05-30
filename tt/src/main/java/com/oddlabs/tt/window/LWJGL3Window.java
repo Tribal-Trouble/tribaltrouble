@@ -32,6 +32,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MAJOR;
 import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MINOR;
 import static org.lwjgl.glfw.GLFW.GLFW_DONT_CARE;
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
+import static org.lwjgl.glfw.GLFW.GLFW_FLOATING;
 import static org.lwjgl.glfw.GLFW.GLFW_FOCUSED;
 import static org.lwjgl.glfw.GLFW.GLFW_ICONIFIED;
 import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_CORE_PROFILE;
@@ -64,6 +65,7 @@ import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowCloseCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowAttrib;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowFocusCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowIcon;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowMonitor;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
@@ -111,12 +113,14 @@ public final class LWJGL3Window implements Window {
                 GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
                 if (vidmode != null) {
                     glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
+                    glfwSetWindowAttrib(windowHandle, GLFW_FLOATING, GLFW_TRUE);
                     glfwSetWindowMonitor(windowHandle, MemoryUtil.NULL, 0, 0, vidmode.width(), vidmode.height(),
                             GLFW_DONT_CARE);
                 }
             } else {
                 // Windowed mode: decorated, centered
                 glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_TRUE);
+                glfwSetWindowAttrib(windowHandle, GLFW_FLOATING, GLFW_FALSE);
                 long currentMonitor = getCurrentMonitor();
                 GLFWVidMode vidmode = glfwGetVideoMode(currentMonitor);
                 if (vidmode != null) {
@@ -140,6 +144,7 @@ public final class LWJGL3Window implements Window {
 
         if (fullscreen) {
             glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+            glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
         }
 
         if (OsPlatform.IS_MAC) {
@@ -193,6 +198,11 @@ public final class LWJGL3Window implements Window {
         glfwSetWindowCloseCallback(windowHandle, (_) -> {
             setCloseRequested(true);
             glfwSetWindowShouldClose(windowHandle, false); // Cancel the actual close immediately
+        });
+        glfwSetWindowFocusCallback(windowHandle, (window, focused) -> {
+            if (this.fullscreen) {
+                glfwSetWindowAttrib(window, GLFW_FLOATING, focused ? GLFW_TRUE : GLFW_FALSE);
+            }
         });
 
         glfwMakeContextCurrent(windowHandle);

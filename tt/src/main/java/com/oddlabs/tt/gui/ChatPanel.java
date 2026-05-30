@@ -26,9 +26,13 @@ public class ChatPanel extends Panel implements ChatListener {
     private static final int PULLDOWN_INDEX_INFO = 1;
     private static final int PULLDOWN_INDEX_IGNORE = 2;
 
-    // Playing list has spectate between info and ignore
-    private static final int PULLDOWN_INDEX_PLAYING_SPECTATE = 2;
-    private static final int PULLDOWN_INDEX_PLAYING_IGNORE = 3;
+    // Spectate is hidden for now while the feature is being stabilized.
+    // Flip this back to true to restore the menu entry; all spectate code paths are left intact.
+    private static final boolean SPECTATE_ENABLED = false;
+
+    // Playing list optionally has spectate between info and ignore
+    private static final int PULLDOWN_INDEX_PLAYING_SPECTATE = SPECTATE_ENABLED ? 2 : -1;
+    private static final int PULLDOWN_INDEX_PLAYING_IGNORE = SPECTATE_ENABLED ? 3 : 2;
 
     private final @NonNull MultiColumnComboBox<ChatRoomUser> lobby_users_list_box;
     private final @NonNull MultiColumnComboBox<ChatRoomUser> playing_users_list_box;
@@ -86,7 +90,9 @@ public class ChatPanel extends Panel implements ChatListener {
         PulldownMenu<ChatRoomUser> playing_pulldown_menu = new PulldownMenu<>();
         playing_pulldown_menu.addItem(new PulldownItem<>(getI18N("message")));
         playing_pulldown_menu.addItem(new PulldownItem<>(getI18N("info")));
-        playing_pulldown_menu.addItem(new PulldownItem<>(getI18N("spectate")));
+        if (SPECTATE_ENABLED) {
+            playing_pulldown_menu.addItem(new PulldownItem<>(getI18N("spectate")));
+        }
         playing_pulldown_menu.addItem(new PulldownItem<>(""));
         playing_pulldown_menu.addItemChosenListener(new PlayingPulldownListener(playing_users_list_box));
         playing_users_list_box.setPulldownMenu(playing_pulldown_menu);
