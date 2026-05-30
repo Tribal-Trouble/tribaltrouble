@@ -1,0 +1,92 @@
+name: Deploy Server
+
+# Manually deploy a previously-released server build to the test or prod box.
+#
+# You pick a release tag and a target environment. The exact server zip that was
+# attached to that GitHub Release is downloaded and shipped (no rebuild), the
+# 'current' symlink on the box is swapped atomically, and the matchmaker + router
+# systemd services are restarted and health-checked. A failed health check rolls
+# back to the previous release automatically.
+#
+# Per-environment SSH details come from GitHub Environments named 'test' and
+# 'prod'. Each environment must define:
+#   vars:    DEPLOY_HOST, DEPLOY_USER
+#   secrets: DEPLOY_SSH_KEY
+# (prod can also carry a required-reviewers protection rule for a manual gate.)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to deploy (e.g. v2.0.14-103)'
+        required: true
+        type: string
+      target:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options: [test, prod]
+        default: test
+
+jobs:
+  deploy-server:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target }}
+    steps:
+      - name: Checkout deploy scripts at tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Verify release and download server build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ inputs.tag }}"
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::Release '$TAG' not found. List with: gh release list --repo $GITHUB_REPOSITORY"
+            exit 1
+          fi
+          mkdir -p download
+          gh release download "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --dir download \
+            --pattern 'tribal-trouble-server_*.zip'
+          ls -lh download/
+
+      - name: Stage payload for the box
+        run: |
+          mkdir -p incoming/dist
+          unzip -q download/tribal-trouble-server_*.zip -d incoming/dist
+          cp server/deploy/deploy.sh incoming/
+          cp server/deploy/matchmaker.service server/deploy/router.service incoming/
+          chmod +x incoming/deploy.sh
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ vars.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Upload payload to box
+        run: |
+          TARGET="${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}"
+          ssh "$TARGET" 'rm -rf ~/incoming && mkdir -p ~/incoming'
+          rsync -a --delay-updates incoming/ "$TARGET:incoming/"
+
+      - name: Provision, deploy, restart, health-check
+        run: |
+          ssh "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}" \
+            "bash ~/incoming/deploy.sh '${{ inputs.tag }}'"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Server deploy: ${{ inputs.tag }} → ${{ inputs.target }}"
+            echo ""
+            echo "- host: \`${{ vars.DEPLOY_HOST }}\`"
+            echo "- services: matchmaker (:33214), router (:11221) restarted and health-checked"
+            echo "- on health-check failure the box auto-rolls-back to the previous release"
+          } >> "$GITHUB_STEP_SUMMARY"
