@@ -1,5 +1,7 @@
 package com.oddlabs.matchmaking;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -32,7 +34,10 @@ public final class RosterTemplate implements Serializable {
         private final @Nullable Integer race;
         private final @Nullable Integer team;
 
-        public Slot(@NonNull Fill fill, @Nullable Integer race, @Nullable Integer team) {
+        @JsonCreator
+        public Slot(@JsonProperty("fill") @NonNull Fill fill,
+                @JsonProperty("race") @Nullable Integer race,
+                @JsonProperty("team") @Nullable Integer team) {
             this.fill = fill;
             this.race = race;
             this.team = team;
@@ -53,7 +58,8 @@ public final class RosterTemplate implements Serializable {
 
     private final @NonNull Slot @NonNull [] slots;
 
-    public RosterTemplate(@NonNull Slot @NonNull [] slots) {
+    @JsonCreator
+    public RosterTemplate(@JsonProperty("slots") @NonNull Slot @NonNull [] slots) {
         this.slots = Arrays.copyOf(slots, slots.length);
     }
 

@@ -1,9 +1,12 @@
 package com.oddlabs.matchmaking;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.jspecify.annotations.NonNull;
 
 import java.io.Serial;
 
+@JsonDeserialize(builder = StandardOptions.Builder.class)
 public final class StandardOptions implements GameModeOptions {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -31,6 +34,7 @@ public final class StandardOptions implements GameModeOptions {
         return rated;
     }
 
+    @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
     public static final class Builder {
         private boolean rated = false;
 

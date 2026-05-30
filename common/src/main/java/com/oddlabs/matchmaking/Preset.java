@@ -1,5 +1,8 @@
 package com.oddlabs.matchmaking;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jspecify.annotations.NonNull;
 
 import java.io.Serial;
@@ -18,8 +21,12 @@ public final class Preset implements Serializable {
     private final @NonNull RosterTemplate roster;
     private final boolean built_in;
 
-    public Preset(@NonNull String id, @NonNull String name, @NonNull GameModeOptions mode_options,
-            @NonNull RosterTemplate roster, boolean built_in) {
+    @JsonCreator
+    public Preset(@JsonProperty("id") @NonNull String id,
+            @JsonProperty("name") @NonNull String name,
+            @JsonProperty("modeOptions") @NonNull GameModeOptions mode_options,
+            @JsonProperty("roster") @NonNull RosterTemplate roster,
+            @JsonProperty("builtIn") boolean built_in) {
         this.id = id;
         this.name = name;
         this.mode_options = mode_options;
@@ -35,6 +42,7 @@ public final class Preset implements Serializable {
         return name;
     }
 
+    @JsonIgnore
     public @NonNull GameMode getMode() {
         return mode_options.getMode();
     }
