@@ -18,8 +18,8 @@ public final class ScrollButton extends GUIObject {
 
     @Override
     public void handleInput(@NonNull InputEvent event) {
-        if (event.hasAction(GameAction.UI_FOCUS_NEXT)) {
-            // Bubble Tab
+        if (event.hasAction(GameAction.UI_FOCUS_NEXT) || event.hasAction(GameAction.UI_CANCEL)) {
+            // Bubble Tab and Escape
             return;
         }
         // Swallow others
