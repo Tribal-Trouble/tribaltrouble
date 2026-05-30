@@ -1,12 +1,15 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.Game;
+import com.oddlabs.matchmaking.GameMode;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
+import com.oddlabs.matchmaking.Preset;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.registration.RegistrationKey;
 import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.gamemode.PresetLibrary;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.CancelButton;
@@ -108,6 +111,7 @@ public final class TerrainMenu extends Group {
     private final @NonNull PulldownMenu<Void> pm_gamespeed;
     private final @NonNull GUIRoot gui_root;
     private final @NonNull NetworkSelector network;
+    private final @NonNull PresetLibrary preset_library = new PresetLibrary();
     private static final int DEFAULT_PLAYER_COUNT = 6;
     private int player_count = DEFAULT_PLAYER_COUNT;
     private int seed;
@@ -153,7 +157,9 @@ public final class TerrainMenu extends Group {
         // headline
         Label label_headline = new Label(i18n(multiplayer ? "new_game" : "skirmish"), Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
-        ModeAndPresetsPanel mode_and_presets = multiplayer ? new ModeAndPresetsPanel() : null;
+        ModeAndPresetsPanel mode_and_presets = multiplayer
+                ? new ModeAndPresetsPanel(preset_library, new PresetsHandler())
+                : null;
         Panel standard = new Panel(i18n("standard_options"));
         Panel advanced = new Panel(i18n("advanced_options"));
         RosterPanel roster_panel = multiplayer ? new RosterPanel() : null;
@@ -857,6 +863,24 @@ public final class TerrainMenu extends Group {
         @Override
         public void valueSet(long value) {
             setMapcode();
+        }
+    }
+
+    private final class PresetsHandler implements ModeAndPresetsHandler {
+        @Override
+        public void modeChosen(@NonNull GameMode mode) {
+        }
+
+        @Override
+        public void presetChosen(@NonNull Preset preset) {
+        }
+
+        @Override
+        public void presetDeleted(@NonNull Preset preset) {
+        }
+
+        @Override
+        public void saveClicked() {
         }
     }
 

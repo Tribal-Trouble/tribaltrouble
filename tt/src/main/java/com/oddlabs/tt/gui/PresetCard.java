@@ -10,7 +10,6 @@ import org.jspecify.annotations.NonNull;
 public final class PresetCard extends RadioButtonGroupElement {
     private static final int PADDING_X = 12;
     private static final int PADDING_Y = 10;
-    private static final int LABEL_SPACING = 4;
     private static final int DELETE_INSET = 4;
 
     private final @NonNull Preset preset;
@@ -18,27 +17,22 @@ public final class PresetCard extends RadioButtonGroupElement {
     private final @NonNull DeleteButton delete_button;
     private boolean pressed;
 
-    public PresetCard(@NonNull Preset preset, @NonNull String tagline, int width, boolean marked,
-            @NonNull RadioButtonGroup group, @NonNull PresetChosenListener choose_listener,
-            @NonNull PresetDeleteListener delete_listener) {
+    public PresetCard(@NonNull Preset preset, int width, boolean marked, @NonNull RadioButtonGroup group,
+            @NonNull PresetChosenListener choose_listener, @NonNull PresetDeleteListener delete_listener) {
         super(marked, group);
         this.preset = preset;
         this.choose_listener = choose_listener;
 
         Font title_font = Skin.getSkin().getButtonFont();
-        Font tagline_font = Skin.getSkin().getEditFont();
         int content_width = width - 2 * PADDING_X;
 
         Label title_label = new Label(preset.getName(), title_font, content_width);
-        Label tagline_label = new Label(tagline, tagline_font, content_width);
 
-        int height = PADDING_Y + title_label.getHeight() + LABEL_SPACING + tagline_label.getHeight() + PADDING_Y;
+        int height = PADDING_Y + title_label.getHeight() + PADDING_Y;
         setDim(width, height);
 
-        title_label.setPos(PADDING_X, height - PADDING_Y - title_label.getHeight());
-        tagline_label.setPos(PADDING_X, PADDING_Y);
+        title_label.setPos(PADDING_X, PADDING_Y);
         addChild(title_label);
-        addChild(tagline_label);
 
         delete_button = new DeleteButton(this);
         delete_button.setPos(width - delete_button.getWidth() - DELETE_INSET,
