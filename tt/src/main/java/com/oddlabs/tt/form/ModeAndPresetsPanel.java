@@ -32,7 +32,7 @@ import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
  */
 public final class ModeAndPresetsPanel extends Panel {
     private static final int CARD_WIDTH = 220;
-    private static final int GRID_VISIBLE_HEIGHT = 240;
+    private static final int GRID_VISIBLE_HEIGHT = 150;
     private static final ResourceBundle bundle = ResourceBundle.getBundle(ModeAndPresetsPanel.class.getName());
 
     public ModeAndPresetsPanel(@NonNull PresetLibrary library, @NonNull ModeAndPresetsHandler handler) {
