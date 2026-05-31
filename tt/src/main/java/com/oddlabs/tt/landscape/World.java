@@ -179,7 +179,9 @@ public final class World {
         this.notification_listener = notification_listener;
         this.gamespeed = world_params.getInitialGameSpeed();
         this.map_size = world_params.getMapSize();
-        this.mode = world_params.getMode();
+        // Game mode is not carried over the wire yet (kept off WorldParameters for client compatibility); only
+        // Standard exists, so resolve it directly here. Restore world_params.getMode() when modes ship.
+        this.mode = GameMode.STANDARD;
         long time_start = System.currentTimeMillis();
 
         world = new HeightMap(this, world_info.meters_per_world(), world_info.sea_level_meters(),

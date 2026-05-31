@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 public final class Game implements Serializable {
     @Serial
-    private static final long serialVersionUID = 4;
+    private static final long serialVersionUID = 3;
 
     // Map size not applicable (tutorials, campaigns use fixed terrain sizes)
     public static final int SIZE_NONE = -1;
@@ -39,7 +39,6 @@ public final class Game implements Serializable {
     private final String mapcode;
     private final float random_start_pos;
     private final int max_unit_count;
-    private final @NonNull GameMode mode;
 
     private int database_id;
 
@@ -55,7 +54,6 @@ public final class Game implements Serializable {
         this.mapcode = b.mapcode;
         this.random_start_pos = b.random_start_pos;
         this.max_unit_count = b.max_unit_count;
-        this.mode = b.mode;
         assert isValid() : game_name.length();
     }
 
@@ -115,10 +113,6 @@ public final class Game implements Serializable {
         return max_unit_count;
     }
 
-    public @NonNull GameMode getMode() {
-        return mode;
-    }
-
     public void setDatabaseID(int database_id) {
         this.database_id = database_id;
     }
@@ -139,7 +133,6 @@ public final class Game implements Serializable {
         private String mapcode;
         private float random_start_pos;
         private int max_unit_count;
-        private @NonNull GameMode mode = GameMode.STANDARD;
 
         private Builder() {
         }
@@ -196,11 +189,6 @@ public final class Game implements Serializable {
 
         public @NonNull Builder maxUnitCount(int max_unit_count) {
             this.max_unit_count = max_unit_count;
-            return this;
-        }
-
-        public @NonNull Builder mode(@NonNull GameMode mode) {
-            this.mode = mode;
             return this;
         }
 
