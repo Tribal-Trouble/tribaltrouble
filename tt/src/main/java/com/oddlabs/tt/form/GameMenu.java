@@ -278,13 +278,13 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
             PulldownButton<?> team_button = team_buttons[i];
             Diode ready_mark = ready_marks[i];
             ready_mark.setLit(player.isReady());
-            race_button.getMenu().chooseItem(player.getInfo() != null ? player.getInfo().getRace() : 0);
-            team_button.getMenu().chooseItem(player.getInfo() != null ? player.getInfo().getTeam() : 0);
+            race_button.setSelected(player.getInfo() != null ? player.getInfo().getRace() : 0);
+            team_button.setSelected(player.getInfo() != null ? player.getInfo().getTeam() : 0);
             if (player.getType() != PlayerSlot.CLOSED) {
                 slot_button.getMenu().getItem(OPEN_INDEX).setLabelString(i18n("open"));
-                slot_button.getMenu().chooseItem(OPEN_INDEX);
+                slot_button.setSelected(OPEN_INDEX);
             } else {
-                slot_button.getMenu().chooseItem(CLOSED_INDEX);
+                slot_button.setSelected(CLOSED_INDEX);
             }
             race_button.setDisabled(true);
             team_button.setDisabled(true);
@@ -293,7 +293,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
                 switch (player.getType()) {
                     case PlayerSlot.AI:
                         assert !rated;
-                        slot_button.getMenu().chooseItem(player.getAIDifficulty() + 1);
+                        slot_button.setSelected(player.getAIDifficulty() + 1);
                         race_button.setDisabled(!canControlSlot(i));
                         team_button.setDisabled(!canControlSlot(i));
                         break;
@@ -301,7 +301,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
                         String player_name = player_info.getName();
                         new_human_names.add(player_name);
                         slot_button.getMenu().getItem(OPEN_INDEX).setLabelString(player_name);
-                        slot_button.getMenu().chooseItem(OPEN_INDEX);
+                        slot_button.setSelected(OPEN_INDEX);
                         race_button.setDisabled(i != local_player_slot);
                         team_button.setDisabled(i != local_player_slot);
                         player_slots[human_index] = i;
