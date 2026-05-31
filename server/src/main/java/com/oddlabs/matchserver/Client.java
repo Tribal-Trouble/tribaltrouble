@@ -1,5 +1,17 @@
 package com.oddlabs.matchserver;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import com.oddlabs.matchmaking.ChatRoomEntry;
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.GameHost;
@@ -17,18 +29,6 @@ import com.oddlabs.net.AbstractConnection;
 import com.oddlabs.net.ConnectionInterface;
 import com.oddlabs.net.HostSequenceID;
 import com.oddlabs.net.IllegalARMIEventException;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
 
 public final class Client implements MatchmakingServerInterface, ConnectionInterface {
     private static final int CHUNK_SIZE = 10;
@@ -222,6 +222,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
             getClientInterface().error(MatchmakingClientInterface.CHAT_ERROR_SPECTATE_FAILED);
             return;
         }
+        unregisterGame();
         this.spectated_session = game_session;
         getClientInterface().receiveSpectatorData(world_params_data);
     }

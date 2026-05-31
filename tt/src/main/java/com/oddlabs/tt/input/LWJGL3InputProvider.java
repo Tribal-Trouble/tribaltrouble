@@ -1,5 +1,6 @@
 package com.oddlabs.tt.input;
 
+import com.oddlabs.tt.util.OsPlatform;
 import com.oddlabs.tt.window.LWJGL3Window;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -250,7 +251,10 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
 
     @Override
     public void setGrabbed(boolean grabbed) {
-        int ungrabbedMode = com.oddlabs.tt.global.Settings.getSettings().confine_cursor ? GLFW_CURSOR_CAPTURED : GLFW_CURSOR_NORMAL;
+        // GLFW_CURSOR_CAPTURED on macOS hides the cursor instead of confining it visibly,
+        // so confine_cursor is treated as off there.
+        boolean confine = com.oddlabs.tt.global.Settings.getSettings().confine_cursor && !OsPlatform.IS_MAC;
+        int ungrabbedMode = confine ? GLFW_CURSOR_CAPTURED : GLFW_CURSOR_NORMAL;
         glfwSetInputMode(windowHandle, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : ungrabbedMode);
     }
 

@@ -2,6 +2,7 @@ package com.oddlabs.tt.window;
 
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.render.SerializableDisplayMode;
+import com.oddlabs.tt.util.OsPlatform;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -22,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.lwjgl.glfw.GLFW.GLFW_DECORATED;
 import static org.lwjgl.glfw.GLFW.GLFW_AUTO_ICONIFY;
@@ -30,6 +32,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MAJOR;
 import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MINOR;
 import static org.lwjgl.glfw.GLFW.GLFW_DONT_CARE;
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
+import static org.lwjgl.glfw.GLFW.GLFW_FLOATING;
 import static org.lwjgl.glfw.GLFW.GLFW_FOCUSED;
 import static org.lwjgl.glfw.GLFW.GLFW_ICONIFIED;
 import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_CORE_PROFILE;
@@ -46,6 +49,7 @@ import static org.lwjgl.glfw.GLFW.glfwFocusWindow;
 import static org.lwjgl.glfw.GLFW.glfwGetFramebufferSize;
 import static org.lwjgl.glfw.GLFW.glfwGetMonitorContentScale;
 import static org.lwjgl.glfw.GLFW.glfwGetMonitorPhysicalSize;
+import static org.lwjgl.glfw.GLFW.glfwGetMonitorWorkarea;
 import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
 import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
 import static org.lwjgl.glfw.GLFW.glfwGetVideoModes;
@@ -61,6 +65,7 @@ import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowCloseCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowAttrib;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowFocusCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowIcon;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowMonitor;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
@@ -108,12 +113,14 @@ public final class LWJGL3Window implements Window {
                 GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
                 if (vidmode != null) {
                     glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
+                    glfwSetWindowAttrib(windowHandle, GLFW_FLOATING, GLFW_TRUE);
                     glfwSetWindowMonitor(windowHandle, MemoryUtil.NULL, 0, 0, vidmode.width(), vidmode.height(),
                             GLFW_DONT_CARE);
                 }
             } else {
                 // Windowed mode: decorated, centered
                 glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_TRUE);
+                glfwSetWindowAttrib(windowHandle, GLFW_FLOATING, GLFW_FALSE);
                 long currentMonitor = getCurrentMonitor();
                 GLFWVidMode vidmode = glfwGetVideoMode(currentMonitor);
                 if (vidmode != null) {
@@ -137,9 +144,10 @@ public final class LWJGL3Window implements Window {
 
         if (fullscreen) {
             glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+            glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
         }
 
-        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+        if (OsPlatform.IS_MAC) {
             glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
         }
 
@@ -190,6 +198,11 @@ public final class LWJGL3Window implements Window {
         glfwSetWindowCloseCallback(windowHandle, (_) -> {
             setCloseRequested(true);
             glfwSetWindowShouldClose(windowHandle, false); // Cancel the actual close immediately
+        });
+        glfwSetWindowFocusCallback(windowHandle, (window, focused) -> {
+            if (this.fullscreen) {
+                glfwSetWindowAttrib(window, GLFW_FLOATING, focused ? GLFW_TRUE : GLFW_FALSE);
+            }
         });
 
         glfwMakeContextCurrent(windowHandle);
@@ -264,8 +277,7 @@ public final class LWJGL3Window implements Window {
     public void setIcon(@NonNull Path imagePath) {
         if (windowHandle == MemoryUtil.NULL) return;
 
-        String os = System.getProperty("os.name").toLowerCase();
-        if (os.contains("mac")) {
+        if (OsPlatform.IS_MAC) {
             return;
         }
 
@@ -390,6 +402,9 @@ public final class LWJGL3Window implements Window {
         if (monitor == MemoryUtil.NULL) {
             return new SerializableDisplayMode[0];
         }
+        if (OsPlatform.IS_MAC) {
+            return getMacWindowedModes(monitor);
+        }
         GLFWVidMode.Buffer modes = glfwGetVideoModes(monitor);
 
         if (modes == null) return new SerializableDisplayMode[0];
@@ -407,6 +422,35 @@ public final class LWJGL3Window implements Window {
         )).values().stream().sorted(Comparator.reverseOrder()).toArray(SerializableDisplayMode[]::new);
     }
 
+    /**
+     * On macOS, GLFW only reports the panel's native pixel modes (e.g. 3024×1964 on a 14" MBP),
+     * which are useless as windowed-mode sizes — they're larger than the logical desktop. We
+     * instead expose a curated set of common logical resolutions, filtered to what actually fits
+     * in the monitor's workarea (in screen coordinates / points).
+     */
+    private @NonNull SerializableDisplayMode @NonNull [] getMacWindowedModes(long monitor) {
+        int[] wx = new int[1], wy = new int[1], ww = new int[1], wh = new int[1];
+        glfwGetMonitorWorkarea(monitor, wx, wy, ww, wh);
+        int maxW = ww[0];
+        int maxH = wh[0];
+
+        GLFWVidMode vidmode = glfwGetVideoMode(monitor);
+        int freq = vidmode != null ? vidmode.refreshRate() : 60;
+        int bpp = 32;
+        if (vidmode != null) {
+            int rgb = vidmode.redBits() + vidmode.greenBits() + vidmode.blueBits();
+            bpp = rgb == 24 ? 32 : rgb;
+        }
+        final int finalFreq = freq;
+        final int finalBpp = bpp;
+
+        int[][] candidates = {{1024, 640}, {1280, 720}, {1280, 800}, {1440, 900}, {1600, 900}, {1600, 1000}, {1680, 1050}, {1920, 1080}, {1920, 1200}, {2240, 1260}, {2560, 1440}, {2560, 1600},
+        };
+        return Stream.of(candidates).filter(d -> d[0] <= maxW && d[1] <= maxH).map(d -> new SerializableDisplayMode(
+                d[0], d[1], finalBpp, finalFreq)).sorted(Comparator.reverseOrder()).toArray(
+                        SerializableDisplayMode[]::new);
+    }
+
     @Override
     public @NonNull SerializableDisplayMode getDisplayMode() {
         ensureGLFW();
@@ -414,8 +458,10 @@ public final class LWJGL3Window implements Window {
         int width, height;
 
         if (windowHandle != MemoryUtil.NULL) {
-            width = getWidth();
-            height = getHeight();
+            // Use logical (screen-coord) dims so the value lines up with what's stored in
+            // settings and with the curated mode list on retina displays.
+            width = getLogicalWidth();
+            height = getLogicalHeight();
         } else {
             // Fallback default
             width = 1280;

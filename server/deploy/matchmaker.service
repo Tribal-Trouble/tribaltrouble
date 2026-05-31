@@ -1,0 +1,21 @@
+[Unit]
+Description=Tribal Trouble matchmaking server
+After=network-online.target
+Wants=network-online.target
+# The matchmaker connects to MySQL on startup. If the database runs on this
+# same box, order the service after it (adjust the name to mysql.service if
+# you run MySQL rather than MariaDB):
+# After=network-online.target mariadb.service
+
+[Service]
+Type=simple
+User=__SERVICE_USER__
+WorkingDirectory=/opt/tribaltrouble/current
+ExecStart=/opt/tribaltrouble/current/bin/matchmaker
+Restart=always
+RestartSec=5
+# systemctl stop sends SIGTERM; the JVM exits 143 (128+15). Treat as clean.
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

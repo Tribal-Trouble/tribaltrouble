@@ -15,6 +15,7 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.Building;
@@ -339,15 +340,19 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         Vector3f ga = Globals.classic_lighting ? globalAmbientClassic : globalAmbientEnhanced;
         Vector3f gga = Globals.classic_lighting ? groundAmbientClassic : groundAmbientEnhanced;
 
+        boolean lowDetail = Settings.getSettings().graphic_detail == Globals.DETAIL_LOW;
+
         // Rendering everything from the water's point of view. It's as if we put the camera underwater and
         // rendered from there. The output image will be used to color the water as if it's a reflection
         CameraState waterCamera = frustum_state.reflectCamera(world.getHeightMap().getSeaLevelMeters());
-        globalUniforms.update(waterCamera, sunDirection, ga, gga, LocalEventQueue.getQueue().getTime());
-        context.updateGlobalState(globalUniforms.getBuffer());
-        modelViewStack.current().set(waterCamera.getModelView());
-        reflectionFBO.bind();
-        context.clear(true, true);
-        renderScene(context, waterCamera, gui_root, false, null, null, true);
+        if (!lowDetail) {
+            globalUniforms.update(waterCamera, sunDirection, ga, gga, LocalEventQueue.getQueue().getTime());
+            context.updateGlobalState(globalUniforms.getBuffer());
+            modelViewStack.current().set(waterCamera.getModelView());
+            reflectionFBO.bind();
+            context.clear(true, true);
+            renderScene(context, waterCamera, gui_root, false, null, null, true);
+        }
 
         globalUniforms.update(frustum_state, sunDirection, ga, gga, LocalEventQueue.getQueue().getTime());
         context.updateGlobalState(globalUniforms.getBuffer());
@@ -356,8 +361,9 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         projectionStack.current().set(frustum_state.getProjectionMatrix());
         postProcessor.bindSceneFBO();
         context.clear(true, true);
-        renderScene(context, frustum_state, gui_root, true, reflectionFBO.getColorTexture(),
-                waterCamera.getProjectionModelView(), false);
+        renderScene(context, frustum_state, gui_root, true,
+                lowDetail ? null : reflectionFBO.getColorTexture(),
+                lowDetail ? null : waterCamera.getProjectionModelView(), false);
     }
 
     @Override

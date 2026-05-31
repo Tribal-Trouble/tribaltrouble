@@ -14,6 +14,11 @@ on:
         description: 'Release tag to promote (e.g. v2.0.14-103)'
         required: true
         type: string
+      deploy_server:
+        description: 'Deploy to Server (restarts matchmaker + router)'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   promote:
@@ -118,4 +123,65 @@ jobs:
             echo ""
             echo "- Main game: <https://partner.steamgames.com/apps/builds/${{ vars.STEAM_APP_ID }}>"
             echo "- Demo:      <https://partner.steamgames.com/apps/builds/${{ vars.STEAM_DEMO_APP_ID }}>"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Deploys the promoted tag's server build to the prod box and restarts it.
+  # Independent of `promote` so both share a single `release` approval click.
+  # Only runs when the 'deploy_server' checkbox is ticked at promote time, so a
+  # client-only promote never restarts the live server.
+  deploy-prod-server:
+    if: ${{ inputs.deploy_server }}
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}  # deploy.sh + unit files as they were at the tag
+
+      - name: Download server build from the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p download
+          gh release download "${{ inputs.tag }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --dir download \
+            --pattern 'tribal-trouble-server_*.zip'
+          ls -lh download/
+
+      - name: Bundle server build and deploy scripts
+        run: |
+          mkdir -p incoming
+          unzip -q download/tribal-trouble-server_*.zip -d incoming/dist
+          cp server/deploy/deploy.sh incoming/
+          cp server/deploy/matchmaker.service server/deploy/router.service incoming/
+          chmod +x incoming/deploy.sh
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY_PROD }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ vars.DEPLOY_HOST_PROD }}" >> ~/.ssh/known_hosts
+
+      - name: Copy files to the prod server
+        run: |
+          TARGET="${{ vars.DEPLOY_USER_PROD }}@${{ vars.DEPLOY_HOST_PROD }}"
+          ssh "$TARGET" 'rm -rf ~/incoming && mkdir -p ~/incoming'
+          rsync -a --delay-updates incoming/ "$TARGET:incoming/"
+
+      - name: Deploy and restart the server
+        run: |
+          ssh "${{ vars.DEPLOY_USER_PROD }}@${{ vars.DEPLOY_HOST_PROD }}" \
+            "bash ~/incoming/deploy.sh '${{ inputs.tag }}'"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Prod server deploy: ${{ inputs.tag }}"
+            echo ""
+            echo "- host: \`${{ vars.DEPLOY_HOST_PROD }}\`"
+            echo "- matchmaker (:33214) + router (:11221) restarted and health-checked"
+            echo "- auto-rolls-back to the previous release on health-check failure"
           } >> "$GITHUB_STEP_SUMMARY"

@@ -28,6 +28,8 @@ application {
     )
     if (System.getProperty("os.name").lowercase().contains("mac")) {
         args.add("-XstartOnFirstThread")
+        args.add("-Xdock:name=TribalTrouble")
+        args.add("-Xdock:icon=" + project.projectDir.resolve("icons/DesktopIconImage.png").absolutePath)
     }
     applicationDefaultJvmArgs = args
 }
@@ -90,13 +92,25 @@ val stageDist by tasks.registering(Sync::class) {
     from(layout.buildDirectory.file("revision_number"))
 }
 
+// jpackage --app-content places files at the install root (next to app/ and runtime/),
+// where the runtime expects to find icons/DesktopIconImage.png relative to CWD.
+val stageAppContent by tasks.registering(Sync::class) {
+    group = "distribution"
+    description = "Stage files for jpackage --app-content at the install root"
+    into(dist.map { it.dir("app-content") })
+    from("icons/DesktopIconImage.png") {
+        into("icons")
+    }
+}
+
 val packageWindows by tasks.registering(Exec::class) {
     group = "distribution"
     description = "Build Windows app-image via jpackage"
-    dependsOn(stageDist)
+    dependsOn(stageDist, stageAppContent)
     onlyIf { System.getProperty("os.name").lowercase().contains("windows") }
 
     val destDir = dist.map { it.dir("windows") }
+    val appContentDir = dist.map { it.dir("app-content") }
 
     doFirst {
         destDir.get().asFile.resolve("TribalTrouble").deleteRecursively()
@@ -106,8 +120,10 @@ val packageWindows by tasks.registering(Exec::class) {
     executable("jpackage")
     args(
         "--name", "TribalTrouble",
+        "--icon", project.projectDir.resolve("icons/TribalTrouble.ico").absolutePath,
         "--dest", destDir.get().asFile.absolutePath,
         "--input", distCommon.get().asFile.absolutePath,
+        "--app-content", appContentDir.get().asFile.resolve("icons").absolutePath,
         "--main-jar", mainJarFile.get(),
         "--main-class", "com.oddlabs.tt.Main",
         "--java-options",
@@ -133,12 +149,16 @@ fun registerMacPackage(
     executable("jpackage")
     args(
         "--name", "TribalTrouble",
+        "--icon", project.projectDir.resolve("icons/TribalTrouble.icns").absolutePath,
         "--dest", destDir.get().asFile.absolutePath,
         "--input", distCommon.get().asFile.absolutePath,
         "--main-jar", mainJarFile.get(),
         "--main-class", "com.oddlabs.tt.Main",
         "--java-options",
-        "-ea -XstartOnFirstThread -cp \$APPDIR:\$APPDIR/* -Djdk.crypto.KeyAgreement.legacyKDF=true",
+        // -Xdock:icon/-Xdock:name ensure the dock icon is set when the inner launcher is invoked
+        // directly (e.g. by Steam) and LaunchServices doesn't read the bundle Info.plist for us.
+        "-ea -XstartOnFirstThread -cp \$APPDIR:\$APPDIR/* -Djdk.crypto.KeyAgreement.legacyKDF=true " +
+                "-Xdock:name=TribalTrouble -Xdock:icon=\$APPDIR/../Resources/TribalTrouble.icns",
         "--type", jpackageType,
     )
 }
