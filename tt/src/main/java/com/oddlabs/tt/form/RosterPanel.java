@@ -10,7 +10,7 @@ import java.util.ResourceBundle;
 
 /**
  * Tab 4 of the MP create-game dialog. Hosts the per-slot SLOT/RACE/TEAM editing UI that a preset stamps onto the lobby.
- * The slot grid is dynamic — the host can change player count from the Advanced tab — so {@link #setRoster} swaps in a
+ * The slot grid is dynamic (the host can change player count from the Advanced tab), so {@link #setRoster} swaps in a
  * freshly built {@link ScrollableGroup} and recompiles the panel layout.
  */
 public final class RosterPanel extends Panel {

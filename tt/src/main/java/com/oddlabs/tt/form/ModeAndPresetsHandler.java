@@ -17,4 +17,8 @@ public interface ModeAndPresetsHandler {
     void presetDeleted(@NonNull Preset preset);
 
     void saveClicked();
+
+    void resetClicked();
+
+    void updateClicked();
 }

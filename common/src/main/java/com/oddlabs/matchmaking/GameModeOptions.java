@@ -17,10 +17,10 @@ import java.io.Serializable;
  * Sealed: new implementations must be listed in {@code permits} below. This lets the compiler verify that any
  * {@code switch (options) {...}} statement handles every mode.
  * <p>
- * JSON discriminator is the existing {@code mode} field — no synthetic {@code @type} property is added. Each subtype
+ * JSON discriminator is the existing {@code mode} field; no synthetic {@code @type} property is added. Each subtype
  * must be listed in {@link JsonSubTypes} with the matching enum name.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "mode", include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "mode", include = JsonTypeInfo.As.EXISTING_PROPERTY)
 @JsonSubTypes(@JsonSubTypes.Type(value = StandardOptions.class, name = "STANDARD"))
 public sealed interface GameModeOptions extends Serializable permits StandardOptions {
     @NonNull

@@ -18,7 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * User-saved presets, in memory plus JSON load/save. No built-in presets are shipped — Phase 2's preset grid is empty
+ * User-saved presets, in memory plus JSON load/save. No built-in presets are shipped; Phase 2's preset grid is empty
  * until the user saves their own.
  */
 public final class PresetLibrary {
