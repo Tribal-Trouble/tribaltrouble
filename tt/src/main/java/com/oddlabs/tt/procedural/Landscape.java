@@ -64,7 +64,7 @@ public final class Landscape {
         VIKING
     }
 
-    private static final int MIN_ISLAND_AREA = 500;
+    private static final int MIN_ISLAND_AREA = 2000;
 
     private final @NonNull Random random;
     private final @NonNull BlendInfo @NonNull [] blend_infos;
@@ -1050,6 +1050,7 @@ public final class Landscape {
         // place extra supplies around starting locations
         int num_rock = 2;
         int num_iron = 1;
+        int num_tree = 4;
         for (int p = 0; p < num_players; p++) {
             for (int r = 0; r < num_rock; r++) {
                 int[] location = resources_access.find((unit_grids_per_world >> 1), supply_locations[p][0],
@@ -1061,6 +1062,12 @@ public final class Landscape {
                 int[] location = resources_access.find((unit_grids_per_world >> 1), supply_locations[p][0],
                         supply_locations[p][1], 1f);
                 iron.putPixel(location[0], location[1], 1f);
+                resources_access.putPixel(location[0], location[1], 0f);
+            }
+            for (int i = 0; i < num_tree; i++) {
+                int[] location = resources_access.find((unit_grids_per_world >> 1), supply_locations[p][0],
+                        supply_locations[p][1], 1f);
+                trees.putPixel(location[0], location[1], 1f);
                 resources_access.putPixel(location[0], location[1], 0f);
             }
         }
