@@ -77,7 +77,11 @@ public final class Server implements ConnectionListenerInterface {
     }
 
     private void unregisterGame() {
-        local_listener.close();
+        // local_listener can still be null if construction failed inside `new ConnectionListener(...)` (e.g. the port
+        // is already bound): the listener's constructor calls back into error() -> close() before the field is
+        // assigned. Guard so the real IOException surfaces instead of an NPE that masks it.
+        if (local_listener != null)
+            local_listener.close();
         if (tunnelled_listener != null)
             tunnelled_listener.close();
         if (register_server && Network.getMatchmakingClient().isConnected()) {
