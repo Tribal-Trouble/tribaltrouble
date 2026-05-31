@@ -2,6 +2,7 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.GameSession;
+import com.oddlabs.matchmaking.RosterTemplate;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.global.Settings;
@@ -34,6 +35,7 @@ import com.oddlabs.tt.net.ChatMessage;
 import com.oddlabs.tt.net.Client;
 import com.oddlabs.tt.net.ConfigurationListener;
 import com.oddlabs.tt.net.GameNetwork;
+import com.oddlabs.tt.net.GameServerInterface;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.player.PlayerInfo;
@@ -183,6 +185,42 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
             }
         }
         compileCanvas();
+    }
+
+    /**
+     * Applies the roster the host built in the create-game dialog, once, when the host's lobby opens. AI slots fill
+     * immediately; Closed slots close; Open slots stay open for joiners. Drives the server interface directly (the same
+     * calls the host's manual edits make) rather than poking the slot pulldowns. No-op for joiners and rated games
+     * (rated is human-only, so AI fills are skipped).
+     */
+    void applyInitialRoster(@NonNull RosterTemplate roster) {
+        if (local_player_slot != 0 || game_network.getClient() == null) {
+            return;
+        }
+        GameServerInterface server = game_network.getClient().getServerInterface();
+        RosterTemplate.Slot[] slots = roster.getSlots();
+        for (int i = 0; i < slot_buttons.length && i < slots.length; i++) {
+            if (i == local_player_slot) {
+                continue;
+            }
+            RosterTemplate.Slot slot = slots[i];
+            int race = slot.getRace() != null ? slot.getRace() : 0;
+            int team = slot.getTeam() != null ? slot.getTeam() : i;
+            switch (slot.getFill()) {
+                case OPEN, HOST -> server.resetSlotState(i, true);
+                case CLOSED -> server.resetSlotState(i, false);
+                case EASY_AI -> applyAi(server, i, race, team, PlayerSlot.AI_EASY);
+                case NORMAL_AI -> applyAi(server, i, race, team, PlayerSlot.AI_NORMAL);
+                case HARD_AI -> applyAi(server, i, race, team, PlayerSlot.AI_HARD);
+            }
+        }
+    }
+
+    private void applyAi(@NonNull GameServerInterface server, int slot, int race, int team, int difficulty) {
+        if (rated) {
+            return;
+        }
+        server.setPlayerSlot(slot, PlayerSlot.AI, race, team, true, difficulty);
     }
 
     private void adjustPlayerSlot(int player_slot) {

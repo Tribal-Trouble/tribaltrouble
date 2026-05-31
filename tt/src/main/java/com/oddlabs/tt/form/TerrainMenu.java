@@ -827,6 +827,10 @@ public final class TerrainMenu extends Group {
         game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN,
                 race_pulldown_menus[0].getChosenItemIndex(), team_pulldown_menus[0].getChosenItemIndex(), !multiplayer,
                 PlayerSlot.AI_NONE);
+        if (multiplayer) {
+            // Carry the host's roster into the lobby; GameMenu applies it once on open (host only).
+            game_network.setInitialRoster(snapshotRoster());
+        }
         if (!multiplayer) {
             for (int i = 1; i < player_count; i++) {
                 if (isChosen(difficulty_pulldown_menus[i]))
