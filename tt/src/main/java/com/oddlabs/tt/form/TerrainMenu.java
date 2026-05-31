@@ -428,11 +428,7 @@ public final class TerrainMenu extends Group {
         pm_terrain_type.addItemChosenListener(new PulldownUpdateTerrainListener());
         for (int i = 0; i < player_count; i++) {
             difficulty_pulldown_menus[i].addItemChosenListener(new PulldownUpdateHardListener());
-            if (i == 0) {
-                team_pulldown_menus[i].chooseItem(0);
-            } else {
-                team_pulldown_menus[i].chooseItem(1);
-            }
+            team_pulldown_menus[i].chooseItem(defaultTeam(i));
             if (!multiplayer && i == 1) {
                 difficulty_pulldown_menus[i].chooseItem(PlayerSlot.AI_EASY);
                 race_pulldown_menus[i].chooseItem((race_pulldown_menus[0].getChosenItemIndex() + 1) % 2);
@@ -740,6 +736,17 @@ public final class TerrainMenu extends Group {
     void doCancel() {
         if (multiplayer)
             new SelectGameMenu(network, gui_root, main_menu);
+    }
+
+    /**
+     * Default team for slot {@code i}. MP puts each slot on its own team (Team 1, 2, 3, ...), matching the server's
+     * slot-based assignment. Single-player keeps the host on team 1 and the AIs on team 2 (you vs the AIs).
+     */
+    private int defaultTeam(int i) {
+        if (multiplayer) {
+            return i;
+        }
+        return i == 0 ? 0 : 1;
     }
 
     private boolean isChosen(@NonNull PulldownMenu<Void> menu) {
@@ -1141,11 +1148,7 @@ public final class TerrainMenu extends Group {
             current_race_team = new_group;
 
             for (int i = 0; i < player_count; i++) {
-                if (i == 0) {
-                    team_pulldown_menus[i].chooseItem(0);
-                } else {
-                    team_pulldown_menus[i].chooseItem(1);
-                }
+                team_pulldown_menus[i].chooseItem(defaultTeam(i));
                 if (!multiplayer && i == 1) {
                     difficulty_pulldown_menus[i].chooseItem(PlayerSlot.AI_EASY);
                     race_pulldown_menus[i].chooseItem((race_pulldown_menus[0].getChosenItemIndex() + 1) % 2);
