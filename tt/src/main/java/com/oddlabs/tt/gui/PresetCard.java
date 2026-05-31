@@ -65,18 +65,18 @@ public final class PresetCard extends RadioButtonGroupElement {
 
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
-        ModeIconQuads.Mode skinMode = resolveMode();
-        Skin.getSkin().getGroupData().group().render(renderer, 0f, 0f, getWidth(), getHeight(), skinMode);
+        renderCardBackground(renderer, this, isMarked() || isActive() || (isHovered() && pressed));
     }
 
-    private ModeIconQuads.@NonNull Mode resolveMode() {
-        if (isDisabled()) {
-            return ModeIconQuads.Mode.DISABLED;
-        }
-        if (isMarked() || isActive() || (isHovered() && pressed)) {
-            return ModeIconQuads.Mode.ACTIVE;
-        }
-        return ModeIconQuads.Mode.NORMAL;
+    /**
+     * Draws the shared card box (the same skin {@code group} box used by the preset grid). {@code active} drives the
+     * highlighted look; disabled wins over everything. Shared so the Mode &amp; presets grid renders every card the
+     * same way without duplicating the skin-mode selection.
+     */
+    public static void renderCardBackground(@NonNull GUIRenderer renderer, @NonNull GUIObject card, boolean active) {
+        ModeIconQuads.Mode skinMode = card.isDisabled() ? ModeIconQuads.Mode.DISABLED
+                : active ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+        Skin.getSkin().getGroupData().group().render(renderer, 0f, 0f, card.getWidth(), card.getHeight(), skinMode);
     }
 
     private static final class DeleteButton extends IconButton {

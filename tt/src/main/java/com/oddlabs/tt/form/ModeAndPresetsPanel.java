@@ -9,7 +9,6 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
-import com.oddlabs.tt.gui.ModeIconQuads;
 import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PresetCard;
 import com.oddlabs.tt.gui.PulldownButton;
@@ -155,8 +154,8 @@ public final class ModeAndPresetsPanel extends Panel {
     }
 
     /**
-     * Card-styled clickable that opens the {@link SavePresetDialog}. Visually mirrors {@link ModeCard} /
-     * {@link PresetCard} so the grid keeps a consistent look. Encapsulated here because nothing else builds one.
+     * Card-styled clickable that opens the {@link SavePresetDialog}. Visually mirrors {@link PresetCard} so the grid
+     * keeps a consistent look. Encapsulated here because nothing else builds one.
      */
     private static final class SavePresetCard extends Group {
         private SavePresetCard(int width, @NonNull MouseClickListener listener) {
@@ -174,9 +173,7 @@ public final class ModeAndPresetsPanel extends Panel {
 
         @Override
         protected void renderGeometry(@NonNull GUIRenderer renderer) {
-            ModeIconQuads.Mode skin_mode = isDisabled() ? ModeIconQuads.Mode.DISABLED
-                    : (isActive() || isHovered()) ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
-            Skin.getSkin().getGroupData().group().render(renderer, 0f, 0f, getWidth(), getHeight(), skin_mode);
+            PresetCard.renderCardBackground(renderer, this, isActive() || isHovered());
         }
     }
 

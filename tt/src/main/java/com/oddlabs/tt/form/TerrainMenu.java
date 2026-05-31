@@ -56,10 +56,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.math.BigInteger;
-import java.util.HashSet;
 import java.util.Random;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.UUID;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
@@ -918,8 +916,10 @@ public final class TerrainMenu extends Group {
         @Override
         public void presetChosen(@NonNull Preset preset) {
             if (modified) {
+                // The card already marked itself on click. If the host declines, rebuild the grid so the highlight
+                // reverts to the currently-applied preset instead of the un-applied one.
                 gui_root.addModalForm(new QuestionForm(i18n("confirm_discard_changes"),
-                        (_, _, _, _) -> applySelectedPreset(preset)));
+                        (_, _, _, _) -> applySelectedPreset(preset), this::revertSelection));
             } else {
                 applySelectedPreset(preset);
             }
@@ -932,6 +932,12 @@ public final class TerrainMenu extends Group {
             apply_in_progress = false;
             modified = false;
             updateBanner();
+        }
+
+        private void revertSelection() {
+            if (mode_and_presets != null) {
+                mode_and_presets.refreshPresets();
+            }
         }
 
         @Override
@@ -955,7 +961,7 @@ public final class TerrainMenu extends Group {
 
         @Override
         public void saveClicked() {
-            gui_root.addModalForm(new SavePresetDialog(nameSet(), this::saveNewPreset));
+            gui_root.addModalForm(new SavePresetDialog(preset_library::hasName, this::saveNewPreset));
         }
 
         @Override
@@ -986,14 +992,6 @@ public final class TerrainMenu extends Group {
             if (mode_and_presets != null) {
                 mode_and_presets.refreshPresets();
             }
-        }
-
-        private @NonNull Set<@NonNull String> nameSet() {
-            Set<String> names = new HashSet<>();
-            for (Preset existing : preset_library.all()) {
-                names.add(existing.getName());
-            }
-            return names;
         }
 
         private void saveNewPreset(@NonNull String name) {
@@ -1027,19 +1025,23 @@ public final class TerrainMenu extends Group {
     }
 
     private void applyWorldConfig(@NonNull WorldConfig world) {
-        if (world.getGamespeed() < pm_gamespeed.getSize()) {
-            pm_gamespeed.chooseItem(world.getGamespeed());
-        }
-        if (world.getIslandSize() < pulldown_size.getSize()) {
-            pulldown_size.chooseItem(world.getIslandSize());
-        }
-        if (world.getTerrainType() < pm_terrain_type.getSize()) {
-            pm_terrain_type.chooseItem(world.getTerrainType());
-        }
+        // Stored values are pulldown indices. Within a build the item counts are fixed, but a preset file from a build
+        // with different terrain/size lists could hold a stale index; clamp so it applies the nearest valid option
+        // instead of silently leaving the prior value.
+        pm_gamespeed.chooseItem(clampIndex(world.getGamespeed(), pm_gamespeed.getSize()));
+        pulldown_size.chooseItem(clampIndex(world.getIslandSize(), pulldown_size.getSize()));
+        pm_terrain_type.chooseItem(clampIndex(world.getTerrainType(), pm_terrain_type.getSize()));
         slider_hills.setValue(world.getHills());
         slider_vegetation.setValue(world.getVegetation());
         slider_supplies.setValue(world.getSupplies());
         setMapcode();
+    }
+
+    private static int clampIndex(int index, int size) {
+        if (index < 0) {
+            return 0;
+        }
+        return Math.min(index, size - 1);
     }
 
     private @NonNull RosterTemplate snapshotRoster() {

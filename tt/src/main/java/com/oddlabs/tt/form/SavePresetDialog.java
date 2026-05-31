@@ -12,7 +12,7 @@ import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.function.Predicate;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_RIGHT;
 import static com.oddlabs.tt.gui.Placement.LEFT_MID;
@@ -29,13 +29,13 @@ public final class SavePresetDialog extends Form {
         void save(@NonNull String name);
     }
 
-    private final @NonNull Set<@NonNull String> existing_names;
+    private final @NonNull Predicate<@NonNull String> name_taken;
     private final @NonNull SaveListener listener;
     private final @NonNull EditLine editline_name;
 
-    public SavePresetDialog(@NonNull Set<@NonNull String> existing_names, @NonNull SaveListener listener) {
+    public SavePresetDialog(@NonNull Predicate<@NonNull String> name_taken, @NonNull SaveListener listener) {
         super(i18n("save_preset_caption"));
-        this.existing_names = existing_names;
+        this.name_taken = name_taken;
         this.listener = listener;
 
         Label label_name = new Label(i18n("preset_name"), Skin.getSkin().getEditFont());
@@ -76,7 +76,7 @@ public final class SavePresetDialog extends Form {
 
     private void submit() {
         String name = editline_name.getContents().trim();
-        if (name.isEmpty() || existing_names.contains(name)) {
+        if (name.isEmpty() || name_taken.test(name)) {
             editline_name.triggerError();
             return;
         }
