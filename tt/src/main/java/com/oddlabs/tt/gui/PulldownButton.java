@@ -105,10 +105,19 @@ public final class PulldownButton<T> extends GUIObject {
         label.setColor(color);
     }
 
-    private void itemChosen(@NonNull PulldownMenu<T> menu, int item_index) {
-        PulldownItem<T> item = menu.getItem(item_index);
+    // Sync the selection from external state without firing item-chosen listeners, so an open menu stays open.
+    public void setSelected(int index) {
+        menu.chooseItemSilently(index);
+        applyLabel(menu.getItem(index));
+    }
+
+    private void applyLabel(@NonNull PulldownItem<T> item) {
         label.set(item.getLabelString());
         label.setColor(item.getLabelColor());
+    }
+
+    private void itemChosen(@NonNull PulldownMenu<T> menu, int item_index) {
+        applyLabel(menu.getItem(item_index));
         if (menu.isActive())
             deactivateMenu();
     }
