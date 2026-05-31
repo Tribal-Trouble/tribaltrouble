@@ -72,9 +72,13 @@ public final class GatherController<S extends Supply> extends Controller {
 
     private @Nullable Building getBuilding() {
         if (assigned_building != null) {
-            return assigned_building;
+            return assigned_building.getEntrance();
         } else if (unknown_building_tracker != null) {
-            return unknown_building_tracker.getOccupant();
+            Building building = unknown_building_tracker.getOccupant();
+            if (building != null) {
+                building = building.getEntrance();
+            }
+            return building;
         }
         return null;
     }
@@ -93,7 +97,6 @@ public final class GatherController<S extends Supply> extends Controller {
             } else
                 gather();
         } else if (!shouldGiveUp(State.DROPOFF.ordinal())) {
-            // building_tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new BuildingFinder(unit.getOwner(), Abilities.SUPPLY_CONTAINER));
             if (assigned_building == null || assigned_building.isDead()) {
                 unknown_building_tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new BuildingFinder(
                         unit.getOwner(), Abilities.SUPPLY_CONTAINER));
