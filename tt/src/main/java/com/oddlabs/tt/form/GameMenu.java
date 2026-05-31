@@ -214,7 +214,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
             case CLOSED_INDEX:
                 if (player.getType() != PlayerSlot.CLOSED || race_changed || team_changed) {
                     slot_button.getMenu().getItem(OPEN_INDEX).setLabelString(i18n("open"));
-                    slot_button.getMenu().chooseItem(OPEN_INDEX);
+                    game_network.getClient().getServerInterface().resetSlotState(player_slot, false);
                 }
                 break;
             case COMPUTER_EASY_INDEX:
