@@ -298,6 +298,7 @@ public class Ship extends Building implements Movable {
     }
 
     private void createProxy() {
+        if (build_points < getBuildingTemplate().getMaxHitPoints()) return;
         UnitGrid grid = getUnitGrid();
         float half_length_meters = (OCCUPY_LENGTH_CELLS + 8) * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
         int cx = UnitGrid.toGridCoordinate(getPositionX() + getDirectionX() * half_length_meters);
@@ -459,6 +460,7 @@ public class Ship extends Building implements Movable {
         if (build_points < getTemplate().getMaxHitPoints()) {
             build_points = Math.min(build_points + amount, getTemplate().getMaxHitPoints());
             reinsert();
+            createProxy();
             if (build_points == getTemplate().getMaxHitPoints()) {
                 getOwner().getWorld().getNotificationListener().newSelectableNotification(this);
                 getAbilities().addAbilities(getTemplate().getAbilities());

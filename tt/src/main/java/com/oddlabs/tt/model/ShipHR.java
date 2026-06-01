@@ -1,5 +1,12 @@
 package com.oddlabs.tt.model;
 
+import com.oddlabs.tt.model.weapon.IronAxeWeapon;
+import com.oddlabs.tt.model.weapon.IronSpearWeapon;
+import com.oddlabs.tt.model.weapon.RockAxeWeapon;
+import com.oddlabs.tt.model.weapon.RockSpearWeapon;
+import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
+import com.oddlabs.tt.model.weapon.RubberSpearWeapon;
+
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -157,11 +164,35 @@ public final class ShipHR {
         return null;
     }
 
+    private boolean isRock(Class type) {
+        return type == RockAxeWeapon.class || type == RockSpearWeapon.class;
+    }
+
+    private boolean isIron(Class type) {
+        return type == IronAxeWeapon.class || type == IronSpearWeapon.class;
+    }
+
+    private boolean isRubber(Class type) {
+        return type == RubberAxeWeapon.class || type == RubberSpearWeapon.class;
+    }
+
+    private boolean isSameType(Class type, Unit unit) {
+        if (!unit.isWarrior()) {
+            return type == Unit.class;
+        } else {
+            Class unitType = unit.getWeaponFactory().getType();
+            if (isRock(unitType) && isRock(type)) return true;
+            if (isIron(unitType) && isIron(type)) return true;
+            if (isRubber(unitType) && isRubber(type)) return true;
+            return false;
+        }
+    }
+
     public int countUnitsOfType(Class type) {
         int result = 0;
         for (int i = 0; i < NUM_UNITS; i++) {
             Unit unit = units[i];
-            if (unit != null && unit.getWeaponFactory().getType() == type) {
+            if (unit != null && isSameType(type, unit)) {
                 result++;
             }
         }

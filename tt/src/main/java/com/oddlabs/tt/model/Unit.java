@@ -240,8 +240,10 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         enable();
         Building entrance = mounted_building.getEntrance();
         findInitialPosition(entrance.getPositionX(), entrance.getPositionY(), true);
-        supply_container.resetSupply(LeftPaddle.class);
-        supply_container.resetSupply(RightPaddle.class);
+        if (supply_container != null) {
+            supply_container.resetSupply(LeftPaddle.class);
+            supply_container.resetSupply(RightPaddle.class);
+        }
         mounted_building = null;
     }
 

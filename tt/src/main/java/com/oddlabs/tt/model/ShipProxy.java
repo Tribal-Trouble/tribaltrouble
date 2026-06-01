@@ -239,6 +239,10 @@ public final class ShipProxy extends Building {
         return ship.getStatusValue();
     }
 
+    public final String toString() {
+        return "ShipProxy: to " + ship;
+    }
+
     public final void printDebugInfo() {
     }
 }
