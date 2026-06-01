@@ -10,14 +10,22 @@ import com.oddlabs.tt.gui.OKListener;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
 import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 
 public class QuestionForm extends Form {
     private final @NonNull HorizButton yes_button;
+    private final @Nullable Runnable no_action;
 
     public QuestionForm(@NonNull String message, @NonNull MouseClickListener yes_action) {
+        this(message, yes_action, null);
+    }
+
+    public QuestionForm(@NonNull String message, @NonNull MouseClickListener yes_action,
+            @Nullable Runnable no_action) {
+        this.no_action = no_action;
         int message_width = Skin.getSkin().getEditFont().getWidth(message);
         LabelBox info_label = new LabelBox(message, Skin.getSkin().getEditFont(), Math.min(400, message_width));
         addChild(info_label);
@@ -45,6 +53,13 @@ public class QuestionForm extends Form {
     @Override
     public final void setFocus() {
         yes_button.setFocus();
+    }
+
+    @Override
+    protected void doCancel() {
+        if (no_action != null) {
+            no_action.run();
+        }
     }
 
     public final void connectionLost() {

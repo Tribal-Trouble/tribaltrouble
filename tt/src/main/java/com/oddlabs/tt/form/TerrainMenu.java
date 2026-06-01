@@ -1,12 +1,18 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.Game;
+import com.oddlabs.matchmaking.GameMode;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
+import com.oddlabs.matchmaking.Preset;
+import com.oddlabs.matchmaking.RosterTemplate;
+import com.oddlabs.matchmaking.StandardOptions;
+import com.oddlabs.matchmaking.WorldConfig;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.registration.RegistrationKey;
 import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.gamemode.PresetLibrary;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.CancelButton;
@@ -52,6 +58,7 @@ import org.jspecify.annotations.Nullable;
 import java.math.BigInteger;
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.UUID;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 import static com.oddlabs.tt.gui.Placement.BOTTOM_RIGHT;
@@ -108,9 +115,17 @@ public final class TerrainMenu extends Group {
     private final @NonNull PulldownMenu<Void> pm_gamespeed;
     private final @NonNull GUIRoot gui_root;
     private final @NonNull NetworkSelector network;
+    private final @NonNull PresetLibrary preset_library = new PresetLibrary();
+    private final @Nullable RosterPanel roster_panel;
+    private final @Nullable ModeAndPresetsPanel mode_and_presets;
+    private final @NonNull ScrollablePulldownMenu<Void> pulldown_menu_slots;
     private static final int DEFAULT_PLAYER_COUNT = 6;
     private int player_count = DEFAULT_PLAYER_COUNT;
     private int seed;
+    private @Nullable Preset current_preset;
+    private boolean modified;
+    private boolean apply_in_progress;
+    private boolean initialized;
 
     static {
         // Legacy mapcode encoding (per-player settings, 6 players)
@@ -153,8 +168,13 @@ public final class TerrainMenu extends Group {
         // headline
         Label label_headline = new Label(i18n(multiplayer ? "new_game" : "skirmish"), Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
+        if (multiplayer) {
+            preset_library.load(Renderer.getLocalInput().getGameDir().resolve(Globals.getPresetsFileName()));
+        }
+        mode_and_presets = multiplayer ? new ModeAndPresetsPanel(gui_root, preset_library, new PresetsHandler()) : null;
         Panel standard = new Panel(i18n("standard_options"));
         Panel advanced = new Panel(i18n("advanced_options"));
+        roster_panel = multiplayer ? new RosterPanel() : null;
         Group group_map_options = new Group();
 
         // game name
@@ -189,6 +209,7 @@ public final class TerrainMenu extends Group {
         pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_FAST)));
         pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_LUDICROUS)));
         var pb_gamespeed = new PulldownButton<>(gui_root, pm_gamespeed, 1, 150);
+        pm_gamespeed.addItemChosenListener((_, _) -> markModified());
         group_gamespeed.addChild(pb_gamespeed);
         label_gamespeed.place();
         pb_gamespeed.place(label_gamespeed, RIGHT_MID);
@@ -303,7 +324,7 @@ public final class TerrainMenu extends Group {
         Group group_num_players = new Group();
         Label label_player_slots = new Label(i18n("players"), Skin.getSkin().getEditFont());
         group_num_players.addChild(label_player_slots);
-        ScrollablePulldownMenu<Void> pulldown_menu_slots = new ScrollablePulldownMenu<>(DEFAULT_PLAYER_COUNT);
+        pulldown_menu_slots = new ScrollablePulldownMenu<>(DEFAULT_PLAYER_COUNT);
         for (int i = DEFAULT_PLAYER_COUNT; i <= MatchmakingServerInterface.MAX_PLAYERS; i++) {
             pulldown_menu_slots.addItem(new PulldownItem<>(Integer.toString(i)));
         }
@@ -323,7 +344,9 @@ public final class TerrainMenu extends Group {
         race_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
         team_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
         ScrollableGroup group_race_team = buildPlayerSlots(player_count);
-        if (!multiplayer) {
+        if (multiplayer) {
+            roster_panel.setRoster(group_race_team);
+        } else {
             standard.addChild(group_race_team);
         }
 
@@ -380,7 +403,8 @@ public final class TerrainMenu extends Group {
         group_seed.place(group_num_players, BOTTOM_LEFT, Skin.getSkin().getFormData().sectionSpacing());
         advanced.compileCanvas();
 
-        PanelGroup panel_group = new PanelGroup(standard, advanced);
+        PanelGroup panel_group = multiplayer ? new PanelGroup(1, mode_and_presets, standard, advanced,
+                roster_panel) : new PanelGroup(standard, advanced);
         addChild(panel_group);
         var playersChangedListener = new PulldownUpdatePlayersChangedListener(standard);
         playersChangedListener.setCurrentGroup(group_race_team);
@@ -401,21 +425,37 @@ public final class TerrainMenu extends Group {
         pm_terrain_type.addItemChosenListener(new PulldownUpdateTerrainListener());
         for (int i = 0; i < player_count; i++) {
             difficulty_pulldown_menus[i].addItemChosenListener(new PulldownUpdateHardListener());
-            if (i == 0) {
-                team_pulldown_menus[i].chooseItem(0);
-            } else {
-                team_pulldown_menus[i].chooseItem(1);
-            }
-            if (i == 1) {
+            team_pulldown_menus[i].chooseItem(defaultTeam(i));
+            if (!multiplayer && i == 1) {
                 difficulty_pulldown_menus[i].chooseItem(PlayerSlot.AI_EASY);
                 race_pulldown_menus[i].chooseItem((race_pulldown_menus[0].getChosenItemIndex() + 1) % 2);
             } else {
+                // MP non-host slots default to Open (index 0); SP non-host slots default to Closed (index 0).
                 difficulty_pulldown_menus[i].chooseItem(0);
             }
         }
         pulldown_size.chooseItem(1);
         if (!Renderer.isRegistered())
             pm_terrain_type.chooseItem(0);
+
+        cb_rated.addCheckBoxListener(_ -> markModified());
+        initialized = true;
+    }
+
+    private void markModified() {
+        if (!initialized || apply_in_progress) {
+            return;
+        }
+        if (!modified) {
+            modified = true;
+            updateBanner();
+        }
+    }
+
+    private void updateBanner() {
+        if (mode_and_presets != null) {
+            mode_and_presets.setPresetState(current_preset, modified);
+        }
     }
 
     private void setMapcode() {
@@ -441,6 +481,7 @@ public final class TerrainMenu extends Group {
         String code = WordsEncoding.encode(result);
         label_mapcode.clear();
         label_mapcode.append(code);
+        markModified();
     }
 
     private void setMapcodeLegacy() {
@@ -484,6 +525,7 @@ public final class TerrainMenu extends Group {
         String code = RegistrationKey.createString(result);
         label_mapcode.clear();
         label_mapcode.append(code);
+        markModified();
     }
 
     public void parseMapcode(@NonNull String text) {
@@ -627,6 +669,11 @@ public final class TerrainMenu extends Group {
             if (i == 0) {
                 difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("human")));
             } else {
+                // MP slots can wait for a human joiner; SP has no joiners so it omits Open. Adding Open shifts the MP
+                // slot indices (Open 0, Closed 1, AI 2-4). See fillToDifficultyIndex / difficultyIndexToFill.
+                if (multiplayer) {
+                    difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("open")));
+                }
                 difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("closed")));
                 difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("easy_ai")));
                 difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("normal_ai")));
@@ -688,6 +735,17 @@ public final class TerrainMenu extends Group {
             new SelectGameMenu(network, gui_root, main_menu);
     }
 
+    /**
+     * Default team for slot {@code i}. MP puts each slot on its own team (Team 1, 2, 3, ...), matching the server's
+     * slot-based assignment. Single-player keeps the host on team 1 and the AIs on team 2 (you vs the AIs).
+     */
+    private int defaultTeam(int i) {
+        if (multiplayer) {
+            return i;
+        }
+        return i == 0 ? 0 : 1;
+    }
+
     private boolean isChosen(@NonNull PulldownMenu<Void> menu) {
         return menu.getChosenItemIndex() != 0;
     }
@@ -709,10 +767,12 @@ public final class TerrainMenu extends Group {
                 return false;
             }
             float random_start_pos = LocalEventQueue.getQueue().getTime() % 1f;
-            game = new Game(game_name, (byte) pulldown_size.getChosenItemIndex(), (byte) terrain_type.ordinal(),
-                    (byte) hills, (byte) vegetation_amount, (byte) supplies_amount, rated,
-                    (byte) (pm_gamespeed.getChosenItemIndex() + 1), label_mapcode.getContents(), random_start_pos,
-                    Player.DEFAULT_MAX_UNIT_COUNT);
+            game = Game.builder().name(game_name).size((byte) pulldown_size.getChosenItemIndex()).terrain(
+                    (byte) terrain_type.ordinal()).hills((byte) hills).trees((byte) vegetation_amount).supplies(
+                            (byte) supplies_amount).rated(rated).gamespeed(
+                                    (byte) (pm_gamespeed.getChosenItemIndex() + 1)).mapcode(
+                                            label_mapcode.getContents()).randomStartPos(random_start_pos).maxUnitCount(
+                                                    Player.DEFAULT_MAX_UNIT_COUNT).build();
         } else {
             boolean has_enemy = false;
             for (int i = 1; i < player_count; i++) {
@@ -764,6 +824,10 @@ public final class TerrainMenu extends Group {
         game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN,
                 race_pulldown_menus[0].getChosenItemIndex(), team_pulldown_menus[0].getChosenItemIndex(), !multiplayer,
                 PlayerSlot.AI_NONE);
+        if (multiplayer) {
+            // Carry the host's roster into the lobby; GameMenu applies it once on open (host only).
+            game_network.setInitialRoster(snapshotRoster());
+        }
         if (!multiplayer) {
             for (int i = 1; i < player_count; i++) {
                 if (isChosen(difficulty_pulldown_menus[i]))
@@ -803,15 +867,13 @@ public final class TerrainMenu extends Group {
 
         @Override
         public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
-            if (item_index == 0) {
-                labels_players[i].setDisabled(true);
-                race_pulldown_buttons[i].setDisabled(true);
-                team_pulldown_buttons[i].setDisabled(true);
-            } else {
-                labels_players[i].setDisabled(false);
-                race_pulldown_buttons[i].setDisabled(false);
-                team_pulldown_buttons[i].setDisabled(false);
-            }
+            // Closed slots grey out race/team. Open (MP index 0) keeps them enabled; they define what a joiner
+            // inherits. Closed is index 0 in SP, index 1 in MP (Open occupies 0).
+            int closed_index = multiplayer ? 1 : 0;
+            boolean closed = item_index == closed_index;
+            labels_players[i].setDisabled(closed);
+            race_pulldown_buttons[i].setDisabled(closed);
+            team_pulldown_buttons[i].setDisabled(closed);
         }
     }
 
@@ -847,6 +909,203 @@ public final class TerrainMenu extends Group {
         }
     }
 
+    private final class PresetsHandler implements ModeAndPresetsHandler {
+        @Override
+        public void modeChosen(@NonNull GameMode mode) {
+        }
+
+        @Override
+        public void presetChosen(@NonNull Preset preset) {
+            if (modified) {
+                // The card already marked itself on click. If the host declines, rebuild the grid so the highlight
+                // reverts to the currently-applied preset instead of the un-applied one.
+                gui_root.addModalForm(new QuestionForm(i18n("confirm_discard_changes"),
+                        (_, _, _, _) -> applySelectedPreset(preset), this::revertSelection));
+            } else {
+                applySelectedPreset(preset);
+            }
+        }
+
+        private void applySelectedPreset(@NonNull Preset preset) {
+            current_preset = preset;
+            apply_in_progress = true;
+            applyPreset(preset);
+            apply_in_progress = false;
+            modified = false;
+            updateBanner();
+        }
+
+        private void revertSelection() {
+            if (mode_and_presets != null) {
+                mode_and_presets.refreshPresets();
+            }
+        }
+
+        @Override
+        public void presetDeleted(@NonNull Preset preset) {
+            gui_root.addModalForm(new QuestionForm(i18n("confirm_delete_preset", preset.getName()),
+                    (_, _, _, _) -> confirmDeletePreset(preset)));
+        }
+
+        private void confirmDeletePreset(@NonNull Preset preset) {
+            preset_library.remove(preset);
+            preset_library.save(Renderer.getLocalInput().getGameDir().resolve(Globals.getPresetsFileName()));
+            if (current_preset != null && current_preset.getId().equals(preset.getId())) {
+                current_preset = null;
+                modified = false;
+                updateBanner();
+            }
+            if (mode_and_presets != null) {
+                mode_and_presets.refreshPresets();
+            }
+        }
+
+        @Override
+        public void saveClicked() {
+            gui_root.addModalForm(new SavePresetDialog(preset_library::hasName, this::saveNewPreset));
+        }
+
+        @Override
+        public void resetClicked() {
+            if (current_preset == null) {
+                return;
+            }
+            apply_in_progress = true;
+            applyPreset(current_preset);
+            apply_in_progress = false;
+            modified = false;
+            updateBanner();
+        }
+
+        @Override
+        public void updateClicked() {
+            if (current_preset == null) {
+                return;
+            }
+            Preset updated = new Preset(current_preset.getId(), current_preset.getName(), snapshotWorldConfig(),
+                    snapshotModeOptions(), snapshotRoster(), false);
+            preset_library.remove(current_preset);
+            preset_library.add(updated);
+            preset_library.save(Renderer.getLocalInput().getGameDir().resolve(Globals.getPresetsFileName()));
+            current_preset = updated;
+            modified = false;
+            updateBanner();
+            if (mode_and_presets != null) {
+                mode_and_presets.refreshPresets();
+            }
+        }
+
+        private void saveNewPreset(@NonNull String name) {
+            Preset preset = new Preset(UUID.randomUUID().toString(), name, snapshotWorldConfig(),
+                    snapshotModeOptions(), snapshotRoster(), false);
+            preset_library.add(preset);
+            preset_library.save(Renderer.getLocalInput().getGameDir().resolve(Globals.getPresetsFileName()));
+            // Auto-select the new preset: the saved state matches the form, so it is selected and not modified.
+            current_preset = preset;
+            modified = false;
+            updateBanner();
+            if (mode_and_presets != null) {
+                mode_and_presets.refreshPresets();
+            }
+        }
+    }
+
+    private @NonNull StandardOptions snapshotModeOptions() {
+        return StandardOptions.builder().rated(cb_rated.isMarked()).build();
+    }
+
+    private @NonNull WorldConfig snapshotWorldConfig() {
+        return WorldConfig.builder().gamespeed(pm_gamespeed.getChosenItemIndex()).islandSize(
+                pulldown_size.getChosenItemIndex()).terrainType(pm_terrain_type.getChosenItemIndex()).hills(
+                        slider_hills.getValue()).vegetation(slider_vegetation.getValue()).supplies(
+                                slider_supplies.getValue()).build();
+    }
+
+    private void applyWorldConfig(@NonNull WorldConfig world) {
+        // Stored values are pulldown indices. Within a build the item counts are fixed, but a preset file from a build
+        // with different terrain/size lists could hold a stale index; clamp so it applies the nearest valid option
+        // instead of silently leaving the prior value.
+        pm_gamespeed.chooseItem(clampIndex(world.getGamespeed(), pm_gamespeed.getSize()));
+        pulldown_size.chooseItem(clampIndex(world.getIslandSize(), pulldown_size.getSize()));
+        pm_terrain_type.chooseItem(clampIndex(world.getTerrainType(), pm_terrain_type.getSize()));
+        slider_hills.setValue(world.getHills());
+        slider_vegetation.setValue(world.getVegetation());
+        slider_supplies.setValue(world.getSupplies());
+        setMapcode();
+    }
+
+    private static int clampIndex(int index, int size) {
+        if (index < 0) {
+            return 0;
+        }
+        return Math.min(index, size - 1);
+    }
+
+    private @NonNull RosterTemplate snapshotRoster() {
+        RosterTemplate.Slot[] slots = new RosterTemplate.Slot[player_count];
+        for (int i = 0; i < player_count; i++) {
+            int race = race_pulldown_menus[i].getChosenItemIndex();
+            int team = team_pulldown_menus[i].getChosenItemIndex();
+            slots[i] = new RosterTemplate.Slot(difficultyIndexToFill(i,
+                    difficulty_pulldown_menus[i].getChosenItemIndex()),
+                    race, team);
+        }
+        return new RosterTemplate(slots);
+    }
+
+    // MP slot menu order: Open 0, Closed 1, Easy 2, Normal 3, Hard 4. Only used on the MP preset path.
+    private static RosterTemplate.@NonNull Fill difficultyIndexToFill(int slot_index, int difficulty_index) {
+        if (slot_index == 0) {
+            return RosterTemplate.Fill.HOST;
+        }
+        return switch (difficulty_index) {
+            case 1 -> RosterTemplate.Fill.CLOSED;
+            case 2 -> RosterTemplate.Fill.EASY_AI;
+            case 3 -> RosterTemplate.Fill.NORMAL_AI;
+            case 4 -> RosterTemplate.Fill.HARD_AI;
+            default -> RosterTemplate.Fill.OPEN;
+        };
+    }
+
+    private void applyPreset(@NonNull Preset preset) {
+        applyWorldConfig(preset.getWorld());
+
+        RosterTemplate.Slot[] slots = preset.getRoster().getSlots();
+        int target_count = Math.min(slots.length, MatchmakingServerInterface.MAX_PLAYERS);
+        if (target_count >= DEFAULT_PLAYER_COUNT && target_count != player_count) {
+            pulldown_menu_slots.chooseItem(target_count - DEFAULT_PLAYER_COUNT);
+        }
+
+        if (preset.getModeOptions() instanceof StandardOptions opts) {
+            cb_rated.setMarked(opts.isRated());
+        }
+
+        for (int i = 0; i < Math.min(slots.length, player_count); i++) {
+            RosterTemplate.Slot slot = slots[i];
+            difficulty_pulldown_menus[i].chooseItem(fillToDifficultyIndex(slot.getFill(), i));
+            if (slot.getRace() != null && slot.getRace() < race_pulldown_menus[i].getSize()) {
+                race_pulldown_menus[i].chooseItem(slot.getRace());
+            }
+            if (slot.getTeam() != null && slot.getTeam() < team_pulldown_menus[i].getSize()) {
+                team_pulldown_menus[i].chooseItem(slot.getTeam());
+            }
+        }
+    }
+
+    // MP slot menu order: Open 0, Closed 1, Easy 2, Normal 3, Hard 4. Only used on the MP preset path.
+    private static int fillToDifficultyIndex(RosterTemplate.@NonNull Fill fill, int slot_index) {
+        if (slot_index == 0) {
+            return 0;
+        }
+        return switch (fill) {
+            case HOST, OPEN -> 0;
+            case CLOSED -> 1;
+            case EASY_AI -> 2;
+            case NORMAL_AI -> 3;
+            case HARD_AI -> 4;
+        };
+    }
+
     private final class PulldownUpdatePlayersChangedListener implements ItemChosenListener<Void> {
         private final Panel standard;
         private ScrollableGroup current_race_team;
@@ -862,31 +1121,30 @@ public final class TerrainMenu extends Group {
         @Override
         public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
             player_count = item_index + DEFAULT_PLAYER_COUNT;
-            if (multiplayer) return;
 
-            // Rebuild player slot UI
-            if (current_race_team != null) {
-                standard.removeChild(current_race_team);
-            }
             ScrollableGroup new_group = buildPlayerSlots(player_count);
-            current_race_team = new_group;
-            new_group.place();
-            standard.addChild(new_group);
-
-            // Setup defaults for new slots
-            for (int i = 0; i < player_count; i++) {
-                if (i == 0) {
-                    team_pulldown_menus[i].chooseItem(0);
-                } else {
-                    team_pulldown_menus[i].chooseItem(1);
+            if (multiplayer) {
+                roster_panel.setRoster(new_group);
+            } else {
+                if (current_race_team != null) {
+                    standard.removeChild(current_race_team);
                 }
-                if (i == 1) {
+                new_group.place();
+                standard.addChild(new_group);
+            }
+            current_race_team = new_group;
+
+            for (int i = 0; i < player_count; i++) {
+                team_pulldown_menus[i].chooseItem(defaultTeam(i));
+                if (!multiplayer && i == 1) {
                     difficulty_pulldown_menus[i].chooseItem(PlayerSlot.AI_EASY);
                     race_pulldown_menus[i].chooseItem((race_pulldown_menus[0].getChosenItemIndex() + 1) % 2);
                 } else if (i != 0) {
+                    // MP non-host slots default to Open (index 0); SP non-host slots default to Closed (index 0).
                     difficulty_pulldown_menus[i].chooseItem(0);
                 }
             }
+            markModified();
         }
     }
 }

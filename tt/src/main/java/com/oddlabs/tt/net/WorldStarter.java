@@ -8,6 +8,7 @@ import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.router.SessionID;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.form.LoadCallback;
+import com.oddlabs.tt.gamemode.GameModeRegistry;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.player.Player;
@@ -67,6 +68,7 @@ final class WorldStarter implements LoadCallback {
         UnitInfo[] corrected_unit_infos = unit_info_list.toArray(new UnitInfo[0]);
         WorldViewer viewer = new WorldViewer(network, gui_root, world_params, ingame_info, generator, player_slots,
                 corrected_unit_infos, corrected_player_slot, new SessionID(session_id));
+        GameModeRegistry.get(viewer.getWorld().getGameMode()).onGameStart(viewer);
         if (initial_action != null)
             initial_action.run(viewer);
         Participant[] participants = getParticipants(viewer, player_slots);
