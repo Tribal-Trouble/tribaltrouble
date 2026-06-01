@@ -1,0 +1,6 @@
+# Code owners for Tribal Trouble.
+# A PR touching any path needs an approval from one of these accounts before it can merge
+# into a protected branch. This is what enforces "no one merges to main without core review"
+# (paired with "Require review from Code Owners" on the main ruleset). See
+# docs/development-workflow.md.
+*  @ryan-linehan @OmarAMokhtar

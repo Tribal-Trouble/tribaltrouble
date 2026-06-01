@@ -106,7 +106,7 @@ public final class Globals {
 
     public static final int VIEW_BIT_DEPTH = 16;
     public static final float FOV = 45.0f;
-    public static final float VIEW_MIN = 0.1f;
+    public static final float VIEW_MIN = 1.2f;
     public static final float VIEW_MAX = 9000.0f;
 
     public static final int NET_PORT = 21000;
