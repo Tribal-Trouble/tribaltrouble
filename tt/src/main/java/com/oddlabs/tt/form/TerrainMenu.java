@@ -171,9 +171,7 @@ public final class TerrainMenu extends Group {
         if (multiplayer) {
             preset_library.load(Renderer.getLocalInput().getGameDir().resolve(Globals.getPresetsFileName()));
         }
-        mode_and_presets = multiplayer
-                ? new ModeAndPresetsPanel(gui_root, preset_library, new PresetsHandler())
-                : null;
+        mode_and_presets = multiplayer ? new ModeAndPresetsPanel(gui_root, preset_library, new PresetsHandler()) : null;
         Panel standard = new Panel(i18n("standard_options"));
         Panel advanced = new Panel(i18n("advanced_options"));
         roster_panel = multiplayer ? new RosterPanel() : null;
@@ -405,9 +403,8 @@ public final class TerrainMenu extends Group {
         group_seed.place(group_num_players, BOTTOM_LEFT, Skin.getSkin().getFormData().sectionSpacing());
         advanced.compileCanvas();
 
-        PanelGroup panel_group = multiplayer
-                ? new PanelGroup(1, mode_and_presets, standard, advanced, roster_panel)
-                : new PanelGroup(standard, advanced);
+        PanelGroup panel_group = multiplayer ? new PanelGroup(1, mode_and_presets, standard, advanced,
+                roster_panel) : new PanelGroup(standard, advanced);
         addChild(panel_group);
         var playersChangedListener = new PulldownUpdatePlayersChangedListener(standard);
         playersChangedListener.setCurrentGroup(group_race_team);
@@ -770,19 +767,12 @@ public final class TerrainMenu extends Group {
                 return false;
             }
             float random_start_pos = LocalEventQueue.getQueue().getTime() % 1f;
-            game = Game.builder()
-                    .name(game_name)
-                    .size((byte) pulldown_size.getChosenItemIndex())
-                    .terrain((byte) terrain_type.ordinal())
-                    .hills((byte) hills)
-                    .trees((byte) vegetation_amount)
-                    .supplies((byte) supplies_amount)
-                    .rated(rated)
-                    .gamespeed((byte) (pm_gamespeed.getChosenItemIndex() + 1))
-                    .mapcode(label_mapcode.getContents())
-                    .randomStartPos(random_start_pos)
-                    .maxUnitCount(Player.DEFAULT_MAX_UNIT_COUNT)
-                    .build();
+            game = Game.builder().name(game_name).size((byte) pulldown_size.getChosenItemIndex()).terrain(
+                    (byte) terrain_type.ordinal()).hills((byte) hills).trees((byte) vegetation_amount).supplies(
+                            (byte) supplies_amount).rated(rated).gamespeed(
+                                    (byte) (pm_gamespeed.getChosenItemIndex() + 1)).mapcode(
+                                            label_mapcode.getContents()).randomStartPos(random_start_pos).maxUnitCount(
+                                                    Player.DEFAULT_MAX_UNIT_COUNT).build();
         } else {
             boolean has_enemy = false;
             for (int i = 1; i < player_count; i++) {
@@ -1025,14 +1015,10 @@ public final class TerrainMenu extends Group {
     }
 
     private @NonNull WorldConfig snapshotWorldConfig() {
-        return WorldConfig.builder()
-                .gamespeed(pm_gamespeed.getChosenItemIndex())
-                .islandSize(pulldown_size.getChosenItemIndex())
-                .terrainType(pm_terrain_type.getChosenItemIndex())
-                .hills(slider_hills.getValue())
-                .vegetation(slider_vegetation.getValue())
-                .supplies(slider_supplies.getValue())
-                .build();
+        return WorldConfig.builder().gamespeed(pm_gamespeed.getChosenItemIndex()).islandSize(
+                pulldown_size.getChosenItemIndex()).terrainType(pm_terrain_type.getChosenItemIndex()).hills(
+                        slider_hills.getValue()).vegetation(slider_vegetation.getValue()).supplies(
+                                slider_supplies.getValue()).build();
     }
 
     private void applyWorldConfig(@NonNull WorldConfig world) {
@@ -1060,7 +1046,8 @@ public final class TerrainMenu extends Group {
         for (int i = 0; i < player_count; i++) {
             int race = race_pulldown_menus[i].getChosenItemIndex();
             int team = team_pulldown_menus[i].getChosenItemIndex();
-            slots[i] = new RosterTemplate.Slot(difficultyIndexToFill(i, difficulty_pulldown_menus[i].getChosenItemIndex()),
+            slots[i] = new RosterTemplate.Slot(difficultyIndexToFill(i,
+                    difficulty_pulldown_menus[i].getChosenItemIndex()),
                     race, team);
         }
         return new RosterTemplate(slots);

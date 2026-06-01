@@ -74,8 +74,7 @@ public final class PresetCard extends RadioButtonGroupElement {
      * same way without duplicating the skin-mode selection.
      */
     public static void renderCardBackground(@NonNull GUIRenderer renderer, @NonNull GUIObject card, boolean active) {
-        ModeIconQuads.Mode skinMode = card.isDisabled() ? ModeIconQuads.Mode.DISABLED
-                : active ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+        ModeIconQuads.Mode skinMode = card.isDisabled() ? ModeIconQuads.Mode.DISABLED : active ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
         Skin.getSkin().getGroupData().group().render(renderer, 0f, 0f, card.getWidth(), card.getHeight(), skinMode);
     }
 

@@ -12,8 +12,8 @@ import java.util.Map;
  * adding a mode means adding a put() here plus the rules class.
  */
 public final class GameModeRegistry {
-    private static final @NonNull Map<@NonNull GameMode, @NonNull GameModeRules> REGISTRY =
-            new EnumMap<>(GameMode.class);
+    private static final @NonNull Map<@NonNull GameMode, @NonNull GameModeRules> REGISTRY = new EnumMap<>(
+            GameMode.class);
 
     static {
         REGISTRY.put(GameMode.STANDARD, new StandardModeRules());

@@ -22,12 +22,8 @@ public final class WorldParameters implements Serializable {
 
     public WorldParameters(int initial_game_speed, @NonNull String map_code, int initial_unit_count, int max_unit_count,
             int map_size) {
-        this(builder()
-                .initialGameSpeed(initial_game_speed)
-                .mapcode(map_code)
-                .initialUnitCount(initial_unit_count)
-                .maxUnitCount(max_unit_count)
-                .mapSize(map_size));
+        this(builder().initialGameSpeed(initial_game_speed).mapcode(map_code).initialUnitCount(
+                initial_unit_count).maxUnitCount(max_unit_count).mapSize(map_size));
     }
 
     private WorldParameters(@NonNull Builder b) {
