@@ -434,7 +434,9 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     public final void free() {
         assert !isDead();
         UnitGrid unit_grid = getUnitGrid();
-        unit_grid.freeGrid(getGridX(), getGridY(), this);
+        if (unit_grid.getOccupant(getGridX(), getGridY()) == this) {
+            unit_grid.freeGrid(getGridX(), getGridY(), this);
+        }
         path_penalty = INITIAL_PATH_PENALTY;
     }
 
