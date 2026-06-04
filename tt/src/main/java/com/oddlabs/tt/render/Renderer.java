@@ -550,6 +550,7 @@ public final class Renderer implements AutoCloseable {
             language = "en";
         Locale.setDefault(Locale.of(language));
         Settings.setSettings(settings);
+        Globals.gamespeed = settings.gamespeed;
         Path last_event_log_dir = settings.last_event_log_dir;
         boolean crashed = settings.crashed;
         NetworkSelector network = new NetworkSelector(LocalEventQueue.getQueue().getDeterministic(),

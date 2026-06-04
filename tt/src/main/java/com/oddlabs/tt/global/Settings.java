@@ -1,5 +1,6 @@
 package com.oddlabs.tt.global;
 
+import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.render.Renderer;
@@ -74,6 +75,9 @@ public final class Settings implements Serializable {
     public boolean aggressive_units = false;
     public boolean show_compass = true;
     public boolean confine_cursor = true;
+
+    // gameplay
+    public int gamespeed = Game.GAMESPEED_NORMAL;
 
     public float mapmode_delay = .5f;
     public float tooltip_delay = .5f;
@@ -223,6 +227,7 @@ public final class Settings implements Serializable {
         setProperty(props, "aggressive_units", aggressive_units, defaults.aggressive_units);
         setProperty(props, "show_compass", show_compass, defaults.show_compass);
         setProperty(props, "confine_cursor", confine_cursor, defaults.confine_cursor);
+        setProperty(props, "gamespeed", gamespeed, defaults.gamespeed);
         setProperty(props, "mapmode_delay", mapmode_delay, defaults.mapmode_delay);
         setProperty(props, "tooltip_delay", tooltip_delay, defaults.tooltip_delay);
         setProperty(props, "ui_scale", ui_scale, defaults.ui_scale);
@@ -287,6 +292,7 @@ public final class Settings implements Serializable {
         aggressive_units = getBoolean(props, "aggressive_units", aggressive_units);
         show_compass = getBoolean(props, "show_compass", show_compass);
         confine_cursor = getBoolean(props, "confine_cursor", confine_cursor);
+        gamespeed = getInt(props, "gamespeed", gamespeed);
         mapmode_delay = getFloat(props, "mapmode_delay", mapmode_delay);
         tooltip_delay = getFloat(props, "tooltip_delay", tooltip_delay);
         ui_scale = getFloat(props, "ui_scale", ui_scale);
