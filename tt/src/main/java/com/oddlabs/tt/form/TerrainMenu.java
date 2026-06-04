@@ -188,7 +188,10 @@ public final class TerrainMenu extends Group {
         pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_NORMAL)));
         pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_FAST)));
         pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_LUDICROUS)));
-        var pb_gamespeed = new PulldownButton<>(gui_root, pm_gamespeed, 1, 150);
+        // Default the pulldown to the player's game speed setting from the options menu.
+        int gamespeed_index = Math.clamp(Globals.gamespeed - Game.GAMESPEED_SLOW, 0,
+                Game.GAMESPEED_LUDICROUS - Game.GAMESPEED_SLOW);
+        var pb_gamespeed = new PulldownButton<>(gui_root, pm_gamespeed, gamespeed_index, 150);
         group_gamespeed.addChild(pb_gamespeed);
         label_gamespeed.place();
         pb_gamespeed.place(label_gamespeed, RIGHT_MID);
