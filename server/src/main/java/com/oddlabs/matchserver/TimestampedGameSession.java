@@ -491,19 +491,17 @@ public final class TimestampedGameSession {
             return;
         }
 
-        // Only count games with all human players (no AI)
-        if (session.getParticipants().length != session.getPlayerInfo().length) {
-            MatchmakingServer.getLogger().info(
-                    "Game " + database_id + ". Skipping Steam achievements update - game includes AI players");
-            return;
-        }
-
+        // Mirror the DB win/loss accounting. This runs only from teamWon, which
+        // fires when a real human opponent lost, so AI fillers are irrelevant and
+        // pure-vs-AI games never reach here (matching the wins/losses columns).
         Participant[] participants = session.getParticipants();
         for (int i = 0; i < participants.length; i++) {
             String nick = participants[i].getNick();
 
-            Long steamId = DBInterface.getSteamIdByNick(nick);
-            if (steamId == null) {
+            Long accountId = DBInterface.getSteamIdByNick(nick);
+            if (accountId == null) {
+                MatchmakingServer.getLogger().warning(
+                        "Game " + database_id + ". No Steam ID linked for " + nick + ", skipping Steam stats push");
                 continue;
             }
 
@@ -512,8 +510,11 @@ public final class TimestampedGameSession {
                 int totalLosses = DBInterface.getIntField("losses", nick);
                 int[] streaks = DBInterface.getStreaks(nick);
 
+                // registrations.steam_id stores the 32-bit account ID, but the Steam Web API
+                // requires the full 64-bit SteamID, so add the base offset before pushing.
+                long steamId64 = accountId + SteamAuthValidator.STEAM_ID_BASE;
                 boolean success = SteamAchievementService.updatePlayerStats(
-                        steamId, totalWins, totalLosses, streaks[0], streaks[1]);
+                        steamId64, totalWins, totalLosses, streaks[0], streaks[1]);
 
                 if (success) {
                     MatchmakingServer.getLogger().info(

@@ -22,12 +22,18 @@ public final class Globals {
 
     private static final String SAVEGAMES_FILE_NAME = "savegames";
 
+    private static final String PRESETS_FILE_NAME = "presets.json";
+
     public static @NonNull Path getSettingsFileName() {
         return steamPrefixed(SETTINGS_FILE_NAME);
     }
 
     public static @NonNull Path getSavegamesFileName() {
         return steamPrefixed(SAVEGAMES_FILE_NAME);
+    }
+
+    public static @NonNull Path getPresetsFileName() {
+        return steamPrefixed(PRESETS_FILE_NAME);
     }
 
     private static @NonNull Path steamPrefixed(@NonNull String name) {
@@ -106,7 +112,7 @@ public final class Globals {
 
     public static final int VIEW_BIT_DEPTH = 16;
     public static final float FOV = 45.0f;
-    public static final float VIEW_MIN = 0.1f;
+    public static final float VIEW_MIN = 1.2f;
     public static final float VIEW_MAX = 8000.0f;
 
     public static final int NET_PORT = 21000;

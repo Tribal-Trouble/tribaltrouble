@@ -77,5 +77,6 @@ public abstract class AbstractOptionsMenu extends Form {
 
     protected void changeGamespeed(int index) {
         com.oddlabs.tt.global.Globals.gamespeed = index;
+        Settings.getSettings().gamespeed = index;
     }
 }

@@ -30,8 +30,8 @@ public final class ArrowButton extends ButtonObject {
             return;
         }
 
-        if (event.hasAction(GameAction.UI_FOCUS_NEXT)) {
-            // Bubble TAB
+        if (event.hasAction(GameAction.UI_FOCUS_NEXT) || event.hasAction(GameAction.UI_CANCEL)) {
+            // Bubble TAB and Escape
             return;
         }
 

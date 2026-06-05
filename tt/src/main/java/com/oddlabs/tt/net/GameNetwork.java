@@ -1,15 +1,34 @@
 package com.oddlabs.tt.net;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import com.oddlabs.matchmaking.RosterTemplate;
 
 public final class GameNetwork {
     private final Server server;
     private final @NonNull Client client;
 
+    /**
+     * Roster the host configured in the create-game dialog, applied once when the host's lobby opens. Null for joiners
+     * and for the non-multiplayer path.
+     */
+    private @Nullable RosterTemplate initial_roster;
+
     public GameNetwork(Server server, @NonNull Client client) {
         this.server = server;
         this.client = client;
         assert client != null;
+    }
+
+    public void setInitialRoster(@Nullable RosterTemplate initial_roster) {
+        this.initial_roster = initial_roster;
+        if (server != null && initial_roster != null)
+            server.applyRosterJoinDefaults(initial_roster);
+    }
+
+    public @Nullable RosterTemplate getInitialRoster() {
+        return initial_roster;
     }
 
     public void closeServer() {

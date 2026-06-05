@@ -7,6 +7,7 @@ import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.matchmaking.RankingEntry;
+import com.oddlabs.matchmaking.RosterTemplate;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.font.Font;
@@ -260,6 +261,10 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
                 game_list_panel.getWidth(), game_list_panel.getHeight(), BUTTON_WIDTH, player_count);
         setGameMenu(game_panel);
         game_network.getClient().setConfigurationListener(game_panel);
+        RosterTemplate initial_roster = game_network.getInitialRoster();
+        if (initial_roster != null) {
+            game_panel.applyInitialRoster(initial_roster);
+        }
     }
 
     @Override

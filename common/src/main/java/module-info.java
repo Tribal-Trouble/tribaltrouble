@@ -3,6 +3,8 @@ module com.oddlabs.common {
     requires static org.jspecify;
     requires java.desktop;
     requires java.logging;
+    requires transitive com.fasterxml.jackson.annotation;
+    requires transitive com.fasterxml.jackson.databind;
 
     exports com.oddlabs.event;
     exports com.oddlabs.geometry;

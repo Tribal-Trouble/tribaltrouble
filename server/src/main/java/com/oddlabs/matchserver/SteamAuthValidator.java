@@ -22,7 +22,7 @@ public final class SteamAuthValidator {
     private static final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
 
     // Steam ID 64 base offset (converts account ID to full Steam ID)
-    private static final long STEAM_ID_BASE = 76561197960265728L;
+    public static final long STEAM_ID_BASE = 76561197960265728L;
 
     public static boolean validateTicket(long steamAccountId, byte[] authTicket, int appId) {
         if (authTicket == null || authTicket.length == 0) {

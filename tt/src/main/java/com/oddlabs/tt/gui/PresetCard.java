@@ -1,0 +1,102 @@
+package com.oddlabs.tt.gui;
+
+import com.oddlabs.matchmaking.Preset;
+import com.oddlabs.tt.font.Font;
+import com.oddlabs.tt.guievent.PresetChosenListener;
+import com.oddlabs.tt.guievent.PresetDeleteListener;
+import com.oddlabs.tt.render.GUIRenderer;
+import org.jspecify.annotations.NonNull;
+
+public final class PresetCard extends RadioButtonGroupElement {
+    private static final int PADDING_X = 12;
+    private static final int PADDING_Y = 10;
+    private static final int DELETE_INSET = 4;
+
+    private final @NonNull Preset preset;
+    private final @NonNull PresetChosenListener choose_listener;
+    private final @NonNull DeleteButton delete_button;
+    private boolean pressed;
+
+    public PresetCard(@NonNull Preset preset, int width, boolean marked, @NonNull RadioButtonGroup group,
+            @NonNull PresetChosenListener choose_listener, @NonNull PresetDeleteListener delete_listener) {
+        super(marked, group);
+        this.preset = preset;
+        this.choose_listener = choose_listener;
+
+        Font title_font = Skin.getSkin().getButtonFont();
+        int content_width = width - 2 * PADDING_X;
+
+        Label title_label = new Label(preset.getName(), title_font, content_width);
+
+        int height = PADDING_Y + title_label.getHeight() + PADDING_Y;
+        setDim(width, height);
+
+        title_label.setPos(PADDING_X, PADDING_Y);
+        addChild(title_label);
+
+        delete_button = new DeleteButton(this);
+        delete_button.setPos(width - delete_button.getWidth() - DELETE_INSET,
+                height - delete_button.getHeight() - DELETE_INSET);
+        addChild(delete_button);
+        delete_button.addMouseClickListener((_, _, _, _) -> delete_listener.presetDeleted(preset));
+
+        setCanFocus(true);
+    }
+
+    public @NonNull Preset getPreset() {
+        return preset;
+    }
+
+    @Override
+    protected void mousePressed(@NonNull MouseButton button, int x, int y) {
+        pressed = true;
+    }
+
+    @Override
+    protected void mouseReleased(@NonNull MouseButton button, int x, int y) {
+        pressed = false;
+    }
+
+    @Override
+    protected void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
+        super.mouseClicked(button, x, y, clicks);
+        choose_listener.presetChosen(preset);
+    }
+
+    @Override
+    protected void renderGeometry(@NonNull GUIRenderer renderer) {
+        renderCardBackground(renderer, this, isMarked() || isActive() || (isHovered() && pressed));
+    }
+
+    /**
+     * Draws the shared card box (the same skin {@code group} box used by the preset grid). {@code active} drives the
+     * highlighted look; disabled wins over everything. Shared so the Mode &amp; presets grid renders every card the
+     * same way without duplicating the skin-mode selection.
+     */
+    public static void renderCardBackground(@NonNull GUIRenderer renderer, @NonNull GUIObject card, boolean active) {
+        ModeIconQuads.Mode skinMode = card.isDisabled() ? ModeIconQuads.Mode.DISABLED : active ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+        Skin.getSkin().getGroupData().group().render(renderer, 0f, 0f, card.getWidth(), card.getHeight(), skinMode);
+    }
+
+    private static final class DeleteButton extends IconButton {
+        private final @NonNull PresetCard card;
+
+        DeleteButton(@NonNull PresetCard card) {
+            super(Skin.getSkin().getFormData().formClose());
+            this.card = card;
+        }
+
+        @Override
+        protected void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
+            // Suppress propagation to the card so clicking × does not also select the preset.
+        }
+
+        @Override
+        protected void renderGeometry(@NonNull GUIRenderer renderer) {
+            if (!card.isHovered() && !isHovered() && !isActive()) {
+                return;
+            }
+            super.renderGeometry(renderer);
+        }
+    }
+}

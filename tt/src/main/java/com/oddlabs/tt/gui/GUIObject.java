@@ -508,8 +508,13 @@ public abstract class GUIObject extends Renderable<GUIObject> {
     }
 
     final void mouseScrolledAll(int amount) {
-        if (disabled)
+        if (disabled) {
+            // A disabled control should not eat the wheel: let it bubble to a scrollable ancestor.
+            GUIObject parent = getParent();
+            if (parent != null)
+                parent.mouseScrolledAll(amount);
             return;
+        }
         mouseScrolled(amount);
         for (var listener : listeners) {
             if (listener instanceof MouseWheelListener l) {

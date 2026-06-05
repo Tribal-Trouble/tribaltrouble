@@ -92,6 +92,12 @@ public class PulldownMenu<T> extends Group {
         itemChosenAll();
     }
 
+    // Update the selection without notifying listeners, for programmatic state sync that must not run the
+    // user-selection side effects (closing an open menu, resending the slot to the server).
+    public void chooseItemSilently(int index) {
+        chosen_item_index = index;
+    }
+
     @Override
     protected void focusNotify(boolean focus) {
         if (!focus) {

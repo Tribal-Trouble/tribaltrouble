@@ -42,20 +42,23 @@ public final class Game implements Serializable {
 
     private int database_id;
 
-    public Game(@NonNull String game_name, byte size, byte terrain, byte hills, byte trees, byte supplies,
-            boolean rated, byte gamespeed, String mapcode, float random_start_pos, int max_unit_count) {
-        this.game_name = game_name;
-        this.size = size;
-        this.terrain = terrain;
-        this.hills = hills;
-        this.trees = trees;
-        this.supplies = supplies;
-        this.rated = rated;
-        this.gamespeed = gamespeed;
-        this.mapcode = mapcode;
-        this.random_start_pos = random_start_pos;
-        this.max_unit_count = max_unit_count;
+    private Game(@NonNull Builder b) {
+        this.game_name = b.game_name;
+        this.size = b.size;
+        this.terrain = b.terrain;
+        this.hills = b.hills;
+        this.trees = b.trees;
+        this.supplies = b.supplies;
+        this.rated = b.rated;
+        this.gamespeed = b.gamespeed;
+        this.mapcode = b.mapcode;
+        this.random_start_pos = b.random_start_pos;
+        this.max_unit_count = b.max_unit_count;
         assert isValid() : game_name.length();
+    }
+
+    public static @NonNull Builder builder() {
+        return new Builder();
     }
 
     public boolean isValid() {
@@ -116,5 +119,81 @@ public final class Game implements Serializable {
 
     public int getDatabaseID() {
         return database_id;
+    }
+
+    public static final class Builder {
+        private @NonNull String game_name = "";
+        private byte size;
+        private byte terrain;
+        private byte hills;
+        private byte trees;
+        private byte supplies;
+        private boolean rated;
+        private byte gamespeed;
+        private String mapcode;
+        private float random_start_pos;
+        private int max_unit_count;
+
+        private Builder() {
+        }
+
+        public @NonNull Builder name(@NonNull String name) {
+            this.game_name = name;
+            return this;
+        }
+
+        public @NonNull Builder size(byte size) {
+            this.size = size;
+            return this;
+        }
+
+        public @NonNull Builder terrain(byte terrain) {
+            this.terrain = terrain;
+            return this;
+        }
+
+        public @NonNull Builder hills(byte hills) {
+            this.hills = hills;
+            return this;
+        }
+
+        public @NonNull Builder trees(byte trees) {
+            this.trees = trees;
+            return this;
+        }
+
+        public @NonNull Builder supplies(byte supplies) {
+            this.supplies = supplies;
+            return this;
+        }
+
+        public @NonNull Builder rated(boolean rated) {
+            this.rated = rated;
+            return this;
+        }
+
+        public @NonNull Builder gamespeed(byte gamespeed) {
+            this.gamespeed = gamespeed;
+            return this;
+        }
+
+        public @NonNull Builder mapcode(String mapcode) {
+            this.mapcode = mapcode;
+            return this;
+        }
+
+        public @NonNull Builder randomStartPos(float random_start_pos) {
+            this.random_start_pos = random_start_pos;
+            return this;
+        }
+
+        public @NonNull Builder maxUnitCount(int max_unit_count) {
+            this.max_unit_count = max_unit_count;
+            return this;
+        }
+
+        public @NonNull Game build() {
+            return new Game(this);
+        }
     }
 }

@@ -22,11 +22,20 @@ public final class WorldParameters implements Serializable {
 
     public WorldParameters(int initial_game_speed, @NonNull String map_code, int initial_unit_count, int max_unit_count,
             int map_size) {
-        this.map_code = map_code;
-        this.initial_unit_count = initial_unit_count;
-        this.max_unit_count = max_unit_count;
-        this.initial_game_speed = initial_game_speed;
-        this.map_size = map_size;
+        this(builder().initialGameSpeed(initial_game_speed).mapcode(map_code).initialUnitCount(
+                initial_unit_count).maxUnitCount(max_unit_count).mapSize(map_size));
+    }
+
+    private WorldParameters(@NonNull Builder b) {
+        this.map_code = b.mapcode;
+        this.initial_unit_count = b.initial_unit_count;
+        this.max_unit_count = b.max_unit_count;
+        this.initial_game_speed = b.initial_game_speed;
+        this.map_size = b.map_size;
+    }
+
+    public static @NonNull Builder builder() {
+        return new Builder();
     }
 
     public @NonNull String getMapcode() {
@@ -47,5 +56,45 @@ public final class WorldParameters implements Serializable {
 
     public int getMapSize() {
         return map_size;
+    }
+
+    public static final class Builder {
+        private @NonNull String mapcode = "";
+        private int initial_unit_count;
+        private int max_unit_count;
+        private int initial_game_speed;
+        private int map_size = Game.SIZE_NONE;
+
+        private Builder() {
+        }
+
+        public @NonNull Builder mapcode(@NonNull String mapcode) {
+            this.mapcode = mapcode;
+            return this;
+        }
+
+        public @NonNull Builder initialUnitCount(int v) {
+            this.initial_unit_count = v;
+            return this;
+        }
+
+        public @NonNull Builder maxUnitCount(int v) {
+            this.max_unit_count = v;
+            return this;
+        }
+
+        public @NonNull Builder initialGameSpeed(int v) {
+            this.initial_game_speed = v;
+            return this;
+        }
+
+        public @NonNull Builder mapSize(int v) {
+            this.map_size = v;
+            return this;
+        }
+
+        public @NonNull WorldParameters build() {
+            return new WorldParameters(this);
+        }
     }
 }

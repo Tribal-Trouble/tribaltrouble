@@ -1,6 +1,7 @@
 package com.oddlabs.tt.player;
 
 import com.oddlabs.matchmaking.Game;
+import com.oddlabs.tt.gamemode.GameModeRegistry;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
@@ -358,8 +359,7 @@ public final class Player implements PlayerInterface {
     }
 
     public boolean isAlive() {
-        int units = getUnitCountContainer().getNumSupplies();
-        return units > 0 || hasActiveChieftain() || getQuarters() != null;
+        return GameModeRegistry.get(world.getGameMode()).isPlayerAlive(this);
     }
 
 

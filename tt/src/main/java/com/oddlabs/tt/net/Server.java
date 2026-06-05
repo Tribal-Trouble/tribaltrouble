@@ -4,6 +4,7 @@ import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.matchmaking.Profile;
+import com.oddlabs.matchmaking.RosterTemplate;
 import com.oddlabs.matchmaking.TunnelAddress;
 import com.oddlabs.net.AbstractConnection;
 import com.oddlabs.net.AbstractConnectionListener;
@@ -21,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,7 +34,13 @@ public final class Server implements ConnectionListenerInterface {
     private static final int SYNCHRONIZING = 2;
     private static final int CLOSED = 3;
 
+    private static final int JOIN_DEFAULT_NONE = -1;
+
     private final PlayerSlot @NonNull [] players;
+    // Per-slot race/team a joining human inherits, seeded in-process from the host's create-dialog roster. Slots left
+    // at JOIN_DEFAULT_NONE fall back to the legacy random race / slot-derived team.
+    private final int @NonNull [] join_default_race;
+    private final int @NonNull [] join_default_team;
     private final String[] ai_names;
     private final WorldGenerator generator;
     private final Game game;
@@ -62,6 +70,29 @@ public final class Server implements ConnectionListenerInterface {
             players[i] = new PlayerSlot(i);
             players[i].setReady(i != 0);
         }
+        join_default_race = new int[player_count];
+        join_default_team = new int[player_count];
+        Arrays.fill(join_default_race, JOIN_DEFAULT_NONE);
+        Arrays.fill(join_default_team, JOIN_DEFAULT_NONE);
+    }
+
+    /**
+     * Seeds the race/team a joining human inherits per slot from the host's create-dialog roster. The server runs in
+     * the host's own process, so this is a direct in-process call: nothing crosses the wire. Joiners simply receive the
+     * host's intended race/team in the normal player broadcast instead of a random race and slot-derived team. Slots
+     * the roster leaves unspecified keep the legacy defaults, so un-updated clients and the join handshake are
+     * unaffected.
+     */
+    public void applyRosterJoinDefaults(@NonNull RosterTemplate roster) {
+        RosterTemplate.Slot[] slots = roster.getSlots();
+        for (int i = 0; i < players.length && i < slots.length; i++) {
+            Integer race = slots[i].getRace();
+            Integer team = slots[i].getTeam();
+            if (race != null)
+                join_default_race[i] = race;
+            if (team != null)
+                join_default_team[i] = team;
+        }
     }
 
     private @NonNull Iterator<ClientConnection> getClientIterator() {
@@ -77,7 +108,11 @@ public final class Server implements ConnectionListenerInterface {
     }
 
     private void unregisterGame() {
-        local_listener.close();
+        // local_listener can still be null if construction failed inside `new ConnectionListener(...)` (e.g. the port
+        // is already bound): the listener's constructor calls back into error() -> close() before the field is
+        // assigned. Guard so the real IOException surfaces instead of an NPE that masks it.
+        if (local_listener != null)
+            local_listener.close();
         if (tunnelled_listener != null)
             tunnelled_listener.close();
         if (register_server && Network.getMatchmakingClient().isConnected()) {
@@ -292,8 +327,10 @@ public final class Server implements ConnectionListenerInterface {
         int max_teams = players.length;
         if (game != null && game.isRated())
             max_teams = 2;
-        PlayerInfo player_info = new PlayerInfo(available_slot % max_teams, random.nextInt(
-                RacesResources.getNumRaces()), name);
+        int race = join_default_race[available_slot] != JOIN_DEFAULT_NONE ? join_default_race[available_slot] : random.nextInt(
+                RacesResources.getNumRaces());
+        int team = join_default_team[available_slot] != JOIN_DEFAULT_NONE ? join_default_team[available_slot] % max_teams : available_slot % max_teams;
+        PlayerInfo player_info = new PlayerInfo(team, race, name);
         player_slot.setRating(rating);
         player_slot.setType(PlayerSlot.HUMAN);
         player_slot.setAddress(address);
