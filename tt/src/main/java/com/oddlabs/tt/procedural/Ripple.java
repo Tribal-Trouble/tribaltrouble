@@ -4,6 +4,9 @@ import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * Procedural texture generator for creating ripple effects, typically used for water or impact waves.
+ */
 public final class Ripple {
     public final @NonNull Channel channel;
 
@@ -38,15 +41,15 @@ public final class Ripple {
                 float dx8 = dx3;
                 float dy8 = dy6;
 
-                float dist = (float) Math.sqrt(dx * dx + dy * dy);
-                float dist1 = (float) Math.sqrt(dx1 * dx1 + dy1 * dy1);
-                float dist2 = (float) Math.sqrt(dx2 * dx2 + dy2 * dy2);
-                float dist3 = (float) Math.sqrt(dx3 * dx3 + dy3 * dy3);
-                float dist4 = (float) Math.sqrt(dx4 * dx4 + dy4 * dy4);
-                float dist5 = (float) Math.sqrt(dx5 * dx5 + dy5 * dy5);
-                float dist6 = (float) Math.sqrt(dx6 * dx6 + dy6 * dy6);
-                float dist7 = (float) Math.sqrt(dx7 * dx7 + dy7 * dy7);
-                float dist8 = (float) Math.sqrt(dx8 * dx8 + dy8 * dy8);
+                float dist = (float) Math.hypot(dx, dy);
+                float dist1 = (float) Math.hypot(dx1, dy1);
+                float dist2 = (float) Math.hypot(dx2, dy2);
+                float dist3 = (float) Math.hypot(dx3, dy3);
+                float dist4 = (float) Math.hypot(dx4, dy4);
+                float dist5 = (float) Math.hypot(dx5, dy5);
+                float dist6 = (float) Math.hypot(dx6, dy6);
+                float dist7 = (float) Math.hypot(dx7, dy7);
+                float dist8 = (float) Math.hypot(dx8, dy8);
 
                 if (dist > 1) dist = 1f;
                 if (dist1 > 1) dist1 = 1f;

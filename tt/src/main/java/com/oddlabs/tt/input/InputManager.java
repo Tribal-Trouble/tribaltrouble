@@ -10,9 +10,11 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -24,7 +26,7 @@ import java.util.stream.Collectors;
  */
 public final class InputManager {
     private static final Logger logger = Logger.getLogger(InputManager.class.getName());
-    private static final Map<GameAction, Set<InputBinding>> DEFAULT_BINDINGS = new EnumMap<>(GameAction.class);
+    private static final Map<GameAction, NavigableSet<InputBinding>> DEFAULT_BINDINGS = new EnumMap<>(GameAction.class);
 
     static {
         // Global
@@ -117,6 +119,9 @@ public final class InputManager {
         def(GameAction.UNIT_EXIT_TOWER, Key.X);
         def(GameAction.UNIT_BEACON, Key.B, Modifier.CONTROL);
         def(GameAction.UNIT_NEXT_IDLE, Key.N);
+//        def(GameAction.UNIT_ADD_IDLE, Key.N, Modifier.SHIFT);
+//        def(GameAction.UNIT_ALL_IDLE, Key.N, Modifier.CONTROL);
+//        def(GameAction.UNIT_ADD_ALL_IDLE, Key.N, Modifier.CONTROL, Modifier.SHIFT);
         def(GameAction.UNIT_SET_RALLY, Key.R);
         def(GameAction.GAMEPLAY_BACK, Key.BACK);
 
@@ -183,9 +188,9 @@ public final class InputManager {
         def(GameAction.MAGIC_2, Key.C);
 
         // Misc
-        def(GameAction.GAME_SPEED_UP, Key.EQUALS, Modifier.SHIFT);
+        defChar(GameAction.GAME_SPEED_UP, '+');
         def(GameAction.GAME_SPEED_UP, Key.ADD); // Numpad +
-        def(GameAction.GAME_SPEED_DOWN, Key.MINUS); // -
+        defChar(GameAction.GAME_SPEED_DOWN, '-');
         def(GameAction.GAME_SPEED_DOWN, Key.SUBTRACT); // Numpad -
         def(GameAction.NOTIFICATION_JUMP, Key.TAB);
 
@@ -199,6 +204,9 @@ public final class InputManager {
         def(GameAction.CHEAT_7, Key.F7);
         def(GameAction.CHEAT_8, Key.F8);
         def(GameAction.CHEAT_9, Key.F9);
+        def(GameAction.CHEAT_10, Key.F10);
+        def(GameAction.CHEAT_11, Key.F11, Modifier.ALT);
+        def(GameAction.CHEAT_12, Key.F12, Modifier.ALT);
 
         // Debug
         def(GameAction.DEBUG_PRINT_INFO, Key.I, Modifier.CONTROL);
@@ -225,11 +233,16 @@ public final class InputManager {
     private static void def(@NonNull GameAction action, @NonNull Key key, @NonNull Modifier @NonNull... modifiers) {
         Set<Modifier> modSet = EnumSet.noneOf(Modifier.class);
         Collections.addAll(modSet, modifiers);
-        DEFAULT_BINDINGS.computeIfAbsent(action, k -> new CopyOnWriteArraySet<>()).add(new InputBinding(key, modSet,
-                action));
+        DEFAULT_BINDINGS.computeIfAbsent(action, k -> new TreeSet<>())
+                .add(new InputBinding(key, modSet, action));
     }
 
-    private final Set<@NonNull InputBinding> bindings = new CopyOnWriteArraySet<>();
+    private static void defChar(@NonNull GameAction action, char character) {
+        DEFAULT_BINDINGS.computeIfAbsent(action, k -> new TreeSet<>())
+                .add(new InputBinding(Key.KEY_UNKNOWN, (int) character, EnumSet.noneOf(Modifier.class), action));
+    }
+
+    private final NavigableSet<@NonNull InputBinding> bindings = new TreeSet<>();
     private final Set<@NonNull GameAction> activeActions = EnumSet.noneOf(GameAction.class);
     private final Map<@NonNull Key, @NonNull Set<@NonNull GameAction>> keyState = new EnumMap<>(Key.class);
 
@@ -249,7 +262,7 @@ public final class InputManager {
             String value = props.getProperty(key);
             if (value != null) {
                 try {
-                    Set<InputBinding> loaded = parseBindings(value, action);
+                    NavigableSet<InputBinding> loaded = parseBindings(value, action);
                     if (!loaded.isEmpty()) {
                         bindings.addAll(loaded);
                         continue;
@@ -268,14 +281,14 @@ public final class InputManager {
 
     public void saveBindings(@NonNull Properties props) {
         // Group current bindings by action
-        Map<GameAction, Set<InputBinding>> currentMap = new EnumMap<>(GameAction.class);
+        Map<GameAction, NavigableSet<InputBinding>> currentMap = new EnumMap<>(GameAction.class);
         for (InputBinding b : bindings) {
-            currentMap.computeIfAbsent(b.action(), k -> new CopyOnWriteArraySet<>()).add(b);
+            currentMap.computeIfAbsent(b.action(), k -> new TreeSet<>()).add(b);
         }
 
         for (GameAction action : GameAction.values()) {
-            Set<InputBinding> current = currentMap.get(action);
-            Set<InputBinding> defaults = DEFAULT_BINDINGS.get(action);
+            var current = currentMap.get(action);
+            var defaults = DEFAULT_BINDINGS.get(action);
 
             // Only save if binding for action is different from defaults
             if (current != null && !Objects.equals(current, defaults)) {
@@ -287,15 +300,20 @@ public final class InputManager {
         }
     }
 
-    public @NonNull Set<@NonNull InputBinding> getBindings(GameAction action) {
+    public @NonNull NavigableSet<@NonNull InputBinding> getBindings(GameAction action) {
         return bindings.stream()
                 .filter(b -> b.action() == action)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
-    public @NonNull Set<@NonNull InputBinding> getDefaultBindings(GameAction action) {
+    public @NonNull String getBindingString(@NonNull GameAction action) {
+        NavigableSet<InputBinding> set = getBindings(action);
+        return set.isEmpty() ? "" : set.getFirst().toString();
+    }
+
+    public @NonNull NavigableSet<@NonNull InputBinding> getDefaultBindings(GameAction action) {
         var defaults = DEFAULT_BINDINGS.get(action);
-        return defaults == null ? Set.of() : new CopyOnWriteArraySet<>(defaults);
+        return defaults == null ? Collections.emptyNavigableSet() : new TreeSet<>(defaults);
     }
 
     public void setBindings(GameAction action, @NonNull Collection<InputBinding> newBindings) {
@@ -361,14 +379,24 @@ public final class InputManager {
         }
     }
 
-    private @NonNull String serializeBindings(@NonNull Collection<InputBinding> set) {
-        return set.stream().map(
-                b -> "{\"key\":\"" + b.key().name() + "\"" + (b.shift() ? ", \"shift\":true" : "") + (b.control() ? ", \"control\":true" : "") + (b.alt() ? ", \"alt\":true" : "") + (b.meta() ? ", \"meta\":true" : "") + "}").collect(
-                        Collectors.joining(", ", "[", "]"));
+    private @NonNull String serializeBindings(@NonNull Collection<InputBinding> bindings) {
+        return bindings.stream()
+                .map(b -> {
+                    if (b.codepoint() != 0) {
+                        return "{\"char\":\"" + (char) b.codepoint() + "\"}";
+                    }
+                    return "{\"key\":\"" + b.key().name() + "\"" +
+                            (b.shift() ? ", \"shift\":true" : "") +
+                            (b.control() ? ", \"control\":true" : "") +
+                            (b.alt() ? ", \"alt\":true" : "") +
+                            (b.meta() ? ", \"meta\":true" : "") +
+                            "}";
+                })
+                .collect(Collectors.joining(", ", "[", "]"));
     }
 
-    private @NonNull Set<InputBinding> parseBindings(@NonNull String json, @NonNull GameAction action) {
-        Set<InputBinding> set = new CopyOnWriteArraySet<>();
+    private @NonNull NavigableSet<InputBinding> parseBindings(@NonNull String json, @NonNull GameAction action) {
+        NavigableSet<InputBinding> set = new TreeSet<>();
         String trimmed = json.trim();
         if (trimmed.length() < 2 || !trimmed.startsWith("[") || !trimmed.endsWith("]")) return set;
 
@@ -385,13 +413,14 @@ public final class InputManager {
     }
 
     private @Nullable InputBinding parseBindingObject(@NonNull String content, @NonNull GameAction action) {
-        // Expected: {"key"="KEY", "mod":true}
+        // Expected: {"key"="KEY", "mod":true} or {"char": "+"}
         String inner = content.trim();
         if (inner.startsWith("{")) inner = inner.substring(1);
         if (inner.endsWith("}")) inner = inner.substring(0, inner.length() - 1);
 
         String[] pairs = inner.split(",");
         Key key = Key.KEY_UNKNOWN;
+        int codepoint = 0;
         Set<Modifier> modifiers = EnumSet.noneOf(Modifier.class);
 
         for (String pair : pairs) {
@@ -399,11 +428,14 @@ public final class InputManager {
             String[] kv = pair.split("[:=]");
             if (kv.length != 2) continue;
             String k = unquote(kv[0].trim()).toLowerCase(Locale.ROOT);
-            String v = unquote(kv[1].trim());
+            String v = unquote(kv[1]); // do not trim; we must allow space, tab, enter, etc.
 
             try {
                 switch (k) {
                     case "key" -> key = Key.valueOf(v);
+                    case "char" -> {
+                        if (!v.isEmpty()) codepoint = v.codePointAt(0);
+                    }
                     case "shift" -> {
                         if (Boolean.parseBoolean(v)) modifiers.add(Modifier.SHIFT);
                     }
@@ -423,6 +455,9 @@ public final class InputManager {
             }
         }
 
+        if (codepoint != 0) {
+            return new InputBinding(Key.KEY_UNKNOWN, codepoint, EnumSet.noneOf(Modifier.class), action);
+        }
         if (key != Key.KEY_UNKNOWN) {
             return new InputBinding(key, modifiers, action);
         }

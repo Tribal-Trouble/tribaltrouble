@@ -47,14 +47,14 @@ public class Form extends Group {
 
             GUIObject label = new Label(caption, font);
             label.setPos(form_data.captionLeft(), getHeight() - form_data.captionY() - font.getHeight() / 2);
-            addChild(label);
             label.addMouseMotionListener(new DragListener(this));
+            addChild(label);
 
-            GUIObject close_button = new IconButton(Skin.getSkin().getFormData().formClose());
+            GUIObject close_button = new IconButton(Skin.getSkin().getFormData().formClose(), null);
             close_button.setPos(getWidth() - close_button.getWidth() - form_data.closeRight(),
                     getHeight() - close_button.getHeight() - form_data.closeTop());
-            addChild(close_button);
             close_button.addMouseClickListener((_, _, _, _) -> this.cancel());
+            addChild(close_button);
         } else {
             form = Skin.getSkin().getFormData().slimForm();
             super.compileCanvas(form.getLeftOffset() + spacing,
@@ -71,9 +71,9 @@ public class Form extends Group {
             w = root.getWidth();
             h = root.getHeight();
         } else {
-            var window = Renderer.getRenderer().getWindow();
-            int physW = window.getWidth();
-            int physH = window.getHeight();
+            var context = Renderer.getRenderer().getRenderContext();
+            int physW = context.getViewportWidth();
+            int physH = context.getViewportHeight();
             float scale = GUIRoot.calculateEffectiveScale(physW, physH);
             w = (int) (physW / scale);
             h = (int) (physH / scale);
@@ -200,7 +200,7 @@ public class Form extends Group {
     private static final class DragListener implements MouseMotionListener {
         private final Form owner;
 
-        public DragListener(Form owner) {
+        DragListener(Form owner) {
             this.owner = owner;
         }
 

@@ -9,7 +9,7 @@ import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.net.ChatCommand;
 import com.oddlabs.tt.net.ChatListener;
 import com.oddlabs.tt.net.ChatMessage;
-import com.oddlabs.tt.net.Network;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -63,10 +63,13 @@ public class ChatPanel extends Panel implements ChatListener {
         Label label_headline = new Label(info.name(), Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
 
-        int edit_line_height = edata.getBottomOffset() + edata.getTopOffset() + Skin.getSkin().getEditFont().getHeight();
-        int height = compare_height - pdata.getTopOffset() - pdata.getBottomOffset() - edit_line_height - label_headline.getHeight() - 2 * fdata.objectSpacing();
+        int edit_line_height = edata.getBottomOffset() + edata.getTopOffset() + Skin.getSkin().getEditFont()
+                .getHeight();
+        int height = compare_height - pdata.getTopOffset() - pdata.getBottomOffset() - edit_line_height - label_headline
+                .getHeight() - 2 * fdata.objectSpacing();
         int user_list_height = (height - Skin.getSkin().getFormData().objectSpacing()) / 2;//- Skin.getSkin().editFont().getHeight();
-        user_list_width = 2 * button_width + 2 * fdata.objectSpacing() - Skin.getSkin().getScrollBarData().scrollBar().getWidth();
+        user_list_width = 2 * button_width + 2 * fdata.objectSpacing() - Skin.getSkin().getScrollBarData().scrollBar()
+                .getWidth();
 
         ColumnInfo[] lobby_infos = new ColumnInfo[]{new ColumnInfo(getI18N("lobby"), user_list_width)};
         lobby_users_list_box = new MultiColumnComboBox<>(gui_root, lobby_infos, user_list_height, true);
@@ -136,10 +139,11 @@ public class ChatPanel extends Panel implements ChatListener {
             lobby_users_list_box.clear();
             playing_users_list_box.clear();
             for (ChatRoomUser user : users) {
-                int label_width = user_list_width - (Skin.getSkin().getMultiColumnComboBoxData().box().getLeftOffset() + Skin.getSkin().getMultiColumnComboBoxData().box().getRightOffset());
+                int label_width = user_list_width - (Skin.getSkin().getMultiColumnComboBoxData().box().getLeftOffset()
+                        + Skin.getSkin().getMultiColumnComboBoxData().box().getRightOffset());
                 Label label = new Label(user.getNick(), Skin.getSkin().getMultiColumnComboBoxData().font(),
                         label_width);
-                Row<ChatRoomUser, Label> row = new Row<>(new Label[]{label}, user);
+                Row<ChatRoomUser, Label> row = new Row<>(List.of(label), user);
                 if (!user.isPlaying()) {
                     lobby_users_list_box.addRow(row);
                 } else {
@@ -161,7 +165,8 @@ public class ChatPanel extends Panel implements ChatListener {
     }
 
     private void refreshMessages() {
-        List<@NonNull String> messages = Network.getMatchmakingClient().getChatRoomHistory();
+        List<@NonNull String> messages = Renderer.getRenderer().getNetwork().getMatchmakingClient()
+                .getChatRoomHistory();
         chat_box.clear();
         boolean first = true;
         for (var message : messages) {
@@ -188,7 +193,7 @@ public class ChatPanel extends Panel implements ChatListener {
     private final class PulldownListener implements ItemChosenListener<@NonNull ChatRoomUser> {
         private final MultiColumnComboBox<ChatRoomUser> box;
 
-        public PulldownListener(MultiColumnComboBox<@NonNull ChatRoomUser> box) {
+        PulldownListener(MultiColumnComboBox<@NonNull ChatRoomUser> box) {
             this.box = box;
         }
 
@@ -197,20 +202,16 @@ public class ChatPanel extends Panel implements ChatListener {
             ChatRoomUser user = box.getRightClickedRowData();
             String nick = user.getNick();
             switch (item_index) {
-                case PULLDOWN_INDEX_MESSAGE:
-                    gui_root.addModalForm(new PrivateMessageForm(gui_root, nick));
-                    break;
-                case PULLDOWN_INDEX_INFO:
-                    Network.getMatchmakingClient().requestInfo(gui_root, nick);
-                    break;
-                case PULLDOWN_INDEX_IGNORE:
+                case PULLDOWN_INDEX_MESSAGE -> gui_root.addModalForm(new PrivateMessageForm(gui_root, nick));
+                case PULLDOWN_INDEX_INFO -> Renderer.getRenderer().getNetwork().getMatchmakingClient().requestInfo(
+                        gui_root, nick);
+                case PULLDOWN_INDEX_IGNORE -> {
                     if (ChatCommand.isIgnoring(nick))
                         ChatCommand.unignore(gui_root.getInfoPrinter(), nick);
                     else
                         ChatCommand.ignore(gui_root.getInfoPrinter(), nick);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unexpected pulldown index");
+                }
+                default -> throw new IllegalArgumentException("Unexpected pulldown index");
             }
             box.setFocus();
         }
@@ -232,10 +233,10 @@ public class ChatPanel extends Panel implements ChatListener {
                     gui_root.addModalForm(new PrivateMessageForm(gui_root, nick));
                     break;
                 case PULLDOWN_INDEX_INFO:
-                    Network.getMatchmakingClient().requestInfo(gui_root, nick);
+                    Renderer.getRenderer().getNetwork().getMatchmakingClient().requestInfo(gui_root, nick);
                     break;
                 case PULLDOWN_INDEX_PLAYING_SPECTATE:
-                    Network.getMatchmakingClient().requestSpectate(gui_root, nick);
+                    Renderer.getRenderer().getNetwork().getMatchmakingClient().requestSpectate(gui_root, nick);
                     break;
                 case PULLDOWN_INDEX_PLAYING_IGNORE:
                     if (ChatCommand.isIgnoring(nick))
@@ -272,7 +273,7 @@ public class ChatPanel extends Panel implements ChatListener {
         @Override
         public void rowChosen(@NonNull ChatRoomUser user) {
             String item_text = ChatCommand.isIgnoring(user.getNick()) ? getI18N("unignore") : getI18N("ignore");
-            menu.getItem(ignoreIndex).setLabelString(item_text);
+            menu.getItem(ignoreIndex).ifPresent(pi -> pi.setLabelString(item_text));
         }
     }
 

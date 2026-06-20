@@ -8,10 +8,9 @@ import com.oddlabs.tt.form.MatchmakingConnectingForm;
 import com.oddlabs.tt.form.SelectGameMenu;
 import com.oddlabs.tt.form.TerrainMenuForm;
 import com.oddlabs.tt.form.TutorialForm;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.MenuButton;
-import com.oddlabs.tt.net.Network;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.steam.SteamManager;
 import org.jspecify.annotations.NonNull;
 
@@ -41,14 +40,14 @@ public final class MainMenu extends Menu {
                 MainMenu.this)));
         addChild(single_player);
 
-        if (!Settings.getSettings().hide_multiplayer) {
+        if (!Renderer.getRenderer().getSettings().hide_multiplayer) {
             MenuButton multi_player = new MenuButton(Menu.i18n("multiplayer"), COLOR_NORMAL, COLOR_ACTIVE);
             multi_player.addMouseClickListener((_, _, _, _) -> {
-                if (Network.getMatchmakingClient().isConnected()) {
+                if (Renderer.getRenderer().getNetwork().getMatchmakingClient().isConnected()) {
                     new SelectGameMenu(getNetwork(), getGUIRoot(), MainMenu.this);
                 } else {
-                    Network.getMatchmakingClient().close();
-                    if (Settings.getSettings().isOfficialServer() && SteamManager.getInstance() != null) {
+                    Renderer.getRenderer().getNetwork().getMatchmakingClient().close();
+                    if (Renderer.getRenderer().getSettings().isOfficialServer() && SteamManager.getInstance() != null) {
                         new MatchmakingConnectingForm(getNetwork(), getGUIRoot(), null, MainMenu.this, true);
                     } else {
                         new LoginForm(getNetwork(), getGUIRoot(), MainMenu.this);
@@ -67,7 +66,7 @@ public final class MainMenu extends Menu {
 
         addExitButton();
 
-        if (Network.getMatchmakingClient().isConnected()) {
+        if (Renderer.getRenderer().getNetwork().getMatchmakingClient().isConnected()) {
             new SelectGameMenu(getNetwork(), getGUIRoot(), this);
         }
     }

@@ -1,12 +1,19 @@
 package com.oddlabs.tt.model.behaviour;
 
-import com.oddlabs.tt.audio.AudioParameters;
-import com.oddlabs.tt.audio.AudioPlayer;
-import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.EmojiType;
+import com.oddlabs.tt.model.ModelClient;
+import com.oddlabs.tt.model.SupplyType;
 import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.resource.AudioAssets;
 import org.jspecify.annotations.NonNull;
 
+import java.util.concurrent.ThreadLocalRandom;
+
+/**
+ * Logic for unit repairing behavior.
+ * Manages units moving to damaged buildings and restoring their hit points.
+ */
 public final class RepairBehaviour implements Behaviour {
     private static final int REPAIRS_PER_SUPPLY = 5;
     private static final float SECONDS_PER_ANIMATION_CYCLE = 1f;
@@ -22,7 +29,7 @@ public final class RepairBehaviour implements Behaviour {
         this.building = building;
         unit.aimAtTarget(building);
         restartAnimation();
-        unit.getSupplyContainer().increaseSupply(-1, TreeSupply.class);
+        unit.getSupplyContainer().increaseSupply(-1, SupplyType.WOOD);
         repairs = 0;
     }
 
@@ -36,20 +43,21 @@ public final class RepairBehaviour implements Behaviour {
         anim_time += t;
         if (anim_time > unit.getWeaponFactory().getSecondsPerRelease(1f / SECONDS_PER_ANIMATION_CYCLE) && !sound) {
             sound = true;
-            unit.getOwner().getWorld().getAudio().newAudio(new AudioParameters<>(
-                    unit.getOwner().getWorld().getRacesResources().getHarvestSound(TreeSupply.class,
-                            unit.getOwner().getWorld().getRandom()), unit.getPositionX(), unit.getPositionY(),
-                    unit.getPositionZ(),
-                    AudioPlayer.AUDIO_RANK_HARVEST,
-                    AudioPlayer.AUDIO_DISTANCE_HARVEST,
-                    AudioPlayer.AUDIO_GAIN_HARVEST,
-                    AudioPlayer.AUDIO_RADIUS_HARVEST));
+            unit.getOwner().getWorld().getAudio().newAudio(unit.getPositionX(), unit.getPositionY(), unit
+                    .getPositionZ(), AudioAssets.getHarvestSound(SupplyType.WOOD));
+
+            var selectedEmoji = ThreadLocalRandom.current().nextBoolean()
+                    ? EmojiType.REPAIR_SAW : EmojiType.REPAIR_HAMMER;
+            unit.getClientState(ModelClient.class).ifPresent(client -> {
+                client.addVisualSound(selectedEmoji,
+                        ModelClient.DURATION_REPAIR, AudioAssets.AUDIO_DISTANCE_HARVEST);
+            });
         }
 
         if (anim_time > SECONDS_PER_ANIMATION_CYCLE) {
             restartAnimation();
             repairs++;
-            if (building.isDead() || !building.isDamaged()) {
+            if (building.isDead() || (building.isBuilt() && !building.isDamaged())) {
                 return State.DONE;
             } else
                 building.repair(1);

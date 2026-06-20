@@ -3,14 +3,17 @@ package com.oddlabs.tt.viewer;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.animation.Updatable;
-import com.oddlabs.tt.audio.Audio;
 import com.oddlabs.tt.audio.AudioParameters;
-import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.gui.Arrow;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.World;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * A temporary, animated on-screen alert directing the player's attention
+ * to a specific location in the game world, typically accompanied by a sound.
+ */
 public class Notification implements Updatable<TimerAnimation> {
 
     private static final float ACTIVE_SECONDS = 5f;
@@ -22,17 +25,17 @@ public class Notification implements Updatable<TimerAnimation> {
     private final @NonNull Arrow arrow;
 
     public Notification(@NonNull World world, @NonNull GUIRoot gui_root, float x, float y,
-            @NonNull NotificationManager manager, float r, float g, float b, @NonNull Audio sound, boolean show_always,
+            @NonNull NotificationManager manager, @NonNull Color color, @NonNull AudioParameters params,
+            boolean show_always,
             @NonNull AnimationManager animation_manager) {
         this.center_x = x;
         this.center_y = y;
         this.manager = manager;
         this.timer = new TimerAnimation(animation_manager, this, ACTIVE_SECONDS);
         timer.start();
-        this.arrow = new Arrow(world.getHeightMap(), gui_root, center_x, center_y, r, g, b, show_always);
+        this.arrow = new Arrow(world.getHeightMap(), gui_root, center_x, center_y, color, show_always);
         gui_root.addChild(arrow);
-        world.getAudio().newAudio(new AudioParameters<>(sound, 0f, 0f, 0f, AudioPlayer.AUDIO_RANK_NOTIFICATION,
-                AudioPlayer.AUDIO_DISTANCE_NOTIFICATION, .25f, 1f, 1f, false, true));
+        world.getAudio().newAudio(0f, 0f, 0f, params);
     }
 
     public void remove() {

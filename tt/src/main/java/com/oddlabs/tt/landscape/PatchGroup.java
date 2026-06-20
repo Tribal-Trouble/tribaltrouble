@@ -1,49 +1,45 @@
 package com.oddlabs.tt.landscape;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class PatchGroup extends AbstractPatchGroup {
     /*
-     * child2 | child3
-     * ----------------
-     * child0 | child1
+     * child[2] | child[3]
+     * -------------------
+     * child[0] | child[1]
      *
      */
-
-    private final @NonNull AbstractPatchGroup child0;
-    private final @NonNull AbstractPatchGroup child1;
-    private final @NonNull AbstractPatchGroup child2;
-    private final @NonNull AbstractPatchGroup child3;
+    private final @NonNull AbstractPatchGroup @NonNull [] children;
 
     public PatchGroup(@NonNull World world) {
         this(world, world.getHeightMap().getPatchesPerWorld(), 0, 0, 0, null);
     }
 
-    public PatchGroup(@NonNull World world, int size, int x, int y, int level, AbstractPatchGroup parent) {
+    public PatchGroup(@NonNull World world, int size, int x, int y, int level, @Nullable AbstractPatchGroup parent) {
         super(world.getHeightMap(), size, x, y, parent);
         int child_size = size >> 1;
-        child0 = createChild(world, child_size, x, y, level);
-        child1 = createChild(world, child_size, x + child_size, y, level);
-        child2 = createChild(world, child_size, x, y + child_size, level);
-        child3 = createChild(world, child_size, x + child_size, y + child_size, level);
+        children = new AbstractPatchGroup[]{
+                createChild(world, child_size, x, y, level),
+                createChild(world, child_size, x + child_size, y, level),
+                createChild(world, child_size, x, y + child_size, level),
+                createChild(world, child_size, x + child_size, y + child_size, level)
+        };
 
-        setBounds(child0);
-        checkBounds(child1);
-        checkBounds(child2);
-        checkBounds(child3);
+        setBounds(children[0]);
+        for (int i = 1; i < 4; i++) {
+            checkBounds(children[i]);
+        }
     }
 
-    @Override
-    public void visit(@NonNull PatchGroupVisitor visitor) {
-        visitor.visitGroup(this);
+    public @NonNull AbstractPatchGroup @NonNull [] children() {
+        return children;
     }
 
-    public void visitChildren(@NonNull PatchGroupVisitor visitor) {
-        child0.visit(visitor);
-        child1.visit(visitor);
-        child2.visit(visitor);
-        child3.visit(visitor);
+    public @NonNull AbstractPatchGroup child(int index) {
+        return children[index];
     }
+
 
     private @NonNull AbstractPatchGroup createChild(@NonNull World world, int size, int x, int y, int level) {
         if (size == 1) {

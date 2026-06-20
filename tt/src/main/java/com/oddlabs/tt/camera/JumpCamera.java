@@ -2,8 +2,13 @@ package com.oddlabs.tt.camera;
 
 import com.oddlabs.tt.delegate.CameraDelegate;
 import com.oddlabs.tt.delegate.JumpDelegate;
+import org.joml.Vector2fc;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * A specialized camera that performs a transition jump from one camera
+ * state to another, typically used for cinematic or focal transitions.
+ */
 public final class JumpCamera extends Camera {
     private static final float DEFAULT_METERS_PER_SECOND = 300f;
     private static final float DEFAULT_MAX_SECONDS = .5f;
@@ -31,14 +36,18 @@ public final class JumpCamera extends Camera {
         super(old_camera.getHeightMap(), old_camera.getState());
         this.delegate = delegate;
         delegate.getViewer().getPicker().pickRotate(old_camera);
-        float[] target = old_camera.getRotationPoint();
-        float dx = target[0] - getState().getTargetX();
-        float dy = target[1] - getState().getTargetY();
-        float dz = getHeightMap().getNearestHeight(target[0], target[1]) - getState().getTargetZ();
-        float distance_to_landscape = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
-        float dir_x = dx / distance_to_landscape;
-        float dir_y = dy / distance_to_landscape;
-        float dir_z = dz / distance_to_landscape;
+        Vector2fc target = old_camera.getRotationPoint();
+        float target_z = getHeightMap().getNearestHeight(target.x(), target.y());
+        float dx_to_landscape = target.x() - getState().getTargetX();
+        float dy_to_landscape = target.y() - getState().getTargetY();
+        float dz_to_landscape = target_z - getState().getTargetZ();
+        float distance_to_landscape = (float) Math.sqrt(dx_to_landscape * dx_to_landscape + dy_to_landscape
+                * dy_to_landscape + dz_to_landscape * dz_to_landscape);
+
+        float dir_x = dx_to_landscape / distance_to_landscape;
+        float dir_y = dy_to_landscape / distance_to_landscape;
+        float dir_z = dz_to_landscape / distance_to_landscape;
+
         dst_x = (int) x - dir_x * distance_to_landscape;
         dst_y = (int) y - dir_y * distance_to_landscape;
         dst_z = getHeightMap().getNearestHeight((int) x, (int) y) - dir_z * distance_to_landscape;
@@ -69,7 +78,7 @@ public final class JumpCamera extends Camera {
         temp_z += z_speed * t;
         getState().setTargetZ(temp_z);
         z_speed += z_accel * t;
-        bounce(getState().getTargetX(), getState().getTargetY(), getState().getTargetZ(),
-                delegate.getGUIRoot().getWidth(), delegate.getGUIRoot().getHeight());
+        bounce(getState().getTargetX(), getState().getTargetY(), getState().getTargetZ(), delegate.getGUIRoot()
+                .getWidth(), delegate.getGUIRoot().getHeight());
     }
 }

@@ -13,6 +13,9 @@ import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
+import java.util.function.Function;
+import java.util.stream.Stream;
+
 public final class NativeCampaign extends Campaign {
     public static final int MAX_UNITS = 41;
     private static final int[] INITIAL_STATES = new int[]{
@@ -26,9 +29,20 @@ public final class NativeCampaign extends Campaign {
             		CampaignState.ISLAND_AVAILABLE,
             		CampaignState.ISLAND_AVAILABLE};
             */
-            CampaignState.ISLAND_AVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_UNAVAILABLE, CampaignState.ISLAND_HIDDEN};
+            CampaignState.ISLAND_AVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_UNAVAILABLE,
+            CampaignState.ISLAND_HIDDEN};
 
-    private final Island @NonNull [] islands;
+    private final @NonNull Island[] islands = Stream.<Function<Campaign, Island>>of(
+            NativeIsland0::new, NativeIsland1::new, NativeIsland2::new, NativeIsland3::new,
+            NativeIsland4::new, NativeIsland5::new, NativeIsland6::new, NativeIsland7::new)
+            .map(constructor -> constructor.apply(this))
+            .toArray(Island[]::new);
 
     public NativeCampaign(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
         this(network, gui_root, new CampaignState(INITIAL_STATES));
@@ -36,15 +50,7 @@ public final class NativeCampaign extends Campaign {
 
     public NativeCampaign(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, CampaignState campaign_state) {
         super(campaign_state);
-        islands = new Island[NativeCampaignIcons.getIcons().getNumIslands()];
-        islands[0] = new NativeIsland0(this);
-        islands[1] = new NativeIsland1(this);
-        islands[2] = new NativeIsland2(this);
-        islands[3] = new NativeIsland3(this);
-        islands[4] = new NativeIsland4(this);
-        islands[5] = new NativeIsland5(this);
-        islands[6] = new NativeIsland6(this);
-        islands[7] = new NativeIsland7(this);
+
         if (getState().getCurrentIsland() == -1) {
             startIsland(network, gui_root, 0);
         }

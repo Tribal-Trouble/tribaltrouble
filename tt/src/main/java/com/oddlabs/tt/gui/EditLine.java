@@ -1,10 +1,5 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.tt.audio.Audio;
-import com.oddlabs.tt.audio.AudioFile;
-import com.oddlabs.tt.audio.AudioManager;
-import com.oddlabs.tt.audio.AudioParameters;
-import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.guievent.EnterListener;
@@ -12,10 +7,11 @@ import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
+import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.tt.resource.Resources;
+import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.resource.AudioAssets;
 import com.oddlabs.util.Color;
-import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -25,12 +21,20 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 
+/**
+ * A single-line text input field. Supports basic text editing, cursor navigation,
+ * input filtering, and horizontal scrolling for text that exceeds the visual width.
+ */
 public class EditLine extends TextField implements Clipped {
+    @SuppressWarnings("TimeUnitConversionChecker")
+    private static final long ERROR_DURATION = TimeUnit.MILLISECONDS.toMillis(200);
     private final Set<@NonNull EnterListener> enter_listeners = new CopyOnWriteArraySet<>();
     private final @NonNull Origin alignment;
     private final @Nullable String allowed_chars;
     protected final int max_text_width;
+    private final int max_chars;
 
     private int offset_x;
     private int index;
@@ -38,20 +42,20 @@ public class EditLine extends TextField implements Clipped {
     private int selectionEnd = -1;
 
     private long errorFlashStart = 0;
-    private static final Audio ERROR_SOUND = Resources.findResource(new AudioFile("/sfx/chicken_peck.ogg"));
 
-    public EditLine(int width, int max_chars) {
-        this(width, max_chars, Origin.AT_START);
+    public EditLine(int width, int max_codepoints) {
+        this(width, max_codepoints, Origin.AT_START);
     }
 
-    public EditLine(int width, int max_chars, @NonNull Origin alignment) {
-        this(width, max_chars, null, alignment);
+    public EditLine(int width, int max_codepoints, @NonNull Origin alignment) {
+        this(width, max_codepoints, null, alignment);
     }
 
-    public EditLine(int width, int max_chars, @Nullable String allowed_chars, @NonNull Origin alignment) {
-        super(Skin.getSkin().getEditFont(), max_chars);
+    public EditLine(int width, int max_codepoints, @Nullable String allowed_chars, @NonNull Origin alignment) {
+        super(Skin.getSkin().getEditFont(), max_codepoints);
         this.allowed_chars = allowed_chars;
         this.alignment = alignment;
+        this.max_chars = max_codepoints;
         Box edit_box = Skin.getSkin().getEditBox();
         setDim(width, getFont().getHeight() + edit_box.getBottomOffset() + edit_box.getTopOffset());
         setCanFocus(true);
@@ -71,13 +75,15 @@ public class EditLine extends TextField implements Clipped {
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         Box edit_box = Skin.getSkin().getEditBox();
-        var mode = isDisabled() ? ModeIconQuads.Mode.DISABLED : (isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL);
+        var mode = isDisabled() ? ModeIconQuads.Mode.DISABLED : (isActive() ? ModeIconQuads.Mode.ACTIVE
+                : ModeIconQuads.Mode.NORMAL);
         edit_box.render(renderer, 0f, 0f, getWidth(), getHeight(), mode);
 
         long elapsed = System.currentTimeMillis() - errorFlashStart;
-        if (elapsed < 200) {
-            float alpha = 0.5f * (1.0f - (elapsed / 200.0f));
-            renderer.drawColoredQuad(2, 2, getWidth() - 4, getHeight() - 4, new Vector4f(1f, 1f, 1f, alpha));
+        if (elapsed < ERROR_DURATION) {
+            var elapsed_percent = 1.0f - ((float) elapsed / ERROR_DURATION);
+            var color = Color.Linear.WHITE.alpha(0.5f * elapsed_percent);
+            renderer.drawColoredQuad(2, 2, getWidth() - 4, getHeight() - 4, color);
         }
 
         int render_index = isActive() ? index : -1;
@@ -93,20 +99,20 @@ public class EditLine extends TextField implements Clipped {
     protected void renderText(@NonNull GUIRenderer renderer, @NonNull Box box, int offset_x, int render_index) {
         var displayText = getDisplayText();
         TextLineRenderer.render(renderer, getFont(), displayText, box.getLeftOffset() + offset_x, box.getBottomOffset(),
-                box.getLeftOffset() + 1, getWidth() - box.getRightOffset() - 1, Color.WHITE);
+                box.getLeftOffset() + 1, getWidth() - box.getRightOffset() - 1, Color.Linear.WHITE);
         if (render_index != -1) {
             int cursorX = getRenderedWidth(displayText.subSequence(0, render_index));
             Index.renderIndex(renderer, box.getLeftOffset() + offset_x + cursorX, box.getBottomOffset(), getFont(),
-                    Color.WHITE);
+                    Color.Linear.WHITE);
         }
         renderSelectionHighlight(renderer, displayText, box, offset_x);
     }
 
     @Override
-    protected boolean insert(int index, char key) {
-        boolean result = super.insert(index, key);
+    protected boolean insert(int index, int codepoint) {
+        boolean result = super.insert(index, codepoint);
         if (result) {
-            this.index++;
+            this.index += Character.charCount(codepoint);
         }
         return result;
     }
@@ -117,9 +123,7 @@ public class EditLine extends TextField implements Clipped {
         errorFlashStart = System.currentTimeMillis();
         if (ERROR_SOUND_ENABLED) {
             try {
-                AudioManager.getManager().newAudio(new AudioParameters<>(ERROR_SOUND, 0f, 0f, 0f,
-                        AudioPlayer.AUDIO_RANK_NOTIFICATION, AudioPlayer.AUDIO_DISTANCE_NOTIFICATION, 0.5f, 1f, 0.5f,
-                        false, true));
+                Renderer.getRenderer().getAudioManager().newAudio(0f, 0f, 0f, AudioAssets.ERROR_SOUND);
             } catch (Exception _) {
                 // Ignore audio errors
             }
@@ -129,9 +133,10 @@ public class EditLine extends TextField implements Clipped {
     @Override
     protected void handleInput(@NonNull InputEvent event) {
         if (event.getPhase() == InputPhase.RELEASED) {
-            // Only submit on Enter, not Space — both are mapped to UI_ACTIVATE
-            if (event.getKeyCode() == Key.RETURN && event.consumeAction(GameAction.UI_ACTIVATE)) {
-                enterPressedAll();
+            if (event.consumeAction(GameAction.UI_ACTIVATE)) {
+                if (event.getKeyCode() == Key.RETURN) {
+                    enterPressedAll();
+                }
                 return;
             }
         }
@@ -155,21 +160,31 @@ public class EditLine extends TextField implements Clipped {
             boolean consumed = true;
 
             if (event.consumeAction(GameAction.UI_NAV_LEFT)) {
-                if (index > 0) index--;
+                if (index > 0) {
+                    index -= Character.charCount(getText().codePointBefore(index));
+                }
             } else if (event.consumeAction(GameAction.UI_NAV_RIGHT)) {
-                if (index < getText().length()) index++;
+                if (index < getText().length()) {
+                    index += Character.charCount(getText().codePointAt(index));
+                }
             } else if (event.consumeAction(GameAction.UI_NAV_HOME)) {
                 index = 0;
             } else if (event.consumeAction(GameAction.UI_NAV_END)) {
                 index = getText().length();
             } else if (event.consumeAction(GameAction.UI_BACKSPACE)) {
-                if (index > 0) delete(--index);
-                else triggerError();
+                if (index > 0) {
+                    int cp = getText().codePointBefore(index);
+                    index -= Character.charCount(cp);
+                    delete(index);
+                } else triggerError();
             } else if (event.consumeAction(GameAction.UI_DELETE)) {
                 if (index < getText().length()) delete(index);
             } else if (!event.isControlDown() && !event.isMetaDown() && !event.isAltDown()) {
-                char c = event.getCharacter();
+                int c = event.getCodepoint();
                 if (c != 0 && !Character.isISOControl(c)) {
+                    if (c == ' ') { // Check if the character is SPACE
+                        event.consumeAction(GameAction.UI_ACTIVATE);
+                    }
                     consumed = insert(index, c);
                     if (!consumed) triggerError();
                 } else {
@@ -187,9 +202,9 @@ public class EditLine extends TextField implements Clipped {
 
             // Consume printable keys in PRESSED phase to prevent bubbling (e.g. 'D' triggering debug bounds)
             // even if the character hasn't been typed yet (will come in REPEAT phase).
-            if (event.getPhase() == InputPhase.PRESSED && !event.isControlDown() && !event.isAltDown()
-                    && !event.isMetaDown()) {
-                char c = event.getCharacter();
+            if (event.getPhase() == InputPhase.PRESSED && !event.isControlDown() && !event.isAltDown() && !event
+                    .isMetaDown()) {
+                int c = event.getCodepoint();
                 if (c != 0 && !Character.isISOControl(c)) {
                     event.consume();
                     return;
@@ -201,9 +216,9 @@ public class EditLine extends TextField implements Clipped {
     }
 
     @Override
-    public final boolean isAllowed(char ch) {
-        return super.isAllowed(ch) && getFont().getQuad(ch) != null && (allowed_chars == null || allowed_chars.indexOf(
-                ch) != -1);
+    public final boolean isAllowed(int codepoint) {
+        return super.isAllowed(codepoint) && getFont().getQuad(codepoint) != null && (allowed_chars == null
+                || allowed_chars.indexOf(codepoint) != -1);
     }
 
     private void correctOffsetX() {
@@ -281,12 +296,17 @@ public class EditLine extends TextField implements Clipped {
             float bestDx = Float.MAX_VALUE;
 
             var displayText = getDisplayText();
-            for (int i = 0; i <= displayText.length(); i++) {
+            for (int i = 0; i <= displayText.length();) {
                 int charX = getRenderedWidth(displayText.subSequence(0, i));
                 float dx = Math.abs(relativeX - charX);
                 if (dx < bestDx) {
                     bestDx = dx;
                     bestIndex = i;
+                }
+                if (i < displayText.length()) {
+                    i += Character.charCount(Character.codePointAt(displayText, i));
+                } else {
+                    break;
                 }
             }
             index = bestIndex;
@@ -349,7 +369,7 @@ public class EditLine extends TextField implements Clipped {
 
         int oldIndex = index;
 
-        // Word jumping uses raw key codes intentionally — Ctrl+Left/Right is a universal
+        // Word jumping uses raw key codes intentionally � Ctrl+Left/Right is a universal
         // OS text editing convention and should not be rebindable via GameAction bindings.
         if (ctrl && event.getKeyCode() == Key.LEFT) {
             index = wordBoundaryLeft(index);
@@ -395,7 +415,7 @@ public class EditLine extends TextField implements Clipped {
         }
 
         if (!event.isControlDown() && !event.isMetaDown() && !event.isAltDown()) {
-            char c = event.getCharacter();
+            int c = event.getCodepoint();
             if (c != 0 && !Character.isISOControl(c)) {
                 deleteSelection();
                 boolean result = insert(index, c);
@@ -404,7 +424,7 @@ public class EditLine extends TextField implements Clipped {
             }
         }
 
-        // Arrow keys with selection but no shift — jump to selection edge and clear
+        // Arrow keys with selection but no shift � jump to selection edge and clear
         if (!event.isShiftDown()) {
             if (event.hasAction(GameAction.UI_NAV_LEFT) || event.hasAction(GameAction.UI_NAV_HOME)) {
                 event.consumeAction(GameAction.UI_NAV_LEFT);
@@ -440,7 +460,7 @@ public class EditLine extends TextField implements Clipped {
                 getWidth() - box.getRightOffset() - 1);
         if (highlightRight > highlightLeft) {
             renderer.drawColoredQuad(highlightLeft, box.getBottomOffset(), highlightRight - highlightLeft,
-                    getFont().getHeight(), new Vector4f(0.3f, 0.5f, 1.0f, 0.4f));
+                    getFont().getHeight(), new Color.Standard(0.3f, 0.5f, 1.0f, 0.4f).linear());
         }
     }
 

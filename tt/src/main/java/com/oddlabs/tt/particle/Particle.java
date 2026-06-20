@@ -1,9 +1,9 @@
 package com.oddlabs.tt.particle;
 
 import com.oddlabs.tt.landscape.World;
-import com.oddlabs.tt.model.ElementVisitor;
 import com.oddlabs.tt.model.Model;
-import com.oddlabs.tt.render.SpriteKey;
+import com.oddlabs.tt.model.BoundingBox;
+import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -19,10 +19,12 @@ public class Particle extends Model {
     private final float v3;
     private final float u4;
     private final float v4;
+    private float angle;
+    private float angularVelocity = 0f;
 
     private final Vector3f position = new Vector3f();
-    private final Vector4f color = new Vector4f();
-    private final Vector4f deltaColor = new Vector4f();
+    private Color.@NonNull Linear color = Color.Linear.TRANSPARENT;
+    private Color.@NonNull LinearDelta deltaColor = Color.LinearDelta.ZERO;
     private final Vector3f growthRate = new Vector3f();
     private final Vector3f radius = new Vector3f();
 
@@ -35,6 +37,7 @@ public class Particle extends Model {
 
     public Particle(@NonNull World world, float angle) {
         super(world);
+        this.angle = angle;
         Matrix4f rotMatrix = new Matrix4f();
         Vector3f axis = new Vector3f(0f, 0f, 1f);
         Vector4f uvVector = new Vector4f();
@@ -44,22 +47,22 @@ public class Particle extends Model {
         uvVector.set(-.5f, -.5f, 0f, 0f);
         rotMatrix.transform(uvVector);
         u1 = uvVector.x() + .5f;
-        v1 = uvVector.y() + .5f;
+        v1 = .5f - uvVector.y();
 
         uvVector.set(.5f, -.5f, 0f, 0f);
         rotMatrix.transform(uvVector);
         u2 = uvVector.x() + .5f;
-        v2 = uvVector.y() + .5f;
+        v2 = .5f - uvVector.y();
 
         uvVector.set(.5f, .5f, 0f, 0f);
         rotMatrix.transform(uvVector);
         u3 = uvVector.x() + .5f;
-        v3 = uvVector.y() + .5f;
+        v3 = .5f - uvVector.y();
 
         uvVector.set(-.5f, .5f, 0f, 0f);
         rotMatrix.transform(uvVector);
         u4 = uvVector.x() + .5f;
-        v4 = uvVector.y() + .5f;
+        v4 = .5f - uvVector.y();
     }
 
     public final float getU1() {
@@ -94,10 +97,23 @@ public class Particle extends Model {
         return v4;
     }
 
+    public final float getAngle() {
+        return angle;
+    }
+
     public void update(float t) {
-        color.add(deltaColor.x() * t, deltaColor.y() * t, deltaColor.z() * t, deltaColor.w() * t);
+        color = color.add(deltaColor.mul(t));
         radius.add(growthRate.x() * t, growthRate.y() * t, growthRate.z() * t);
+        angle += angularVelocity * t;
         energy -= t;
+    }
+
+    public final void setAngularVelocity(float angularVelocity) {
+        this.angularVelocity = angularVelocity;
+    }
+
+    public final float getAngularVelocity() {
+        return angularVelocity;
     }
 
     public final void setPos(float x, float y, float z) {
@@ -116,48 +132,36 @@ public class Particle extends Model {
         return position.z();
     }
 
-    final void setColor(float r, float g, float b, float a) {
-        color.set(r, g, b, a);
+    final void setColor(Color.@NonNull Linear color) {
+        this.color = color;
     }
 
-    public final @NonNull Vector4f getColor() {
+    public final Color.@NonNull Linear getColor() {
         return color;
     }
 
-    public final float getColorR() {
-        return color.x();
+    public float getColorR() {
+        return color.r();
     }
 
-    public final float getColorG() {
-        return color.y();
+    public float getColorG() {
+        return color.g();
     }
 
-    public final float getColorB() {
-        return color.z();
+    public float getColorB() {
+        return color.b();
     }
 
     public final float getColorA() {
-        return color.w();
+        return color.a();
     }
 
-    public final void setDeltaColor(float r, float g, float b, float a) {
-        deltaColor.set(r, g, b, a);
+    public final Color.@NonNull LinearDelta getDeltaColor() {
+        return deltaColor;
     }
 
-    public final float getDeltaColorR() {
-        return deltaColor.x();
-    }
-
-    public final float getDeltaColorG() {
-        return deltaColor.y();
-    }
-
-    public final float getDeltaColorB() {
-        return deltaColor.z();
-    }
-
-    public final float getDeltaColorA() {
-        return deltaColor.w();
+    public final void setDeltaColor(Color.@NonNull LinearDelta delta) {
+        this.deltaColor = delta;
     }
 
     public final void setEnergy(float energy) {
@@ -208,13 +212,9 @@ public class Particle extends Model {
         return radius.z();
     }
 
-    @Override
-    public @Nullable SpriteKey getSpriteRenderer() {
-        return null;
-    }
 
     @Override
-    public void visit(@NonNull ElementVisitor visitor) {
-        // Do nothing
+    protected @NonNull BoundingBox @Nullable [] getLocalBounds() {
+        return null;
     }
 }

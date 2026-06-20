@@ -1,5 +1,6 @@
 package com.oddlabs.tt.delegate;
 
+import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.camera.MapCamera;
 import com.oddlabs.tt.form.InGameChatForm;
@@ -27,7 +28,6 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.Notification;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Color;
-import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -35,9 +35,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public final class SelectionDelegate extends ControllableCameraDelegate {
-    private static final Vector4fc SELECTION_COLOR = Color.argb4v(0xFF_4C_FF_00);
-    private static final GameAction[] ARMY_CREATES = new GameAction[]{GameAction.ARMY_CREATE_0, GameAction.ARMY_CREATE_1, GameAction.ARMY_CREATE_2, GameAction.ARMY_CREATE_3, GameAction.ARMY_CREATE_4, GameAction.ARMY_CREATE_5, GameAction.ARMY_CREATE_6, GameAction.ARMY_CREATE_7, GameAction.ARMY_CREATE_8, GameAction.ARMY_CREATE_9,
+/**
+ * Handles core in-game interaction, primarily the selection and commanding of units and buildings.
+ * It also manages in-game chat, jumping to notifications, and switching to map or observer modes.
+ */
+public final class SelectionDelegate extends ControllableCameraDelegate<Camera> {
+    private static final Color.Linear SELECTION_COLOR = new Color.Standard(0xFF_4C_FF_00).linear();
+    private static final GameAction[] ARMY_CREATES = new GameAction[]{
+            GameAction.ARMY_CREATE_0,
+            GameAction.ARMY_CREATE_1,
+            GameAction.ARMY_CREATE_2,
+            GameAction.ARMY_CREATE_3,
+            GameAction.ARMY_CREATE_4,
+            GameAction.ARMY_CREATE_5,
+            GameAction.ARMY_CREATE_6,
+            GameAction.ARMY_CREATE_7,
+            GameAction.ARMY_CREATE_8,
+            GameAction.ARMY_CREATE_9,
     };
     private static final GameAction[] ARMY_SELECTS = new GameAction[]{GameAction.ARMY_SELECT_0, GameAction.ARMY_SELECT_1, GameAction.ARMY_SELECT_2, GameAction.ARMY_SELECT_3, GameAction.ARMY_SELECT_4, GameAction.ARMY_SELECT_5, GameAction.ARMY_SELECT_6, GameAction.ARMY_SELECT_7, GameAction.ARMY_SELECT_8, GameAction.ARMY_SELECT_9
     };
@@ -80,6 +94,11 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         return chat_form;
     }
 
+    @Override
+    protected void pushZoomDelegate() {
+        getGUIRoot().pushDelegate(new ZoomDelegate(getViewer(), game_camera));
+    }
+
     private @NonNull ActionButtonPanel getActionButtonPanel() {
         return getViewer().getPanel();
     }
@@ -93,19 +112,6 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     @Override
     public void handleInput(@NonNull InputEvent event) {
-        // Prevent base GUIObject from handling UI_ACTIVATE (Space/Return as Click)
-        // because we handle Space for Map Mode and Return for Chat.
-        event.consumeAction(GameAction.UI_ACTIVATE);
-
-        // Intercept Esc for armory submenu navigation before super reaches InGameDelegate
-        if ((event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT)
-                && !map_mode && !observer
-                && (event.hasAction(GameAction.GLOBAL_MENU) || event.hasAction(GameAction.UI_CANCEL))) {
-            if (getActionButtonPanel().tryCloseSubmenu(event)) {
-                return;
-            }
-        }
-
         super.handleInput(event);
         if (event.isConsumed()) return;
 
@@ -128,16 +134,14 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                     return;
                 }
 
-                if (event.consumeAction(GameAction.NOTIFICATION_JUMP)) {
-                    if (!observer) {
-                        Notification n = getViewer().getNotificationManager().getLatestNotification();
-                        if (n != null) {
-                            if (getCamera() instanceof GameCamera)
-                                getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera) getCamera(),
-                                        n.getX(), n.getY()));
-                            else if (getCamera() instanceof MapCamera)
-                                ((MapCamera) getCamera()).mapGoto(n.getX(), n.getY(), true);
-                        }
+                if (!observer && event.consumeAction(GameAction.NOTIFICATION_JUMP)) {
+                    Notification n = getViewer().getNotificationManager().getLatestNotification();
+                    if (n != null) {
+                        if (getCamera() instanceof GameCamera)
+                            getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera) getCamera(), n
+                                    .getX(), n.getY()));
+                        else if (getCamera() instanceof MapCamera)
+                            ((MapCamera) getCamera()).mapGoto(n.getX(), n.getY(), true);
                     }
                     event.consume();
                     return;
@@ -145,25 +149,21 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
                 // Army Shortcuts
                 for (int i = 0; i <= 9; i++) {
-                    if (event.consumeAction(ARMY_SELECTS[i])) {
-                        if (!map_mode && !observer) {
-                            boolean selected = getViewer().getSelection().enableShortcutArmy(i);
-                            if (selected && event.getClicks() > 1) {
-                                var set = getViewer().getSelection().getCurrentSelection().getSet();
-                                if (!set.isEmpty()) {
-                                    var s = set.iterator().next();
-                                    getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera) getCamera(),
-                                            s.getPositionX(), s.getPositionY()));
-                                }
+                    if (!map_mode && !observer && event.consumeAction(ARMY_SELECTS[i])) {
+                        boolean selected = getViewer().getSelection().enableShortcutArmy(i);
+                        if (selected && event.getClicks() > 1) {
+                            var set = getViewer().getSelection().getCurrentSelection().getSet();
+                            if (!set.isEmpty()) {
+                                var s = set.iterator().next();
+                                getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera) getCamera(), s
+                                        .getPositionX(), s.getPositionY()));
                             }
                         }
                         event.consume();
                         return;
                     }
-                    if (event.consumeAction(ARMY_CREATES[i])) {
-                        if (!map_mode && !observer) {
-                            getViewer().getSelection().setShortcutArmy(i);
-                        }
+                    if (!map_mode && !observer && event.consumeAction(ARMY_CREATES[i])) {
+                        getViewer().getSelection().setShortcutArmy(i);
                         event.consume();
                         return;
                     }
@@ -181,16 +181,32 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                     event.consume();
                     return;
                 }
-                if (event.consumeAction(GameAction.UNIT_BEACON)) {
-                    if (!map_mode && !observer) {
-                        getGUIRoot().pushDelegate(new BeaconDelegate(getViewer(), (GameCamera) getCamera()));
-                    }
+                if (!map_mode && !observer && event.consumeAction(GameAction.UNIT_BEACON)) {
+                    getGUIRoot().pushDelegate(new BeaconDelegate(getViewer(), (GameCamera) getCamera()));
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.UNIT_ADD_IDLE)) {
+                    nextIdlePeon(false);
                     event.consume();
                     return;
                 }
 
                 if (event.consumeAction(GameAction.UNIT_NEXT_IDLE)) {
-                    nextIdlePeon();
+                    nextIdlePeon(true);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.UNIT_ADD_ALL_IDLE)) {
+                    allIdlePeons(false);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.UNIT_ALL_IDLE)) {
+                    allIdlePeons(true);
                     event.consume();
                     return;
                 }
@@ -274,8 +290,14 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         getViewer().getPeerHub().getPlayerInterface().changePreferredGamespeed(delta);
     }
 
-    private void nextIdlePeon() {
-        var set = getViewer().getLocalPlayer().getUnits().getSet();
+    private void nextIdlePeon(boolean replace) {
+        var selection = getViewer().getSelection().getCurrentSelection();
+        if (!replace && selection.getBuilding().isPresent()) {
+            // can't mix units and buildings in selection
+            return;
+        }
+
+        var units = getViewer().getLocalPlayer().getUnits().getSet();
 
         boolean has_idle_peon = false;
         int lowest_name = Integer.MAX_VALUE;
@@ -284,7 +306,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         boolean has_greater_name = false;
         int lowest_greater_name = Integer.MAX_VALUE;
         Selectable<?> lowest_greater_peon = null;
-        for (var s : set) {
+        for (var s : units) {
             if (s.getOwner() != getViewer().getLocalPlayer())
                 continue;
             Abilities abilities = s.getAbilities();
@@ -313,10 +335,34 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         }
 
         if (target != null && getCamera() instanceof GameCamera) {
-            getViewer().getSelection().clearSelection();
+            if (replace) {
+                getViewer().getSelection().clearSelection();
+            }
             getViewer().getSelection().getCurrentSelection().add(target);
             getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera) getCamera(), target.getPositionX(),
                     target.getPositionY()));
+        }
+    }
+
+    public void allIdlePeons(boolean replace) {
+        var selection = getViewer().getSelection().getCurrentSelection();
+        if (!replace && selection.getBuilding().isPresent()) {
+            // can't mix units and buildings in selection
+            return;
+        }
+
+        var set = getViewer().getLocalPlayer().getUnits().getSet();
+        var idles = set.stream()
+                .filter(s -> s.getOwner() == getViewer().getLocalPlayer())
+                .filter(s -> s.getAbilities().hasAbilities(Abilities.BUILD)
+                        && s.getPrimaryController() instanceof IdleController)
+                .toList();
+
+        if (!idles.isEmpty()) {
+            if (replace) {
+                getViewer().getSelection().clearSelection();
+            }
+            getViewer().getSelection().getCurrentSelection().addAll(idles);
         }
     }
 
@@ -345,8 +391,8 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         }
     }
 
-    private void updateSelection(@NonNull List<@NonNull Selectable<UnitTemplate>> friendly_units,
-            Selectable<BuildingTemplate> friendly_building, Selectable<?> enemy) {
+    private void updateSelection(@NonNull List<@NonNull Selectable<UnitTemplate>> friendly_units, Selectable<
+            BuildingTemplate> friendly_building, Selectable<?> enemy) {
         Army current_selection = getViewer().getSelection().getCurrentSelection();
         Selectable<?> first = current_selection.getSet().iterator().next();
         if (first instanceof Building || first.getOwner() != getViewer().getLocalPlayer()) {
@@ -363,24 +409,22 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                 break;
             }
         }
-        for (Selectable<?> selectable : friendly_units) {
-            if (add) {
-                if (!current_selection.contains(selectable))
-                    current_selection.add(selectable);
-            } else {
+
+        if (add) {
+            current_selection.addAll(friendly_units);
+        } else {
+            for (Selectable<?> selectable : friendly_units) {
                 current_selection.remove(selectable);
             }
         }
     }
 
-    private void replaceSelection(@NonNull List<Selectable<UnitTemplate>> friendly_units,
-            @Nullable Selectable<BuildingTemplate> friendly_building, @Nullable Selectable<?> enemy) {
+    private void replaceSelection(@NonNull List<Selectable<UnitTemplate>> friendly_units, @Nullable Selectable<
+            BuildingTemplate> friendly_building, @Nullable Selectable<?> enemy) {
         Army current_selection = getViewer().getSelection().getCurrentSelection();
         current_selection.clear();
         if (!friendly_units.isEmpty()) {
-            for (Selectable<?> friendlyUnit : friendly_units) {
-                current_selection.add(friendlyUnit);
-            }
+            current_selection.addAll(friendly_units);
         } else if (friendly_building != null) {
             current_selection.add(friendly_building);
         } else if (enemy != null) {
@@ -393,9 +437,8 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         if (button == MouseButton.LEFT && !map_mode && !observer) {
             if (selection) {
                 selection = false;
-                Selectable<?>[] picked = getViewer().getPicker().pickBoxed(
-                        getViewer().getGUIRoot().getDelegate().getCamera().getState(), selection_x1, selection_y1,
-                        selection_x2, selection_y2, clicks);
+                Selectable<?>[] picked = getViewer().getPicker().pickBoxed(getViewer().getGUIRoot().getDelegate()
+                        .getCamera().getState(), selection_x1, selection_y1, selection_x2, selection_y2, clicks);
                 List<Selectable<UnitTemplate>> friendly_units = new ArrayList<>();
                 Selectable<BuildingTemplate> friendly_building = null;
                 Selectable<?> enemy = null;
@@ -407,14 +450,15 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                             else if (selectable instanceof Unit unit)
                                 friendly_units.add(unit);
                             else
-                                throw new RuntimeException();
+                                throw new IllegalArgumentException("Unknown Selectable type for friendly unit: "
+                                        + selectable.getClass().getName());
                         } else {
                             enemy = selectable;
                         }
                     }
                 }
-                if (Renderer.getLocalInput().isShiftDownCurrently()
-                        && getViewer().getSelection().getCurrentSelection().size() > 0)
+                if (Renderer.getLocalInput().isShiftDownCurrently() && getViewer().getSelection().getCurrentSelection()
+                        .size() > 0)
                     updateSelection(friendly_units, friendly_building, enemy);
                 else
                     replaceSelection(friendly_units, friendly_building, enemy);
@@ -467,7 +511,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
             if (!observer) {
                 var inputManager = Renderer.getLocalInput().getInputManager();
                 switch (button) {
-                    case LEFT:
+                    case LEFT -> {
                         if (!inputManager.isActive(GameAction.CAMERA_MAP_MODE)) {
                             selection = true;
                         }
@@ -475,19 +519,16 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                         selection_y1 = y;
                         selection_x2 = x;
                         selection_y2 = y;
-                        break;
-                    case RIGHT: {
+                    }
+                    case RIGHT -> {
                         Army selection = getViewer().getSelection().getCurrentSelection();
                         if (selection.size() > 0 && selection.containsAbility(Abilities.TARGET)) {
-                            getViewer().getPicker().pickTarget(selection,
-                                    getViewer().getGUIRoot().getDelegate().getCamera().getState(),
-                                    getViewer().getPeerHub().getPlayerInterface(), x, y, Action.DEFAULT);
+                            getViewer().getPicker().pickTarget(selection, getViewer().getGUIRoot().getDelegate()
+                                    .getCamera().getState(), getViewer().getPeerHub().getPlayerInterface(), x, y,
+                                    Action.DEFAULT);
                         }
-                        break;
                     }
-                    default:
-                        super.mousePressed(button, x, y);
-                        break;
+                    default -> super.mousePressed(button, x, y);
                 }
             } else {
                 super.mousePressed(button, x, y);
@@ -507,7 +548,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     @Override
     public void render2D(@NonNull GUIRenderer renderer) {
-        if (com.oddlabs.tt.global.Settings.getSettings().show_compass && getCamera() != null) {
+        if (Renderer.getRenderer().getSettings().show_compass && getCamera() != null) {
             float horizAngle = getCamera().getState().getHorizAngle();
             CompassRenderer.render(renderer, Skin.getSkin().getEditFont(),
                     horizAngle, getGUIRoot().getWidth(), getGUIRoot().getHeight());
@@ -521,7 +562,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
             float w = maxX - minX;
             float h = maxY - minY;
 
-            float thickness = com.oddlabs.tt.global.Settings.getSettings().high_contrast ? 3.0f : 1.0f;
+            float thickness = Renderer.getRenderer().getSettings().high_contrast ? 3.0f : 1.0f;
 
             // Ensure thickness doesn't exceed half dimensions
             if (thickness > w / 2) thickness = w / 2;

@@ -1,5 +1,9 @@
 package com.oddlabs.tt.player.campaign;
 
+import com.oddlabs.tt.model.Race;
+
+import com.oddlabs.tt.model.Difficulty;
+
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.form.InGameCampaignDialogForm;
@@ -9,8 +13,8 @@ import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.IronSupply;
-import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.RockSupply;
+import com.oddlabs.tt.model.Terrain;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.PlayerSlot;
@@ -18,7 +22,6 @@ import com.oddlabs.tt.player.AI;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.player.UnitInfo;
-import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.trigger.campaign.GameStartedTrigger;
 import com.oddlabs.tt.trigger.campaign.PlayerEleminatedTrigger;
 import com.oddlabs.tt.trigger.campaign.SupplyGatheredTrigger;
@@ -42,13 +45,15 @@ public final class VikingIsland0 extends Island {
 
     @Override
     public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-        String[] ai_names = IntStream.range(0, 6).mapToObj(i -> i18n("name" + i)).toArray(String[]::new);
+        String[] ai_names = IntStream.range(0, 6)
+                .mapToObj(i -> i18n("name" + i))
+                .toArray(String[]::new);
         // gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
-        GameNetwork game_network = startNewGame(network, gui_root, 256, Landscape.TerrainType.NATIVE, .5f, 1f, .1f,
+        GameNetwork game_network = startNewGame(network, gui_root, 256, Terrain.NATIVE, .5f, 1f, .1f,
                 45363, 0, VikingCampaign.MAX_UNITS, ai_names);
         game_network.getClient().getServerInterface().setPlayerSlot(0,
                 PlayerSlot.HUMAN,
-                RacesResources.RACE_VIKINGS,
+                Race.VIKINGS.getValue(),
                 0,
                 true,
                 PlayerSlot.AI_NONE);
@@ -60,7 +65,7 @@ public final class VikingIsland0 extends Island {
                         getCampaign().getState().getNumRubberWarriors()));
         game_network.getClient().getServerInterface().setPlayerSlot(1,
                 PlayerSlot.AI,
-                RacesResources.RACE_VIKINGS,
+                Race.VIKINGS.getValue(),
                 PlayerInfo.TEAM_NEUTRAL,
                 true,
                 PlayerSlot.AI_NEUTRAL_CAMPAIGN);
@@ -68,7 +73,7 @@ public final class VikingIsland0 extends Island {
                 new UnitInfo(false, false, 0, false, 0, 0, 0, 0));
         game_network.getClient().getServerInterface().setPlayerSlot(2,
                 PlayerSlot.AI,
-                RacesResources.RACE_NATIVES,
+                Race.NATIVES.getValue(),
                 1,
                 true,
                 PlayerSlot.AI_PASSIVE_CAMPAIGN);
@@ -80,8 +85,8 @@ public final class VikingIsland0 extends Island {
     @Override
     protected void start() {
         final Player local_player = getViewer().getLocalPlayer();
-        final Player chieftain = getViewer().getWorld().getPlayers()[1];
-        final Player enemy = getViewer().getWorld().getPlayers()[2];
+        final Player chieftain = getViewer().getWorld().getPlayers().get(1);
+        final Player enemy = getViewer().getWorld().getPlayers().get(2);
 
         // Introduction
         new GameStartedTrigger(getViewer().getWorld(),
@@ -118,26 +123,27 @@ public final class VikingIsland0 extends Island {
 
         // Fill native armory with units and weapons
         final int num_units = 10;
-        if (enemy.getArmory().getSupplyContainer(IronAxeWeapon.class).getNumSupplies() < num_units * 3)
-            enemy.getArmory().getSupplyContainer(IronAxeWeapon.class).increaseSupply(num_units * 3);
-        if (enemy.getArmory().getUnitContainer().getNumSupplies() < num_units * 3)
-            enemy.getArmory().getUnitContainer().increaseSupply(num_units * 3);
+        Building enemyArmory = enemy.getArmory().orElseThrow();
+        if (enemyArmory.getSupplyContainer(IronAxeWeapon.class).orElseThrow().getNumSupplies() < num_units * 3)
+            enemyArmory.getSupplyContainer(IronAxeWeapon.class).orElseThrow().increaseSupply(num_units * 3);
+        if (enemyArmory.getUnitContainer().orElseThrow().getNumSupplies() < num_units * 3)
+            enemyArmory.getUnitContainer().orElseThrow().increaseSupply(num_units * 3);
 
         // Deploy and attack mid-game
         Runnable runnable = () -> {
-            Building armory = local_player.getArmory();
+            Building armory = local_player.getArmory().orElse(null);
             if (armory != null && !armory.isDead()) {
-                if (enemy.getArmory() != null && !enemy.getArmory().isDead()) {
-                    enemy.deployUnits(enemy.getArmory(), DeployType.IRON_WARRIOR, num_units);
+                enemy.getArmory().filter(a -> !a.isDead()).ifPresent(a -> {
+                    enemy.deployUnits(a, DeployType.IRON_WARRIOR, num_units);
                     AI.attackLandscape(enemy, armory, num_units);
-                }
+                });
             }
         };
-        if (getCampaign().getState().getDifficulty() == CampaignState.DIFFICULTY_NORMAL) {
+        if (getCampaign().getState().getDifficulty() == Difficulty.NORMAL) {
             new SupplyGatheredTrigger(getViewer().getLocalPlayer(), runnable, TreeSupply.class, 30);
             new SupplyGatheredTrigger(getViewer().getLocalPlayer(), runnable, RockSupply.class, 30);
             new SupplyGatheredTrigger(getViewer().getLocalPlayer(), runnable, IronSupply.class, 30);
-        } else if (getCampaign().getState().getDifficulty() == CampaignState.DIFFICULTY_HARD) {
+        } else if (getCampaign().getState().getDifficulty() == Difficulty.HARD) {
             new SupplyGatheredTrigger(getViewer().getLocalPlayer(), runnable, TreeSupply.class, 20);
             new SupplyGatheredTrigger(getViewer().getLocalPlayer(), runnable, RockSupply.class, 15);
             new SupplyGatheredTrigger(getViewer().getLocalPlayer(), runnable, IronSupply.class, 15);

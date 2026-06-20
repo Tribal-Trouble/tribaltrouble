@@ -1,11 +1,15 @@
 package com.oddlabs.tt.window;
 
 import com.oddlabs.tt.render.SerializableDisplayMode;
+import org.joml.Vector2f;
 import org.jspecify.annotations.NonNull;
+
+import java.util.List;
 
 public interface Window extends AutoCloseable {
     void create(@NonNull SerializableDisplayMode mode, boolean fullscreen);
 
+    @Override
     void close();
 
     void update();
@@ -63,8 +67,25 @@ public interface Window extends AutoCloseable {
 
     void setFullscreen(boolean fullscreen) throws Exception;
 
+    /**
+     * Returns a list of resolutions available for fullscreen mode sort from largest to smallest.
+     *
+     * @return List of SerializableDisplayMode
+     */
     @NonNull
-    SerializableDisplayMode @NonNull [] getAvailableDisplayModes();
+    List<@NonNull SerializableDisplayMode> getFullscreenDisplayModes();
+
+    /**
+     * Returns a list of standard resolutions suitable for windowed mode, filtered to fit within the usable area of the
+     * current monitor.
+     *
+     * @return List of SerializableDisplayMode
+     */
+    @NonNull
+    List<@NonNull SerializableDisplayMode> getWindowedDisplayModes();
+
+    @NonNull
+    List<@NonNull SerializableDisplayMode> getAvailableDisplayModes();
 
     @NonNull
     SerializableDisplayMode getDisplayMode();
@@ -88,21 +109,31 @@ public interface Window extends AutoCloseable {
     /**
      * Returns the physical size of the monitor in millimeters.
      *
-     * @return int array [widthMM, heightMM]
+     * @return Vector2f [width, height] in mm
      */
-    int[] getMonitorPhysicalSize();
+    @NonNull
+    Vector2f getMonitorPhysicalSize();
 
     /**
      * Returns the content scale of the monitor.
      *
-     * @return float array [xScale, yScale]
+     * @return Vector2f [xScale, yScale]
      */
-    float[] getMonitorContentScale();
+    @NonNull
+    Vector2f getMonitorContentScale();
 
     /**
      * Returns the content scale of the window.
      *
-     * @return float array [xScale, yScale]
+     * @return Vector2f [xScale, yScale]
      */
-    float[] getWindowContentScale();
+    @NonNull
+    Vector2f getWindowContentScale();
+
+    /**
+     * Returns the pixel density of the window (Retina/High-DPI factor).
+     *
+     * @return float density
+     */
+    float getPixelDensity();
 }

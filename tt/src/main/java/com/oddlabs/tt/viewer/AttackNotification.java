@@ -5,9 +5,13 @@ import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
-import com.oddlabs.tt.util.Target;
+import com.oddlabs.tt.model.Target;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * Alerts the local player when one of their units or buildings is under attack.
+ */
 final class AttackNotification extends Notification {
     private static final float RADIUS = 30f;
     private static final float FADE_OUT = 5f;
@@ -16,7 +20,8 @@ final class AttackNotification extends Notification {
 
     public AttackNotification(@NonNull Player local_player, @NonNull GUIRoot gui_root, @NonNull Selectable<?> center,
             @NonNull NotificationManager manager, @NonNull AnimationManager animation_manager) {
-        super(local_player.getWorld(), gui_root, center.getPositionX(), center.getPositionY(), manager, 1f, 0f, 0f, local_player.getRace().getAttackNotificationAudio(), false, animation_manager);
+        super(local_player.getWorld(), gui_root, center.getPositionX(), center.getPositionY(), manager,
+                Color.Standard.RED, local_player.getRaceInfo().getAttackNotificationAudio(), false, animation_manager);
     }
 
     public boolean contains(@NonNull Target target) {

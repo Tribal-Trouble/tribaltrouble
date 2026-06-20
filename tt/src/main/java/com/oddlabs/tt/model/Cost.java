@@ -2,57 +2,37 @@ package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.gui.GUIIcons;
 import com.oddlabs.tt.gui.IconQuad;
-import com.oddlabs.tt.landscape.TreeSupply;
 import org.jspecify.annotations.NonNull;
 
-public final class Cost {
-    private final @NonNull Class<? extends Supply> @NonNull [] supply_types;
-    private final int @NonNull [] supply_amounts;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
-    public Cost(@NonNull Class<? extends Supply> @NonNull [] supply_types, int @NonNull [] supply_amounts) {
-        this.supply_types = supply_types;
-        this.supply_amounts = supply_amounts;
-        assert supply_types.length == supply_amounts.length;
+/** Captures the supply types and amounts needed for a production. */
+public record Cost(@NonNull Map<@NonNull SupplyType, @NonNull Integer> costs) {
+
+    public Cost {
+        costs = new EnumMap<>(costs);
     }
 
-    public Class<? extends Supply> @NonNull [] getSupplyTypes() {
-        return supply_types;
+    public int getCost(@NonNull SupplyType supplyType) {
+        return costs.getOrDefault(supplyType, 0);
     }
 
-    public int[] getSupplyAmounts() {
-        return supply_amounts;
+    public List<@NonNull IconQuad> iconList() {
+        return costs.entrySet().stream()
+                .flatMap(entry -> Stream.generate(() -> getIconQuad(entry.getKey())).limit(entry.getValue()))
+                .toList();
     }
 
-    public @NonNull IconQuad @NonNull [] toIconArray() {
-        int size = 0;
-        for (int supplyAmount : supply_amounts) {
-            size += supplyAmount;
-        }
-        IconQuad[] result = new IconQuad[size];
-        int index = 0;
-        for (int i = 0; i < supply_types.length; i++) {
-            IconQuad icon = getIconQuad(supply_types[i]);
-            for (int j = 0; j < supply_amounts[i]; j++) {
-                result[index++] = icon;
-            }
-        }
-        assert index == result.length;
-        return result;
-    }
-
-    private @NonNull IconQuad getIconQuad(@NonNull Class<? extends Supply> supply_type) {
-        IconQuad icon;
-        if (supply_type == TreeSupply.class) {
-            icon = GUIIcons.getIcons().getTreeStatusIcon();
-        } else if (supply_type == RockSupply.class) {
-            icon = GUIIcons.getIcons().getRockStatusIcon();
-        } else if (supply_type == IronSupply.class) {
-            icon = GUIIcons.getIcons().getIronStatusIcon();
-        } else if (supply_type == RubberSupply.class) {
-            icon = GUIIcons.getIcons().getRubberStatusIcon();
-        } else {
-            throw new RuntimeException("Wrong supply_type");
-        }
-        return icon;
+    private @NonNull IconQuad getIconQuad(@NonNull SupplyType supply_type) {
+        var icons = GUIIcons.getIcons();
+        return switch (supply_type) {
+            case WOOD -> icons.getTreeStatusIcon();
+            case ROCK -> icons.getRockStatusIcon();
+            case IRON -> icons.getIronStatusIcon();
+            case RUBBER -> icons.getRubberStatusIcon();
+        };
     }
 }

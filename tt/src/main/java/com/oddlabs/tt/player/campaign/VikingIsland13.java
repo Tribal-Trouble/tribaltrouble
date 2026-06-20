@@ -1,5 +1,12 @@
 package com.oddlabs.tt.player.campaign;
 
+import com.oddlabs.tt.model.Race;
+
+import com.oddlabs.tt.model.Difficulty;
+
+import com.oddlabs.tt.model.Terrain;
+import com.oddlabs.tt.model.UnitType;
+
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.form.InGameCampaignDialogForm;
@@ -8,14 +15,11 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.model.Building;
-import com.oddlabs.tt.model.Race;
-import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.UnitInfo;
-import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.trigger.campaign.GameStartedTrigger;
 import com.oddlabs.tt.trigger.campaign.TimeTrigger;
 import com.oddlabs.tt.util.Utils;
@@ -42,13 +46,15 @@ public final class VikingIsland13 extends Island {
 
     @Override
     public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-        String[] ai_names = IntStream.range(0, 6).mapToObj(i -> i18n("name" + i)).toArray(String[]::new);
+        String[] ai_names = IntStream.range(0, 6)
+                .mapToObj(i -> i18n("name" + i))
+                .toArray(String[]::new);
         // gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
-        GameNetwork game_network = startNewGame(network, gui_root, 512, Landscape.TerrainType.NATIVE, 1f, 1f, .8f, 16,
+        GameNetwork game_network = startNewGame(network, gui_root, 512, Terrain.NATIVE, 1f, 1f, .8f, 16,
                 13, VikingCampaign.MAX_UNITS, ai_names);
         game_network.getClient().getServerInterface().setPlayerSlot(0,
                 PlayerSlot.HUMAN,
-                RacesResources.RACE_VIKINGS,
+                Race.VIKINGS.getValue(),
                 0,
                 true,
                 PlayerSlot.AI_NONE);
@@ -60,7 +66,7 @@ public final class VikingIsland13 extends Island {
                         getCampaign().getState().getNumRubberWarriors()));
         game_network.getClient().getServerInterface().setPlayerSlot(2,
                 PlayerSlot.AI,
-                RacesResources.RACE_NATIVES,
+                Race.NATIVES.getValue(),
                 1,
                 true,
                 PlayerSlot.AI_PASSIVE_CAMPAIGN);
@@ -77,7 +83,7 @@ public final class VikingIsland13 extends Island {
 
         Runnable runnable;
         final Player local_player = getViewer().getLocalPlayer();
-        final Player enemy = getViewer().getWorld().getPlayers()[1];
+        final Player enemy = getViewer().getWorld().getPlayers().get(1);
 
         // Introduction
         runnable = () -> {
@@ -113,24 +119,24 @@ public final class VikingIsland13 extends Island {
         		new DefeatTrigger(getCampaign(), local_player.getChieftain(), runnable);
         */
         // Insert native towers
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 167, 60);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 171, 55);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 160, 60);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 142, 70);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 135, 72);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 130, 74);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 125, 76);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 120, 71);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 115, 67);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 95, 68);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 93, 63);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 92, 57);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 90, 52);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 96, 38);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 99, 34);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 105, 24);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 164, 51);
-        insertGuardTower(enemy, Race.UNIT_WARRIOR_RUBBER, 103, 57);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 167, 60);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 171, 55);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 160, 60);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 142, 70);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 135, 72);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 130, 74);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 125, 76);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 120, 71);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 115, 67);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 95, 68);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 93, 63);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 92, 57);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 90, 52);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 96, 38);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 99, 34);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 105, 24);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 164, 51);
+        insertGuardTower(enemy, UnitType.WARRIOR_RUBBER, 103, 57);
 
         final int attack1;
         final int attack2;
@@ -139,32 +145,31 @@ public final class VikingIsland13 extends Island {
         final int attack5;
         final int attack6;
         switch (getCampaign().getState().getDifficulty()) {
-            case CampaignState.DIFFICULTY_EASY:
+            case Difficulty.EASY -> {
                 attack1 = 5;
                 attack2 = 15;
                 attack3 = 20;
                 attack4 = 35;
                 attack5 = 35;
                 attack6 = 35;
-                break;
-            case CampaignState.DIFFICULTY_NORMAL:
+            }
+            case Difficulty.NORMAL -> {
                 attack1 = 10;
                 attack2 = 30;
                 attack3 = 40;
                 attack4 = 70;
                 attack5 = 70;
                 attack6 = 70;
-                break;
-            case CampaignState.DIFFICULTY_HARD:
+            }
+            case Difficulty.HARD -> {
                 attack1 = 20;
                 attack2 = 60;
                 attack3 = 80;
                 attack4 = 90;
                 attack5 = 90;
                 attack6 = 90;
-                break;
-            default:
-                throw new RuntimeException();
+            }
+            default -> throw new IllegalArgumentException("Unrecognized difficulty");
         }
 
         // Fill native armory with units and weapons
@@ -172,8 +177,8 @@ public final class VikingIsland13 extends Island {
 
         // Attack1
         runnable = () -> {
-            Building armory = local_player.getArmory();
-            Unit chieftain = local_player.getChieftain();
+            Building armory = local_player.getArmory().orElse(null);
+            Unit chieftain = local_player.getChieftain().orElse(null);
             if (armory != null && !armory.isDead()) {
                 attack(enemy, armory, attack1);
             } else if (chieftain != null && !chieftain.isDead()) {
@@ -186,8 +191,8 @@ public final class VikingIsland13 extends Island {
 
         // Attack2
         runnable = () -> {
-            Building armory = local_player.getArmory();
-            Unit chieftain = local_player.getChieftain();
+            Building armory = local_player.getArmory().orElse(null);
+            Unit chieftain = local_player.getChieftain().orElse(null);
             if (armory != null && !armory.isDead()) {
                 attack(enemy, armory, attack2);
             } else if (chieftain != null && !chieftain.isDead()) {
@@ -200,8 +205,8 @@ public final class VikingIsland13 extends Island {
 
         // Attack3
         runnable = () -> {
-            Building armory = local_player.getArmory();
-            Unit chieftain = local_player.getChieftain();
+            Building armory = local_player.getArmory().orElse(null);
+            Unit chieftain = local_player.getChieftain().orElse(null);
             if (armory != null && !armory.isDead()) {
                 attack(enemy, armory, attack3);
             } else if (chieftain != null && !chieftain.isDead()) {
@@ -214,8 +219,8 @@ public final class VikingIsland13 extends Island {
 
         // Attack4
         runnable = () -> {
-            Building armory = local_player.getArmory();
-            Unit chieftain = local_player.getChieftain();
+            Building armory = local_player.getArmory().orElse(null);
+            Unit chieftain = local_player.getChieftain().orElse(null);
             if (armory != null && !armory.isDead()) {
                 attack(enemy, armory, attack4);
             } else if (chieftain != null && !chieftain.isDead()) {
@@ -228,8 +233,8 @@ public final class VikingIsland13 extends Island {
 
         // Attack5
         runnable = () -> {
-            Building armory = local_player.getArmory();
-            Unit chieftain = local_player.getChieftain();
+            Building armory = local_player.getArmory().orElse(null);
+            Unit chieftain = local_player.getChieftain().orElse(null);
             if (armory != null && !armory.isDead()) {
                 attack(enemy, armory, attack5);
             } else if (chieftain != null && !chieftain.isDead()) {
@@ -242,8 +247,8 @@ public final class VikingIsland13 extends Island {
 
         // Attack6
         runnable = () -> {
-            Building armory = local_player.getArmory();
-            Unit chieftain = local_player.getChieftain();
+            Building armory = local_player.getArmory().orElse(null);
+            Unit chieftain = local_player.getChieftain().orElse(null);
             if (armory != null && !armory.isDead()) {
                 attack(enemy, armory, attack6);
             } else if (chieftain != null && !chieftain.isDead()) {

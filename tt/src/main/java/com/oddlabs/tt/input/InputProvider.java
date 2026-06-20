@@ -17,7 +17,7 @@ public interface InputProvider<C> extends AutoCloseable {
 
     int getEventKeyMods();
 
-    char getEventCharacter();
+    int getEventCodepoint();
 
     boolean isRepeatEvent();
 
@@ -33,6 +33,8 @@ public interface InputProvider<C> extends AutoCloseable {
     boolean getEventButtonState();
 
     int getEventDWheel();
+    
+    int getEventDWheelX();
 
     int getEventX();
 

@@ -26,7 +26,7 @@ public final class HttpRequest {
             URL url = new URL(parameters.url);
             return spawnPostRequest(task_thread, url, parameters, parser, callback);
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException("Invalid URL: " + parameters.url, e);
         }
     }
 
@@ -105,8 +105,8 @@ public final class HttpRequest {
         return readResponse(conn, parser);
     }
 
-    private static @NonNull HttpResponse runGetRequest(@NonNull URL url,
-            @NonNull HttpResponseParser parser) throws IOException {
+    private static @NonNull HttpResponse runGetRequest(@NonNull URL url, @NonNull HttpResponseParser parser)
+            throws IOException {
         URLConnection conn = openConnection(url);
         return readResponse(conn, parser);
     }
@@ -118,12 +118,12 @@ public final class HttpRequest {
                 CryptUtils.setupHttpsConnection(connection);
             return conn;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IOException("Failed to setup HTTPS connection", e);
         }
     }
 
-    private static @NonNull HttpResponse readResponse(@NonNull URLConnection conn,
-            @NonNull HttpResponseParser parser) throws IOException {
+    private static @NonNull HttpResponse readResponse(@NonNull URLConnection conn, @NonNull HttpResponseParser parser)
+            throws IOException {
         try {
             try (InputStream is = conn.getInputStream()) {
                 HttpResponse response = new OkResponse(parser.parse(is));

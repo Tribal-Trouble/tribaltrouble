@@ -10,13 +10,13 @@ import org.jspecify.annotations.Nullable;
 public class PasswordLine extends EditLine {
     private @Nullable String password_digest;
 
-    public PasswordLine(int width, int max_chars) {
-        super(width, max_chars);
+    public PasswordLine(int width, int max_codepoints) {
+        super(width, max_codepoints);
     }
 
     /**
-     * Password display text has three options. If the field is empty then the empty string is displayed. When the
-     * field is inactive it is filled with stars. When the field is active a string of stars the same length as the
+     * Password display text has three options. If the field is empty, then the empty string is displayed. When the
+     * field is inactive, it is filled with stars. When the field is active, a string of stars the same length as the
      * password cleartext is returned.
      *
      * @return The blank text or stars to display
@@ -27,7 +27,7 @@ public class PasswordLine extends EditLine {
             return "";
         }
         if (isActive()) {
-            return "*".repeat(getText().length());
+            return "*".repeat(getText().codePointCount(0, getText().length()));
         } else {
             int asteriskWidth = getRenderedWidth("*");
             if (asteriskWidth == 0) return "";
@@ -37,8 +37,8 @@ public class PasswordLine extends EditLine {
     }
 
     @Override
-    protected final boolean insert(int index, char key) {
-        boolean result = super.insert(index, key);
+    protected final boolean insert(int index, int codepoint) {
+        boolean result = super.insert(index, codepoint);
         updatePassword();
         return result;
 

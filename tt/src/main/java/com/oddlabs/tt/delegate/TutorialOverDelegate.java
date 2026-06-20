@@ -68,8 +68,8 @@ public final class TutorialOverDelegate extends CameraDelegate<StaticCamera> imp
         if (tutorial_number < TutorialForm.NUM_TUTORIALS)
             button_next.place(button_restart, LEFT_MID);
         group_buttons.compileCanvas();
-        group_buttons.setPos((getWidth() - group_buttons.getWidth()) / 2,
-                (getHeight() - group_buttons.getHeight()) * 1 / 3);
+        group_buttons.setPos((getWidth() - group_buttons.getWidth()) / 2, (getHeight() - group_buttons.getHeight()) * 1
+                / 3);
 
         delay_timer.start();
     }
@@ -88,7 +88,7 @@ public final class TutorialOverDelegate extends CameraDelegate<StaticCamera> imp
     private final class StartTutorialListener implements MouseClickListener {
         private final int tutorial_number;
 
-        public StartTutorialListener(int tutorial_number) {
+        StartTutorialListener(int tutorial_number) {
             this.tutorial_number = tutorial_number;
         }
 

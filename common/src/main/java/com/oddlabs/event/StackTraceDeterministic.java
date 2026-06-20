@@ -1,6 +1,7 @@
 package com.oddlabs.event;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
@@ -29,8 +30,8 @@ public final class StackTraceDeterministic extends Deterministic {
         int stack_trace_hash = getTraceId();
         int old_stack_trace_hash = stack_deterministic.log(stack_trace_hash);
         if (old_stack_trace_hash != stack_trace_hash)
-            throw new Error(
-                    "old_stack_trace_hash = " + old_stack_trace_hash + " | stack_trace_hash = " + stack_trace_hash);
+            throw new Error("old_stack_trace_hash = " + old_stack_trace_hash + " | stack_trace_hash = "
+                    + stack_trace_hash);
     }
 
     @Override
@@ -64,7 +65,7 @@ public final class StackTraceDeterministic extends Deterministic {
     }
 
     @Override
-    protected Object logObject(Object o) {
+    protected <T> @Nullable T logObject(@Nullable T o) {
         logTrace();
         return deterministic.log(o);
     }

@@ -31,23 +31,18 @@ public final class GLIntImage extends GLImage {
     }
 
     public GLIntImage(int width, int height, int format) {
-        this(width, height, Objects.requireNonNull(BufferUtils.createByteBuffer(
-                width * height * Integer.BYTES)), format);
+        this(width, height, Objects.requireNonNull(BufferUtils.createByteBuffer(width * height * Integer.BYTES)),
+                format);
     }
 
     public GLIntImage(@NonNull Layer layer) {
         this(layer.getWidth(), layer.getHeight(), GL11.GL_RGBA);
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
-                int ri = ((int) (layer.r.getPixel(x, y) * 255 + .5f)) & 0xff;
-                int gi = ((int) (layer.g.getPixel(x, y) * 255 + .5f)) & 0xff;
-                int bi = ((int) (layer.b.getPixel(x, y) * 255 + .5f)) & 0xff;
-                int ai;
-                if (layer.a != null) {
-                    ai = ((int) (layer.a.getPixel(x, y) * 255 + .5f)) & 0xff;
-                } else {
-                    ai = 255;
-                }
+                int ri = Math.clamp(Math.round(layer.r.getPixel(x, y) * 255), 0, 255);
+                int gi = Math.clamp(Math.round(layer.g.getPixel(x, y) * 255), 0, 255);
+                int bi = Math.clamp(Math.round(layer.b.getPixel(x, y) * 255), 0, 255);
+                int ai = layer.a != null ? Math.clamp(Math.round(layer.a.getPixel(x, y) * 255), 0, 255) : 255;
                 int pixel = (ai << 24) | (bi << 16) | (gi << 8) | ri;
                 putPixel(x, y, pixel);
             }
@@ -62,6 +57,14 @@ public final class GLIntImage extends GLImage {
     @Override
     public @NonNull GLImage createFromLayer(@NonNull Layer layer, int format) {
         return new GLIntImage(layer);
+    }
+
+    @Override
+    public @NonNull GLImage scale(int newWidth, int newHeight) {
+        if (newWidth == getWidth() && newHeight == getHeight()) {
+            return this;
+        }
+        return new GLIntImage(toLayer().scale(newWidth, newHeight));
     }
 
     @Override

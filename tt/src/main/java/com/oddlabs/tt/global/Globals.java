@@ -7,6 +7,9 @@ import org.lwjgl.opengl.GL13;
 
 import java.nio.file.Path;
 
+/**
+ * Global constant definitions and utility configurations.
+ */
 public final class Globals {
     public static final int DETAIL_LOW = 0;
     public static final int DETAIL_NORMAL = 1;

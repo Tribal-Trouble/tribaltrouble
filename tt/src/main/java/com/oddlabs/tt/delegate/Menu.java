@@ -24,8 +24,8 @@ import com.oddlabs.tt.net.Client;
 import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.Server;
 import com.oddlabs.tt.net.WorldInitAction;
+import com.oddlabs.tt.model.Terrain;
 import com.oddlabs.tt.player.Player;
-import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.resource.IslandGenerator;
 import com.oddlabs.tt.resource.WorldGenerator;
@@ -35,7 +35,6 @@ import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.MultiplayerInGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Color;
-import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -45,8 +44,8 @@ import java.net.URI;
 import java.util.ResourceBundle;
 
 public abstract class Menu extends CameraDelegate<Camera> {
-    static final Vector4fc COLOR_NORMAL = Color.WHITE;
-    static final Vector4fc COLOR_ACTIVE = Color.argb4v(0xFF_FF_CC_9F);
+    static final Color COLOR_NORMAL = Color.Standard.WHITE;
+    static final Color COLOR_ACTIVE = new Color.Standard(0xFF_FF_CC_9F);
     private static final int MENU_X = 160;
     private static final int overlay_texture_width = 1024;
     private static final int overlay_texture_height = 1024;
@@ -103,12 +102,12 @@ public abstract class Menu extends CameraDelegate<Camera> {
         addChild(logo);
 
         // Discord and GitHub buttons in bottom-right corner
-        github = new GUIImage(76, 76, 0f, 0f, 1f, 1f, github_texture_name, true);
+        github = new GUIImage(76, 76, 0f, 0f, 1f, 1f, github_texture_name, true, true);
         github.setPos(screen_width - github.getWidth() - 20, github.getHeight() / 2 + 4);
         github.addMouseClickListener((_, _, _, _) -> openURL(Settings.GITHUB_URL));
         addChild(github);
 
-        discord = new GUIImage(80, 80, 0f, 0f, 1f, 1f, discord_texture_name, true);
+        discord = new GUIImage(80, 80, 0f, 0f, 1f, 1f, discord_texture_name, true, true);
         discord.setPos(screen_width - discord.getWidth() - 20 - github.getWidth() - 20, discord.getHeight() / 2);
         discord.addMouseClickListener((_, _, _, _) -> openURL(Settings.DISCORD_URL));
         addChild(discord);
@@ -287,7 +286,7 @@ public abstract class Menu extends CameraDelegate<Camera> {
 
     public static void completeGameSetupHack(@NonNull WorldViewer world_viewer) {
         world_viewer.getGUIRoot().pushDelegate(world_viewer.getDelegate());
-        Renderer.getRenderer().setMusicPath(world_viewer.getLocalPlayer().getRace().getMusicPath(), 10f);
+        Renderer.getRenderer().setMusic(world_viewer.getLocalPlayer().getRaceInfo().getMusic(), 10f);
     }
 
     public static final class DefaultWorldInitAction implements WorldInitAction {
@@ -320,7 +319,7 @@ public abstract class Menu extends CameraDelegate<Camera> {
 
     public static @NonNull GameNetwork startNewGame(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root,
             SelectGameMenu owner, WorldParameters world_params, @NonNull InGameInfo ingame_info,
-            WorldInitAction init_action, Game game, int meters_per_world, Landscape.@NonNull TerrainType terrain,
+            WorldInitAction init_action, Game game, int meters_per_world, @NonNull Terrain terrain,
             float hills, float vegetation_amount, float supplies_amount, int seed, String[] ai_names) {
         return startNewGame(network, gui_root, owner, world_params, ingame_info, init_action, game, meters_per_world,
                 terrain, hills, vegetation_amount, supplies_amount, seed, ai_names,
@@ -329,11 +328,11 @@ public abstract class Menu extends CameraDelegate<Camera> {
 
     public static @NonNull GameNetwork startNewGame(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root,
             SelectGameMenu owner, WorldParameters world_params, @NonNull InGameInfo ingame_info,
-            WorldInitAction init_action, Game game, int meters_per_world, Landscape.@NonNull TerrainType terrain,
+            WorldInitAction init_action, Game game, int meters_per_world, @NonNull Terrain terrain,
             float hills, float vegetation_amount, float supplies_amount, int seed, String[] ai_names,
             int player_count) {
         boolean multiplayer = ingame_info.isMultiplayer();
-        WorldGenerator generator = new IslandGenerator(meters_per_world, terrain, hills, vegetation_amount,
+        WorldGenerator generator = new IslandGenerator(terrain, meters_per_world, hills, vegetation_amount,
                 supplies_amount, seed);
         InetAddress address = multiplayer ? null : com.oddlabs.util.Utils.getLoopbackAddress();
         final Server server = new Server(network, game, address, generator, multiplayer, ai_names, player_count);

@@ -1,5 +1,6 @@
 package com.oddlabs.tt.player;
 
+import com.oddlabs.tt.model.Race;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -16,9 +17,9 @@ public final class PlayerInfo implements Serializable {
     private final @NonNull String name;
     private final int team;
 
-    public PlayerInfo(int team, int race, @NonNull String name) {
+    public PlayerInfo(int team, @NonNull Race race, @NonNull String name) {
         this.team = team;
-        this.race = race;
+        this.race = race.getValue();
         this.name = name;
     }
 
@@ -29,8 +30,8 @@ public final class PlayerInfo implements Serializable {
                 race == player.race;
     }
 
-    public int getRace() {
-        return race;
+    public @NonNull Race getRace() {
+        return Race.fromValue(race);
     }
 
     public @NonNull String getName() {

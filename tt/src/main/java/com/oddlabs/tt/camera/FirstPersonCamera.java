@@ -1,6 +1,5 @@
 package com.oddlabs.tt.camera;
 
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.render.Renderer;
@@ -64,7 +63,7 @@ public final class FirstPersonCamera extends Camera {
         int dx = localInput.getMouseX() - base_x;
         int dy = localInput.getMouseY() - base_y;
         getState().setTargetHorizAngle(getState().getTargetHorizAngle() - dx * SCALE_HORIZ);
-        if (Settings.getSettings().invert_camera_pitch)
+        if (Renderer.getRenderer().getSettings().invert_camera_pitch)
             getState().setTargetVertAngle(getState().getTargetVertAngle() - dy * SCALE_VERT);
         else
             getState().setTargetVertAngle(getState().getTargetVertAngle() + dy * SCALE_VERT);

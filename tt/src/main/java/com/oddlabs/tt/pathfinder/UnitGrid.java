@@ -2,8 +2,8 @@ package com.oddlabs.tt.pathfinder;
 
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.DebugRender;
-import com.oddlabs.tt.util.Target;
-import org.joml.Vector4fc;
+import com.oddlabs.tt.model.Target;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -20,12 +20,10 @@ public final class UnitGrid {
     }
 
     private boolean filter(@NonNull ScanFilter filter, int x, int y) {
-        if (x < 0 || y < 0 || x >= occupants.length || y >= occupants.length)
-            return false;
-        return filter.filter(x, y, occupants[y][x]);
+        return x >= 0 && y >= 0 && x < occupants.length && y < occupants.length && filter.filter(x, y, occupants[y][x]);
     }
 
-    public Target @NonNull [] findGridTargets(int center_grid_x, int center_grid_y, int num_targets,
+    public @Nullable Target @NonNull [] findGridTargets(int center_grid_x, int center_grid_y, int num_targets,
             boolean grid_targets_only) {
         FindTargetsFilter filter = new FindTargetsFilter(num_targets, occupants.length, grid_targets_only);
         scan(filter, center_grid_x, center_grid_y);
@@ -44,18 +42,14 @@ public final class UnitGrid {
             int x2 = center_grid_x + radius;
             for (int i = 0; i < 2 * radius - 1; i++) {
                 int y_i = center_grid_y - radius + 1 + i;
-                if (filter(filter, x, y_i))
-                    return;
-                if (filter(filter, x2, y_i))
+                if (filter(filter, x, y_i) || filter(filter, x2, y_i))
                     return;
             }
             int y = center_grid_y - radius;
             int y2 = center_grid_y + radius;
             for (int i = 0; i < 2 * radius + 1; i++) {
                 int x_i = center_grid_x - radius + i;
-                if (filter(filter, x_i, y))
-                    return;
-                if (filter(filter, x_i, y2))
+                if (filter(filter, x_i, y) || filter(filter, x_i, y2))
                     return;
             }
             radius++;
@@ -98,7 +92,8 @@ public final class UnitGrid {
     }
 
     public void freeGrid(int grid_x, int grid_y, Occupant occupant) {
-        assert occupants[grid_y][grid_x] == occupant : occupant + " trying to free " + grid_x + " " + grid_y + " where " + occupants[grid_y][grid_x] + " is.";
+        assert occupants[grid_y][grid_x] == occupant : occupant + " trying to free " + grid_x + " " + grid_y + " where "
+                + occupants[grid_y][grid_x] + " is.";
         occupants[grid_y][grid_x] = null;
     }
 
@@ -118,11 +113,13 @@ public final class UnitGrid {
                 float zf = heightmap.getNearestHeight(xf, yf) + 2f;
                 Region region = getRegion(x, y);
                 if (region == null) {
-                    DebugRender.drawPoint(xf, yf, zf, 3f, 1f, 0f, 0f);
+                    DebugRender.drawPoint(xf, yf, zf, 3f, Color.Linear.RED.r(), Color.Linear.RED.g(), Color.Linear.RED
+                            .b());
                 } else {
                     last_region = region;
-                    Vector4fc color = DebugRender.debug_colors[region.hashCode() % DebugRender.debug_colors.length];
-                    DebugRender.drawPoint(xf, yf, zf, 3f, color.x(), color.y(), color.z());
+                    Color color = new Color.Linear(DebugRender.debug_colors[region.hashCode()
+                            % DebugRender.debug_colors.length]);
+                    DebugRender.drawPoint(xf, yf, zf, 3f, color.r(), color.g(), color.b());
                 }
             }
         }
@@ -132,15 +129,20 @@ public final class UnitGrid {
         }
     }
 
-    private void debugRenderQuad(int x, int y) {
+    /**
+     * renders the specified unit grid as a quad
+     *
+     * @param color assumed to be a linear color
+     */
+    private void debugRenderQuad(int x, int y, @NonNull Color color) {
         final float OFFSET = 2f;
         final float RADIUS = .5f;
         int s = HeightMap.METERS_PER_UNIT_GRID;
         float xf = (x + .5f) * s;
         float yf = (y + .5f) * s;
         float z = heightmap.getNearestHeight(xf, yf) + OFFSET;
-        DebugRender.drawLine(xf - RADIUS, yf - RADIUS, z, xf + RADIUS, yf + RADIUS, z, 1f, 1f, 0f);
-        DebugRender.drawLine(xf + RADIUS, yf - RADIUS, z, xf - RADIUS, yf + RADIUS, z, 1f, 1f, 0f);
+        DebugRender.drawLine(xf - RADIUS, yf - RADIUS, z, xf + RADIUS, yf + RADIUS, z, color.r(), color.g(), color.b());
+        DebugRender.drawLine(xf + RADIUS, yf - RADIUS, z, xf - RADIUS, yf + RADIUS, z, color.r(), color.g(), color.b());
     }
 
     public @NonNull HeightMap getHeightMap() {
@@ -148,17 +150,17 @@ public final class UnitGrid {
     }
 
     public void debugRender(float landscape_x, float landscape_y) {
-        int RADIUS = 30;
+        final int RADIUS = 30;
         int center_x = toGridCoordinate(landscape_x);
         int center_y = toGridCoordinate(landscape_y);
         int start_x = Math.max(0, center_x - RADIUS);
-        int end_x = Math.min(occupants.length - 0, center_x + RADIUS);
+        int end_x = Math.min(occupants.length, center_x + RADIUS);
         int start_y = Math.max(0, center_y - RADIUS);
-        int end_y = Math.min(occupants.length - 0, center_y + RADIUS);
+        int end_y = Math.min(occupants.length, center_y + RADIUS);
         for (int y = start_y; y < end_y; y++) {
             for (int x = start_x; x < end_x; x++) {
                 if (isGridOccupied(x, y)) {
-                    debugRenderQuad(x, y);
+                    debugRenderQuad(x, y, Color.Linear.YELLOW);
                 }
             }
         }

@@ -44,7 +44,7 @@ public class GraphicsPanel extends Panel {
             // Fullscreen
             group_fullscreen = new Group();
             addChild(group_fullscreen);
-            cb_fullscreen = new CheckBox(Settings.getSettings().fullscreen, AbstractOptionsMenu.i18n("fullscreen"),
+            cb_fullscreen = new CheckBox(Renderer.getRenderer().getSettings().fullscreen, AbstractOptionsMenu.i18n("fullscreen"),
                     AbstractOptionsMenu.i18n("fullscreen_tip"));
             cb_fullscreen.addCheckBoxListener(marked -> {
                 DisplayChangeForm display_change_form = new DisplayChangeForm(
@@ -52,7 +52,7 @@ public class GraphicsPanel extends Panel {
                             if (switch_now) {
                                 Renderer.getRenderer().toggleFullscreen();
                             } else {
-                                Settings.getSettings().fullscreen = marked;
+                                Renderer.getRenderer().getSettings().fullscreen = marked;
                             }
                         });
                 gui_root.addModalForm(display_change_form);
@@ -64,10 +64,10 @@ public class GraphicsPanel extends Panel {
             // Confine cursor
             group_confine_cursor = new Group();
             addChild(group_confine_cursor);
-            CheckBox cb_confine_cursor = new CheckBox(Settings.getSettings().confine_cursor, AbstractOptionsMenu.i18n(
+            CheckBox cb_confine_cursor = new CheckBox(Renderer.getRenderer().getSettings().confine_cursor, AbstractOptionsMenu.i18n(
                     "confine_cursor"), AbstractOptionsMenu.i18n("confine_cursor_tip"));
             cb_confine_cursor.addCheckBoxListener(marked -> {
-                Settings.getSettings().confine_cursor = marked;
+                Renderer.getRenderer().getSettings().confine_cursor = marked;
                 var input = Renderer.getLocalInput().getInputProvider();
                 input.setGrabbed(input.isGrabbed());
             });
@@ -87,13 +87,13 @@ public class GraphicsPanel extends Panel {
         updateScaleLabel();
         group_ui_scale.addChild(label_pct);
 
-        int initialValue = Math.clamp((long) (Settings.getSettings().ui_scale * 1000), 0, 1000);
+        int initialValue = Math.clamp((long) (Renderer.getRenderer().getSettings().ui_scale * 1000), 0, 1000);
 
         Slider slider_ui_scale = new Slider(150, 0, 1000, initialValue);
         group_ui_scale.addChild(slider_ui_scale);
 
         slider_ui_scale.addValueListener(value -> {
-            Settings.getSettings().ui_scale = value / 1000f;
+            Renderer.getRenderer().getSettings().ui_scale = value / 1000f;
             updateScaleLabel();
         });
 
@@ -113,7 +113,7 @@ public class GraphicsPanel extends Panel {
         Label label_detail = new Label(AbstractOptionsMenu.i18n("graphical_detail"), labelFont);
         group_detail.addChild(label_detail);
 
-        int initial_detail_value = Settings.getSettings().graphic_detail;
+        int initial_detail_value = Renderer.getRenderer().getSettings().graphic_detail;
         PulldownMenu<Void> pm_detail = new PulldownMenu<>();
         pm_detail.addItem(new PulldownItem<>(AbstractOptionsMenu.i18n("low")));
         pm_detail.addItem(new PulldownItem<>(AbstractOptionsMenu.i18n("medium")));
@@ -124,7 +124,7 @@ public class GraphicsPanel extends Panel {
         options.addCloseListener(() -> {
             int slider_value = pm_detail.getChosenItemIndex();
             if (initial_detail_value != slider_value) {
-                Settings.getSettings().graphic_detail = slider_value;
+                Renderer.getRenderer().getSettings().graphic_detail = slider_value;
                 gui_root.addModalForm(new MessageForm(AbstractOptionsMenu.i18n("change_next_run")));
             }
         });
@@ -143,7 +143,8 @@ public class GraphicsPanel extends Panel {
 
         MultiColumnComboBox<SerializableDisplayMode> mode_list_box = new MultiColumnComboBox<>(gui_root, mode_infos,
                 200, false);
-        SerializableDisplayMode[] modes = Renderer.getRenderer().getWindow().getAvailableDisplayModes();
+        SerializableDisplayMode[] modes = Renderer.getRenderer().getWindow().getAvailableDisplayModes()
+                .toArray(new SerializableDisplayMode[0]);
         SerializableDisplayMode current_mode = Renderer.getRenderer().getCurrentDisplayMode();
         Row<SerializableDisplayMode, Label> current_row = null;
         for (int i = 0; i < modes.length; i++) {
@@ -162,7 +163,7 @@ public class GraphicsPanel extends Panel {
         mode_list_box.addRowListener(new RowListener<>() {
             @Override
             public void rowDoubleClicked(@NonNull SerializableDisplayMode mode) {
-                if (!Settings.getSettings().fullscreen) {
+                if (!Renderer.getRenderer().getSettings().fullscreen) {
                     gui_root.addModalForm(new DisplayChangeForm(switch_now -> {
                         Renderer.getRenderer().switchMode(mode, switch_now);
                         if (switch_now) {
@@ -178,7 +179,7 @@ public class GraphicsPanel extends Panel {
         mode_list_box.place(mode_label, BOTTOM_LEFT);
         mode_group.compileCanvas();
         if (cb_fullscreen != null) {
-            mode_group.setDisabled(Settings.getSettings().fullscreen);
+            mode_group.setDisabled(Renderer.getRenderer().getSettings().fullscreen);
             // Toggle resolution list when fullscreen changes
             cb_fullscreen.addCheckBoxListener(marked -> mode_group.setDisabled(marked));
         }

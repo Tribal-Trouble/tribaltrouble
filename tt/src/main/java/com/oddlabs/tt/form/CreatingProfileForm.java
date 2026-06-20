@@ -8,8 +8,8 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Skin;
-import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.net.ProfileListener;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
@@ -46,15 +46,15 @@ public final class CreatingProfileForm extends Form implements ProfileListener {
         compileCanvas();
         centerPos();
 
-        Network.getMatchmakingClient().setCreatingProfileListener(this);
-        Network.getMatchmakingClient().createProfile(nick);
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().setCreatingProfileListener(this);
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().createProfile(nick);
     }
 
     @Override
     public void success() {
         remove();
         main_menu.setMenuCentered(profiles_form);
-        Network.getMatchmakingClient().requestProfiles();
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().requestProfiles();
     }
 
     @Override

@@ -3,7 +3,8 @@ package com.oddlabs.tt.gui;
 import org.jspecify.annotations.NonNull;
 
 public final class Languages {
-    private static final String[][] languages = new String[][]{{"en", "English"}, {"da", "Dansk"}, {"de", "Deutsch"}, {"es", "Español"}, {"it", "Italiano"}};
+    private static final String[][] languages = new String[][]{{"en", "English"}, {"da", "Dansk"}, {"de", "Deutsch"}, {
+            "es", "Español"}, {"it", "Italiano"}};
 
     public static boolean hasLanguage(@NonNull String language) {
         for (String[] aLanguage : languages) {
@@ -19,7 +20,8 @@ public final class Languages {
     }
 
     public static @NonNull IconQuad @NonNull [] getFlags() {
-        IconQuad[] flags = {Skin.getSkin().getFlagEn(), Skin.getSkin().getFlagDa(), Skin.getSkin().getFlagDe(), Skin.getSkin().getFlagEs(), Skin.getSkin().getFlagIt()};
+        IconQuad[] flags = {Skin.getSkin().getFlagEn(), Skin.getSkin().getFlagDa(), Skin.getSkin().getFlagDe(), Skin
+                .getSkin().getFlagEs(), Skin.getSkin().getFlagIt()};
         return flags;
     }
 }

@@ -10,6 +10,7 @@ interface FormFactory<F extends Form> extends Supplier<F> {
     @NonNull
     F create();
 
+    @Override
     default @NonNull F get() {
         return create();
     }

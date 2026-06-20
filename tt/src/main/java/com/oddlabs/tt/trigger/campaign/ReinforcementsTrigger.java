@@ -5,6 +5,7 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.trigger.IntervalTrigger;
 import org.jspecify.annotations.NonNull;
 
+
 public final class ReinforcementsTrigger extends IntervalTrigger {
     private final @NonNull Player player;
     private final DeployType type;
@@ -19,15 +20,16 @@ public final class ReinforcementsTrigger extends IntervalTrigger {
 
     @Override
     protected void check() {
-        if (player.getArmory() == null) {
+        if (player.getArmory().isEmpty()) {
             triggered();
         } else if (units_deployed < player.getUnitsLost()) {
             int reinforcements = player.getUnitsLost() - units_deployed;
-            if (reinforcements > player.getArmory().getUnitContainer().getNumSupplies()) {
-                reinforcements = player.getArmory().getUnitContainer().getNumSupplies();
+            int supplies = player.getArmory().orElseThrow().getUnitContainer().orElseThrow().getNumSupplies();
+            if (reinforcements > supplies) {
+                reinforcements = supplies;
             }
             if (reinforcements > 0) {
-                player.deployUnits(player.getArmory(), type, reinforcements);
+                player.deployUnits(player.getArmory().orElseThrow(), type, reinforcements);
                 units_deployed += reinforcements;
             }
         }

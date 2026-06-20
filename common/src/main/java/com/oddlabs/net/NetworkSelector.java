@@ -4,17 +4,18 @@ import com.oddlabs.event.Deterministic;
 import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public final class NetworkSelector {
-    private static final long PING_TIMEOUT = 4 * 60 * 1000;
+    private static final long PING_TIMEOUT = TimeUnit.MINUTES.toMillis(4);
     private static final long PING_DELAY = PING_TIMEOUT / 2;
 
     private final @NonNull MonotoneTimeManager time_manager;
@@ -22,8 +23,8 @@ public final class NetworkSelector {
     private final Map<Object, Handler> handler_map = new HashMap<>();
     private TaskThread task_thread;
     private Selector selector;
-    private final List<TimedConnection> ping_connections = new LinkedList<>();
-    private final List<TimedConnection> ping_timeouts = new LinkedList<>();
+    private final Deque<TimedConnection> ping_connections = new ArrayDeque<>();
+    private final Deque<TimedConnection> ping_timeouts = new ArrayDeque<>();
 
     private final Deterministic deterministic;
 
@@ -44,7 +45,7 @@ public final class NetworkSelector {
         try {
             initSelector();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
         DNSTask task = new DNSTask(dns_name, port, conn);
         getTaskThread().addTask(task);
@@ -66,7 +67,7 @@ public final class NetworkSelector {
         try {
             initSelector();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
         return selector;
     }
@@ -96,10 +97,10 @@ public final class NetworkSelector {
         long next_select_timeout = PING_DELAY;
         while (!ping_timeouts.isEmpty()) {
             TimedConnection first_conn = ping_timeouts.getFirst();
-            long first = first_conn.getTimeout();
+            long first = first_conn.timeout();
             if (first <= millis) {
                 ping_timeouts.removeFirst();
-                first_conn.getConnection().timeout();
+                first_conn.connection().timeout();
             } else {
                 next_select_timeout = first - millis;
                 break;
@@ -107,10 +108,10 @@ public final class NetworkSelector {
         }
         while (!ping_connections.isEmpty()) {
             TimedConnection first_conn = ping_connections.getFirst();
-            long first = first_conn.getTimeout();
+            long first = first_conn.timeout();
             if (first <= millis) {
                 ping_connections.removeFirst();
-                Connection conn = first_conn.getConnection();
+                Connection conn = first_conn.connection();
                 if (conn.isConnected()) {
                     conn.doPing();
                     registerForPing(conn);
@@ -149,7 +150,7 @@ public final class NetworkSelector {
             if (deterministic.log(selector != null && selector.selectNow() > 0))
                 doTick();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 

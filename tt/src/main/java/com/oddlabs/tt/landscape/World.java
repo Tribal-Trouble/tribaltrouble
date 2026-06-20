@@ -2,33 +2,34 @@ package com.oddlabs.tt.landscape;
 
 import com.oddlabs.matchmaking.GameMode;
 import com.oddlabs.tt.animation.AnimationManager;
-import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.audio.AudioImplementation;
 import com.oddlabs.tt.form.ProgressForm;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.model.AbstractElementNode;
+import com.oddlabs.tt.model.Plants;
 import com.oddlabs.tt.model.RacesResources;
-import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.SupplyManager;
 import com.oddlabs.tt.model.SupplyManagers;
+import com.oddlabs.tt.model.SupplyType;
+import com.oddlabs.tt.model.Terrain;
 import com.oddlabs.tt.pathfinder.RegionBuilder;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
-import com.oddlabs.tt.procedural.Landscape;
-import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.WorldInfo;
-import org.joml.Vector4fc;
-
-import java.util.List;
-
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.IntStream;
 
+/**
+ * Represents the game world, orchestrating the height map, resources, dynamic entities,
+ * and players within a simulation environment.
+ */
 public final class World {
     public static final int GAMESPEED_DONTCARE = -2;
 
@@ -44,7 +45,7 @@ public final class World {
     private final int max_unit_count;
     private final @NonNull NotificationListener notification_listener;
 
-    private final @NonNull Player @NonNull [] players;
+    private final @NonNull List<@NonNull Player> players;
     private final @NonNull SupplyManagers supply_managers;
     private final @NonNull UnitGrid unit_grid;
     private final @NonNull PatchGroup patch_root;
@@ -52,41 +53,29 @@ public final class World {
     private final @NonNull List<int[]> treePositions;
     private final @NonNull AbstractElementNode<?> element_root;
     private final @Nullable RacesResources races_resources;
-    private final @NonNull LandscapeResources landscape_resources;
+    private final @NonNull LandscapeBoundsProvider landscape_resources;
     private final @NonNull FogInfo fog;
+    private final @NonNull Terrain terrain;
+    private final float @NonNull [] @NonNull [] plantCoordinates;
+    private final List<@NonNull Plants> activePlants = new ArrayList<>();
 
     private int global_checksum;
     private int gamespeed;
     private int map_size;
     private final @NonNull GameMode mode;
 
-    public static @NonNull LandscapeResources loadCommon(@NonNull RenderQueues queues) {
-        LandscapeResources landscape_resources = new LandscapeResources(queues);
-        ProgressForm.progress();
-        return landscape_resources;
-    }
-
-    public static @NonNull RacesResources loadInGame(@NonNull RenderQueues queues) {
-        return new RacesResources(queues);
-    }
-
     public static @NonNull World newWorld(@NonNull AudioImplementation audio_implementation,
-            @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources,
+            @NonNull LandscapeBoundsProvider landscape_resources, @Nullable RacesResources races_resources,
             @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params,
-            @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain,
-            @NonNull PlayerInfo @NonNull [] player_infos, @NonNull FogInfo fog) {
+            @NonNull WorldInfo<?> world_info, List<@NonNull PlayerInfo> player_infos,
+            Color.@NonNull Linear @NonNull [] teamColors, boolean insertPlants) {
         ProgressForm.progress();
         World world = new World(audio_implementation, landscape_resources, races_resources, notification_listener,
-                world_params, world_info, terrain, player_infos, fog);
+                world_params, world_info, player_infos, teamColors, insertPlants);
         ProgressForm.progress();
         ProgressForm.progress(1 / 5f);
         ProgressForm.progress();
-        Player[] players = world.getPlayers();
-        for (short i = 0; i < players.length; i++) {
-            Player player = players[i];
-            assert player != null;
-            player.init(world_info.starting_locations()[i]);
-        }
+
         return world;
     }
 
@@ -94,13 +83,18 @@ public final class World {
         return fog;
     }
 
-    public @NonNull LandscapeResources getLandscapeResources() {
+    public @NonNull Terrain getTerrainType() {
+        return terrain;
+    }
+
+    public @NonNull LandscapeBoundsProvider getLandscapeResources() {
         return landscape_resources;
     }
 
     public @Nullable RacesResources getRacesResources() {
         return races_resources;
     }
+
 
     public @NonNull AudioImplementation getAudio() {
         return audio_impl;
@@ -155,8 +149,8 @@ public final class World {
     }
 
     public void tick(float t) {
-        getAnimationManagerGameTime().runAnimations(
-                getSecondsPerTick() * t / AnimationManager.ANIMATION_SECONDS_PER_TICK);
+        getAnimationManagerGameTime().runAnimations(getSecondsPerTick() * t
+                / AnimationManager.ANIMATION_SECONDS_PER_TICK);
         getAnimationManagerRealTime().runAnimations(t/*AnimationManager.ANIMATION_SECONDS_PER_TICK*/);
     }
 
@@ -164,14 +158,16 @@ public final class World {
         return getAnimationManagerRealTime().getTick();
     }
 
-    private World(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources,
+    private World(@NonNull AudioImplementation audio_implementation,
+            @NonNull LandscapeBoundsProvider landscape_resources,
             @Nullable RacesResources races_resources, @NonNull NotificationListener notification_listener,
-            @NonNull WorldParameters world_params, @NonNull WorldInfo world_info,
-            Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos,
-            @NonNull FogInfo fog) {
-        IO.println(
-                "****************** Generating landscape at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " ********************");
-        this.fog = fog;
+            @NonNull WorldParameters world_params, @NonNull WorldInfo<?> world_info,
+            @NonNull List<@NonNull PlayerInfo> player_infos, Color.@NonNull Linear @NonNull [] teamColors,
+            boolean insertPlants) {
+        IO.println("****************** Generating landscape ********************");
+        this.fog = world_info.fog_info();
+        this.terrain = world_info.terrain();
+        this.plantCoordinates = world_info.plants();
         this.landscape_resources = landscape_resources;
         this.races_resources = races_resources;
         this.audio_impl = audio_implementation;
@@ -184,29 +180,32 @@ public final class World {
         this.mode = GameMode.STANDARD;
         long time_start = System.currentTimeMillis();
 
-        world = new HeightMap(this, world_info.meters_per_world(), world_info.sea_level_meters(),
-                world_info.texels_per_colormap(), world_info.chunks_per_colormap(), world_info.heightmap(),
-                world_info.trees(), world_info.access_grid(), world_info.build_grid());
+        world = new HeightMap(this, world_info.meters_per_world(), world_info.sea_level_meters(), world_info
+                .texels_per_colormap(), world_info.chunks_per_colormap(), world_info.heightmap(), world_info.trees(),
+                world_info.access_grid(), world_info.build_grid());
         animation_manager_game_time = new AnimationManager();
         animation_manager_real_time = new AnimationManager();
         random = new Random(42);
 
-        Iterator<Vector4fc> eachColor = Arrays.asList((Vector4fc[]) Settings.getSettings().team_colours).iterator();
-        players = Arrays.stream(player_infos).map(info -> new Player(this, info, eachColor.next())).toArray(
-                Player[]::new);
+        players = List.of(IntStream.range(0, player_infos.size())
+                .mapToObj(i -> new Player(this, player_infos.get(i), teamColors[i % teamColors.length])
+                        .init(world_info.starting_locations()[i])
+                ).toArray(Player[]::new));
 
         long time_stop = System.currentTimeMillis();
-        IO.println(
-                "****************** Finished landscape in " + ((time_stop - time_start) / 1000f) + " sec ********************");
+        IO.println("****************** Finished landscape in " + ((time_stop - time_start) / 1000f)
+                + " sec ********************");
         this.supply_managers = new SupplyManagers(this);
         this.unit_grid = new UnitGrid(world);
-        RegionBuilder.buildRegions(unit_grid, world_info.starting_locations()[0][0],
-                world_info.starting_locations()[0][1]);
+        RegionBuilder.buildRegions(unit_grid, world_info.starting_locations()[0][0], world_info
+                .starting_locations()[0][1]);
         this.patch_root = new PatchGroup(this);
         this.treePositions = world_info.trees();
         this.tree_root = AbstractTreeGroup.newRoot(this, world_info.trees(), world_info.palm_trees(), terrain);
         this.element_root = AbstractElementNode.newRoot(world);
-        AbstractElementNode.buildSupplies(this, world_info.iron(), world_info.rocks(), world_info.plants(), terrain);
+        AbstractElementNode.buildSupplies(this, world_info.iron(), world_info.rocks(), world_info.plants(), terrain,
+                insertPlants);
+        activeWorlds.add(new java.lang.ref.WeakReference<>(this));
     }
 
     public @NonNull AbstractElementNode getElementRoot() {
@@ -229,11 +228,11 @@ public final class World {
         return unit_grid;
     }
 
-    public @Nullable SupplyManager getSupplyManager(@NonNull Class<? extends Supply> cl) {
-        return supply_managers.getSupplyManager(cl);
+    public @Nullable SupplyManager getSupplyManager(@NonNull SupplyType type) {
+        return supply_managers.getSupplyManager(type);
     }
 
-    public @NonNull Player @NonNull [] getPlayers() {
+    public @NonNull List<@NonNull Player> getPlayers() {
         return players;
     }
 
@@ -259,5 +258,44 @@ public final class World {
 
     public @NonNull Random getRandom() {
         return random;
+    }
+
+    public void registerPlant(@NonNull Plants plant) {
+        synchronized (activePlants) {
+            activePlants.add(plant);
+        }
+    }
+
+    private void removeAllPlants() {
+        synchronized (activePlants) {
+            activePlants.forEach(Plants::remove);
+            activePlants.clear();
+        }
+    }
+
+    public void setPlantsDetail(boolean insertPlants) {
+        synchronized (activePlants) {
+            if (insertPlants) {
+                if (activePlants.isEmpty()) {
+                    AbstractElementNode.addPlants(this, plantCoordinates, terrain);
+                }
+            } else {
+                removeAllPlants();
+            }
+        }
+    }
+
+    private static final java.util.List<java.lang.ref.WeakReference<World>> activeWorlds
+            = new java.util.concurrent.CopyOnWriteArrayList<>();
+
+    public static void updatePlantsDetail(boolean insertPlants) {
+        for (var ref : activeWorlds) {
+            World w = ref.get();
+            if (w != null) {
+                w.setPlantsDetail(insertPlants);
+            } else {
+                activeWorlds.remove(ref);
+            }
+        }
     }
 }

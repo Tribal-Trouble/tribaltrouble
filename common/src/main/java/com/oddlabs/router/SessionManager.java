@@ -142,7 +142,8 @@ final class SessionManager {
 
         @Override
         public int compareTo(@NonNull Timeout other) {
-            int diff = (int) (next_timeout - other.next_timeout);
+            int diff = Long.compare(next_timeout, other.next_timeout);
+            ;
             if (diff != 0)
                 return diff;
             else

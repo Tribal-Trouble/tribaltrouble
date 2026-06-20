@@ -1,32 +1,21 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL13;
 
 public final class BlendLighting extends BlendInfo {
 
-    private final float r;
-    private final float g;
-    private final float b;
+    private final Color.@NonNull Linear color;
 
-    public BlendLighting(@NonNull GLByteImage alpha_image, float r, float g, float b) {
+    public BlendLighting(@NonNull GLByteImage alpha_image, @NonNull Color color) {
         super(alpha_image, Globals.COMPRESSED_LUMINANCE_FORMAT);
-        this.r = r;
-        this.g = g;
-        this.b = b;
+        this.color = color instanceof Color.Linear linear ? linear : new Color.Linear(color);
     }
 
-    public float getR() {
-        return r;
-    }
-
-    public float getG() {
-        return g;
-    }
-
-    public float getB() {
-        return b;
+    public @NonNull Color getColor() {
+        return color;
     }
 
     @Override

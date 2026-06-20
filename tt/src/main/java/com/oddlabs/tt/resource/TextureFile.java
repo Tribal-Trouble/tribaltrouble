@@ -6,7 +6,10 @@ import com.oddlabs.util.DXTImage;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.EXTTextureCompressionS3TC;
+import org.lwjgl.opengl.EXTTextureSRGB;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL21;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -60,6 +63,16 @@ public final class TextureFile extends File<Texture> {
      */
     private final boolean max_alpha;
     /**
+     * If true, the texture contains non-color data (e.g., normal maps, height maps)
+     * and should not be treated as sRGB.
+     */
+    private final boolean is_data;
+    /**
+     * If true, the texture contains color data in sRGB space and should be
+     * hardware-decoded to Linear space on fetch.
+     */
+    private final boolean is_srgb;
+    /**
      * If true, the texture is a DXT compressed image.
      */
     private final boolean is_dxt;
@@ -78,11 +91,25 @@ public final class TextureFile extends File<Texture> {
 
     public TextureFile(String location, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t,
             int max_mipmap_level, int base_fadeout_level, float fadeout_factor) {
-        this(location, internal_format, min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level, base_fadeout_level, fadeout_factor, false);
+        this(location, internal_format, min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level, base_fadeout_level,
+                fadeout_factor, false);
     }
 
     public TextureFile(String location, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t,
             int max_mipmap_level, int base_fadeout_level, float fadeout_factor, boolean max_alpha) {
+        this(location, internal_format, min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level, base_fadeout_level,
+                fadeout_factor, max_alpha, false);
+    }
+
+    public TextureFile(String location, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t,
+            int max_mipmap_level, int base_fadeout_level, float fadeout_factor, boolean max_alpha, boolean is_data) {
+        this(location, internal_format, min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level, base_fadeout_level,
+                fadeout_factor, max_alpha, is_data, !is_data);
+    }
+
+    public TextureFile(String location, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t,
+            int max_mipmap_level, int base_fadeout_level, float fadeout_factor, boolean max_alpha, boolean is_data,
+            boolean is_srgb) {
         super(locateTexture(location));
         this.is_dxt = getURL().toString().endsWith(".dds");
         this.internal_format = internal_format;
@@ -94,11 +121,17 @@ public final class TextureFile extends File<Texture> {
         this.max_mipmap_level = max_mipmap_level;
         this.fadeout_factor = fadeout_factor;
         this.max_alpha = max_alpha;
+        this.is_data = is_data;
+        this.is_srgb = is_srgb;
     }
 
     private static @NonNull URI locateTexture(String location) {
-        return Arrays.stream(EXTENSIONS).map(ext -> locate(location + ext)).filter(Optional::isPresent).map(
-                Optional::get).findFirst().orElseThrow(() -> {
+        return Arrays.stream(EXTENSIONS)
+                .map(ext -> locate(location + ext))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst()
+                .orElseThrow(() -> {
                     String msg = "Failed to locate texture: " + location + " (tried extensions: " + Arrays.toString(
                             EXTENSIONS) + ")";
                     logger.log(Level.SEVERE, msg);
@@ -148,23 +181,41 @@ public final class TextureFile extends File<Texture> {
                 wrap_s == other.wrap_s && wrap_t == other.wrap_t &&
                 base_fadeout_level == other.base_fadeout_level && fadeout_factor == other.fadeout_factor &&
                 max_alpha == other.max_alpha &&
+                is_srgb == other.is_srgb &&
+                is_data == other.is_data &&
                 super.equals(o);
     }
+
 
     public int getInternalFormat() {
         if (is_dxt) {
             return switch (getDXTImage().getFourCC()) {
-                case DXTImage.FOURCC_DXT1 -> EXTTextureCompressionS3TC.GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-                case DXTImage.FOURCC_DXT5 -> EXTTextureCompressionS3TC.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+                case DXTImage.FOURCC_DXT1 -> (is_srgb && !is_data) ? EXTTextureSRGB.GL_COMPRESSED_SRGB_S3TC_DXT1_EXT
+                        : EXTTextureCompressionS3TC.GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+                case DXTImage.FOURCC_DXT5 -> (is_srgb && !is_data)
+                        ? EXTTextureSRGB.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT
+                        : EXTTextureCompressionS3TC.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
                 default -> {
-                    String msg = "Unsupported DXT format (FourCC): " + Integer.toHexString(
-                            getDXTImage().getFourCC()) + " for texture: " + getURL();
+                    String msg = "Unsupported DXT format (FourCC): " + Integer.toHexString(getDXTImage().getFourCC())
+                            + " for texture: " + getURL();
                     logger.severe(msg);
                     throw new IllegalArgumentException(msg);
                 }
             };
         }
+
+        if (is_srgb && !is_data) {
+            if (internal_format == GL11.GL_RGB || internal_format == GL11.GL_RGB8) return GL21.GL_SRGB8;
+            if (internal_format == GL11.GL_RGBA || internal_format == GL11.GL_RGBA8) return GL21.GL_SRGB8_ALPHA8;
+            if (internal_format == GL13.GL_COMPRESSED_RGB) return EXTTextureSRGB.GL_COMPRESSED_SRGB_EXT;
+            if (internal_format == GL13.GL_COMPRESSED_RGBA) return EXTTextureSRGB.GL_COMPRESSED_SRGB_ALPHA_EXT;
+        }
+
         return internal_format;
+    }
+
+    public boolean isData() {
+        return is_data;
     }
 
     public int getMinFilter() {

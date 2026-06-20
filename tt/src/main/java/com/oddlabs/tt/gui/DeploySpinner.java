@@ -3,17 +3,17 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployContainer;
 import com.oddlabs.tt.model.DeployType;
-import com.oddlabs.tt.model.Supply;
-import com.oddlabs.tt.player.Player;
+import com.oddlabs.tt.model.SupplyContainer;
+import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 public final class DeploySpinner extends IconSpinner {
     private final @NonNull PlayerInterface player_interface;
-    private final @Nullable Player player;
-    private final @Nullable Class<? extends Supply> gather_supply_type;
     private @Nullable Class<?> supply_type;
     private DeployType deploy_type;
     private Building current_building;
@@ -21,31 +21,20 @@ public final class DeploySpinner extends IconSpinner {
     private int order_size = 0;
 
     public DeploySpinner(@NonNull WorldViewer viewer, @NonNull PlayerInterface player_interface,
-            @NonNull ModeIconQuads icon_quad, @NonNull String tool_tip, @NonNull IconQuad @Nullable [] tool_tip_icons,
-            @NonNull String shortcut_key, @Nullable Player player,
-            @Nullable Class<? extends Supply> gather_supply_type) {
-        super(viewer, icon_quad, tool_tip, tool_tip_icons, shortcut_key);
+            @NonNull ModeIconQuads icon_quad, @NonNull String tool_tip, @Nullable List<
+                    @NonNull IconQuad> tool_tip_icons,
+            @NonNull GameAction action, @NonNull GameAction dec_action) {
+        super(viewer, icon_quad, tool_tip, tool_tip_icons, action, dec_action);
         this.player_interface = player_interface;
-        this.player = player;
-        this.gather_supply_type = gather_supply_type;
     }
 
-    public void setContainers(@NonNull Building current_building, @NonNull DeployType deploy_type,
-            @Nullable Class<?> supply_type) {
+    public void setContainers(@NonNull Building current_building, @NonNull DeployType deploy_type, @Nullable Class<
+            ?> supply_type) {
         this.current_building = current_building;
         this.deploy_type = deploy_type;
         this.supply_type = supply_type;
         if (!current_building.isDead())
             num_orders = current_building.getDeployContainer(deploy_type).getNumOrders();
-    }
-
-    @Override
-    protected int getDisplayCount() {
-        int count = computeCount();
-        if (player != null && gather_supply_type != null) {
-            count += player.getGathererCount(gather_supply_type);
-        }
-        return count;
     }
 
     @Override
@@ -79,11 +68,10 @@ public final class DeploySpinner extends IconSpinner {
     @Override
     protected void increase(int amount) {
         if (!current_building.isDead()) {
-            int num_units = current_building.getUnitContainer().getNumSupplies();
-            int num_supplies = Integer.MAX_VALUE;
-            if (supply_type != null) {
-                num_supplies = current_building.getSupplyContainer(supply_type).getNumSupplies();
-            }
+            int num_units = current_building.getUnitContainer().map(SupplyContainer::getNumSupplies).orElse(0);
+            int num_supplies = supply_type != null
+                    ? current_building.getSupplyContainer(supply_type).map(SupplyContainer::getNumSupplies).orElse(0)
+                    : Integer.MAX_VALUE;
 
             if (num_units > getOrderDiff() && num_supplies > getOrderDiff()) {
                 if (amount > num_units - getOrderDiff()) {
@@ -100,22 +88,22 @@ public final class DeploySpinner extends IconSpinner {
 
     @Override
     protected void decrease(int amount) {
-        if (current_building.isDead()) return;
-
-        if (computeCount() > 0) {
+        if (!current_building.isDead() && computeCount() > 0) {
             int num_units = current_building.getDeployContainer(deploy_type).getNumSupplies();
 
-            if (num_units > -getOrderDiff()) {
+            if (num_units > -getOrderDiff()/* && num_supplies > -getOrderDiff()*/) {
                 if (amount > num_units + getOrderDiff()) {
                     amount = num_units + getOrderDiff();
                 }
+                /*
+                if (supply_type != null && amount > num_supplies + getOrderDiff()) {
+                	amount = num_supplies + getOrderDiff();
+                }
+                */
                 order_size -= amount;
                 num_orders -= amount;
             }
-        } else if (player != null && gather_supply_type != null
-                && player.getGathererCount(gather_supply_type) > 0) {
-                    player_interface.recallGatherers(current_building, gather_supply_type, amount);
-                }
+        }
     }
 
     @Override

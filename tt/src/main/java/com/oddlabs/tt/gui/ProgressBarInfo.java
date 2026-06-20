@@ -18,10 +18,6 @@ public final class ProgressBarInfo {
         return weight;
     }
 
-    public void setWaypoint(int waypoint) {
-        this.waypoint = waypoint;
-    }
-
     public int getWaypoint() {
         return waypoint;
     }

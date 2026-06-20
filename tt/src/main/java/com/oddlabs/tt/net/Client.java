@@ -16,6 +16,7 @@ import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.UnitInfo;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.util.Utils;
@@ -92,8 +93,8 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
     @Override
     public void chat(int player_slot, @Nullable String chat) {
         if (chat != null && player_slot >= 0 && player_slot < player_slots.length)
-            Network.getChatHub().chat(new ChatMessage(player_slots[player_slot].getInfo().getName(), chat,
-                    ChatMessage.Type.GAME_MENU));
+            Renderer.getRenderer().getNetwork().getChatHub().chat(new ChatMessage(player_slots[player_slot].getInfo()
+                    .getName(), chat, ChatMessage.Type.GAME_MENU));
     }
 
     @Override

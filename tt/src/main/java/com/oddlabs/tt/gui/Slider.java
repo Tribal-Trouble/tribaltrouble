@@ -22,8 +22,8 @@ public final class Slider extends GUIObject {
 
     public Slider(int width, int min, int max, int init_value) {
         cardinality = max - min + 1;
-        assert cardinality > 0 && max >= init_value
-                && init_value >= min : "Invalid values. cardinality = " + cardinality + " | max = " + max + " | min = " + min + " | init_value = " + init_value;
+        assert cardinality > 0 && max >= init_value && init_value >= min : "Invalid values. cardinality = "
+                + cardinality + " | max = " + max + " | min = " + min + " | init_value = " + init_value;
         this.min = min;
         left_offset = Skin.getSkin().getSliderData().leftOffset();
         int right_offset = Skin.getSkin().getSliderData().rightOffset();
@@ -52,8 +52,9 @@ public final class Slider extends GUIObject {
 
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
-        Skin.getSkin().getSliderData().slider().render(renderer, 0, 0, getWidth(),
-                isDisabled() ? ModeIconQuads.Mode.DISABLED : ModeIconQuads.Mode.NORMAL);
+        Skin.getSkin().getSliderData().slider()
+                .render(renderer, 0, 0, getWidth(), isDisabled() ? ModeIconQuads.Mode.DISABLED
+                        : ModeIconQuads.Mode.NORMAL);
     }
 
     public int getValue() {

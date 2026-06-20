@@ -7,6 +7,7 @@ import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 
 import java.nio.ShortBuffer;
+import java.util.Arrays;
 import java.util.Map;
 
 public final class Optimizer {
@@ -140,28 +141,21 @@ public final class Optimizer {
     }
 
     private static float[][] stripArray(int length, float @NonNull [] @NonNull [] array) {
-        float[][] copy = new float[length][];
-        System.arraycopy(array, 0, copy, 0, length);
-        return copy;
+        return Arrays.copyOf(array, length);
     }
 
     private static byte[][] stripArray(int length, byte @NonNull [] @NonNull [] array) {
-        byte[][] copy = new byte[length][];
-        System.arraycopy(array, 0, copy, 0, length);
-        return copy;
+        return Arrays.copyOf(array, length);
     }
 
     private static float[] stripArray(int length, float @NonNull [] array) {
-        float[] copy = new float[length];
-        System.arraycopy(array, 0, copy, 0, length);
-        return copy;
+        return Arrays.copyOf(array, length);
     }
 
     static @NonNull SpriteInfo convertToSprite(String[][] textures, @NonNull ModelInfo model_info,
             float[] clear_color) {
-        return new SpriteInfo(textures, model_info.indices(), model_info.vertices(), model_info.normals(),
-                model_info.texcoords(), model_info.texcoords2(), model_info.skin_names(), model_info.skin_weights(),
-                clear_color);
+        return new SpriteInfo(textures, model_info.indices(), model_info.vertices(), model_info.normals(), model_info
+                .texcoords(), model_info.texcoords2(), model_info.skin_names(), model_info.skin_weights(), clear_color);
     }
 
     public static @NonNull AnimationInfo convertToAnimation(/*float[] skeleton_vertices,*/ @NonNull Bone skeleton,
@@ -181,8 +175,8 @@ public final class Optimizer {
 
     private static void normalizeSkeleton(
             /*float[] parent_bone_vertex, float[] skeleton_vertices,*/ float @NonNull [] bones,
-            @NonNull Bone current_bone, @NonNull Map<String, float[]> initial_pose_map,
-            @NonNull Map<String, float[]> frame_map) {
+            @NonNull Bone current_bone, @NonNull Map<String, float[]> initial_pose_map, @NonNull Map<String,
+                    float[]> frame_map) {
         assert initial_pose_map.size() == bones.length / 12;
         assert frame_map.size() == bones.length / 12;
         String bone_name = current_bone.name();

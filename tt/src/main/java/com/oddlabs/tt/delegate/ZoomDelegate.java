@@ -10,7 +10,7 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
-public class ZoomDelegate extends InGameDelegate {
+public class ZoomDelegate extends InGameDelegate<GameCamera> {
     private static final float ZOOM_FACTOR_CORRECTION = .25f;
 
     private final int start_x;

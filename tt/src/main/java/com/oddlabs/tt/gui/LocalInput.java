@@ -1,8 +1,6 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.event.Deterministic;
-import com.oddlabs.tt.audio.AudioManager;
-import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.input.InputManager;
 import com.oddlabs.tt.input.InputProvider;
@@ -11,6 +9,7 @@ import com.oddlabs.tt.input.KeyboardInput;
 import com.oddlabs.tt.input.LWJGL3InputProvider;
 import com.oddlabs.tt.input.Modifier;
 import com.oddlabs.tt.input.PointerInput;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.window.LWJGL3Window;
 import com.oddlabs.tt.window.Window;
 import org.jspecify.annotations.NonNull;
@@ -21,6 +20,9 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
+/**
+ * Coordinates keyboard and pointer input for the local user.
+ */
 public final class LocalInput implements AutoCloseable {
     private static final Logger logger = Logger.getLogger(LocalInput.class.getName());
 
@@ -30,6 +32,7 @@ public final class LocalInput implements AutoCloseable {
     private int mouse_x;
     private int mouse_y;
 
+    private final @NonNull Window window;
     private final @NonNull InputProvider<?> inputProvider;
     private final InputManager inputManager = new InputManager();
     private final KeyboardInput keyboardInput = new KeyboardInput();
@@ -42,6 +45,7 @@ public final class LocalInput implements AutoCloseable {
     private int revision;
 
     public LocalInput(@NonNull Window lwjglWindow) {
+        this.window = lwjglWindow;
         if (lwjglWindow instanceof LWJGL3Window win) {
             inputProvider = new LWJGL3InputProvider(win);
         } else {
@@ -84,6 +88,10 @@ public final class LocalInput implements AutoCloseable {
 
     public void mouseScrolled(@NonNull GUIRoot gui_root, int dz) {
         gui_root.getInputState().mouseScrolled(dz);
+    }
+
+    public void mouseScrolledHorizontally(@NonNull GUIRoot gui_root, int dx) {
+        gui_root.getInputState().mouseScrolledHorizontally(dx);
     }
 
     public void mouseMoved(@NonNull GUIRoot gui_root, short x, short y) {
@@ -132,7 +140,8 @@ public final class LocalInput implements AutoCloseable {
     }
 
     public boolean audioIsCreated() {
-        return LocalEventQueue.getQueue().getDeterministic().log(AudioManager.getManager() != null);
+        return Renderer.getRenderer().getEventQueue().getDeterministic().log(Renderer.getRenderer().getAudioManager()
+                != null);
     }
 
     public @Nullable Path getGameDir() {
@@ -163,12 +172,13 @@ public final class LocalInput implements AutoCloseable {
         if (inputProvider instanceof LWJGL3InputProvider lwjgl3InputProvider) {
             lwjgl3InputProvider.initCallbacks();
         }
-        pointerInput.loadCursors();
-        Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
+        pointerInput.loadCursors(window.getPixelDensity());
+        Deterministic deterministic = Renderer.getRenderer().getEventQueue().getDeterministic();
         mouse_x = deterministic.log(inputProvider.getMouseX());
         mouse_y = deterministic.log(inputProvider.getMouseY());
     }
 
+    @Override
     public void close() {
         inputProvider.close();
     }

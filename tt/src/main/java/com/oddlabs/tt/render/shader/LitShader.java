@@ -4,9 +4,13 @@ package com.oddlabs.tt.render.shader;
  * Interface for shaders that support a common, simple lighting model.
  */
 public interface LitShader extends Shader {
+    String LIGHTING_CONSTANTS = """
+            const vec3 u_lightDirection = vec3(-0.70710678, 0.0, 0.70710678);
+            const vec3 u_globalAmbient = vec3(0.132866, 0.132866, 0.170656); // Linearized (0.4, 0.4, 0.45)
+            const vec3 u_groundAmbient = vec3(0.019472, 0.012726, 0.008518); // Linearized (0.15, 0.12, 0.1)
+            """;
+
     interface Uniforms {
-        String LIGHT_DIR = "u_lightDirection";
-        String GLOBAL_AMBIENT = "u_globalAmbient";
     }
 
     String PERTURB_NORMAL_FUNC = """
@@ -48,12 +52,26 @@ public interface LitShader extends Shader {
             ) {
                 // Transform normal to view space
                 vec3 transformedNormal = normalize((modelViewMatrix * vec4(normal, 0.0)).xyz);
+                vec3 worldNormal = normalize((transpose(u_viewMatrix) * vec4(transformedNormal, 0.0)).xyz);
+                vec3 lightDir = normalize((u_viewMatrix * vec4(u_lightDirection, 0.0)).xyz);
 
-                // Calculate diffuse lighting component
-                float diffuse = max(dot(transformedNormal, normalize(u_lightDirection)), 0.0);
+                // Wrap Lighting (Half-Lambert)
+                float diff = dot(transformedNormal, lightDir) * 0.5 + 0.5;
+                diff = diff * diff;
 
-                // Combine ambient and diffuse
-                vec3 light = u_globalAmbient + vec3(diffuse);
+                // Hemispheric Ambient (mix based on normal Z in World Space)
+                float skyWeight = clamp(worldNormal.z * 0.5 + 0.5, 0.0, 1.0);
+                vec3 ambient = mix(u_groundAmbient, u_globalAmbient, skyWeight);
+
+                // Rim Lighting
+                vec3 viewDir = normalize(-(modelViewMatrix * vec4(normal, 1.0)).xyz); // Approximate
+                float rim = 1.0 - max(dot(viewDir, transformedNormal), 0.0);
+                rim = smoothstep(0.8, 1.0, rim);
+                vec3 rimLight = rim * u_globalAmbient * 0.25;
+
+                // Combine and apply exposure
+                float exposure = 1.1;
+                vec3 light = (ambient + vec3(diff) + rimLight) * exposure;
 
                 // Apply lighting to material color
                 return vec4(materialColor.rgb * clamp(light, 0.0, 1.0), materialColor.a);
@@ -61,17 +79,20 @@ public interface LitShader extends Shader {
             """;
 
     /**
-     * Advanced fragment-based lighting with hemispheric ambient and specular.
+     * Advanced fragment-based lighting with specular support.
      */
+    String FRAGMENT_LIGHT_DIR = "vec3 lightDir = normalize((u_viewMatrix * vec4(u_lightDirection, 0.0)).xyz);";
+
     String FRAGMENT_LIGHTING_FUNCTION = """
-            vec3 calculateLighting(vec3 normal, vec3 viewPos, float specularStrength) {
-                vec3 lightDir = normalize(u_lightDirection);
+            vec3 calculateLighting(vec3 normal, vec3 worldNormal, vec3 viewPos, float specularStrength) {
+                """ + FRAGMENT_LIGHT_DIR + """
 
-                // Diffuse
-                float diff = max(dot(normal, lightDir), 0.0);
+                // Wrap Lighting (Half-Lambert)
+                float diff = dot(normal, lightDir) * 0.5 + 0.5;
+                diff = diff * diff;
 
-                // Hemispheric Ambient (mix based on normal Y in View Space)
-                float skyWeight = 0.5 * (normal.y + 1.0);
+                // Hemispheric Ambient (mix based on normal Z in World Space)
+                float skyWeight = clamp(worldNormal.z * 0.5 + 0.5, 0.0, 1.0);
                 vec3 ambient = mix(u_groundAmbient, u_globalAmbient, skyWeight);
 
                 // Specular (Blinn-Phong)
@@ -80,7 +101,16 @@ public interface LitShader extends Shader {
                 float spec = pow(max(dot(normal, halfDir), 0.0), 32.0);
                 vec3 specular = specularStrength * spec * vec3(1.0);
 
-                return ambient + diff * vec3(1.0) + specular;
+                // Rim Lighting
+                // Adds a subtle glow to edges to detach objects from the background.
+                float rim = 1.0 - max(dot(viewDir, normal), 0.0);
+                rim = smoothstep(0.8, 1.0, rim);
+                vec3 rimLight = rim * u_globalAmbient * 0.25;
+
+                // Overall light intensity scaler to prevent scenes from being too dark
+                float exposure = 1.1;
+
+                return (ambient + diff * vec3(1.0) + specular + rimLight) * exposure;
             }
             """;
 }

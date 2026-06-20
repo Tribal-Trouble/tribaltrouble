@@ -1,8 +1,8 @@
 package com.oddlabs.tt.viewer;
 
-import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.WaitingForPlayersForm;
 import com.oddlabs.tt.net.StallHandler;
+import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -21,7 +21,7 @@ final class ViewerStallHandler implements StallHandler {
     }
 
     private void resetStallTime() {
-        local_stall_time = LocalEventQueue.getQueue().getTime();
+        local_stall_time = Renderer.getRenderer().getEventQueue().getTime();
     }
 
     @Override
@@ -44,7 +44,7 @@ final class ViewerStallHandler implements StallHandler {
             stall_tick = tick;
             resetStallTime();
         }
-        float elapsed_time = LocalEventQueue.getQueue().getTime() - local_stall_time;
+        float elapsed_time = Renderer.getRenderer().getEventQueue().getTime() - local_stall_time;
         if (tick == 0 || elapsed_time > SHOW_WAITING_DELAY_SECONDS) {
             if (waiting_for_players_form == null) {
                 waiting_for_players_form = new WaitingForPlayersForm(viewer);

@@ -1,14 +1,15 @@
 package com.oddlabs.tt.landscape;
 
 
-import com.oddlabs.tt.util.BoundingBox;
+import com.oddlabs.tt.model.BoundingBox;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-public abstract class AbstractPatchGroup extends BoundingBox {
-    private final AbstractPatchGroup parent;
+public abstract sealed class AbstractPatchGroup extends BoundingBox permits PatchGroup, LandscapeLeaf {
+    private final @Nullable AbstractPatchGroup parent;
 
     protected AbstractPatchGroup(@NonNull HeightMap heightmap, float patch_size, int x, int y,
-            AbstractPatchGroup parent) {
+            @Nullable AbstractPatchGroup parent) {
         this.parent = parent;
     }
 
@@ -17,6 +18,4 @@ public abstract class AbstractPatchGroup extends BoundingBox {
         if (parent != null)
             parent.editHeight(height);
     }
-
-    public abstract void visit(@NonNull PatchGroupVisitor visitor);
 }

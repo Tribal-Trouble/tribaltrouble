@@ -1,17 +1,19 @@
 package com.oddlabs.tt.landscape;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Arrays;
 
 public final class TreeLeaf extends AbstractTreeGroup {
-    private TreeSupply @NonNull [] infos = new TreeSupply[0];
+    private @NonNull TreeSupply @NonNull [] infos = new TreeSupply[0];
 
-    public TreeLeaf(AbstractTreeGroup parent) {
+    public TreeLeaf(@Nullable AbstractTreeGroup parent) {
         super(parent);
     }
 
-    void insertTree(TreeSupply tree) {
-        TreeSupply[] new_infos = new TreeSupply[infos.length + 1];
-        System.arraycopy(infos, 0, new_infos, 0, infos.length);
+    void insertTree(@NonNull TreeSupply tree) {
+        TreeSupply[] new_infos = Arrays.copyOf(infos, infos.length + 1);
         new_infos[new_infos.length - 1] = tree;
         infos = new_infos;
     }
@@ -33,14 +35,7 @@ public final class TreeLeaf extends AbstractTreeGroup {
         return false;
     }
 
-    @Override
-    public void visit(@NonNull TreeNodeVisitor visitor) {
-        visitor.visitLeaf(this);
-    }
-
-    public void visitTrees(@NonNull TreeNodeVisitor visitor) {
-        for (TreeSupply info : infos) {
-            visitor.visitTree(info);
-        }
+    public @NonNull TreeSupply @NonNull [] getTrees() {
+        return infos;
     }
 }

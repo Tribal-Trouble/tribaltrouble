@@ -2,19 +2,15 @@ package com.oddlabs.tt.camera;
 
 
 import com.oddlabs.tt.animation.Animated;
-import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.landscape.HeightMap;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.StateChecksum;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.BufferUtils;
-
-import java.nio.IntBuffer;
-import java.util.Objects;
 
 /**
  * The View
@@ -37,12 +33,10 @@ public abstract class Camera implements Animated {
      */
     private static final float GROUND_CLEARANCE = 1.0f;
 
-    private final IntBuffer viewport = Objects.requireNonNull(BufferUtils.createIntBuffer(16));
     private final Matrix4f proj = new Matrix4f();
     private final CameraState tmp_camera = new CameraState();
 
-    private final int[] viewportArray = new int[4];
-    private final float[] hit_result_array = new float[3];
+    private final Vector3f hit_result = new Vector3f();
 
     private final @Nullable HeightMap heightmap;
 
@@ -94,14 +88,13 @@ public abstract class Camera implements Animated {
 
     protected final boolean bounce(float x, float y, float z, int width, int height) {
         boolean bounced = false;
-        viewport.clear();
-        viewport.put(0).put(0).put(width).put(height);
-        viewport.flip();
+
+        int[] viewport = {0, 0, width, height};
 
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
-                float fovy = Globals.FOV;
                 float aspect = (float) width / height;
+                float fovy = calculateDynamicFOV(z, aspect, FOVMode.DIAGONAL);
                 float zNear = Globals.VIEW_MIN;
                 float zFar = Globals.VIEW_MAX;
                 proj.setPerspective((float) Math.toRadians(fovy), aspect, zNear, zFar);
@@ -109,10 +102,10 @@ public abstract class Camera implements Animated {
                 tmp_camera.setTargetView(proj);
 
                 Matrix4f combinedMatrix = new Matrix4f(proj).mul(tmp_camera.getModelView());
-                unproject(i * width, j * height, 0f, tmp_camera.getModelView(), combinedMatrix);
-                float hit_x = hit_result_array[0];
-                float hit_y = hit_result_array[1];
-                float hit_z = hit_result_array[2];
+                unproject(i * width, j * height, 0f, tmp_camera.getModelView(), combinedMatrix, viewport);
+                float hit_x = hit_result.x();
+                float hit_y = hit_result.y();
+                float hit_z = hit_result.z();
 
                 float dx1 = hit_x - x;
                 float dy1 = hit_y - y;
@@ -141,17 +134,10 @@ public abstract class Camera implements Animated {
         return bounced;
     }
 
-    private void unproject(float winx, float winy, float winz, @NonNull Matrix4f model, @NonNull Matrix4f proj) {
-        // Use an absolute get to avoid changing the buffer's position
-        viewport.get(0, viewportArray, 0, 4);
-
-        Vector3f tempVector = new Vector3f();
+    private void unproject(float winx, float winy, float winz, @NonNull Matrix4f model, @NonNull Matrix4f proj,
+            int[] viewport) {
         proj.mul(model);
-        proj.unproject(winx, winy, winz, viewportArray, tempVector);
-
-        hit_result_array[0] = tempVector.x;
-        hit_result_array[1] = tempVector.y;
-        hit_result_array[2] = tempVector.z;
+        proj.unproject(winx, winy, winz, viewport, hit_result);
     }
 
     public final @NonNull CameraState getState() {
@@ -159,11 +145,11 @@ public abstract class Camera implements Animated {
     }
 
     public final void disable() {
-        LocalEventQueue.getQueue().getHighPrecisionManager().removeAnimation(this);
+        Renderer.getRenderer().getEventQueue().getHighPrecisionManager().removeAnimation(this);
     }
 
     public void enable() {
-        LocalEventQueue.getQueue().getHighPrecisionManager().registerAnimation(this);
+        Renderer.getRenderer().getEventQueue().getHighPrecisionManager().registerAnimation(this);
     }
 
     public void handleInput(@NonNull InputEvent event) {
@@ -172,6 +158,44 @@ public abstract class Camera implements Animated {
     public void mouseScrolled(int amount) {
     }
 
+    public void rotate(int amount) {
+    }
+
     public void mouseMoved(int x, int y) {
+    }
+
+    public enum FOVMode {
+        FIXED,
+        DIAGONAL,
+        ADAPTIVE
+    }
+
+    public static float calculateDynamicFOV(float z, float aspect, @NonNull FOVMode mode) {
+        return switch (mode) {
+            case ADAPTIVE -> {
+                float zMin = 15.0f;
+                float zMax = 100.0f;
+                float t = Math.clamp((z - zMin) / (zMax - zMin), 0.0f, 1.0f);
+
+                float fovWideRad = (float) Math.toRadians(68.0);
+                float fovNarrowRad = (float) Math.toRadians(18.0);
+
+                float tanWide = (float) Math.tan(fovWideRad / 2.0f);
+                float tanNarrow = (float) Math.tan(fovNarrowRad / 2.0f);
+
+                float interpolatedTan = (1.0f - t) * tanWide + t * tanNarrow;
+                float fovyRad = 2.0f * (float) Math.atan(interpolatedTan);
+
+                yield (float) Math.toDegrees(fovyRad);
+            }
+            case DIAGONAL -> {
+                float tanDiagHalf = (float) (Math.tan(Math.toRadians(22.5)) * 5.0 / 3.0);
+                float tanVertHalf = tanDiagHalf / (float) Math.sqrt(1.0f + aspect * aspect);
+                float fovyRad = 2.0f * (float) Math.atan(tanVertHalf);
+
+                yield (float) Math.toDegrees(fovyRad);
+            }
+            case FIXED -> Globals.FOV;
+        };
     }
 }

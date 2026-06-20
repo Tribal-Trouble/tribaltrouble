@@ -4,35 +4,56 @@ import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.UnitGrid;
-import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class SceneryModel extends Model implements Occupant, ModelToolTip, Animated {
-    private final @NonNull SpriteKey sprite_renderer;
+/**
+ * A world entity that represents static or ambient environment detail (scenery).
+ * Decoupled from rendering-bound keys; stores its bounding box array directly.
+ */
+public sealed class SceneryModel extends Model implements Occupant, ModelToolTip, Animated permits Plants {
+    private final @NonNull BoundsProvider boundsProvider;
     private final float shadow_diameter;
     private final boolean occupy;
     private final @Nullable String name;
     private final int animation;
     private final float seconds_per_animation_cycle;
     private float anim_time = 0;
+    private boolean registeredTarget = false;
 
     public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
-            @NonNull SpriteKey sprite_renderer) {
-        this(world, x, y, dir_x, dir_y, sprite_renderer, 0f, false, null);
+            @NonNull BoundsProvider boundsProvider) {
+        this(world, x, y, dir_x, dir_y, boundsProvider, 0f, false, null);
     }
 
     public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
-            @NonNull SpriteKey sprite_renderer, float shadow_diameter, boolean occupy, @Nullable String name) {
-        this(world, x, y, dir_x, dir_y, sprite_renderer, shadow_diameter, occupy, name, -1, -1, 0);
+            @NonNull BoundingBox @NonNull [] bounds) {
+        this(world, x, y, dir_x, dir_y, () -> bounds, 0f, false, null);
     }
 
     public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
-            @NonNull SpriteKey sprite_renderer, float shadow_diameter, boolean occupy, @Nullable String name,
+            @NonNull BoundsProvider boundsProvider, float shadow_diameter, boolean occupy, @Nullable String name) {
+        this(world, x, y, dir_x, dir_y, boundsProvider, shadow_diameter, occupy, name, -1, -1, 0);
+    }
+
+    public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
+            @NonNull BoundingBox @NonNull [] bounds, float shadow_diameter, boolean occupy, @Nullable String name) {
+        this(world, x, y, dir_x, dir_y, () -> bounds, shadow_diameter, occupy, name, -1, -1, 0);
+    }
+
+    public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
+            @NonNull BoundingBox @NonNull [] bounds, float shadow_diameter, boolean occupy, @Nullable String name,
+            int animation, float seconds_per_animation_cycle, float anim_offset) {
+        this(world, x, y, dir_x, dir_y, () -> bounds, shadow_diameter, occupy, name, animation,
+                seconds_per_animation_cycle, anim_offset);
+    }
+
+    public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
+            @NonNull BoundsProvider boundsProvider, float shadow_diameter, boolean occupy, @Nullable String name,
             int animation, float seconds_per_animation_cycle, float anim_offset) {
         super(world);
-        this.sprite_renderer = sprite_renderer;
+        this.boundsProvider = boundsProvider;
         this.shadow_diameter = shadow_diameter;
         this.occupy = occupy;
         this.name = name;
@@ -45,6 +66,10 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
         if (occupy) {
             world.getUnitGrid().occupyGrid(getGridX(), getGridY(), this);
         }
+    }
+
+    public final @NonNull BoundsProvider getBoundsProvider() {
+        return boundsProvider;
     }
 
     public final @Nullable String getName() {
@@ -60,6 +85,7 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
         register();
         reinsert();
         getWorld().getNotificationListener().registerTarget(this);
+        registeredTarget = true;
         if (animation > -1)
             getWorld().getAnimationManagerGameTime().registerAnimation(this);
     }
@@ -70,14 +96,12 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
             getWorld().getUnitGrid().freeGrid(getGridX(), getGridY(), this);
         }
         super.remove();
-        getWorld().getNotificationListener().unregisterTarget(this);
+        if (registeredTarget) {
+            getWorld().getNotificationListener().unregisterTarget(this);
+            registeredTarget = false;
+        }
         if (animation > -1)
             getWorld().getAnimationManagerGameTime().removeAnimation(this);
-    }
-
-    @Override
-    public final void visit(@NonNull ToolTipVisitor visitor) {
-        visitor.visitSceneryModel(this);
     }
 
     @Override
@@ -119,7 +143,7 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
 
     @Override
     public final float getSize() {
-        throw new RuntimeException();
+        throw new UnsupportedOperationException("SceneryModel does not have a size");
     }
 
     @Override
@@ -132,12 +156,7 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
     }
 
     @Override
-    public final @NonNull SpriteKey getSpriteRenderer() {
-        return sprite_renderer;
-    }
-
-    @Override
-    public void visit(@NonNull ElementVisitor visitor) {
-        visitor.visitSceneryModel(this);
+    protected @NonNull BoundingBox @NonNull [] getLocalBounds() {
+        return boundsProvider.bounds();
     }
 }

@@ -10,7 +10,6 @@ import com.oddlabs.router.SessionID;
 import com.oddlabs.router.SessionInfo;
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.animation.AnimationManager;
-import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
@@ -20,6 +19,7 @@ import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInterface;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.NotificationManager;
@@ -38,6 +38,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Manages networking connections, peers, message routing, and synchronization
+ * between players in a multiplayer session.
+ */
 public final class PeerHub implements Animated, RouterHandler {
     private static final Logger logger = Logger.getLogger(PeerHub.class.getName());
 
@@ -120,21 +124,21 @@ public final class PeerHub implements Animated, RouterHandler {
 
         GameArgumentReader argument_reader = new GameArgumentReader(distributable_table);
         List<Peer> peer_index_to_peer_list = new ArrayList<>();
-        Player[] players = local_player.getWorld().getPlayers();
-        this.local_peer_index = -1;
+        List<@NonNull Player> players = local_player.getWorld().getPlayers();
+        int local_peer_index = -1;
         if (!is_multiplayer) {
-            this.router = new Router(network, com.oddlabs.util.Utils.getLoopbackAddress(), 0,
-                    Logger.getAnonymousLogger(), (IOException e) -> {
+            this.router = new Router(network, com.oddlabs.util.Utils.getLoopbackAddress(), 0, Logger
+                    .getAnonymousLogger(), (IOException e) -> {
                         //					PeerHub.this.routerFailed(e);
-                        throw new RuntimeException(e);
+                        throw new IllegalStateException("Local router failed", e);
                     });
             this.router_client = new RouterClient(network, this, router.getPort());
         } else {
             this.router = null;
-            this.router_client = new RouterClient(network, Settings.getSettings().getRouterAddress(), this);
+            this.router_client = new RouterClient(network, Renderer.getRenderer().getSettings().getRouterAddress(), this);
         }
-        for (short i = 0; i < players.length; i++) {
-            Player player = players[i];
+        for (short i = 0; i < players.size(); i++) {
+            Player player = players.get(i);
             if (player_slots[i].getType() != PlayerSlot.HUMAN) {
                 nonhuman_players.add(player);
                 continue;
@@ -186,8 +190,8 @@ public final class PeerHub implements Animated, RouterHandler {
     @Override
     public void heartbeat(int millis) {
         if (millis < server_millis) {
-            routerFailed(new IOException(
-                    "Invalid time received: " + millis + " (tick currently at " + getTick() + ")"));
+            routerFailed(new IOException("Invalid time received: " + millis + " (tick currently at " + getTick()
+                    + ")"));
             return;
         }
         server_millis = millis;
@@ -210,8 +214,8 @@ public final class PeerHub implements Animated, RouterHandler {
     @Override
     public void receiveGameStateEvent(int client_id, int millis, ARMIEvent event) {
         if (millis < server_millis) {
-            routerFailed(new IOException(
-                    "Invalid time received for event: " + millis + " (tick currently at " + getTick() + ")"));
+            routerFailed(new IOException("Invalid time received for event: " + millis + " (tick currently at "
+                    + getTick() + ")"));
             return;
         }
         Peer peer = getPeerFromClientID(client_id);
@@ -222,7 +226,7 @@ public final class PeerHub implements Animated, RouterHandler {
         server_millis = millis;
         int event_tick = millisToTickCeil(millis);
         peer.addEvent(event_tick, event);
-        if (!is_spectator && isFirstActivePeer() && Network.getMatchmakingClient().isConnected()) {
+        if (!is_spectator && isFirstActivePeer() && Renderer.getRenderer().getNetwork().getMatchmakingClient().isConnected()) {
             PeerHubSpectatorController.sendCommandEvent(event_tick, client_id, event);
         }
     }
@@ -338,14 +342,17 @@ public final class PeerHub implements Animated, RouterHandler {
     private void doTick(float t) {
         stall_handler.stopStall();
 
+
         if (!is_spectator) {
-            if (getFreeQuitTicksLeft(local_player.getWorld()) == 0 && Network.getMatchmakingClient().isConnected())
-                Network.getMatchmakingClient().getInterface().freeQuitStopNotify();
+            if (getFreeQuitTicksLeft(local_player.getWorld()) == 0 && Renderer.getRenderer().getNetwork()
+                .getMatchmakingClient().isConnected())
+            Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().freeQuitStopNotify();
 
-            if (getTick() % TICKS_PER_STATUS_UPDATE == 0 && Network.getMatchmakingClient().isConnected())
-                sendStatusUpdate();
+        if (getTick() % TICKS_PER_STATUS_UPDATE == 0 && Renderer.getRenderer().getNetwork().getMatchmakingClient()
+                .isConnected())
+            sendStatusUpdate();
 
-            if (is_multiplayer && Network.getMatchmakingClient().isConnected()) {
+            if (is_multiplayer && Renderer.getRenderer().getNetwork().getMatchmakingClient().isConnected()) {
                 if (!sentMap) sendMap();
                 if (!sentInitInfo) sendInitInfo();
                 if (!sentTrees) sendTrees();
@@ -385,28 +392,28 @@ public final class PeerHub implements Animated, RouterHandler {
             }
             info.append('\n');
             mapRowsSent++;
-            Network.getMatchmakingClient().getInterface().updateSpectatorInfo(-mapRowsSent, info.toString());
+            Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().updateSpectatorInfo(-mapRowsSent, info.toString());
         } else {
             sentMap = true;
         }
     }
 
     private void sendInitInfo() {
-        Player[] players = local_player.getWorld().getPlayers();
+        List<Player> players = local_player.getWorld().getPlayers();
         StringBuilder info = new StringBuilder("I ");
         for (Player player : players) {
             var color = player.getColor();
             String name = player.getPlayerInfo().getName();
-            int race = player.getPlayerInfo().getRace();
+            int race = player.getPlayerInfo().getRace().getValue();
             int team = player.getPlayerInfo().getTeam();
             info.append("NAME ").append(name).append(' ');
             info.append("RACE ").append(race).append(' ');
             info.append("TEAM ").append(team).append(' ');
-            info.append("COLOR ").append(color.x()).append(' ').append(color.y()).append(' ').append(color.z()).append(
+            info.append("COLOR ").append(color.r()).append(' ').append(color.g()).append(' ').append(color.b()).append(
                     ' ');
         }
         info.append('\n');
-        Network.getMatchmakingClient().getInterface().updateSpectatorInfo(-10001, info.toString());
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().updateSpectatorInfo(-10001, info.toString());
         sentInitInfo = true;
     }
 
@@ -417,17 +424,17 @@ public final class PeerHub implements Animated, RouterHandler {
             info.append(pos[0]).append(' ').append(pos[1]).append(' ');
         }
         info.append('\n');
-        Network.getMatchmakingClient().getInterface().updateSpectatorInfo(-10000, info.toString());
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().updateSpectatorInfo(-10000, info.toString());
         sentTrees = true;
     }
 
     private void sendSpectatorInfo() {
         int tick = getTick();
         StringBuilder info = new StringBuilder().append(tick).append(' ');
-        Player[] players = local_player.getWorld().getPlayers();
-        for (int i = 0; i < players.length; i++) {
+        List<Player> players = local_player.getWorld().getPlayers();
+        for (int i = 0; i < players.size(); i++) {
             info.append("P ").append(i).append(' ');
-            for (var s : players[i].getUnits().getSet()) {
+            for (var s : players.get(i).getUnits().getSet()) {
                 if (s instanceof Unit u) {
                     info.append("U ").append(u.getGridX()).append(' ').append(u.getGridY()).append(' ');
                 } else if (s instanceof Building b) {
@@ -437,7 +444,7 @@ public final class PeerHub implements Animated, RouterHandler {
             }
         }
         info.append('\n');
-        Network.getMatchmakingClient().getInterface().updateSpectatorInfo(tick, info.toString());
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().updateSpectatorInfo(tick, info.toString());
     }
 
     public void setPaused(boolean p) {
@@ -460,7 +467,7 @@ public final class PeerHub implements Animated, RouterHandler {
             if (peer != null)
                 status[i] = peer.getPlayer().getStatus();
         }
-        Network.getMatchmakingClient().getInterface().updateGameStatus(getTick(), status);
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().updateGameStatus(getTick(), status);
     }
 
     private @NonNull Iterator<Peer> getPeerIterator() {
@@ -497,8 +504,10 @@ public final class PeerHub implements Animated, RouterHandler {
         removePeerFromActiveList(peer);
         String left_game_message = i18n("left_game", peer.getPlayerInfo().getName(), reason);
         receiveChat(SYSTEM_NAME, left_game_message, false);
-        if (getFreeQuitTicksLeft(local_player.getWorld()) >= 0 && Network.getMatchmakingClient().isConnected())
-            Network.getMatchmakingClient().getInterface().gameQuitNotify(peer.getPlayerInfo().getName());
+        if (getFreeQuitTicksLeft(local_player.getWorld()) >= 0 && Renderer.getRenderer().getNetwork()
+                .getMatchmakingClient().isConnected())
+            Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().gameQuitNotify(peer
+                    .getPlayerInfo().getName());
     }
 
     public void sendChat(String text, boolean team_only) {
@@ -525,9 +534,9 @@ public final class PeerHub implements Animated, RouterHandler {
 
     public void receiveChat(@NonNull String name, @NonNull String text, boolean team) {
         if (team)
-            Network.getChatHub().chat(new ChatMessage(name, text, ChatMessage.Type.TEAM));
+            Renderer.getRenderer().getNetwork().getChatHub().chat(new ChatMessage(name, text, ChatMessage.Type.TEAM));
         else
-            Network.getChatHub().chat(new ChatMessage(name, text, ChatMessage.Type.NORMAL));
+            Renderer.getRenderer().getNetwork().getChatHub().chat(new ChatMessage(name, text, ChatMessage.Type.NORMAL));
     }
 
     public void receiveBeacon(float x, float y, @NonNull String owner) {
@@ -553,7 +562,7 @@ public final class PeerHub implements Animated, RouterHandler {
     public void close() {
         if (spectatorController != null) PeerHubSpectatorController.clearInstance(spectatorController);
         closeNetwork();
-        LocalEventQueue.getQueue().getManager().removeAnimation(this);
+        Renderer.getRenderer().getEventQueue().getManager().removeAnimation(this);
         IO.println("PeerHub closed");
     }
 
@@ -567,18 +576,19 @@ public final class PeerHub implements Animated, RouterHandler {
     }
 
     public void leaveGame() {
-        if (Network.getMatchmakingClient().isConnected()) {
+        if (Renderer.getRenderer().getNetwork().getMatchmakingClient().isConnected()) {
             if (getFreeQuitTicksLeft(local_player.getWorld()) >= 0) {
-                Network.getMatchmakingClient().getInterface().gameQuitNotify(local_player.getPlayerInfo().getName());
+                Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().gameQuitNotify(local_player
+                        .getPlayerInfo().getName());
             } else {
-                Network.getMatchmakingClient().getInterface().gameLostNotify();
+                Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().gameLostNotify();
             }
         }
     }
 
     public void gameWon() {
-        if (Network.getMatchmakingClient().isConnected()) {
-            Network.getMatchmakingClient().getInterface().gameWonNotify();
+        if (Renderer.getRenderer().getNetwork().getMatchmakingClient().isConnected()) {
+            Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().gameWonNotify();
             waiting_for_ack = true;
         }
     }

@@ -16,11 +16,15 @@ import com.oddlabs.tt.input.InputPhase;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 import static com.oddlabs.tt.gui.Placement.TOP_LEFT;
 
 public class CampaignDialogForm extends Form {
+    private static final Logger logger = Logger.getLogger(CampaignDialogForm.class.getSimpleName());
     private static final int WIDTH = 300;
 
     private final @Nullable Runnable runnable;
@@ -37,7 +41,7 @@ public class CampaignDialogForm extends Form {
                 try {
                     CampaignDialogForm.this.remove();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING, "Failed to remove form", e);
                 }
                 event.consume();
                 return;
@@ -68,7 +72,7 @@ public class CampaignDialogForm extends Form {
             try {
                 remove();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Failed to remove form", e);
             }
         });
         ok_button.addInputListener(event -> {

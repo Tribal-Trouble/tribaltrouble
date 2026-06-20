@@ -1,11 +1,13 @@
 package com.oddlabs.tt.model;
 
-import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.util.LinkedList;
 import com.oddlabs.util.ListElement;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Base class for all world entities that exist within the quadtree.
+ */
 public abstract class Element<T extends Element<T>> extends BoundingBox implements ListElement<T> {
     private final AbstractElementNode<T> element_root;
     private @Nullable AbstractElementNode<T> node_parent;
@@ -14,10 +16,10 @@ public abstract class Element<T extends Element<T>> extends BoundingBox implemen
     private @Nullable T next = null;
     private @Nullable T prior = null;
 
-    private float render_pos_z;
-
     private float x;
     private float y;
+    private float render_pos_z;
+
     private float dir_x = 1f;
     private float dir_y = 0f;
 
@@ -27,9 +29,7 @@ public abstract class Element<T extends Element<T>> extends BoundingBox implemen
 
     protected abstract @NonNull T self();
 
-    public abstract void visit(ElementVisitor visitor);
-
-    protected void register() {
+    public void register() {
         node_parent = element_root.insertElement(self());
         assert node_parent != null;
     }
@@ -39,14 +39,15 @@ public abstract class Element<T extends Element<T>> extends BoundingBox implemen
         assert node_parent != null;
     }
 
-    protected final boolean isRegistered() {
+    public final boolean isRegistered() {
         return node_parent != null;
     }
 
-    protected void remove() {
-        assert node_parent != null;
-        node_parent.removeElement(self());
-        node_parent = null;
+    public void remove() {
+        if (node_parent != null) {
+            node_parent.removeElement(self());
+            node_parent = null;
+        }
     }
 
     public final float getDirectionX() {
@@ -68,7 +69,7 @@ public abstract class Element<T extends Element<T>> extends BoundingBox implemen
         this.y = y;
     }
 
-    protected void setPositionZ(float z) {
+    public void setPositionZ(float z) {
         render_pos_z = z;
     }
 
@@ -82,6 +83,21 @@ public abstract class Element<T extends Element<T>> extends BoundingBox implemen
 
     public final float getPositionZ() {
         return render_pos_z;
+    }
+
+    /**
+     * Returns true if the element is finished and can be removed from the world.
+     *
+     * @return true if the element is finished.
+     */
+    public boolean isFinished() {
+        return false;
+    }
+
+    /**
+     * Renders debug information for this element.
+     */
+    public void debugRender() {
     }
 
     @Override

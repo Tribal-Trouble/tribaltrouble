@@ -83,15 +83,16 @@ public final class TextLayout {
 
         int charIndexInLine = 0;
         float currentWidth = 0;
-        for (int i = 0; i < targetLine.content().length(); i++) {
-            char c = targetLine.content().charAt(i);
-            float charWidth = font.getWidth(String.valueOf(c));
+        for (int i = 0; i < targetLine.content().length();) {
+            int cp = Character.codePointAt(targetLine.content(), i);
+            float charWidth = font.getWidth(new String(Character.toChars(cp)));
             if (x >= currentWidth && x < currentWidth + charWidth) {
                 charIndexInLine = i;
                 break;
             }
             currentWidth += charWidth;
-            charIndexInLine = i + 1; // If click is past last char, set to end of line
+            i += Character.charCount(cp);
+            charIndexInLine = i; // If click is past last char, set to end of line
         }
         return targetLine.startIndex() + charIndexInLine;
     }
@@ -138,8 +139,11 @@ public final class TextLayout {
             lineStart = lineEnd;
 
             // Skip the newline or space that caused the break
-            if (lineStart < text.length() && (text.charAt(lineStart) == '\n' || text.charAt(lineStart) == ' ')) {
-                lineStart++;
+            if (lineStart < text.length()) {
+                int cp = Character.codePointAt(text, lineStart);
+                if (cp == '\n' || cp == ' ') {
+                    lineStart += Character.charCount(cp);
+                }
             }
         }
 
@@ -151,21 +155,22 @@ public final class TextLayout {
         int lastSpace = -1;
 
         while (i < text.length()) {
-            char c = text.charAt(i);
-            if (c == '\n') {
+            int cp = Character.codePointAt(text, i);
+            if (cp == '\n') {
                 return i; // Forced line break
             }
 
-            if (Character.isWhitespace(c)) {
+            if (Character.isWhitespace(cp)) {
                 lastSpace = i;
             }
 
-            int currentWidth = font.getWidth(text.subSequence(lineStart, i + 1));
+            int next_i = i + Character.charCount(cp);
+            int currentWidth = font.getWidth(text.subSequence(lineStart, next_i));
             if (currentWidth > wrapWidth) {
                 // Word is longer than the line, break mid-word
                 return lastSpace != -1 ? lastSpace : i; // Break at the last known space
             }
-            i++;
+            i = next_i;
         }
         return text.length(); // End of text
     }

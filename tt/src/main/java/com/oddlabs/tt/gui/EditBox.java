@@ -13,8 +13,8 @@ import org.jspecify.annotations.NonNull;
 public final class EditBox extends TextBox {
     private int index;
 
-    public EditBox(int width, int height, int max_chars) {
-        super(width, height, Skin.getSkin().getEditFont(), max_chars);
+    public EditBox(int width, int height, int max_codepoints) {
+        super(width, height, Skin.getSkin().getEditFont(), max_codepoints);
         index = 0;
     }
 
@@ -22,17 +22,18 @@ public final class EditBox extends TextBox {
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         Box edit_box = Skin.getSkin().getEditBox();
         super.renderBox(renderer, isDisabled() ? ModeIconQuads.Mode.DISABLED : ModeIconQuads.Mode.NORMAL);
-        var c = isDisabled() ? Label.DISABLED_COLOR : Color.WHITE;
+        var c = isDisabled() ? new Color.Linear(0.5f, 0.8f) : Color.Linear.WHITE;
 
-        TextLineRenderer.render(renderer, getTextLayout(), edit_box.getLeftOffset(),
-                getHeight() - edit_box.getBottomOffset() - getFont().getHeight() + getOffsetY(),
-                edit_box.getLeftOffset(), getWidth() - edit_box.getRightOffset(), c);
+        TextLineRenderer.render(renderer, getTextLayout(), edit_box.getLeftOffset(), getHeight() - edit_box
+                .getBottomOffset() - getFont().getHeight() + getOffsetY(), edit_box.getLeftOffset(), getWidth()
+                        - edit_box.getRightOffset(), c);
 
         if (isActive()) {
             TextLayout layout = getTextLayout();
             int cursorLine = layout.getCursorLine(index);
             int cursorX = layout.getCursorX(index);
-            int cursorY = getHeight() - edit_box.getBottomOffset() - getFont().getHeight() - (cursorLine * getFont().getHeight()) + getOffsetY();
+            int cursorY = getHeight() - edit_box.getBottomOffset() - getFont().getHeight() - (cursorLine * getFont()
+                    .getHeight()) + getOffsetY();
             Index.renderIndex(renderer, edit_box.getLeftOffset() + cursorX, cursorY, getFont(), c);
         }
     }
@@ -45,9 +46,13 @@ public final class EditBox extends TextBox {
             if (event.consumeAction(GameAction.UI_ACTIVATE)) {
                 if (insert(index, '\n')) index++;
             } else if (event.consumeAction(GameAction.UI_NAV_LEFT)) {
-                if (index > 0) index--;
+                if (index > 0) {
+                    index -= Character.charCount(getText().codePointBefore(index));
+                }
             } else if (event.consumeAction(GameAction.UI_NAV_RIGHT)) {
-                if (index < getText().length()) index++;
+                if (index < getText().length()) {
+                    index += Character.charCount(getText().codePointAt(index));
+                }
             } else if (event.consumeAction(GameAction.UI_NAV_UP)) {
                 int currentLine = getTextLayout().getCursorLine(index);
                 if (currentLine > 0) {
@@ -71,13 +76,17 @@ public final class EditBox extends TextBox {
             } else if (event.consumeAction(GameAction.UI_NAV_END)) {
                 index = getTextLayout().getLineEndCharIndex(getTextLayout().getCursorLine(index));
             } else if (event.consumeAction(GameAction.UI_BACKSPACE)) {
-                if (index > 0) delete(--index);
+                if (index > 0) {
+                    int cp = getText().codePointBefore(index);
+                    index -= Character.charCount(cp);
+                    delete(index);
+                }
             } else if (event.consumeAction(GameAction.UI_DELETE)) {
                 if (index < getText().length()) delete(index);
             } else if (!event.isControlDown() && !event.isMetaDown() && !event.isAltDown()) {
-                char key = event.getCharacter();
+                int key = event.getCodepoint();
                 if (key != 0 && !Character.isISOControl(key) && getFont().getQuad(key) != null) {
-                    if (insert(index, key)) index++;
+                    if (insert(index, key)) index += Character.charCount(key);
                 } else {
                     consumed = false;
                 }

@@ -42,6 +42,7 @@ public final class ProgressBar extends GUIObject {
             ProgressBarData data = Skin.getSkin().getProgressBarData();
             left_margin = data.leftFill().quad(ModeIconQuads.Mode.NORMAL).getWidth();
             right_margin = data.rightFill().quad(ModeIconQuads.Mode.NORMAL).getWidth();
+
             assert width > left_margin + right_margin : "Progress bar too small.";
             setDim(width, data.progressBar().getHeight());
         }
@@ -76,7 +77,7 @@ public final class ProgressBar extends GUIObject {
         int percentage = (int) (done * 100);
         String string = i18n("loading", percentage);
         TextLineRenderer.render(renderer, Skin.getSkin().getHeadlineFont(), string, 0, 0, Float.NEGATIVE_INFINITY,
-                Float.POSITIVE_INFINITY, Color.WHITE);
+                Float.POSITIVE_INFINITY, Color.Linear.WHITE);
     }
 
     @Override
@@ -84,8 +85,8 @@ public final class ProgressBar extends GUIObject {
         if (text_only)
             renderText(renderer);
         else {
-            Skin.getSkin().getProgressBarData().progressBar().render(renderer, 0, 0, getWidth(),
-                    ModeIconQuads.Mode.NORMAL);
+            Skin.getSkin().getProgressBarData().progressBar()
+                    .render(renderer, 0, 0, getWidth(), ModeIconQuads.Mode.NORMAL);
             renderFill(renderer, 0);
         }
     }
@@ -97,8 +98,7 @@ public final class ProgressBar extends GUIObject {
         int currentWaypoint = 0;
         for (int i = 0; i < info.length; i++) {
             currentWaypoint += (int) ((info[i].getWeight() / sum) * width);
-            int point = Math.min(currentWaypoint, width - right_margin);
-            point = Math.max(point, left_margin);
+            int point = Math.clamp(currentWaypoint, left_margin, width - right_margin);
             waypoints[i] = new Waypoint(point, info[i].getWaypoint());
         }
         waypoints[info.length - 1] = new Waypoint(width - right_margin, waypoints[info.length - 1].weight());
@@ -120,7 +120,7 @@ public final class ProgressBar extends GUIObject {
         if (width > 0) {
             IconQuad c = center.quad(ModeIconQuads.Mode.NORMAL);
             renderer.drawTexture(c.getTexture(), left_margin, y, width, c.getHeight(), c.getU1(), c.getV1(), c.getU2(),
-                    c.getV2(), Color.WHITE);
+                    c.getV2(), Color.Standard.WHITE);
             renderer.drawModeIcon(right, ModeIconQuads.Mode.NORMAL, current_pos, y);
         }
     }

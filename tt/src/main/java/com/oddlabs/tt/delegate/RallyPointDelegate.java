@@ -4,7 +4,6 @@ import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Building;
-import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
@@ -22,15 +21,15 @@ public final class RallyPointDelegate extends TargetDelegate {
             pop();
             return;
         }
-        Target target = getViewer().getPicker().pickRallyPoint(
-                getViewer().getGUIRoot().getDelegate().getCamera().getState(), x, y, building);
-        if (target == null)
-            return;
-        if (building.isValidRallyPoint(target)) {
-            getViewer().getPeerHub().getPlayerInterface().setRallyPoint(building, target);
-        } else {
-            getViewer().getPeerHub().getPlayerInterface().setRallyPoint(building, target.getGridX(), target.getGridY());
-        }
-        pop();
+        getViewer().getPicker().pickRallyPoint(getViewer().getGUIRoot().getDelegate().getCamera()
+                .getState(), x, y, building).ifPresent(target -> {
+                    if (building.isValidRallyPoint(target)) {
+                        getViewer().getPeerHub().getPlayerInterface().setRallyPoint(building, target);
+                    } else {
+                        getViewer().getPeerHub().getPlayerInterface().setRallyPoint(building, target.getGridX(), target
+                                .getGridY());
+                    }
+                    pop();
+                });
     }
 }

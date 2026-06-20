@@ -2,6 +2,7 @@ package com.oddlabs.tt.model;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -35,6 +36,10 @@ public class Army {
 
     public void add(@NonNull Selectable<?> selectable) {
         selection.add(selectable);
+    }
+
+    public void addAll(@NonNull Collection<? extends @NonNull Selectable<?>> selectable) {
+        selection.addAll(selectable);
     }
 
     public final int size() {

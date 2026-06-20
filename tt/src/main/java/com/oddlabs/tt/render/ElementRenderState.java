@@ -1,31 +1,39 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.model.Model;
+import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
-import org.joml.Vector4f;
-import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Tracks the specific rendering properties (position, color, pattern)
+ * for an individual world element.
+ */
 final class ElementRenderState<M extends Model> implements ModelState<M> {
 
     final @NonNull RenderState render_state;
     private ModelVisitor<M> visitor;
     M model;
     float f;
-    final Vector4f color = new Vector4f(Color.WHITE);
+    private Color.@NonNull Linear color = Color.Linear.WHITE;
 
     ElementRenderState(@NonNull RenderState render_state) {
         this.render_state = render_state;
     }
 
-    public @NonNull Vector4f getColor() {
+    @Override
+    public Color.@NonNull Linear getColor() {
         return color;
     }
 
+    public void setColor(Color.@NonNull Linear color) {
+        this.color = color;
+    }
+
     public void resetColor() {
-        color.set(Color.WHITE);
+        this.color = Color.Linear.WHITE;
     }
 
     @Override
@@ -40,13 +48,28 @@ final class ElementRenderState<M extends Model> implements ModelState<M> {
     }
 
     @Override
-    public @NonNull Vector4fc getTeamColor() {
+    public int getAnimation() {
+        return model.getAnimation();
+    }
+
+    @Override
+    public float getAnimationTicks() {
+        return model.getAnimationTicks();
+    }
+
+    @Override
+    public @NonNull Color getTeamColor() {
         return visitor.getTeamColor(this);
     }
 
     @Override
-    public @NonNull Vector4fc getSelectionColor() {
+    public @NonNull Color getSelectionColor() {
         return visitor.getSelectionColor(this);
+    }
+
+    @Override
+    public Selectable.@NonNull VisualPattern getPattern() {
+        return visitor.getPattern(this);
     }
 
     void setup(@NonNull ModelVisitor<M> visitor, @NonNull M model, float f) {

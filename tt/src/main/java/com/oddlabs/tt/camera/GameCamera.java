@@ -2,17 +2,22 @@ package com.oddlabs.tt.camera;
 
 import com.oddlabs.tt.delegate.SelectionDelegate;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.Renderer;
-import com.oddlabs.tt.util.Target;
+import com.oddlabs.tt.model.Target;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.joml.Vector2f;
+import org.joml.Vector2fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * A sophisticated camera implementation supporting standard gameplay controls,
+ * including panning, pitching, and zooming, with smooth animation.
+ */
 public final class GameCamera extends Camera {
     public static final int SCROLL_BUFFER = 5;
     private static final float INIT_DISTANCE = 50;
@@ -157,10 +162,10 @@ public final class GameCamera extends Camera {
             float dir_z = (float) Math.sin(getState().getTargetVertAngle());
             if (dir_z > ZOOM_Z_DIR_MIN) {
                 dir_z = ZOOM_Z_DIR_MIN;
-                float inv_length = 1 / (float) Math.sqrt(dir_x * dir_x + dir_y * dir_y + dir_z * dir_z);
-                dir_x *= inv_length;
-                dir_y *= inv_length;
-                dir_z *= inv_length;
+                float length = (float) Math.sqrt(dir_x * dir_x + dir_y * dir_y + dir_z * dir_z);
+                dir_x /= length;
+                dir_y /= length;
+                dir_z /= length;
             }
             float temp_x = getState().getTargetX() + dir_x * zoom_factor;
             float temp_y = getState().getTargetY() + dir_y * zoom_factor;
@@ -176,13 +181,13 @@ public final class GameCamera extends Camera {
             float dx = (temp_x - mid);
             float dy = (temp_y - mid);
             float squared_dist = dx * dx + dy * dy;
-            if (squared_dist < getHeightMap().getMetersPerWorld() * getHeightMap().getMetersPerWorld()
-                    && temp_z < MAX_Z) {
+            if (squared_dist < getHeightMap().getMetersPerWorld() * getHeightMap().getMetersPerWorld() && temp_z
+                    < MAX_Z) {
                 getState().setTargetX(temp_x);
                 getState().setTargetY(temp_y);
                 getState().setTargetZ(temp_z);
-                if (bounce(getState().getTargetX(), getState().getTargetY(), getState().getTargetZ(),
-                        viewer.getGUIRoot().getWidth(), viewer.getGUIRoot().getHeight())) {
+                if (bounce(getState().getTargetX(), getState().getTargetY(), getState().getTargetZ(), viewer
+                        .getGUIRoot().getWidth(), viewer.getGUIRoot().getHeight())) {
                     getState().setTargetX(backup_x);
                     getState().setTargetY(backup_y);
                     getState().setTargetZ(backup_z);
@@ -196,17 +201,22 @@ public final class GameCamera extends Camera {
         if (!viewer.getGUIRoot().getDelegate().canScroll())
             return;
         var inputManager = Renderer.getLocalInput().getInputManager();
-        float scroll_speed = scroll_start_speed * (.4f + (scroll_acceleration_seconds / SCROLL_ACCELERATION_SECONDS_MAX) * SCROLL_ACCELERATION_FACTOR);
+        float scroll_speed = scroll_start_speed * (.4f + (scroll_acceleration_seconds / SCROLL_ACCELERATION_SECONDS_MAX)
+                * SCROLL_ACCELERATION_FACTOR);
         float scroll_factor = time_delta * scroll_speed;
         boolean blocked = viewer.getGUIRoot().getDelegate().keyboardBlocked();
 
         scrolling_x = inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !inputManager.isActive(
-                GameAction.CAMERA_PAN_RIGHT) && !blocked ? -1f : inputManager.isActive(GameAction.CAMERA_PAN_RIGHT)
-                        && !inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !blocked ? 1f : scroll_x;
+                GameAction.CAMERA_PAN_RIGHT) && !blocked
+                ? -1f : inputManager.isActive(GameAction.CAMERA_PAN_RIGHT) && !inputManager.isActive(
+                        GameAction.CAMERA_PAN_LEFT) && !blocked
+                        ? 1f : scroll_x;
 
         scrolling_y = inputManager.isActive(GameAction.CAMERA_PAN_DOWN) && !inputManager.isActive(
-                GameAction.CAMERA_PAN_UP) && !blocked ? -1f : inputManager.isActive(GameAction.CAMERA_PAN_UP)
-                        && !inputManager.isActive(GameAction.CAMERA_PAN_DOWN) && !blocked ? 1f : scroll_y;
+                GameAction.CAMERA_PAN_UP) && !blocked
+                ? -1f : inputManager.isActive(GameAction.CAMERA_PAN_UP) && !inputManager.isActive(
+                        GameAction.CAMERA_PAN_DOWN) && !blocked
+                        ? 1f : scroll_y;
 
         float new_x = getState().getTargetX() - (scrolling_x * left_dir_x + scrolling_y * -left_dir_y) * scroll_factor;
         float new_y = getState().getTargetY() - (scrolling_x * left_dir_y + scrolling_y * left_dir_x) * scroll_factor;
@@ -222,13 +232,13 @@ public final class GameCamera extends Camera {
 
     private void doPitch(float time_delta) {
         checkKeys();
-        if ((pitch_down && !Settings.getSettings().invert_camera_pitch) ||
-                (pitch_up && Settings.getSettings().invert_camera_pitch)) {
+        if ((pitch_down && !Renderer.getRenderer().getSettings().invert_camera_pitch) ||
+                (pitch_up && Renderer.getRenderer().getSettings().invert_camera_pitch)) {
             getState().setTargetVertAngle(getState().getTargetVertAngle() - time_delta * ANGLE_DELTA);
             checkPosition();
         }
-        if ((pitch_up && !Settings.getSettings().invert_camera_pitch) ||
-                (pitch_down && Settings.getSettings().invert_camera_pitch)) {
+        if ((pitch_up && !Renderer.getRenderer().getSettings().invert_camera_pitch) ||
+                (pitch_down && Renderer.getRenderer().getSettings().invert_camera_pitch)) {
             getState().setTargetVertAngle(getState().getTargetVertAngle() + time_delta * ANGLE_DELTA);
             checkPosition();
         }
@@ -237,20 +247,40 @@ public final class GameCamera extends Camera {
     private void doRotate(float time_delta) {
         checkKeys();
         if (rotate_left || rotate_right) {
-            float da = rotate_left ? -time_delta * ANGLE_DELTA : time_delta * ANGLE_DELTA;
+            float dx;
+            float dy;
+            float da;
+
+            Vector2fc point = getRotationPoint();
+            if (insideWorld(point.x(), point.y())) {
+                dx = getState().getTargetX() - point.x();
+                dy = getState().getTargetY() - point.y();
+            } else {
+                dx = -left_dir_y * default_rotate_radius;
+                dy = left_dir_x * default_rotate_radius;
+            }
+
+            if (rotate_left) {
+                da = -time_delta * ANGLE_DELTA;
+            } else {
+                da = time_delta * ANGLE_DELTA;
+            }
             getState().setTargetHorizAngle(getState().getTargetHorizAngle() + da);
+            getState().setTargetX(getState().getTargetX() - dx + (float) (dx * Math.cos(da) - dy * Math.sin(da)));
+            getState().setTargetY(getState().getTargetY() - dy + (float) (dx * Math.sin(da) + dy * Math.cos(da)));
+            checkPosition();
         }
     }
 
     public int getRotateY() {
         int center_y = viewer.getGUIRoot().getHeight() / 2;
-        if (getState().getTargetVertAngle() < ROTATE_PICKING_ANGLE_MAX) {
+        float aspect = (float) viewer.getGUIRoot().getWidth() / viewer.getGUIRoot().getHeight();
+        float currentFov = Camera.calculateDynamicFOV(getState().getTargetZ(), aspect, Camera.FOVMode.DIAGONAL);
+        float rotatePickingAngleMax = (-currentFov - 10) * ((float) Math.PI / 180) * .5f;
+        if (getState().getTargetVertAngle() < rotatePickingAngleMax) {
             return center_y;
         } else {
-            float da = getState().getTargetVertAngle() - ROTATE_PICKING_ANGLE_MAX;
-            // float pixels_per_unit = 1f/GUIRoot.getUnitsPerPixel(Globals.VIEW_MIN);
-            // int pixels_to_screen = (int)(Globals.VIEW_MIN*pixels_per_unit);
-            // int dy = (int)(((float)Math.tan(da))*pixels_to_screen);
+            float da = getState().getTargetVertAngle() - rotatePickingAngleMax;
             int dy = (int) (Math.tan(da) * Globals.VIEW_MIN);
             int y = center_y - dy;
             return y;
@@ -269,8 +299,6 @@ public final class GameCamera extends Camera {
         doRotate(t);
         updateDirection();
         getState().setFog(viewer.getWorld().getFog());
-        // Enabling the fog here because it'll be disabled in other situations
-        getState().getFog().setEnabled(true);
     }
 
     @Override
@@ -278,20 +306,34 @@ public final class GameCamera extends Camera {
         zoom_time = Math.clamp(zoom_time + amount * .05f, -.15f, .15f);
     }
 
+    @Override
+    public void rotate(int amount) {
+        viewer.getPicker().pickRotate(this);
+        float da = -amount * 0.1f;
+        Vector2fc point = getRotationPoint();
+        float dx;
+        float dy;
+        if (insideWorld(point.x(), point.y())) {
+            dx = getState().getTargetX() - point.x();
+            dy = getState().getTargetY() - point.y();
+        } else {
+            dx = -left_dir_y * default_rotate_radius;
+            dy = left_dir_x * default_rotate_radius;
+        }
+        getState().setTargetHorizAngle(getState().getTargetHorizAngle() + da);
+        getState().setTargetX(getState().getTargetX() - dx + (float) (dx * Math.cos(da) - dy * Math.sin(da)));
+        getState().setTargetY(getState().getTargetY() - dy + (float) (dx * Math.sin(da) + dy * Math.cos(da)));
+        checkPosition();
+    }
+
     public void setRotationPoint(Target target) {
         rotation_point = target;
     }
 
-    float[] getRotationPoint() {
-        float[] point = new float[2];
-        if (rotation_point != null) {
-            point[0] = rotation_point.getPositionX();
-            point[1] = rotation_point.getPositionY();
-        } else {
-            point[0] = getState().getTargetX();
-            point[1] = getState().getTargetY();
-        }
-        return point;
+    public @NonNull Vector2fc getRotationPoint() {
+        return rotation_point != null
+                ? new Vector2f(rotation_point.getPositionX(), rotation_point.getPositionY())
+                : new Vector2f(getState().getTargetX(), getState().getTargetY());
     }
 
     @Override
@@ -331,10 +373,10 @@ public final class GameCamera extends Camera {
 
     private void setScrollSpeed() {
         viewer.getPicker().pickRotate(this);
-        float[] landscape_point = getRotationPoint();
-        float landscape_z = getHeightMap().getNearestHeight(landscape_point[0], landscape_point[1]);
-        float dx = landscape_point[0] - getState().getTargetX();
-        float dy = landscape_point[1] - getState().getTargetY();
+        Vector2fc landscape_point = getRotationPoint();
+        float landscape_z = getHeightMap().getNearestHeight(landscape_point.x(), landscape_point.y());
+        float dx = landscape_point.x() - getState().getTargetX();
+        float dy = landscape_point.y() - getState().getTargetY();
         float dz = landscape_z - getState().getTargetZ();
         scroll_start_speed = Math.min((float) Math.sqrt(dx * dx + dy * dy + dz * dz), SCROLL_START_MAX_SPEED);
     }

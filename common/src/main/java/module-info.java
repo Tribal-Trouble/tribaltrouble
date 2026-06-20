@@ -5,6 +5,7 @@ module com.oddlabs.common {
     requires java.logging;
     requires transitive com.fasterxml.jackson.annotation;
     requires transitive com.fasterxml.jackson.databind;
+    requires kotlin.stdlib;
 
     exports com.oddlabs.event;
     exports com.oddlabs.geometry;

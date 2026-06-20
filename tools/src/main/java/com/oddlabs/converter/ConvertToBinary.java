@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.IntStream;
 
 public final class ConvertToBinary {
@@ -70,8 +71,8 @@ public final class ConvertToBinary {
 
     private static boolean isModified(@NonNull Path src, @NonNull Path dest) {
         try {
-            return !Files.exists(dest) || Files.getLastModifiedTime(dest).compareTo(Files.getLastModifiedTime(
-                    src)) <= 0;
+            return !Files.exists(dest) || Files.getLastModifiedTime(dest).compareTo(Files.getLastModifiedTime(src))
+                    <= 0;
         } catch (IOException e) {
             return true;
         }
@@ -183,8 +184,8 @@ public final class ConvertToBinary {
                 ModelObjectInfo current = model_object_infos[i];
                 ModelInfo model_info = MeshLoader.loadMesh(current.getFile(), name_to_bone_map, scale);
                 assert sprite_models[i] == null;
-                sprite_models[i] = Optimizer.convertToSprite(current.getTextures(), model_info,
-                        current.getClearColor());
+                sprite_models[i] = Optimizer.convertToSprite(current.getTextures(), model_info, current
+                        .getClearColor());
             }
             write(new Object[]{sprite_models, animations}, build_file);
         }
@@ -192,8 +193,12 @@ public final class ConvertToBinary {
 
     private static @Nullable ObjectInfo getSkeletonObjectInfo(@NonNull Node n, @NonNull Path src_dir) {
         NodeList nl = n.getChildNodes();
-        return IntStream.range(0, nl.getLength()).mapToObj(nl::item).filter(item -> item.getNodeName().equals(
-                "skeleton")).findFirst().map(item -> new ObjectInfo(src_dir.resolve(getText(item)))).orElse(null);
+        return IntStream.range(0, nl.getLength())
+                .mapToObj(nl::item)
+                .filter(item -> item.getNodeName().equals("skeleton"))
+                .findFirst()
+                .map(item -> new ObjectInfo(src_dir.resolve(getText(item))))
+                .orElse(null);
     }
 
     public static Node getNodeByName(String name, @NonNull Node n) {
@@ -202,7 +207,7 @@ public final class ConvertToBinary {
             if (nl.item(i).getNodeName().equals(name))
                 return nl.item(i);
         }
-        throw new RuntimeException("Missing node: " + name);
+        throw new NoSuchElementException("Missing node: " + name);
     }
 
     private static String getName(@NonNull Node n) {
@@ -218,7 +223,7 @@ public final class ConvertToBinary {
         return switch (str) {
             case "loop" -> AnimationInfo.AnimationType.LOOP;
             case "plain" -> AnimationInfo.AnimationType.PLAIN;
-            default -> throw new RuntimeException("Unknown animation type: " + str);
+            default -> throw new IllegalArgumentException("Unknown animation type: " + str);
         };
     }
 

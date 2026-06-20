@@ -1,5 +1,7 @@
 package com.oddlabs.tt.player.campaign;
 
+import com.oddlabs.tt.model.Difficulty;
+import com.oddlabs.tt.model.Race;
 import org.jspecify.annotations.NonNull;
 
 import java.io.Serial;
@@ -148,19 +150,19 @@ public final class CampaignState implements Serializable {
         this.date = date;
     }
 
-    public void setRace(int race) {
-        this.race = race;
+    public void setRace(@NonNull Race race) {
+        this.race = (race == Race.VIKINGS) ? RACE_VIKINGS : RACE_NATIVES;
     }
 
-    public int getRace() {
-        return race;
+    public @NonNull Race getRace() {
+        return (this.race == RACE_VIKINGS) ? Race.VIKINGS : Race.NATIVES;
     }
 
-    public void setDifficulty(int difficulty) {
-        this.difficulty = difficulty;
+    public void setDifficulty(@NonNull Difficulty difficulty) {
+        this.difficulty = difficulty.getCampaignValue();
     }
 
-    public int getDifficulty() {
-        return difficulty;
+    public @NonNull Difficulty getDifficulty() {
+        return Difficulty.fromCampaignValue(difficulty);
     }
 }

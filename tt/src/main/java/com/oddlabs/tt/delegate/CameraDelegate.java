@@ -19,11 +19,14 @@ public abstract class CameraDelegate<C extends Camera> extends Delegate {
         return gui_root;
     }
 
-    public final void setCamera(@Nullable C camera) {
+    public final void setCamera(@NonNull C camera) {
         this.camera = camera;
     }
 
-    public final @Nullable C getCamera() {
+    public final @NonNull C getCamera() {
+        if (camera == null) {
+            throw new IllegalStateException("Camera not set");
+        }
         return camera;
     }
 

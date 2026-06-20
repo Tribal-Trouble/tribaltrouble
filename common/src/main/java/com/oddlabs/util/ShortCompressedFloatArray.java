@@ -7,6 +7,9 @@ import java.io.Serializable;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Compresses an array of float values into 16-bit shorts (per channel)
+ */
 public final class ShortCompressedFloatArray implements Serializable {
     @Serial
     private static final long serialVersionUID = 1;
@@ -36,22 +39,25 @@ public final class ShortCompressedFloatArray implements Serializable {
         float max = array[0];
 
         for (float current : array) {
-            if (current < min)
+            if (current < min) {
                 min = current;
-            else if (current > max)
+            } else if (current > max) {
                 max = current;
+            }
         }
 
         float mid = (max + min) / 2;
         offset[channel] = mid;
-        scale[channel] = (max - mid) / Short.MAX_VALUE;
+        float diff = max - mid;
+        scale[channel] = diff == 0f ? 1f : diff / Short.MAX_VALUE;
 
         for (int i = 0; i < array.length; i++) {
-            data[channel][i] = (short) ((array[i] - offset[channel]) / scale[channel]);
+            data[channel][i] = (short) Math.clamp(Math.round((array[i] - offset[channel]) / scale[channel]),
+                    -Short.MAX_VALUE, Short.MAX_VALUE);
         }
     }
 
-    public float[] getFloatArray() {
+    public float @NonNull [] getFloatArray() {
         int channels = data.length;
         int channel_length = data[0].length;
         float[] result = new float[channels * channel_length];

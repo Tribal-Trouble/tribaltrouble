@@ -4,12 +4,16 @@ import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Manages the creation and lifecycle of all in-game notifications, such as attack warnings and beacon alerts.
+ */
 public final class NotificationManager {
     private final List<@NonNull AttackNotification> attack_notifies = new ArrayList<>();
     private final List<@NonNull Notification> notifies = new ArrayList<>();
@@ -37,17 +41,19 @@ public final class NotificationManager {
 
     public void newSelectableNotification(@NonNull Selectable<?> s, @NonNull AnimationManager manager,
             @NonNull Player local_player) {
-        newNotification(manager, local_player, s.getPositionX(), s.getPositionY(), 0f, 1f, 0f, false);
+        newNotification(manager, local_player, s.getPositionX(), s.getPositionY(), Color.Standard.GREEN, false);
     }
 
     public void newBeacon(@NonNull AnimationManager manager, @NonNull Player local_player, float x, float y) {
-        newNotification(manager, local_player, x, y, 0f, 0f, 1f, true);
+        newNotification(manager, local_player, x, y, Color.Standard.BLUE, true);
     }
 
     private void newNotification(@NonNull AnimationManager manager, @NonNull Player local_player, float x, float y,
-            float r, float g, float b, boolean show_always) {
-        addNotification(new Notification(local_player.getWorld(), gui_root, x, y, this, r, g, b,
-                local_player.getRace().getBuildingNotificationAudio(), show_always, manager), notifies);
+            @NonNull Color color, boolean show_always) {
+        var audio = local_player.getRaceInfo().getBuildingNotificationAudio();
+        var notification = new Notification(local_player.getWorld(), gui_root, x, y, this, color, audio, show_always,
+                manager);
+        addNotification(notification, notifies);
     }
 
     private <N extends @NonNull Notification> void addNotification(N notification, @NonNull List<N> list) {

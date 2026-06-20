@@ -7,7 +7,7 @@ import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public final class JumpDelegate extends InGameDelegate {
+public final class JumpDelegate extends InGameDelegate<JumpCamera> {
     private final @Nullable Runnable runnable;
 
     public JumpDelegate(@NonNull WorldViewer viewer, @NonNull GameCamera old_camera, float x, float y) {

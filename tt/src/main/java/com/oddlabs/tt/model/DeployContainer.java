@@ -20,19 +20,20 @@ public class DeployContainer extends SupplyContainer {
 
     public void orderSupply(int orders) {
         int capped_amount = capAmount(orders);
-        int result = -building.getUnitContainer().capAmount(-capped_amount);
+        UnitContainer unitContainer = building.getUnitContainer().orElseThrow();
+        int result = -unitContainer.capAmount(-capped_amount);
         if (supply_type != null)
-            result = -building.getSupplyContainer(supply_type).capAmount(-result);
+            result = -building.getSupplyContainer(supply_type).orElseThrow().capAmount(-result);
         if (result > 0) {
             if (supply_type != null)
-                building.getSupplyContainer(supply_type).prepareDeploy(result);
-            building.getUnitContainer().prepareDeploy(result);
+                building.getSupplyContainer(supply_type).orElseThrow().prepareDeploy(result);
+            unitContainer.prepareDeploy(result);
             orderSupply(result, orders);
         } else {
             orderSupply(result, orders);
-            building.getUnitContainer().prepareDeploy(result);
+            unitContainer.prepareDeploy(result);
             if (supply_type != null) {
-                SupplyContainer supply_container = building.getSupplyContainer(supply_type);
+                SupplyContainer supply_container = building.getSupplyContainer(supply_type).orElseThrow();
                 if (!supply_container.isSupplyFull())
                     supply_container.prepareDeploy(result);
             }
@@ -59,42 +60,18 @@ public class DeployContainer extends SupplyContainer {
 
     private void doDeploy() {
         switch (deploy_type) {
-            case ROCK_WARRIOR:
-                building.createArmy(0, 1, 0, 0);
-                break;
-            case IRON_WARRIOR:
-                building.createArmy(0, 0, 1, 0);
-                break;
-            case RUBBER_WARRIOR:
-                building.createArmy(0, 0, 0, 1);
-                break;
-            case PEON:
-                building.createArmy(1, 0, 0, 0);
-                break;
-            case PEON_HARVEST_TREE:
-                building.createHarvesters(1, 0, 0, 0);
-                break;
-            case PEON_TRANSPORT_TREE:
-                building.createTransporters(1, 0, 0, 0);
-                break;
-            case PEON_HARVEST_ROCK:
-                building.createHarvesters(0, 1, 0, 0);
-                break;
-            case PEON_TRANSPORT_ROCK:
-                building.createTransporters(0, 1, 0, 0);
-                break;
-            case PEON_HARVEST_IRON:
-                building.createHarvesters(0, 0, 1, 0);
-                break;
-            case PEON_TRANSPORT_IRON:
-                building.createTransporters(0, 0, 1, 0);
-                break;
-            case PEON_HARVEST_RUBBER:
-                building.createHarvesters(0, 0, 0, 1);
-                break;
-            case PEON_TRANSPORT_RUBBER:
-                building.createTransporters(0, 0, 0, 1);
-                break;
+            case ROCK_WARRIOR -> building.createArmy(0, 1, 0, 0);
+            case IRON_WARRIOR -> building.createArmy(0, 0, 1, 0);
+            case RUBBER_WARRIOR -> building.createArmy(0, 0, 0, 1);
+            case PEON -> building.createArmy(1, 0, 0, 0);
+            case PEON_HARVEST_TREE -> building.createHarvesters(1, 0, 0, 0);
+            case PEON_TRANSPORT_TREE -> building.createTransporters(1, 0, 0, 0);
+            case PEON_HARVEST_ROCK -> building.createHarvesters(0, 1, 0, 0);
+            case PEON_TRANSPORT_ROCK -> building.createTransporters(0, 1, 0, 0);
+            case PEON_HARVEST_IRON -> building.createHarvesters(0, 0, 1, 0);
+            case PEON_TRANSPORT_IRON -> building.createTransporters(0, 0, 1, 0);
+            case PEON_HARVEST_RUBBER -> building.createHarvesters(0, 0, 0, 1);
+            case PEON_TRANSPORT_RUBBER -> building.createTransporters(0, 0, 0, 1);
         }
     }
 

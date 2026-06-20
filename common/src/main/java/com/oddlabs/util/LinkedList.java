@@ -3,6 +3,7 @@ package com.oddlabs.util;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+/** Hierarchical linked-list */
 public final class LinkedList<T extends ListElement<T>> {
     private @Nullable T first;
     private @Nullable T last;

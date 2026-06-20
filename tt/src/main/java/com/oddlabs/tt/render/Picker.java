@@ -6,11 +6,9 @@ import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.camera.MapCamera;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.LandscapeLeaf;
 import com.oddlabs.tt.landscape.LandscapeTarget;
-import com.oddlabs.tt.landscape.LandscapeTargetRespond;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Action;
@@ -22,26 +20,28 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInterface;
-import com.oddlabs.tt.util.BoundingBox;
+import com.oddlabs.tt.model.BoundingBox;
 import com.oddlabs.tt.util.DebugRender;
-import com.oddlabs.tt.util.Target;
-import com.oddlabs.tt.util.ToolTip;
+import com.oddlabs.tt.model.Target;
+import com.oddlabs.tt.gui.ToolTip;
 import com.oddlabs.tt.viewer.Selection;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.BufferUtils;
 
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+/**
+ * Handles world element picking and selection by unprojecting screen coordinates
+ * and performing ray-casting against bounding boxes.
+ */
 public final class Picker implements Updatable<TimerAnimation> {
     private static final int PICK_SIZE = 5;
     private static final int SELECTION_THRESHOLD = 5;
@@ -49,23 +49,54 @@ public final class Picker implements Updatable<TimerAnimation> {
     private static final float PATCH_PICK_STEP = 2f;
     private static final float TOOL_TIP_DELAY = .1f;
 
+    public record LandscapeLocation(float x, float y) implements Target {
+
+        @Override
+        public int getGridX() {
+            return UnitGrid.toGridCoordinate(x);
+        }
+
+        @Override
+        public int getGridY() {
+            return UnitGrid.toGridCoordinate(y);
+        }
+
+        @Override
+        public float getPositionX() {
+            return x;
+        }
+
+        @Override
+        public float getPositionY() {
+            return y;
+        }
+
+        @Override
+        public float getSize() {
+            return 0;
+        }
+
+        @Override
+        public boolean isDead() {
+            return false;
+        }
+    }
+
     private final Matrix4f proj = new Matrix4f();
 
-    private final IntBuffer viewport = Objects.requireNonNull(BufferUtils.createIntBuffer(16));
-    private final float[] hit_result_array = new float[3];
-    private final float[] dir_vector = new float[3];
-
-    private final int[] viewportArray = new int[4];
+    private final Vector3f hit_result = new Vector3f();
+    private final Vector3f dir_vector = new Vector3f();
 
     private final List<@Nullable Target> element_pick_list = new ArrayList<>();
     private final List<@NonNull TreeSupply> tree_pick_list = new ArrayList<>();
 
     private final CameraState tmp_camera = new CameraState();
     private final SortedSet<@NonNull LandscapeLeaf> patch_pick_set = new TreeSet<>(new LandscapeLeafComparator());
+    private final SpriteSorter sprite_sorter = new SpriteSorter();
+    private final TimerAnimation tool_tip_timer = new TimerAnimation(this, TOOL_TIP_DELAY);
     private final @NonNull LandscapeRenderer landscape_renderer;
     private final @NonNull ElementRenderer<?> element_renderer;
     private final @NonNull TreePicker tree_renderer;
-    private final @NonNull SpriteSorter sprite_sorter;
     private final @NonNull RenderQueues render_queues;
     private final @NonNull RespondManager respond_manager;
     private final @NonNull Player local_player;
@@ -73,7 +104,6 @@ public final class Picker implements Updatable<TimerAnimation> {
 
     private @Nullable Target current_hovered;
     private @Nullable ToolTip current_tooltip;
-    private final TimerAnimation tool_tip_timer = new TimerAnimation(this, TOOL_TIP_DELAY);
     private boolean render_tool_tip = false;
 
     private float patch_hit_x;
@@ -94,7 +124,6 @@ public final class Picker implements Updatable<TimerAnimation> {
         this.local_player = local_player;
         this.gui_root = gui_root;
         this.render_queues = render_queues;
-        this.sprite_sorter = new SpriteSorter();
         this.respond_manager = new RespondManager(manager);
         this.element_renderer = new ElementRenderer<>(local_player, render_queues, this, true, sprite_sorter,
                 selection);
@@ -106,15 +135,15 @@ public final class Picker implements Updatable<TimerAnimation> {
         return respond_manager;
     }
 
-    private <T extends Target> @Nullable T getNearestPick(@NonNull List<? extends T> pick_list,
-            @NonNull Class<?> filter) {
+    private <T extends Target> @Nullable T getNearestPick(@NonNull List<? extends T> pick_list, @NonNull Class<
+            ?> filter) {
         T nearest_pickable = null;
         float nearest_squared_distance = Float.POSITIVE_INFINITY;
         for (int i = 0; i < pick_list.size(); i++) {
             T pickable = pick_list.get(i);
             pick_list.set(i, null);
-            float squared_distance = RenderTools.getCameraDistanceSquared(((BoundingBox) pickable),
-                    tmp_camera.getCurrentX(), tmp_camera.getCurrentY(), tmp_camera.getCurrentZ());
+            float squared_distance = RenderTools.getCameraDistanceSquared(((BoundingBox) pickable), tmp_camera
+                    .getCurrentX(), tmp_camera.getCurrentY(), tmp_camera.getCurrentZ());
             if (filter.isInstance(pickable) && squared_distance < nearest_squared_distance) {
                 nearest_squared_distance = squared_distance;
                 nearest_pickable = pickable;
@@ -129,17 +158,19 @@ public final class Picker implements Updatable<TimerAnimation> {
 
     public void pickTarget(@NonNull Army selected_army, @NonNull CameraState camera,
             @NonNull PlayerInterface player_interface, int x, int y, @NonNull Action action) {
+        int[] viewport = new int[4];
         float scale = getScale();
-        setupPicking(camera, x * scale, y * scale, PICK_SIZE, PICK_SIZE);
+        setupPicking(camera, x * scale, y * scale, PICK_SIZE, PICK_SIZE, viewport);
         pickObjects();
         Target nearest_pickable = getNearestPick(element_pick_list, Target.class);
         Selectable<?>[] selection = selected_army.filter(Abilities.TARGET);
         if (nearest_pickable != null) {
-            if (!(nearest_pickable instanceof SceneryModel) || ((SceneryModel) nearest_pickable).isOccupying())
+            if (!(nearest_pickable instanceof SceneryModel sceneryModel) || sceneryModel.isOccupying())
                 respond_manager.addResponder(nearest_pickable);
-            if (isNewSetTarget(selection, nearest_pickable, action, Settings.getSettings().aggressive_units))
-                player_interface.setTarget(selection, nearest_pickable, action,
-                        Settings.getSettings().aggressive_units);
+            if (isNewSetTarget(selection, nearest_pickable, action, Renderer.getRenderer()
+                    .getSettings().aggressive_units))
+                player_interface.setTarget(selection, nearest_pickable, action, Renderer.getRenderer()
+                        .getSettings().aggressive_units);
         } else {
             pickResources();
             final TreeSupply supply = getNearestPick(tree_pick_list, Target.class);
@@ -147,15 +178,17 @@ public final class Picker implements Updatable<TimerAnimation> {
                 //	Target target = (Target)supply;
                 respond_manager.addResponder(supply, () -> supply.changeRespondingTrees(-1));
                 supply.changeRespondingTrees(1);
-                if (isNewSetTarget(selection, supply, action, Settings.getSettings().aggressive_units))
-                    player_interface.setTarget(selection, supply, action, Settings.getSettings().aggressive_units);
-            } else if (nearestLandscape(Math.round(x * scale), Math.round(y * scale))) {
+                if (isNewSetTarget(selection, supply, action, Renderer.getRenderer().getSettings().aggressive_units))
+                    player_interface.setTarget(selection, supply, action, Renderer.getRenderer()
+                            .getSettings().aggressive_units);
+            } else if (nearestLandscape(Math.round(x * scale), Math.round(y * scale), viewport)) {
                 new LandscapeTargetRespond(local_player.getWorld(), patch_hit_x, patch_hit_y);
                 int grid_x = UnitGrid.toGridCoordinate(patch_hit_x);
                 int grid_y = UnitGrid.toGridCoordinate(patch_hit_y);
-                if (isNewLandscapeTarget(selection, grid_x, grid_y, action, Settings.getSettings().aggressive_units))
-                    player_interface.setLandscapeTarget(selection, grid_x, grid_y, action,
-                            Settings.getSettings().aggressive_units);
+                if (isNewLandscapeTarget(selection, grid_x, grid_y, action, Renderer.getRenderer()
+                        .getSettings().aggressive_units))
+                    player_interface.setLandscapeTarget(selection, grid_x, grid_y, action, Renderer.getRenderer()
+                            .getSettings().aggressive_units);
             }
         }
     }
@@ -209,6 +242,7 @@ public final class Picker implements Updatable<TimerAnimation> {
 
     public @NonNull Selectable<?> @NonNull [] pickBoxed(@NonNull CameraState camera, int x1, int y1, int x2, int y2,
             int clicks) {
+        int[] viewport = new int[4];
         float scale = gui_root.getGlobalScale();
         float sx1 = x1 * scale;
         float sy1 = y1 * scale;
@@ -221,10 +255,11 @@ public final class Picker implements Updatable<TimerAnimation> {
         int height = (int) Math.abs(sy1 - sy2) + 1;
         width = Math.max(width, PICK_SIZE);
         height = Math.max(height, PICK_SIZE);
-        setupPicking(camera, cx, cy, width, height);
+        setupPicking(camera, cx, cy, width, height, viewport);
         pickObjects();
-        return Math.abs(x1 - x2) < SELECTION_THRESHOLD && Math.abs(y1 - y2) < SELECTION_THRESHOLD ? createSinglePick(
-                camera, clicks) : createBoxedPick();
+        return Math.abs(x1 - x2) < SELECTION_THRESHOLD && Math.abs(y1 - y2) < SELECTION_THRESHOLD
+                ? createSinglePick(camera, clicks)
+                : createBoxedPick();
     }
 
     private @NonNull Selectable<?> @NonNull [] createSinglePick(@NonNull CameraState camera, int clicks) {
@@ -247,29 +282,32 @@ public final class Picker implements Updatable<TimerAnimation> {
     }
 
     private @NonNull Selectable<?> @NonNull [] createBoxedPick() {
-        var array = element_pick_list.stream().filter(element -> element instanceof Selectable).toArray(
-                Selectable::newArray);
+        var array = element_pick_list.stream()
+                .filter(element -> element instanceof Selectable)
+                .toArray(Selectable::newArray);
         element_pick_list.clear();
         return array;
     }
 
     private @NonNull Selectable<?> @NonNull [] pickAll(@NonNull CameraState camera, int ability_filter) {
         Selectable<?>[] complete_list = pickBoxed(camera, 0, 0, gui_root.getWidth() - 1, gui_root.getHeight() - 1, 2);
-        return Arrays.stream(complete_list).filter(s -> s.getAbilities().hasAbilities(ability_filter)).toArray(
-                Selectable::newArray);
+        return Arrays.stream(complete_list)
+                .filter(s -> s.getAbilities().hasAbilities(ability_filter))
+                .toArray(Selectable::newArray);
     }
 
     public void pickRotate(@NonNull GameCamera camera) {
+        int[] viewport = new int[4];
         int x = gui_root.getWidth() / 2;
         int y = camera.getRotateY();
         float scale = getScale();
-        setupPicking(camera.getState(), x * scale, y * scale, PICK_SIZE, PICK_SIZE);
-        if (!nearestLandscape(Math.round(x * scale), Math.round(y * scale))
-                || patch_hit_z < local_player.getWorld().getHeightMap().getSeaLevelMeters()) {
+        setupPicking(camera.getState(), x * scale, y * scale, PICK_SIZE, PICK_SIZE, viewport);
+        if (!nearestLandscape(Math.round(x * scale), Math.round(y * scale), viewport) || patch_hit_z < local_player
+                .getWorld().getHeightMap().getSeaLevelMeters()) {
             float dz = tmp_camera.getCurrentZ() - local_player.getWorld().getHeightMap().getSeaLevelMeters();
-            float factor = dz / dir_vector[2];
-            patch_hit_x = tmp_camera.getCurrentX() - factor * dir_vector[0];
-            patch_hit_y = tmp_camera.getCurrentY() - factor * dir_vector[1];
+            float factor = dz / dir_vector.z();
+            patch_hit_x = tmp_camera.getCurrentX() - factor * dir_vector.x();
+            patch_hit_y = tmp_camera.getCurrentY() - factor * dir_vector.y();
             patch_hit_z = local_player.getWorld().getHeightMap().getSeaLevelMeters();
         }
         int grid_x = UnitGrid.toGridCoordinate(patch_hit_x);
@@ -277,30 +315,20 @@ public final class Picker implements Updatable<TimerAnimation> {
         camera.setRotationPoint(new LandscapeTarget(grid_x, grid_y));
     }
 
-    private void calcPosAndDir(int pixel_x, int pixel_y) {
-        float pixel_z = 0.5f;
-        unproject(pixel_x, pixel_y, pixel_z, tmp_camera.getProjectionModelView());
-        float hit_x = hit_result_array[0];
-        float hit_y = hit_result_array[1];
-        float hit_z = hit_result_array[2];
+    private void calcPosAndDir(int pixel_x, int pixel_y, int[] viewport) {
+        Vector3f hit2 = new Vector3f();
 
-        pixel_z = 0.1f;
-        unproject(pixel_x, pixel_y, pixel_z, tmp_camera.getProjectionModelView());
+        tmp_camera.getProjectionModelView().unproject(pixel_x, pixel_y, 0.0f, viewport, hit_result);
+        tmp_camera.getProjectionModelView().unproject(pixel_x, pixel_y, 1.0f, viewport, hit2);
 
-        float dx = hit_x - hit_result_array[0];
-        float dy = hit_y - hit_result_array[1];
-        float dz = hit_z - hit_result_array[2];
-        float vec_len_inv = 1f / (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
-        dir_vector[0] = dx * vec_len_inv;
-        dir_vector[1] = dy * vec_len_inv;
-        dir_vector[2] = dz * vec_len_inv;
+        hit2.sub(hit_result, dir_vector).normalize();
     }
 
-    private boolean nearestLandscape(int pixel_x, int pixel_y) {
+    private boolean nearestLandscape(int pixel_x, int pixel_y, int[] viewport) {
         pickLandscape();
-        calcPosAndDir(pixel_x, pixel_y);
-        return doNearestLandscape(hit_result_array[0], hit_result_array[1], hit_result_array[2], dir_vector[0],
-                dir_vector[1], dir_vector[2]);
+        calcPosAndDir(pixel_x, pixel_y, viewport);
+        return doNearestLandscape(hit_result.x(), hit_result.y(), hit_result.z(), dir_vector.x(), dir_vector.y(),
+                dir_vector.z());
     }
 
     /**
@@ -310,18 +338,10 @@ public final class Picker implements Updatable<TimerAnimation> {
      * @param winy The window y-coordinate.
      * @param winz The window z-coordinate (depth).
      * @param proj The combined projection-model-view matrix from the camera.
+     * @param viewport The viewport buffer.
      */
-    private void unproject(float winx, float winy, float winz, @NonNull Matrix4f proj) {
-        // Convert viewport buffer to array. The buffer position is reset in setupPicking().
-        viewport.get(0, viewportArray, 0, 4);
-
-        Vector3f tempVector = new Vector3f();
-        proj.unproject(winx, winy, winz, viewportArray, tempVector);
-
-        // Store result in the original class field array.
-        hit_result_array[0] = tempVector.x;
-        hit_result_array[1] = tempVector.y;
-        hit_result_array[2] = tempVector.z;
+    private void unproject(float winx, float winy, float winz, @NonNull Matrix4f proj, int[] viewport) {
+        proj.unproject(winx, winy, winz, viewport, hit_result);
     }
 
     private static float computeTMax(float bmin, float bmax, float c, float d) {
@@ -370,12 +390,9 @@ public final class Picker implements Updatable<TimerAnimation> {
             float t_min_z = z + t_min * dz;
             float t_min_height = getHeight(t_min_x, t_min_y);
             if (t_min_height >= 0.001f + t_min_z) {
-//				System.out.println(t_min_x + " " + t_min_y + " " + t_min_height + " " + t_min_z);
-                /*com.oddlabs.tt.landscape.LandscapeTileIndices.debug = true;
-                World.getHeightMap().getNearestHeight(t_min_x, t_min_y);
-                com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
-                assert false;
-//				return false;
+                // Ray enters the bounding box already below the terrain surface.
+                // This is a valid degenerate case (e.g. steep camera angles in map overview mode).
+                continue;
             }
             boolean found_t_range = false;
             for (float t_scan = t_min; t_scan <= t_max; t_scan += PATCH_PICK_STEP) {
@@ -427,30 +444,34 @@ public final class Picker implements Updatable<TimerAnimation> {
     }
 
     public void pickMapGoto(int x, int y, @NonNull MapCamera camera) {
+        int[] viewport = new int[4];
         float scale = getScale();
-        setupPicking(camera.getState(), x * scale, y * scale, PICK_SIZE, PICK_SIZE);
-        if (nearestLandscape(Math.round(x * scale), Math.round(y * scale)))
+        setupPicking(camera.getState(), x * scale, y * scale, PICK_SIZE, PICK_SIZE, viewport);
+        if (nearestLandscape(Math.round(x * scale), Math.round(y * scale), viewport))
             camera.mapGoto(patch_hit_x, patch_hit_y);
     }
 
-    public @Nullable Target pickRallyPoint(@NonNull CameraState camera, int x, int y, @NonNull Building building) {
+    public @NonNull Optional<Target> pickRallyPoint(@NonNull CameraState camera, int x, int y,
+            @NonNull Building building) {
+        int[] viewport = new int[4];
         float scale = getScale();
-        setupPicking(camera, x * scale, y * scale, PICK_SIZE, PICK_SIZE);
+        setupPicking(camera, x * scale, y * scale, PICK_SIZE, PICK_SIZE, viewport);
         pickObjects();
         Target nearest = getNearestPick(element_pick_list, Target.class);
         if (nearest instanceof Building) {
-            return nearest;
-        } else if (nearestLandscape(Math.round(x * scale), Math.round(y * scale))) {
+            return Optional.of(nearest);
+        } else if (nearestLandscape(Math.round(x * scale), Math.round(y * scale), viewport)) {
             int grid_x = UnitGrid.toGridCoordinate(patch_hit_x);
             int grid_y = UnitGrid.toGridCoordinate(patch_hit_y);
-            return building.getUnitGrid().findGridTargets(grid_x, grid_y, 1, false)[0];
+            return Optional.of(building.getUnitGrid().findGridTargets(grid_x, grid_y, 1, false)[0]);
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 
     public void pickHoverPhysical(@NonNull CameraState camera, int physical_x, int physical_y) {
-        setupPicking(camera, physical_x, physical_y, PICK_SIZE, PICK_SIZE);
+        int[] viewport = new int[4];
+        setupPicking(camera, physical_x, physical_y, PICK_SIZE, PICK_SIZE, viewport);
         pickObjects();
         Target nearest = getNearestPick(element_pick_list, Target.class);
         Target new_current_hovered;
@@ -480,8 +501,9 @@ public final class Picker implements Updatable<TimerAnimation> {
     }
 
     public void pickHover(@NonNull CameraState camera, int x, int y) {
+        int[] viewport = new int[4];
         float scale = gui_root.getGlobalScale();
-        setupPicking(camera, x * scale, y * scale, PICK_SIZE, PICK_SIZE);
+        setupPicking(camera, x * scale, y * scale, PICK_SIZE, PICK_SIZE, viewport);
         pickObjects();
         Target nearest = getNearestPick(element_pick_list, Target.class);
         Target new_current_hovered;
@@ -533,29 +555,30 @@ public final class Picker implements Updatable<TimerAnimation> {
         current_tooltip = null;
     }
 
-    public boolean pickLocation(@NonNull CameraState camera, @NonNull LandscapeLocation landscape_location) {
+    public Optional<LandscapeLocation> pickLocation(@NonNull CameraState camera) {
+        int[] viewport = new int[4];
         int x = Renderer.getLocalInput().getMouseX();
         int y = Renderer.getLocalInput().getMouseY();
-        setupPicking(camera, x, y, PICK_SIZE, PICK_SIZE);
-        if (!nearestLandscape(x, y))
-            return false;
-        landscape_location.x = patch_hit_x;
-        landscape_location.y = patch_hit_y;
-        return true;
+        setupPicking(camera, x, y, PICK_SIZE, PICK_SIZE, viewport);
+
+        return !nearestLandscape(x, y, viewport) ? Optional.empty() : Optional.of(new LandscapeLocation(patch_hit_x,
+                patch_hit_y));
     }
 
-    private void setupPicking(@NonNull CameraState camera, float x_center, float y_center, int width, int height) {
+    private void setupPicking(@NonNull CameraState camera, float x_center, float y_center, int width, int height,
+            int @NonNull [] viewport) {
         proj.identity();
-        viewport.clear();
-        var window = Renderer.getRenderer().getWindow();
-        viewport.put(0).put(0).put(window.getWidth()).put(window.getHeight());
-        viewport.flip();
+        var context = Renderer.getRenderer().getRenderContext();
+        viewport[0] = 0;
+        viewport[1] = 0;
+        viewport[2] = context.getViewportWidth();
+        viewport[3] = context.getViewportHeight();
 
         if (width > 0 && height > 0) {
-            Vector3f temp_vector = new Vector3f((viewport.get(2) - 2 * (x_center - viewport.get(0))) / width,
-                    (viewport.get(3) - 2 * (y_center - viewport.get(1))) / height, 0);
+            Vector3f temp_vector = new Vector3f((viewport[2] - 2 * (x_center - viewport[0])) / width, (viewport[3] - 2
+                    * (y_center - viewport[1])) / height, 0);
             proj.translate(temp_vector.x, temp_vector.y, temp_vector.z);
-            temp_vector.set((float) viewport.get(2) / width, (float) viewport.get(3) / height, 1.0f);
+            temp_vector.set((float) viewport[2] / width, (float) viewport[3] / height, 1.0f);
             proj.scale(temp_vector.x, temp_vector.y, temp_vector.z);
         }
 
@@ -573,15 +596,15 @@ public final class Picker implements Updatable<TimerAnimation> {
     private void pickObjects() {
         element_pick_list.clear();
         element_renderer.setup(tmp_camera);
-        local_player.getWorld().getElementRoot().visit(element_renderer);
+        element_renderer.visit(local_player.getWorld().getElementRoot());
         sprite_sorter.distributeModels();
-        render_queues.getAllPicks(element_pick_list);
+        render_queues.getAllPicks(element_pick_list::add);
     }
 
     private void pickResources() {
         tree_pick_list.clear();
         tree_renderer.setup(tmp_camera);
-        local_player.getWorld().getTreeRoot().visit(tree_renderer);
+        tree_renderer.visit(local_player.getWorld().getTreeRoot());
         sprite_sorter.distributeModels();
         tree_renderer.getAllPicks(tree_pick_list);
     }
@@ -592,10 +615,10 @@ public final class Picker implements Updatable<TimerAnimation> {
 
     private final class LandscapeLeafComparator implements Comparator<LandscapeLeaf> {
         private int compare(@NonNull CameraState camera_state, @NonNull LandscapeLeaf l1, @NonNull LandscapeLeaf l2) {
-            float l1_dist = RenderTools.getCameraDistanceXYSquared(l1, camera_state.getCurrentX(),
-                    camera_state.getCurrentY());
-            float l2_dist = RenderTools.getCameraDistanceXYSquared(l2, camera_state.getCurrentX(),
-                    camera_state.getCurrentY());
+            float l1_dist = RenderTools.getCameraDistanceXYSquared(l1, camera_state.getCurrentX(), camera_state
+                    .getCurrentY());
+            float l2_dist = RenderTools.getCameraDistanceXYSquared(l2, camera_state.getCurrentX(), camera_state
+                    .getCurrentY());
             if (l1_dist < l2_dist)
                 return -1;
             else if (l1_dist > l2_dist)
@@ -616,7 +639,7 @@ public final class Picker implements Updatable<TimerAnimation> {
 
         @Override
         public int compare(@NonNull LandscapeLeaf l1, @NonNull LandscapeLeaf l2) {
-            return compare(tmp_camera, l1, l2);
+            return compare(Picker.this.tmp_camera, l1, l2);
         }
     }
 }

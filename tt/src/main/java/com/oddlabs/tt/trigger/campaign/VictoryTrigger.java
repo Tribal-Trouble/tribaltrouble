@@ -5,6 +5,12 @@ import com.oddlabs.tt.trigger.IntervalTrigger;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
+import java.util.List;
+
+/**
+ * Monitors campaign levels to check for the victory condition, which is triggered
+ * when all enemy units are eliminated and the enemy has no active chieftain.
+ */
 public final class VictoryTrigger extends IntervalTrigger {
     private final @NonNull WorldViewer viewer;
     private final Runnable runnable;
@@ -17,7 +23,7 @@ public final class VictoryTrigger extends IntervalTrigger {
 
     @Override
     protected void check() {
-        Player[] players = viewer.getWorld().getPlayers();
+        List<@NonNull Player> players = viewer.getWorld().getPlayers();
         Player local = viewer.getLocalPlayer();
 
         for (Player current : players) {

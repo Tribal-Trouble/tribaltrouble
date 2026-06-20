@@ -12,10 +12,11 @@ import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.MultiColumnComboBox;
 import com.oddlabs.tt.gui.Row;
+import java.util.List;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.RowListener;
-import com.oddlabs.tt.net.Network;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
@@ -50,9 +51,12 @@ public final class ProfilesForm extends Form {
         Label label_headline = new Label(i18n("profiles_caption"), Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
 
-        ColumnInfo[] infos = new ColumnInfo[]{new ColumnInfo(i18n("nick"), NICK_SIZE), new ColumnInfo(i18n("rating"),
-                120), new ColumnInfo(i18n("wins"), 100), new ColumnInfo(i18n("losses"), 100), new ColumnInfo(i18n(
-                        "invalid"), 100)};
+        ColumnInfo[] infos = new ColumnInfo[]{
+                new ColumnInfo(i18n("nick"), NICK_SIZE),
+                new ColumnInfo(i18n("rating"), 120),
+                new ColumnInfo(i18n("wins"), 100),
+                new ColumnInfo(i18n("losses"), 100),
+                new ColumnInfo(i18n("invalid"), 100)};
         profile_list_box = new MultiColumnComboBox<>(gui_root, infos, 200);
         profile_list_box.addRowListener(new RowListener<>() {
             @Override
@@ -109,20 +113,19 @@ public final class ProfilesForm extends Form {
 
     @Override
     protected void doCancel() {
-        Network.getMatchmakingClient().close();
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().close();
     }
 
     public void receivedProfiles(Profile @NonNull [] profiles, String last_nick) {
         profile_list_box.clear();
         Row<String, Label> selected_row = null;
         for (Profile p : profiles) {
-            Row<String, Label> row = new Row<>(new Label[]{new Label(p.getNick(),
-                    Skin.getSkin().getMultiColumnComboBoxData().font(), NICK_SIZE), new IntegerLabel(p.getRating(),
-                            Skin.getSkin().getMultiColumnComboBoxData().font()), new IntegerLabel(p.getWins(),
-                                    Skin.getSkin().getMultiColumnComboBoxData().font()), new IntegerLabel(p.getLosses(),
-                                            Skin.getSkin().getMultiColumnComboBoxData().font()), new IntegerLabel(
-                                                    p.getInvalid(),
-                                                    Skin.getSkin().getMultiColumnComboBoxData().font())}, p.getNick());
+            Row<String, Label> row = new Row<>(List.of(
+                    new Label(p.getNick(), Skin.getSkin().getMultiColumnComboBoxData().font(), NICK_SIZE),
+                    new IntegerLabel(p.getRating(), Skin.getSkin().getMultiColumnComboBoxData().font()),
+                    new IntegerLabel(p.getWins(), Skin.getSkin().getMultiColumnComboBoxData().font()),
+                    new IntegerLabel(p.getLosses(), Skin.getSkin().getMultiColumnComboBoxData().font()),
+                    new IntegerLabel(p.getInvalid(), Skin.getSkin().getMultiColumnComboBoxData().font())), p.getNick());
             profile_list_box.addRow(row);
             if (p.getNick().equalsIgnoreCase(last_nick))
                 selected_row = row;
@@ -132,7 +135,7 @@ public final class ProfilesForm extends Form {
     }
 
     private void join(String nick) {
-        Network.getMatchmakingClient().setProfile(nick);
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().setProfile(nick);
         main_menu.setMenuCentered(game_menu);
     }
 
@@ -145,8 +148,8 @@ public final class ProfilesForm extends Form {
             } else {
                 String confirm_str = i18n("confirm_delete", nick);
                 confirm_delete_form = new QuestionForm(confirm_str, (_, _, _, _) -> {
-                    Network.getMatchmakingClient().deleteProfile(nick);
-                    Network.getMatchmakingClient().requestProfiles();
+                    Renderer.getRenderer().getNetwork().getMatchmakingClient().deleteProfile(nick);
+                    Renderer.getRenderer().getNetwork().getMatchmakingClient().requestProfiles();
                 });
                 gui_root.addModalForm(confirm_delete_form);
             }

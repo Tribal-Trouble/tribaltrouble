@@ -15,7 +15,7 @@ public final class ReproduceUnitContainer extends UnitContainer {
     }
 
     public float getBuildProgress() {
-        ChieftainContainer chieftain_container = building.getChieftainContainer();
+        ChieftainContainer chieftain_container = building.getChieftainContainer().orElseThrow();
         if (chieftain_container.isTraining()) {
             return 0;
         } else {
@@ -60,12 +60,12 @@ public final class ReproduceUnitContainer extends UnitContainer {
 
     @Override
     public void animate(float t) {
-        ChieftainContainer chieftain_container = building.getChieftainContainer();
+        ChieftainContainer chieftain_container = building.getChieftainContainer().orElseThrow();
 
-        if ((building.getOwner().getUnitCountContainer().getNumSupplies() < getMaxSupplyCount()
-                && getTotalSupplies() != getMaxSupplyCount())
+        if ((building.getOwner().getUnitCountContainer().getNumSupplies() < getMaxSupplyCount() && getTotalSupplies()
+                != getMaxSupplyCount())
                 || chieftain_container.isTraining()) {
-            float units = Math.max(building.getUnitContainer().getNumSupplies(), .5f);
+            float units = Math.max(building.getUnitContainer().orElseThrow().getNumSupplies(), .5f);
             unit_reproduction += ((1f / 11f) * Math.pow(units, 1f / 3f)) * t;
             while (unit_reproduction >= 1f) {
                 unit_reproduction -= 1f;

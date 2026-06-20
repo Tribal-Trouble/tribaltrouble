@@ -4,10 +4,12 @@ import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.Selectable;
-import com.oddlabs.tt.model.Supply;
+import com.oddlabs.tt.model.BuildingType;
+import com.oddlabs.tt.model.MagicType;
+import com.oddlabs.tt.model.SupplyType;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.PlayerInterface;
-import com.oddlabs.tt.util.Target;
+import com.oddlabs.tt.model.Target;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -35,7 +37,7 @@ public final class NoOpPlayerInterface implements PlayerInterface {
     }
 
     @Override
-    public void doMagic(@NonNull Unit chieftain, int magic) {
+    public void doMagic(@NonNull Unit chieftain, @NonNull MagicType magic) {
     }
 
     @Override
@@ -47,8 +49,8 @@ public final class NoOpPlayerInterface implements PlayerInterface {
     }
 
     @Override
-    public void placeBuilding(Selectable<?> @NonNull [] selection, int template_id, int placing_grid_x,
-            int placing_grid_y) {
+    public void placeBuilding(Selectable<?> @NonNull [] selection, @NonNull BuildingType template_type,
+            int placing_grid_x, int placing_grid_y) {
     }
 
     @Override
@@ -70,7 +72,7 @@ public final class NoOpPlayerInterface implements PlayerInterface {
     }
 
     @Override
-    public void recallGatherers(@NonNull Building building, @NonNull Class<? extends Supply> supply_type, int amount) {
+    public void recallGatherers(@NonNull Building building, @NonNull SupplyType supply_type, int amount) {
     }
 
     @Override

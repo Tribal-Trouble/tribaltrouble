@@ -9,7 +9,6 @@ import java.util.List;
 
 public class SupplyManager implements Animated {
     private static final float SLEEP_TIME = 10f;
-    private static final float SPAWN_TIME = 3f;
     private static final float MAX_EMPTY_SUPPLIES = .75f;
 
     private final List<Supply> empty_supplies = new ArrayList<>();
@@ -71,7 +70,7 @@ public class SupplyManager implements Animated {
         if (!occupied) {
             empty_supplies.remove(supply);
             Supply new_supply = supply.respawn();
-            new SupplySpawnAnimation(new_supply, SPAWN_TIME);
+            new SupplySpawnAnimation(new_supply, new_supply.getSpawnTime());
         }
     }
 }

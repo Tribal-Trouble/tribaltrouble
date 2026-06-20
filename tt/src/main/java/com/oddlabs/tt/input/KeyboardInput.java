@@ -2,8 +2,6 @@ package com.oddlabs.tt.input;
 
 import com.oddlabs.event.Deterministic;
 import com.oddlabs.tt.animation.AnimationManager;
-import com.oddlabs.tt.event.LocalEventQueue;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.Renderer;
@@ -59,15 +57,16 @@ public final class KeyboardInput {
      * process playback controls.
      *
      * @param event_key_down true if the key is down
-     * @param event_key      the key
-     * @param playback       if true allow magic keys without developer mode or control-shift modifier
-     * @param repeat         not an initial key-press
+     * @param event_key the key
+     * @param playback if true allow magic keys without developer mode or control-shift modifier
+     * @param repeat not an initial key-press
      * @return true if the key was handled
      */
     private boolean checkMagicKey(boolean event_key_down, @NonNull Key event_key, boolean playback, boolean repeat) {
         boolean control_down = left_control_down || right_control_down;
         boolean shift_down = left_shift_down || right_shift_down;
-        boolean keys_enabled = Settings.getSettings().inDeveloperMode() && control_down && shift_down && !repeat;
+        boolean keys_enabled = Renderer.getRenderer().getSettings().inDeveloperMode() && control_down && shift_down
+                && !repeat;
         if (event_key_down && (keys_enabled || playback)) {
             // check for special events that shouldn't generate events
             switch (event_key) {
@@ -104,7 +103,7 @@ public final class KeyboardInput {
     }
 
     public void checkMagicKeys(@NonNull InputProvider<?> input) {
-        Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
+        Deterministic deterministic = Renderer.getRenderer().getEventQueue().getDeterministic();
         if (deterministic.isPlayback()) {
             // During playback the keyboard is used for playback control
             input.pollKeyboard();
@@ -120,7 +119,7 @@ public final class KeyboardInput {
     }
 
     public boolean poll(@NonNull InputProvider<?> input, @NonNull LocalInput localInput, @NonNull GUIRoot gui_root) {
-        Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
+        Deterministic deterministic = Renderer.getRenderer().getEventQueue().getDeterministic();
         boolean result = false;
         input.pollKeyboard();
         // Update modifiers from raw state to handle lost events or initial state
@@ -139,38 +138,22 @@ public final class KeyboardInput {
             int event_key_mods = deterministic.log(input.getEventKeyMods());
             Key event_key = Key.fromGlfwCode(event_key_code);
             boolean event_key_down = deterministic.log(input.getEventKeyState());
-            char event_character = deterministic.log(input.getEventCharacter());
+            int event_codepoint = deterministic.log(input.getEventCodepoint());
             boolean repeat_event = deterministic.log(input.isRepeatEvent());
 
             switch (event_key) {
-                case LSHIFT:
-                    left_shift_down = event_key_down;
-                    break;
-                case RSHIFT:
-                    right_shift_down = event_key_down;
-                    break;
-                case LCONTROL:
-                    left_control_down = event_key_down;
-                    break;
-                case RCONTROL:
-                    right_control_down = event_key_down;
-                    break;
-                case LALT:
-                    left_alt_down = event_key_down;
-                    break;
-                case RALT:
-                    right_alt_down = event_key_down;
-                    break;
-                case LSUPER:
-                    left_meta_down = event_key_down;
-                    break;
-                case RSUPER:
-                    right_meta_down = event_key_down;
-                    break;
-                default:
-                    // Other keys are not tracked as dedicated boolean flags here.
-                    // They are processed into the actions set below.
-                    break;
+                case LSHIFT -> left_shift_down = event_key_down;
+                case RSHIFT -> right_shift_down = event_key_down;
+                case LCONTROL -> left_control_down = event_key_down;
+                case RCONTROL -> right_control_down = event_key_down;
+                case LALT -> left_alt_down = event_key_down;
+                case RALT -> right_alt_down = event_key_down;
+                case LSUPER -> left_meta_down = event_key_down;
+                case RSUPER -> right_meta_down = event_key_down;
+                default -> {
+                }
+                // Other keys are not tracked as dedicated boolean flags here.
+                // They are processed into the actions set below.
             }
 
             if (checkMagicKey(event_key_down, event_key, false, repeat_event))
@@ -184,16 +167,16 @@ public final class KeyboardInput {
 
             // Use passed localInput, not static Renderer
             if (event_key_code == 0 && modifiers.isEmpty()) {
-                gui_root.getInputState().keyTyped(event_key_code, event_character);
+                gui_root.getInputState().keyTyped(event_key_code, event_codepoint);
             } else if (event_key_down) {
-                if (Key.KEY_UNKNOWN != event_key || event_character != 0) {
+                if (Key.KEY_UNKNOWN != event_key || event_codepoint != 0) {
                     localInput.setKeys(event_key, true, modifiers);
-                    gui_root.getInputState().keyPressed(event_key, event_character, modifiers, repeat_event);
+                    gui_root.getInputState().keyPressed(event_key, event_codepoint, modifiers, repeat_event);
                 }
             } else {
-                if (Key.KEY_UNKNOWN != event_key || event_character != 0) {
+                if (Key.KEY_UNKNOWN != event_key || event_codepoint != 0) {
                     localInput.setKeys(event_key, false, modifiers);
-                    gui_root.getInputState().keyReleased(event_key, event_character, modifiers);
+                    gui_root.getInputState().keyReleased(event_key, event_codepoint, modifiers);
                 }
             }
         }

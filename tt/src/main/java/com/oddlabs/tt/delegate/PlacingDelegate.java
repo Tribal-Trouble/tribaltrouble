@@ -11,68 +11,75 @@ import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.BuildingTemplate;
+import com.oddlabs.tt.model.BuildingType;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.BuildingSiteScanFilter;
 import com.oddlabs.tt.render.BuildingSiteRenderer;
-import com.oddlabs.tt.render.LandscapeLocation;
 import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.MatrixStack;
+import com.oddlabs.tt.render.PlacingRenderer;
 import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.Sprite;
+import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.render.SpriteRenderer;
-import com.oddlabs.tt.render.shader.SpriteShader;
-import com.oddlabs.tt.render.state.BlendMode;
-import com.oddlabs.tt.render.state.CullMode;
-import com.oddlabs.tt.render.state.DepthMode;
+import com.oddlabs.tt.render.VisualRegistry;
 import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.viewer.WorldViewer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.logging.Logger;
 
-public final class PlacingDelegate extends ControllableCameraDelegate {
+/**
+ * Handles the user interaction for placing a new building on the landscape.
+ */
+public final class PlacingDelegate extends ControllableCameraDelegate<GameCamera> {
     private static final Logger logger = Logger.getLogger(PlacingDelegate.class.getName());
     private static final int GRID_RADIUS = 20;
-    private static final LandscapeLocation landscape_hit = new LandscapeLocation();
+    private static final Color.Linear GOOD_PLACEMENT = Color.Linear.WHITE.alpha(0.8f);
+    private static final Color.Linear BAD_PLACEMENT = Color.Linear.RED.alpha(0.8f);
 
     private final BuildingSiteRenderer site_renderer = new BuildingSiteRenderer();
-    private final int building_index;
-    private final SpriteShader spriteShader = new SpriteShader();
+    private final PlacingRenderer placingRenderer = new PlacingRenderer();
+    private final @NonNull BuildingType building_type;
 
-    public PlacingDelegate(@NonNull WorldViewer viewer, @NonNull CameraState old_camera, int building_index) {
+    public PlacingDelegate(@NonNull WorldViewer viewer, @NonNull CameraState old_camera,
+            @NonNull BuildingType building_type) {
         super(viewer, new GameCamera(viewer, old_camera));
-        this.building_index = building_index;
+        this.building_type = building_type;
     }
 
     private @NonNull BuildingTemplate getTemplate() {
-        return getViewer().getLocalPlayer().getRace().getBuildingTemplate(building_index);
+        return getViewer().getLocalPlayer().getRaceInfo().getBuildingTemplate(building_type);
     }
 
-    public void placeObject() {
-        if (!getViewer().getPicker().pickLocation(getCamera().getState(), landscape_hit)) {
-            logger.info("placeObject: Pick failed (off map?)");
-            return;
-        }
-        UnitGrid unit_grid = getViewer().getWorld().getUnitGrid();
-        int placing_grid_x = UnitGrid.toGridCoordinate(landscape_hit.x);
-        int placing_grid_y = UnitGrid.toGridCoordinate(landscape_hit.y);
-        if (Building.isPlacingLegal(getViewer().getWorld().getUnitGrid(), getTemplate(), placing_grid_x,
-                placing_grid_y)) {
-            var peons = getViewer().getSelection().getCurrentSelection().filter(Abilities.BUILD);
-            if (peons.length > 0) {
-                logger.info("placeObject: Placing building at " + placing_grid_x + "," + placing_grid_y);
-                getViewer().getPeerHub().getPlayerInterface().placeBuilding(peons, building_index, placing_grid_x,
-                        placing_grid_y);
+    @Override
+    protected void pushZoomDelegate() {
+        getGUIRoot().pushDelegate(new ZoomDelegate(getViewer(), getCamera()));
+    }
+
+    private void placeObject() {
+        getViewer().getPicker().pickLocation(getCamera().getState()).ifPresentOrElse(landscape_hit -> {
+            int placing_grid_x = landscape_hit.getGridX();
+            int placing_grid_y = landscape_hit.getGridY();
+            if (Building.isPlacingLegal(getViewer().getWorld().getUnitGrid(), getTemplate(), placing_grid_x,
+                    placing_grid_y)) {
+                var peons = getViewer().getSelection().getCurrentSelection().filter(Abilities.BUILD);
+                if (peons.length > 0) {
+                    logger.info("placeObject: Placing building at " + placing_grid_x + "," + placing_grid_y);
+                    getViewer().getPeerHub().getPlayerInterface().placeBuilding(peons, building_type, placing_grid_x,
+                            placing_grid_y);
+                } else {
+                    logger.info("placeObject: No peons selected");
+                }
+                logger.info("placeObject: Popping delegate");
+                pop();
             } else {
-                logger.info("placeObject: No peons selected");
+                logger.info("placeObject: Placement illegal");
             }
-            logger.info("placeObject: Popping delegate");
-            pop();
-        } else {
-            logger.info("placeObject: Placement illegal");
-        }
+        }, () -> logger.info("placeObject: Pick failed (off map?)"));
     }
 
     @Override
@@ -108,67 +115,48 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
     @Override
     public void render3D(@NonNull LandscapeRenderer renderer, @NonNull RenderQueues queues, @NonNull CameraState state,
             @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
-        if (!getViewer().getPicker().pickLocation(getCamera().getState(), landscape_hit)) return;
-        UnitGrid unit_grid = getViewer().getWorld().getUnitGrid();
-        int placing_grid_x = UnitGrid.toGridCoordinate(landscape_hit.x) - (getTemplate().getPlacingSize() - 1);
-        int placing_grid_y = UnitGrid.toGridCoordinate(landscape_hit.y) - (getTemplate().getPlacingSize() - 1);
-        int placing_center_grid_x = UnitGrid.toGridCoordinate(landscape_hit.x);
-        int placing_center_grid_y = UnitGrid.toGridCoordinate(landscape_hit.y);
+        var hit = getViewer().getPicker().pickLocation(getCamera().getState());
+        if (hit.isEmpty()) {
+            return;
+        }
+        var landscape_hit = hit.get();
+        int placing_grid_x = landscape_hit.getGridX() - (getTemplate().getPlacingSize() - 1);
+        int placing_grid_y = landscape_hit.getGridY() - (getTemplate().getPlacingSize() - 1);
+        int placing_center_grid_x = landscape_hit.getGridX();
+        int placing_center_grid_y = landscape_hit.getGridY();
 
         float center_x = HeightMap.METERS_PER_UNIT_GRID * (placing_grid_x + (getTemplate().getPlacingSize() - .5f));
         float center_y = HeightMap.METERS_PER_UNIT_GRID * (placing_grid_y + (getTemplate().getPlacingSize() - .5f));
 
+        UnitGrid unit_grid = getViewer().getWorld().getUnitGrid();
         BuildingSiteScanFilter filter = new BuildingSiteScanFilter(unit_grid, getTemplate(), GRID_RADIUS, false);
         unit_grid.scan(filter, placing_center_grid_x, placing_center_grid_y);
         List<LandscapeTarget> target_list = filter.getResult();
 
         RenderContext context = Renderer.getRenderer().getRenderContext();
-        site_renderer.renderSites(context, renderer, modelViewStack, projectionStack, target_list, center_x, center_y,
-                2 * GRID_RADIUS);
+        site_renderer.renderSites(context, queues, renderer, modelViewStack, projectionStack, target_list, center_x,
+                center_y, 2 * GRID_RADIUS);
+
         com.oddlabs.tt.util.GLUtils.checkGLError("Placing: After renderSites");
 
-        SpriteRenderer built_renderer = queues.getRenderer(getTemplate().getBuiltRenderer());
+        SpriteKey built_key = VisualRegistry.getInstance().getBuildingVisuals(
+                getViewer().getLocalPlayer().getRaceInfo().getRaceType(),
+                getTemplate().getBuildingType()
+        ).built();
+        SpriteRenderer built_renderer = queues.getRenderer(built_key);
         Sprite sprite = built_renderer.getSpriteList().getSprite(0);
 
-        try (var _ = spriteShader.use()) {
+        var placeColor = Building.isPlacingLegal(unit_grid, getTemplate(), placing_center_grid_x,
+                placing_center_grid_y)
+                        ? GOOD_PLACEMENT : BAD_PLACEMENT;
 
-            spriteShader.setUniform(SpriteShader.Uniforms.DESATURATE, 0.5f);
-            sprite.setupShaderUniforms(context, spriteShader, 0, false);
-            spriteShader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, true);
-            spriteShader.setUniform(SpriteShader.Uniforms.ALPHA_TEST_VALUE, 0.5f);
+        float z = getViewer().getWorld().getHeightMap().getNearestHeight(center_x, center_y);
 
-            if (Building.isPlacingLegal(unit_grid, getTemplate(), placing_center_grid_x, placing_center_grid_y))
-                spriteShader.setUniform(SpriteShader.Uniforms.COLOR, 1f, 1f, 1f, .8f);
-            else
-                spriteShader.setUniform(SpriteShader.Uniforms.COLOR, 1f, 0f, 0f, .8f);
+        modelViewStack.push();
+        modelViewStack.translate(center_x, center_y, z);
 
-            float z = getViewer().getWorld().getHeightMap().getNearestHeight(center_x, center_y);
+        placingRenderer.renderGhost(context, sprite, built_renderer.getSpriteList(), placeColor, modelViewStack);
 
-            modelViewStack.push();
-            modelViewStack.translate(center_x, center_y, z);
-            spriteShader.setUniformMatrix4(SpriteShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
-
-            try (var _ = context.withCullMode(CullMode.BACK)) {
-                // Pass 1: Depth Prime (Write Depth, No Color)
-                try (var _ = context.withDepthMode(DepthMode.READ_WRITE); var _ = context.withColorMask(false, false,
-                        false, false); var _ = context.withBlendMode(BlendMode.NONE)) {
-
-                    sprite.renderShader(spriteShader, 0, 0f, built_renderer.getSpriteList());
-                }
-
-                // Pass 2: Color Render (No Depth Write, Equal Depth)
-                try (var _ = context.withDepthMode(DepthMode.READ_ONLY); var _ = context.withColorMask(true, true, true,
-                        true); var _ = context.withBlendMode(BlendMode.ALPHA)) {
-
-                    sprite.renderShader(spriteShader, 0, 0f, built_renderer.getSpriteList());
-                }
-            } finally {
-                spriteShader.setUniform(SpriteShader.Uniforms.DESATURATE, 0.0f);
-                spriteShader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, false);
-                spriteShader.setUniform(SpriteShader.Uniforms.ALPHA_TEST_VALUE, 0.3f);
-            }
-
-            modelViewStack.pop();
-        }
+        modelViewStack.pop();
     }
 }

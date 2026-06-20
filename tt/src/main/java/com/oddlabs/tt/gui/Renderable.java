@@ -5,12 +5,8 @@ import com.oddlabs.util.LinkedList;
 import com.oddlabs.util.ListElementImpl;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 
-import java.nio.IntBuffer;
-import java.util.Objects;
-
+/** A renderable component with position, size, and optionally renderable children. */
 public abstract class Renderable<R extends Renderable<R>> extends ListElementImpl<R> {
     private int x = 0;
     private int y = 0;
@@ -105,7 +101,7 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
     /**
      * Window or, in fullscreen mode the display, dimensions changed.
      *
-     * @param width  width of the window/display in pixels
+     * @param width width of the window/display in pixels
      * @param height height of the window/display in pixels.
      */
     protected void displayChangedNotify(int width, int height) {
@@ -123,28 +119,9 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
     protected void render(@NonNull GUIRenderer renderer, float clip_left, float clip_right, float clip_bottom,
             float clip_top) {
         if (this instanceof Clipped) {
-            IntBuffer scissor_box;
-            if (GL11.glIsEnabled(GL11.GL_SCISSOR_TEST)) {
-                scissor_box = Objects.requireNonNull(BufferUtils.createIntBuffer(4));
-                GL11.glGetIntegerv(GL11.GL_SCISSOR_BOX, scissor_box);
-            } else {
-                scissor_box = null;
-            }
-            renderer.flush();
-            GL11.glEnable(GL11.GL_SCISSOR_TEST);
-
-            float scale = getGlobalScale();
-            GL11.glScissor((int) (getRootX() * scale), (int) (getRootY() * scale),
-                    (int) (getWidth() * scale), (int) (getHeight() * scale));
-
+            renderer.pushClip(getRootX(), getRootY(), getWidth(), getHeight());
             renderClipped(renderer, clip_left, clip_right, clip_bottom, clip_top);
-
-            renderer.flush();
-            if (null != scissor_box) {
-                GL11.glScissor(scissor_box.get(0), scissor_box.get(1), scissor_box.get(2), scissor_box.get(3));
-            } else {
-                GL11.glDisable(GL11.GL_SCISSOR_TEST);
-            }
+            renderer.popClip();
         } else {
             renderClipped(renderer, clip_left, clip_right, clip_bottom, clip_top);
         }

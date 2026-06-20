@@ -1,5 +1,6 @@
 package com.oddlabs.tt.model;
 
-public interface UnitContainerFactory {
+public sealed interface UnitContainerFactory permits MountUnitContainerFactory, ReproduceUnitContainerFactory,
+        WorkerUnitContainerFactory {
     UnitContainer createContainer(Building building);
 }

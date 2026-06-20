@@ -1,9 +1,12 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.GUIRenderer;
-import org.joml.Vector4fc;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * A button representing a dropdown selection that opens a PulldownMenu.
+ */
 public final class PulldownButton<T> extends GUIObject {
     private final @NonNull PulldownMenu<T> menu;
     private final @NonNull Label label;
@@ -44,7 +47,11 @@ public final class PulldownButton<T> extends GUIObject {
         PulldownData data = Skin.getSkin().getPulldownData();
         Horizontal pulldownButton = data.pulldownButton();
 
-        ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+        ModeIconQuads.Mode skinMode = isDisabled()
+                ? ModeIconQuads.Mode.DISABLED
+                : isActive()
+                        ? ModeIconQuads.Mode.ACTIVE
+                : ModeIconQuads.Mode.NORMAL;
 
         pulldownButton.render(renderer, 0, 0, getWidth(), skinMode);
 
@@ -69,7 +76,7 @@ public final class PulldownButton<T> extends GUIObject {
     @Override
     protected void mouseReleased(@NonNull MouseButton button, int x, int y) {
         if (!menu.isActive())
-            menu.getItem(menu.getChosenItemIndex()).setFocus();
+            menu.getChosenItem().ifPresent(GUIObject::setFocus);
         menu.clickItem(button, x, y, 1);
     }
 
@@ -101,14 +108,14 @@ public final class PulldownButton<T> extends GUIObject {
             menu.remove();
     }
 
-    public void setLabelColor(@NonNull Vector4fc color) {
+    public void setLabelColor(@NonNull Color color) {
         label.setColor(color);
     }
 
     // Sync the selection from external state without firing item-chosen listeners, so an open menu stays open.
     public void setSelected(int index) {
         menu.chooseItemSilently(index);
-        applyLabel(menu.getItem(index));
+        menu.getItem(index).ifPresent(this::applyLabel);
     }
 
     private void applyLabel(@NonNull PulldownItem<T> item) {
@@ -117,8 +124,11 @@ public final class PulldownButton<T> extends GUIObject {
     }
 
     private void itemChosen(@NonNull PulldownMenu<T> menu, int item_index) {
-        applyLabel(menu.getItem(item_index));
-        if (menu.isActive())
-            deactivateMenu();
+        menu.getItem(item_index).ifPresent(item -> {
+            label.set(item.getLabelString());
+            label.setColor(item.getLabelColor());
+            if (menu.isActive())
+                deactivateMenu();
+        });
     }
 }

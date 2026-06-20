@@ -2,7 +2,6 @@ package com.oddlabs.tt.model;
 
 import com.oddlabs.geometry.AnimationInfo;
 import com.oddlabs.tt.audio.AudioParameters;
-import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.model.behaviour.DefendController;
 import com.oddlabs.tt.model.behaviour.DieBehaviour;
@@ -18,33 +17,37 @@ import com.oddlabs.tt.model.behaviour.StunController;
 import com.oddlabs.tt.model.behaviour.WalkBehaviour;
 import com.oddlabs.tt.model.behaviour.WalkController;
 import com.oddlabs.tt.model.weapon.WeaponFactory;
-import com.oddlabs.tt.particle.BalancedParametricEmitter;
-import com.oddlabs.tt.particle.StunFunction;
 import com.oddlabs.tt.pathfinder.Movable;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.PathTracker;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
-import com.oddlabs.tt.render.SpriteKey;
-import com.oddlabs.tt.util.Target;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import com.oddlabs.tt.resource.AudioAssets;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
-public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable {
+/**
+ * Represents a mobile unit in the game world.
+ */
+public final class Unit extends Selectable<UnitTemplate> implements Occupant, Movable {
 
     private static final float IDLE_SPEED = 1f / 2.5f;
     private static final float TRANSPORT_SPEED_SCALE = 4f / 5f;
 
     private static final int PENALTY_INCREMENT = 3;
     private static final int INITIAL_PATH_PENALTY = 5;
-    private static final float[] MAX_MAGIC_ENERGY = new float[]{40f, 70f};
+    private static final EnumMap<MagicType, Float> MAX_MAGIC_ENERGY = new EnumMap<>(Map.of(
+            MagicType.POISON_FOG, 40f,
+            MagicType.LIGHTNING_CLOUD, 70f,
+            MagicType.STUN, 40f,
+            MagicType.SONIC_BLAST, 70f
+    ));
 
     public enum Animation {
         IDLING,
@@ -60,10 +63,9 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     private final @Nullable UnitSupplyContainer supply_container;
     private final @Nullable String name;
     private final @NonNull PathTracker path_tracker;
-    private final float[] magic_energy = new float[2];
-    private int last_magic_index = -1;
+    private final @NonNull EnumMap<MagicType, Float> magic_energy = new EnumMap<>(MagicType.class);
+    private @Nullable MagicType last_magic_type = null;
 
-    private @Nullable BalancedParametricEmitter stun_marker;
     private int hit_points;
     private @NonNull Animation animation = Animation.IDLING;
     private float anim_speed;
@@ -114,19 +116,19 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         }
         if (rally_point != null) {
             Target unit_target;
-            if (rally_point instanceof LandscapeTarget) {
+            if (rally_point instanceof LandscapeTarget lt) {
                 UnitGrid grid = getUnitGrid();
                 List<Target> temp_occupants = new ArrayList<>();
                 for (var s : getOwner().getUnits().getSet()) {
-                    if (s.getCurrentController() instanceof WalkController) {
-                        Target target = ((WalkController) s.getCurrentController()).getTarget();
+                    if (s.getCurrentController() instanceof WalkController wc) {
+                        Target target = wc.getTarget();
                         if (!grid.isGridOccupied(target.getGridX(), target.getGridY())) {
                             grid.occupyGrid(target.getGridX(), target.getGridY(), this);
                             temp_occupants.add(target);
                         }
                     }
                 }
-                unit_target = grid.findGridTargets(rally_point.getGridX(), rally_point.getGridY(), 1, true)[0];
+                unit_target = grid.findGridTargets(lt.getGridX(), lt.getGridY(), 1, true)[0];
                 for (Target target : temp_occupants) {
                     grid.freeGrid(target.getGridX(), target.getGridY(), this);
                 }
@@ -144,23 +146,19 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     @Override
-    protected final float getZError() {
+    protected float getZError() {
         return getLandscapeError();
     }
 
-    @Override
-    public final void visit(@NonNull ElementVisitor visitor) {
-        visitor.visitUnit(this);
-    }
-
-    public final @Nullable UnitSupplyContainer getSupplyContainer() {
+    public @Nullable UnitSupplyContainer getSupplyContainer() {
         return supply_container;
     }
 
     @Override
-    public final String toString() {
+    public @NonNull String toString() {
         if (!isDead())
-            return "Unit: " + hashCode() + " | getOwner() = " + getOwner() + " | mounted = " + mounted + " | getGridX() = " + getGridX() + " | getGridY() = " + getGridY();
+            return "Unit: " + hashCode() + " | getOwner() = " + getOwner() + " | mounted = " + mounted
+                    + " | getGridX() = " + getGridX() + " | getGridY() = " + getGridY();
         else
             return super.toString();
     }
@@ -176,7 +174,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         float center = getOwner().getWorld().getHeightMap().getMetersPerWorld() / 2f;
         float dx = center - reserved_target.getPositionX();
         float dy = center - reserved_target.getPositionY();
-        float len = (float) Math.sqrt(dx * dx + dy * dy);
+        float len = (float) Math.hypot(dx, dy);
         if (len > 0) {
             setDirection(dx / len, dy / len);
         }
@@ -186,39 +184,35 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     @Override
-    public final int getStatusValue() {
+    public int getStatusValue() {
         int tower_factor = 1;
         if (mounted)
             tower_factor = 3;
         return getTemplate().getStatusValue() * tower_factor;
     }
 
-    public final void increaseRange(float amount) {
+    public void increaseRange(float amount) {
         assert !isDead();
         range_bonus += amount;
     }
 
     @Override
-    public final AttackScanFilter.@NonNull Priority getAttackPriority() {
+    public AttackScanFilter.@NonNull Priority getAttackPriority() {
         assert !isDead();
-        return getAbilities().hasAbilities(
-                Abilities.BUILD) ? AttackScanFilter.Priority.PEON : AttackScanFilter.Priority.WARRIOR;
+        return getTemplate().getAbilities().hasAbilities(Abilities.BUILD)
+                ? AttackScanFilter.Priority.PEON
+                : AttackScanFilter.Priority.WARRIOR;
     }
 
-    @Override
-    public final void visit(@NonNull ToolTipVisitor visitor) {
-        visitor.visitUnit(this);
-    }
-
-    public final @Nullable String getName() {
+    public @Nullable String getName() {
         return name;
     }
 
-    public final int getHitPoints() {
+    public int getHitPoints() {
         return hit_points;
     }
 
-    public final void unmount() {
+    public void unmount() {
         assert !isDead();
         clearControllerStack();
         swapController(new IdleController(this, new AttackScanFilter(getOwner(), AttackScanFilter.UNIT_RANGE), true));
@@ -228,7 +222,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         findInitialPosition(getPositionX(), getPositionY(), true);
     }
 
-    public final void mount(@NonNull Building building) {
+    public void mount(@NonNull Building building) {
         assert !isDead();
         mounted_building = building;
         mount_offset = building.getTemplate().getMountOffset();
@@ -240,16 +234,16 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         swapController(new IdleController(this, new AttackScanFilter(getOwner(), AttackScanFilter.TOWER_RANGE), false));
     }
 
-    public final boolean isMounted() {
+    public boolean isMounted() {
         return mounted;
     }
 
     @Override
-    public final boolean isEnabled() {
+    public boolean isEnabled() {
         return !isDead() && !mounted;
     }
 
-    public final float getMetersPerSecond() {
+    public float getMetersPerSecond() {
         assert !isDead();
         if (getAbilities().hasAbilities(Abilities.HARVEST) && supply_container.getNumSupplies() > 0)
             return TRANSPORT_SPEED_SCALE * getTemplate().getMetersPerSecond();
@@ -257,83 +251,91 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
             return getTemplate().getMetersPerSecond();
     }
 
-    public final void aimAtTarget(@NonNull Target target) {
+    public void aimAtTarget(@NonNull Target target) {
         assert !isDead();
         float dx = target.getPositionX() - getPositionX();
         float dy = target.getPositionY() - getPositionY();
-        float dir_len_inv = 1f / (float) Math.sqrt(dx * dx + dy * dy);
+        float dir_len_inv = 1f / (float) Math.hypot(dx, dy);
         dx *= dir_len_inv;
         dy *= dir_len_inv;
         setDirection(dx, dy);
     }
 
-    public final void switchToIdleAnimation() {
+    public void switchToIdleAnimation() {
         assert !isDead();
         switchAnimation(IDLE_SPEED, Animation.IDLING);
     }
 
-    public final @NonNull WeaponFactory getWeaponFactory() {
+    public @NonNull WeaponFactory getWeaponFactory() {
         assert !isDead();
         return getTemplate().getWeaponFactory();
     }
 
-    public final float getRange(@NonNull Target target) {
+    public float getRange(@NonNull Target target) {
         assert !isDead();
         return getWeaponFactory().getRange() + range_bonus + target.getSize();
     }
 
     @Override
-    public final float getSize() {
+    public float getSize() {
         assert !isDead();
         return 1.9f;
     }
 
     @Override
-    public final @NonNull SpriteKey getSpriteRenderer() {
-        return getTemplate().getSpriteRenderer();
+    protected @NonNull BoundingBox @NonNull [] getLocalBounds() {
+        return getTemplate().getBounds();
     }
 
     @Override
-    public final void doAnimate(float t) {
+    public void doAnimate(float t) {
         anim_time += anim_speed * t;
         if (isDead() || mounted)
             reinsert();
         getOwner().getWorld().updateGlobalChecksum(animation.ordinal());
 
         if (getAbilities().hasAbilities(Abilities.MAGIC)) {
-            for (int i = 0; i < magic_energy.length; i++) {
-                increaseMagicEnergy(i, t);
-            }
+            getOwner().getRaceInfo().getMagics().forEach(magic -> increaseMagicEnergy(magic, t));
         }
     }
 
-    public final void increaseMagicEnergy(int index, float amount) {
-        magic_energy[index] += amount;
-        if (magic_energy[index] > MAX_MAGIC_ENERGY[index]) {
-            magic_energy[index] = MAX_MAGIC_ENERGY[index];
-        }
+    private float getMagicEnergy(@NonNull MagicType type) {
+        return magic_energy.getOrDefault(type, 0f);
+    }
+
+    private void setMagicEnergy(@NonNull MagicType type, float value) {
+        magic_energy.put(type, value);
+    }
+
+    public void increaseMagicEnergy(@NonNull MagicType type, float amount) {
+        float nextVal = Math.min(MAX_MAGIC_ENERGY.get(type), getMagicEnergy(type) + amount);
+        setMagicEnergy(type, nextVal);
+    }
+
+    public void maxMagicEnergy(@NonNull MagicType type) {
+        setMagicEnergy(type, MAX_MAGIC_ENERGY.get(type));
     }
 
     @Override
-    public final @NonNull PathTracker getTracker() {
+    public @NonNull PathTracker getTracker() {
         assert !isDead();
         return path_tracker;
     }
 
     @Override
-    public final void markBlocking() {
+    public void markBlocking() {
         assert !isDead();
         path_penalty = Math.min(path_penalty + PENALTY_INCREMENT, STATIC - 1); // never gets STATIC
     }
 
     @Override
-    public final int getPenalty() {
+    public int getPenalty() {
         assert !isDead();
         return isBlocking() ? Occupant.STATIC : path_penalty;
     }
 
     @Override
-    protected final void removeDying() {
+    protected void removeDying() {
         if (getAbilities().hasAbilities(Abilities.MAGIC)) {
             getOwner().setActiveChieftain(null);
         }
@@ -342,21 +344,17 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
             int result = getOwner().getUnitCountContainer().increaseSupply(-1);
             assert result == -1;
         }
-        if (stun_marker != null) {
-            stun_marker.done();
-            stun_marker = null;
-        }
         super.removeDying();
     }
 
-    public final void removeNow() {
+    public void removeNow() {
         assert !isDead();
         removeDying();
         remove();
     }
 
     @Override
-    public final void free() {
+    public void free() {
         assert !isDead();
         UnitGrid unit_grid = getUnitGrid();
         unit_grid.freeGrid(getGridX(), getGridY(), this);
@@ -364,7 +362,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     @Override
-    public final void occupy() {
+    public void occupy() {
         assert !isDead();
         UnitGrid unit_grid = getUnitGrid();
         unit_grid.occupyGrid(getGridX(), getGridY(), this);
@@ -374,7 +372,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     @Override
-    public final boolean isMoving() {
+    public boolean isMoving() {
         return getCurrentBehaviour() instanceof WalkBehaviour;
     }
 
@@ -384,7 +382,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
      */
     @Override
-    public final void hit(int damage, float direction_x, float direction_y, @NonNull Player owner) {
+    public void hit(int damage, float direction_x, float direction_y, @NonNull Player owner) {
         super.hit(damage, direction_x, direction_y, owner);
         if (mounted) {
             mounted_building.hit(damage, direction_x, direction_y, owner);
@@ -395,57 +393,31 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
                 owner.unitKilled();
                 getOwner().unitLost();
 
+                getClientState(ModelClient.class).ifPresent(client -> {
+                    client.addVisualSound(EmojiType.GRAVESTONE,
+                            ModelClient.DURATION_UNIT_DEATH, AudioAssets.AUDIO_DISTANCE_DEATH);
+                });
+
                 pushController(new DieController(this));
                 forceDecide();
-                /*
-                new AudioPlayer(getPositionX(), getPositionY(), getPositionZ(),
-                	RacesResources.getUnitHitSound(),
-                	AudioPlayer.AUDIO_RANK_DEATH,
-                	AudioPlayer.AUDIO_DISTANCE_DEATH,
-                	AudioPlayer.AUDIO_GAIN_DEATH,
-                	AudioPlayer.AUDIO_RADIUS_DEATH,
-                	1f + (World.getRandom().nextFloat() - .5f)*getUnitTemplate().getDeathPitch());
-                 */
-                getOwner().getWorld().getAudio().newAudio(new AudioParameters<>(getTemplate().getDeathSound(),
-                        getPositionX(), getPositionY(), getPositionZ(),
-                        AudioPlayer.AUDIO_RANK_DEATH,
-                        AudioPlayer.AUDIO_DISTANCE_DEATH,
-                        AudioPlayer.AUDIO_GAIN_DEATH,
-                        AudioPlayer.AUDIO_RADIUS_DEATH,
-                        1f + (getOwner().getWorld().getRandom().nextFloat() - .5f) * getTemplate().getDeathPitch()));
+                float pitchRange = getTemplate().getDeathPitch();
+                var params = new AudioParameters(getTemplate().getDeathSound(), AudioAssets.AUDIO_RANK_DEATH,
+                        AudioAssets.AUDIO_DISTANCE_DEATH, AudioAssets.AUDIO_GAIN_DEATH, AudioAssets.AUDIO_RADIUS_DEATH,
+                        1f + (pitchRange > 0f ? ThreadLocalRandom.current().nextFloat(-0.5f * pitchRange, 0.5f
+                                * pitchRange) : 0f));
+                getOwner().getWorld().getAudio().newAudio(getPositionX(), getPositionY(), getPositionZ(), params);
                 setDirection(-direction_x, -direction_y);
                 removeDying();
             }
         }
     }
 
-    public final void stun(float time) {
-        float x = getPositionX() + getTemplate().getStunX() * getDirectionX() + getTemplate().getStunY() * (-getDirectionY());
-        float y = getPositionY() + getTemplate().getStunX() * getDirectionY() + getTemplate().getStunY() * getDirectionX();
-        float z = getOwner().getWorld().getHeightMap().getNearestHeight(x, y) + getTemplate().getStunZ() + mount_offset;
-
-        if (stun_marker != null) {
-            stun_marker.done();
-        }
-        stun_marker = createStunStar(x, y, z, time, (float) Math.PI / 2);
+    public void stun(float time) {
         pushController(new StunController(this, time));
         forceDecide();
     }
 
-    private @NonNull BalancedParametricEmitter createStunStar(float x, float y, float z, float time, float velocity) {
-        int num_particles = 5;
-        return new BalancedParametricEmitter(getOwner().getWorld(),
-                new StunFunction(.4f, .15f), new Vector3f(x, y, z),
-                velocity, 5f, (float) Math.PI * 2, (float) Math.PI * 2,
-                num_particles, 0f, 2f,
-                new Vector4f(1f, 1f, 1f, 1f), new Vector4f(0f, 0f, 0f, 0f),
-                new Vector3f(.1f, .1f, .1f), new Vector3f(0f, 0f, 0f), time,
-                GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
-                getOwner().getWorld().getRacesResources().getStarTextures(),
-                getOwner().getWorld().getAnimationManagerGameTime());
-    }
-
-    public final boolean canAttack(@NonNull Target target, boolean kill_friendly) {
+    public boolean canAttack(@NonNull Target target, boolean kill_friendly) {
         assert !isDead();
         if (!(target instanceof Selectable<?> selectable) || !getAbilities().hasAbilities(Abilities.ATTACK))
             return false;
@@ -466,8 +438,8 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     private boolean canRepair(@NonNull Target target, boolean action_repair) {
         return target instanceof Building building &&
                 getAbilities().hasAbilities(Abilities.BUILD) &&
-                (action_repair || !building.getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER)
-                        || !building.isComplete()) &&
+                (action_repair || !building.getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER) || !building
+                        .isBuilt()) &&
                 // getOwner() == building.getOwner() && building.isPlaced() && building.isDamaged();
                 !getOwner().isEnemy(building.getOwner()) && building.isPlaced() && building.isDamaged();
     }
@@ -475,13 +447,13 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     private boolean canEnter(@NonNull Target target) {
         return target instanceof Building building &&
                 !getAbilities().hasAbilities(Abilities.MAGIC) &&
-                building.getUnitContainer() != null &&
+                building.getUnitContainer().isPresent() &&
                 getOwner() == building.getOwner() &&
-                building.getUnitContainer().canEnter(this);
+                building.getUnitContainer().get().canEnter(this);
     }
 
     @Override
-    public final float getDefenseChance() {
+    public float getDefenseChance() {
         return getCurrentController() instanceof StunController ? 0 : super.getDefenseChance();
     }
 
@@ -497,11 +469,11 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         assert !target.isDead() : "Setting dead target";
         assert !mounted;
         switch (action) {
-            case DEFAULT:
+            case DEFAULT -> {
                 if (canBuild(target)) {
                     pushController(new PlaceBuildingController(this, (Building) target));
                 } else if (canGather(target)) {
-                    pushController(new GatherController(this, (Supply) target, ((Supply) target).getClass()));
+                    pushController(new GatherController(this, (Supply) target, ((Supply) target).getSupplyType()));
                 } else if (canRepair(target, false)) {
                     pushController(new RepairController(this, (Building) target));
                 } else if (canEnter(target)) {
@@ -511,103 +483,102 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
                 } else {
                     walkToTarget(target, aggressive);
                 }
-                break;
-            case MOVE:
+            }
+            case MOVE -> {
                 if (canEnter(target)) {
                     pushController(new EnterController(this, (Building) target));
                 } else {
                     walkToTarget(target, false);
                 }
-                break;
-            case ATTACK:
+            }
+            case ATTACK -> {
                 if (canAttack(target, true)) {
                     pushController(new HuntController(this, (Selectable<?>) target));
                 } else {
                     walkToTarget(target, true);
                 }
-                break;
-            case GATHER_REPAIR:
+            }
+            case GATHER_REPAIR -> {
                 if (canGather(target)) {
-                    pushController(new GatherController(this, (Supply) target, ((Supply) target).getClass()));
+                    pushController(new GatherController(this, (Supply) target, ((Supply) target).getSupplyType()));
                 } else if (canRepair(target, true)) {
                     pushController(new RepairController(this, (Building) target));
                 }
-                break;
-            case DEFEND:
-                pushController(new DefendController(this, target));
-                break;
-            default:
-                IO.println("Invalid action: " + action);
-                break;
+            }
+            case DEFEND -> pushController(new DefendController(this, target));
+            default -> IO.println("Invalid action: " + action);
         }
     }
 
-    public final void printDebugInfo() {
+    public void printDebugInfo() {
         IO.println("-----------------------------------");
         IO.println("Primary Controller = " + getPrimaryController());
         if (getAbilities().hasAbilities(Abilities.MAGIC)) {
             IO.println("Hit Points = " + hit_points);
-            IO.println("Magic Energy 0 = " + magic_energy[0]);
-            IO.println("Magic Energy 1 = " + magic_energy[1]);
+            for (MagicType type : getOwner().getRaceInfo().getMagics()) {
+                IO.println("Magic Energy " + type.name() + " = " + getMagicEnergy(type));
+            }
             IO.println("Controller = " + getPrimaryController());
         }
     }
 
-    public final boolean canDoMagic(int magic_index) {
-        return !isDead() && magic_index >= 0 && magic_index < RacesResources.NUM_MAGIC && getOwner().canDoMagic(
-                magic_index) && magic_energy[magic_index] == MAX_MAGIC_ENERGY[magic_index];
+    public boolean canDoMagic(@NonNull MagicType type) {
+        return !isDead() && getOwner().canDoMagic(type) && getMagicEnergy(type) == MAX_MAGIC_ENERGY.get(type);
     }
 
-    public final void doMagic(int magic_index, boolean clear_stack) {
-        if (canDoMagic(magic_index)) {
+    public boolean canDoMagic(int slotIndex) {
+        return canDoMagic(getOwner().getRaceInfo().getMagicType(slotIndex));
+    }
+
+    public void doMagic(@NonNull MagicType type, boolean clear_stack) {
+        if (canDoMagic(type)) {
             if (clear_stack)
                 clearControllerStack();
-            pushController(new MagicController(this, getOwner().getRace().getMagicFactory(magic_index)));
-            Arrays.fill(magic_energy, 0f);
-            last_magic_index = magic_index;
+            pushController(new MagicController(this, getOwner().getRaceInfo().getMagicFactory(type)));
+            magic_energy.clear();
+            last_magic_type = type;
 
             // stats
             getOwner().magicCast();
         }
     }
 
-    public final int getLastMagicIndex() {
-        return last_magic_index; // for tutorial
+    public @Nullable MagicType getLastMagicType() {
+        return last_magic_type;
     }
 
-    public final float getMagicProgress(int magic_index) {
-        return magic_energy[magic_index] / MAX_MAGIC_ENERGY[magic_index];
+    public float getMagicProgress(@NonNull MagicType type) {
+        return getMagicEnergy(type) / MAX_MAGIC_ENERGY.get(type);
     }
 
-    public final void switchAnimation(float anim_speed, @NonNull Animation animation) {
+    public void switchAnimation(float anim_speed, @NonNull Animation animation) {
         assert !isDead();
         this.anim_speed = anim_speed;
         if (this.animation != animation) {
             this.animation = animation;
             this.anim_time = 0f;
-        } else if (getTemplate().getSpriteRenderer().getAnimationType(
-                animation.ordinal()) == AnimationInfo.AnimationType.PLAIN.ordinal()) {
-                    this.anim_time = 0f;
-                }
+        } else if (getTemplate().getAnimationType(animation) == AnimationInfo.AnimationType.PLAIN) {
+            this.anim_time = 0f;
+        }
     }
 
     @Override
-    public final int getAnimation() {
+    public int getAnimation() {
         return animation.ordinal();
     }
 
     @Override
-    public final float getAnimationTicks() {
+    public float getAnimationTicks() {
         return anim_time;
     }
 
-    public final float getMountOffset() {
+    public float getMountOffset() {
         assert !isDead();
         return mount_offset;
     }
 
     @Override
-    public final float getOffsetZ() {
+    public float getOffsetZ() {
         if (mounted)
             return mounted_building.getOffsetZ() + mount_offset;
         else {
@@ -615,37 +586,12 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
                 DieBehaviour die_behaviour = (DieBehaviour) getCurrentBehaviour();
                 return die_behaviour.getOffsetZ();
             } else
-                return calculateSlopeOffset();
+                return getSlopeOffset(getSize() * 0.2f);
         }
     }
 
-    private float calculateSlopeOffset() {
-        // Check surrounding heights to lift unit on slopes
-        float r = getSize() * 0.2f; // Check closer to center (feet) to avoid excessive floating
-        float x = getPositionX();
-        float y = getPositionY();
-        var hm = getOwner().getWorld().getHeightMap();
-
-        float h_center = hm.getNearestHeight(x, y);
-        float h_max = h_center;
-
-        // Axis-aligned
-        h_max = Math.max(h_max, hm.getNearestHeight(x + r, y));
-        h_max = Math.max(h_max, hm.getNearestHeight(x - r, y));
-        h_max = Math.max(h_max, hm.getNearestHeight(x, y + r));
-        h_max = Math.max(h_max, hm.getNearestHeight(x, y - r));
-
-        // Diagonals (approx 0.707 * r)
-        float d = r * 0.707f;
-        h_max = Math.max(h_max, hm.getNearestHeight(x + d, y + d));
-        h_max = Math.max(h_max, hm.getNearestHeight(x - d, y + d));
-        h_max = Math.max(h_max, hm.getNearestHeight(x + d, y - d));
-        h_max = Math.max(h_max, hm.getNearestHeight(x - d, y - d));
-
-        return Math.max(0f, h_max - h_center);
-    }
-
-    public final void debugRender() {
+    @Override
+    public void debugRender() {
         path_tracker.debugRender();
     }
 }

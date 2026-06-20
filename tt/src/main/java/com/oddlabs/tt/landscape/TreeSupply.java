@@ -1,20 +1,25 @@
 package com.oddlabs.tt.landscape;
 
 import com.oddlabs.tt.animation.Animated;
-import com.oddlabs.tt.audio.AudioParameters;
-import com.oddlabs.tt.audio.AudioPlayer;
-import com.oddlabs.tt.model.ModelToolTip;
+import com.oddlabs.tt.model.Shadowable;
 import com.oddlabs.tt.model.Supply;
-import com.oddlabs.tt.model.ToolTipVisitor;
+import com.oddlabs.tt.model.SupplyType;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.Region;
 import com.oddlabs.tt.pathfinder.UnitGrid;
-import com.oddlabs.tt.util.Target;
+import com.oddlabs.tt.resource.AudioAssets;
+import com.oddlabs.tt.model.Target;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-public final class TreeSupply extends AbstractTreeGroup implements Supply, Target, Animated, ModelToolTip {
+
+/**
+ * A harvestable tree resource in the game world.
+ * Provides wood supplies when harvested by peon units.
+ */
+public final class TreeSupply extends AbstractTreeGroup implements Supply, Target, Animated, Shadowable {
     private static final int INITIAL_SUPPLIES = 10;
     private static final float SECOND_PER_TREEFALL = 3f;
 
@@ -34,8 +39,8 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
     private float scale = 1f;
     private int hit_counter = 0;
 
-    public TreeSupply(@NonNull World world, AbstractTreeGroup parent, float x, float y, int grid_x, int grid_y,
-            int grid_size, float size, @NonNull Matrix4f matrix, @NonNull TreeType tree_type,
+    public TreeSupply(@NonNull World world, @Nullable AbstractTreeGroup parent, float x, float y, int grid_x,
+            int grid_y, int grid_size, float size, @NonNull Matrix4f matrix, @NonNull TreeType tree_type,
             float @NonNull [] vertices) {
         super(parent);
         this.world = world;
@@ -56,19 +61,24 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
             checkBoundsY(dest.y);
             checkBoundsZ(dest.z);
         }
+        float r = getShadowDiameter() * 0.5f;
+        checkBoundsX(x - r);
+        checkBoundsX(x + r);
+        checkBoundsY(y - r);
+        checkBoundsY(y + r);
         if (world.getUnitGrid().getOccupant(grid_x, grid_y) == null)
             occupyTree();
-        world.getSupplyManager(getClass()).newSupply();
+        world.getSupplyManager(getSupplyType()).newSupply();
+    }
+
+    @Override
+    public @NonNull SupplyType getSupplyType() {
+        return SupplyType.WOOD;
     }
 
     @Override
     public @NonNull World getWorld() {
         return world;
-    }
-
-    @Override
-    public void visit(@NonNull ToolTipVisitor visitor) {
-        visitor.visitSupply(this);
     }
 
     public float getScale() {
@@ -80,7 +90,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
     }
 
     @Override
-    public @NonNull Supply respawn() {
+    public @NonNull TreeSupply respawn() {
         occupyTree();
         hide = false;
         num_supplies = INITIAL_SUPPLIES;
@@ -89,12 +99,14 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 
     @Override
     public void animateSpawn(float t, float progress) {
-        float inv = 1 - progress;
-        scale = 1 - inv * inv * inv * inv * inv * inv;
+        float inv = 1f - progress;
+        scale = 1f - inv * inv * inv * inv * inv * inv;
     }
 
     @Override
     public void spawnComplete() {
+        scale = 1f;
+        animation_time = 0f;
     }
 
     @Override
@@ -107,7 +119,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
         UnitGrid grid = world.getUnitGrid();
         world.getNotificationListener().registerTarget(this);
         Region region = grid.getRegion(getGridX(), getGridY());
-        region.registerObject((Class<TreeSupply>) getClass(), this);
+        region.registerObject(TreeSupply.class, this);
         for (int y = 0; y < grid_size; y++) {
             int occ_y = grid_y + y - (grid_size - 1) / 2;
             for (int x = 0; x < grid_size; x++) {
@@ -125,8 +137,25 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
         UnitGrid grid = world.getUnitGrid();
         world.getNotificationListener().unregisterTarget(this);
         Region region = grid.getRegion(grid_x, grid_y);
-        region.unregisterObject((Class<TreeSupply>) getClass(), this);
+        region.unregisterObject(TreeSupply.class, this);
         grid.freeGrid(grid_x, grid_y, this);
+    }
+
+    @Override
+    public float getShadowDiameter() {
+        float base_diameter = hide ? 0f : (tree_type.shadowDiameter * scale);
+        return isEmpty() ? base_diameter * Math.max(0f, 1f - getTreeFallProgress()) : base_diameter;
+    }
+
+    @Override
+    public float getShadowOpacity() {
+        float base_opacity = hide ? 0f : tree_type.shadowOpacity;
+        return isEmpty() ? base_opacity * (1.0f + 0.3f * getTreeFallProgress()) : base_opacity;
+    }
+
+    @Override
+    public float getShadowVerticalCenter() {
+        return tree_type.shadowVerticalCenter;
     }
 
     @Override
@@ -184,11 +213,8 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
         num_supplies--;
         if (isEmpty()) {
             unoccupyTree();
-            world.getSupplyManager(getClass()).emptySupply(this);
-            world.getAudio().newAudio(new AudioParameters<>(
-                    world.getRacesResources().getTreeFallSound()[tree_type.ordinal() % 2]/* reusing native tree sounds*/,
-                    getCX(), getCY(), getCZ(), AudioPlayer.AUDIO_RANK_TREE_FALL, AudioPlayer.AUDIO_DISTANCE_TREE_FALL,
-                    AudioPlayer.AUDIO_GAIN_TREE_FALL, AudioPlayer.AUDIO_RADIUS_TREE_FALL));
+            world.getSupplyManager(getSupplyType()).emptySupply(this);
+            world.getAudio().newAudio(getCX(), getCY(), getCZ(), AudioAssets.TREE_FALL[tree_type.ordinal() % 2]);
             world.getAnimationManagerRealTime().registerAnimation(this);
             animation_time = 0f;
         }
@@ -219,10 +245,5 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 
     public boolean isHidden() {
         return hide;
-    }
-
-    @Override
-    public void visit(@NonNull TreeNodeVisitor visitor) {
-        visitor.visitTree(this);
     }
 }

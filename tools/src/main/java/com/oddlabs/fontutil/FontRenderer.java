@@ -8,14 +8,18 @@ import com.oddlabs.util.Quad;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.Shape;
+import java.awt.*;
+import java.awt.color.ColorSpace;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.PixelInterleavedSampleModel;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -29,6 +33,19 @@ public final class FontRenderer {
     private static final int GLYPH_X_OVERLAP = 7;
     private static final int GLYPH_Y_OVERLAP = 5;
     private static final float SPACE_SCALE = 0.66666f;
+    private static final int CHANNEL_COUNT_RGBA = 4;
+
+    private static @NonNull BufferedImage createSrgbAbgrImage(int width, int height) {
+        var colorSpace = ColorSpace.getInstance(ColorSpace.CS_sRGB);
+        int[] bandOffsets = new int[]{3, 2, 1, 0};
+        var sampleModel = new PixelInterleavedSampleModel(DataBuffer.TYPE_BYTE, width, height, CHANNEL_COUNT_RGBA,
+                width * CHANNEL_COUNT_RGBA, bandOffsets);
+        var dataBuffer = new DataBufferByte(width * height * CHANNEL_COUNT_RGBA);
+        WritableRaster raster = Raster.createWritableRaster(sampleModel, dataBuffer, null);
+        var colorModel = new ComponentColorModel(colorSpace, true, false, Transparency.TRANSLUCENT,
+                DataBuffer.TYPE_BYTE);
+        return new BufferedImage(colorModel, raster, false, null);
+    }
 
     static void main(@NonNull String @NonNull... args) {
         if (args.length < 9) {
@@ -62,8 +79,8 @@ public final class FontRenderer {
 
         int physical_font_size = Math.round(logical_font_size * scale_factor);
 
-        IO.println(
-                "Rendering " + codepoints.length + " codepoints of " + src_font_name + " size " + logical_font_size + " (phys: " + physical_font_size + ")");
+        IO.println("Rendering " + codepoints.length + " codepoints of " + src_font_name + " size " + logical_font_size
+                + " (phys: " + physical_font_size + ")");
         String dest_font_name = src_font_name.toLowerCase();
         java.awt.Font src_font;
         try (InputStream font_is = new BufferedInputStream(Files.newInputStream(font_file))) {
@@ -75,7 +92,7 @@ public final class FontRenderer {
         int scaled_y_border = Math.round(GLYPH_Y_BORDER * scale_factor);
 
         // calculate space width
-        BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
+        BufferedImage image = createSrgbAbgrImage(1, 1);
         Graphics2D g2d = (Graphics2D) image.getGraphics();
         g2d.setFont(src_font);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -144,7 +161,7 @@ public final class FontRenderer {
             int image_width, int space_width,
             int @NonNull [] codepoints,
             int x_border, int y_border) {
-        BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
+        BufferedImage image = createSrgbAbgrImage(1, 1);
         Graphics2D g2d = (Graphics2D) image.getGraphics();
         g2d.setFont(src_font);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -194,10 +211,10 @@ public final class FontRenderer {
             }
         }
         IO.println("done.");
-        IO.print(" tallest char='" + tallest_char + "'(\\u" + Integer.toHexString(
-                tallest_char) + "):" + max_baseline_height);
-        IO.println(" lowest char='" + lowest_char + "'(\\u" + Integer.toHexString(
-                lowest_char) + "):" + max_under_baseline_height);
+        IO.print(" tallest char='" + tallest_char + "'(\\u" + Integer.toHexString(tallest_char) + "):"
+                + max_baseline_height);
+        IO.println(" lowest char='" + lowest_char + "'(\\u" + Integer.toHexString(lowest_char) + "):"
+                + max_under_baseline_height);
         int max_glyph_height = max_under_baseline_height + max_baseline_height;
         int image_height = Utils.nextPowerOf2(max_glyph_height * num_lines);
         return new int[]{image_height, max_glyph_height, max_baseline_height, max_under_baseline_height};
@@ -210,7 +227,7 @@ public final class FontRenderer {
             int image_width, int image_height, int space_width,
             int @NonNull [] codepoints, boolean saveFontInfo,
             int x_border, int y_border) {
-        BufferedImage image = new BufferedImage(image_width, image_height, BufferedImage.TYPE_4BYTE_ABGR);
+        BufferedImage image = createSrgbAbgrImage(image_width, image_height);
         Graphics2D g2d = (Graphics2D) image.getGraphics();
         g2d.setFont(src_font);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -238,7 +255,7 @@ public final class FontRenderer {
                 int min_x = (int) Math.floor(glyph_bounds.getMinX()) - x_border;
                 //int min_y = (int)Math.floor(glyph_bounds.getMinY()) - GLYPH_Y_BORDER;
                 int max_x = (int) Math.ceil(glyph_bounds.getMaxX()) + x_border;
-                //int max_y = (int)Math.ceil(glyph_bounds.getMaxY()) + GLYPH_Y_BORDER;
+                //int max_y = (int)Math.ceil(glyph_bounds.getMaxY()) - GLYPH_Y_BORDER;
                 int glyph_width = codepoint == 32 ? space_width : max_x - min_x;
                 assert glyph_width <= image_width : "character too wide to fit in image";
                 if (current_x + glyph_width > image_width) {

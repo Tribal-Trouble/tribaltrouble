@@ -4,7 +4,9 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 
-public abstract class Controller {
+public abstract sealed class Controller permits AttackController, DefendController, DieController, EnterController,
+        GatherController, HarvestController, HuntController, IdleController, MagicController, NullController,
+        PlaceBuildingController, RepairController, StunController, TransferUnitController, WalkController {
     private static final int MAX_TRIES = 1;
     private final int @NonNull [] give_up_counters;
 
@@ -20,7 +22,21 @@ public abstract class Controller {
         give_up_counters[state_index] = 0;
     }
 
+    protected final void resetGiveUpCounter(Enum<?> state) {
+        give_up_counters[state.ordinal()] = 0;
+    }
+
     protected final boolean shouldGiveUp(int state_index) {
+        if (give_up_counters[state_index] != MAX_TRIES) {
+            give_up_counters[state_index]++;
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    protected final boolean shouldGiveUp(Enum<?> state) {
+        int state_index = state.ordinal();
         if (give_up_counters[state_index] != MAX_TRIES) {
             give_up_counters[state_index]++;
             return false;

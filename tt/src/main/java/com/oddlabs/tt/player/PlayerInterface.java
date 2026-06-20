@@ -4,11 +4,17 @@ import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.Selectable;
-import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.Unit;
-import com.oddlabs.tt.util.Target;
+import com.oddlabs.tt.model.Target;
+import com.oddlabs.tt.model.BuildingType;
 import org.jspecify.annotations.NonNull;
 
+import com.oddlabs.tt.model.MagicType;
+import com.oddlabs.tt.model.SupplyType;
+
+/**
+ * Interface defining actions a player can take, such as deploying units, building, and casting magic.
+ */
 public interface PlayerInterface {
     void deployUnits(@NonNull Building building, @NonNull DeployType type, int num_units);
 
@@ -24,13 +30,14 @@ public interface PlayerInterface {
 
     void buildRubberWeapons(@NonNull Building building, int num_weapons, boolean infinite);
 
-    void doMagic(@NonNull Unit chieftain, int magic);
+    void doMagic(@NonNull Unit chieftain, @NonNull MagicType magic);
 
     void exitTower(@NonNull Building building);
 
     void trainChieftain(@NonNull Building building, boolean start);
 
-    void placeBuilding(Selectable<?> @NonNull [] selection, int template_id, int placing_grid_x, int placing_grid_y);
+    void placeBuilding(Selectable<?> @NonNull [] selection, @NonNull BuildingType template_type, int placing_grid_x,
+            int placing_grid_y);
 
     void setRallyPoint(@NonNull Building building, @NonNull Target target);
 
@@ -42,9 +49,9 @@ public interface PlayerInterface {
     void setLandscapeTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action,
             boolean aggressive);
 
-    void recallGatherers(@NonNull Building building, @NonNull Class<? extends Supply> supply_type, int amount);
-
     void setPreferredGamespeed(int speed);
 
     void changePreferredGamespeed(int delta);
+
+    void recallGatherers(@NonNull Building building, @NonNull SupplyType supply_type, int amount);
 }

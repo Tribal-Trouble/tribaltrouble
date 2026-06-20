@@ -15,7 +15,7 @@ public final class EmptyTowerTrigger extends TutorialTrigger {
 
     @Override
     protected void run(@NonNull Tutorial tutorial) {
-        if (tower.getUnitContainer().getNumSupplies() == 0) {
+        if (tower.getUnitContainer().map(c -> c.getNumSupplies() == 0).orElse(true)) {
             tutorial.done(TutorialForm.TUTORIAL_TOWER);
         }
     }

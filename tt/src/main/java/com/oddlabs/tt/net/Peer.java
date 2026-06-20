@@ -8,15 +8,15 @@ import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.player.PlayerInterface;
 import org.jspecify.annotations.NonNull;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public final class Peer implements PeerHubInterface {
     private final GameArgumentReader argument_reader;
     private final int peer_index;
     private final Player player;
     private final PeerHub peer_hub;
-    private final List<GameEvent> event_queue = new LinkedList<>();
+    private final Deque<GameEvent> event_queue = new ArrayDeque<>();
     private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(PlayerInterface.class);
     private final PeerHubInterface peerhub_interface;
 
@@ -44,10 +44,10 @@ public final class Peer implements PeerHubInterface {
 
     public void executeEvents(int tick) throws IllegalARMIEventException {
         while (!event_queue.isEmpty()) {
-            GameEvent game_event = event_queue.getFirst();
-            if (game_event.tick != tick)
+            GameEvent game_event = event_queue.peek();
+            if (game_event.tick > tick)
                 return;
-            event_queue.removeFirst();
+            event_queue.remove();
             game_event.event.execute(interface_methods, argument_reader, player);
         }
     }

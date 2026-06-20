@@ -1,5 +1,5 @@
 package com.oddlabs.tt.render.state;
 
 public interface Mode {
-    void apply();
+    void apply(RenderContext context);
 }

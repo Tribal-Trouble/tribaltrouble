@@ -6,17 +6,21 @@ import com.oddlabs.procedural.Tools;
 import org.jspecify.annotations.NonNull;
 
 public final class Gradient {
+    public enum Orientation {
+        HORIZONTAL,
+        VERTICAL
+    }
+
+    public enum Interpolation {
+        LINEAR,
+        SMOOTH,
+        //POLYNOMIAL
+    }
+
     public final @NonNull Channel channel;
 
-    public static final int HORIZONTAL = 1;
-    public static final int VERTICAL = 2;
-
-    public static final int LINEAR = 1;
-    public static final int SMOOTH = 2;
-    public static final int POLYNOMIAL = 3;
-
-    public Gradient(int width, int height, float @NonNull [] @NonNull [] gradient_list, int orientation,
-            int interpolation) {
+    public Gradient(int width, int height, float @NonNull [] @NonNull [] gradient_list,
+            @NonNull Orientation orientation, @NonNull Interpolation interpolation) {
         channel = new Channel(width, height);
         float x_coord = 0;
         int index = 0;
@@ -32,29 +36,21 @@ public final class Gradient {
                     if (x_coord >= gradient_list[index_max][0]) {
                         value = gradient_list[index_max][1];
                     } else {
-                        switch (interpolation) {
-                            case LINEAR:
-                                value = Tools.interpolateLinear(gradient_list[index - 1][1], gradient_list[index][1],
-                                        (x_coord - gradient_list[index - 1][0]) / (gradient_list[index][0] - gradient_list[index - 1][0]));
-                                break;
-                            case SMOOTH:
-                                value = Tools.interpolateSmooth(gradient_list[index - 1][1], gradient_list[index][1],
-                                        (x_coord - gradient_list[index - 1][0]) / (gradient_list[index][0] - gradient_list[index - 1][0]));
-                                break;
-                            default:
-                                assert false : "incorrect interpolation method";
-                        }
+                        value = switch (interpolation) {
+                            case LINEAR ->
+                                Tools.interpolateLinear(gradient_list[index - 1][1], gradient_list[index][1], (x_coord
+                                        - gradient_list[index - 1][0]) / (gradient_list[index][0] - gradient_list[index
+                                                - 1][0]));
+                            case SMOOTH ->
+                                Tools.interpolateSmooth(gradient_list[index - 1][1], gradient_list[index][1], (x_coord
+                                        - gradient_list[index - 1][0]) / (gradient_list[index][0] - gradient_list[index
+                                                - 1][0]));
+                        };
                     }
                 }
                 switch (orientation) {
-                    case HORIZONTAL:
-                        channel.putPixel(x, y, value);
-                        break;
-                    case VERTICAL:
-                        channel.putPixel(y, x, value);
-                        break;
-                    default:
-                        assert false : "incorrect orientation";
+                    case HORIZONTAL -> channel.putPixel(x, y, value);
+                    case VERTICAL -> channel.putPixel(y, x, value);
                 }
             }
         }

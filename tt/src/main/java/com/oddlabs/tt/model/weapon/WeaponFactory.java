@@ -3,11 +3,12 @@ package com.oddlabs.tt.model.weapon;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
-import com.oddlabs.tt.util.Target;
+import com.oddlabs.tt.model.Target;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
-public abstract class WeaponFactory {
+import java.util.Optional;
+
+public abstract sealed class WeaponFactory permits InstantHitFactory, ThrowingFactory {
     private static final float TERRAIN_MAX_BONUS = .25f;
     private static final float TERRAIN_BONUS_PER_HEIGHT = TERRAIN_MAX_BONUS / 20f;
 
@@ -41,7 +42,8 @@ public abstract class WeaponFactory {
         /* GAMEPLAY: Terrain bonus, according to who is positioned highest */
         float terrain_bonus = computeTerrainBonus(src.getOwner().getWorld().getHeightMap(), src, target);
         float difficulty_bonus = src.getOwner().getHitBonus();
-        boolean hit = target.getOwner().getWorld().getRandom().nextFloat() < factor * (difficulty_bonus + terrain_bonus + hit_chance) * (1 - target.getDefenseChance());
+        boolean hit = target.getOwner().getWorld().getRandom().nextFloat() < factor * (difficulty_bonus + terrain_bonus
+                + hit_chance) * (1 - target.getDefenseChance());
         doAttack(hit, src, target);
     }
 
@@ -51,5 +53,5 @@ public abstract class WeaponFactory {
 
     protected abstract void doAttack(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target);
 
-    public abstract @Nullable Class<? extends ThrowingWeapon> getType();
+    public abstract @NonNull Optional<Class<? extends ThrowingWeapon>> getType();
 }

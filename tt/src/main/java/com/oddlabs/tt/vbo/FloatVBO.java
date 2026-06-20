@@ -1,9 +1,9 @@
 package com.oddlabs.tt.vbo;
 
-import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
 
@@ -18,32 +18,23 @@ public final class FloatVBO extends VBO {
         put(initial_data);
     }
 
-    public FloatVBO(int usage, float @NonNull [] initial_data) {
-        this(usage, initial_data.length);
-        put(initial_data);
-    }
-
     public void vertexAttribPointer(int location, int size, int stride, long offset) {
-        makeCurrent();
-        org.lwjgl.opengl.GL20.glVertexAttribPointer(location, size, GL11.GL_FLOAT, false, stride, offset);
+        bind();
+        GL20.glVertexAttribPointer(location, size, GL11.GL_FLOAT, false, stride, offset);
     }
 
     public void put(@NonNull FloatBuffer buffer) {
         putSubData(0, buffer);
     }
 
-    public void put(float @NonNull [] buffer) {
-        putSubData(0, Utils.toBuffer(buffer));
-    }
-
     public void putSubData(int index, @NonNull FloatBuffer buffer) {
-        makeCurrent();
+        bind();
         GL15.glBufferSubData(getTarget(), (long) index << 2, buffer);
         buffer.position(buffer.limit());
     }
 
     public void orphan() {
-        makeCurrent();
+        bind();
         // Reallocate buffer storage to orphan the previous buffer
         GL15.glBufferData(getTarget(), getSize(), GL15.GL_STREAM_DRAW);
     }

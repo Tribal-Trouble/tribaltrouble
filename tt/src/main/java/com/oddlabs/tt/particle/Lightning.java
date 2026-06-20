@@ -4,17 +4,20 @@ import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.Element;
-import com.oddlabs.tt.model.ElementVisitor;
 import com.oddlabs.tt.render.TextureKey;
+import com.oddlabs.util.Color;
 import org.joml.Vector3fc;
-import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Visual effect representing a lightning strike.
+ */
 public final class Lightning extends Element<Lightning> implements Animated {
     private static final float SQRT_2 = (float) Math.sqrt(2f);
 
@@ -24,15 +27,15 @@ public final class Lightning extends Element<Lightning> implements Animated {
     private final @NonNull Vector3fc dst;
     private final float width;
     private final int num_particles;
-    private final @NonNull Vector4fc color;
-    private final @NonNull Vector4fc delta_color;
+    private final Color.@NonNull Linear color;
+    private final Color.@NonNull LinearDelta delta_color;
     private final @NonNull TextureKey texture;
     private final @NonNull World world;
 
     private final float energy;
 
     public Lightning(@NonNull World world, @NonNull Vector3fc src, @NonNull Vector3fc dst, float width,
-            int num_particles, @NonNull Vector4fc color, @NonNull Vector4fc delta_color,
+            int num_particles, Color.@NonNull Linear color, Color.@NonNull LinearDelta delta_color,
             @NonNull TextureKey texture, float energy,
             @NonNull AnimationManager manager) {
         super(world.getElementRoot());
@@ -64,20 +67,20 @@ public final class Lightning extends Element<Lightning> implements Animated {
     }
 
     private void initParticles() {
-        Random random = world.getRandom();
-        random.nextFloat();
+        Random random = ThreadLocalRandom.current();
         float x = src.x();
         float y = src.y();
         float z = src.z();
         float height = dst.z() - src.z();
-        float random_limit = height / 6f;
+        float random_limit = Math.abs(height) / 6f;
         float dz = (height) / num_particles;
 
         for (int i = 0; i < num_particles; i++) {
             float base_dx = (dst.x() - x) / (num_particles - i);
             float base_dy = (dst.y() - y) / (num_particles - i);
-            float dx = base_dx + (random.nextFloat() - .5f) * random_limit;
-            float dy = base_dy + (random.nextFloat() - .5f) * random_limit;
+            float halfLimit = 0.5f * random_limit;
+            float dx = base_dx + (halfLimit > 0f ? random.nextFloat(-halfLimit, halfLimit) : 0f);
+            float dy = base_dy + (halfLimit > 0f ? random.nextFloat(-halfLimit, halfLimit) : 0f);
             StretchParticle particle = new StretchParticle(world);
             particle.setSrc(x, y, z);
 
@@ -100,8 +103,8 @@ public final class Lightning extends Element<Lightning> implements Animated {
 
     private void initParticle(@NonNull StretchParticle particle) {
         particle.setSrcWidth(width);
-        particle.setColor(color.x(), color.y(), color.z(), color.w());
-        particle.setDeltaColor(delta_color.x(), delta_color.y(), delta_color.z(), delta_color.w());
+        particle.setColor(color);
+        particle.setDeltaColor(delta_color);
         particle.setRadius(0f, 0f, 0f);
         particle.setGrowthRate(0f, 0f, 0f);
         particle.setEnergy(energy);
@@ -145,20 +148,20 @@ public final class Lightning extends Element<Lightning> implements Animated {
     }
 
     @Override
-    protected void register() {
+    public void register() {
         super.register();
         manager.registerAnimation(this);
-    }
-
-    @Override
-    public void visit(@NonNull ElementVisitor visitor) {
-        visitor.visitLightning(this);
     }
 
     @Override
     public void remove() {
         super.remove();
         manager.removeAnimation(this);
+    }
+
+    @Override
+    public boolean isFinished() {
+        return particles.isEmpty();
     }
 
 }

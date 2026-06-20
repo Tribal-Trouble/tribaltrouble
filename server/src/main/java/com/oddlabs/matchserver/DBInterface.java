@@ -282,7 +282,7 @@ public final class DBInterface {
             return existingUsername;
         }
 
-        // No registration yet — create one. Profile is left unset; the client will
+        // No registration yet � create one. Profile is left unset; the client will
         // be routed to the profile-creation screen so the player picks their own nick.
         String username = "steam_" + steamId;
         String email = "steam_" + steamId + "@steam.internal";
@@ -440,11 +440,12 @@ public final class DBInterface {
 
     public static int getSettingsInt(String setting) {
         try {
-            return Integer.parseInt(getSetting(setting));
+            String value = getSetting(setting);
+            return Integer.parseInt(value);
         } catch (Exception e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getSettingsInt", e);
-            throw new RuntimeException(e);
+            throw new IllegalStateException("Configuration error for setting: " + setting, e);
         }
     }
 

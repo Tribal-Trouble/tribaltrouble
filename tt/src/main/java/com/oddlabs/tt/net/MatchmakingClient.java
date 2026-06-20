@@ -46,6 +46,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 
     private final Map<HostSequenceID, TunnelledConnection> tunnels = new HashMap<>();
     private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(MatchmakingClientInterface.class);
+    private final @NonNull Network owner;
     private final @NonNull ChatRoomHistory chat_room_history;
     private final @NonNull InGameChatHistory in_game_chat_history;
     private @Nullable GUIRoot chat_gui_root;
@@ -70,11 +71,12 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
     private LoginDetails login_details;
     private boolean steamLogin;
 
-    MatchmakingClient() {
+    MatchmakingClient(@NonNull Network owner) {
+        this.owner = owner;
         this.chat_room_history = new ChatRoomHistory();
         this.in_game_chat_history = new InGameChatHistory();
-        Network.getChatHub().addListener(chat_room_history);
-        Network.getChatHub().addListener(in_game_chat_history);
+        owner.getChatHub().addListener(chat_room_history);
+        owner.getChatHub().addListener(in_game_chat_history);
     }
 
     public @NonNull List<@NonNull String> getChatRoomHistory() {
@@ -103,7 +105,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
             this.matchmaking_interface = (MatchmakingServerInterface) ARMIEvent.createProxy(
                     conn.getWrappedConnectionAndShutdown(), MatchmakingServerInterface.class);
             state = STATE_LOGGED_IN;
-            MatchmakingListener listener = Network.getMatchmakingListener();
+            MatchmakingListener listener = owner.getMatchmakingListener();
             listener.loggedIn();
         }
     }
@@ -180,7 +182,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 
     @Override
     public void updateStart(int type) {
-        MatchmakingListener listener = Network.getMatchmakingListener();
+        MatchmakingListener listener = owner.getMatchmakingListener();
         if (listener != null) {
             listener.clearList(type);
         }
@@ -188,7 +190,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 
     @Override
     public void updateList(int type, /*GameHost[]*/Object[] names) {
-        MatchmakingListener listener = Network.getMatchmakingListener();
+        MatchmakingListener listener = owner.getMatchmakingListener();
         if (listener != null)
             listener.receivedList(type, names);
     }
@@ -207,7 +209,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 
     @Override
     public void updateProfileList(Profile[] profiles, String last_profile_nick) {
-        MatchmakingListener listener = Network.getMatchmakingListener();
+        MatchmakingListener listener = owner.getMatchmakingListener();
         if (listener != null)
             listener.receivedProfiles(profiles, last_profile_nick);
     }
@@ -219,7 +221,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 
         chat_room_history.clear();
         SteamManager.setLobbyRichPresence(room_name);
-        MatchmakingListener listener = Network.getMatchmakingListener();
+        MatchmakingListener listener = owner.getMatchmakingListener();
         if (listener != null)
             listener.joinedChat(chat_room_info);
     }
@@ -229,7 +231,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         if (chat_room_info != null) {
             chat_room_info = new ChatRoomInfo(chat_room_info.name(), users);
 
-            MatchmakingListener listener = Network.getMatchmakingListener();
+            MatchmakingListener listener = owner.getMatchmakingListener();
             chat_room_history.update(chat_room_info.users());
             if (listener != null)
                 listener.updateChatRoom(chat_room_info);
@@ -238,12 +240,12 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 
     @Override
     public void receiveChatRoomMessage(@NonNull String owner, @NonNull String msg) {
-        Network.getChatHub().chat(new ChatMessage(owner, msg, ChatMessage.Type.CHATROOM));
+        this.owner.getChatHub().chat(new ChatMessage(owner, msg, ChatMessage.Type.CHATROOM));
     }
 
     @Override
     public void receivePrivateMessage(@NonNull String nick, @NonNull String msg) {
-        Network.getChatHub().chat(new ChatMessage(nick, msg, ChatMessage.Type.PRIVATE));
+        owner.getChatHub().chat(new ChatMessage(nick, msg, ChatMessage.Type.PRIVATE));
     }
 
     public void sendPrivateMessage(GUIRoot gui_root, String nick, String message) {
@@ -296,7 +298,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         close();
         this.network = network;
         this.conn = new SecureConnection(network.getDeterministic(), new Connection(network,
-                Settings.getSettings().getMatchmakingAddress(), MatchmakingServerInterface.MATCHMAKING_SERVER_PORT,
+                Renderer.getRenderer().getSettings().getMatchmakingAddress(), MatchmakingServerInterface.MATCHMAKING_SERVER_PORT,
                 this), null);
         this.matchmaking_login_interface = (MatchmakingServerLoginInterface) ARMIEvent.createProxy(conn,
                 MatchmakingServerLoginInterface.class);
@@ -325,7 +327,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
     @Override
     public void loginError(int error_code) {
         close();
-        MatchmakingListener listener = Network.getMatchmakingListener();
+        MatchmakingListener listener = owner.getMatchmakingListener();
         listener.loginError(error_code);
     }
 
@@ -488,7 +490,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
     }
 
     private void handleError(Exception e) {
-        ErrorListener listener = Network.getMatchmakingListener();
+        ErrorListener listener = owner.getMatchmakingListener();
         close();
         if (listener != null)
             listener.connectionLost();

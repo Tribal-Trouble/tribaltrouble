@@ -3,6 +3,7 @@ package com.oddlabs.tt.procedural;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.model.Terrain;
 import com.oddlabs.tt.procedural.Perlin.Interpolation;
 import com.oddlabs.tt.procedural.Perlin.Summation;
 import com.oddlabs.tt.render.Texture;
@@ -14,9 +15,9 @@ import org.lwjgl.opengl.GL11;
 public final class GeneratorOcean extends TextureGenerator {
     private static final int TEXTURE_SIZE = 512;
 
-    private final Landscape.TerrainType terrain;
+    private final Terrain terrain;
 
-    public GeneratorOcean(Landscape.TerrainType terrain) {
+    public GeneratorOcean(Terrain terrain) {
         this.terrain = terrain;
     }
 
@@ -38,12 +39,12 @@ public final class GeneratorOcean extends TextureGenerator {
         Channel noise64 = perlin64.copy().abs().dynamicRange().gamma2().invert().channelMultiply(perlin32.copy().rotate(
                 90).contrast(2f)).perturb(perlin4.copy().rotate(180), 0.05f).perturb(perlin2.copy().rotate(90), 0.05f);
         Channel highlight = noise32.channelBrightest(noise64);
-        Layer water1 = new Layer(new Channel(TEXTURE_SIZE, TEXTURE_SIZE), perlin4.copy().dynamicRange(0.5f,
-                0.8f).rotate(180), perlin4.copy().rotate(270).dynamicRange(0.6f, 0.9f));
+        Layer water1 = new Layer(new Channel(TEXTURE_SIZE, TEXTURE_SIZE), perlin4.copy().dynamicRange(0.5f, 0.8f)
+                .rotate(180), perlin4.copy().rotate(270).dynamicRange(0.6f, 0.9f));
         water1.layerAdd(highlight.multiply(0.2f).toLayer());
         water1.addAlpha();
         water1.a.fill(0.5f);
-        if (terrain == Landscape.TerrainType.VIKING) {
+        if (terrain == Terrain.VIKING) {
             water1.multiply(0.4f);
             water1.a.addClip(0.1f);
         }
@@ -58,20 +59,20 @@ public final class GeneratorOcean extends TextureGenerator {
         water2.bump(voronoi12, 3.5f, 0f, 0.5f, 0.5f, 0.8f, 1f, 0f, 0f, 0f);
 
         switch (terrain) {
-            case NATIVE:
+            case NATIVE -> {
                 water2.r.dynamicRange(0f, 0.4f);
                 water2.g.dynamicRange(0.6f, 1f);
                 water2.b.dynamicRange(0.9f, 1f);
-                break;
-            case VIKING:
+            }
+            case VIKING -> {
                 water2.r.dynamicRange(0.5f, 1f);
                 water2.g.dynamicRange(0.7f, 1f);
                 water2.b.dynamicRange(0.8f, 1f);
                 water2.a.gamma(0.5f).dynamicRange(0f, 0.2f);
-                break;
-            default:
+            }
+            default -> {
                 assert false : "illegal terrain";
-                break;
+            }
         }
 
         if (Landscape.DEBUG) new GLIntImage(water1).saveAsPNG("generator_water_1");

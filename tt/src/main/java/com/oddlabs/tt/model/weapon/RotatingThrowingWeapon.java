@@ -1,18 +1,20 @@
 package com.oddlabs.tt.model.weapon;
 
-import com.oddlabs.tt.audio.Audio;
-import com.oddlabs.tt.model.ElementVisitor;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
-import com.oddlabs.tt.render.SpriteKey;
+import com.oddlabs.tt.resource.AudioFile;
 import org.jspecify.annotations.NonNull;
 
-public abstract class RotatingThrowingWeapon extends ThrowingWeapon {
+/**
+ * A base class for weapons that rotate as they are thrown (e.g., axes).
+ */
+public abstract sealed class RotatingThrowingWeapon extends ThrowingWeapon permits
+        RockAxeWeapon, IronAxeWeapon, RubberAxeWeapon {
     private float angle = 0;
 
     public RotatingThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target,
-            @NonNull SpriteKey sprite_renderer, @NonNull Audio throw_sound, Audio @NonNull [] hit_sounds) {
-        super(hit, src, target, sprite_renderer, throw_sound, hit_sounds);
+            @NonNull AudioFile throw_sound, AudioFile @NonNull [] hit_sounds) {
+        super(hit, src, target, throw_sound, hit_sounds);
     }
 
     private void setAngle(float angle) {
@@ -32,7 +34,7 @@ public abstract class RotatingThrowingWeapon extends ThrowingWeapon {
     protected abstract float getAngleVelocity();
 
     @Override
-    public final void visit(@NonNull ElementVisitor visitor) {
-        visitor.visitRotatingThrowingWeapon(this);
+    protected float getLoftFactor() {
+        return 1.01f;
     }
 }

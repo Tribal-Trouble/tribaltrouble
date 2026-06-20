@@ -99,7 +99,7 @@ public class ShaderRenderer implements AutoCloseable {
         GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, vertexBuffer);
 
         try (var _ = shader.use()) {
-            shader.setUniformMatrix4(DebugMeshShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
+            shader.setUniform(DebugMeshShader.Uniforms.MODEL_VIEW_MATRIX, modelViewStack.current());
             shader.setUniform(DebugMeshShader.Uniforms.ENABLE_LIGHTING, false);
             shader.setUniform(DebugMeshShader.Uniforms.ENABLE_TEXTURE, false);
             shader.setUniform(DebugMeshShader.Uniforms.ALPHA_CUTOFF, 0.0f);

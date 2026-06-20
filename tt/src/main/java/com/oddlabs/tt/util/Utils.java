@@ -2,7 +2,7 @@ package com.oddlabs.tt.util;
 
 import com.oddlabs.tt.global.Globals;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.BufferUtils;
+import org.jspecify.annotations.Nullable;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,20 +10,29 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
+import java.util.Spliterator;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
+import java.util.function.IntConsumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
+/**
+ * General purpose utility methods for the application.
+ */
 public final class Utils {
+    private static final Logger logger = Logger.getLogger(Utils.class.getName());
 
     @FunctionalInterface
     public interface I18N extends BiFunction<@NonNull String, @NonNull Object @NonNull [], @NonNull String> {
+        @Override
         default @NonNull String apply(@NonNull String key, @NonNull Object @NonNull [] args) {
             return i18n(key, args);
         }
@@ -41,14 +50,6 @@ public final class Utils {
         return Path.of(System.getProperty("user.dir"));
     }
 
-    public static @NonNull FloatBuffer toBuffer(float @NonNull [] floats) {
-        return BufferUtils.createFloatBuffer(floats.length).put(floats).rewind();
-    }
-
-    public static @NonNull ShortBuffer toBuffer(short @NonNull [] shorts) {
-        return BufferUtils.createShortBuffer(shorts.length).put(shorts).rewind();
-    }
-
     public static @NonNull ByteBuffer ioResourceToByteBuffer(@NonNull URL url) throws IOException {
         try (InputStream is = url.openStream()) {
             byte[] bytes = is.readAllBytes();
@@ -57,6 +58,37 @@ public final class Utils {
             buffer.flip();
             return buffer;
         }
+    }
+
+    /** {@return a stream of the remaining ints in the provided buffer} */
+    public static @NonNull IntStream toIntStream(@NonNull IntBuffer buffer) {
+        var spliterator = new Spliterator.OfInt() {
+            @Override
+            public @Nullable OfInt trySplit() {
+                // IntBuffers are too general to offer a generic split.
+                return null;
+            }
+
+            @Override
+            public boolean tryAdvance(@NonNull IntConsumer action) {
+                if (buffer.hasRemaining()) {
+                    action.accept(buffer.get());
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public long estimateSize() {
+                return buffer.remaining();
+            }
+
+            @Override
+            public int characteristics() {
+                return ORDERED | SIZED | IMMUTABLE;
+            }
+        };
+        return StreamSupport.intStream(spliterator, false);
     }
 
     public static void saveAsBMP(@NonNull String filename, @NonNull ByteBuffer pixel_data, int width, int height) {
@@ -146,7 +178,7 @@ public final class Utils {
         try (OutputStream fout = Files.newOutputStream(image_file)) {
             fout.write(buffer.array());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Failed to save BMP: " + filename, e);
         }
         long after = System.nanoTime();
         IO.println("File " + filename + " saved in " + TimeUnit.NANOSECONDS.toMillis(after - before) + " milliseconds");
@@ -184,7 +216,7 @@ public final class Utils {
 
             fout.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Failed to save TGA: " + filename, e);
         }
         long after = System.nanoTime();
         IO.println("File " + filename + " saved in " + TimeUnit.NANOSECONDS.toMillis(after - before) + " milliseconds");

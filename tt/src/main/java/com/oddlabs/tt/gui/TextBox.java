@@ -13,8 +13,8 @@ public class TextBox extends TextField implements Scrollable, Clipped {
 
     private int offset_y;
 
-    public TextBox(int width, int height, @NonNull Font font, int max_chars) {
-        super(font, max_chars);
+    public TextBox(int width, int height, @NonNull Font font, int max_codepoints) {
+        super(font, max_codepoints);
         setDim(width, height);
         setCanFocus(true);
         offset_y = 0;
@@ -42,9 +42,12 @@ public class TextBox extends TextField implements Scrollable, Clipped {
     }
 
     @Override
-    public final void append(@NonNull CharSequence str) {
-        super.append(str);
-        updateLayout();
+    public final boolean append(@NonNull CharSequence str) {
+        var result = super.append(str);
+        if (result) {
+            updateLayout();
+        }
+        return result;
     }
 
     protected final @NonNull TextLayout getTextLayout() {
@@ -60,9 +63,9 @@ public class TextBox extends TextField implements Scrollable, Clipped {
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         Box edit_box = Skin.getSkin().getEditBox();
         renderBox(renderer, ModeIconQuads.Mode.NORMAL);
-        TextLineRenderer.render(renderer, textLayout, edit_box.getLeftOffset(),
-                getHeight() - edit_box.getBottomOffset() - getFont().getHeight() + offset_y, edit_box.getLeftOffset(),
-                getWidth() - edit_box.getRightOffset(), Color.WHITE);
+        TextLineRenderer.render(renderer, textLayout, edit_box.getLeftOffset(), getHeight() - edit_box.getBottomOffset()
+                - getFont().getHeight() + offset_y, edit_box.getLeftOffset(), getWidth() - edit_box.getRightOffset(),
+                Color.Standard.WHITE);
     }
 
     @Override
@@ -75,8 +78,8 @@ public class TextBox extends TextField implements Scrollable, Clipped {
         offset_y = Math.max(new_offset, 0);
 
         Box edit_box = Skin.getSkin().getEditBox();
-        int max_offset_y = Math.max(0,
-                textLayout.getTextHeight() - (getHeight() - edit_box.getBottomOffset() - edit_box.getTopOffset()));
+        int max_offset_y = Math.max(0, textLayout.getTextHeight() - (getHeight() - edit_box.getBottomOffset() - edit_box
+                .getTopOffset()));
         offset_y = Math.min(offset_y, max_offset_y);
         scroll_bar.update();
     }
@@ -101,10 +104,12 @@ public class TextBox extends TextField implements Scrollable, Clipped {
     @Override
     public final float getScrollBarRatio() {
         int text_height = textLayout.getTextHeight();
-        if (text_height <= 0) return 1f;
         Box edit_box = Skin.getSkin().getEditBox();
         int inner_height = getHeight() - edit_box.getBottomOffset() - edit_box.getTopOffset();
-        return Math.min(1f, (float) inner_height / text_height);
+        if (text_height <= inner_height) {
+            return 1.0f;
+        }
+        return (float) inner_height / text_height;
     }
 
     @Override

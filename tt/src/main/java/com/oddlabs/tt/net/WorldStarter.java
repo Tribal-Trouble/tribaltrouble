@@ -13,6 +13,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.UnitInfo;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.steam.SteamManager;
@@ -73,9 +74,9 @@ final class WorldStarter implements LoadCallback {
             initial_action.run(viewer);
         Participant[] participants = getParticipants(viewer, player_slots);
         GamePlayer[] gamePlayers = getGamePlayers(viewer, player_slots);
-        if (Network.getMatchmakingClient().isConnected()) {
+        if (Renderer.getRenderer().getNetwork().getMatchmakingClient().isConnected()) {
             GameSession game_session = new GameSession(session_id, participants, ingame_info.isRated(), gamePlayers);
-            Network.getMatchmakingClient().getInterface().gameStartedNotify(game_session);
+            Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().gameStartedNotify(game_session);
             sendWorldParams(player_slots, corrected_unit_infos);
             SteamManager.setMultiplayerInGameRichPresence();
         }
@@ -96,7 +97,7 @@ final class WorldStarter implements LoadCallback {
             oos.writeInt(session_id);
             oos.close();
             IO.println("sendWorldParams: serialized " + baos.size() + " bytes, sending to server");
-            Network.getMatchmakingClient().getInterface().updateWorldParams(baos.toByteArray());
+            Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().updateWorldParams(baos.toByteArray());
         } catch (Exception e) {
             IO.println("Exception serializing world params: " + e);
             e.printStackTrace();
@@ -106,27 +107,27 @@ final class WorldStarter implements LoadCallback {
     private static @NonNull Participant @NonNull [] getParticipants(@NonNull WorldViewer viewer,
             @NonNull PlayerSlot @NonNull [] player_slots) {
         List<Participant> participant_list = new ArrayList<>();
-        Player[] players = viewer.getWorld().getPlayers();
+        Player[] players = viewer.getWorld().getPlayers().toArray(new Player[0]);
         for (short i = 0; i < players.length; i++) {
             if (player_slots[i].getType() != PlayerSlot.HUMAN)
                 continue;
             Player player = players[i];
             int host_id = player_slots[i].getAddress() != null ? player_slots[i].getAddress().getHostID() : -1;
             participant_list.add(new Participant(host_id, player.getPlayerInfo().getName(),
-                    player.getPlayerInfo().getTeam(), player.getPlayerInfo().getRace()));
+                    player.getPlayerInfo().getTeam(), player.getPlayerInfo().getRace().getValue()));
         }
         return participant_list.toArray(new Participant[0]);
     }
 
     private static @NonNull GamePlayer @NonNull [] getGamePlayers(@NonNull WorldViewer viewer,
             @NonNull PlayerSlot @NonNull [] player_slots) {
-        Player[] players = viewer.getWorld().getPlayers();
+        Player[] players = viewer.getWorld().getPlayers().toArray(new Player[0]);
         GamePlayer[] gamePlayers = new GamePlayer[players.length];
         for (short i = 0; i < players.length; i++) {
             Player player = players[i];
             PlayerTypes playerType = mapPlayerType(player_slots[i]);
             String name = player_slots[i].getType() == PlayerSlot.HUMAN ? player.getPlayerInfo().getName() : null;
-            gamePlayers[i] = new GamePlayer(name, player.getPlayerInfo().getTeam(), player.getPlayerInfo().getRace(),
+            gamePlayers[i] = new GamePlayer(name, player.getPlayerInfo().getTeam(), player.getPlayerInfo().getRace().getValue(),
                     playerType);
         }
         return gamePlayers;

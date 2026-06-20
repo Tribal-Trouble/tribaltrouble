@@ -1,131 +1,140 @@
 package com.oddlabs.tt.audio;
 
-
-import com.oddlabs.tt.audio.openal.OpenALAudio;
-import com.oddlabs.tt.audio.openal.OpenALAudioSource;
-import com.oddlabs.tt.global.Settings;
-import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.openal.AL10;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-final class QueuedAudioPlayer extends AbstractAudioPlayer {
-    private static final int NUM_BUFFERS = 12;
-    private final @NonNull ShortBuffer pcmBuffer;
-    private final @Nullable OpenALAudio audio;
-    private final IntBuffer al_return_buffers = BufferUtils.createIntBuffer(1);
-    private final @NonNull URL url;
-    private final int channels;
+/**
+ * An audio player that streams audio data from an OGG stream into multiple queued buffers.
+ */
+public abstract class QueuedAudioPlayer<AM extends AbstractAudioManager<AM, AS>, AS extends AudioSource>
+        extends AbstractAudioPlayer<AM, AS> {
+    private static final Logger logger = Logger.getLogger(QueuedAudioPlayer.class.getSimpleName());
+    protected static final int PCM_SAMPLES = 16384;
 
-    private @Nullable OGGStream ogg_stream;
-    private int oldest_buffer = 0;
+    protected final ShortBuffer pcmBuffer = BufferUtils.createShortBuffer(PCM_SAMPLES);
 
-    QueuedAudioPlayer(@Nullable AudioSource source,
-            @NonNull AudioParameters<@NonNull String> params) throws IOException {
-        super(source, params);
-        this.url = Utils.makeURL(params.sound);
-        this.pcmBuffer = BufferUtils.createShortBuffer(16384);
-        if ((!params.music && !Settings.getSettings().play_sfx) || this.source == null) {
-            this.ogg_stream = null;
-            this.channels = 0;
-            this.audio = null;
+    /**
+     * The audio data that is currently being played.
+     * We can't use audioParams.sound() because we handle buffering ourselves (for now).
+     */
+    protected volatile @Nullable Audio audio;
+
+    protected QueuedAudioPlayer(@NonNull AM manager, @Nullable AS source, float x, float y, float z,
+            @NonNull AudioParameters params) {
+        super(manager, source, x, y, z, params);
+        if (!isPlaying() || this.source == null) {
             return;
         }
 
-        source.setRelative(params.relative);
-
-        setGain(params.gain);
-        setPos(params.x, params.y, params.z);
-
-        audio = new OpenALAudio(NUM_BUFFERS);
-        IntBuffer al_buffers = audio.getBuffers();
-        this.ogg_stream = new OGGStream(url);
-        this.channels = ogg_stream.getChannels();
-        for (int i = 0; i < al_buffers.capacity(); i++) {
-            fillBuffer(al_buffers.get(i));
-        }
-
+        // Queued audio does not loop via source setting, it loops internally during buffer refill
         source.setLooping(false);
-        source.setRolloff(getRolloffFactor());
-        source.setDistance(params.radius);
-        source.setMinGain(0f);
-        source.setMaxGain(1f);
-        source.setPitch(params.pitch);
-        ((OpenALAudioSource) source).queue(al_buffers);
-        if (params.music || AudioManager.getManager().startPlaying())
-            source.play();
 
-        AudioManager.getManager().registerQueuedPlayer(this);
+        Thread.startVirtualThread(() -> refiller(params.audio().getURL()));
     }
 
-    private void fillBufferFromStream(int al_buffer) {
-        pcmBuffer.flip();
-        AL10.alBufferData(al_buffer, Wave.getFormat(channels, 16), pcmBuffer, ogg_stream.getRate());
+    /** {@return The audio associated with this player.} */
+    @Override
+    protected @NonNull Audio getAudio() {
+        Audio audio = this.audio;
+        if (null == audio) {
+            throw new IllegalStateException("Audio not initialized");
+        }
+        return audio;
     }
 
-    private int fillBuffer(int al_buffer) throws IOException {
-        pcmBuffer.clear();
-        if (ogg_stream == null) return 0;
-        int shortsRead = ogg_stream.read(pcmBuffer);
-        if (shortsRead > 0) {
-            // Update limit to match read data before flipping
-            pcmBuffer.position(shortsRead);
-            fillBufferFromStream(al_buffer);
-        } else if (getParameters().looping) {
-            ogg_stream.close();
-            ogg_stream = new OGGStream(url);
-            shortsRead = ogg_stream.read(pcmBuffer);
-            if (shortsRead > 0) {
-                pcmBuffer.position(shortsRead);
-                fillBufferFromStream(al_buffer);
+    private void refiller(@NonNull URL source) {
+        initThread();
+        try (OGGStream stream = new OGGStream(source)) {
+            this.audio = initAsync(stream);
+            if (this.audio == null) {
+                return;
+            }
+
+            if (manager.startPlaying()) {
+                this.source.play();
+            }
+
+            int channels = stream.getChannels();
+            int rate = stream.getRate();
+
+            // Calculate the sleep interval based on total queued time across all buffers.
+            // We wait for approximately half of the total buffers to be empty before waking up.
+            long totalSamplesPerChannel = (long) PCM_SAMPLES * getBufferCount() / channels;
+            long sleepInterval = Math.max(10, (TimeUnit.SECONDS.toMillis(1) * totalSamplesPerChannel / rate) / 2);
+
+            synchronized (this) {
+                while (isPlaying()) {
+                    try {
+                        long start = System.currentTimeMillis();
+                        refill(stream);
+                        var sleep = sleepInterval - (System.currentTimeMillis() - start);
+                        if (sleep > 0) {
+                            QueuedAudioPlayer.this.wait(sleep);
+                        }
+                    } catch (InterruptedException | IOException e) {
+                        break;
+                    }
+                }
+            }
+        } catch (IOException ioe) {
+            logger.log(Level.SEVERE, "Failed to read OGG stream " + source, ioe);
+        } catch (Exception _) {
+            // Failed to load, init, or read. Exit silently.
+        } finally {
+            try {
+                cleanupAsync();
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "Failure during cleanup", e);
             }
         }
+    }
+
+    /** Run by the Refiller thread */
+    protected abstract @Nullable Audio initAsync(@NonNull OGGStream stream) throws Exception;
+
+    /** Run by the Refiller thread to initialize thread-local context/capabilities. */
+    protected void initThread() {
+    }
+
+    /** Run by the Refiller thread */
+    protected abstract void refill(@NonNull OGGStream stream) throws IOException;
+
+    /** Run by the Refiller thread */
+    protected abstract void cleanupAsync() throws Exception;
+
+    protected static int readPCM(@NonNull OGGStream stream, @NonNull ShortBuffer pcmBuffer, boolean looping) {
+        pcmBuffer.clear(); // Position 0, Limit PCM_SAMPLES
+
+        int shortsRead = stream.read(pcmBuffer);
+
+        if (shortsRead <= 0 && looping) {
+            // End of ogg stream reached, but we are looping.
+            stream.seek(0);
+            shortsRead = stream.read(pcmBuffer);
+        }
+
+        // Explicitly set the buffer's position and limit for OpenAL.
+        // Some native wrappers might not update the buffer position automatically.
+        pcmBuffer.position(0);
+        pcmBuffer.limit(shortsRead);
+
         return shortsRead;
     }
 
-    public void refill() throws IOException { // Run by the Refiller thread
-        int processed = ((OpenALAudioSource) source).processed();
-//System.out.println("this = " + this + " | processed = " + processed);
-        while (processed > 0) {
-//			assert processed <= al_buffers.capacity();
-//			al_buffers.position(oldest_buffer);
-//			al_buffers.limit(oldest_buffer + 1);
-//			assert AL10.alIsBuffer(al_buffers.get(al_buffers.position())): al_buffers.get(al_buffers.position()) + " is not a buffer";
-            ((OpenALAudioSource) source).unqueued(al_return_buffers);
-//			assert al_return_buffers.get(0) == al_buffers.get(al_buffers.position()): "Unexpected buffer removed: " + al_return_buffers.get(0) + " should be " + al_buffers.get(al_buffers.position());
-            int bytes = fillBuffer(al_return_buffers.get(0));
-            if (bytes == 0) {
-                stop();
-                return;
-            }
-//			assert AL10.alIsBuffer(al_buffers.get(al_buffers.position())): al_buffers.get(al_buffers.position()) + " is not a buffer";
-            ((OpenALAudioSource) source).queue(al_return_buffers);
-//System.out.println("oldest_buffer = " + oldest_buffer + " | processed = " + processed + " | capacity = " + buffer_streams[oldest_buffer].buffer().capacity() + " | position " + buffer_streams[oldest_buffer].buffer().position() + " | limit " + buffer_streams[oldest_buffer].buffer().limit() + " al_size = " + AL10.alGetBufferi(al_buffers.get(oldest_buffer), AL10.AL_SIZE));
-            oldest_buffer = (oldest_buffer + 1) % NUM_BUFFERS;
-            processed--;
-            /*			int test_processed = AL10.alGetSourcei(source.getSource(), AL10.AL_BUFFERS_PROCESSED);
-            			assert test_processed >= processed: test_processed + " " + processed;*/
-        }
-        if (source.getState() == AudioSource.State.STOPPED)
-            source.play();
-//System.out.println("		AL10.alGetSourcei(source_index,AL10.AL_SOURCE_STATE) = " + 		AL10.alGetSourcei(source.getSource(),AL10.AL_SOURCE_STATE) + " | AL10.AL_STOPPED = " + AL10.AL_STOPPED + " | AL10.AL_PLAYING = " + AL10.AL_PLAYING);
-    }
-
     @Override
-    public void stop() {
-        if (isPlaying()) {
-            AudioManager.getManager().removeQueuedPlayer(this);
-            if (ogg_stream != null) {
-                ogg_stream.close();
-                ogg_stream = null;
-            }
-            super.stop();
+    public @NonNull QueuedAudioPlayer<AM, AS> stop() {
+        if (manager.removeQueuedPlayer(this)) {
+            super.stop(); // Sets playing = false and stops the source.
         }
+
+        return this;
     }
 }

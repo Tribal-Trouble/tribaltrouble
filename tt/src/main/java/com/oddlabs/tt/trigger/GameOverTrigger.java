@@ -5,6 +5,7 @@ import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.net.PeerHub;
+import com.oddlabs.tt.model.Difficulty;
 import com.oddlabs.tt.player.AdvancedAI;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
@@ -33,13 +34,13 @@ public final class GameOverTrigger implements Animated {
         this.viewer = viewer;
         viewer.getWorld().getAnimationManagerRealTime().registerAnimation(this);
         teams = new int[MatchmakingServerInterface.MAX_PLAYERS];
-        dead_tribes = new boolean[viewer.getWorld().getPlayers().length];
+        dead_tribes = new boolean[viewer.getWorld().getPlayers().size()];
         Arrays.fill(dead_tribes, false);
     }
 
     @Override
     public void animate(float t) {
-        Player[] players = viewer.getWorld().getPlayers();
+        Player[] players = viewer.getWorld().getPlayers().toArray(new Player[0]);
         Player local_player = viewer.getLocalPlayer();
         boolean enemy_alive = false;
 
@@ -88,8 +89,8 @@ public final class GameOverTrigger implements Animated {
             }
 
             if (current != local_player
-                    && current.getAI() instanceof AdvancedAI ai
-                    && ai.getDifficulty() == AdvancedAI.DIFFICULTY_HARD) {
+                    && current.getAI().orElse(null) instanceof AdvancedAI ai
+                    && ai.getDifficulty() == Difficulty.HARD) {
                 if (ai_team == -1) {
                     ai_team = current.getPlayerInfo().getTeam();
                     hard_ais_on_same_team++;

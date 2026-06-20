@@ -9,8 +9,7 @@ import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
-import org.joml.Vector4f;
-import org.joml.Vector4fc;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
@@ -21,7 +20,7 @@ import java.util.ResourceBundle;
  */
 public final class CountdownDelegate extends CameraDelegate<Camera> {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(CountdownDelegate.class.getName());
-    private static final Vector4fc OVERLAY_COLOR = new Vector4f(0f, 0f, 0f, 0.5f);
+    private static final Color.Linear OVERLAY_COLOR = new Color.Standard(0f, 0f, 0f, 0.5f).linear();
 
     private final WorldViewer viewer;
     private final Label countdown_label;

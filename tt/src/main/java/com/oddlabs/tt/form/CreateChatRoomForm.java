@@ -15,7 +15,7 @@ import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
-import com.oddlabs.tt.net.Network;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
@@ -96,7 +96,7 @@ public final class CreateChatRoomForm extends Form {
             String min_name_error = i18n("min_name_error", MatchmakingServerInterface.MIN_ROOM_NAME_LENGTH);
             gui_root.addModalForm(new MessageForm(min_name_error));
         } else {
-            Network.getMatchmakingClient().joinRoom(gui_root, name);
+            Renderer.getRenderer().getNetwork().getMatchmakingClient().joinRoom(gui_root, name);
         }
         main_menu.setMenuCentered(menu);
     }

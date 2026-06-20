@@ -1,3 +1,4 @@
+// MERGE TODO: Get file using the enums that were setup by bondolo
 package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.Game;
@@ -14,7 +15,6 @@ import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gamemode.PresetLibrary;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.CheckBox;
 import com.oddlabs.tt.gui.EditLine;
@@ -30,6 +30,7 @@ import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PanelGroup;
 import com.oddlabs.tt.gui.PulldownButton;
 import com.oddlabs.tt.gui.PulldownItem;
+import com.oddlabs.tt.model.Gamespeed;
 import com.oddlabs.tt.gui.PulldownMenu;
 import com.oddlabs.tt.gui.ScrollableGroup;
 import com.oddlabs.tt.gui.ScrollablePulldownMenu;
@@ -39,12 +40,12 @@ import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.ValueListener;
 import com.oddlabs.tt.landscape.WorldParameters;
+import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
+import com.oddlabs.tt.model.Terrain;
 import com.oddlabs.tt.net.GameNetwork;
-import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.player.Player;
-import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
@@ -58,6 +59,7 @@ import org.jspecify.annotations.Nullable;
 import java.math.BigInteger;
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.UUID;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
@@ -67,6 +69,9 @@ import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 import static com.oddlabs.tt.gui.Placement.TOP_LEFT;
 import static com.oddlabs.tt.gui.Placement.TOP_MID;
 
+/**
+ * UI menu for configuring and starting single-player and multiplayer games.
+ */
 public final class TerrainMenu extends Group {
     private static final int[] SIZES = new int[]{256, 512, 1024, 2048};
 
@@ -86,6 +91,38 @@ public final class TerrainMenu extends Group {
     private static final @NonNull BigInteger MAX_VALUE;
     private static final @NonNull BigInteger MAX_VALUE_LEGACY;
 
+    private enum SlotDifficultyOption {
+        CLOSED(0, PlayerSlot.AI_NONE),
+        EASY_AI(1, PlayerSlot.AI_EASY),
+        NORMAL_AI(2, PlayerSlot.AI_NORMAL),
+        HARD_AI(3, PlayerSlot.AI_HARD);
+
+        private final int index;
+        private final int aiDifficulty;
+
+        SlotDifficultyOption(int index, int aiDifficulty) {
+            this.index = index;
+            this.aiDifficulty = aiDifficulty;
+        }
+
+        int getIndex() {
+            return index;
+        }
+
+        int getAIDifficulty() {
+            return aiDifficulty;
+        }
+
+        static @NonNull SlotDifficultyOption fromIndex(int index) {
+            for (SlotDifficultyOption option : values()) {
+                if (option.index == index) {
+                    return option;
+                }
+            }
+            throw new IllegalArgumentException("Unknown SlotDifficultyOption index: " + index);
+        }
+    }
+
     private static final ResourceBundle bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
 
     private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
@@ -95,24 +132,25 @@ public final class TerrainMenu extends Group {
     private final @Nullable Menu main_menu;
     private final @Nullable TerrainMenuListener owner;
 
-    private final @NonNull PulldownMenu<Void> pulldown_size;
+    private final @NonNull PulldownMenu<Integer> pulldown_size;
     private final @NonNull EditLine editline_name;
-    private final @NonNull PulldownMenu<Void> pm_terrain_type;
+    private final @NonNull PulldownMenu<Terrain> pm_terrain;
     private final @NonNull Slider slider_hills;
     private final @NonNull Slider slider_vegetation;
     private final @NonNull Slider slider_supplies;
     private final @NonNull Label label_mapcode;
     private final @NonNull HorizButton button_ok;
-    private final @NonNull PulldownMenu<Void> @NonNull [] difficulty_pulldown_menus;
-    private final @NonNull PulldownMenu<Void> @NonNull [] race_pulldown_menus;
-    private final @NonNull PulldownMenu<Void> @NonNull [] team_pulldown_menus;
-    private final @NonNull PulldownButton<Void> @NonNull [] difficulty_pulldown_buttons;
-    private final @NonNull PulldownButton<Void> @NonNull [] race_pulldown_buttons;
-    private final @NonNull PulldownButton<Void> @NonNull [] team_pulldown_buttons;
+    private final @NonNull PulldownMenu<SlotDifficultyOption> @NonNull [] difficulty_pulldown_menus;
+    private final @NonNull PulldownButton<Race> @NonNull [] race_pulldown_buttons;
+    private final @NonNull PulldownMenu<Race> @NonNull [] race_pulldown_menus;
+    private final @NonNull PulldownMenu<Integer> @NonNull [] team_pulldown_menus;
+    private final @NonNull PulldownButton<Integer> @NonNull [] team_pulldown_buttons;
+    // MERGE TODO: ENUM THIS
+    private final @NonNull PulldownButton<SlotDifficultyOption> @NonNull [] difficulty_pulldown_buttons;
     private final @NonNull Label @NonNull [] labels_players;
     private final @NonNull CheckBox cb_rated;
     private final boolean multiplayer;
-    private final @NonNull PulldownMenu<Void> pm_gamespeed;
+    private final @NonNull PulldownMenu<Gamespeed> pm_gamespeed;
     private final @NonNull GUIRoot gui_root;
     private final @NonNull NetworkSelector network;
     private final @NonNull PresetLibrary preset_library = new PresetLibrary();
@@ -183,7 +221,8 @@ public final class TerrainMenu extends Group {
         editline_name = new EditLine(180, Game.MAX_LENGTH);
         if (multiplayer) {
             standard.addChild(label_name);
-            String default_name = i18n("default_name", Network.getMatchmakingClient().getProfile().getNick());
+            String default_name = i18n("default_name", Renderer.getRenderer().getNetwork().getMatchmakingClient()
+                    .getProfile().getNick());
             label_default_name = new Label(default_name, Skin.getSkin().getEditFont());
             editline_name.append(default_name);
             if (Renderer.isRegistered())
@@ -195,8 +234,9 @@ public final class TerrainMenu extends Group {
         cb_rated = new CheckBox(false, i18n("rated_game"), rated_tip);
         if (multiplayer) {
             standard.addChild(cb_rated);
-            cb_rated.setDisabled(Network.getMatchmakingClient().getProfile() == null
-                    || Network.getMatchmakingClient().getProfile().getWins() < GameSession.MIN_WINS_FOR_RANKING);
+            cb_rated.setDisabled(Renderer.getRenderer().getNetwork().getMatchmakingClient().getProfile() == null
+                    || Renderer.getRenderer().getNetwork().getMatchmakingClient().getProfile().getWins()
+                            < GameSession.MIN_WINS_FOR_RANKING);
         }
 
         // gamespeed
@@ -204,10 +244,15 @@ public final class TerrainMenu extends Group {
         Label label_gamespeed = new Label(i18n("gamespeed"), Skin.getSkin().getEditFont());
         group_gamespeed.addChild(label_gamespeed);
         pm_gamespeed = new PulldownMenu<>();
-        pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_SLOW)));
-        pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_NORMAL)));
-        pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_FAST)));
-        pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_LUDICROUS)));
+        pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_SLOW),
+                Gamespeed.SLOW));
+        pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_NORMAL),
+                Gamespeed.NORMAL));
+        pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_FAST),
+                Gamespeed.FAST));
+        pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_LUDICROUS),
+                Gamespeed.LUDICROUS));
+        // MERGE TODO: Verify speed is pulling properly from game settings
         // Default the pulldown to the player's game speed setting from the options menu.
         int gamespeed_index = Math.clamp(Globals.gamespeed - Game.GAMESPEED_SLOW, 0,
                 Game.GAMESPEED_LUDICROUS - Game.GAMESPEED_SLOW);
@@ -228,10 +273,11 @@ public final class TerrainMenu extends Group {
         group_size.addChild(label_size);
 
         pulldown_size = new PulldownMenu<>();
-        pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_SMALL)));
-        pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_MEDIUM)));
-        pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_LARGE)));
-        pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_ENORMOUS)));
+        pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_SMALL), 0));
+        pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_MEDIUM), 1));
+        pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_LARGE), 2));
+        pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_ENORMOUS), 3));
+
 
         var pb_size = new PulldownButton<>(gui_root, pulldown_size, 1, 150);
         group_size.addChild(pb_size);
@@ -239,7 +285,7 @@ public final class TerrainMenu extends Group {
         pb_size.place(label_size, RIGHT_MID);
         group_size.compileCanvas();
         group_map_options.addChild(group_size);
-        pulldown_size.addItemChosenListener(new PulldownUpdateMapcodeListener());
+        pulldown_size.addItemChosenListener((_, _) -> setMapcode());
 
         // seed
         Label label_seed = new Label(i18n("map_code"), Skin.getSkin().getEditFont());
@@ -257,17 +303,17 @@ public final class TerrainMenu extends Group {
         Group group_terrain_type = new Group();
         Label label_terrain_type = new Label(i18n("terrain_type"), Skin.getSkin().getEditFont());
         group_terrain_type.addChild(label_terrain_type);
-        pm_terrain_type = new PulldownMenu<>();
-        pm_terrain_type.addItem(new PulldownItem<>(ServerMessageBundler.getTerrainTypeString(
-                Game.TERRAIN_TYPE_NATIVE)));
-        pm_terrain_type.addItem(new PulldownItem<>(ServerMessageBundler.getTerrainTypeString(
-                Game.TERRAIN_TYPE_VIKING)));
-        var pb_terrain_type = new PulldownButton<>(gui_root, pm_terrain_type, 0, 150);
+        pm_terrain = new PulldownMenu<>();
+        pm_terrain.addItem(new PulldownItem<>(ServerMessageBundler.getTerrainTypeString(
+                Game.TERRAIN_TYPE_NATIVE), Terrain.NATIVE));
+        pm_terrain.addItem(new PulldownItem<>(ServerMessageBundler.getTerrainTypeString(
+                Game.TERRAIN_TYPE_VIKING), Terrain.VIKING));
+        var pb_terrain_type = new PulldownButton<>(gui_root, pm_terrain, 0, 150);
         group_terrain_type.addChild(pb_terrain_type);
         label_terrain_type.place();
         pb_terrain_type.place(label_terrain_type, RIGHT_MID);
         group_terrain_type.compileCanvas();
-        pm_terrain_type.addItemChosenListener(new PulldownUpdateMapcodeListener());
+        pm_terrain.addItemChosenListener((_, _) -> setMapcode());
         group_map_options.addChild(group_terrain_type);
 
         Group group_sliders = new Group();
@@ -424,10 +470,10 @@ public final class TerrainMenu extends Group {
         randomize();
 
         // set standard game
-        pulldown_size.addItemChosenListener(new PulldownUpdateSizeListener());
-        pm_terrain_type.addItemChosenListener(new PulldownUpdateTerrainListener());
+        pulldown_size.addItemChosenListener(new PulldownUpdateSizeListener<>());
+        pm_terrain.addItemChosenListener(new PulldownUpdateTerrainListener<>());
         for (int i = 0; i < player_count; i++) {
-            difficulty_pulldown_menus[i].addItemChosenListener(new PulldownUpdateHardListener());
+            difficulty_pulldown_menus[i].addItemChosenListener(new PulldownUpdateHardListener<>());
             team_pulldown_menus[i].chooseItem(defaultTeam(i));
             if (!multiplayer && i == 1) {
                 difficulty_pulldown_menus[i].chooseItem(PlayerSlot.AI_EASY);
@@ -439,7 +485,7 @@ public final class TerrainMenu extends Group {
         }
         pulldown_size.chooseItem(1);
         if (!Renderer.isRegistered())
-            pm_terrain_type.chooseItem(0);
+            pm_terrain.chooseItem(0);
 
         cb_rated.addCheckBoxListener(_ -> markModified());
         initialized = true;
@@ -475,10 +521,10 @@ public final class TerrainMenu extends Group {
         int supplies_amount = slider_supplies.getValue();
         result = result.add((new BigInteger(new byte[]{(byte) supplies_amount})).multiply(max_val));
         max_val = max_val.multiply(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
-        int terrain_type = pm_terrain_type.getChosenItemIndex();
+        int terrain_type = pm_terrain.getChosenItem().map(PulldownItem::getAttachment).map(Terrain::getValue).orElse(0);
         result = result.add((new BigInteger(new byte[]{(byte) terrain_type})).multiply(max_val));
         max_val = max_val.multiply(new BigInteger(new byte[]{TERRAIN_TYPE_CARDINALITY}));
-        int size = pulldown_size.getChosenItemIndex();
+        int size = pulldown_size.getChosenItem().map(PulldownItem::getAttachment).orElse(1);
         result = result.add((new BigInteger(new byte[]{(byte) size})).multiply(max_val));
 
         String code = WordsEncoding.encode(result);
@@ -501,7 +547,7 @@ public final class TerrainMenu extends Group {
         int supplies_amount = slider_supplies.getValue();
         result = result.add((new BigInteger(new byte[]{(byte) supplies_amount})).multiply(max_val));
         max_val = max_val.multiply(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
-        int terrain_type = pm_terrain_type.getChosenItemIndex();
+        int terrain_type = pm_terrain.getChosenItemIndex();
         result = result.add((new BigInteger(new byte[]{(byte) terrain_type})).multiply(max_val));
         max_val = max_val.multiply(new BigInteger(new byte[]{TERRAIN_TYPE_CARDINALITY_LEGACY}));
         int size = pulldown_size.getChosenItemIndex();
@@ -510,17 +556,18 @@ public final class TerrainMenu extends Group {
         int player_race = race_pulldown_menus[0].getChosenItemIndex();
         result = result.add((new BigInteger(new byte[]{(byte) player_race})).multiply(max_val));
         max_val = max_val.multiply(new BigInteger(new byte[]{RACE_CARDINALITY}));
-        int player_team = team_pulldown_menus[0].getChosenItemIndex();
+        int player_team = team_pulldown_menus[0].getChosenItem().map(PulldownItem::getAttachment).orElse(0);
         result = result.add((new BigInteger(new byte[]{(byte) player_team})).multiply(max_val));
         max_val = max_val.multiply(new BigInteger(new byte[]{TEAM_CARDINALITY}));
         for (int i = 1; i < DEFAULT_PLAYER_COUNT; i++) {
             int difficulty = difficulty_pulldown_menus[i].getChosenItemIndex();
             result = result.add((new BigInteger(new byte[]{(byte) difficulty})).multiply(max_val));
             max_val = max_val.multiply(new BigInteger(new byte[]{DIFFICULTY_CARDINALITY}));
-            int race = race_pulldown_menus[i].getChosenItemIndex();
+            int race = race_pulldown_menus[i].getChosenItem().map(PulldownItem::getAttachment).map(Race::ordinal)
+                    .orElse(0);
             result = result.add((new BigInteger(new byte[]{(byte) race})).multiply(max_val));
             max_val = max_val.multiply(new BigInteger(new byte[]{RACE_CARDINALITY}));
-            int team = team_pulldown_menus[i].getChosenItemIndex();
+            int team = team_pulldown_menus[i].getChosenItem().map(PulldownItem::getAttachment).orElse(0);
             result = result.add((new BigInteger(new byte[]{(byte) team})).multiply(max_val));
             max_val = max_val.multiply(new BigInteger(new byte[]{TEAM_CARDINALITY}));
         }
@@ -547,7 +594,7 @@ public final class TerrainMenu extends Group {
                 label_mapcode.clear();
                 label_mapcode.append(text);
             } catch (IllegalArgumentException _) {
-                // Invalid word code — ignore
+                // Invalid word code � ignore
             }
         }
     }
@@ -563,8 +610,8 @@ public final class TerrainMenu extends Group {
         result = result.mod(max_val);
         max_val = max_val.divide(new BigInteger(new byte[]{TERRAIN_TYPE_CARDINALITY}));
         int terrain_type = result.divide(max_val).intValue();
-        if (pm_terrain_type.getSize() > terrain_type) {
-            pm_terrain_type.chooseItem(terrain_type);
+        if (pm_terrain.getSize() > terrain_type) {
+            pm_terrain.chooseItem(terrain_type);
         }
         result = result.mod(max_val);
         max_val = max_val.divide(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
@@ -597,8 +644,9 @@ public final class TerrainMenu extends Group {
             result = result.mod(max_val);
             max_val = max_val.divide(new BigInteger(new byte[]{DIFFICULTY_CARDINALITY}));
             int difficulty = result.divide(max_val).intValue();
-            difficulty_pulldown_menus[i].chooseItem(difficulty);
-            if (difficulty == 0) {
+            SlotDifficultyOption option = SlotDifficultyOption.fromIndex(difficulty);
+            difficulty_pulldown_menus[i].chooseItem(option.getIndex());
+            if (option == SlotDifficultyOption.CLOSED) {
                 labels_players[i].setDisabled(true);
                 race_pulldown_buttons[i].setDisabled(true);
                 team_pulldown_buttons[i].setDisabled(true);
@@ -623,7 +671,7 @@ public final class TerrainMenu extends Group {
         result = result.mod(max_val);
         max_val = max_val.divide(new BigInteger(new byte[]{TERRAIN_TYPE_CARDINALITY_LEGACY}));
         int terrain_type = result.divide(max_val).intValue();
-        pm_terrain_type.chooseItem(terrain_type);
+        pm_terrain.chooseItem(terrain_type);
         result = result.mod(max_val);
         max_val = max_val.divide(new BigInteger(new byte[]{SLIDER_CARDINALITY}));
         int supplies_amount = result.divide(max_val).intValue();
@@ -686,8 +734,8 @@ public final class TerrainMenu extends Group {
             difficulty_pulldown_buttons[i] = new PulldownButton<>(gui_root, difficulty_pulldown_menus[i], 0, 115);
             inner.addChild(difficulty_pulldown_buttons[i]);
 
-            for (int j = 0; j < RacesResources.getNumRaces(); j++) {
-                race_pulldown_menus[i].addItem(new PulldownItem<>(RacesResources.getRaceName(j)));
+            for (Race race : Race.values()) {
+                race_pulldown_menus[i].addItem(new PulldownItem<>(RacesResources.getRaceName(race), race));
             }
 
             race_pulldown_buttons[i] = new PulldownButton<>(gui_root, race_pulldown_menus[i], 0, 115);
@@ -700,7 +748,7 @@ public final class TerrainMenu extends Group {
             inner.addChild(team_pulldown_buttons[i]);
             if (i == 0) {
                 labels_players[0] = new Label(i18n("player", Integer.toString(1)),
-                        Skin.getSkin().getEditFont()).setColor(Settings.getSettings().team_colours[0]);
+                        Skin.getSkin().getEditFont()).setColor(Renderer.getRenderer().getSettings().team_colours[0]);
                 inner.addChild(labels_players[0]);
                 labels_players[0].place();
                 difficulty_pulldown_buttons[0].place(labels_players[0], RIGHT_MID);
@@ -708,25 +756,24 @@ public final class TerrainMenu extends Group {
                 team_pulldown_buttons[0].place(race_pulldown_buttons[0], RIGHT_MID);
             } else {
                 labels_players[i] = new Label(i18n("player", Integer.toString(i + 1)),
-                        Skin.getSkin().getEditFont()).setColor(Settings.getSettings().team_colours[i]);
+                        Skin.getSkin().getEditFont()).setColor(Renderer.getRenderer().getSettings().team_colours[i]);
                 inner.addChild(labels_players[i]);
                 labels_players[i].place(labels_players[i - 1], BOTTOM_RIGHT);
                 difficulty_pulldown_buttons[i].place(labels_players[i], RIGHT_MID);
                 race_pulldown_buttons[i].place(difficulty_pulldown_buttons[i], RIGHT_MID);
                 team_pulldown_buttons[i].place(race_pulldown_buttons[i], RIGHT_MID);
-                difficulty_pulldown_menus[i].addItemChosenListener(new DisableListener(i));
+                difficulty_pulldown_menus[i].addItemChosenListener(new DisableListener<>(i));
             }
-            difficulty_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
-            race_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
-            team_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
+            difficulty_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener<>());
+            race_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener<>());
+            team_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener<>());
         }
         inner.compileCanvas();
         return inner;
     }
 
     private void randomize() {
-        Random random = new Random(
-                LocalEventQueue.getQueue().getHighPrecisionManager().getTick() * (long) LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
+        var random = ThreadLocalRandom.current();
         random.nextInt();
         BigInteger rand_int = new BigInteger(100, random);
         parseBigIntegerLegacy(rand_int);
@@ -734,8 +781,10 @@ public final class TerrainMenu extends Group {
     }
 
     void doCancel() {
-        if (multiplayer)
+        if (multiplayer) {
+            assert main_menu != null;
             new SelectGameMenu(network, gui_root, main_menu);
+        }
     }
 
     /**
@@ -749,19 +798,22 @@ public final class TerrainMenu extends Group {
         return i == 0 ? 0 : 1;
     }
 
-    private boolean isChosen(@NonNull PulldownMenu<Void> menu) {
-        return menu.getChosenItemIndex() != 0;
+    private boolean isChosen(@NonNull PulldownMenu<SlotDifficultyOption> menu) {
+        return menu.getChosenItem().map(PulldownItem::getAttachment).orElse(SlotDifficultyOption.CLOSED)
+                != SlotDifficultyOption.CLOSED;
     }
 
     public boolean startGame() {
         int hills = slider_hills.getValue();
         int vegetation_amount = slider_vegetation.getValue();
         int supplies_amount = slider_supplies.getValue();
-        Landscape.TerrainType terrain_type = Landscape.TerrainType.values()[pm_terrain_type.getChosenItemIndex()];
+        Terrain terrain = pm_terrain.getChosenItem().map(PulldownItem::getAttachment).orElse(Terrain.NATIVE);
         Game game;
         boolean rated = cb_rated.isMarked();
-        if (rated)
-            team_pulldown_menus[0].chooseItem(team_pulldown_menus[0].getChosenItemIndex() % 2);
+        if (rated) {
+            int first_team = team_pulldown_menus[0].getChosenItem().map(PulldownItem::getAttachment).orElse(0);
+            team_pulldown_menus[0].chooseItem(first_team % 2);
+        }
         if (multiplayer) {
             String game_name = editline_name.getContents();
             if (game_name.length() < Game.MIN_LENGTH) {
@@ -771,7 +823,7 @@ public final class TerrainMenu extends Group {
             }
             float random_start_pos = LocalEventQueue.getQueue().getTime() % 1f;
             game = Game.builder().name(game_name).size((byte) pulldown_size.getChosenItemIndex()).terrain(
-                    (byte) terrain_type.ordinal()).hills((byte) hills).trees((byte) vegetation_amount).supplies(
+                    (byte) terrain.getValue()).hills((byte) hills).trees((byte) vegetation_amount).supplies(
                             (byte) supplies_amount).rated(rated).gamespeed(
                                     (byte) (pm_gamespeed.getChosenItemIndex() + 1)).mapcode(
                                             label_mapcode.getContents()).randomStartPos(random_start_pos).maxUnitCount(
@@ -798,8 +850,9 @@ public final class TerrainMenu extends Group {
         if (multiplayer)
             menu = (SelectGameMenu) owner;
         int gametype;
-        IO.println(
-                "hills = " + hills / (float) SLIDER_MAX_VALUE + " | vegetation_amount = " + vegetation_amount / (float) SLIDER_MAX_VALUE + " | supplies_amount = " + supplies_amount / (float) SLIDER_MAX_VALUE + " | seed = " + seed * seed);
+        IO.println("hills = " + hills / (float) SLIDER_MAX_VALUE + " | vegetation_amount = " + vegetation_amount
+                / (float) SLIDER_MAX_VALUE + " | supplies_amount = " + supplies_amount / (float) SLIDER_MAX_VALUE
+                + " | seed = " + seed * seed);
         String ai_string = i18n("ai");
         String[] ai_names = new String[MatchmakingServerInterface.MAX_PLAYERS];
         for (int i = 0; i < ai_names.length; i++) {
@@ -817,7 +870,7 @@ public final class TerrainMenu extends Group {
                 new Menu.DefaultWorldInitAction(),
                 game,
                 SIZES[pulldown_size.getChosenItemIndex()],
-                terrain_type,
+                terrain,
                 hills / (float) SLIDER_MAX_VALUE,
                 vegetation_amount / (float) SLIDER_MAX_VALUE,
                 supplies_amount / (float) SLIDER_MAX_VALUE,
@@ -861,7 +914,7 @@ public final class TerrainMenu extends Group {
         }
     }
 
-    private final class DisableListener implements ItemChosenListener<Void> {
+    private final class DisableListener<T> implements ItemChosenListener<T> {
         final int i;
 
         public DisableListener(int i) {
@@ -869,7 +922,7 @@ public final class TerrainMenu extends Group {
         }
 
         @Override
-        public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
+        public void itemChosen(@NonNull PulldownMenu<T> menu, int item_index) {
             // Closed slots grey out race/team. Open (MP index 0) keeps them enabled; they define what a joiner
             // inherits. Closed is index 0 in SP, index 1 in MP (Open occupies 0).
             int closed_index = multiplayer ? 1 : 0;
@@ -880,28 +933,28 @@ public final class TerrainMenu extends Group {
         }
     }
 
-    private final class PulldownUpdateMapcodeListener implements ItemChosenListener<Void> {
+    private final class PulldownUpdateMapcodeListener<T> implements ItemChosenListener<T> {
         @Override
-        public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
+        public void itemChosen(@NonNull PulldownMenu<T> menu, int item_index) {
             setMapcode();
         }
     }
 
-    private static final class PulldownUpdateSizeListener implements ItemChosenListener<Void> {
+    private static final class PulldownUpdateSizeListener<T> implements ItemChosenListener<T> {
         @Override
-        public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
+        public void itemChosen(@NonNull PulldownMenu<T> menu, int item_index) {
         }
     }
 
-    private static final class PulldownUpdateHardListener implements ItemChosenListener<Void> {
+    private static final class PulldownUpdateHardListener<T> implements ItemChosenListener<T> {
         @Override
-        public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
+        public void itemChosen(@NonNull PulldownMenu<T> menu, int item_index) {
         }
     }
 
-    private static final class PulldownUpdateTerrainListener implements ItemChosenListener<Void> {
+    private static final class PulldownUpdateTerrainListener<T> implements ItemChosenListener<T> {
         @Override
-        public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
+        public void itemChosen(@NonNull PulldownMenu<T> menu, int item_index) {
         }
     }
 
@@ -1019,7 +1072,7 @@ public final class TerrainMenu extends Group {
 
     private @NonNull WorldConfig snapshotWorldConfig() {
         return WorldConfig.builder().gamespeed(pm_gamespeed.getChosenItemIndex()).islandSize(
-                pulldown_size.getChosenItemIndex()).terrainType(pm_terrain_type.getChosenItemIndex()).hills(
+                pulldown_size.getChosenItemIndex()).terrainType(pm_terrain.getChosenItemIndex()).hills(
                         slider_hills.getValue()).vegetation(slider_vegetation.getValue()).supplies(
                                 slider_supplies.getValue()).build();
     }
@@ -1030,7 +1083,7 @@ public final class TerrainMenu extends Group {
         // instead of silently leaving the prior value.
         pm_gamespeed.chooseItem(clampIndex(world.getGamespeed(), pm_gamespeed.getSize()));
         pulldown_size.chooseItem(clampIndex(world.getIslandSize(), pulldown_size.getSize()));
-        pm_terrain_type.chooseItem(clampIndex(world.getTerrainType(), pm_terrain_type.getSize()));
+        pm_terrain.chooseItem(clampIndex(world.getTerrainType(), pm_terrain.getSize()));
         slider_hills.setValue(world.getHills());
         slider_vegetation.setValue(world.getVegetation());
         slider_supplies.setValue(world.getSupplies());

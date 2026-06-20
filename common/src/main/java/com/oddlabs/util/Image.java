@@ -84,7 +84,7 @@ public final class Image implements Serializable {
         data.rewind();
         ByteBuffer split = splitIntoPlanes();
         split.rewind();
-        stream.write(split.array());
+        stream.write(split.array(), split.arrayOffset(), split.remaining());
     }
 
     @Serial

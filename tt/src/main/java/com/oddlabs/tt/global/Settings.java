@@ -5,8 +5,6 @@ import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.util.Color;
-import org.joml.Vector4f;
-import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
@@ -25,14 +23,25 @@ import java.util.Properties;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+/**
+ * Global game settings and configuration persistence.
+ */
 public final class Settings implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private static Settings settings;
-
     // event logging
     private static final Logger logger = Logger.getLogger(Settings.class.getName());
+
+    public static final Color.Standard[] DEFAULT_TEAM_COLOURS = {
+            new Color.Standard(0xFFFFBF00), /* Orange */
+            new Color.Standard(0xFF007FFF), /* Royal Blue */
+            new Color.Standard(0xFFFF0040), /* Red */
+            new Color.Standard(0xFF00FFBF), /* Teal */
+            new Color.Standard(0xFFBF00FF), /* Purple */
+            new Color.Standard(0xFFBFFF00) /* Lime */
+    };
+
     public transient @NonNull Path last_event_log_dir = Path.of("");
     public int last_revision = -1;
     public boolean crashed = false;
@@ -59,6 +68,7 @@ public final class Settings implements Serializable {
     public int view_width = -1;
     public int view_height = -1;
     public int view_freq = -1;
+    public int view_samples = 4;
 
     public int new_view_width = view_width;
     public int new_view_height = view_height;
@@ -67,7 +77,6 @@ public final class Settings implements Serializable {
 
     public boolean fullscreen = true;
     public final boolean vsync = true;
-    public int view_samples = 4;
 //	public int view_bpp = 32;
 
     // control
@@ -108,58 +117,42 @@ public final class Settings implements Serializable {
     public float cvd_intensity = 1.0f;
     public boolean high_contrast = false;
     public float contrast_intensity = 0.5f;
+    public boolean invert_colours = false;
+    public float contrast_brightness = 0.0f;
+    public float contrast_clarity = 0.0f;
     public boolean team_stencil = false;
+    public boolean sound_emojis = true;
 
-    public static final Vector4f[] DEFAULT_TEAM_COLOURS = generateDefaultColours();
+    public Color.@NonNull Standard @NonNull [] team_colours = generateTeamColours();
 
-    private static Vector4f[] generateDefaultColours() {
-        // 18 hand-picked colours that are visually distinct on terrain
-        Vector4f[] handPicked = {Color.argb4v(0xFFFFBF00), /*  0 Orange */
-                Color.argb4v(0xFF007FFF), /*  1 Royal Blue */
-                Color.argb4v(0xFFFF0040), /*  2 Red */
-                Color.argb4v(0xFF00FFBF), /*  3 Teal */
-                Color.argb4v(0xFFBF00FF), /*  4 Purple */
-                Color.argb4v(0xFFBFFF00), /*  5 Lime */
-                Color.argb4v(0xFFFFFF00), /*  6 Yellow */
-                Color.argb4v(0xFFFF69B4), /*  7 Hot Pink */
-                Color.argb4v(0xFF006400), /*  8 Dark Green */
-                Color.argb4v(0xFF8B0000), /*  9 Maroon */
-                Color.argb4v(0xFF00BFFF), /* 10 Sky Blue */
-                Color.argb4v(0xFFFFFFFF), /* 11 White */
-                Color.argb4v(0xFF000080), /* 12 Navy */
-                Color.argb4v(0xFFFF7F50), /* 13 Coral */
-                Color.argb4v(0xFFFFD700), /* 14 Gold */
-                Color.argb4v(0xFFFF00FF), /* 15 Magenta */
-                Color.argb4v(0xFF228B22), /* 16 Forest Green */
-                Color.argb4v(0xFF708090), /* 17 Slate */
-        };
-        // Use the hand-picked palette up to MAX_PLAYERS; if MAX_PLAYERS exceeds the
-        // hand-picked count, fill remaining slots with evenly-spaced HSB-generated colours.
-        Vector4f[] all = new Vector4f[MatchmakingServerInterface.MAX_PLAYERS];
-        int copyCount = Math.min(handPicked.length, all.length);
-        System.arraycopy(handPicked, 0, all, 0, copyCount);
+    /**
+     * Builds the team-colour palette sized to {@link MatchmakingServerInterface#MAX_PLAYERS}. Uses the hand-picked
+     * {@link #DEFAULT_TEAM_COLOURS} for the first slots and fills any remaining slots with evenly-spaced
+     * HSB-generated colours.
+     */
+    private static Color.@NonNull Standard @NonNull [] generateTeamColours() {
+        Color.Standard[] all = new Color.Standard[MatchmakingServerInterface.MAX_PLAYERS];
+        int copyCount = Math.min(DEFAULT_TEAM_COLOURS.length, all.length);
+        System.arraycopy(DEFAULT_TEAM_COLOURS, 0, all, 0, copyCount);
         for (int i = copyCount; i < all.length; i++) {
-            float hue = (i - handPicked.length) / (float) (all.length - handPicked.length);
+            float hue = (i - DEFAULT_TEAM_COLOURS.length) / (float) (all.length - DEFAULT_TEAM_COLOURS.length);
             int rgb = java.awt.Color.HSBtoRGB(hue, 0.8f, 0.9f);
-            all[i] = Color.argb4v(0xFF000000 | (rgb & 0x00FFFFFF));
+            all[i] = new Color.Standard(0xFF000000 | (rgb & 0x00FFFFFF));
         }
         return all;
     }
 
-    public Vector4f @NonNull [] team_colours = new Vector4f[DEFAULT_TEAM_COLOURS.length];
+    public transient Color.Linear @NonNull [] linear_team_colours = Arrays.stream(team_colours)
+            .map(Color.Linear::new)
+            .toArray(Color.Linear[]::new);
 
     public Settings() {
-        for (int i = 0; i < DEFAULT_TEAM_COLOURS.length; i++) {
-            team_colours[i] = new Vector4f(DEFAULT_TEAM_COLOURS[i]);
-        }
     }
 
-    public static void setSettings(Settings new_settings) {
-        settings = new_settings;
-    }
-
-    public static Settings getSettings() {
-        return settings;
+    public void updateLinearColors() {
+        linear_team_colours = Arrays.stream(team_colours)
+                .map(Color.Linear::new)
+                .toArray(Color.Linear[]::new);
     }
 
     public boolean inDeveloperMode() {
@@ -195,7 +188,7 @@ public final class Settings implements Serializable {
     }
 
     public void save() {
-        if (LocalEventQueue.getQueue().getDeterministic().isPlayback())
+        if (Renderer.getRenderer().getEventQueue().getDeterministic().isPlayback())
             return;
         Settings defaults = new Settings();
         Properties props = new Properties();
@@ -239,7 +232,11 @@ public final class Settings implements Serializable {
         setProperty(props, "cvd_intensity", cvd_intensity, defaults.cvd_intensity);
         setProperty(props, "high_contrast", high_contrast, defaults.high_contrast);
         setProperty(props, "contrast_intensity", contrast_intensity, defaults.contrast_intensity);
+        setProperty(props, "invert_colours", invert_colours, defaults.invert_colours);
+        setProperty(props, "contrast_brightness", contrast_brightness, defaults.contrast_brightness);
+        setProperty(props, "contrast_clarity", contrast_clarity, defaults.contrast_clarity);
         setProperty(props, "team_stencil", team_stencil, defaults.team_stencil);
+        setProperty(props, "sound_emojis", sound_emojis, defaults.sound_emojis);
         setProperty(props, "team_colours", team_colours, defaults.team_colours);
 
         Renderer.getLocalInput().getInputManager().saveBindings(props);
@@ -304,8 +301,13 @@ public final class Settings implements Serializable {
         cvd_intensity = getFloat(props, "cvd_intensity", cvd_intensity);
         high_contrast = getBoolean(props, "high_contrast", high_contrast);
         contrast_intensity = getFloat(props, "contrast_intensity", contrast_intensity);
+        invert_colours = getBoolean(props, "invert_colours", invert_colours);
+        contrast_brightness = getFloat(props, "contrast_brightness", contrast_brightness);
+        contrast_clarity = getFloat(props, "contrast_clarity", contrast_clarity);
         team_stencil = getBoolean(props, "team_stencil", team_stencil);
+        sound_emojis = getBoolean(props, "sound_emojis", sound_emojis);
         team_colours = getColours(props, "team_colours", team_colours);
+        updateLinearColors();
 
         Renderer.getLocalInput().getInputManager().loadBindings(props);
     }
@@ -342,11 +344,13 @@ public final class Settings implements Serializable {
         }
     }
 
-    private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull Vector4fc @NonNull [] value,
-            @NonNull Vector4fc @NonNull [] defaultValue) {
+    private void setProperty(@NonNull Properties props, @NonNull String key, Color.@NonNull Standard @NonNull [] value,
+            Color.@NonNull Standard @NonNull [] defaultValue) {
         if (!Arrays.equals(value, defaultValue)) {
-            String colors = Arrays.stream(value).mapToInt(Color::argbi).mapToObj(Integer::toHexString).collect(
-                    Collectors.joining(","));
+            String colors = Arrays.stream(value)
+                    .mapToInt(Color.Standard::toInt)
+                    .mapToObj(Integer::toHexString)
+                    .collect(Collectors.joining(","));
 
             props.setProperty(key, colors);
         }
@@ -370,8 +374,8 @@ public final class Settings implements Serializable {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException _) {
-            logger.warning(
-                    "WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+            logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '"
+                    + defaultValue + "'.");
             return defaultValue;
         }
     }
@@ -384,8 +388,8 @@ public final class Settings implements Serializable {
         try {
             return Float.parseFloat(value);
         } catch (NumberFormatException _) {
-            logger.warning(
-                    "WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+            logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '"
+                    + defaultValue + "'.");
             return defaultValue;
         }
     }
@@ -398,32 +402,37 @@ public final class Settings implements Serializable {
         try {
             return Path.of(value);
         } catch (InvalidPathException _) {
-            logger.warning(
-                    "Invalid path for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+            logger.warning("Invalid path for setting '" + key + "': '" + value + "'. Using default value '"
+                    + defaultValue + "'.");
             return defaultValue;
         }
     }
 
-    private static Vector4f @NonNull [] getColours(@NonNull Properties props, @NonNull String key,
-            Vector4f @NonNull [] defaultValue) {
+    private static Color.@NonNull Standard @NonNull [] getColours(@NonNull Properties props, @NonNull String key,
+            Color.@NonNull Standard @NonNull [] defaultValue) {
         String value = props.getProperty(key);
         if (value == null) {
             return defaultValue;
         }
         try {
             String[] hexStrings = value.split(",");
-            Vector4f[] result = new Vector4f[DEFAULT_TEAM_COLOURS.length];
-            for (int i = 0; i < DEFAULT_TEAM_COLOURS.length; i++) {
-                result[i] = new Vector4f(DEFAULT_TEAM_COLOURS[i]);
-            }
-            for (int i = 0; i < Math.min(DEFAULT_TEAM_COLOURS.length, hexStrings.length); i++) {
-                int argb = (int) Long.parseLong(hexStrings[i], 16);
-                result[i] = Color.argb4v(argb);
-            }
+            Color.Standard[] result = new Color.Standard[defaultValue.length];
+            Arrays.setAll(result, i -> {
+                if (i < hexStrings.length) {
+                    try {
+                        int argb = (int) Long.parseLong(hexStrings[i], 16);
+                        return new Color.Standard(argb);
+                    } catch (NumberFormatException _) {
+                        // ignore invalid color constants
+                    }
+                }
+                return defaultValue[i];
+            });
+
             return result;
         } catch (Exception e) {
-            logger.warning(
-                    "WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value. Error: " + e);
+            logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value
+                    + "'. Using default value. Error: " + e);
             return defaultValue;
         }
     }

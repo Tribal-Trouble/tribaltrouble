@@ -6,7 +6,7 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.StaticCamera;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.CampaignDialogForm;
-import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.model.Difficulty;
 import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIIcon;
@@ -26,7 +26,7 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.steam.SteamAchievementNames;
 import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.util.Utils;
-import org.joml.Vector4f;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
     private final List<MapIslandButton> islandButtons = new ArrayList<>();
     private boolean initialFocusSet = false;
 
-    private final Vector4f mapColor = new Vector4f(1f, 1f, 1f, 1f);
+    private Color mapColor = new Color.Standard(0.9f, 0.9f, 0.9f, 1f);
 
     public CampaignMapForm(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Campaign campaign) {
         super(gui_root, new StaticCamera(new CameraState()));
@@ -64,7 +64,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
         this.scale_y = gui_root.getHeight() / BASE_HEIGHT;
 
         switch (campaign.getState().getRace()) {
-            case CampaignState.RACE_VIKINGS -> {
+            case VIKINGS -> {
                 if (campaign.getState().getIslandState(10) != CampaignState.ISLAND_HIDDEN) {
                     addChild(campaign.getIcons().getHiddenRoutes()[0]);
                     addChild(campaign.getIcons().getHiddenRoutes()[1]);
@@ -86,15 +86,15 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
                             Origin.AT_START,
                             runnable_next);
                     SteamManager.unlockAchievement(SteamAchievementNames.COMPLETE_VIKING_CAMPAIGN_NORMAL);
-                    if (campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_HARD) {
+                    if (campaign.getState().getDifficulty() == Difficulty.HARD) {
                         SteamManager.unlockAchievement(SteamAchievementNames.COMPLETE_VIKING_CAMPAIGN_HARD);
                     }
                     gui_root.addModalForm(dialog);
-                    Settings.getSettings().has_native_campaign = true;
+                    Renderer.getRenderer().getSettings().has_native_campaign = true;
                 }
             }
 
-            case CampaignState.RACE_NATIVES -> {
+            case NATIVES -> {
                 if (campaign.getState().getIslandState(7) != CampaignState.ISLAND_HIDDEN) {
                     addChild(campaign.getIcons().getHiddenRoutes()[0]);
                 }
@@ -107,7 +107,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
                             Origin.AT_START,
                             runnable);
                     SteamManager.unlockAchievement(SteamAchievementNames.COMPLETE_NATIVE_CAMPAIGN_NORMAL);
-                    if (campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_HARD) {
+                    if (campaign.getState().getDifficulty() == Difficulty.HARD) {
                         SteamManager.unlockAchievement(SteamAchievementNames.COMPLETE_NATIVE_CAMPAIGN_HARD);
                     }
                     gui_root.addModalForm(dialog);
@@ -122,7 +122,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
             GUIObject island = switch (state) {
                 case CampaignState.ISLAND_AVAILABLE -> {
                     final int index = i;
-                    MapIslandButton button = new MapIslandButton(data.button(), "", index);
+                    MapIslandButton button = new MapIslandButton(data.button(), index);
                     button.addMouseClickListener((_, _, _, _) -> campaign.islandChosen(network, getGUIRoot(), index));
                     addChild(button);
                     islandButtons.add(button);
@@ -308,7 +308,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
     @Override
     public void animate(float t) {
         float flicker = 0.9f;
-        mapColor.set(flicker, flicker, flicker, 1f);
+        mapColor = new Color.Standard(flicker, flicker, flicker, 1f);
     }
 
     @Override

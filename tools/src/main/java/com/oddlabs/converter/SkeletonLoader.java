@@ -67,9 +67,9 @@ public final class SkeletonLoader {
         return new Skeleton(bone_root, initial_pose, name_to_bone_map);
     }
 
-    private static @NonNull Bone buildBone(byte index,
-            @NonNull Map<@NonNull String, @NonNull List<@NonNull String>> bone_children_map, @NonNull String bone_name,
-            @NonNull Map<@NonNull String, @NonNull Bone> name_to_bone_map) {
+    private static @NonNull Bone buildBone(byte index, @NonNull Map<@NonNull String, @NonNull List<
+            @NonNull String>> bone_children_map, @NonNull String bone_name, @NonNull Map<@NonNull String,
+                    @NonNull Bone> name_to_bone_map) {
         List<String> children_list = bone_children_map.getOrDefault(bone_name, List.of());
         Bone[] children_array = new Bone[children_list.size()];
         for (int i = 0; i < children_array.length; i++) {

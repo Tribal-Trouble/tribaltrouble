@@ -82,7 +82,7 @@ public final class PresetCard extends RadioButtonGroupElement {
         private final @NonNull PresetCard card;
 
         DeleteButton(@NonNull PresetCard card) {
-            super(Skin.getSkin().getFormData().formClose());
+            super(Skin.getSkin().getFormData().formClose(), null);
             this.card = card;
         }
 

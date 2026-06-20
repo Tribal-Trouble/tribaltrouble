@@ -1,5 +1,10 @@
 package com.oddlabs.tt.form;
 
+import com.oddlabs.tt.model.Race;
+
+import com.oddlabs.tt.model.Terrain;
+import com.oddlabs.tt.model.UnitType;
+
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.MainMenu;
@@ -13,15 +18,12 @@ import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.landscape.WorldParameters;
-import com.oddlabs.tt.model.Race;
-import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.net.WorldInitAction;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.UnitInfo;
-import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.tutorial.BuildingChieftainTrigger;
 import com.oddlabs.tt.tutorial.PlacingDelegateTrigger;
 import com.oddlabs.tt.tutorial.ScrollTrigger;
@@ -148,7 +150,7 @@ public final class TutorialForm extends Form {
         TutorialInGameInfo ingame_info = new TutorialInGameInfo();
         GameNetwork game_network = doStartNewGame(network, gui_root, ingame_info, new TutorialAction(factory,
                 ingame_info), Player.INITIAL_UNIT_COUNT, tutorial_num);
-        game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN, RacesResources.RACE_NATIVES, 0,
+        game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN, Race.NATIVES.getValue(), 0,
                 true, PlayerSlot.AI_NONE);
         game_network.getClient().getServerInterface().startServer();
     }
@@ -167,10 +169,10 @@ public final class TutorialForm extends Form {
                 initial_action.run(world_viewer);
             MainMenu.completeGameSetupHack(world_viewer);
         };
-        return MainMenu.startNewGame(network, gui_root, null, new WorldParameters(Game.GAMESPEED_NORMAL,
-                "Tutorial" + tutorial_num, initial_unit_count, Player.DEFAULT_MAX_UNIT_COUNT), ingame_info,
-                compound_action, null, size, Landscape.TerrainType.NATIVE, hills, trees, 0f, seed,
-                new String[]{ai_string + "0", ai_string + "1", ai_string + "2", ai_string + "3", ai_string + "4", ai_string + "5"});
+        return MainMenu.startNewGame(network, gui_root, null, new WorldParameters(Game.GAMESPEED_NORMAL, "Tutorial"
+                + tutorial_num, initial_unit_count, Player.DEFAULT_MAX_UNIT_COUNT), ingame_info, compound_action, null,
+                size, Terrain.NATIVE, hills, trees, 0f, seed, new String[]{ai_string + "0", ai_string
+                        + "1", ai_string + "2", ai_string + "3", ai_string + "4", ai_string + "5"});
     }
 
     public static boolean checkTutorial(GUIRoot gui_root, int tutorial_number) {
@@ -181,66 +183,62 @@ public final class TutorialForm extends Form {
         final TutorialInGameInfo ingame_info;
         GameNetwork game_network;
         switch (tutorial_number) {
-            case TUTORIAL_CAMERA:
+            case TUTORIAL_CAMERA ->
                 startNewGame(network, gui_root, (WorldViewer viewer) -> new ScrollTrigger(viewer.getLocalPlayer()), 1);
-                break;
-            case TUTORIAL_QUARTERS:
-                startNewGame(network, gui_root, (WorldViewer viewer) -> new PlacingDelegateTrigger(
-                        viewer.getLocalPlayer()), 2);
-                break;
-            case TUTORIAL_ARMORY:
-                startNewGame(network, gui_root, (WorldViewer viewer) -> new SelectArmoryTrigger(
-                        viewer.getLocalPlayer()), 3);
-                break;
-            case TUTORIAL_TOWER:
+            case TUTORIAL_QUARTERS ->
+                startNewGame(network, gui_root, (WorldViewer viewer) -> new PlacingDelegateTrigger(viewer
+                        .getLocalPlayer()), 2);
+            case TUTORIAL_ARMORY ->
+                startNewGame(network, gui_root, (WorldViewer viewer) -> new SelectArmoryTrigger(viewer
+                        .getLocalPlayer()), 3);
+            case TUTORIAL_TOWER -> {
                 ingame_info = new TutorialInGameInfo();
                 WorldInitAction action = (WorldViewer viewer) -> {
                     Player player = viewer.getLocalPlayer();
-                    new Unit(player, player.getStartX(), player.getStartY(), null, player.getRace().getUnitTemplate(
-                            Race.UNIT_WARRIOR_ROCK));
+                    new Unit(player, player.getStartX(), player.getStartY(), null, player.getRaceInfo().getUnitTemplate(
+                            UnitType.WARRIOR_ROCK));
                     new Tutorial(viewer, ingame_info, new SelectTowerTrigger(viewer.getLocalPlayer()));
                 };
                 game_network = doStartNewGame(network, gui_root, ingame_info, action, 10, 4);
                 game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN,
-                        RacesResources.RACE_NATIVES, 0, true, PlayerSlot.AI_TOWER_TUTORIAL);
+                        Race.NATIVES.getValue(), 0, true, PlayerSlot.AI_TOWER_TUTORIAL);
                 game_network.getClient().setUnitInfo(0, new UnitInfo(false, false, 0, false, 10, 0, 0, 0));
                 game_network.getClient().getServerInterface().setPlayerSlot(1, PlayerSlot.AI,
-                        RacesResources.RACE_VIKINGS, 1, true, PlayerSlot.AI_TOWER_TUTORIAL);
+                        Race.VIKINGS.getValue(), 1, true, PlayerSlot.AI_TOWER_TUTORIAL);
                 game_network.getClient().setUnitInfo(1, new UnitInfo(false, false, 0, false, 0, 0, 0, 0));
                 game_network.getClient().getServerInterface().startServer();
-                break;
-            case TUTORIAL_CHIEFTAIN:
+            }
+            case TUTORIAL_CHIEFTAIN -> {
                 ingame_info = new TutorialInGameInfo();
                 game_network = doStartNewGame(network, gui_root, ingame_info, new TutorialAction((
                         WorldViewer viewer) -> new BuildingChieftainTrigger(viewer.getLocalPlayer()), ingame_info),
                         Player.INITIAL_UNIT_COUNT, 5);
                 game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN,
-                        RacesResources.RACE_NATIVES, 0, true, PlayerSlot.AI_NONE);
+                        Race.NATIVES.getValue(), 0, true, PlayerSlot.AI_NONE);
                 game_network.getClient().getServerInterface().setPlayerSlot(1, PlayerSlot.AI,
-                        RacesResources.RACE_VIKINGS, 1, true, PlayerSlot.AI_CHIEFTAIN_TUTORIAL);
+                        Race.VIKINGS.getValue(), 1, true, PlayerSlot.AI_CHIEFTAIN_TUTORIAL);
                 game_network.getClient().setUnitInfo(1, new UnitInfo(false, false, 0, false, 0, 0, 0, 0));
                 game_network.getClient().getServerInterface().startServer();
-                break;
-            case TUTORIAL_BATTLE:
+            }
+            case TUTORIAL_BATTLE -> {
                 ingame_info = new TutorialInGameInfo();
                 game_network = doStartNewGame(network, gui_root, ingame_info, new TutorialAction((
                         WorldViewer _) -> new TutorialOverTrigger(), ingame_info), Player.INITIAL_UNIT_COUNT, 6);
                 game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN,
-                        RacesResources.RACE_NATIVES, 0, true, PlayerSlot.AI_NONE);
+                        Race.NATIVES.getValue(), 0, true, PlayerSlot.AI_NONE);
                 game_network.getClient().getServerInterface().setPlayerSlot(1, PlayerSlot.AI,
-                        RacesResources.RACE_VIKINGS, 1, true, PlayerSlot.AI_BATTLE_TUTORIAL);
+                        Race.VIKINGS.getValue(), 1, true, PlayerSlot.AI_BATTLE_TUTORIAL);
                 game_network.getClient().setUnitInfo(1, new UnitInfo(true, true, 0, false, 0, 15, 0, 0));
                 game_network.getClient().getServerInterface().startServer();
-                break;
-            default:
-                throw new RuntimeException();
+            }
+            default -> throw new IllegalArgumentException("Unexpected tutorial number:" + tutorial_number);
         }
     }
 
     private final class TutorialListener implements MouseClickListener {
         private final int number;
 
-        public TutorialListener(int number) {
+        TutorialListener(int number) {
             this.number = number;
         }
 

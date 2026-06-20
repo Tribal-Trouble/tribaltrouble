@@ -6,12 +6,14 @@ import com.oddlabs.procedural.Tools;
 import org.jspecify.annotations.NonNull;
 
 public final class Pie {
+    public enum FillType {
+        CIRCLE,
+        FULL
+    }
+
     public final @NonNull Channel channel;
 
-    public static final int CIRCLE = 1;
-    public static final int FULL = 2;
-
-    public Pie(int size, float fill, int filltype) {
+    public Pie(int size, float fill, @NonNull FillType filltype) {
         channel = new Channel(size, size);
         float x_coord, y_coord, radius, angle, value;
         float fade_dist = 1f / size;
@@ -38,35 +40,32 @@ public final class Pie {
                 }
                 value = (float) (0.5f * angle / Math.PI);
                 switch (filltype) {
-                    case CIRCLE:
+                    case CIRCLE -> {
                         if (radius < inner_radius) {
                             if (value < inner_angle) {
                                 channel.putPixel(x, y, 1f);
                             } else if (value >= inner_angle && value <= fill) {
-                                channel.putPixel(x, y, Tools.interpolateLinear(1f, 0f,
-                                        (value - inner_angle) / fade_angle));
+                                channel.putPixel(x, y, Tools.interpolateLinear(1f, 0f, (value - inner_angle)
+                                        / fade_angle));
                             }
                         } else if (radius >= inner_radius && radius <= 0.5f) {
                             if (value < inner_angle) {
-                                channel.putPixel(x, y, Tools.interpolateLinear(1f, 0f,
-                                        (radius - inner_radius) / fade_dist));
+                                channel.putPixel(x, y, Tools.interpolateLinear(1f, 0f, (radius - inner_radius)
+                                        / fade_dist));
                             } else if (value >= inner_angle && value <= fill) {
-                                channel.putPixel(x, y, Math.min(Tools.interpolateLinear(1f, 0f,
-                                        (value - inner_angle) / fade_angle), Tools.interpolateLinear(1f, 0f,
-                                                (radius - inner_radius) / fade_dist)));
+                                channel.putPixel(x, y, Math.min(Tools.interpolateLinear(1f, 0f, (value - inner_angle)
+                                        / fade_angle), Tools.interpolateLinear(1f, 0f, (radius - inner_radius)
+                                                / fade_dist)));
                             }
                         }
-                        break;
-                    case FULL:
+                    }
+                    case FULL -> {
                         if (value < inner_angle) {
                             channel.putPixel(x, y, 1f);
                         } else if (value >= inner_angle && value <= fill) {
                             channel.putPixel(x, y, Tools.interpolateLinear(1f, 0f, (value - inner_angle) / fade_angle));
                         }
-                        break;
-                    default:
-                        assert false : "wrong filltype";
-                        break;
+                    }
                 }
             }
         }

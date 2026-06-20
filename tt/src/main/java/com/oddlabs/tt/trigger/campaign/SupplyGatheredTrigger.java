@@ -34,7 +34,7 @@ public final class SupplyGatheredTrigger extends IntervalTrigger {
             if (s.getPrimaryController() instanceof NullController) {
                 for (Selectable<?> building : selectable) {
                     if (building.getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
-                        count += ((Building) building).getSupplyContainer(type).getNumSupplies();
+                        count += ((Building) building).getSupplyContainer(type).map(c -> c.getNumSupplies()).orElse(0);
                     }
                 }
             }

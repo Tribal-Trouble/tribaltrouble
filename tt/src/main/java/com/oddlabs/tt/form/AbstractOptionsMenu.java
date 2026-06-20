@@ -54,7 +54,7 @@ public abstract class AbstractOptionsMenu extends Form {
         button_about.addMouseClickListener((_, _, _, _) -> gui_root.addModalForm(new CreditsForm()));
         addChild(button_about);
 
-        addCloseListener(() -> Settings.getSettings().save());
+        addCloseListener(() -> com.oddlabs.tt.render.Renderer.getRenderer().getSettings().save());
 
         // Place objects
         label_headline.place();
@@ -77,6 +77,6 @@ public abstract class AbstractOptionsMenu extends Form {
 
     protected void changeGamespeed(int index) {
         com.oddlabs.tt.global.Globals.gamespeed = index;
-        Settings.getSettings().gamespeed = index;
+        com.oddlabs.tt.render.Renderer.getRenderer().getSettings().gamespeed = index;
     }
 }

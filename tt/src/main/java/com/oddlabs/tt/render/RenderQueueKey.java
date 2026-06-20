@@ -1,13 +1,9 @@
 package com.oddlabs.tt.render;
 
-abstract class RenderQueueKey {
-    private final int key;
-
-    protected RenderQueueKey(int key) {
-        this.key = key;
-    }
-
-    final int getKey() {
-        return key;
-    }
+/**
+ * A key representing an item in the rendering queues.
+ */
+interface RenderQueueKey {
+    /** {@return the integer key value} */
+    int key();
 }

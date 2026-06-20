@@ -18,13 +18,13 @@ public final class ChieftainContainer {
 
     public void startTraining() {
         training = true;
-        ((ReproduceUnitContainer) building.getUnitContainer()).resetProgress();
+        ((ReproduceUnitContainer) building.getUnitContainer().orElseThrow()).resetProgress();
     }
 
     public void stopTraining() {
         training = false;
         progress = 0f;
-        ((ReproduceUnitContainer) building.getUnitContainer()).resetProgress();
+        ((ReproduceUnitContainer) building.getUnitContainer().orElseThrow()).resetProgress();
     }
 
     public boolean isTraining() {

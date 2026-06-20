@@ -13,70 +13,89 @@ public final class GUIShader extends ShaderProgram {
     /**
      * The vertex shader source code for UI rendering.
      */
-    private static final String VERTEX_SHADER = """
-            #version 410 core
+    private static final String VERTEX_SHADER = SHADER_HEADER +
+            """
+                    uniform mat4 u_projectionMatrix;
+                    uniform mat4 u_modelViewMatrix;
 
-            uniform mat4 u_projectionMatrix;
-            uniform mat4 u_modelViewMatrix;
+                    layout(location = 0) in vec3 in_Position;
+                    layout(location = 3) in vec4 in_Color;
+                    layout(location = 2) in vec2 in_TexCoord;
+                    layout(location = 4) in float in_TexIndex;
+                    layout(location = 5) in vec4 in_ClipRect;
 
-            layout(location = 0) in vec3 in_Position;
-            layout(location = 3) in vec4 in_Color;
-            layout(location = 2) in vec2 in_TexCoord;
-            layout(location = 4) in float in_TexIndex;
+                    out VS_OUT {
+                        vec4 Color;
+                        vec2 TexCoord;
+                        flat int TexIndex;
+                        vec2 LogicalPos;
+                        flat vec4 ClipRect;
+                    } vs_out;
 
-            out vec4 v_Color;
-            out vec2 v_TexCoord;
-            flat out int v_TexIndex;
-
-            void main() {
-                gl_Position = u_projectionMatrix * u_modelViewMatrix * vec4(in_Position, 1.0);
-                v_Color = in_Color;
-                v_TexCoord = in_TexCoord;
-                v_TexIndex = int(in_TexIndex);
-            }
-            """;
+                    void main() {
+                        vec4 pos = u_modelViewMatrix * vec4(in_Position, 1.0);
+                        gl_Position = u_projectionMatrix * pos;
+                        vs_out.Color = in_Color;
+                        vs_out.TexCoord = in_TexCoord;
+                        vs_out.TexIndex = int(in_TexIndex);
+                        vs_out.LogicalPos = pos.xy;
+                        vs_out.ClipRect = in_ClipRect;
+                    }
+                    """;
 
     /**
      * The fragment shader source code for UI rendering.
      */
-    private static final String FRAGMENT_SHADER = """
-            #version 410 core
+    private static final String FRAGMENT_SHADER = SHADER_HEADER +
+            """
+                    uniform sampler2D u_textures[8];
 
-            uniform sampler2D u_textures[8];
+                    in VS_OUT {
+                        vec4 Color;
+                        vec2 TexCoord;
+                        flat int TexIndex;
+                        vec2 LogicalPos;
+                        flat vec4 ClipRect;
+                    } fs_in;
 
-            in vec4 v_Color;
-            in vec2 v_TexCoord;
-            flat in int v_TexIndex;
+                    layout(location = 0) out vec4 out_FragColor;
+                    layout(location = 1) out vec4 out_MaskColor;
 
-            layout(location = 0) out vec4 out_FragColor;
-            layout(location = 1) out vec4 out_MaskColor;
+                    void main() {
+                        if (fs_in.LogicalPos.x < fs_in.ClipRect.x || fs_in.LogicalPos.x > fs_in.ClipRect.z ||
+                            fs_in.LogicalPos.y < fs_in.ClipRect.y || fs_in.LogicalPos.y > fs_in.ClipRect.w) {
+                            discard;
+                        }
 
-            void main() {
-                if (v_TexIndex < 0) {
-                    out_FragColor = v_Color;
-                } else {
-                    vec4 texColor;
-                    switch (v_TexIndex) {
-                        case 0: texColor = texture(u_textures[0], v_TexCoord); break;
-                        case 1: texColor = texture(u_textures[1], v_TexCoord); break;
-                        case 2: texColor = texture(u_textures[2], v_TexCoord); break;
-                        case 3: texColor = texture(u_textures[3], v_TexCoord); break;
-                        case 4: texColor = texture(u_textures[4], v_TexCoord); break;
-                        case 5: texColor = texture(u_textures[5], v_TexCoord); break;
-                        case 6: texColor = texture(u_textures[6], v_TexCoord); break;
-                        case 7: texColor = texture(u_textures[7], v_TexCoord); break;
-                        default: texColor = texture(u_textures[0], v_TexCoord); break;
+                        vec4 color;
+                        if (fs_in.TexIndex < 0) {
+                            color = fs_in.Color;
+                        } else {
+                            vec4 texColor;
+                            switch (fs_in.TexIndex) {
+                                case 0: texColor = texture(u_textures[0], fs_in.TexCoord); break;
+                                case 1: texColor = texture(u_textures[1], fs_in.TexCoord); break;
+                                case 2: texColor = texture(u_textures[2], fs_in.TexCoord); break;
+                                case 3: texColor = texture(u_textures[3], fs_in.TexCoord); break;
+                                case 4: texColor = texture(u_textures[4], fs_in.TexCoord); break;
+                                case 5: texColor = texture(u_textures[5], fs_in.TexCoord); break;
+                                case 6: texColor = texture(u_textures[6], fs_in.TexCoord); break;
+                                case 7: texColor = texture(u_textures[7], fs_in.TexCoord); break;
+                                default: texColor = texture(u_textures[0], fs_in.TexCoord); break;
+                            }
+                            color = fs_in.Color * texColor;
+                        }
+
+                        out_FragColor = vec4(color.rgb * color.a, color.a);
+
+                        // Write a special marker to the mask alpha channel to indicate "GUI Pixel".
+                        // Team objects write alpha=1.0. Clear color is alpha=0.0.
+                        // We use alpha=0.5 to identify GUI pixels in the post-process shader.
+                        // This allows us to exclude GUI pixels from the team outline effect
+                        // while still applying CVD correction.
+                        out_MaskColor = vec4(0.0, 0.0, 0.0, 0.5);
                     }
-                    out_FragColor = v_Color * texColor;
-                }
-                // Write a special marker to the mask alpha channel to indicate "GUI Pixel".
-                // Team objects write alpha=1.0. Clear color is alpha=0.0.
-                // We use alpha=0.5 to identify GUI pixels in the post-process shader.
-                // This allows us to exclude GUI pixels from the team outline effect
-                // while still applying CVD correction.
-                out_MaskColor = vec4(0.0, 0.0, 0.0, 0.5);
-            }
-            """;
+                    """;
 
     /**
      * Holds the names of the uniform variables used in the UI shader program.
@@ -101,13 +120,15 @@ public final class GUIShader extends ShaderProgram {
         public static final String COLOR = Shader.COLOR;
         public static final String TEX_COORD = Shader.TEX_COORD;
         public static final String TEX_INDEX = "in_TexIndex";
+        public static final String CLIP_RECT = "in_ClipRect";
     }
 
     public enum Attribute implements VertexAttribute {
         POSITION(Attributes.POSITION, 3, GL11.GL_FLOAT),
-        COLOR(Attributes.COLOR, 4, GL11.GL_UNSIGNED_BYTE, true),
+        COLOR(Attributes.COLOR, 4, GL11.GL_FLOAT, false),
         TEX_COORD(Attributes.TEX_COORD, 2, GL11.GL_FLOAT),
-        TEX_INDEX(Attributes.TEX_INDEX, 1, GL11.GL_FLOAT);
+        TEX_INDEX(Attributes.TEX_INDEX, 1, GL11.GL_FLOAT),
+        CLIP_RECT(Attributes.CLIP_RECT, 4, GL11.GL_FLOAT);
 
         private final @NonNull String name;
         private final int componentCount;

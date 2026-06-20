@@ -7,20 +7,22 @@ import com.oddlabs.net.AbstractConnectionListener;
 import com.oddlabs.net.ConnectionInterface;
 import com.oddlabs.net.ConnectionListenerInterface;
 import com.oddlabs.net.HostSequenceID;
+import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.net.InetAddress;
 import java.nio.channels.ClosedChannelException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public final class TunnelledConnectionListener extends AbstractConnectionListener {
-    private final List<TunnelledConnection> incoming_connections = new LinkedList<>();
+    private final Deque<TunnelledConnection> incoming_connections = new ArrayDeque<>();
     private boolean open = true;
 
     public TunnelledConnectionListener(ConnectionListenerInterface listener_interface) {
         super(listener_interface);
-        Network.getMatchmakingClient().registerTunnelledListener(this);
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().registerTunnelledListener(this);
     }
 
     public void requestTunnelledConnection(@NonNull HostSequenceID address, InetAddress inet_address,
@@ -31,12 +33,12 @@ public final class TunnelledConnectionListener extends AbstractConnectionListene
                 local_address)));
     }
 
-    private TunnelledConnection getNextTunnel() {
-        return incoming_connections.removeFirst();
+    private @NonNull TunnelledConnection getNextTunnel() {
+        return incoming_connections.remove();
     }
 
     @Override
-    protected @NonNull AbstractConnection doAcceptConnection(ConnectionInterface connection_interface) {
+    protected @NonNull AbstractConnection doAcceptConnection(@Nullable ConnectionInterface connection_interface) {
         TunnelledConnection conn = getNextTunnel();
         conn.setConnectionInterface(connection_interface);
         conn.accept();
@@ -56,7 +58,7 @@ public final class TunnelledConnectionListener extends AbstractConnectionListene
     @Override
     public void close() {
         if (open) {
-            Network.getMatchmakingClient().unregisterTunnelledListener(this);
+            Renderer.getRenderer().getNetwork().getMatchmakingClient().unregisterTunnelledListener(this);
             open = false;
         }
     }

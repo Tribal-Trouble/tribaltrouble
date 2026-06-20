@@ -14,8 +14,8 @@ public final class ChatLine extends EditLine {
 
     private String[] tab_complete_list;
 
-    public ChatLine(int width, int max_chars, boolean catch_tab) {
-        super(width, max_chars);
+    public ChatLine(int width, int max_codepoints, boolean catch_tab) {
+        super(width, max_codepoints);
         this.catch_tab = catch_tab;
         this.tab_complete_list = new String[0];
     }
@@ -27,7 +27,7 @@ public final class ChatLine extends EditLine {
     @Override
     protected void handleInput(@NonNull InputEvent event) {
         if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
-            if (catch_tab && event.getCharacter() == '\t') {
+            if (catch_tab && event.getCodepoint() == Character.toCodePoint('\0', '\t')) {
                 tabComplete(getText());
                 event.consume();
                 return;

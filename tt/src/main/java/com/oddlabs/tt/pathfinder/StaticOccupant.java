@@ -8,39 +8,39 @@ public final class StaticOccupant implements Occupant {
 
     @Override
     public int getGridX() {
-        throw new RuntimeException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public int getGridY() {
-        throw new RuntimeException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public float getPositionX() {
-        throw new RuntimeException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public float getPositionY() {
-        throw new RuntimeException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public float getSize() {
-        throw new RuntimeException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean isDead() {
-        throw new RuntimeException();
+        throw new UnsupportedOperationException();
     }
 
     public void startRespond() {
-        throw new RuntimeException();
+        throw new UnsupportedOperationException();
     }
 
     public void stopRespond() {
-        throw new RuntimeException();
+        throw new UnsupportedOperationException();
     }
 }

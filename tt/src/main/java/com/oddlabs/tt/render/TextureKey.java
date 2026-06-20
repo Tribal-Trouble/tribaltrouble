@@ -1,7 +1,7 @@
 package com.oddlabs.tt.render;
 
-public final class TextureKey extends RenderQueueKey {
-    TextureKey(int key) {
-        super(key);
-    }
+/**
+ * A render queue key identifying a texture.
+ */
+public record TextureKey(int key) implements RenderQueueKey {
 }

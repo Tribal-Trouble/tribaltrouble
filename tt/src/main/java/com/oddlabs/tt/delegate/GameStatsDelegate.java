@@ -67,7 +67,7 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
         addChild(label);
         label.setPos((getWidth() - label.getWidth()) / 2, (getHeight() - label.getHeight()) * 4 / 5);
 
-        Player[] players = viewer.getWorld().getPlayers();
+        Player[] players = viewer.getWorld().getPlayers().toArray(new Player[0]);
 
         MultiColumnComboBox<Void> score_box;
         if (players.length > PAGINATED_THRESHOLD) {

@@ -35,14 +35,14 @@ public final class PanelGroup extends GUIObject {
         int x = Skin.getSkin().getPanelData().leftTabOffset();
         int y = height;
         for (int i = 0; i < panels.length; i++) {
-            panels[i].setPos((width - panels[i].getWidth()) / 2,
-                    Skin.getSkin().getPanelData().bottomTabOffset() + (height - panels[i].getHeight()) / 2);
+            panels[i].setPos((width - panels[i].getWidth()) / 2, Skin.getSkin().getPanelData().bottomTabOffset()
+                    + (height - panels[i].getHeight()) / 2);
             panels[i].getTab().setPos(x, y);
             x += panels[i].getTab().getWidth();
             panels[i].getTab().addMouseButtonListener(new TabListener(i));
         }
-        box = new PanelBox(width,
-                total_height - panels[0].getTab().getHeight() + Skin.getSkin().getPanelData().bottomTabOffset());
+        box = new PanelBox(width, total_height - panels[0].getTab().getHeight() + Skin.getSkin().getPanelData()
+                .bottomTabOffset());
 
         focus_group.setDim(width, total_height);
         focus_group.setPos(0, 0);
@@ -79,7 +79,7 @@ public final class PanelGroup extends GUIObject {
     }
 
     private final class PanelBox extends GUIObject {
-        public PanelBox(int width, int height) {
+        PanelBox(int width, int height) {
             setDim(width, height);
             setPos(0, 0);
         }
@@ -94,7 +94,7 @@ public final class PanelGroup extends GUIObject {
     private final class TabListener implements MouseButtonListener {
         private final int index;
 
-        public TabListener(int index) {
+        TabListener(int index) {
             this.index = index;
         }
 

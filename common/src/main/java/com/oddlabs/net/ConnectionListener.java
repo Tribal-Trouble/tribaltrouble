@@ -3,6 +3,7 @@ package com.oddlabs.net;
 import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -10,18 +11,22 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public final class ConnectionListener extends AbstractConnectionListener implements Handler {
+    private static final Logger logger = Logger.getLogger(ConnectionListener.class.getSimpleName());
+
     private final @NonNull NetworkSelector network;
     private SelectionKey key;
 
-    private final List<SocketChannel> incoming_connections = new LinkedList<>();
+    private final Deque<SocketChannel> incoming_connections = new ArrayDeque<>();
 
-    private static SelectionKey createServerSocket(@NonNull NetworkSelector network, InetAddress ip,
-            int port) throws IOException {
+    private static SelectionKey createServerSocket(@NonNull NetworkSelector network, InetAddress ip, int port)
+            throws IOException {
         ServerSocketChannel server_channel = ServerSocketChannel.open();
         server_channel.configureBlocking(false);
         SocketAddress address = new InetSocketAddress(ip, port);
@@ -51,8 +56,8 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
     }
 
     public int getPort() {
-        return network.getDeterministic().log(
-                key != null ? ((ServerSocketChannel) key.channel()).socket().getLocalPort() : -1);
+        return network.getDeterministic().log(key != null ? ((ServerSocketChannel) key.channel()).socket()
+                .getLocalPort() : -1);
     }
 
     @Override
@@ -68,7 +73,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
                 try {
                     channel.close();
                 } catch (IOException e2) {
-                    e2.printStackTrace();
+                    logger.log(Level.WARNING, "Failed to close channel after connection error", e2);
                 }
                 exception = e;
             }
@@ -114,7 +119,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
             SelectionKey socket_key = channel.register(network.getSelector(), SelectionKey.OP_READ);
             return socket_key;
         } catch (ClosedChannelException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -135,7 +140,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
             if (!network.getDeterministic().isPlayback())
                 channel.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Error while rejecting connection", e);
         }
     }
 
@@ -147,7 +152,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
                 while (!incoming_connections.isEmpty())
                     removeNextChannel().close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Error while closing listener", e);
             }
         }
         if (network.getDeterministic().log(key != null))

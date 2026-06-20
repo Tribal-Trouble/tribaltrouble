@@ -26,5 +26,4 @@ public class SupplySpawnAnimation implements Animated {
             supply.spawnComplete();
         }
     }
-
 }

@@ -1,6 +1,7 @@
 package com.oddlabs.tt.delegate;
 
-import com.oddlabs.tt.camera.GameCamera;
+import com.oddlabs.tt.camera.Camera;
+import com.oddlabs.tt.guievent.EventListener;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputEvent;
@@ -9,13 +10,11 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
-public abstract class ControllableCameraDelegate extends InGameDelegate {
-    private final @NonNull GameCamera game_camera;
+public abstract class ControllableCameraDelegate<C extends Camera> extends InGameDelegate<C> implements EventListener {
     private FirstPersonDelegate first_person_delegate;
 
-    public ControllableCameraDelegate(@NonNull WorldViewer viewer, @NonNull GameCamera game_camera) {
-        super(viewer, game_camera);
-        this.game_camera = game_camera;
+    public ControllableCameraDelegate(@NonNull WorldViewer viewer, @NonNull C camera) {
+        super(viewer, camera);
     }
 
     @Override
@@ -57,6 +56,11 @@ public abstract class ControllableCameraDelegate extends InGameDelegate {
     }
 
     @Override
+    public void mouseScrolledHorizontally(int amount) {
+        getCamera().rotate(amount);
+    }
+
+    @Override
     public void mouseMoved(int x, int y) {
         getCamera().mouseMoved(x, y);
     }
@@ -82,7 +86,6 @@ public abstract class ControllableCameraDelegate extends InGameDelegate {
         getGUIRoot().pushDelegate(first_person_delegate);
     }
 
-    private void pushZoomDelegate() {
-        getGUIRoot().pushDelegate(new ZoomDelegate(getViewer(), game_camera));
+    protected void pushZoomDelegate() {
     }
 }

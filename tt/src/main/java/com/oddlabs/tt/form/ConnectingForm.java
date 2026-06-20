@@ -1,14 +1,13 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.Game;
-import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Skin;
-import com.oddlabs.tt.model.RacesResources;
+import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.net.Client;
 import com.oddlabs.tt.net.ConfigurationListener;
 import com.oddlabs.tt.net.GameNetwork;
@@ -17,11 +16,14 @@ import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
-import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
 
+/**
+ * UI form shown while establishing a multiplayer connection or initializing a local game.
+ */
 public final class ConnectingForm extends Form implements ConfigurationListener {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(ConnectingForm.class.getName());
 
@@ -59,13 +61,11 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
     public void connected(@NonNull Client client, @NonNull Game game, WorldGenerator generator, int player_slot,
             int player_count) {
         if (multiplayer) {
-            Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
-            random.nextFloat(); // first one always in same area
-            int race = (int) (random.nextFloat() * (RacesResources.getNumRaces() - 1) + .5f);
+            Race race = Race.values()[ThreadLocalRandom.current().nextInt(Race.values().length)];
             int team = player_slot;
             if (game.isRated())
                 team = player_slot % 2;
-            client.getServerInterface().setPlayerSlot(player_slot, PlayerSlot.HUMAN, race, team, false,
+            client.getServerInterface().setPlayerSlot(player_slot, PlayerSlot.HUMAN, race.getValue(), team, false,
                     PlayerSlot.AI_NONE);
             remove();
             owner.createGameMenu(game_network, game, generator, player_slot, player_count);

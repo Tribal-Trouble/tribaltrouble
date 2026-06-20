@@ -69,7 +69,7 @@ public final class Main {
 
         // thunder & lightning!
         /*
-        Channel greyscale = new Gradient(128, 128, new float[][]{{0f, 0f}, {.47f, .25f}, {.5f, 1f}, {.53f, .25f}, {1f, 0f}}, Gradient.HORIZONTAL, Gradient.SMOOTH).toChannel();
+        Channel greyscale = new Gradient(128, 128, new float[][]{{0f, 0f}, {.47f, .25f}, {.5f, 1f}, {.53f, .25f}, {1f, 0f}}, Gradient.Orientation.HORIZONTAL, Gradient.Interpolation.SMOOTH).toChannel();
         Layer color = new Layer(greyscale.copy(), greyscale.copy(), new Channel(128, 128).fill(1f), greyscale.copy());
         color.toGLIntImage().saveAsPNG("lightning");
         */

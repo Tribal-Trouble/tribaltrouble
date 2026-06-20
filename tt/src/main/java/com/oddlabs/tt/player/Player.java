@@ -1,39 +1,41 @@
 package com.oddlabs.tt.player;
 
+import com.oddlabs.tt.model.BuildingType;
+import com.oddlabs.tt.model.MagicType;
+
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.tt.gamemode.GameModeRegistry;
 import com.oddlabs.tt.landscape.LandscapeTarget;
-import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Army;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployType;
-import com.oddlabs.tt.model.IronSupply;
-import com.oddlabs.tt.model.Race;
-import com.oddlabs.tt.model.RacesResources;
-import com.oddlabs.tt.model.RockSupply;
-import com.oddlabs.tt.model.RubberSupply;
+import com.oddlabs.tt.model.RaceInfo;
 import com.oddlabs.tt.model.Selectable;
-import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.SupplyContainer;
+import com.oddlabs.tt.model.SupplyType;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.behaviour.GatherController;
 import com.oddlabs.tt.model.behaviour.NullController;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
-import com.oddlabs.tt.util.Target;
-import org.joml.Vector4fc;
+import com.oddlabs.tt.model.Target;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Represents a player in the game simulation, managing units, buildings, color, and player metrics.
+ */
 public final class Player implements PlayerInterface {
     public static final int INITIAL_UNIT_COUNT = 20;
     public static final int MAX_BUILDING_COUNT = 20;
@@ -45,7 +47,7 @@ public final class Player implements PlayerInterface {
     private final @NonNull SupplyContainer unit_count;
     private final SupplyContainer building_count = new SupplyContainer(MAX_BUILDING_COUNT);
 
-    private final @NonNull Vector4fc color;
+    private final Color.@NonNull Linear color;
 
 //	private final String team_tip;
 
@@ -73,7 +75,7 @@ public final class Player implements PlayerInterface {
     private boolean can_build_chieftains = true;
     private boolean can_repair = true;
     private boolean can_attack = true;
-    private final boolean[] can_build = new boolean[Race.NUM_BUILDINGS];
+    private final EnumSet<BuildingType> can_build = EnumSet.allOf(BuildingType.class);
     private boolean can_move = true;
     private boolean can_exit_towers = true;
     private boolean can_use_rubber = true;
@@ -82,17 +84,15 @@ public final class Player implements PlayerInterface {
     private boolean can_build_armies = true;
     private boolean can_build_weapons = true;
     private boolean can_transport = true;
-    private final boolean[] can_do_magic = new boolean[RacesResources.NUM_MAGIC];
+    private final EnumSet<MagicType> enabled_magics = EnumSet.allOf(MagicType.class);
 
     private float hit_bonus;
 
     private int preferred_speed = World.GAMESPEED_DONTCARE;
 
-    public Player(@NonNull World world, @NonNull PlayerInfo player_info, @NonNull Vector4fc color) {
+    public Player(@NonNull World world, @NonNull PlayerInfo player_info, @NonNull Color color) {
         this.world = world;
-        this.color = color;
-        Arrays.fill(can_do_magic, true);
-        Arrays.fill(can_build, true);
+        this.color = color instanceof Color.Linear linear ? linear : new Color.Linear(color);
         this.player_info = player_info;
         this.unit_count = new SupplyContainer(world.getMaxUnitCount());
 //		this.team_tip = i18n("team", new Object[]{Integer.toString(player_info.getTeam() + 1)});
@@ -170,8 +170,12 @@ public final class Player implements PlayerInterface {
         can_repair = enabled;
     }
 
-    public void enableBuilding(int building, boolean enabled) {
-        can_build[building] = enabled;
+    public void enableBuilding(@NonNull BuildingType building, boolean enabled) {
+        if (enabled) {
+            can_build.add(building);
+        } else {
+            can_build.remove(building);
+        }
     }
 
     public void enableAttacking(boolean enabled) {
@@ -210,12 +214,20 @@ public final class Player implements PlayerInterface {
         return can_use_rubber;
     }
 
-    public void enableMagic(int magic_index, boolean enabled) {
-        can_do_magic[magic_index] = enabled;
+    public void enableMagic(@NonNull MagicType type, boolean enabled) {
+        if (enabled) {
+            enabled_magics.add(type);
+        } else {
+            enabled_magics.remove(type);
+        }
+    }
+
+    public boolean canDoMagic(@NonNull MagicType type) {
+        return enabled_magics.contains(type);
     }
 
     public boolean canDoMagic(int magic_index) {
-        return can_do_magic[magic_index];
+        return canDoMagic(getRaceInfo().getMagicType(magic_index));
     }
 
     public boolean canExitTowers() {
@@ -230,8 +242,9 @@ public final class Player implements PlayerInterface {
         return can_move;
     }
 
-    public boolean canBuild(int building) {
-        return can_build[building] && getBuildingCountContainer().getNumSupplies() < Player.MAX_BUILDING_COUNT;
+    public boolean canBuild(@NonNull BuildingType building) {
+        return can_build.contains(building) && getBuildingCountContainer().getNumSupplies()
+                < Player.MAX_BUILDING_COUNT;
     }
 
     public boolean canRepair() {
@@ -255,35 +268,38 @@ public final class Player implements PlayerInterface {
         this.ai = ai;
     }
 
-    public @Nullable AI getAI() {
-        return ai;
+    public @NonNull Optional<AI> getAI() {
+        return Optional.ofNullable(ai);
     }
 
-    public @Nullable Building buildBuilding(int building_type, int grid_x, int grid_y) {
-        BuildingSiteScanFilter filter = new BuildingSiteScanFilter(world.getUnitGrid(), getRace().getBuildingTemplate(
-                building_type), 40, true);
+    public @NonNull Optional<Building> buildBuilding(@NonNull BuildingType building_type, int grid_x, int grid_y) {
+        BuildingSiteScanFilter filter = new BuildingSiteScanFilter(world.getUnitGrid(), getRaceInfo()
+                .getBuildingTemplate(
+                        building_type), 40, true);
         world.getUnitGrid().scan(filter, grid_x, grid_y);
         List<LandscapeTarget> target_list = filter.getResult();
         Building b = null;
         if (!target_list.isEmpty()) {
             Target t = target_list.getFirst();
-            b = new Building(this, getRace().getBuildingTemplate(building_type), t.getGridX(), t.getGridY());
+            b = new Building(this, getRaceInfo().getBuildingTemplate(building_type), t.getGridX(), t.getGridY());
             b.place();
             b.repair(1000);
         }
-        return b;
+        return Optional.ofNullable(b);
     }
 
-    public void init(float @NonNull [] starting_location) {
+    public Player init(float @NonNull [] starting_location) {
         this.start_x = starting_location[0];
         this.start_y = starting_location[1];
+
+        return this;
     }
 
-    public @Nullable Selectable<?> findNearestEnemy(int start_x, int start_y) {
+    public @NonNull Optional<Selectable<?>> findNearestEnemy(int start_x, int start_y) {
         return findNearestEnemy(start_x, start_y, null);
     }
 
-    public @Nullable Selectable<?> findNearestEnemy(int start_x, int start_y, Selectable<?> target) {
+    public @NonNull Optional<Selectable<?>> findNearestEnemy(int start_x, int start_y, Selectable<?> target) {
         return findNearestEnemy(start_x, start_y, target, Selectable.genericClass());
     }
 
@@ -291,8 +307,9 @@ public final class Player implements PlayerInterface {
         return getUnits().getSet().stream().mapToInt(Selectable::getStatusValue).sum();
     }
 
-    public @Nullable Selectable<?> findNearestEnemy(int start_x, int start_y, Selectable<?> target,
-            @NonNull Class<? extends Selectable<?>> type) {
+    public @NonNull Optional<Selectable<?>> findNearestEnemy(int start_x, int start_y, Selectable<?> target,
+            @NonNull Class<
+                    ? extends Selectable<?>> type) {
         int best_dist_squared = Integer.MAX_VALUE;
         Selectable<?> best_target = null;
         for (Player player : world.getPlayers()) {
@@ -311,15 +328,15 @@ public final class Player implements PlayerInterface {
                 }
             }
         }
-        return best_target;
+        return Optional.ofNullable(best_target);
     }
 
-    public @Nullable Selectable<?> findNearestEnemyBuilding(int start_x, int start_y) {
+    public @NonNull Optional<Selectable<?>> findNearestEnemyBuilding(int start_x, int start_y) {
         return findNearestEnemy(start_x, start_y, null, Building.class);
     }
 
-    public @NonNull Race getRace() {
-        return getWorld().getRacesResources().getRace(player_info.getRace());
+    public @NonNull RaceInfo getRaceInfo() {
+        return getWorld().getRacesResources().getRaceInfo(player_info.getRace());
     }
 
     public @NonNull SupplyContainer getUnitCountContainer() {
@@ -334,28 +351,28 @@ public final class Player implements PlayerInterface {
         this.chieftain = chieftain;
     }
 
-    public @Nullable Building getArmory() {
+    public @NonNull Optional<Building> getArmory() {
         Selectable<?>[][] lists = classifyUnits();
         for (Selectable<?>[] list : lists) {
             Selectable<?> s = list[0];
             if (s.getPrimaryController() instanceof NullController && s.getAbilities().hasAbilities(
                     Abilities.BUILD_ARMIES)) {
-                return (Building) s;
+                return Optional.of((Building) s);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
-    public @Nullable Building getQuarters() {
+    public @NonNull Optional<Building> getQuarters() {
         Selectable<?>[][] lists = classifyUnits();
         for (Selectable<?>[] list : lists) {
             Selectable<?> s = list[0];
             if (s.getPrimaryController() instanceof NullController && s.getAbilities().hasAbilities(
                     Abilities.REPRODUCE)) {
-                return (Building) s;
+                return Optional.of((Building) s);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     public boolean isAlive() {
@@ -367,8 +384,8 @@ public final class Player implements PlayerInterface {
         return chieftain != null;
     }
 
-    public @Nullable Unit getChieftain() {
-        return chieftain;
+    public @NonNull Optional<Unit> getChieftain() {
+        return Optional.ofNullable(chieftain);
     }
 
     public void setTrainingChieftain(boolean training_chieftain) {
@@ -380,7 +397,7 @@ public final class Player implements PlayerInterface {
         return training_chieftain;
     }
 
-    public @NonNull Vector4fc getColor() {
+    public Color.@NonNull Linear getColor() {
         return color;
     }
 
@@ -390,7 +407,7 @@ public final class Player implements PlayerInterface {
             building.deployUnits(type, num_units);
     }
 
-    public int getGathererCount(@NonNull Class<? extends Supply> supply_type) {
+    public int getGathererCount(@NonNull SupplyType supply_type) {
         int count = 0;
         for (Selectable<?> s : units.getSet()) {
             if (s instanceof Unit && s.getPrimaryController() instanceof GatherController<?> gather) {
@@ -403,7 +420,7 @@ public final class Player implements PlayerInterface {
     }
 
     @Override
-    public void recallGatherers(@NonNull Building building, @NonNull Class<? extends Supply> supply_type, int amount) {
+    public void recallGatherers(@NonNull Building building, @NonNull SupplyType supply_type, int amount) {
         if (!isValid(building)) return;
 
         float bx = building.getPositionX();
@@ -460,7 +477,7 @@ public final class Player implements PlayerInterface {
     }
 
     @Override
-    public void doMagic(@NonNull Unit chieftain, int magic) {
+    public void doMagic(@NonNull Unit chieftain, @NonNull MagicType magic) {
         if (isValid(chieftain))
             chieftain.doMagic(magic, true);
     }
@@ -478,13 +495,13 @@ public final class Player implements PlayerInterface {
     }
 
     @Override
-    public void placeBuilding(Selectable<?> @NonNull [] selection, int template_id, int placing_grid_x,
-            int placing_grid_y) {
-        Building building = new Building(this, getRace().getBuildingTemplate(template_id), placing_grid_x,
-                placing_grid_y);
-        for (var selection1 : selection) {
-            if (isValid(selection1)) {
-                selection1.initTarget(building, Action.DEFAULT, false);
+    public void placeBuilding(Selectable<?> @NonNull [] selection, @NonNull BuildingType template_type,
+            int placing_grid_x, int placing_grid_y) {
+        Building building = new Building(this, getRaceInfo().getBuildingTemplate(template_type),
+                placing_grid_x, placing_grid_y);
+        for (var selectable : selection) {
+            if (isValid(selectable)) {
+                selectable.initTarget(building, Action.DEFAULT, false);
             }
         }
     }
@@ -501,25 +518,24 @@ public final class Player implements PlayerInterface {
     }
 
     @Override
-    public void setTarget(Selectable<?> @NonNull [] selection, @NonNull Target target, @NonNull Action action,
+    public void setTarget(@Nullable Selectable<?> @NonNull [] selection, @NonNull Target target, @NonNull Action action,
             boolean aggressive) {
-        for (Selectable<?> selection1 : selection) {
-            if (isValid(selection1)) {
-                selection1.initTarget(target, action, aggressive);
+        for (Selectable<?> selectable : selection) {
+            if (isValid(selectable)) {
+                selectable.initTarget(target, action, aggressive);
             }
         }
     }
 
-    public void killSelection(Selectable<?> @NonNull [] selection) {
-        for (Selectable<?> selection1 : selection) {
-            if (selection1 != null) {
-                selection1.hit(10000, 0f, 1f, this);
-            }
+    public void killSelection(@NonNull Selectable<?> @NonNull [] selection) {
+        for (Selectable<?> selectable : selection) {
+            selectable.hit(10000, 0f, 1f, this);
         }
     }
 
     @Override
-    public void setLandscapeTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action,
+    public void setLandscapeTarget(@NonNull Selectable<?> @NonNull [] selection, int grid_x, int grid_y,
+            @NonNull Action action,
             boolean aggressive) {
         if (selection.length == 0)
             return;
@@ -563,8 +579,8 @@ public final class Player implements PlayerInterface {
 
     public boolean teamHasBuilding() {
         for (Player player : world.getPlayers()) {
-            if (player.getPlayerInfo().getTeam() == player_info.getTeam()
-                    && player.getBuildingCountContainer().getNumSupplies() > 0) {
+            if (player.getPlayerInfo().getTeam() == player_info.getTeam() && player.getBuildingCountContainer()
+                    .getNumSupplies() > 0) {
                 return true;
             }
         }
@@ -638,17 +654,13 @@ public final class Player implements PlayerInterface {
         return buildings_destroyed;
     }
 
-    public void harvested(@NonNull Class<? extends Supply> type) {
-        if (type == TreeSupply.class) {
-            tree_harvested++;
-        } else if (type == RockSupply.class) {
-            rock_harvested++;
-        } else if (type == IronSupply.class) {
-            iron_harvested++;
-        } else if (type == RubberSupply.class) {
-            rubber_harvested++;
-        } else
-            throw new RuntimeException();
+    public void harvested(@NonNull SupplyType type) {
+        switch (type) {
+            case WOOD -> tree_harvested++;
+            case ROCK -> rock_harvested++;
+            case IRON -> iron_harvested++;
+            case RUBBER -> rubber_harvested++;
+        }
     }
 
     public int getTreeHarvested() {

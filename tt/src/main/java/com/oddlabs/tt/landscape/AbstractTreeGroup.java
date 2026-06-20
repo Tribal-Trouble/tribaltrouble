@@ -1,33 +1,49 @@
 package com.oddlabs.tt.landscape;
 /**/
 
+import com.oddlabs.tt.model.Terrain;
 import com.oddlabs.tt.pathfinder.UnitGrid;
-import com.oddlabs.tt.procedural.Landscape;
-import com.oddlabs.tt.util.BoundingBox;
+import com.oddlabs.tt.model.BoundingBox;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public abstract class AbstractTreeGroup extends BoundingBox {
+/**
+ * Base class representing hierarchical groupings of trees and individual tree supplies.
+ */
+public abstract sealed class AbstractTreeGroup extends BoundingBox permits TreeGroup, TreeLeaf, TreeSupply {
 
     public enum TreeType {
-        JUNGLE,
-        PALM,
-        OAK,
-        PINE
+        JUNGLE(16.0f, 0.5f, 0.6f, 0.9f),
+        PALM(20.0f, 0.3f, 1.0f, 0.95f),
+        OAK(20.0f, 0.5f, 0.6f, 0.7f),
+        PINE(12.0f, 0.6f, 0.3f, 0.65f);
+
+        final float shadowDiameter;
+        final float shadowOpacity;
+        final float shadowVerticalCenter;
+        public final float heightScale;
+
+        TreeType(float shadowDiameter, float shadowOpacity, float shadowVerticalCenter, float heightScale) {
+            this.shadowDiameter = shadowDiameter;
+            this.shadowOpacity = shadowOpacity;
+            this.shadowVerticalCenter = shadowVerticalCenter;
+            this.heightScale = heightScale;
+        }
     }
 
-    private final AbstractTreeGroup parent;
+    private final @Nullable AbstractTreeGroup parent;
 
     private int num_responding_trees = 0;
 
-    public AbstractTreeGroup(AbstractTreeGroup parent) {
+    public AbstractTreeGroup(@Nullable AbstractTreeGroup parent) {
         this.parent = parent;
     }
 
-    protected final AbstractTreeGroup getParent() {
+    protected final @Nullable AbstractTreeGroup getParent() {
         return parent;
     }
 
@@ -42,18 +58,18 @@ public abstract class AbstractTreeGroup extends BoundingBox {
     }
 
     public static @NonNull AbstractTreeGroup newRoot(@NonNull World world, @NonNull List<int[]> tree_positions,
-            @NonNull List<int[]> palm_tree_positions, Landscape.@NonNull TerrainType terrain) {
+            @NonNull List<int[]> palm_tree_positions, @NonNull Terrain terrain) {
         AbstractTreeGroup root = new TreeGroup(null, 0);
 
         switch (terrain) {
-            case NATIVE:
+            case NATIVE -> {
                 root.buildTrees(world, TreeType.JUNGLE, 3, 2.3f, tree_positions, 0.25f, 0.75f);
                 root.buildTrees(world, TreeType.PALM, 1, 1.6f, palm_tree_positions, 0.5f, 1f);
-                break;
-            case VIKING:
+            }
+            case VIKING -> {
                 root.buildTrees(world, TreeType.OAK, 3, 2.3f, tree_positions, 0.5f, 1f);
                 root.buildTrees(world, TreeType.PINE, 1, 1.6f, palm_tree_positions, 0.5f, 1f);
-                break;
+            }
         }
 
         root.initBounds();
@@ -75,11 +91,12 @@ public abstract class AbstractTreeGroup extends BoundingBox {
             final int center_grid_y = coords[1];
             final float tree_x = UnitGrid.coordinateFromGrid(center_grid_x);
             final float tree_y = UnitGrid.coordinateFromGrid(center_grid_y);
-            float rotation = world.getRandom().nextFloat() * 360f;
-            float scale_base = world.getRandom().nextFloat() * scale_factor + min_size;
-            float scale_x = scale_base + world.getRandom().nextFloat() * 0.2f - 0.1f;
-            float scale_y = scale_base + world.getRandom().nextFloat() * 0.2f - 0.1f;
-            float scale_z = scale_base + world.getRandom().nextFloat() * 0.2f - 0.1f;
+            float rotation = world.getRandom().nextFloat(0f, 360f);
+            float scale_base = scale_factor > 0f ? world.getRandom().nextFloat(min_size, min_size + scale_factor)
+                    : min_size;
+            float scale_x = scale_base + world.getRandom().nextFloat(-0.1f, 0.1f);
+            float scale_y = scale_base + world.getRandom().nextFloat(-0.1f, 0.1f);
+            float scale_z = scale_base + world.getRandom().nextFloat(-0.1f, 0.1f);
             matrix.identity();
             matrix.scale(scale_x, scale_y, scale_z);
             vector.set(0f, 0f, 1f);
@@ -87,55 +104,32 @@ public abstract class AbstractTreeGroup extends BoundingBox {
             matrix2.identity();
             matrix2.translate(tree_x, tree_y, world.getHeightMap().getNearestHeight(tree_x, tree_y));
             matrix2.mul(matrix, matrix);
-            visit(new TreeNodeVisitor() {
-                private int child_size = world.getHeightMap().getMetersPerWorld();
-                private int x;
-                private int y;
 
-                @Override
-                public void visitLeaf(@NonNull TreeLeaf tree_leaf) {
-                    TreeSupply tree = new TreeSupply(world, tree_leaf, tree_x, tree_y, center_grid_x, center_grid_y,
-                            grid_size, radius, matrix, tree_type, tree_low_vertices);
-                    tree_leaf.insertTree(tree);
-                }
-
-                @Override
-                public void visitNode(@NonNull TreeGroup tree_group) {
-                    int old_x = x;
-                    int old_y = y;
-                    int old_size = child_size;
-                    child_size >>= 1;
-                    if (tree_x < x + child_size) {
-                        if (tree_y < y + child_size) {
-                            tree_group.getChild0().visit(this);
-                        } else {
-                            y += child_size;
-                            tree_group.getChild2().visit(this);
-                        }
-                    } else {
-                        if (tree_y < y + child_size) {
-                            x += child_size;
-                            tree_group.getChild1().visit(this);
-                        } else {
-                            x += child_size;
-                            y += child_size;
-                            tree_group.getChild3().visit(this);
-                        }
-                    }
-                    x = old_x;
-                    y = old_y;
-                    child_size = old_size;
-                }
-
-                @Override
-                public void visitTree(TreeSupply tree_supply) {
-                    throw new RuntimeException();
-                }
-            });
+            insertTreeRecursive(this, world, tree_type, grid_size, radius, matrix, tree_low_vertices, tree_x, tree_y,
+                    center_grid_x, center_grid_y, world.getHeightMap().getMetersPerWorld(), 0, 0);
         }
     }
 
-    public abstract void visit(TreeNodeVisitor visitor);
+    private void insertTreeRecursive(@NonNull AbstractTreeGroup node, @NonNull World world, @NonNull TreeType tree_type,
+            int grid_size, float radius, @NonNull Matrix4f matrix, float @NonNull [] vertices, float tree_x,
+            float tree_y, int center_grid_x, int center_grid_y, int size, int x, int y) {
+        switch (node) {
+            case TreeLeaf leaf -> {
+                TreeSupply tree = new TreeSupply(world, leaf, tree_x, tree_y, center_grid_x, center_grid_y, grid_size,
+                        radius, matrix, tree_type, vertices);
+                leaf.insertTree(tree);
+            }
+            case TreeGroup group -> {
+                int child_size = size >> 1;
+                int child_index = (tree_x < x + child_size ? 0 : 1) | (tree_y < y + child_size ? 0 : 2);
+                int next_x = x + (child_index & 1) * child_size;
+                int next_y = y + ((child_index >> 1) & 1) * child_size;
+                insertTreeRecursive(group.child(child_index), world, tree_type, grid_size, radius, matrix, vertices,
+                        tree_x, tree_y, center_grid_x, center_grid_y, child_size, next_x, next_y);
+            }
+            case TreeSupply _ -> throw new IllegalStateException("Unexpected TreeSupply node in tree hierarchy");
+        }
+    }
 
     protected boolean initBounds() {
         return true;

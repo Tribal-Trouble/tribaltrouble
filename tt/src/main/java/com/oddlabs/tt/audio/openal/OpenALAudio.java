@@ -1,11 +1,12 @@
 package com.oddlabs.tt.audio.openal;
 
 import com.oddlabs.tt.audio.Audio;
-import com.oddlabs.tt.audio.Wave;
 import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL10;
+import org.lwjgl.openal.ALC10;
 import org.lwjgl.stb.STBVorbis;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.libc.LibCStdlib;
@@ -22,30 +23,33 @@ import static com.oddlabs.tt.audio.openal.OpenALManager.checkALError;
 /**
  * OpenAL buffered audio
  */
-public final class OpenALAudio extends NativeResource<OpenALAudio.Buffers> implements Audio {
+final class OpenALAudio extends NativeResource<OpenALAudio.Buffers> implements Audio {
     static final class Buffers extends NativeState {
         private final @NonNull IntBuffer al_buffers;
 
         Buffers(int num_buffers) {
-            al_buffers = org.lwjgl.BufferUtils.createIntBuffer(num_buffers);
+            al_buffers = BufferUtils.createIntBuffer(num_buffers);
             AL10.alGenBuffers(al_buffers);
             checkALError("alGenBuffers " + num_buffers);
         }
 
         @Override
         public void close() {
-            AL10.alDeleteBuffers(al_buffers);
-            checkALError("alDeleteBuffers");
-            al_buffers.clear();
+            if (ALC10.alcGetCurrentContext() != 0 && al_buffers.limit() > 0) {
+                AL10.alGetError(); // Clear any sticky error from previous operations
+                AL10.alDeleteBuffers(al_buffers);
+                checkALError("alDeleteBuffers");
+            }
+            al_buffers.limit(0);
         }
     }
 
-    public OpenALAudio(int num_buffers) {
-        super(new Buffers(num_buffers));
+    OpenALAudio(@NonNull OpenALManager manager, int num_buffers) {
+        super(new Buffers(num_buffers), manager::enqueueCleanup);
     }
 
-    OpenALAudio(@NonNull URL file) throws IOException {
-        this(1);
+    OpenALAudio(@NonNull OpenALManager manager, @NonNull URL file) throws IOException {
+        this(manager, 1);
         try {
             Wave wave = new Wave(file);
             AL10.alBufferData(getBuffer(), wave.getFormat(), wave.getData(), wave.getSampleRate());
@@ -66,18 +70,27 @@ public final class OpenALAudio extends NativeResource<OpenALAudio.Buffers> imple
                 throw new IOException("Failed to decode OGG Vorbis: " + file);
             }
 
-            int format = Wave.getFormat(channels.get(0), 16);
+            int format = Wave.getFormat(channels.get(0), Short.SIZE);
             AL10.alBufferData(bufferId, format, pcm, sampleRate.get(0));
 
             LibCStdlib.free(pcm);
         }
     }
 
-    public @NonNull IntBuffer getBuffers() {
-        return state.al_buffers;
+    int getBufferCount() {
+        return state.al_buffers.remaining();
     }
 
-    public int getBuffer() {
-        return state.al_buffers.get(0);
+    @NonNull
+    IntBuffer getBuffers() {
+        return state.al_buffers.duplicate().position(0);
+    }
+
+    int getBuffer() {
+        return getBuffer(0);
+    }
+
+    int getBuffer(int idx) {
+        return state.al_buffers.get(idx);
     }
 }

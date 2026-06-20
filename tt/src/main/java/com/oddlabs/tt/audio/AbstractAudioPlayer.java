@@ -1,95 +1,175 @@
 package com.oddlabs.tt.audio;
 
-import com.oddlabs.tt.animation.Animated;
-import com.oddlabs.tt.event.LocalEventQueue;
-import com.oddlabs.tt.global.Settings;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.openal.AL10;
 
-public abstract class AbstractAudioPlayer implements Animated {
-    public static boolean CLASSIC_AUDIO = Settings.getSettings().classic_audio;
-    private static final float ROLLOFF_FACTOR_CLASSIC = 0.03f;
-    private static final float ROLLOFF_FACTOR_ENHANCED = 0.5f;
+/** base implementation of {@link AudioPlayer} */
+public abstract class AbstractAudioPlayer<AM extends AbstractAudioManager<AM, AS>, AS extends AudioSource> implements
+        AudioPlayer {
 
-    protected static float getRolloffFactor() {
-        return CLASSIC_AUDIO ? ROLLOFF_FACTOR_CLASSIC : ROLLOFF_FACTOR_ENHANCED;
-    }
+    /** The volume threshold at which a sound is considered silent (reached at max distance). */
+    static final float SILENCE_THRESHOLD = 0.032f;
 
-    protected final @Nullable AudioSource source;
-    private final @NonNull AudioParameters<?> parameters;
-    private boolean playing = false;
+    protected final @NonNull AM manager;
+    protected final @Nullable AS source;
+    protected final @NonNull AudioParameters parameters;
+    protected volatile boolean playing = false;
 
-    private float fadeout_time;
-    private float end_gain;
-    private float fadeout_gain;
+    private float decay_rate;
+    private boolean is_fading = false;
+    private float current_gain;
 
-    protected AbstractAudioPlayer(@Nullable AudioSource source, @NonNull AudioParameters<?> params) {
+    protected AbstractAudioPlayer(@NonNull AM manager, @Nullable AS source,
+            float x, float y, float z, @NonNull AudioParameters params) {
+        this.manager = manager;
+        this.source = source;
         this.parameters = params;
-        if (source == null || (!params.music && !Settings.getSettings().play_sfx)) {
-            this.source = null;
+        this.current_gain = params.gain();
+        if (source == null || (!params.audio().isStreaming() && !manager.isSfxEnabled())) {
             return;
         }
-        this.source = source;
         source.setAudioPlayer(this);
         playing = true;
-    }
 
-    protected final boolean isPlaying() {
-        return playing;
-    }
+        source.setLooping(params.looping());
+        source.setRelative(params.relative());
 
-    public final @NonNull AudioParameters<?> getParameters() {
-        return parameters;
-    }
+        setGain(params.gain());
 
-    public final void setGain(float gain) {
-        if (playing && source != null) {
-            var settings = Settings.getSettings();
-            source.setGain(gain * (parameters.music ? settings.music_gain : settings.sound_gain));
-        }
-    }
+        // Calculate rolloff so the sound reaches SILENCE_THRESHOLD at params.distance
+        float refDist = params.radius();
+        float maxDist = params.distance();
+        float rolloff = (maxDist > refDist)
+                ? (refDist / SILENCE_THRESHOLD - refDist) / (maxDist - refDist)
+                : 1.0f;
 
-    public final void setPos(float x, float y, float z) {
-        if (playing && source != null)
-            source.setPosition(x, y, z);
-    }
+        source.setRolloff(rolloff);
+        source.setDistance(refDist);
+        source.setMinGain(0f);
+        source.setMaxGain(1f);
+        source.setPitch(params.pitch());
 
-    public void stop() {
-        if (playing && source != null) {
-            source.stop();
-            source.setBuffer(AL10.AL_NONE); // AL10.AL_NONE is still needed
-            source.rewind();
-            playing = false;
-        }
-    }
+        updateEnvironmentalEffects();
+        setPosition(x, y, z);
 
-    public final void registerAmbient() {
-        if (source != null)
-            AudioManager.getManager().registerAmbient(source);
-    }
-
-    public final void removeAmbient() {
-        if (source != null)
-            AudioManager.getManager().removeAmbient(source);
-    }
-
-    public final void stop(float delay, float end_gain) {
-        this.end_gain = end_gain;
-        fadeout_gain = end_gain;
-        fadeout_time = delay;
-        LocalEventQueue.getQueue().getManager().registerAnimation(this);
+        var state = source.getState();
+        assert state == AudioSource.State.STOPPED || state == AudioSource.State.INITIAL;
     }
 
     @Override
-    public final void animate(float t) {
-        fadeout_gain -= t * (end_gain / fadeout_time);
-        if (fadeout_gain <= 0) {
-            stop();
-            LocalEventQueue.getQueue().getManager().removeAnimation(this);
-        } else {
-            setGain(fadeout_gain);
+    public final boolean isPlaying() {
+        return playing;
+    }
+
+    @Override
+    public @Nullable AS getSource() {
+        return source;
+    }
+
+    @Override
+    public final @NonNull AudioParameters getParameters() {
+        return parameters;
+    }
+
+    /** {@return The audio associated with this player} */
+    protected @NonNull Audio getAudio() {
+        return parameters.audio().get();
+    }
+
+    /** {@return The number of buffers allocated for this player} */
+    protected int getBufferCount() {
+        return 0;
+    }
+
+    @Override
+    public final void setGain(float gain) {
+        this.current_gain = gain;
+        if (playing && source != null) {
+            source.setGain(gain * (parameters.audio().isStreaming() ? manager.getMusicGain() : manager.getSfxGain()));
         }
     }
 
+    @Override
+    public final void setPosition(float x, float y, float z) {
+        if (playing && source != null) {
+            source.setPosition(x, y, z);
+            updateAirAbsorption(x, y, z);
+        }
+    }
+
+    private void updateEnvironmentalEffects() {
+        if (source == null) return;
+
+        // Music and notifications don't get environmental effects/reverb
+        boolean useEFX = parameters.rank() != AudioParameters.RANK_MUSIC && parameters.rank()
+                != AudioParameters.RANK_NOTIFICATION;
+
+        if (manager.isEFXSupported()) {
+            int slot = useEFX ? manager.getEFXEffectSlot() : 0;
+            source.setAuxiliarySend(slot, 0);
+        }
+    }
+
+    private void updateAirAbsorption(float x, float y, float z) {
+        if (source == null) return;
+
+        // Music doesn't get muffled by distance
+        if (parameters.rank() == AudioParameters.RANK_MUSIC || parameters.rank() == AudioParameters.RANK_NOTIFICATION) {
+            source.setDirectFilterGainHF(1.0f);
+            return;
+        }
+
+        if (manager.isEFXSupported()) {
+            float dist = manager.getListenerPosition().distance(x, y, z);
+
+            // Simple air absorption: brighter up close, muffled far away
+            // Clamp to [0.1, 1.0] to avoid total silence in HF
+            float maxDist = parameters.distance() != Float.MAX_VALUE ? parameters.distance() : 1000f;
+            float gainHF = Math.clamp(1.0f - (dist / maxDist), 0.1f, 1.0f);
+
+            source.setDirectFilterGainHF(gainHF);
+        }
+    }
+
+    @Override
+    public @NonNull AudioPlayer stop() {
+        if (playing) {
+            if (source != null) {
+                source.stop();
+            }
+            if (parameters.ambient()) {
+                manager.removeAmbient(this);
+            }
+            playing = false;
+        }
+
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final @NonNull AudioPlayer stop(float decayRate) {
+        assert decayRate > 0.0f : "decayRate must be positive";
+        if (!playing) return this;
+        this.decay_rate = decayRate;
+        this.is_fading = true;
+        manager.registerFadingPlayer(this);
+
+        return this;
+    }
+
+    /** {@return true if the player is currently fading out otherwise false.} */
+    final boolean updateFade(float t) {
+        if (!is_fading || !playing) return false;
+        float fadeout_gain = current_gain * (float) Math.exp(-decay_rate * t);
+        if (fadeout_gain < 0.01f) {
+            stop();
+            return is_fading = false;
+        } else {
+            setGain(fadeout_gain);
+            return true;
+        }
+    }
 }

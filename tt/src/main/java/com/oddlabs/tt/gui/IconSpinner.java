@@ -1,16 +1,19 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.MouseButtonListener;
+import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.tt.util.ToolTip;
-import com.oddlabs.tt.util.Utils;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.viewer.WorldViewer;
+import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.ResourceBundle;
 
-public abstract class IconSpinner extends GUIObject implements ToolTip {
+/** A spinner control with an associated icon. */
+public abstract class IconSpinner extends GUIObject {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(IconSpinner.class.getName());
 
     private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
@@ -18,36 +21,39 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
     }
 
     private final @NonNull ModeIconQuads icon_quad;
-    private final @NonNull String tool_tip;
-    private final @NonNull IconQuad @Nullable [] tool_tip_icons;
     private final @NonNull IconQuad infinite_icon;
+    private final @NonNull String tool_tip;
+    private final @Nullable List<@NonNull IconQuad> tool_tip_icons;
     private final @NonNull TextField label;
-    private final @NonNull GUIObject button_plus;
-    private final @NonNull GUIObject button_minus;
+    private final @NonNull IconButton button_plus;
+    private final @NonNull IconButton button_minus;
     private final @NonNull WorldViewer viewer;
     private @Nullable IconDisabler icon_disabler = null;
 
     private int text_count = 0;
 
     public IconSpinner(@NonNull WorldViewer viewer, @NonNull ModeIconQuads icon_quad, @NonNull String tool_tip,
-            @NonNull IconQuad @Nullable [] tool_tip_icons, @NonNull String shortcut_key) {
+            @Nullable List<@NonNull IconQuad> tool_tip_icons,
+            @NonNull GameAction action, @NonNull GameAction dec_action) {
         this.icon_quad = icon_quad;
         this.infinite_icon = GUIIcons.getIcons().getInfinite();
         this.tool_tip = tool_tip;
         this.tool_tip_icons = tool_tip_icons;
         this.viewer = viewer;
         setCanFocus(true);
-        setDim(icon_quad.quad(ModeIconQuads.Mode.NORMAL).getWidth(), icon_quad.quad(
-                ModeIconQuads.Mode.NORMAL).getHeight());
+        setDim(icon_quad.quad(ModeIconQuads.Mode.NORMAL).getWidth(), icon_quad.quad(ModeIconQuads.Mode.NORMAL)
+                .getHeight());
 
-        String inc_str = i18n("increase", shortcut_key);
-        button_plus = new IconSpinnerButton(Skin.getSkin().getPlusButton(), inc_str, this);
+        button_plus = new IconSpinnerButton(Skin.getSkin().getPlusButton(), action,
+                () -> i18n("increase", Renderer.getLocalInput().getInputManager().getBindingString(action)),
+                this);
         button_plus.setPos(0, 0);
         button_plus.addMouseButtonListener(new IncreaseListener());
         addChild(button_plus);
 
-        String dec_str = i18n("decrease", shortcut_key);
-        button_minus = new IconSpinnerButton(Skin.getSkin().getMinusButton(), dec_str, this);
+        button_minus = new IconSpinnerButton(Skin.getSkin().getMinusButton(), dec_action,
+                () -> i18n("decrease", Renderer.getLocalInput().getInputManager().getBindingString(dec_action)),
+                this);
         button_minus.setPos(button_plus.getWidth(), 0);
         button_minus.addMouseButtonListener(new DecreaseListener());
         addChild(button_minus);
@@ -132,14 +138,16 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
         int x = (getWidth() - icon_quad.quad(ModeIconQuads.Mode.NORMAL).getWidth()) / 2;
         int y = (getHeight() - icon_quad.quad(ModeIconQuads.Mode.NORMAL).getHeight()) / 2;
 
-        ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isHovered() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+        ModeIconQuads.Mode skinMode = isDisabled()
+                ? ModeIconQuads.Mode.DISABLED
+                : isHovered()
+                        ? ModeIconQuads.Mode.ACTIVE
+                : ModeIconQuads.Mode.NORMAL;
 
         renderer.drawIcon(icon_quad.quad(skinMode), x, y);
 
-        if (computeCount() > 0) {
-            IconQuad[] watch = GUIIcons.getIcons().getWatch();
-            int index = (int) (getProgress() * (watch.length - 1));
-            IconQuad watchQuad = watch[index];
+        if (text_count > 0) {
+            var watchQuad = GUIIcons.getIcons().getWatch(getProgress());
             renderer.drawIcon(watchQuad, getWidth() - watchQuad.getWidth(), getHeight() - watchQuad.getHeight());
         }
 

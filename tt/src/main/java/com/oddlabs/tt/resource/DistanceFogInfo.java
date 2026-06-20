@@ -1,6 +1,6 @@
 package com.oddlabs.tt.resource;
 
-import org.joml.Vector4fc;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 public final class DistanceFogInfo extends FogInfo {
@@ -9,7 +9,7 @@ public final class DistanceFogInfo extends FogInfo {
     private final float end;
     private final float height_factor;
 
-    public DistanceFogInfo(FogInfo.@NonNull Mode mode, @NonNull Vector4fc color, float density, float height_factor,
+    public DistanceFogInfo(FogInfo.@NonNull Mode mode, @NonNull Color color, float density, float height_factor,
             float start, float end) {
         super(mode, color, density);
         this.height_factor = height_factor;

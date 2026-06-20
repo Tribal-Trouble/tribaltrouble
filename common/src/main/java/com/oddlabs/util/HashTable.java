@@ -21,7 +21,8 @@ public final class HashTable<T> implements Serializable {
     private static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     @SuppressWarnings("unchecked")
-    private transient @Nullable LinkedList<@NonNull HashEntry<T>> @NonNull [] entries = new LinkedList[DEFAULT_INITIAL_ENTRIES];
+    private transient @Nullable LinkedList<@NonNull HashEntry<T>> @NonNull [] entries
+            = new LinkedList[DEFAULT_INITIAL_ENTRIES];
     private final float load_factor = DEFAULT_LOAD_FACTOR;
     private final int mul_factor = DEFAULT_MUL_FACTOR;
     private transient int num_entries;

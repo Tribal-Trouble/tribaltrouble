@@ -4,11 +4,13 @@ import org.jspecify.annotations.NonNull;
 
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /* http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html */
@@ -121,11 +123,11 @@ public final class IndexListOptimizer {
         private float score;
         private int round_added;
 
-        public Index(short index) {
+        Index(short index) {
             this.index = index;
         }
 
-        public void updateScore(int cache_index, int round) {
+        void updateScore(int cache_index, int round) {
             score = 0;
             if (cache_index != -1) {
                 if (round != round_added) {
@@ -138,19 +140,20 @@ public final class IndexListOptimizer {
             score += VALENCE_BOOST_SCALE * (float) Math.pow(triangle_list.size(), -VALENCE_BOOST_POWER);
         }
 
-        public void add(Triangle triangle) {
+        void add(Triangle triangle) {
 //			assert !triangle_list.contains(triangle);
             triangle_list.add(triangle);
         }
 
-        public void remove(Triangle triangle) {
+        void remove(Triangle triangle) {
             boolean success = triangle_list.remove(triangle);
             assert success;
         }
 
         @Override
         public @NonNull String toString() {
-            return "[index = " + index + " score = " + score + " round = " + round_added + " num_triangles = " + triangle_list.size() + "]";
+            return "[index = " + index + " score = " + score + " round = " + round_added + " num_triangles = "
+                    + triangle_list.size() + "]";
         }
     }
 
@@ -170,7 +173,7 @@ public final class IndexListOptimizer {
                         score += indices[i].score;
                 }
         */
-        public float getScore() {
+        float getScore() {
             float score = 0;
             for (Index indice : indices) {
                 score += indice.score;
@@ -178,13 +181,13 @@ public final class IndexListOptimizer {
             return score;
         }
 
-        public void remove() {
+        void remove() {
             for (Index indice : indices) {
                 indice.remove(this);
             }
         }
 
-        public void addToBuffer(@NonNull ShortBuffer buffer) {
+        void addToBuffer(@NonNull ShortBuffer buffer) {
             for (Index indice : indices) {
                 buffer.put(indice.index);
             }
@@ -192,11 +195,10 @@ public final class IndexListOptimizer {
 
         @Override
         public @NonNull String toString() {
-            String result = "Triangle score = " + getScore();
-            for (Index indice : indices) {
-                result += " " + indice.toString();
-            }
-            return result;
+            return "Triangle score = " + getScore() +
+                    Arrays.stream(indices)
+                            .map(Object::toString)
+                            .collect(Collectors.joining(" ", " ", ""));
         }
     }
 

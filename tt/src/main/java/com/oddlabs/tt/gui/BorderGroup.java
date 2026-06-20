@@ -28,8 +28,8 @@ public final class BorderGroup extends Group {
             label.setPos(data.captionLeft(), getHeight() - data.captionY());
             addChild(label);
         } else {
-            super.compileCanvas(group.getLeftOffset(), group.getBottomOffset(), group.getRightOffset(),
-                    group.getTopOffset());
+            super.compileCanvas(group.getLeftOffset(), group.getBottomOffset(), group.getRightOffset(), group
+                    .getTopOffset());
         }
         setCanFocus(true);
     }

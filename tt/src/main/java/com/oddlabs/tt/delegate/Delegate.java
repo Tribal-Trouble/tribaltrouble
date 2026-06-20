@@ -9,12 +9,21 @@ import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.MatrixStack;
 import com.oddlabs.tt.render.RenderQueues;
-import org.joml.Vector4f;
-import org.joml.Vector4fc;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * Base class for all top-level UI states (delegates) in the game. Delegates handle
+ * specific interaction modes (e.g., menus, in-game selection, targeting) and participate
+ * in both 2D and 3D rendering passes.
+ */
 public abstract class Delegate extends GUIObject {
-    private static final Vector4fc BACKGROUND_ALPHA = new Vector4f(0f, 0f, 0f, .3f);
+    private static final Color.Linear BACKGROUND_ALPHA = Color.Linear.BLACK.alpha(0.3f);
+
+    @Override
+    protected boolean shouldHandleActivate() {
+        return false;
+    }
 
     Delegate() {
         setPos(0, 0);

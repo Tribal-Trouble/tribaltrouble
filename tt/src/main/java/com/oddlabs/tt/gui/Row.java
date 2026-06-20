@@ -1,27 +1,32 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.GUIRenderer;
-import org.joml.Vector4f;
-import org.joml.Vector4fc;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 public final class Row<T, C extends GUIObject & Comparable<C>> extends GUIObject implements Comparable<Row<T, C>> {
-    private final @NonNull C @NonNull [] columns;
+    private final @NonNull List<@NonNull C> columns;
     private final @Nullable T content_object;
     private int sort_index;
-    private final Vector4f color = new Vector4f(com.oddlabs.util.Color.TRANSPARENT);
+    private Color.@NonNull Linear color = Color.Linear.TRANSPARENT;
     private boolean marked = false;
 
     public Row(@NonNull C @NonNull [] columns, @Nullable T content_object) {
+        this(List.of(columns), content_object);
+    }
+
+    public Row(@NonNull List<@NonNull C> columns, @Nullable T content_object) {
         this.columns = columns;
         this.content_object = content_object;
-        setDim(0, columns[0].getHeight());
+        setDim(0, columns.stream().mapToInt(C::getHeight).max().orElse(0));
         setCanFocus(true);
     }
 
     public @NonNull C getColumn(int index) {
-        return columns[index];
+        return columns.get(index);
     }
 
     public void setColumnInfos(@NonNull ColumnInfo @NonNull [] column_infos) {
@@ -51,14 +56,14 @@ public final class Row<T, C extends GUIObject & Comparable<C>> extends GUIObject
         return getColumn(sort_index).compareTo(o.getColumn(sort_index));
     }
 
-    public void setColor(@NonNull Vector4fc color) {
-        this.color.set(color);
+    public void setColor(@NonNull Color color) {
+        this.color = color instanceof Color.Linear linear ? linear : new Color.Linear(color);
     }
 
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         var c = marked ? Skin.getSkin().getMultiColumnComboBoxData().colorMarked() : color;
-        if (c.w() >= .2f) {
+        if (c.a() >= .2f) {
             renderer.drawColoredQuad(0, 0, getWidth(), getHeight(), c);
         }
     }

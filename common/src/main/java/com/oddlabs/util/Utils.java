@@ -15,11 +15,14 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.util.Enumeration;
+import java.util.Comparator;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 public final class Utils {
+    private static final Logger logger = Logger.getLogger(Utils.class.getSimpleName());
+
     public static final Pattern EMAIL_PATTERN = Pattern.compile("(.+@.+\\.[a-z]+)?");
     public static final Path STD_OUT = Path.of("std.out");
     public static final Path STD_ERR = Path.of("std.err");
@@ -31,33 +34,18 @@ public final class Utils {
         try {
             return tryGetLoopbackAddress();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
     public static @NonNull InetAddress tryGetLoopbackAddress() throws IOException {
-        Enumeration<NetworkInterface> interfaces;
-        interfaces = NetworkInterface.getNetworkInterfaces();
-        InetAddress best_address = null;
-        out:
-        while (interfaces.hasMoreElements()) {
-            NetworkInterface network_interface = interfaces.nextElement();
-            Enumeration<InetAddress> addresses = network_interface.getInetAddresses();
-            while (addresses.hasMoreElements()) {
-                InetAddress address = addresses.nextElement();
-                if (address.isLoopbackAddress()) {
-                    best_address = address;
-                    // Prefer ipv4 addresses because of BUG 6230761
-                    if (!(address instanceof Inet6Address))
-                        break out;
-                }
-            }
-        }
-        if (best_address != null) {
-            IO.println("loopback address = " + best_address);
-            return best_address;
-        }
-        throw new IOException("Could not find a loopback address");
+        return NetworkInterface.networkInterfaces()
+                .flatMap(NetworkInterface::inetAddresses)
+                .filter(InetAddress::isLoopbackAddress)
+                // prefer ipv6 over ipv4
+                .min(Comparator.comparingInt(addr -> addr instanceof Inet6Address ? 0 : 1))
+                .stream().peek(best -> logger.info("loopback address = " + best))
+                .findFirst().orElseThrow(() -> new IOException("No loopback address found"));
     }
 
     public static int powerOf2Log2(int n) {
@@ -109,13 +97,13 @@ public final class Utils {
         }
     }
 
-    public static <T> T loadObject(@NonNull URL url) {
-        return loadObject(url, false);
+    public static <T> T loadObject(@NonNull Class<T> clazz, @NonNull URL url) {
+        return loadObject(clazz, url, false);
     }
 
-    public static <T> T loadObject(@NonNull URL url, boolean zipped) {
+    public static <T> T loadObject(@NonNull Class<T> clazz, @NonNull URL url, boolean zipped) {
         try {
-            return tryLoadObject(url, zipped);
+            return tryLoadObject(clazz, url, zipped);
         } catch (IOException ioe) {
             throw new UncheckedIOException(ioe);
         } catch (ClassNotFoundException e) {
@@ -123,16 +111,18 @@ public final class Utils {
         }
     }
 
-    public static <T> T tryLoadObject(@NonNull URL url) throws IOException, ClassNotFoundException {
-        return tryLoadObject(url, false);
+    public static <T> T tryLoadObject(@NonNull Class<T> clazz, @NonNull URL url) throws IOException,
+            ClassNotFoundException {
+        return tryLoadObject(clazz, url, false);
     }
 
-    public static <T> T tryLoadObject(@NonNull URL url, boolean zipped) throws IOException, ClassNotFoundException {
+    public static <T> T tryLoadObject(@NonNull Class<T> clazz, @NonNull URL url, boolean zipped) throws IOException,
+            ClassNotFoundException {
         try (InputStream urlStream = url.openStream()) {
             try (InputStream input_stream = zipped ? new GZIPInputStream(urlStream) : new BufferedInputStream(
                     urlStream)) {
                 try (ObjectInputStream obj_stream = new ObjectInputStream(input_stream)) {
-                    @SuppressWarnings("unchecked") T obj = (T) obj_stream.readObject();
+                    T obj = clazz.cast(obj_stream.readObject());
                     return obj;
                 }
             }

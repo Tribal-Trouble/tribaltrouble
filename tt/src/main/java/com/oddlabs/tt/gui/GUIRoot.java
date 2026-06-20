@@ -1,22 +1,21 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.animation.TimerAnimation;
+import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.delegate.CameraDelegate;
 import com.oddlabs.tt.delegate.ModalDelegate;
 import com.oddlabs.tt.delegate.NullDelegate;
-import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.QuitForm;
 import com.oddlabs.tt.form.Status;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.render.SerializableDisplayMode;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.util.GLUtils;
-import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.util.Utils;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
@@ -28,6 +27,8 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
+import static com.oddlabs.tt.camera.Camera.FOVMode.DIAGONAL;
+
 /**
  * Root of a GUI component tree
  */
@@ -35,7 +36,7 @@ public final class GUIRoot extends GUIObject {
     private static final Logger logger = Logger.getLogger(GUIRoot.class.getName());
     private static final ResourceBundle bundle = ResourceBundle.getBundle(GUIRoot.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
+    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
@@ -55,7 +56,7 @@ public final class GUIRoot extends GUIObject {
     private boolean render_tool_tip = false;
 
     /**
-     * the cotnrol which currently has focus
+     * the control that currently has focus
      */
     private @NonNull GUIObject current_gui_object = this;
     private @NonNull GUIObject global_focus = this;
@@ -75,14 +76,17 @@ public final class GUIRoot extends GUIObject {
         Renderer.getLocalInput().getPointerInput().setActiveCursor(current_gui_object.getCursorType());
     }
 
+    @Override
     public @NonNull GUIRoot self() {
         return this;
     }
 
+    @Override
     public float getGlobalScale() {
         return effective_scale;
     }
 
+    @Override
     public @NonNull GUIRoot getParentGUIRoot() {
         return self();
     }
@@ -111,7 +115,8 @@ public final class GUIRoot extends GUIObject {
     }
 
     public void setToolTipTimer() {
-        tool_tip_timer.setTimerInterval(Settings.getSettings().tooltip_delay * ToolTipBox.MAX_DELAY_SECONDS);
+        tool_tip_timer.setTimerInterval(Renderer.getRenderer().getSettings().tooltip_delay
+                * ToolTipBox.MAX_DELAY_SECONDS);
     }
 
     public void timerUpdate(@NonNull TimerAnimation anim) {
@@ -230,12 +235,13 @@ public final class GUIRoot extends GUIObject {
         if (width <= 0 || height <= 0) return 1.0f;
         float maxScaleX = width / 800f;
         float maxScaleY = height / 600f;
-        return Math.max(1.0f, Math.min(maxScaleX, maxScaleY));
+        return Math.clamp(maxScaleX, 1.0f, maxScaleY);
     }
 
     public static float calculateMinScale(int width, int height) {
         if (width <= 0 || height <= 0) return 1.0f;
-        float autoScale = Math.min(width / 1280f, height / 1024f);
+        float autoScale = Math.min(width / SerializableDisplayMode.MIN_WIDTH, height
+                / SerializableDisplayMode.MIN_HEIGHT);
         return Math.max(1.0f, autoScale);
     }
 
@@ -245,7 +251,7 @@ public final class GUIRoot extends GUIObject {
         float minScale = calculateMinScale(width, height);
         float maxAllowedScale = Math.max(minScale, calculateMaxScale(width, height));
 
-        float current = Math.clamp(Settings.getSettings().ui_scale, 0f, 1f);
+        float current = Math.clamp(Renderer.getRenderer().getSettings().ui_scale, 0f, 1f);
 
         // Interpolate
         float rawTarget = minScale + (current * (maxAllowedScale - minScale));
@@ -261,6 +267,11 @@ public final class GUIRoot extends GUIObject {
         if (width <= 0 || height <= 0) return;
 
         effective_scale = calculateEffectiveScale(width, height);
+
+        var pointerInput = Renderer.getLocalInput().getPointerInput();
+        if (pointerInput.getCurrentScale() != effective_scale) {
+            pointerInput.loadCursors(effective_scale);
+        }
 
         int virtualWidth = (int) (width / effective_scale);
         int virtualHeight = (int) (height / effective_scale);
@@ -285,9 +296,10 @@ public final class GUIRoot extends GUIObject {
                     consumed = true;
                 }
                 if (event.consumeAction(GameAction.GLOBAL_AGGRESSIVE_UNITS)) {
-                    Settings.getSettings().aggressive_units = !Settings.getSettings().aggressive_units;
-                    info_printer.print(i18n(
-                            Settings.getSettings().aggressive_units ? "aggressive_unites_on" : "aggressive_unites_off"));
+                    Renderer.getRenderer().getSettings().aggressive_units = !Renderer.getRenderer()
+                            .getSettings().aggressive_units;
+                    info_printer.print(i18n(Renderer.getRenderer().getSettings().aggressive_units
+                            ? "aggressive_unites_on" : "aggressive_unites_off"));
                     consumed = true;
                 }
                 if (event.consumeAction(GameAction.GLOBAL_TOGGLE_STATUS)) {
@@ -302,7 +314,7 @@ public final class GUIRoot extends GUIObject {
                 }
 
                 // Debug Actions (Only those that don't need Viewer)
-                if (Settings.getSettings().inDeveloperMode()) {
+                if (Renderer.getRenderer().getSettings().inDeveloperMode()) {
                     if (event.consumeAction(GameAction.DEBUG_TOGGLE_LIGHT)) {
                         Globals.draw_light = !Globals.draw_light;
                         consumed = true;
@@ -338,7 +350,7 @@ public final class GUIRoot extends GUIObject {
                     }
                     if (event.consumeAction(GameAction.DEBUG_CRASH)) {
                         logger.info("crash!");
-                        throw new RuntimeException("Debug crash action triggered.");
+                        throw new IllegalStateException("Debug crash action triggered.");
                     }
                     if (event.consumeAction(GameAction.DEBUG_TOGGLE_FRAME_BUFFER)) {
                         Globals.clear_frame_buffer = !Globals.clear_frame_buffer;
@@ -373,7 +385,7 @@ public final class GUIRoot extends GUIObject {
                     }
                     if (event.consumeAction(GameAction.DEBUG_DUMP_ANIMATIONS)) {
                         logger.info("*********************************************************");
-                        LocalEventQueue.getQueue().debugPrintAnimations();
+                        Renderer.getRenderer().getEventQueue().debugPrintAnimations();
                         logger.info("Texture.globalSize() = " + Texture.globalSize());
                         consumed = true;
                     }
@@ -398,8 +410,8 @@ public final class GUIRoot extends GUIObject {
         if (target != null && target != current_gui_object) {
             current_gui_object.mouseExitedAll();
             tool_tip_timer.resetTime();
-            boolean old_tip = current_gui_object instanceof ToolTip;
-            boolean new_tip = target instanceof ToolTip;
+            boolean old_tip = current_gui_object.hasToolTip();
+            boolean new_tip = target.hasToolTip();
             if (!old_tip && new_tip) {
                 tool_tip_timer.start();
                 render_tool_tip = false;
@@ -473,17 +485,19 @@ public final class GUIRoot extends GUIObject {
     }
 
     public Matrix4f multProjection(@NonNull Matrix4f matrix) {
-        float fovy = Globals.FOV;
+        float aspect = (float) getWidth() / getHeight();
+        CameraDelegate<?> delegate = getDelegate();
+        float fovy = Camera.calculateDynamicFOV(delegate.getCamera().getState().getCurrentZ(), aspect, DIAGONAL);
         float zNear = Globals.VIEW_MIN;
         float zFar = Globals.VIEW_MAX;
 
-        Matrix4f perspectiveMatrix = new Matrix4f().perspective((float) Math.toRadians(fovy),
-                (float) getWidth() / getHeight(), zNear, zFar);
+        Matrix4f perspectiveMatrix = new Matrix4f().perspective((float) Math.toRadians(fovy), aspect, zNear, zFar);
         return matrix.mul(perspectiveMatrix);
     }
 
     private @Nullable ToolTip getToolTip() {
-        return render_tool_tip && getCurrentGUIObject() instanceof ToolTip tip ? tip : null;
+        GUIObject obj = getCurrentGUIObject();
+        return render_tool_tip && obj.hasToolTip() ? obj : null;
     }
 
     private void renderToolTip(@NonNull GUIRenderer renderer, @NonNull ToolTip hovered) {

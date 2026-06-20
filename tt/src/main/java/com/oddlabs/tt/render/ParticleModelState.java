@@ -1,14 +1,14 @@
 package com.oddlabs.tt.render;
 
+import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.particle.Particle;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
-import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 final class ParticleModelState implements ModelState<Particle> {
-    private static final Vector4fc NO_SELECTION = Color.TRANSPARENT;
+    private static final Color NO_SELECTION = Color.Linear.TRANSPARENT;
     private final @NonNull Particle particle;
     private final @NonNull Matrix4fc viewMatrix;
 
@@ -23,17 +23,32 @@ final class ParticleModelState implements ModelState<Particle> {
     }
 
     @Override
-    public @NonNull Vector4fc getTeamColor() {
+    public int getAnimation() {
+        return 0;
+    }
+
+    @Override
+    public float getAnimationTicks() {
+        return 0f;
+    }
+
+    @Override
+    public @NonNull Color getTeamColor() {
         return particle.getColor();
     }
 
     @Override
-    public @NonNull Vector4fc getSelectionColor() {
+    public @NonNull Color getSelectionColor() {
         return NO_SELECTION;
     }
 
     @Override
-    public @NonNull Vector4fc getColor() {
+    public Selectable.@NonNull VisualPattern getPattern() {
+        return Selectable.VisualPattern.NONE;
+    }
+
+    @Override
+    public @NonNull Color getColor() {
         return particle.getColor();
     }
 
@@ -55,7 +70,10 @@ final class ParticleModelState implements ModelState<Particle> {
         dest.m21(viewMatrix.m12());
         dest.m22(viewMatrix.m22());
 
-        // 3. Scale the particle
+        // 3. Apply the particle's rotation angle around its forward facing axis
+        dest.rotate(particle.getAngle(), 0f, 0f, 1f);
+
+        // 4. Scale the particle
         dest.scale(particle.getRadiusX(), particle.getRadiusY(), particle.getRadiusZ());
 
         return dest;

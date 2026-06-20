@@ -7,72 +7,86 @@ import com.oddlabs.tt.form.ProgressForm;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.model.RacesResources;
+import com.oddlabs.tt.model.Terrain;
 import com.oddlabs.tt.resource.BlendInfo;
 import com.oddlabs.tt.resource.BlendLighting;
+import com.oddlabs.tt.resource.BlendOcclusion;
 import com.oddlabs.tt.resource.DistanceFogInfo;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.GLByteImage;
 import com.oddlabs.tt.resource.GLIntImage;
 import com.oddlabs.tt.resource.StructureBlend;
+import com.oddlabs.tt.scenery.Sky;
 import com.oddlabs.util.Color;
 import com.oddlabs.util.Utils;
-import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
+/**
+ * Manages the procedural generation, state, and properties of the game's landscape.
+ */
 public final class Landscape {
     public static final boolean DEBUG = false;
     private static final int STRUCTURE_SEED = 42; // must be constant; otherwise distinct repeating patterns might appear
 
     private static final int NUM_PLANT_TYPES = 4;
 
-    public static final Vector4fc NATIVE_SEA_BOTTOM_COLOR = Color.argb4v(0xFF_73_40_99);
-    public static final Vector4fc VIKING_SEA_BOTTOM_COLOR = Color.argb4v(0xFF_1A_33_3D);  // (Dark Blue-Green)
-
-    private static final Vector4fc NATIVE_FOG_COLOR = Color.argb4v(0xFF_A5_BF_FF);
-    private static final Vector4fc VIKING_FOG_COLOR = Color.argb4v(0xFF_33_66_8C);
-    private static final float NATIVE_FOG_DENSITY = 0.0012f;
-    private static final float VIKING_FOG_DENSITY = 0.0016f;
+    static final Map<Terrain, @NonNull Color> FOG_COLOR = new EnumMap<>(Map.of(
+            Terrain.NATIVE, new Color.Standard(0xFF_A5_BF_FF),
+            Terrain.VIKING, new Color.Standard(0xFF_33_66_8C)
+    ));
+    private static final float NATIVE_FOG_DENSITY = 0.001f;
+    private static final float VIKING_FOG_DENSITY = 0.0015f;
     private static final float NATIVE_FOG_HEIGHT = 1.2f;
     private static final float VIKING_FOG_HEIGHT = 1.4f;
 
     // Native terrain colors (RGB)
-    private static final Vector4fc NATIVE_SAND_COLOR = Color.argb4v(0xFF_FF_E6_CC);
-    private static final Vector4fc NATIVE_DIRT_COLOR = Color.argb4v(0xFF_FF_B3_80);
-    private static final Vector4fc NATIVE_GRASS_COLOR = Color.argb4v(0xFF_33_73_00);
-    private static final Vector4fc NATIVE_ROCK_TINT = Color.argb4v(0xFF_FF_CC_99);
+    private static final Color NATIVE_SAND_COLOR = new Color.Standard(0xFF_FF_E6_CC);
+    private static final Color NATIVE_DIRT_COLOR = new Color.Standard(0xFF_FF_B3_80);
+    private static final Color NATIVE_GRASS_COLOR = new Color.Standard(0xFF_33_73_00);
+    private static final Color NATIVE_ROCK_TINT = new Color.Standard(0xFF_FF_CC_99);
 
     // Viking terrain colors (RGB)
-    private static final Vector4fc VIKING_GRAVEL_COLOR = Color.argb4v(0xFF_B3_8C_66);
-    private static final Vector4fc VIKING_SOIL_COLOR = Color.argb4v(0xFF_A6_80_59);
-    private static final Vector4fc VIKING_GRASS_COLOR = Color.argb4v(0xFF_33_73_00); // Same as native, but gets color-shifted
-    private static final Vector4fc VIKING_SNOW_COLOR = Color.argb4v(0xFF_F2_F2_F2);
-    private static final Vector4fc VIKING_CLIFF_GRASS_TINT = Color.argb4v(0xFF_33_73_00);
+    private static final Color VIKING_GRAVEL_COLOR = new Color.Standard(0xFF_B3_8C_66);
+    private static final Color VIKING_SOIL_COLOR = new Color.Standard(0xFF_A6_80_59);
+    private static final Color VIKING_GRASS_COLOR = new Color.Standard(0xFF_33_73_00); // Same as native, but gets color-shifted
+    private static final Color VIKING_SNOW_COLOR = new Color.Standard(0xFF_F2_F2_F2);
+    private static final Color VIKING_CLIFF_GRASS_TINT = new Color.Standard(0xFF_33_73_00);
 
     // Misc colors
-    private static final float DETAIL_GREY = Color.argb4v(0xFF_80_80_80).x();
-    private static final Vector4fc BLEND_LIGHTING_COLOR = Color.argb4v(0xFF_FF_E6_99); // 1.0, 0.9, 0.6
+    private static final float DETAIL_GREY = 0.5f;
+    private static final Color BLEND_LIGHTING_COLOR = new Color.Standard(0xFF_FF_E6_99); // 1.0, 0.9, 0.6
+    private static final Color AO_COLOR = new Color.Standard(0xFF_55_4C_66);
 
-    public enum TerrainType {
-        NATIVE,
-        VIKING
+    /**
+     * Returns the baseline dust color for a given landscape terrain type.
+     *
+     * @param terrain the terrain type
+     * @return the linear color representing the terrain's dust/soil
+     */
+    public static Color.@NonNull Linear getDustColor(@NonNull Terrain terrain) {
+        return switch (terrain) {
+            case NATIVE -> new Color.Linear(NATIVE_SAND_COLOR);
+            case VIKING -> new Color.Linear(VIKING_SOIL_COLOR);
+        };
     }
 
     private final @NonNull Random random;
     private final @NonNull BlendInfo @NonNull [] blend_infos;
 
-    private record StructureLayers(Layer diffuse, Layer normal) {
+    public record StructureLayers(Layer diffuse, Layer normal) {
     }
 
-    private GLIntImage[] structures;
-    private GLIntImage[] structure_normals;
     private GLIntImage detail;
+    private GLIntImage detail_normal;
     private @NonNull GLByteImage[] alpha_maps;
 
     private Channel height;
@@ -109,14 +123,14 @@ public final class Landscape {
     private final int max_plants;
     private final float access_threshold;
     private final float build_threshold;
-    private final @NonNull TerrainType terrain;
+    private final @NonNull Terrain terrain;
 
     private byte @NonNull [] @NonNull [] build;
     private float @NonNull [] @NonNull [] player_locations;
     private int @NonNull [] @NonNull [] supply_locations;
     private float @NonNull [] @NonNull [] plants;
 
-    public Landscape(int num_players, int meters_per_world, @NonNull TerrainType terrain, float detail_alpha_value,
+    public Landscape(int num_players, int meters_per_world, @NonNull Terrain terrain, float detail_alpha_value,
             float hills, float vegetation_amount, float supplies_amount, int seed, int initial_unit_count,
             float random_start_pos) {
         this.terrain = terrain;
@@ -149,11 +163,6 @@ public final class Landscape {
                 height_scale = 64;
                 access_threshold = 0.025f;
             }
-            case 2048 -> {
-                size_multiplier = 64;
-                height_scale = 76;
-                access_threshold = 0.02f;
-            }
             default -> {
                 size_multiplier = 0;
                 assert false : "illegal meters_per_world";
@@ -170,13 +179,14 @@ public final class Landscape {
         area = size_multiplier * 10000f;
         max_plants = size_multiplier * 64;
 
-        if (terrain == TerrainType.NATIVE) {
-            max_trees = (int) Math.pow(2, 2 * Utils.powerOf2Log2(meters_per_world) - 9);
-            max_palmtrees = max_trees >> 1;
-        } else {
-            max_trees = (int) (.75f * Math.pow(2, 2 * Utils.powerOf2Log2(meters_per_world) - 9));
-            max_palmtrees = max_trees;
-        }
+        max_trees = switch (terrain) {
+            case NATIVE -> (int) Math.pow(2, 2 * Utils.powerOf2Log2(meters_per_world) - 9);
+            case VIKING -> (int) (.75f * Math.pow(2, 2 * Utils.powerOf2Log2(meters_per_world) - 9));
+        };
+        max_palmtrees = switch (terrain) {
+            case NATIVE -> max_trees >> 1;
+            case VIKING -> max_trees;
+        };
 
         max_rock = max_trees >> 3;
         max_iron = max_trees >> 4;
@@ -217,12 +227,12 @@ public final class Landscape {
             }
         };
 
-        this.structures = new GLIntImage[layers.length];
-        this.structure_normals = new GLIntImage[layers.length];
-        for (int i = 0; i < layers.length; i++) {
-            this.structures[i] = new GLIntImage(layers[i].diffuse);
-            this.structure_normals[i] = new GLIntImage(layers[i].normal);
-        }
+        GLIntImage[] structures = Arrays.stream(layers)
+                .map(layer -> new GLIntImage(layer.diffuse))
+                .toArray(GLIntImage[]::new);
+        GLIntImage[] structure_normals = Arrays.stream(layers)
+                .map(layer -> new GLIntImage(layer.normal))
+                .toArray(GLIntImage[]::new);
 
         if (DEBUG) height.toLayer().saveAsPNG("height");
         ProgressForm.progress();
@@ -241,15 +251,17 @@ public final class Landscape {
         if (DEBUG) access.toLayer().saveAsPNG("access_connected");
 
         // create blend infos
-        blend_infos = new BlendInfo[]{new StructureBlend(structures[0], structure_normals[0], new GLByteImage(
-                new Channel(1, 1).fill(1f), GL11.GL_RED)), new StructureBlend(structures[1], structure_normals[1],
-                        alpha_maps[0]), new StructureBlend(structures[2], structure_normals[2],
-                                alpha_maps[1]), new StructureBlend(structures[3], structure_normals[3],
-                                        alpha_maps[2]), new StructureBlend(structures[4], structure_normals[4],
-                                                alpha_maps[3]), new BlendLighting(alpha_maps[4], 1f, 0.9f,
-                                                        0.6f), new StructureBlend(structures[5], structure_normals[5],
-                                                                alpha_maps[5]), new StructureBlend(structures[6],
-                                                                        structure_normals[6], alpha_maps[6])
+        blend_infos = new BlendInfo[]{
+                new StructureBlend(structures[0], structure_normals[0], new GLByteImage(new Channel(1, 1).fill(1f),
+                        GL11.GL_RED)),
+                new StructureBlend(structures[1], structure_normals[1], alpha_maps[0]),
+                new StructureBlend(structures[2], structure_normals[2], alpha_maps[1]),
+                new StructureBlend(structures[3], structure_normals[3], alpha_maps[2]),
+                new StructureBlend(structures[4], structure_normals[4], alpha_maps[3]),
+                new BlendLighting(alpha_maps[4], BLEND_LIGHTING_COLOR),
+                new StructureBlend(structures[5], structure_normals[5], alpha_maps[5]),
+                new StructureBlend(structures[6], structure_normals[6], alpha_maps[6]),
+                new BlendOcclusion(alpha_maps[7], AO_COLOR)
         };
     }
 
@@ -271,22 +283,23 @@ public final class Landscape {
         // Old code: Layer structure_rubble = Landscape.genRubble(..., structure_dirt.copy());
         // genRubble logic: rubble.multiply(.9f).bump(...)
         // I need to pass the base layer.
-        structures[2] = Landscape.genRubble(structure_size, noise8.copy(), voronoi4.copy(), voronoi8.copy(),
-                voronoi16.copy(), structures[1].diffuse.copy());
+        structures[2] = Landscape.genRubble(structure_size, noise8.copy(), voronoi4.copy(), voronoi8.copy(), voronoi16
+                .copy(), structures[1].diffuse.copy());
 
-        structures[4] = genGrass(structure_size, noise8.copy(), noise256.copy());
+        structures[4] = Landscape.genGrass(structure_size, NATIVE_GRASS_COLOR, noise8.copy(), noise256.copy());
 
-        structures[3] = Landscape.genRock(structure_size, noise8.copy(), noise256.copy(), voronoi4.copy(),
-                voronoi8.copy(), voronoi16.copy(), structures[2].diffuse.copy(), structures[4].diffuse.copy());
+        structures[3] = Landscape.genRock(structure_size, noise8.copy(), noise256.copy(), voronoi4.copy(), voronoi8
+                .copy(), voronoi16.copy(), structures[2].diffuse.copy(), structures[4].diffuse.copy());
 
         structures[5] = Landscape.genBlack();
 
-        structures[6] = Landscape.genSeabottom(terrain, structure_size, noise8.copy(), noise256.copy(), voronoi4.copy(),
+        structures[6] = Sky.genSeabottom(terrain, structure_size, noise8.copy(), noise256.copy(), voronoi4.copy(),
                 voronoi8.copy());
 
-        StructureLayers structure_detail = Landscape.genDetail(detail_size, detail_alpha_value, STRUCTURE_SEED,
-                noise8.copy());
+        StructureLayers structure_detail = Landscape.genDetail(detail_size, detail_alpha_value, STRUCTURE_SEED, noise8
+                .copy());
         detail = new GLIntImage(structure_detail.diffuse);
+        detail_normal = new GLIntImage(structure_detail.normal);
         return structures;
     }
 
@@ -300,50 +313,66 @@ public final class Landscape {
 
         structures[1] = Landscape.genSoil(structure_size, noise8.copy(), noise256.copy(), voronoi32.copy());
 
-        structures[3] = genGrass(structure_size, noise8.copy(), noise256.copy());
+        structures[3] = Landscape.genGrass(structure_size, VIKING_GRASS_COLOR, noise8.copy(), noise256.copy());
         structures[3].diffuse.multiply(.75f, .9f, 1.1f);
 
-        structures[2] = genCliff(structure_size, noise8.copy(), noise256.copy(), voronoi4.copy(), voronoi8.copy(),
-                voronoi16.copy(), structures[1].diffuse.copy(), structures[3].diffuse.copy());
+        structures[2] = Landscape.genCliff(structure_size, noise8.copy(), noise256.copy(), voronoi4.copy(), voronoi8
+                .copy(), voronoi16.copy(), structures[1].diffuse.copy(), structures[3].diffuse.copy());
 
         structures[4] = Landscape.genSnow(structure_size, noise8.copy(), noise256.copy());
 
         structures[5] = Landscape.genBlack();
 
-        structures[6] = Landscape.genSeabottom(terrain, structure_size, noise8.copy(), noise256.copy(), voronoi4.copy(),
+        structures[6] = Sky.genSeabottom(terrain, structure_size, noise8.copy(), noise256.copy(), voronoi4.copy(),
                 voronoi8.copy());
 
-        StructureLayers structure_detail = Landscape.genDetail(detail_size, detail_alpha_value, STRUCTURE_SEED,
-                noise8.copy());
+        StructureLayers structure_detail = Landscape.genDetail(detail_size, detail_alpha_value, STRUCTURE_SEED, noise8
+                .copy());
         detail = new GLIntImage(structure_detail.diffuse);
+        detail_normal = new GLIntImage(structure_detail.normal);
 
         return structures;
+    }
+
+    private static @NonNull Layer toNormalMapWithZeroSpecular(@NonNull Channel bump, float strength, int size) {
+        return toNormalMapWithSpecular(bump, strength, 0f, size);
+    }
+
+    private static @NonNull Layer toNormalMapWithSpecular(@NonNull Channel bump, float strength, float specular,
+            int size) {
+        Channel spec = new Channel(size, size).fill(specular);
+        return bump.toNormalMap(strength, spec);
+    }
+
+    private static @NonNull Layer toLayerWithAlpha(@NonNull Layer layer, float alpha) {
+        Channel a = new Channel(layer.r.getWidth(), layer.r.getHeight()).fill(alpha);
+        return new Layer(layer.r, layer.g, layer.b, a);
     }
 
     private static @NonNull StructureLayers genSand(int size, @NonNull Channel noise8, @NonNull Channel noise256) {
         Channel empty = new Channel(size, size).fill(1f);
         Channel sand_bump1 = noise8.brightness(0.75f);
         Channel sand_bump2 = noise256.brightness(0.15f);
-        Layer sand = new Layer(empty.copy().fill(NATIVE_SAND_COLOR.x()), empty.copy().fill(NATIVE_SAND_COLOR.y()),
-                empty.copy().fill(NATIVE_SAND_COLOR.z()));
+        Layer sand = new Layer(empty.copy().fill(NATIVE_SAND_COLOR.r()), empty.copy().fill(NATIVE_SAND_COLOR.g()), empty
+                .copy().fill(NATIVE_SAND_COLOR.b()));
         Channel bump = sand_bump1.channelAdd(sand_bump2);
         sand.bump(bump, size / 1024f, 0f, 0.1f, 1f, 1f, 1f, 0f, 0f, 0f);
         if (DEBUG) sand.saveAsPNG("structure_sand");
 
-        return new StructureLayers(sand, getFlatNormal(size)); // Forced flat normal
+        return new StructureLayers(toLayerWithAlpha(sand, 0.3f), toNormalMapWithSpecular(bump, 0.3f, 0.15f, size));
     }
 
     private static @NonNull StructureLayers genGravel(int size, @NonNull Channel noise8, @NonNull Channel noise256) {
         Channel empty = new Channel(size, size).fill(1f);
         Channel gravel_bump1 = noise8.brightness(0.5f);
         Channel gravel_bump2 = noise256.brightness(0.5f);
-        Layer gravel = new Layer(empty.copy().fill(VIKING_GRAVEL_COLOR.x()), empty.copy().fill(VIKING_GRAVEL_COLOR.y()),
-                empty.copy().fill(VIKING_GRAVEL_COLOR.z()));
+        Layer gravel = new Layer(empty.copy().fill(VIKING_GRAVEL_COLOR.r()), empty.copy().fill(VIKING_GRAVEL_COLOR.g()),
+                empty.copy().fill(VIKING_GRAVEL_COLOR.b()));
         Channel bump = gravel_bump1.channelAdd(gravel_bump2);
         gravel.bump(bump, size / 1024f, 0f, 0.1f, 1f, 1f, 1f, 0f, 0f, 0f);
         if (DEBUG) gravel.saveAsPNG("structure_gravel");
 
-        return new StructureLayers(gravel, getFlatNormal(size)); // Forced flat normal
+        return new StructureLayers(toLayerWithAlpha(gravel, 1.0f), toNormalMapWithSpecular(bump, 0.6f, 0.1f, size));
     }
 
     private static @NonNull StructureLayers genDirt(int size, @NonNull Channel noise8, @NonNull Channel noise256,
@@ -352,14 +381,14 @@ public final class Landscape {
         Channel dirt_bump1 = noise8.brightness(0.8f);
         Channel dirt_bump2 = noise256.brightness(0.1f);
         Channel dirt_bump3 = voronoi32.brightness(0.1f);
-        Layer dirt = new Layer(empty.copy().fill(NATIVE_DIRT_COLOR.x()), empty.copy().fill(NATIVE_DIRT_COLOR.y()),
-                empty.copy().fill(NATIVE_DIRT_COLOR.z()));
+        Layer dirt = new Layer(empty.copy().fill(NATIVE_DIRT_COLOR.r()), empty.copy().fill(NATIVE_DIRT_COLOR.g()), empty
+                .copy().fill(NATIVE_DIRT_COLOR.b()));
         Channel dirt_bump = dirt_bump1.channelAdd(dirt_bump2).channelAdd(dirt_bump3);
         dirt_bump.perturb(noise8, 0.05f);
         dirt.bump(dirt_bump, size / 128f, 0f, 0.5f, 1f, 1f, 1f, 0f, 0f, 0f);
         if (DEBUG) dirt.saveAsPNG("structure_dirt");
 
-        return new StructureLayers(dirt, getFlatNormal(size)); // Forced flat normal
+        return new StructureLayers(toLayerWithAlpha(dirt, 1.0f), toNormalMapWithSpecular(dirt_bump, 0.6f, 0.1f, size));
     }
 
     private static @NonNull StructureLayers genSoil(int size, @NonNull Channel noise8, @NonNull Channel noise256,
@@ -368,29 +397,27 @@ public final class Landscape {
         Channel soil_bump1 = noise8.brightness(0.8f);
         Channel soil_bump2 = noise256.brightness(0.1f);
         Channel soil_bump3 = voronoi32.brightness(0.1f);
-        Layer soil = new Layer(empty.copy().fill(VIKING_SOIL_COLOR.x()), empty.copy().fill(VIKING_SOIL_COLOR.y()),
-                empty.copy().fill(VIKING_SOIL_COLOR.z()));
+        Layer soil = new Layer(empty.copy().fill(VIKING_SOIL_COLOR.r()), empty.copy().fill(VIKING_SOIL_COLOR.g()), empty
+                .copy().fill(VIKING_SOIL_COLOR.b()));
         Channel soil_bump = soil_bump1.channelAdd(soil_bump2).channelAdd(soil_bump3);
         soil_bump.perturb(noise8, 0.05f);
         soil.bump(soil_bump, size / 128f, 0f, 0.5f, 1f, 1f, 1f, 0f, 0f, 0f);
         if (DEBUG) soil.saveAsPNG("structure_soil");
 
-        Channel zero = new Channel(size, size).fill(0f);
-        return new StructureLayers(soil, soil_bump.toNormalMap(1.5f, zero));
+        return new StructureLayers(toLayerWithAlpha(soil, 1.0f), toNormalMapWithSpecular(soil_bump, 1.5f, 0.1f, size));
     }
 
-    private @NonNull StructureLayers genGrass(int size, @NonNull Channel noise8, @NonNull Channel noise256) {
+    private static @NonNull StructureLayers genGrass(int size, @NonNull Color grassColor, @NonNull Channel noise8,
+            @NonNull Channel noise256) {
         Channel empty = new Channel(size, size).fill(1f);
         Channel grass_bump = noise8.copy().rotate(90).channelAdd(noise256.brightness(0.02f));
-        Vector4fc grassColor = terrain == TerrainType.NATIVE ? NATIVE_GRASS_COLOR : VIKING_GRASS_COLOR;
-        Layer grass = new Layer(empty.copy().fill(grassColor.x()), empty.copy().fill(grassColor.y()), empty.copy().fill(
-                grassColor.z()));
-        grass.r.channelAdd(noise8.brightness(0.2f));
-        grass.bump(grass_bump, size / 256f, 0f, 0.6f, 1f, 1f, 1f, 0f, 0f, 0f);
+        Layer grass = new Layer(empty.copy().fill(grassColor.r()), empty.copy().fill(grassColor.g()), empty.copy().fill(
+                grassColor.b()));
+        grass.r.channelAdd(noise8.brightness(0.08f));
+        grass.bump(grass_bump, size / 512f, 0f, 0.15f, 1f, 1f, 1f, 0f, 0f, 0f);
         if (DEBUG) grass.saveAsPNG("structure_grass");
 
-        Channel zero = new Channel(size, size).fill(0f);
-        return new StructureLayers(grass, grass_bump.toNormalMap(0.5f, zero));
+        return new StructureLayers(toLayerWithAlpha(grass, 1.0f), getFlatNormal(size));
     }
 
     private static @NonNull StructureLayers genRubble(int size, @NonNull Channel noise8, @NonNull Channel voronoi4,
@@ -400,11 +427,11 @@ public final class Landscape {
         Channel rubble_bump3 = voronoi16.multiply(0.2f);
         Channel rubble_bump = rubble_bump1.channelAdd(rubble_bump2).channelAdd(rubble_bump3).dynamicRange();
         rubble_bump.perturb(noise8, 0.1f);
-        rubble.multiply(.9f).bump(rubble_bump, size / 128f, 0f, 0f, 1f, 1f, 1f, 0f, 0f, 0f);
+        rubble.multiply(.9f).bump(rubble_bump, size / 256f, 0f, 0f, 1f, 1f, 1f, 0f, 0f, 0f);
         if (DEBUG) rubble.saveAsPNG("structure_rubble");
 
-        Channel zero = new Channel(size, size).fill(0f);
-        return new StructureLayers(rubble, rubble_bump.toNormalMap(2.5f, zero));
+        return new StructureLayers(toLayerWithAlpha(rubble, 1.0f), toNormalMapWithSpecular(rubble_bump, 1.5f, 0.35f,
+                size));
     }
 
     private static @NonNull StructureLayers genRock(int size, @NonNull Channel noise8, @NonNull Channel noise256,
@@ -420,18 +447,14 @@ public final class Landscape {
         rock.toHSV();
         rock.r = noise8.copy().dynamicRange(0.05f, 0.1f);
         rock.toRGB();
-        rock.layerBlend(rubble.multiply(NATIVE_ROCK_TINT.x(), NATIVE_ROCK_TINT.y(), NATIVE_ROCK_TINT.z()),
-                noise8.gamma8().invert().contrast(4f));
+        rock.layerBlend(rubble.multiply(NATIVE_ROCK_TINT.r(), NATIVE_ROCK_TINT.g(), NATIVE_ROCK_TINT.b()), noise8
+                .gamma8().invert().contrast(4f));
         rock.layerBlend(grass.multiply(0.5f), noise8.rotate(90).multiply(0.5f)); // grass tint
-        rock.bump(rock_bump, size / 192f, 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f);
-        rock.gamma2().multiply(0.9f);
+        rock.bump(rock_bump, size / 384f, 0f, 0.3f, 1f, 1f, 1f, 0f, 0f, 0f);
+        rock.multiply(0.95f);
         if (DEBUG) rock.saveAsPNG("structure_rock");
 
-        Channel mica = noise256.copy().gamma(0.5f).threshold(0.6f, 1.0f).multiply(0.8f);
-        Layer normalMapLayer = rock_bump.toNormalMap(3.0f, mica);
-        if (DEBUG) normalMapLayer.saveAsPNG("structure_rock_normal");
-
-        return new StructureLayers(rock, normalMapLayer);
+        return new StructureLayers(toLayerWithAlpha(rock, 1.0f), toNormalMapWithSpecular(rock_bump, 2.5f, 0.35f, size));
     }
 
     private static @NonNull StructureLayers genCliff(int size, @NonNull Channel noise8, @NonNull Channel noise256,
@@ -449,71 +472,33 @@ public final class Landscape {
         cliff.g.multiply(0.75f);
         cliff.toRGB();
         cliff.layerBlend(rubble, noise8.gamma8().invert().contrast(4f));
-        cliff.layerBlend(grass.multiply(VIKING_CLIFF_GRASS_TINT.x(), VIKING_CLIFF_GRASS_TINT.y(),
-                VIKING_CLIFF_GRASS_TINT.z()), noise8.rotate(90).multiply(0.75f));
-        cliff.bump(cliff_bump, size / 192f, 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f);
-        cliff.gamma2().multiply(0.9f);
+        cliff.layerBlend(grass.multiply(VIKING_CLIFF_GRASS_TINT.r(), VIKING_CLIFF_GRASS_TINT.g(),
+                VIKING_CLIFF_GRASS_TINT.b()), noise8.rotate(90).multiply(0.75f));
+        cliff.bump(cliff_bump, size / 384f, 0f, 0.3f, 1f, 1f, 1f, 0f, 0f, 0f);
+        cliff.multiply(0.95f);
         if (DEBUG) cliff.saveAsPNG("structure_cliff");
 
-        Channel zero = new Channel(size, size).fill(0f);
-        return new StructureLayers(cliff, cliff_bump.toNormalMap(3.0f, zero));
+        return new StructureLayers(toLayerWithAlpha(cliff, 1.0f), toNormalMapWithSpecular(cliff_bump, 2.5f, 0.35f,
+                size));
     }
 
     private static @NonNull StructureLayers genSnow(int size, @NonNull Channel noise8, @NonNull Channel noise256) {
         Channel empty = new Channel(size, size).fill(1f);
         Channel snow_bump1 = noise8.brightness(0.75f);
         Channel snow_bump2 = noise256.brightness(0.25f);
-        Layer snow = new Layer(empty.copy().fill(VIKING_SNOW_COLOR.x()), empty.copy().fill(VIKING_SNOW_COLOR.y()),
-                empty.copy().fill(VIKING_SNOW_COLOR.z()));
+        Layer snow = new Layer(empty.copy().fill(VIKING_SNOW_COLOR.r()), empty.copy().fill(VIKING_SNOW_COLOR.g()), empty
+                .copy().fill(VIKING_SNOW_COLOR.b()));
         Channel bump = snow_bump1.channelAdd(snow_bump2);
-        snow.bump(bump, size / 1024f, 0f, 0.1f, 1f, 1f, 1f, 0f, 0f, 0f);
+        // Do not bump diffuse for snow to keep it pure and avoid greyness.
+        // snow.bump(bump, size / 1024f, 0f, 0.1f, 1f, 1f, 1f, 0f, 0f, 0f);
         if (DEBUG) snow.saveAsPNG("structure_snow");
 
-        Channel snowSpecular = snow_bump1.copy().multiply(0.2f); // Subtle specular based on roughness
-        return new StructureLayers(snow, bump.toNormalMap(0.5f, snowSpecular));
+        return new StructureLayers(toLayerWithAlpha(snow, 0.05f), toNormalMapWithSpecular(bump, 0.2f, 0.8f, size));
     }
+
 
     private static @NonNull StructureLayers genBlack() {
         return new StructureLayers(new Channel(1, 1).fill(0f).toLayer(), getFlatNormal(1));
-    }
-
-    private static @NonNull StructureLayers genSeabottom(@NonNull TerrainType terrain, int size,
-            @NonNull Channel noise8, @NonNull Channel noise256, @NonNull Channel voronoi4, @NonNull Channel voronoi8) {
-        var color = switch (terrain) {
-            case NATIVE -> NATIVE_SEA_BOTTOM_COLOR;
-            case VIKING -> VIKING_SEA_BOTTOM_COLOR;
-        };
-        Layer seabottom = new Layer(
-                new Channel(size, size).fill(color.x()),
-                new Channel(size, size).fill(color.y()),
-                new Channel(size, size).fill(color.z()));
-        if (DEBUG) seabottom.saveAsPNG("structure_seabottom");
-
-        Channel zeroSpecular = new Channel(size, size).fill(0f);
-        Layer normalMapLayer;
-
-        switch (terrain) {
-            case NATIVE -> {
-                // Sand dunes/ripples
-                Channel seabottom_bump = noise8.copy().channelAdd(noise256.brightness(0.1f)).dynamicRange();
-                normalMapLayer = seabottom_bump.toNormalMap(0.3f, zeroSpecular); // Subtle sand dunes
-            }
-            case VIKING -> {
-                // Slime-covered, rock-strewn
-                // Combine Voronoi for larger rocks and noise for slime/undulations
-                Channel rock_texture = voronoi4.copy().dynamicRange(0.2f, 1f).multiply(0.7f); // Larger rock shapes
-                Channel slime_undulations = noise256.copy().brightness(0.08f); // Subtle slime undulations
-                Channel viking_seabottom_bump = rock_texture.channelAdd(slime_undulations).dynamicRange();
-
-                // Subtle wet specular for slime/wet rocks
-                Channel wetSpecular = voronoi4.copy().dynamicRange(0.0f, 0.15f); // Slightly more visible specular
-                normalMapLayer = viking_seabottom_bump.toNormalMap(1.2f, wetSpecular); // Stronger normal for rocks, subtle specular
-            }
-            default -> {
-                normalMapLayer = getFlatNormal(size); // Fallback
-            }
-        }
-        return new StructureLayers(seabottom, normalMapLayer);
     }
 
     private static @NonNull StructureLayers genDetail(int size, float detail_alpha_value, int seed,
@@ -525,7 +510,7 @@ public final class Landscape {
         Channel detail_alpha = new Channel(size, size).fill(detail_alpha_value);
         Layer detail = new Layer(detail_grey, detail_grey, detail_grey, detail_alpha);
         if (DEBUG) detail.saveAsPNG("structure_detail");
-        return new StructureLayers(detail, getFlatNormal(size));
+        return new StructureLayers(detail, toNormalMapWithSpecular(detail_noise, 2.0f, 1.0f, size));
     }
 
     private static @NonNull Layer getFlatNormal(int size) {
@@ -542,11 +527,11 @@ public final class Landscape {
     // * TERRAIN *
     // ***********
     private void generateTerrainNative() {
-        alpha_maps = new GLByteImage[7];
+        alpha_maps = new GLByteImage[8];
 
         // generate height map
-        height = new Mountain(unit_grids_per_world, Utils.powerOf2Log2(unit_grids_per_world) - 6, 0.5f,
-                seed).toChannel().multiply(0.67f);
+        height = new Mountain(unit_grids_per_world, Utils.powerOf2Log2(unit_grids_per_world) - 6, 0.5f, seed)
+                .toChannel().multiply(0.67f);
         Voronoi voronoi = new Voronoi(unit_grids_per_world, features, features, 1, 1f, seed);
         Channel cliffs = voronoi.getDistance(-1f, 1f, 0f).brightness(1.5f).multiply(0.33f);
         height.channelAdd(cliffs);
@@ -559,7 +544,7 @@ public final class Landscape {
         }
 
         height.perturb(new Midpoint(unit_grids_per_world, 2, 0.5f, seed).toChannel(), 0.25f);
-        Channel shape = new Hill(unit_grids_per_world, Hill.OVAL).toChannel();
+        Channel shape = new Hill(unit_grids_per_world, Hill.Shape.OVAL).toChannel();
         height.channelAdd(shape.copy().multiply(0.15f));
         height.channelSubtract(shape.copy().invert().multiply(0.5f));
         height.erode((24f - hills * 12f) / unit_grids_per_world, unit_grids_per_world >> 2);
@@ -590,11 +575,11 @@ public final class Landscape {
     }
 
     private void generateTerrainViking() {
-        alpha_maps = new GLByteImage[7];
+        alpha_maps = new GLByteImage[8];
 
         // generate height map
-        height = new Mountain(unit_grids_per_world, Utils.powerOf2Log2(unit_grids_per_world) - 6, 0.5f,
-                seed).toChannel().add(.5f).dynamicRange().gamma2().multiply(0.67f);
+        height = new Mountain(unit_grids_per_world, Utils.powerOf2Log2(unit_grids_per_world) - 6, 0.5f, seed)
+                .toChannel().add(.5f).dynamicRange().gamma2().multiply(0.67f);
 
         Voronoi voronoi = new Voronoi(unit_grids_per_world, 8, 8, 1, 1f, seed, true);
         Channel cliffs = voronoi.getDistance(-1f, 1f, 0f).brightness(1.25f).multiply(0.33f);
@@ -617,7 +602,7 @@ public final class Landscape {
         height.perturb(new Midpoint(unit_grids_per_world, 2, 0.5f, seed).toChannel(), 0.25f);
         height.erode((24f - hills * 12f) / unit_grids_per_world, unit_grids_per_world >> 2);
 
-        Channel shape = new Hill(unit_grids_per_world, Hill.SQUARE).toChannel().smoothGain().gamma8();
+        Channel shape = new Hill(unit_grids_per_world, Hill.Shape.SQUARE).toChannel().smoothGain().gamma8();
         height.channelMultiply(shape);
 
         // add roughness to inaccessible areas
@@ -662,8 +647,8 @@ public final class Landscape {
                     value = Tools.interpolateSmooth(0, sealevel, value / sealevel);
                     channel.putPixel(x, y, value);
                 } else if (value < threshold) {
-                    value = Tools.interpolateSmooth(sealevel, 2f * threshold - sealevel,
-                            0.5f * (value - sealevel) / (threshold - sealevel));
+                    value = Tools.interpolateSmooth(sealevel, 2f * threshold - sealevel, 0.5f * (value - sealevel)
+                            / (threshold - sealevel));
                     channel.putPixel(x, y, value);
                 }
             }
@@ -795,8 +780,8 @@ public final class Landscape {
                 }
             }
         }
-        highlight.dynamicRange(0f, 0.25f);
-        shadow.invert().dynamicRange(0f, 0.75f);
+        highlight.dynamicRange(0f, 0.08f);
+        shadow.invert().dynamicRange(0f, 0.25f);
         ProgressForm.progress(1 / 14f);
 
         // generate shadowcasting
@@ -819,6 +804,21 @@ public final class Landscape {
         shadow.channelBrightest(shadowcast.smooth(1).brightness(0.67f));
         if (DEBUG) shadow.toLayer().saveAsPNG("alpha_shadow");
         ProgressForm.progress(1 / 14f);
+
+        // generate Ambient Occlusion alpha map
+        Channel ao = new Channel(unit_grids_per_world, unit_grids_per_world);
+        for (int y = 0; y < unit_grids_per_world; y++) {
+            for (int x = 0; x < unit_grids_per_world; x++) {
+                float v = relheight.getPixel(x, y);
+                float intensity = 0.0f;
+                if (v < 0.5f) {
+                    intensity = 1.0f - (v / 0.5f);
+                }
+                ao.putPixel(x, y, intensity);
+            }
+        }
+        ao.smooth(2);
+        alpha_maps[7] = new GLByteImage(ao, GL11.GL_RED);
 
         alpha_maps[6] = new GLByteImage(seabottom_alpha, GL11.GL_RED);
 
@@ -848,14 +848,16 @@ public final class Landscape {
 
     // generate grass alpha
     private @NonNull Channel generateGrassAlpha(int size, int seed) {
-        Channel grass_alpha = new Midpoint(size, 4, 0.45f, seed).toChannel().dynamicRange(1f - vegetation_amount, 1f,
-                0f, 1f).gamma2();
+        float v_boost = Math.min(1.0f, vegetation_amount * 1.5f);
+        float lower = 1.0f - v_boost;
+        Channel grass_alpha = new Midpoint(size, 4, 0.45f, seed).toChannel().dynamicRange(lower, 1f, 0f, 1f);
         grass_alpha.channelBrightest(slope.copy().dynamicRange(0f, access_threshold, 0f, 1f).invert().dynamicRange(
-                1f - vegetation_amount, 1f, 0f, 1f).gamma2());
+                lower, 1f, 0f, 1f));
         grass_alpha.channelAdd(relheight.copy().invert().add(-0.5f).multiply(2f));
         grass_alpha.channelSubtract(height.copy().invert().dynamicRange(0.6f, 0.8f, 0f, 1f));
         grass_alpha.channelSubtract(slope.copy().threshold(0.75f * access_threshold, 1f).smooth(3));
         grass_alpha.channelSubtract(relheight.copy().invert().dynamicRange(0.5f, 0.7f, 0f, 0.5f));
+
         return grass_alpha;
     }
 
@@ -882,7 +884,7 @@ public final class Landscape {
     }
 
     // generate seabottom alpha
-    private static @NonNull Channel generateSeabottomAlpha(@NonNull TerrainType terrain, @NonNull Channel height) {
+    private static @NonNull Channel generateSeabottomAlpha(@NonNull Terrain terrain, @NonNull Channel height) {
         Channel seabottom_alpha = height.copy().invert().dynamicRange(1f - Globals.SEA_LEVEL, 1f, 0f, 1f);
         return switch (terrain) {
             case NATIVE -> seabottom_alpha.grow(0f, 1).gamma(0.5f);
@@ -896,11 +898,11 @@ public final class Landscape {
     // ************
     private void generateSupplies(@NonNull Channel grass_alpha) {
         // generate overall probability map for rock and iron resources
-        Channel centerprob = new Hill(unit_grids_per_world, Hill.CIRCLE).toChannel().addClip(-.5f).dynamicRange();
+        Channel centerprob = new Hill(unit_grids_per_world, Hill.Shape.CIRCLE).toChannel().addClip(-.5f).dynamicRange();
 
         // generate (oak)tree/palmtree(/pine) maps
-        Channel noise = new Midpoint(unit_grids_per_world, Utils.powerOf2Log2(unit_grids_per_world) - 3, 0.33f,
-                seed).toChannel();
+        Channel noise = new Midpoint(unit_grids_per_world, Utils.powerOf2Log2(unit_grids_per_world) - 3, 0.33f, seed)
+                .toChannel();
         Channel tree_channel = grass_alpha.copy();
         Channel palmtree_channel = height.copy();
         ProgressForm.progress(1 / 14f);
@@ -923,8 +925,8 @@ public final class Landscape {
                 tree_channel.channelSubtract(slope.copy().threshold(access_threshold, 1f));
                 tree_channel.channelSubtract(noise.copy());
 
-                palmtree_channel = grass_alpha.copy().channelMultiply(height.copy().dynamicRange(0.5f, 0.6f, 1f,
-                        0f)).invert();
+                palmtree_channel = grass_alpha.copy().channelMultiply(height.copy().dynamicRange(0.5f, 0.6f, 1f, 0f))
+                        .invert();
                 palmtree_channel.channelSubtract(height.copy().invert().dynamicRange(0.8f, 0.875f, 0f, 1f));
                 palmtree_channel.channelSubtract(slope.copy().threshold(access_threshold, 1f));
                 palmtree_channel.channelSubtract(noise.rotate(90));
@@ -939,9 +941,14 @@ public final class Landscape {
         Channel rock_channel = relheight.copy();
 
         switch (terrain) {
-            case NATIVE -> rock_channel.invert().threshold(0.5f, 1f).channelMultiply(noise.rotate(
-                    90).copy().gamma8().invert()).channelMultiply(centerprob);
-            case VIKING -> rock_channel.threshold(0f, 0.5f).channelMultiply(noise.rotate(90).copy().gamma8().invert());
+            case NATIVE -> rock_channel
+                    .invert()
+                    .threshold(0.5f, 1f)
+                    .channelMultiply(noise.rotate(90).copy().gamma8().invert())
+                    .channelMultiply(centerprob);
+            case VIKING -> rock_channel
+                    .threshold(0f, 0.5f)
+                    .channelMultiply(noise.rotate(90).copy().gamma8().invert());
         }
 
         Channel iron_channel = rock_channel.copy().rotate(90).flipV();
@@ -952,27 +959,24 @@ public final class Landscape {
         float accessible = supplies.sum();
 
         // place trees
-        trees = placeSupplies(tree_channel, supplies, 64, (int) (vegetation_amount * max_trees * (accessible / area)),
-                0.33f);
+        trees = placeSupplies(tree_channel, supplies, 64, (int) (vegetation_amount * max_trees * (accessible / area)));
         access.channelSubtract(trees);
         if (DEBUG) trees.toLayer().saveAsPNG("supplies_trees_placed");
 
         // place palmtrees
-        palmtrees = placeSupplies(palmtree_channel, supplies, 64,
-                (int) (vegetation_amount * max_palmtrees * (accessible / area)), 0.25f);
+        palmtrees = placeSupplies(palmtree_channel, supplies, 64, (int) (vegetation_amount * max_palmtrees * (accessible
+                / area)));
         access.channelSubtract(palmtrees);
         if (DEBUG) palmtrees.toLayer().saveAsPNG("supplies_palmtrees_placed");
 
         // place rock
-        rock = placeSupplies(rock_channel, supplies, 64, (int) (supplies_amount * max_rock), 0f);
+        rock = placeSupplies(rock_channel, supplies, 64, (int) (supplies_amount * max_rock));
         access.channelSubtract(rock);
-        shadow.channelBrightest(rock.copy().multiply(0.5f));
         if (DEBUG) rock.toLayer().saveAsPNG("supplies_rock_placed");
 
         // place iron
-        iron = placeSupplies(iron_channel, supplies, 64, (int) (supplies_amount * max_iron), 0f);
+        iron = placeSupplies(iron_channel, supplies, 64, (int) (supplies_amount * max_iron));
         access.channelSubtract(iron);
-        shadow.channelBrightest(iron.copy().multiply(0.5f));
         if (DEBUG) iron.toLayer().saveAsPNG("supplies_iron_placed");
 
         if (DEBUG) {
@@ -1028,19 +1032,12 @@ public final class Landscape {
 
     // place supplies on map
     private @NonNull Channel placeSupplies(@NonNull Channel probability, @NonNull Channel supplies, int intervals,
-            int max_count, float shadow_alpha_val) {
+            int max_count) {
         max_count = Math.min(probability.width * probability.height, max_count);
-        int scaleshift = Utils.powerOf2Log2(unit_grids_per_world * meters_per_height_unit / meters_per_world);
         int i = 0;
         float interval_size = 1f / intervals;
         float upper_bound = 1f;
         float lower_bound = upper_bound - interval_size;
-        int supplyshadow_size = Math.max(unit_grids_per_world >> 7, 2);
-        Channel supplyshadow_alpha = new Channel(supplyshadow_size << 1, supplyshadow_size << 1).place(new Channel(
-                supplyshadow_size, supplyshadow_size).fill(1f), supplyshadow_size >> 1,
-                supplyshadow_size >> 1).smoothFast();
-        Channel supplyshadow = new Channel(supplyshadow_size << 1, supplyshadow_size << 1);
-        Channel supplyshadow_alpha2 = supplyshadow_alpha.copy().brightness(shadow_alpha_val);
         Channel place = new Channel(probability.width, probability.height);
 
         // place supplies
@@ -1055,16 +1052,9 @@ public final class Landscape {
                                 && supplies.getPixel(x - 1, y) > 0
                                 && supplies.getPixel(x + 1, y) > 0
                                 && supplies.getPixel(x, y - 1) > 0
-                                && supplies.getPixel(x, y - 1) > 0
+                                && supplies.getPixel(x, y + 1) > 0
                         ) {
                             place.putPixel(x, y, 1f);
-                            // place shadow
-                            if (shadow_alpha_val > 0f) {
-                                int x_pixel = (x - supplyshadow_size + 1) >> scaleshift;
-                                int y_pixel = (y - supplyshadow_size + 1) >> scaleshift;
-                                highlight.place(supplyshadow, supplyshadow_alpha, x_pixel, y_pixel);
-                                shadow.placeBrightest(supplyshadow_alpha2, x_pixel, y_pixel);
-                            }
                             // make node neighbourhood inaccessible
                             for (int k = -1; k <= 1; k++) {
                                 for (int l = -1; l <= 1; l++) {
@@ -1099,8 +1089,8 @@ public final class Landscape {
             for (int y = 2; y < probability.height - 2; y++) {
                 for (int x = 2; x < probability.width - 2; x++) {
                     float val = probability.getPixel(x, y);
-                    if (val <= upper_bound && val > lower_bound && place.getPixel(x, y) < 2
-                            && random.nextFloat() < .25) {
+                    if (val <= upper_bound && val > lower_bound && place.getPixel(x, y) < 2 && random.nextFloat()
+                            < .25) {
                         // place plant
                         plants[plant_type][2 * i] = meters_per_height_unit * (x + random.nextFloat());
                         plants[plant_type][2 * i + 1] = meters_per_height_unit * (y + random.nextFloat());
@@ -1161,7 +1151,8 @@ public final class Landscape {
             angle += angle_step;
             location_quarters = buildmap.findNoWrap((unit_grids_per_world >> 1), x, y, 1f);
             for (int k = -(RacesResources.QUARTERS_SIZE/* - 1*/); k <= (RacesResources.QUARTERS_SIZE/* - 1*/); k++) {
-                for (int l = -(RacesResources.QUARTERS_SIZE/* - 1*/); l <= (RacesResources.QUARTERS_SIZE/* - 1*/); l++) {
+                for (int l = -(RacesResources.QUARTERS_SIZE/* - 1*/); l
+                        <= (RacesResources.QUARTERS_SIZE/* - 1*/); l++) {
                     access.putPixelWrap(location_quarters[0] + k, location_quarters[1] + l, 0f);
                     buildmap.putPixelWrap(location_quarters[0] + k, location_quarters[1] + l, 0f);
                 }
@@ -1198,14 +1189,14 @@ public final class Landscape {
     // * GET METHODS *
     // ***************
 
-    public static @NonNull FogInfo getFogInfo(@NonNull TerrainType terrain, int meters_per_world) {
+    public static @NonNull FogInfo getFogInfo(@NonNull Terrain terrain, int meters_per_world) {
         return switch (terrain) {
             case NATIVE ->
-                new DistanceFogInfo(FogInfo.Mode.EXP2, NATIVE_FOG_COLOR, NATIVE_FOG_DENSITY,
-                        NATIVE_FOG_HEIGHT * meters_per_world, 0f, meters_per_world >> 2);
+                new DistanceFogInfo(FogInfo.Mode.EXP2, FOG_COLOR.get(terrain), NATIVE_FOG_DENSITY, NATIVE_FOG_HEIGHT
+                        * meters_per_world, 0f, meters_per_world >> 2);
             case VIKING ->
-                new DistanceFogInfo(FogInfo.Mode.EXP2, VIKING_FOG_COLOR, VIKING_FOG_DENSITY,
-                        VIKING_FOG_HEIGHT * meters_per_world, 0f, meters_per_world >> 2);
+                new DistanceFogInfo(FogInfo.Mode.EXP2, FOG_COLOR.get(terrain), VIKING_FOG_DENSITY, VIKING_FOG_HEIGHT
+                        * meters_per_world, 0f, meters_per_world >> 2);
         };
     }
 
@@ -1217,7 +1208,11 @@ public final class Landscape {
         return detail;
     }
 
-    public float @NonNull [] @NonNull [] getHeight() {
+    public GLIntImage getDetailNormal() {
+        return detail_normal;
+    }
+
+    public float @NonNull [] getHeight() {
         return height.getPixels();
     }
 
@@ -1255,14 +1250,7 @@ public final class Landscape {
     private @NonNull List<int @NonNull []> getPositions(@NonNull Channel channel) {
         int count = channel.count(1f);
         List<int[]> list = new ArrayList<>(count);
-        for (int y = 0; y < channel.height; y++) {
-            for (int x = 0; x < channel.width; x++) {
-                if (channel.getPixel(x, y) == 1f) {
-                    list.add(new int[]{x, y});
-                }
-            }
-        }
-        assert count == list.size();
+        channel.matching(p -> p == 1f, list::add);
         return list;
     }
 

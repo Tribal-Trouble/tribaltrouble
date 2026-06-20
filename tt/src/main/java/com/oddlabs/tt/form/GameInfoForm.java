@@ -41,8 +41,8 @@ public final class GameInfoForm extends Form {
         values.addChild(label_name_value);
 
         Label label_size = new Label(i18n("size"), Skin.getSkin().getEditFont());
-        Label label_size_value = new Label(ServerMessageBundler.getSizeString(game.getSize()),
-                Skin.getSkin().getEditFont());
+        Label label_size_value = new Label(ServerMessageBundler.getSizeString(game.getSize()), Skin.getSkin()
+                .getEditFont());
         types.addChild(label_size);
         values.addChild(label_size_value);
 
@@ -53,32 +53,32 @@ public final class GameInfoForm extends Form {
         values.addChild(label_terrain_type_value);
 
         Label label_hills = new Label(i18n("hills"), Skin.getSkin().getEditFont());
-        Label label_hills_value = new Label(ServerMessageBundler.getHillsString(game.getHills()),
-                Skin.getSkin().getEditFont());
+        Label label_hills_value = new Label(ServerMessageBundler.getHillsString(game.getHills()), Skin.getSkin()
+                .getEditFont());
         types.addChild(label_hills);
         values.addChild(label_hills_value);
 
         Label label_trees = new Label(i18n("trees"), Skin.getSkin().getEditFont());
-        Label label_trees_value = new Label(ServerMessageBundler.getTreesString(game.getTrees()),
-                Skin.getSkin().getEditFont());
+        Label label_trees_value = new Label(ServerMessageBundler.getTreesString(game.getTrees()), Skin.getSkin()
+                .getEditFont());
         types.addChild(label_trees);
         values.addChild(label_trees_value);
 
         Label label_supplies = new Label(i18n("supplies"), Skin.getSkin().getEditFont());
-        Label label_supplies_value = new Label(ServerMessageBundler.getSuppliesString(game.getSupplies()),
-                Skin.getSkin().getEditFont());
+        Label label_supplies_value = new Label(ServerMessageBundler.getSuppliesString(game.getSupplies()), Skin
+                .getSkin().getEditFont());
         types.addChild(label_supplies);
         values.addChild(label_supplies_value);
 
         Label label_rated = new Label(i18n("rated"), Skin.getSkin().getEditFont());
-        Label label_rated_value = new Label(ServerMessageBundler.getRatedString(game.isRated()),
-                Skin.getSkin().getEditFont());
+        Label label_rated_value = new Label(ServerMessageBundler.getRatedString(game.isRated()), Skin.getSkin()
+                .getEditFont());
         types.addChild(label_rated);
         values.addChild(label_rated_value);
 
         Label label_gamespeed = new Label(i18n("gamespeed"), Skin.getSkin().getEditFont());
-        Label label_gamespeed_value = new Label(ServerMessageBundler.getGamespeedString(game.getGamespeed()),
-                Skin.getSkin().getEditFont());
+        Label label_gamespeed_value = new Label(ServerMessageBundler.getGamespeedString(game.getGamespeed()), Skin
+                .getSkin().getEditFont());
         types.addChild(label_gamespeed);
         values.addChild(label_gamespeed_value);
 

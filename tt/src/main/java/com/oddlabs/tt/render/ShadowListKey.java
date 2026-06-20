@@ -1,7 +1,7 @@
 package com.oddlabs.tt.render;
 
-public final class ShadowListKey extends RenderQueueKey {
-    ShadowListKey(int key) {
-        super(key);
-    }
+/**
+ * A render queue key identifying a shadow list.
+ */
+public record ShadowListKey(int key) implements RenderQueueKey {
 }

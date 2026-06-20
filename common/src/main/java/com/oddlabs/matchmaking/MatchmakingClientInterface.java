@@ -7,20 +7,18 @@ import java.net.InetAddress;
 
 public interface MatchmakingClientInterface {
     // error codes
-    int PROFILE_ERROR_GUEST = 2;
 
-    int USER_ERROR_INVALID_EMAIL = 7;
-    int USER_ERROR_NO_SUCH_USER = 8;
-    int USER_ERROR_VERSION_TOO_OLD = 9;
 
     int USERNAME_ERROR_TOO_MANY = 1;
+    int PROFILE_ERROR_GUEST = 2;
     int USERNAME_ERROR_ALREADY_EXISTS = 3;
     int USERNAME_ERROR_INVALID_CHARACTERS = 4;
     int USERNAME_ERROR_TOO_LONG = 5;
     int USERNAME_ERROR_TOO_SHORT = 6;
-
+    int USER_ERROR_INVALID_EMAIL = 7;
+    int USER_ERROR_NO_SUCH_USER = 8;
+    int USER_ERROR_VERSION_TOO_OLD = 9;
     int USER_ERROR_STEAM_REQUIRED = 13;
-
     int CHAT_ERROR_TOO_MANY_USERS = 10;
     int CHAT_ERROR_INVALID_NAME = 11;
     int CHAT_ERROR_NO_SUCH_NICK = 12;

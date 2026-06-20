@@ -28,8 +28,8 @@ public final class Cursor extends NativeResource<Cursor.NativeCursor> {
          * Create a new cursor instance from an image
          *
          * @param image source cursor image
-         * @param xHot  x location from top left of cursor hot spot
-         * @param yHot  y location from top left of cursor hot spot
+         * @param xHot x location from top left of cursor hot spot
+         * @param yHot y location from top left of cursor hot spot
          */
         NativeCursor(@NonNull GLImage image, int xHot, int yHot) {
             int width = image.getWidth();
@@ -62,8 +62,8 @@ public final class Cursor extends NativeResource<Cursor.NativeCursor> {
      * Create a new cursor instance from an image
      *
      * @param image source cursor image
-     * @param xHot  x location from top left of cursor hot spot
-     * @param yHot  y location from top left of cursor hot spot
+     * @param xHot x location from top left of cursor hot spot
+     * @param yHot y location from top left of cursor hot spot
      */
     public Cursor(@NonNull GLImage image, int xHot, int yHot) {
         super(new NativeCursor(image, xHot, yHot));

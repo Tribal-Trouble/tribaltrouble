@@ -2,7 +2,6 @@ package com.oddlabs.tt.player.campaign;
 
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.CampaignMapForm;
-import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.form.MessageForm;
 import com.oddlabs.tt.gui.CampaignIcons;
 import com.oddlabs.tt.gui.GUI;
@@ -19,23 +18,23 @@ import java.util.ResourceBundle;
 public abstract class Campaign {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(Campaign.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
+    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
-    private final CampaignState state;
+    private final @NonNull CampaignState state;
     private CampaignState[] campaign_states; // for saving
 
-    public Campaign(CampaignState state) {
+    public Campaign(@NonNull CampaignState state) {
         this.state = state;
     }
 
-    public final CampaignState getState() {
+    public final @NonNull CampaignState getState() {
         return state;
     }
 
     public final void pushDelegate(@NonNull NetworkSelector network, @NonNull GUI gui) {
-        final GUIRoot gui_root = gui.newFade();
+        final GUIRoot gui_root = gui.newFade(null, gui.getRenderer());
         gui_root.pushDelegate(new CampaignMapForm(network, gui_root, Campaign.this));
     }
 
@@ -55,13 +54,9 @@ public abstract class Campaign {
         LoadCampaignBox.loadSavegames(
                 new DeterministicSerializerLoopbackInterface<CampaignState[]>() {
                     @Override
-                    public void loadSucceeded(CampaignState[] campaign_states) {
+                    public void loadSucceeded(CampaignState @NonNull [] campaign_states) {
                         Campaign.this.campaign_states = campaign_states;
                         doSave(viewer);
-                    }
-
-                    @Override
-                    public void saveSucceeded() {
                     }
 
                     @Override
@@ -78,32 +73,19 @@ public abstract class Campaign {
             }
         }
         LoadCampaignBox.saveSavegames(campaign_states,
-                new DeterministicSerializerLoopbackInterface<CampaignState[]>() {
-                    @Override
-                    public void loadSucceeded(CampaignState[] object) {
-                    }
-
-                    @Override
-                    public void saveSucceeded() {
-                    }
-
-                    @Override
-                    public void failed(@NonNull Throwable e) {
-                        doFailed(e, viewer);
-                    }
-                });
+                (DeterministicSerializerLoopbackInterface<CampaignState[]>) e -> doFailed(e, viewer));
     }
 
     private void doFailed(@NonNull Throwable e, @NonNull WorldViewer viewer) {
-        String failed_message = i18n("failed_message", Globals.getSavegamesFileName(), e.getMessage());
+        String failed_message = i18n("failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
         viewer.getGUIRoot().addModalForm(new MessageForm(failed_message));
     }
 
-    public abstract CampaignIcons getIcons();
+    public abstract @NonNull CampaignIcons getIcons();
 
-    public abstract void islandChosen(NetworkSelector network, GUIRoot gui_root, int number);
+    public abstract void islandChosen(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, int number);
 
     public abstract CharSequence getCurrentObjective();
 
-    public abstract void startIsland(NetworkSelector network, GUIRoot gui_root, int number);
+    public abstract void startIsland(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, int number);
 }

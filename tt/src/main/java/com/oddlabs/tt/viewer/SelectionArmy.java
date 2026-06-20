@@ -9,6 +9,9 @@ import com.oddlabs.tt.player.Player;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collection;
+import java.util.Optional;
+
 public final class SelectionArmy extends Army {
 
     private final @NonNull Player local_player;
@@ -29,12 +32,12 @@ public final class SelectionArmy extends Army {
         return num_units;
     }
 
-    public @Nullable Unit getChieftain() {
-        return chieftain;
+    public @NonNull Optional<Unit> getChieftain() {
+        return Optional.ofNullable(chieftain);
     }
 
-    public @Nullable Building getBuilding() {
-        return building;
+    public @NonNull Optional<Building> getBuilding() {
+        return Optional.ofNullable(building);
     }
 
     private void update() {
@@ -73,6 +76,12 @@ public final class SelectionArmy extends Army {
     @Override
     public void add(@NonNull Selectable<?> selectable) {
         super.add(selectable);
+        update();
+    }
+
+    @Override
+    public void addAll(@NonNull Collection<? extends @NonNull Selectable<?>> selectable) {
+        super.addAll(selectable);
         update();
     }
 }

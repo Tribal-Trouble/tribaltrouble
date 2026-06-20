@@ -23,6 +23,14 @@ public final class Layer {
     private static final float GAMMA_EXPONENT = 2.2f;
     private static final float INV_GAMMA_EXPONENT = 1f / GAMMA_EXPONENT;
 
+    private static float toLinear(float s) {
+        return (float) Math.pow(s, GAMMA_EXPONENT);
+    }
+
+    private static float toSRGB(float l) {
+        return (float) Math.pow(l, INV_GAMMA_EXPONENT);
+    }
+
     private int width;
     private int height;
     public @NonNull Channel r;
@@ -33,7 +41,7 @@ public final class Layer {
     /**
      * Constructs a new, opaque white Layer with the specified dimensions.
      *
-     * @param width  the width of the layer in pixels.
+     * @param width the width of the layer in pixels.
      * @param height the height of the layer in pixels.
      * @throws IllegalArgumentException if width or height are not positive.
      */
@@ -58,11 +66,11 @@ public final class Layer {
      * @param g the green channel.
      * @param b the blue channel.
      * @param a the alpha channel (optional, can be null).
-     * @throws NullPointerException     if R, G, or B channels are null.
+     * @throws NullPointerException if R, G, or B channels are null.
      * @throws IllegalArgumentException if channels have mismatching dimensions.
      */
-    public Layer(@NonNull Channel r, @NonNull Channel g, @NonNull Channel b,
-            @Nullable Channel a) throws NullPointerException, IllegalArgumentException {
+    public Layer(@NonNull Channel r, @NonNull Channel g, @NonNull Channel b, @Nullable Channel a)
+            throws NullPointerException, IllegalArgumentException {
         Objects.requireNonNull(r, "Red channel cannot be null.");
         Objects.requireNonNull(g, "Green channel cannot be null.");
         Objects.requireNonNull(b, "Blue channel cannot be null.");
@@ -85,11 +93,11 @@ public final class Layer {
      * @param r the red channel.
      * @param g the green channel.
      * @param b the blue channel.
-     * @throws NullPointerException     if R, G, or B channels are null.
+     * @throws NullPointerException if R, G, or B channels are null.
      * @throws IllegalArgumentException if channels have mismatching dimensions.
      */
-    public Layer(@NonNull Channel r, @NonNull Channel g,
-            @NonNull Channel b) throws NullPointerException, IllegalArgumentException {
+    public Layer(@NonNull Channel r, @NonNull Channel g, @NonNull Channel b)
+            throws NullPointerException, IllegalArgumentException {
         this(r, g, b, null);
     }
 
@@ -97,11 +105,12 @@ public final class Layer {
      * Constructs a new Layer from an existing RGB Layer and a new alpha channel.
      *
      * @param rgb the source RGB layer.
-     * @param a   the new alpha channel.
-     * @throws NullPointerException     if the rgb layer or alpha channel is null.
+     * @param a the new alpha channel.
+     * @throws NullPointerException if the rgb layer or alpha channel is null.
      * @throws IllegalArgumentException if the alpha channel's dimensions do not match the layer's.
      */
-    public Layer(@NonNull Layer rgb, @NonNull Channel a) throws NullPointerException, IllegalArgumentException {
+    public Layer(@NonNull Layer rgb, @NonNull Channel a)
+            throws NullPointerException, IllegalArgumentException {
         this(rgb.r, rgb.g, rgb.b, a);
     }
 
@@ -131,15 +140,10 @@ public final class Layer {
         byte[] byte_pixel_data = new byte[getWidth() * getHeight() * 4];
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
-                int ri = ((int) (r.getPixel(x, y) * 255 + .5f)) & 0xff;
-                int gi = ((int) (g.getPixel(x, y) * 255 + .5f)) & 0xff;
-                int bi = ((int) (b.getPixel(x, y) * 255 + .5f)) & 0xff;
-                int ai;
-                if (a != null) {
-                    ai = ((int) (a.getPixel(x, y) * 255 + .5f)) & 0xff;
-                } else {
-                    ai = 255;
-                }
+                int ri = Math.clamp(Math.round(r.getPixel(x, y) * 255), 0, 255);
+                int gi = Math.clamp(Math.round(g.getPixel(x, y) * 255), 0, 255);
+                int bi = Math.clamp(Math.round(b.getPixel(x, y) * 255), 0, 255);
+                int ai = a != null ? Math.clamp(Math.round(a.getPixel(x, y) * 255), 0, 255) : 255;
                 int index = y * getWidth() + x;
                 byte_pixel_data[index * 4] = (byte) ri;
                 byte_pixel_data[index * 4 + 1] = (byte) gi;
@@ -151,7 +155,7 @@ public final class Layer {
     }
 
     private @NonNull BufferedImage convertToImage() {
-        byte[] byte_pixel_data = convertToBytes();
+        byte[] byte_pixel_data = convertToBytes(); // contains little-endian ABGR ints
         BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
         image.getRaster().setDataElements(0, 0, getWidth(), getHeight(), byte_pixel_data);
         return image;
@@ -572,6 +576,51 @@ public final class Layer {
         return this;
     }
 
+    /**
+     * Scales the layer to half its dimensions using linear-space filtering.
+     * This is critical for sRGB textures to prevent darkening during downscaling.
+     */
+    public @NonNull Layer scaleHalfLinear() {
+        int new_width = width >> 1;
+        int new_height = height >> 1;
+        if (new_width == 0) new_width = 1;
+        if (new_height == 0) new_height = 1;
+
+        Channel nr = new Channel(new_width, new_height);
+        Channel ng = new Channel(new_width, new_height);
+        Channel nb = new Channel(new_width, new_height);
+        Channel na = (a != null) ? new Channel(new_width, new_height) : null;
+
+        for (int y = 0; y < new_height; y++) {
+            for (int x = 0; x < new_width; x++) {
+                // Average 2x2 block in linear space
+                float lr = 0, lg = 0, lb = 0, la = 0;
+                for (int dy = 0; dy < 2; dy++) {
+                    for (int dx = 0; dx < 2; dx++) {
+                        int sx = Math.min(x * 2 + dx, width - 1);
+                        int sy = Math.min(y * 2 + dy, height - 1);
+                        lr += toLinear(r.getPixel(sx, sy));
+                        lg += toLinear(g.getPixel(sx, sy));
+                        lb += toLinear(b.getPixel(sx, sy));
+                        if (a != null) la += a.getPixel(sx, sy); // Alpha is already linear
+                    }
+                }
+                nr.putPixel(x, y, toSRGB(lr * 0.25f));
+                ng.putPixel(x, y, toSRGB(lg * 0.25f));
+                nb.putPixel(x, y, toSRGB(lb * 0.25f));
+                if (na != null) na.putPixel(x, y, la * 0.25f);
+            }
+        }
+
+        this.r = nr;
+        this.g = ng;
+        this.b = nb;
+        this.a = na;
+        this.width = new_width;
+        this.height = new_height;
+        return this;
+    }
+
     public @NonNull Layer scale(int new_width, int new_height) {
         r = r.scale(new_width, new_height);
         g = g.scale(new_width, new_height);
@@ -700,17 +749,17 @@ public final class Layer {
                 float ny = bumpmap.getPixelWrap(x, y + 1) - bumpmap.getPixelWrap(x, y - 1);
                 float brightness = nx * lx + ny * ly;
                 if (brightness >= 0) {
-                    putPixelClip(x, y, (r.getPixel(x, y) + brightness * light_r) * (bumpmap.getPixel(x,
-                            y) * shadow + 1 - shadow),
+                    putPixelClip(x, y, (r.getPixel(x, y) + brightness * light_r) * (bumpmap.getPixel(x, y) * shadow + 1
+                            - shadow),
                             (g.getPixel(x, y) + brightness * light_g) * (bumpmap.getPixel(x, y) * shadow + 1 - shadow),
                             (b.getPixel(x, y) + brightness * light_b) * (bumpmap.getPixel(x, y) * shadow + 1 - shadow));
                 } else {
-                    putPixelClip(x, y, (r.getPixel(x, y) + brightness * (1 - ambient_r)) * (bumpmap.getPixel(x,
-                            y) * shadow + 1 - shadow),
-                            (g.getPixel(x, y) + brightness * (1 - ambient_g)) * (bumpmap.getPixel(x,
-                                    y) * shadow + 1 - shadow),
-                            (b.getPixel(x, y) + brightness * (1 - ambient_b)) * (bumpmap.getPixel(x,
-                                    y) * shadow + 1 - shadow));
+                    putPixelClip(x, y, (r.getPixel(x, y) + brightness * (1 - ambient_r)) * (bumpmap.getPixel(x, y)
+                            * shadow + 1 - shadow),
+                            (g.getPixel(x, y) + brightness * (1 - ambient_g)) * (bumpmap.getPixel(x, y) * shadow + 1
+                                    - shadow),
+                            (b.getPixel(x, y) + brightness * (1 - ambient_b)) * (bumpmap.getPixel(x, y) * shadow + 1
+                                    - shadow));
                 }
             }
         }
@@ -847,43 +896,44 @@ public final class Layer {
                 t = v_val * (1 - s_val * (1 - f));
 
                 switch (i) {
-                    case 0:
+                    case 0 -> {
                         r_val = v_val;
                         g_val = t;
                         b_val = p;
-                        break;
-                    case 1:
+                    }
+                    case 1 -> {
                         r_val = q;
                         g_val = v_val;
                         b_val = p;
-                        break;
-                    case 2:
+                    }
+                    case 2 -> {
                         r_val = p;
                         g_val = v_val;
                         b_val = t;
-                        break;
-                    case 3:
+                    }
+                    case 3 -> {
                         r_val = p;
                         g_val = q;
                         b_val = v_val;
-                        break;
-                    case 4:
+                    }
+                    case 4 -> {
                         r_val = t;
                         g_val = p;
                         b_val = v_val;
-                        break;
-                    case 5:
+                    }
+                    case 5 -> {
                         r_val = v_val;
                         g_val = p;
                         b_val = q;
-                        break;
-                    case 6:
+                    }
+                    case 6 -> {
                         r_val = v_val;
                         g_val = p;
                         b_val = q;
-                        break;
-                    default:
+                    }
+                    default -> {
                         assert false : "hsv to rgb error";
+                    }
                 }
 
                 r.putPixel(x, y, r_val);
@@ -989,8 +1039,8 @@ public final class Layer {
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
                     if (a.getPixel(x, y) == 0) {
-                        putPixel(x, y, layer.r.getPixel(x, y), layer.g.getPixel(x, y), layer.b.getPixel(x, y),
-                                layer.a.getPixel(x, y));
+                        putPixel(x, y, layer.r.getPixel(x, y), layer.g.getPixel(x, y), layer.b.getPixel(x, y), layer.a
+                                .getPixel(x, y));
                     } else if (layer.a.getPixel(x, y) == 0) {
                     } else {
                         alpha = 1f - (1f - a.getPixel(x, y)) * (1f - layer.a.getPixel(x, y));

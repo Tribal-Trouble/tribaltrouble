@@ -1,16 +1,17 @@
 package com.oddlabs.tt.camera;
 
 import com.oddlabs.tt.delegate.SelectionDelegate;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.RadialFogInfo;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Color;
+import org.joml.Vector2fc;
 import org.jspecify.annotations.NonNull;
 
 import java.util.EnumSet;
@@ -24,7 +25,6 @@ public final class MapCamera extends Camera {
     private static final float MAP_THRESHOLD = .1f;
     private static final float MAP_TIME_FACTOR = 1000f;
     private static final float SMOOTHNESS_FACTOR = 200f;
-    public static final float MAP_Z_FACTOR = 1.3f;
     private static final float LANDING_ANGLE = -(float) Math.PI / 4f;
     private static final float MIN_LANDING_DISTANCE = 20f;
 
@@ -51,6 +51,7 @@ public final class MapCamera extends Camera {
 
     private final @NonNull SelectionDelegate delegate;
     private final @NonNull CameraState original_camera_state;
+    private final float distance_to_landscape;
     private final Label label = new Label(Utils.getBundleString(ResourceBundle.getBundle(MapCamera.class.getName()),
             "map_mode"), Skin.getSkin().getHeadlineFont());
 
@@ -59,12 +60,18 @@ public final class MapCamera extends Camera {
 
     public MapCamera(@NonNull SelectionDelegate delegate, @NonNull GameCamera old_camera) {
         original_camera_state = old_camera.getState();
-        FogInfo radialFog = new RadialFogInfo(Color.WHITE, 0.25f);
+        FogInfo radialFog = new RadialFogInfo(Color.Standard.WHITE, 0.25f);
         CameraState mapCameraState = new CameraState(radialFog);
         mapCameraState.set(old_camera.getState());
         mapCameraState.setFog(radialFog);
         super(old_camera.getHeightMap(), mapCameraState);
         this.delegate = delegate;
+        Vector2fc target = old_camera.getRotationPoint();
+        float target_z = getHeightMap().getNearestHeight(target.x(), target.y());
+        float dx = target.x() - original_camera_state.getTargetX();
+        float dy = target.y() - original_camera_state.getTargetY();
+        float dz = target_z - original_camera_state.getTargetZ();
+        distance_to_landscape = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
 
         setSmoothnessFactor(SMOOTHNESS_FACTOR);
         getState().setNoDetailMode(true);
@@ -72,14 +79,29 @@ public final class MapCamera extends Camera {
 
     @Override
     public void doAnimate(float t) {
-        float factor = t * 1000f / Math.max(t * 1000f, Settings.getSettings().mapmode_delay * MAP_TIME_FACTOR);
+        float factor = t * 1000f / Math.max(t * 1000f, Renderer.getRenderer().getSettings().mapmode_delay
+                * MAP_TIME_FACTOR);
         float dx;
         float dy;
         float dz;
         float da;
-        float map_x = getHeightMap().getMetersPerWorld() / 2f;
-        float map_y = getHeightMap().getMetersPerWorld() / 2f;
-        float map_z = getHeightMap().getMetersPerWorld() * MAP_Z_FACTOR;
+        float meters_per_world = getHeightMap().getMetersPerWorld();
+        float map_x = meters_per_world / 2f;
+        float map_y = meters_per_world / 2f;
+
+        // Calculate altitude based on aspect ratio and FOV to ensure the whole island fits.
+        // We use the diagonal of the world as the bounding sphere radius.
+        float aspect = (float) delegate.getGUIRoot().getWidth() / delegate.getGUIRoot().getHeight();
+        float fovy = Camera.calculateDynamicFOV(0, aspect, FOVMode.DIAGONAL); // Height is independent of target Z for DIAGONAL mode
+        float fovx = 2.0f * (float) Math.atan(Math.tan(Math.toRadians(fovy) * 0.5f) * aspect);
+
+        // Required distance to fit the island width and height
+        float dist_h = (meters_per_world * 0.5f) / (float) Math.tan(fovx * 0.5f);
+        float dist_v = (meters_per_world * 0.5f) / (float) Math.tan(Math.toRadians(fovy) * 0.5f);
+
+        // Add 10% margin to prevent tight clipping at edges
+        float map_z = Math.max(dist_h, dist_v) * 1.1f;
+
         float start_z = original_camera_state.getTargetZ();
 
         // Calculate transition progress (0.0 = at start, 1.0 = at map)
@@ -102,7 +124,7 @@ public final class MapCamera extends Camera {
             float fade = (progress - 0.25f) / 0.75f;
             // Radius shrinks from 1.5x to 1.0x as we ascend
             float radiusScale = 1.5f - (0.5f * fade);
-            getState().setFog(new RadialFogInfo(Color.WHITE, baseDensity * fade, radiusScale));
+            getState().setFog(new RadialFogInfo(Color.Standard.WHITE, baseDensity * fade, radiusScale));
         }
         // The fog should be disabled here because it shows this strange ring around the map
         getState().getFog().setEnabled(false);
@@ -159,8 +181,8 @@ public final class MapCamera extends Camera {
             case TO_MAP -> {
             }
             case IN_MAP -> {
-                label.setPos((delegate.getGUIRoot().getWidth() - label.getWidth()) / 2,
-                        delegate.getGUIRoot().getHeight() - label.getHeight());
+                label.setPos((delegate.getGUIRoot().getWidth() - label.getWidth()) / 2, delegate.getGUIRoot()
+                        .getHeight() - label.getHeight());
                 delegate.addChild(label);
             }
             case FROM_MAP -> {
@@ -175,12 +197,12 @@ public final class MapCamera extends Camera {
 
     public void mapGoto(float x, float y, boolean override) {
         if (map_mode == MapMode.IN_MAP || override) {
-            // Land the eye near the click using a fixed 45° angle (avoids weird views
+            // Land the eye near the click using a fixed 45� angle (avoids weird views
             // when the prior tilt was near horizontal). Preserve the user's absolute
             // eye Z so a fully-zoomed-out camera stays fully zoomed out across the
-            // teleport — matching what they'd see if they scrolled there manually,
+            // teleport � matching what they'd see if they scrolled there manually,
             // since scroll/bounce only push the eye up, never down. Then derive
-            // landing_distance so the 45° ray from the eye hits the clicked point.
+            // landing_distance so the 45� ray from the eye hits the clicked point.
             float clickGroundZ = getHeightMap().getNearestHeight(x, y);
             float sinDown = -(float) Math.sin(LANDING_ANGLE);
             float minEyeZ = clickGroundZ + MIN_LANDING_DISTANCE * sinDown;
@@ -211,8 +233,8 @@ public final class MapCamera extends Camera {
 
         if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
             if (event.consumeAction(GameAction.CAMERA_MAP_MODE)) {
-                changeMode((map_mode == MapMode.TO_MAP
-                        || map_mode == MapMode.IN_MAP) ? MapMode.FROM_MAP : MapMode.TO_MAP);
+                changeMode((map_mode == MapMode.TO_MAP || map_mode == MapMode.IN_MAP) ? MapMode.FROM_MAP
+                        : MapMode.TO_MAP);
                 event.consume();
             }
         }

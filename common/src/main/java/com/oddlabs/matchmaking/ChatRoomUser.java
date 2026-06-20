@@ -33,6 +33,6 @@ public final class ChatRoomUser implements Serializable {
 
     @Override
     public boolean equals(@Nullable Object other) {
-        return other instanceof ChatRoomUser && ((ChatRoomUser) other).nick.equals(nick);
+        return other instanceof ChatRoomUser user && user.nick.equals(nick);
     }
 }

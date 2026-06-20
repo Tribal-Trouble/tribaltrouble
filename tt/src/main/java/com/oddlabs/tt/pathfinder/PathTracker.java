@@ -7,9 +7,8 @@ import com.oddlabs.tt.util.DebugRender;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/// Tracks and manages unit pathfinding through the game world.
-/// Combines high-level region pathfinding with low-level grid navigation
-/// and smooth Bézier curve movement.
+/// Tracks and manages unit pathfinding through the game world. Combines high-level region pathfinding with low-level
+/// grid navigation and smooth Bézier curve movement.
 ///
 /// Debug visualization (`UNIT_GRID` mode) shows:
 /// * Red line: Grid-based path (step-by-step navigation)
@@ -93,7 +92,9 @@ public final class PathTracker {
         }
         bezier_path.computeCurvePoint(speed);
         update();
-        state = bezier_path.isDone() ? State.OK_INTERRUPTIBLE : State.OK;
+        state = bezier_path.isDone()
+                ? State.OK_INTERRUPTIBLE
+                : State.OK;
     }
 
     public @Nullable Occupant getBlocker() {
@@ -112,8 +113,8 @@ public final class PathTracker {
     private @Nullable PathTracker getNextDeadlocked() {
         Occupant occupant = getNextOccupantUnchecked();
         if (occupant != unit && occupant instanceof Movable next) {
-            if (next.isMoving() && (next.getTracker().state == State.SOFTBLOCKED
-                    || next.getTracker().state == State.BLOCKED)) {
+            if (next.isMoving() && (next.getTracker().state == State.SOFTBLOCKED || next.getTracker().state
+                    == State.BLOCKED)) {
                 return next.getTracker();
             }
         }

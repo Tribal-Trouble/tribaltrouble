@@ -44,7 +44,7 @@ public final class TutorialInGameInfo implements InGameInfo {
 
     @Override
     public void addGameOverGUI(WorldViewer viewer, GameStatsDelegate delegate, int header_y, Group group) {
-        throw new RuntimeException("Not implemented");
+        throw new UnsupportedOperationException("GameOver GUI not implemented for Tutorial");
     }
 
     @Override

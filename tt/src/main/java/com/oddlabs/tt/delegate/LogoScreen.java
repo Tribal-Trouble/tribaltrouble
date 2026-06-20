@@ -26,12 +26,12 @@ public final class LogoScreen extends CameraDelegate<StaticCamera> implements Up
     private final @Nullable GUIIcon overlay;
     private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);
     private final @NonNull GUIRoot client_root;
-    private final Fadable fadable;
+    private final @Nullable Fadable fadable;
     private final UIRenderer renderer;
     private boolean fade_started = false;
 
-    public LogoScreen(@NonNull GUIRoot gui_root, @Nullable Texture logo, Fadable fadable, @NonNull GUIRoot client_root,
-            UIRenderer renderer) {
+    public LogoScreen(@NonNull GUIRoot gui_root, @Nullable Texture logo, @Nullable Fadable fadable,
+            @NonNull GUIRoot client_root, UIRenderer renderer) {
         super(gui_root, new StaticCamera(new CameraState()));
         this.client_root = client_root;
         this.fadable = fadable;
@@ -41,8 +41,8 @@ public final class LogoScreen extends CameraDelegate<StaticCamera> implements Up
 
         if (logo != null) {
             overlay = new GUIIcon(new IconQuad(0f, 0f, (float) overlay_image_width / overlay_texture_width,
-                    (float) overlay_image_height / overlay_texture_height, getGUIRoot().getWidth(),
-                    getGUIRoot().getHeight(), logo));
+                    (float) overlay_image_height / overlay_texture_height, getGUIRoot().getWidth(), getGUIRoot()
+                            .getHeight(), logo));
             overlay.setPos(0, 0);
             addChild(overlay);
         } else {

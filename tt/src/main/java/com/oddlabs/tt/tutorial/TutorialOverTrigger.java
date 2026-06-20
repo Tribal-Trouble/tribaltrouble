@@ -4,6 +4,12 @@ import com.oddlabs.tt.form.TutorialForm;
 import com.oddlabs.tt.player.Player;
 import org.jspecify.annotations.NonNull;
 
+import java.util.List;
+
+/**
+ * Triggers the completion of the current tutorial battle step when
+ * all of the target player's units (and potentially buildings) are destroyed.
+ */
 public final class TutorialOverTrigger extends TutorialTrigger {
 
     public TutorialOverTrigger() {
@@ -12,7 +18,7 @@ public final class TutorialOverTrigger extends TutorialTrigger {
 
     @Override
     protected void run(@NonNull Tutorial tutorial) {
-        Player[] players = tutorial.getViewer().getWorld().getPlayers();
+        List<@NonNull Player> players = tutorial.getViewer().getWorld().getPlayers();
         Player local_player = tutorial.getViewer().getLocalPlayer();
 
         for (Player current : players) {

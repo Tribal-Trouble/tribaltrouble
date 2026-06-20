@@ -1,27 +1,35 @@
 package com.oddlabs.tt.player.campaign;
 
+import com.oddlabs.tt.model.Race;
+
+import com.oddlabs.tt.model.Difficulty;
+
+import com.oddlabs.tt.model.Terrain;
+import com.oddlabs.tt.model.UnitType;
+
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.form.InGameCampaignDialogForm;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.landscape.HeightMap;
-import com.oddlabs.tt.model.Race;
-import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.SceneryModel;
 import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.UnitInfo;
-import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.trigger.campaign.GameStartedTrigger;
 import com.oddlabs.tt.trigger.campaign.VictoryTrigger;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
+import com.oddlabs.tt.render.VisualRegistry;
 
 import java.util.ResourceBundle;
 import java.util.stream.IntStream;
 
+/**
+ * Campaign level logic for Viking Island 7, containing objectives and triggers.
+ */
 public final class VikingIsland7 extends Island {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland7.class.getName());
 
@@ -35,12 +43,14 @@ public final class VikingIsland7 extends Island {
 
     @Override
     public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-        String[] ai_names = IntStream.range(0, 6).mapToObj(i -> i18n("name" + i)).toArray(String[]::new);
-        GameNetwork game_network = startNewGame(network, gui_root, 512, Landscape.TerrainType.NATIVE, .75f, 1f, .5f,
+        String[] ai_names = IntStream.range(0, 6)
+                .mapToObj(i -> i18n("name" + i))
+                .toArray(String[]::new);
+        GameNetwork game_network = startNewGame(network, gui_root, 512, Terrain.NATIVE, .75f, 1f, .5f,
                 725925, 7, VikingCampaign.MAX_UNITS, ai_names);
         game_network.getClient().getServerInterface().setPlayerSlot(0,
                 PlayerSlot.HUMAN,
-                RacesResources.RACE_VIKINGS,
+                Race.VIKINGS.getValue(),
                 0,
                 true,
                 PlayerSlot.AI_NONE);
@@ -52,15 +62,15 @@ public final class VikingIsland7 extends Island {
                         getCampaign().getState().getNumRubberWarriors()));
         int ai_difficulty;
         int ai_peons = switch (getCampaign().getState().getDifficulty()) {
-            case CampaignState.DIFFICULTY_EASY -> {
+            case Difficulty.EASY -> {
                 ai_difficulty = PlayerSlot.AI_EASY;
                 yield 5;
             }
-            case CampaignState.DIFFICULTY_NORMAL -> {
+            case Difficulty.NORMAL -> {
                 ai_difficulty = PlayerSlot.AI_EASY;
                 yield 15;
             }
-            case CampaignState.DIFFICULTY_HARD -> {
+            case Difficulty.HARD -> {
                 ai_difficulty = PlayerSlot.AI_HARD;
                 yield 20;
             }
@@ -68,14 +78,14 @@ public final class VikingIsland7 extends Island {
         };
         game_network.getClient().getServerInterface().setPlayerSlot(2,
                 PlayerSlot.AI,
-                RacesResources.RACE_NATIVES,
+                Race.NATIVES.getValue(),
                 1,
                 true,
                 ai_difficulty);
         game_network.getClient().setUnitInfo(2, new UnitInfo(true, true, 0, false, ai_peons, 0, 0, 0));
         game_network.getClient().getServerInterface().setPlayerSlot(3,
                 PlayerSlot.AI,
-                RacesResources.RACE_NATIVES,
+                Race.NATIVES.getValue(),
                 1,
                 true,
                 ai_difficulty);
@@ -85,8 +95,8 @@ public final class VikingIsland7 extends Island {
 
     @Override
     protected void start() {
-        final Player enemy0 = getViewer().getWorld().getPlayers()[1];
-        final Player enemy1 = getViewer().getWorld().getPlayers()[2];
+        final Player enemy0 = getViewer().getWorld().getPlayers().get(1);
+        final Player enemy1 = getViewer().getWorld().getPlayers().get(2);
 
         // Introduction
         new GameStartedTrigger(getViewer().getWorld(), () -> {
@@ -109,15 +119,15 @@ public final class VikingIsland7 extends Island {
         });
 
         // Put warrior in tower
-        insertGuardTower(enemy0, Race.UNIT_WARRIOR_IRON, 83, 70);
-        insertGuardTower(enemy1, Race.UNIT_WARRIOR_IRON, 189, 74);
+        insertGuardTower(enemy0, UnitType.WARRIOR_IRON, 83, 70);
+        insertGuardTower(enemy1, UnitType.WARRIOR_IRON, 189, 74);
 
         // Insert treasures
         float shadow_diameter = 2.6f;
 
         float offset = HeightMap.METERS_PER_UNIT_GRID / 2f;
         float dir = (float) Math.sin(Math.PI / 4);
-        var treasures = getViewer().getWorld().getRacesResources().getTreasures();
+        var treasures = VisualRegistry.getInstance().getTreasures();
         new SceneryModel(getViewer().getWorld(), 67 * 2 + offset, 64 * 2 + offset, -1, 0, treasures[3], shadow_diameter,
                 true, i18n("statue"));
         new SceneryModel(getViewer().getWorld(), 70 * 2 + offset, 52 * 2 + offset, -1, 0, treasures[4], shadow_diameter,

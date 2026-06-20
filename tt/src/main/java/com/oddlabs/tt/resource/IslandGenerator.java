@@ -2,17 +2,23 @@ package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.form.ProgressForm;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.landscape.HeightMap;
+import com.oddlabs.tt.render.LandscapeBaker;
+import com.oddlabs.tt.model.Terrain;
 import com.oddlabs.tt.procedural.Landscape;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.Texture;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import java.io.Serial;
 import java.time.Duration;
 import java.time.Instant;
 
+/**
+ * Generates landscape heights, terrain textures, and structures for game islands.
+ */
 public final class IslandGenerator implements WorldGenerator {
     @Serial
     private static final long serialVersionUID = 1;
@@ -22,7 +28,7 @@ public final class IslandGenerator implements WorldGenerator {
     private static final float IDEAL_DETAIL_ALPHA = .15f;
 
     private final int meters_per_world;
-    private final Landscape.@NonNull TerrainType terrain;
+    private final @NonNull Terrain terrain;
     private final int grid_units;
 
     private final float hills;
@@ -30,7 +36,8 @@ public final class IslandGenerator implements WorldGenerator {
     private final float supplies_amount;
     private final int seed;
 
-    public IslandGenerator(int meters_per_world, Landscape.@NonNull TerrainType terrain, float hills,
+    public IslandGenerator(
+            @NonNull Terrain terrain, int meters_per_world, float hills,
             float vegetation_amount, float supplies_amount, int seed) {
         this.hills = hills;
         this.vegetation_amount = vegetation_amount;
@@ -48,15 +55,16 @@ public final class IslandGenerator implements WorldGenerator {
                 GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
     }
 
-    private static int getTexelsPerGridUnit() {
-        int texels_per_grid_unit = Globals.TEXELS_PER_GRID_UNIT / (int) Math.pow(2,
-                Globals.TEXTURE_MIP_SHIFT[Settings.getSettings().graphic_detail]);
-        return texels_per_grid_unit;
+    private static @NonNull Texture createDetailNormal(@NonNull GLImage detail_image) {
+        GLImage[] detail_mipmaps = detail_image.buildMipMaps(10000, 1.0f, true, false);
+        return new Texture(detail_mipmaps, GL11.GL_RGBA8, GL11.GL_LINEAR_MIPMAP_LINEAR,
+                GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
     }
 
-    @Override
-    public Landscape.@NonNull TerrainType getTerrainType() {
-        return terrain;
+    private static int getTexelsPerGridUnit() {
+        int texels_per_grid_unit = Globals.TEXELS_PER_GRID_UNIT / (int) Math.pow(2, Globals.TEXTURE_MIP_SHIFT[Renderer
+                .getRenderer().getSettings().graphic_detail]);
+        return texels_per_grid_unit;
     }
 
     @Override
@@ -65,12 +73,7 @@ public final class IslandGenerator implements WorldGenerator {
     }
 
     @Override
-    public @NonNull FogInfo getFogInfo() {
-        return Landscape.getFogInfo(terrain, meters_per_world);
-    }
-
-    @Override
-    public @NonNull WorldInfo generate(int num_players, int initial_unit_count, float random_start_pos) {
+    public @NonNull WorldInfo<Texture> generate(int num_players, int initial_unit_count, float random_start_pos) {
         int colormap_size = grid_units * getTexelsPerGridUnit();
         int chunks_per_colormap = colormap_size / TEXELS_PER_CHUNK;
 
@@ -87,23 +90,33 @@ public final class IslandGenerator implements WorldGenerator {
                 vegetation_amount, supplies_amount, seed, initial_unit_count, random_start_pos);
         Instant time_after = Instant.now();
         IO.println("Landscape created in " + Duration.between(time_before, time_after));
+        time_before = Instant.now();
         BlendInfo[] blend_infos = landscape.getBlendInfos();
         Texture detail = createDetail(landscape.getDetail(), base_level);
-        // int alpha_size = grid_units;
-        // Texture[][] chunk_maps = blendTextures(chunks_per_colormap, blend_infos, alpha_size, Globals.STRUCTURE_SIZE, colormap_size/alpha_size);
+        Texture detailNormal = createDetailNormal(landscape.getDetailNormal());
 
-        com.oddlabs.tt.landscape.LandscapeBaker baker = new com.oddlabs.tt.landscape.LandscapeBaker();
-        // Original tiled structure textures at colormap_size/STRUCTURE_SIZE repeats.
-        float textureScale = (float) colormap_size / Globals.STRUCTURE_SIZE;
-        WorldInfo.Maps maps = baker.bake(colormap_size, textureScale, blend_infos);
+        float textureScale = meters_per_world * Globals.LANDSCAPE_TEXTURE_SCALE;
+        LandscapeBaker baker = new LandscapeBaker(colormap_size, textureScale);
+
+        // Create temporary heightmap texture for baking
+        int grid_width = meters_per_world / HeightMap.METERS_PER_UNIT_GRID;
+        WorldInfo.Maps<Texture> maps;
+        try (Texture heightMapTexture = new Texture(landscape.getHeight(), grid_width, grid_width,
+                GL30.GL_R32F, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT)) {
+            baker.setHeightMap(heightMapTexture, meters_per_world);
+            maps = baker.bake(blend_infos);
+        }
+        time_after = Instant.now();
+        IO.println("Landscape baked in " + Duration.between(time_before, time_after));
 
         ProgressForm.progress();
-        return new WorldInfo(meters_per_world, landscape.getSeaLevelMeters(),
-                colormap_size, chunks_per_colormap, null, maps, detail,
+        return new WorldInfo<>(terrain, meters_per_world, landscape.getSeaLevelMeters(),
+                colormap_size, chunks_per_colormap, null, maps, detail, detailNormal,
                 landscape.getHeight(),
-                landscape.getTrees(), landscape.getPalmtrees(), landscape.getRock(), landscape.getIron(),
-                landscape.getPlants(),
+                landscape.getTrees(), landscape.getPalmtrees(), landscape.getRock(), landscape.getIron(), landscape
+                        .getPlants(),
                 landscape.getAccessGrid(), landscape.getBuildGrid(), landscape.getStartingLocations(),
+                Landscape.getFogInfo(terrain, meters_per_world),
                 blend_infos);
     }
 }

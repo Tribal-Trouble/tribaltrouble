@@ -38,6 +38,7 @@ public final class LocalEventQueue implements AutoCloseable {
         this.deterministic = new SaveDeterministic(log_file);
     }
 
+    @Override
     public void close() {
         logger.info("LocalEventQueue disposing...");
         logger.info("Ending deterministic log...");

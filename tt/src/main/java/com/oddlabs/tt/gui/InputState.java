@@ -1,11 +1,5 @@
 package com.oddlabs.tt.gui;
 
-import java.util.EnumSet;
-import java.util.Set;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-
 import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.font.Index;
@@ -17,7 +11,15 @@ import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.input.KeyboardEvent;
 import com.oddlabs.tt.input.Modifier;
 import com.oddlabs.tt.render.Renderer;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
+import java.util.EnumSet;
+import java.util.Set;
+
+/**
+ * Manages the current state of user input events and their delivery to UI components.
+ */
 public final class InputState {
     private static final float MOUSE_REPEAT_DELAY = .5f;
     private static final float MOUSE_REPEAT_RATE = .05f;
@@ -60,15 +62,9 @@ public final class InputState {
     }
 
     public void mouseMoved(short x, short y) {
+        GUIObject gui_hit = pick();
         float scale = gui_root.getGlobalScale();
-        // Skip GUI hit-testing when cursor is grabbed (middle mouse wheel or 'first person')
-        // the virtual cursor position is meaningless for picking
-        if (Renderer.getLocalInput().getPointerInput().isGrabbed()) {
-            gui_root.getCurrentGUIObject().mouseMovedAll((short) Math.round(x / scale), (short) Math.round(y / scale));
-        } else {
-            GUIObject gui_hit = pick();
-            gui_hit.mouseMovedAll((short) Math.round(x / scale), (short) Math.round(y / scale));
-        }
+        gui_hit.mouseMovedAll((short) Math.round(x / scale), (short) Math.round(y / scale));
     }
 
     private void resetKeyTimer() {
@@ -80,6 +76,13 @@ public final class InputState {
         int scroll_amount = Math.round(dz * Globals.WHEEL_SCALE);
         gui_hit.setFocus();
         gui_hit.mouseScrolledAll(scroll_amount);
+    }
+
+    public void mouseScrolledHorizontally(int dx) {
+        GUIObject gui_hit = pick();
+        int scroll_amount = Math.round(dx * Globals.WHEEL_SCALE);
+        gui_hit.setFocus();
+        gui_hit.mouseScrolledHorizontallyAll(scroll_amount);
     }
 
     public void mousePressed(@NonNull MouseButton button) {
@@ -159,16 +162,16 @@ public final class InputState {
         int scaledY = Math.round(y / scale);
 
         if (drag_obj != null)
-            drag_obj.mouseDraggedAll(button, scaledX, scaledY, scaledX - drag_x, scaledY - drag_y,
-                    scaledX - absolute_drag_x, scaledY - absolute_drag_y);
+            drag_obj.mouseDraggedAll(button, scaledX, scaledY, scaledX - drag_x, scaledY - drag_y, scaledX
+                    - absolute_drag_x, scaledY - absolute_drag_y);
         drag_x = scaledX;
         drag_y = scaledY;
     }
 
     private boolean clickedSameArea() {
         var localInput = Renderer.getLocalInput();
-        return Math.abs(localInput.getMouseX() - clicked_x) < DOUBLE_CLICK_THRESHOLD && Math.abs(
-                localInput.getMouseY() - clicked_y) < DOUBLE_CLICK_THRESHOLD;
+        return Math.abs(localInput.getMouseX() - clicked_x) < DOUBLE_CLICK_THRESHOLD && Math.abs(localInput.getMouseY()
+                - clicked_y) < DOUBLE_CLICK_THRESHOLD;
     }
 
     private void stopDoubleClickTimer() {
@@ -185,23 +188,24 @@ public final class InputState {
         key_counter = 0;
     }
 
-    public void keyTyped(int key_code, char key_char) {
+    public void keyTyped(int key_code, int key_codepoint) {
         var key = Key.fromGlfwCode(key_code);
-        if (Key.KEY_UNKNOWN != key || key_char != 0) {
+        if (Key.KEY_UNKNOWN != key || key_codepoint != 0) {
             GUIObject focused = gui_root.getGlobalFocus();
-            KeyboardEvent keyEvent = new KeyboardEvent(key, key_char, EnumSet.noneOf(Modifier.class), 1);
+            KeyboardEvent keyEvent = new KeyboardEvent(key, key_codepoint, EnumSet.noneOf(Modifier.class), 1);
             Set<GameAction> actions = Renderer.getLocalInput().getInputManager().getActions(keyEvent);
             InputEvent event = new InputEvent(keyEvent, actions, InputPhase.REPEAT);
             focused.handleInputAll(event);
         }
     }
 
-    public void keyPressed(@NonNull Key key, char key_char, @NonNull Set<@NonNull Modifier> modifiers, boolean repeat) {
+    public void keyPressed(@NonNull Key key, int key_codepoint, @NonNull Set<@NonNull Modifier> modifiers,
+            boolean repeat) {
         GUIObject focused = gui_root.getGlobalFocus();
         resetKeyTimer();
         if (!repeat && (key_event == null
                 || key_event.keyCode() != key
-                || key_event.keyChar() != key_char
+                || key_event.keyCodepoint() != key_codepoint
                 || !key_event.modifiers().equals(modifiers))) {
             if (double_key_timer.isRunning()) {
                 stopDoubleKeyTimer();
@@ -211,7 +215,7 @@ public final class InputState {
         }
         if (!repeat)
             key_counter++;
-        KeyboardEvent keyEvent = new KeyboardEvent(key, key_char, modifiers, key_counter);
+        KeyboardEvent keyEvent = new KeyboardEvent(key, key_codepoint, modifiers, key_counter);
         key_event = keyEvent;
 
         Set<GameAction> actions = Renderer.getLocalInput().getInputManager().getActions(keyEvent);
@@ -227,10 +231,10 @@ public final class InputState {
         }
     }
 
-    public void keyReleased(@NonNull Key key, char key_char, @NonNull Set<@NonNull Modifier> modifiers) {
+    public void keyReleased(@NonNull Key key, int key_codepoint, @NonNull Set<@NonNull Modifier> modifiers) {
         GUIObject focused = gui_root.getGlobalFocus();
         resetKeyTimer();
-        KeyboardEvent keyEvent = new KeyboardEvent(key, key_char, modifiers, 0);
+        KeyboardEvent keyEvent = new KeyboardEvent(key, key_codepoint, modifiers, 0);
 
         Set<GameAction> actions = Renderer.getLocalInput().getInputManager().getActions(keyEvent);
         Renderer.getLocalInput().getInputManager().updateState(keyEvent, false); // Update polling state

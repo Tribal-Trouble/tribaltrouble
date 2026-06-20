@@ -1,40 +1,39 @@
 package com.oddlabs.tt.model;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class ElementNode<T extends Element<T>> extends AbstractElementNode<T> {
     private static final int MIN_NODE_SIZE = 4;
     /*
-     * child2 | child3
-     * ----------------
-     * child0 | child1
+     * child[2] | child[3]
+     * -------------------
+     * child[0] | child[1]
      *
      */
+    private final @NonNull AbstractElementNode<T> @NonNull [] children;
 
-    private final @NonNull AbstractElementNode<T> child0;
-    private final @NonNull AbstractElementNode<T> child1;
-    private final @NonNull AbstractElementNode<T> child2;
-    private final @NonNull AbstractElementNode<T> child3;
-
-    public ElementNode(AbstractElementNode<T> owner/*, int level*/, int size, int x, int y) {
-        super(owner/*, level*/);
+    public ElementNode(@Nullable AbstractElementNode<T> owner, int size, int x, int y) {
+        super(owner);
         int child_size = size >> 1;
-        child0 = createChild(/*level, */child_size, x, y);
-        child1 = createChild(/*level, */child_size, x + child_size, y);
-        child2 = createChild(/*level, */child_size, x, y + child_size);
-        child3 = createChild(/*level, */child_size, x + child_size, y + child_size);
+        children = new AbstractElementNode[]{
+                createChild(child_size, x, y),
+                createChild(child_size, x + child_size, y),
+                createChild(child_size, x, y + child_size),
+                createChild(child_size, x + child_size, y + child_size)
+        };
 
-        checkBoundsXY(child0);
-        checkBoundsXY(child1);
-        checkBoundsXY(child2);
-        checkBoundsXY(child3);
+        checkBoundsXY(children[0]);
+        checkBoundsXY(children[1]);
+        checkBoundsXY(children[2]);
+        checkBoundsXY(children[3]);
     }
 
-    private @NonNull AbstractElementNode<T> createChild(/*int level,*/ int size, int x, int y) {
+    private @NonNull AbstractElementNode<T> createChild(int size, int x, int y) {
         if (size != MIN_NODE_SIZE)
-            return new ElementNode<>(this, /*level + 1, */size, x, y);
+            return new ElementNode<>(this, size, x, y);
         else
-            return new ElementLeaf<>(this, /*level + 1, */size, x, y);
+            return new ElementLeaf<>(this, size, x, y);
     }
 
     @Override
@@ -42,29 +41,19 @@ public final class ElementNode<T extends Element<T>> extends AbstractElementNode
         incElementCount();
         if (model.bmin_x >= getCX()) {
             if (model.bmin_y >= getCY())
-                return child3.insertElement(model);
+                return children[3].insertElement(model);
             else if (model.bmax_y <= getCY())
-                return child1.insertElement(model);
+                return children[1].insertElement(model);
         } else if (model.bmax_x <= getCX()) {
             if (model.bmin_y >= getCY())
-                return child2.insertElement(model);
+                return children[2].insertElement(model);
             else if (model.bmax_y <= getCY())
-                return child0.insertElement(model);
+                return children[0].insertElement(model);
         }
         return addElement(model);
     }
 
-    @Override
-    public void visit(@NonNull ElementNodeVisitor<T> visitor) {
-        visitor.visitNode(this);
-    }
-
-    public void visitChildren(ElementNodeVisitor<T> visitor) {
-        if (getChildCount() > 0) {
-            child0.visit(visitor);
-            child1.visit(visitor);
-            child2.visit(visitor);
-            child3.visit(visitor);
-        }
+    public @NonNull AbstractElementNode<T> @NonNull [] children() {
+        return children;
     }
 }

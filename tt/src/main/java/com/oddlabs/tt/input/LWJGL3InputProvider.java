@@ -48,7 +48,7 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
         final int action; // GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT
         final int scancode;
         final int mods;
-        char character;
+        int codepoint;
 
         KeyEvent(int key, int action, int scancode, int mods) {
             this.key = key;
@@ -57,13 +57,13 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
             this.mods = mods;
         }
 
-        KeyEvent(int key, int action, int scancode, int mods, char character) {
+        KeyEvent(int key, int action, int scancode, int mods, int codepoint) {
             this(key, action, scancode, mods);
-            this.character = character;
+            this.codepoint = codepoint;
         }
     }
 
-    private record MouseEvent(int button, boolean state, int x, int y, int dWheel) {
+    private record MouseEvent(int button, boolean state, int x, int y, int dWheel, int dWheelX) {
     }
 
     public LWJGL3InputProvider(@NonNull LWJGL3Window win) {
@@ -88,12 +88,12 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
                 if (!keyEvents.isEmpty()) {
                     KeyEvent last = keyEvents.getLast();
                     if (last.action == GLFW_PRESS || last.action == GLFW_REPEAT) {
-                        last.character = (char) codepoint;
+                        last.codepoint = codepoint;
                         return;
                     }
                 }
                 // No matching key event found, add a standalone char event
-                keyEvents.add(new KeyEvent(0, GLFW_PRESS, 0, 0, (char) codepoint));
+                keyEvents.add(new KeyEvent(0, GLFW_PRESS, 0, 0, codepoint));
             }
         });
 
@@ -111,13 +111,13 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
             this.mouseX = xpos * scaleX;
             this.mouseY = fh - (ypos * scaleY) - 1; // Invert Y in physical pixel space
             synchronized (mouseEvents) {
-                mouseEvents.add(new MouseEvent(-1, false, (int) mouseX, (int) mouseY, 0));
+                mouseEvents.add(new MouseEvent(-1, false, (int) mouseX, (int) mouseY, 0, 0));
             }
         });
 
         glfwSetMouseButtonCallback(windowHandle, (window, button, action, mods) -> {
             synchronized (mouseEvents) {
-                mouseEvents.add(new MouseEvent(button, action == GLFW_PRESS, (int) mouseX, (int) mouseY, 0));
+                mouseEvents.add(new MouseEvent(button, action == GLFW_PRESS, (int) mouseX, (int) mouseY, 0, 0));
             }
         });
 
@@ -125,7 +125,7 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
             synchronized (mouseEvents) {
                 // wheel delta usually 120 per click in legacy? Or just +/- 1? LWJGL2 dWheel was usually +/- 120.
                 // GLFW gives floats. Let's say 120 * offset.
-                mouseEvents.add(new MouseEvent(-1, false, (int) mouseX, (int) mouseY, (int) (yoffset * 120)));
+                mouseEvents.add(new MouseEvent(-1, false, (int) mouseX, (int) mouseY, (int) (yoffset * 120), (int) (xoffset * 120)));
             }
         });
     }
@@ -165,8 +165,8 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
     }
 
     @Override
-    public char getEventCharacter() {
-        return currentKeyEvent != null ? currentKeyEvent.character : 0;
+    public int getEventCodepoint() {
+        return currentKeyEvent != null ? currentKeyEvent.codepoint : 0;
     }
 
     @Override
@@ -206,6 +206,11 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
     @Override
     public int getEventDWheel() {
         return currentMouseEvent != null ? currentMouseEvent.dWheel() : 0;
+    }
+
+    @Override
+    public int getEventDWheelX() {
+        return currentMouseEvent != null ? currentMouseEvent.dWheelX() : 0;
     }
 
     @Override
@@ -253,7 +258,7 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
     public void setGrabbed(boolean grabbed) {
         // GLFW_CURSOR_CAPTURED on macOS hides the cursor instead of confining it visibly,
         // so confine_cursor is treated as off there.
-        boolean confine = com.oddlabs.tt.global.Settings.getSettings().confine_cursor && !OsPlatform.IS_MAC;
+        boolean confine = com.oddlabs.tt.render.Renderer.getRenderer().getSettings().confine_cursor && !OsPlatform.IS_MAC;
         int ungrabbedMode = confine ? GLFW_CURSOR_CAPTURED : GLFW_CURSOR_NORMAL;
         glfwSetInputMode(windowHandle, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : ungrabbedMode);
     }

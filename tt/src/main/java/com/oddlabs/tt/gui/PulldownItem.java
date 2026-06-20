@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 
 import com.oddlabs.tt.render.GUIRenderer;
-import org.joml.Vector4fc;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -17,8 +17,7 @@ public class PulldownItem<T> extends ButtonObject {
     public PulldownItem(@NonNull String label_str, @Nullable T attachment) {
         super(Skin.getSkin().getPulldownData().font());
         this.attachment = attachment;
-        PulldownData data = Skin.getSkin().getPulldownData();
-        label = new Label(label_str, data.font(), 0, Origin.AT_START);
+        label = new Label(label_str, getFont(), 0, Origin.AT_START);
         addChild(label);
         setDim(0, label.getHeight());
     }
@@ -48,8 +47,11 @@ public class PulldownItem<T> extends ButtonObject {
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         Box item = Skin.getSkin().getPulldownData().pulldownItem();
-        ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.NORMAL : isActive()
-                || isHovered() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+        ModeIconQuads.Mode skinMode = isDisabled()
+                ? ModeIconQuads.Mode.NORMAL
+                : isActive() || isHovered()
+                        ? ModeIconQuads.Mode.ACTIVE
+                : ModeIconQuads.Mode.NORMAL;
         item.render(renderer, 0f, 0f, getWidth(), getHeight(), skinMode);
     }
 
@@ -61,11 +63,11 @@ public class PulldownItem<T> extends ButtonObject {
         return label;
     }
 
-    public @NonNull Vector4fc getLabelColor() {
+    public @NonNull Color getLabelColor() {
         return label.getColor();
     }
 
-    public void setLabelColor(@NonNull Vector4fc color) {
+    public void setLabelColor(@NonNull Color color) {
         label.setColor(color);
     }
 

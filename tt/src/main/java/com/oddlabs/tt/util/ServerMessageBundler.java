@@ -63,7 +63,7 @@ public final class ServerMessageBundler {
             case RegistrationKeyFormatException.TYPE_INVALID_CHAR -> i18n("invalid_char", e.getInvalidChar());
             case RegistrationKeyFormatException.TYPE_INVALID_LENGTH -> i18n("invalid_length", e.getStrippedLength());
             case RegistrationKeyFormatException.TYPE_INVALID_KEY -> i18n("invalid_key");
-            default -> throw new RuntimeException();
+            default -> throw new IllegalArgumentException("Unexpected exception type: " + e.getType());
         };
     }
 

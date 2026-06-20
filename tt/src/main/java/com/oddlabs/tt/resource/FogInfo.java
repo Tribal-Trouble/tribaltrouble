@@ -1,6 +1,6 @@
 package com.oddlabs.tt.resource;
 
-import org.joml.Vector4fc;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 public class FogInfo {
@@ -23,13 +23,13 @@ public class FogInfo {
     }
 
     protected final @NonNull Mode mode;
-    protected final @NonNull Vector4fc color;
+    protected final Color.@NonNull Linear color;
     protected final float density;
     private boolean enabled = true;
 
-    public FogInfo(@NonNull Mode mode, @NonNull Vector4fc color, float density) {
+    public FogInfo(@NonNull Mode mode, @NonNull Color color, float density) {
         this.mode = mode;
-        this.color = color;
+        this.color = color instanceof Color.Linear linear ? linear : new Color.Linear(color);
         this.density = density;
     }
 
@@ -41,7 +41,12 @@ public class FogInfo {
         return enabled;
     }
 
-    public @NonNull Vector4fc getColor() {
+    /**
+     * Get the base color of the fog.
+     *
+     * @return Linear color
+     */
+    public Color.@NonNull Linear getColor() {
         return color;
     }
 

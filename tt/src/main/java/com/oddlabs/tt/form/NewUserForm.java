@@ -4,7 +4,6 @@ import com.oddlabs.matchmaking.Login;
 import com.oddlabs.matchmaking.LoginDetails;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.MainMenu;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.ButtonObject;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.EditLine;
@@ -20,6 +19,7 @@ import com.oddlabs.tt.gui.PasswordLine;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
@@ -165,8 +165,8 @@ public final class NewUserForm extends Form {
 
     private void doCreateUser(@NonNull String username, LoginDetails login_details, @NonNull String password,
             Login login) {
-        Settings.getSettings().username = username;
-        Settings.getSettings().pw_digest = password;
+        Renderer.getRenderer().getSettings().username = username;
+        Renderer.getRenderer().getSettings().pw_digest = password;
         Form connecting_form = new MatchmakingConnectingForm(network, gui_root, this, main_menu, login, login_details);
         gui_root.addModalForm(connecting_form);
     }

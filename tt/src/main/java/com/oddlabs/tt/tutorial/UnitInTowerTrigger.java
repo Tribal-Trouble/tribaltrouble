@@ -13,7 +13,7 @@ public final class UnitInTowerTrigger extends TutorialTrigger {
 
     @Override
     protected void run(@NonNull Tutorial tutorial) {
-        if (tower.getUnitContainer().getNumSupplies() > 0) {
+        if (tower.getUnitContainer().map(c -> c.getNumSupplies() > 0).orElse(false)) {
             tutorial.next(new AttackTowerTrigger(tower));
         }
     }

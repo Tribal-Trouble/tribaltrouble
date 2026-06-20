@@ -4,6 +4,7 @@ import com.oddlabs.tt.delegate.ModalDelegate;
 import com.oddlabs.tt.guievent.EventListener;
 import com.oddlabs.tt.guievent.FocusListener;
 import com.oddlabs.tt.guievent.InputListener;
+import com.oddlabs.tt.guievent.MouseHorizontalWheelListener;
 import com.oddlabs.tt.guievent.MouseButtonListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
@@ -15,11 +16,13 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-public abstract class GUIObject extends Renderable<GUIObject> {
+public abstract class GUIObject extends Renderable<GUIObject> implements ToolTip {
     private static final Logger logger = Logger.getLogger(GUIObject.class.getName());
     private static final int ROW_TOLERANCE = 5;
 
@@ -47,7 +50,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
     private boolean tab_stop = true;
 
     /**
-     * The child which is currently in focus chain or null if no child is focused
+     * The child who is currently in focus chain or null if no child is focused
      */
     private @Nullable GUIObject focused_child = null;
 
@@ -72,7 +75,15 @@ public abstract class GUIObject extends Renderable<GUIObject> {
      */
     private @NonNull Origin origin = Origin.AT_START;
 
+    private final @Nullable Supplier<@NonNull String> tool_tip;
+    private @Nullable String cached_tool_tip = null;
+
     public GUIObject() {
+        this(null);
+    }
+
+    public GUIObject(@Nullable Supplier<@NonNull String> tool_tip) {
+        this.tool_tip = tool_tip;
     }
 
     @Override
@@ -84,12 +95,31 @@ public abstract class GUIObject extends Renderable<GUIObject> {
         return null != parent ? parent.getParentGUIRoot() : null;
     }
 
+    @Override
+    public boolean hasToolTip() {
+        return getToolTipText().isPresent();
+    }
+
+    @Override
+    public void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
+        getToolTipText().ifPresent(tool_tip_box::append);
+    }
+
+    private Optional<String> getToolTipText() {
+        if (cached_tool_tip == null && tool_tip != null) {
+            cached_tool_tip = tool_tip.get();
+        }
+        return cached_tool_tip != null && !cached_tool_tip.isEmpty() ? Optional.of(cached_tool_tip) : Optional.empty();
+    }
+
+    @Override
     void addTree() {
         if (getParentGUIRoot() != null) {
             super.addTree();
         }
     }
 
+    @Override
     public void remove() {
         boolean notify_remove = getParentGUIRoot() != null && parent != null;
         super.remove();
@@ -301,7 +331,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
             if (parent != null) {
                 parent.switchFocusToNextChild(dirEnum);
             } else {
-                // We are at the root (or detached) and not a cycle, but we should wrap if global cycle is desired
+                // We are at the root (or detached) and not a cycle, but we should wrap if the global cycle is desired
                 // or just stay put. GUIRoot usually has focus_cycle=true so this else-block is for detached items.
                 GUIObject first = findNextFocusable(null, dirEnum);
                 if (first != null) {
@@ -399,7 +429,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
         }
 
         // Secondary Sort: X (Ascending)
-        return a.getX() - b.getX();
+        return Integer.compare(a.getX(), b.getX());
     }
 
     private static void switchFocusToObject(@NonNull GUIObject obj, @NonNull FocusDirection dir) {
@@ -523,10 +553,27 @@ public abstract class GUIObject extends Renderable<GUIObject> {
         }
     }
 
+    final void mouseScrolledHorizontallyAll(int amount) {
+        if (disabled)
+            return;
+        mouseScrolledHorizontally(amount);
+        for (var listener : listeners) {
+            if (listener instanceof MouseHorizontalWheelListener l) {
+                l.mouseScrolledHorizontally(amount);
+            }
+        }
+    }
+
     protected void mouseScrolled(int amount) {
         GUIObject parent = getParent();
         if (parent != null)
             parent.mouseScrolledAll(amount);
+    }
+
+    protected void mouseScrolledHorizontally(int amount) {
+        GUIObject parent = getParent();
+        if (parent != null)
+            parent.mouseScrolledHorizontallyAll(amount);
     }
 
     final void mouseDraggedAll(@NonNull MouseButton button, int x, int y, int relative_x, int relative_y,
@@ -574,6 +621,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
     }
 
     protected void mouseExited() {
+        cached_tool_tip = null;
         GUIObject parent = getParent();
         if (parent != null)
             parent.mouseExitedAll();
@@ -681,14 +729,19 @@ public abstract class GUIObject extends Renderable<GUIObject> {
         }
     }
 
+    protected boolean shouldHandleActivate() {
+        return true;
+    }
+
     protected void handleInput(@NonNull InputEvent event) {
-        if (event.consumeAction(GameAction.UI_ACTIVATE)) {
+        if (shouldHandleActivate() && event.consumeAction(GameAction.UI_ACTIVATE)) {
             if (event.getPhase() == InputPhase.PRESSED) {
                 mousePressedAll(MouseButton.LEFT, 0, 0);
             } else if (event.getPhase() == InputPhase.RELEASED) {
                 mouseReleasedAll(MouseButton.LEFT, 0, 0);
                 mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
             }
+            event.consume();
         }
     }
 
@@ -708,6 +761,10 @@ public abstract class GUIObject extends Renderable<GUIObject> {
     }
 
     public final void addMouseWheelListener(@NonNull MouseWheelListener listener) {
+        listeners.add(Objects.requireNonNull(listener, "listener"));
+    }
+
+    public final void addMouseHorizontalWheelListener(@NonNull MouseHorizontalWheelListener listener) {
         listeners.add(Objects.requireNonNull(listener, "listener"));
     }
 

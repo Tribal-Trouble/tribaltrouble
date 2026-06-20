@@ -1,102 +1,129 @@
 package com.oddlabs.tt.model.weapon;
 
-import com.oddlabs.tt.audio.AbstractAudioPlayer;
-import com.oddlabs.tt.audio.AudioParameters;
-import com.oddlabs.tt.audio.AudioPlayer;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.Model;
+import com.oddlabs.tt.model.ModelClient;
 import com.oddlabs.tt.model.MountUnitContainer;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
-import com.oddlabs.tt.particle.RandomVelocityEmitter;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import com.oddlabs.tt.model.BoundingBox;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
+import org.jspecify.annotations.Nullable;
 
-public final class Stun implements Magic {
+/**
+ * Logic controller for the Stun magic effect.
+ */
+public final class Stun extends Model implements Magic {
+
+    private final @NonNull Unit src;
+    private final float offset_x;
+    private final float offset_y;
+    private final float offset_z;
     private final float hit_radius;
     private final float stun_time_closest;
     private final float stun_time_farthest;
     private final @NonNull Player owner;
-    private final float start_x;
-    private final float start_y;
-    private final @NonNull RandomVelocityEmitter emitter;
-    private final @NonNull AbstractAudioPlayer sound;
 
     private final @NonNull Iterable<? extends Selectable<?>> target_list;
 
     public Stun(float offset_x, float offset_y, float offset_z, float hit_radius, float stun_time_closest,
             float stun_time_farthest, @NonNull Unit src) {
+        super(src.getOwner().getWorld());
+        this.src = src;
+        this.offset_x = offset_x;
+        this.offset_y = offset_y;
+        this.offset_z = offset_z;
         this.hit_radius = hit_radius;
         this.stun_time_closest = stun_time_closest;
         this.stun_time_farthest = stun_time_farthest;
         this.owner = src.getOwner();
 
-        start_x = src.getPositionX() + offset_x * src.getDirectionX() - offset_y * (-src.getDirectionY());
-        start_y = src.getPositionY() + offset_x * src.getDirectionY() + offset_y * src.getDirectionX();
+        float start_x = src.getPositionX() + offset_x * src.getDirectionX() - offset_y * (-src.getDirectionY());
+        float start_y = src.getPositionY() + offset_x * src.getDirectionY() + offset_y * src.getDirectionX();
         float z = src.getPositionZ() + offset_z;
-        float alpha = 12f;
-        float energy = 4f;
-        emitter = new RandomVelocityEmitter(owner.getWorld(), new Vector3f(start_x, start_y, z), 0f, 0f,
-                .001f, .001f, .5f, (float) Math.PI,
-                -1, 35f,
-                new Vector3f(0f, 0f, 6f), new Vector3f(0f, 0f, -2f),
-                new Vector4f(1f, 1f, 1f, alpha), new Vector4f(0f, 0f, 0f, -alpha / energy),
-                new Vector3f(.3f, .3f, .3f), new Vector3f(.025f, .025f, .025f), energy, 1f,
-                GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
-                owner.getWorld().getRacesResources().getNoteTextures(),
-                owner.getWorld().getAnimationManagerGameTime());
+        setPosition(start_x, start_y, z);
+        register();
+        owner.getWorld().getAnimationManagerGameTime().registerAnimation(this);
 
-        var filter = new FindOccupantFilter<>(src.getPositionX(), src.getPositionY(), hit_radius, src,
-                Selectable.genericClass());
-//		FindOccupantFilter filter = new FindOccupantFilter(src.getPositionX(), src.getPositionY(), hit_radius, src, Unit.class);
+        var filter = new FindOccupantFilter<>(src.getPositionX(), src.getPositionY(), hit_radius, src, Selectable
+                .genericClass());
         UnitGrid unit_grid = owner.getWorld().getUnitGrid();
-        unit_grid.scan(filter, UnitGrid.toGridCoordinate(src.getPositionX()), UnitGrid.toGridCoordinate(
-                src.getPositionY()));
+        unit_grid.scan(filter, UnitGrid.toGridCoordinate(src.getPositionX()), UnitGrid.toGridCoordinate(src
+                .getPositionY()));
         target_list = filter.getResult();
-
-        sound = owner.getWorld().getAudio().newAudio(new AudioParameters<>(
-                owner.getWorld().getRacesResources().getStunSound(owner.getWorld().getRandom()), start_x, start_y, z,
-                AudioPlayer.AUDIO_RANK_MAGIC,
-                AudioPlayer.AUDIO_DISTANCE_MAGIC,
-                AudioPlayer.AUDIO_GAIN_STUN_LUR,
-                AudioPlayer.AUDIO_RADIUS_STUN_LUR,
-                1f));
     }
 
     @Override
+    public void remove() {
+        super.remove();
+        owner.getWorld().getAnimationManagerGameTime().removeAnimation(this);
+        getClientState(ModelClient.class).ifPresent(ModelClient::close);
+    }
+
+    @Override
+    protected void onReinsert() {
+        float x = getPositionX();
+        float y = getPositionY();
+        float z = getPositionZ();
+        setBounds(x, x, y, y, z, z);
+    }
+
+    @Override
+    protected @NonNull BoundingBox @Nullable [] getLocalBounds() {
+        return null;
+    }
+
+    private float logic_timer = 0f;
+    private boolean logic_done = false;
+
+    @Override
     public void animate(float t) {
-        for (Selectable<?> selectable : target_list) {
-            Unit unit = null;
-            if (selectable instanceof Unit unit1) {
-                unit = unit1;
-            } else if (selectable instanceof Building building) {
-                if (!building.isDead() && building.getAbilities().hasAbilities(Abilities.ATTACK)) {
-                    MountUnitContainer muc = (MountUnitContainer) building.getUnitContainer();
-                    if (muc.getNumSupplies() > 0) {
-                        unit = muc.getUnit();
+        if (!src.isDead()) {
+            float x = src.getPositionX() + offset_x * src.getDirectionX() - offset_y * (-src.getDirectionY());
+            float y = src.getPositionY() + offset_x * src.getDirectionY() + offset_y * src.getDirectionX();
+            float z = src.getPositionZ() + offset_z;
+            setPosition(x, y, z);
+        }
+
+        if (!logic_done) {
+            for (Selectable<?> selectable : target_list) {
+                Unit unit = null;
+                if (selectable instanceof Unit unit1) {
+                    unit = unit1;
+                } else if (selectable instanceof Building building) {
+                    if (!building.isDead() && building.getAbilities().hasAbilities(Abilities.ATTACK)) {
+                        unit = building.getUnitContainer().map(c -> (MountUnitContainer) c)
+                                .filter(muc -> muc.getNumSupplies() > 0)
+                                .map(MountUnitContainer::getUnit)
+                                .orElse(null);
                     }
                 }
-            }
 
-            if (unit == null || unit.isDead())
-                continue;
+                if (unit == null || unit.isDead())
+                    continue;
 
-            float dx = unit.getPositionX() - start_x;
-            float dy = unit.getPositionY() - start_y;
-            float squared_dist = dx * dx + dy * dy;
-            if (owner.isEnemy(unit.getOwner()) && squared_dist < hit_radius * hit_radius) {
-                float dist = (float) Math.sqrt(squared_dist);
-                float time = calculateValueFromCurrentRadius(dist, stun_time_closest, stun_time_farthest);
-                unit.stun(time);
+                float dx = unit.getPositionX() - getPositionX();
+                float dy = unit.getPositionY() - getPositionY();
+                float squared_dist = dx * dx + dy * dy;
+                if (owner.isEnemy(unit.getOwner()) && squared_dist < hit_radius * hit_radius) {
+                    float dist = (float) Math.sqrt(squared_dist);
+                    float time = calculateValueFromCurrentRadius(dist, stun_time_closest, stun_time_farthest);
+                    unit.stun(time);
+                }
             }
+            logic_done = true;
         }
-        interrupt();
+
+        logic_timer += t;
+        if (logic_timer > 5.5f) {
+            remove();
+        }
+
+        animateClientState(t);
     }
 
     private float calculateValueFromCurrentRadius(float current_radius, float max, float min) {
@@ -109,8 +136,6 @@ public final class Stun implements Magic {
 
     @Override
     public void interrupt() {
-        emitter.done();
-        sound.stop(.3f, Settings.getSettings().sound_gain);
-        owner.getWorld().getAnimationManagerGameTime().removeAnimation(this);
+        remove();
     }
 }

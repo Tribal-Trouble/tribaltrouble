@@ -3,8 +3,8 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
+import com.oddlabs.util.Color;
 import com.oddlabs.util.Utils;
-import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -40,7 +40,7 @@ final class Icons {
             Document document = builder.parse(url.openStream());
             return document.getDocumentElement();
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("Failed to load icon atlas: " + xml_file, e);
         }
     }
 
@@ -104,25 +104,33 @@ final class Icons {
         int top = getInt(q, "top");
         int right = getInt(q, "right");
         int bottom = getInt(q, "bottom");
-        return new IconQuad(left / (float) texture.getWidth(),
-                1f - bottom / (float) texture.getHeight(),
-                right / (float) texture.getWidth(),
-                1f - top / (float) texture.getHeight(),
-                right - left,
-                bottom - top,
-                texture);
+
+        float texW = texture.getWidth();
+        float texH = texture.getHeight();
+
+        // Apply a half-texel inset to UVs to prevent atlas bleeding with GL_LINEAR filtering.
+        // We only apply this if the quad has sufficient size to avoid flipping UVs.
+        float insetU = (right - left) >= 1 ? 0.5f : 0.0f;
+        float insetV = (bottom - top) >= 1 ? 0.5f : 0.0f;
+
+        float u1 = (left + insetU) / texW;
+        float v1 = 1f - (bottom - insetV) / texH;
+        float u2 = (right - insetU) / texW;
+        float v2 = 1f - (top + insetV) / texH;
+
+        return new IconQuad(u1, v1, u2, v2, right - left, bottom - top, texture);
     }
 
-    static @NonNull Vector4f getNamedColor(@NonNull Node n, @NonNull String name) {
+    static Color.@NonNull Linear getNamedColor(@NonNull Node n, @NonNull String name) {
         return getColor(getNodeByName(name, n));
     }
 
-    static @NonNull Vector4f getColor(@NonNull Node n) {
+    static Color.@NonNull Linear getColor(@NonNull Node n) {
         Node q = getNodeByName("color", n);
         float r = getFloat(q, "r");
         float g = getFloat(q, "g");
         float b = getFloat(q, "b");
         float a = getFloat(q, "a");
-        return new Vector4f(r, g, b, a);
+        return new Color.Standard(r, g, b, a).linear();
     }
 }

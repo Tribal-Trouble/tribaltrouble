@@ -4,7 +4,12 @@ import org.jspecify.annotations.NonNull;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+/**
+ * Compresses an array of float values into 8-bit bytes (per channel)
+ */
 public final class ByteCompressedFloatArray implements Serializable {
     @Serial
     private static final long serialVersionUID = 1;
@@ -34,22 +39,25 @@ public final class ByteCompressedFloatArray implements Serializable {
         float max = array[0];
 
         for (float current : array) {
-            if (current < min)
+            if (current < min) {
                 min = current;
-            else if (current > max)
+            } else if (current > max) {
                 max = current;
+            }
         }
 
         float mid = (max + min) / 2;
         offset[channel] = mid;
-        scale[channel] = (max - mid) / Byte.MAX_VALUE;
+        float diff = max - mid;
+        scale[channel] = diff == 0f ? 1f : diff / Byte.MAX_VALUE;
 
         for (int i = 0; i < array.length; i++) {
-            data[channel][i] = (byte) ((array[i] - offset[channel]) / scale[channel]);
+            data[channel][i] = (byte) Math.clamp(Math.round((array[i] - offset[channel]) / scale[channel]),
+                    -Byte.MAX_VALUE, Byte.MAX_VALUE);
         }
     }
 
-    public float[] getFloatArray() {
+    public float @NonNull [] getFloatArray() {
         int channels = data.length;
         int channel_length = data[0].length;
         float[] result = new float[channels * channel_length];
@@ -65,17 +73,8 @@ public final class ByteCompressedFloatArray implements Serializable {
     @Override
     public @NonNull String toString() {
         float[] array = getFloatArray();
-        String result = "";
-        for (float v : array) {
-            result += v + ", ";
-        }
-        return result;
+        return IntStream.range(0, array.length)
+                .mapToObj(idx -> Float.toString(array[idx]))
+                .collect(Collectors.joining(", "));
     }
-    /*
-    	public static final void main(String[] args) {
-    		float[] array = {200f, 30f, 23.7765f};
-    		ByteCompressedFloatArray scfa = new ByteCompressedFloatArray(array, 1);
-    System.out.println("array = " + scfa);
-    	}
-    */
 }

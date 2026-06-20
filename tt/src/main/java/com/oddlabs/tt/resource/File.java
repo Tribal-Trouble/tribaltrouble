@@ -15,6 +15,11 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+/**
+ * Abstract base class for resources loaded from a URI.
+ *
+ * @param <R> the type of resource provided by this file.
+ */
 public abstract class File<R> implements Supplier<R> {
 
     private final @NonNull URI uri;

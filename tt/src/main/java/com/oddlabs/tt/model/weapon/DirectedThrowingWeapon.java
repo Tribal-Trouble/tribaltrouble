@@ -1,16 +1,18 @@
 package com.oddlabs.tt.model.weapon;
 
-import com.oddlabs.tt.audio.Audio;
-import com.oddlabs.tt.model.ElementVisitor;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
-import com.oddlabs.tt.render.SpriteKey;
+import com.oddlabs.tt.resource.AudioFile;
 import org.jspecify.annotations.NonNull;
 
-public abstract class DirectedThrowingWeapon extends ThrowingWeapon {
+/**
+ * A base class for weapons that are thrown in a specific direction (e.g., spears).
+ */
+public abstract sealed class DirectedThrowingWeapon extends ThrowingWeapon permits RockSpearWeapon, IronSpearWeapon,
+        RubberSpearWeapon {
     public DirectedThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target,
-            @NonNull SpriteKey sprite_renderer, @NonNull Audio throw_sound, @NonNull Audio @NonNull [] hit_sounds) {
-        super(hit, src, target, sprite_renderer, throw_sound, hit_sounds);
+            @NonNull AudioFile throw_sound, @NonNull AudioFile @NonNull [] hit_sounds) {
+        super(hit, src, target, throw_sound, hit_sounds);
     }
 
     public float getAngle() {
@@ -18,7 +20,7 @@ public abstract class DirectedThrowingWeapon extends ThrowingWeapon {
     }
 
     @Override
-    public final void visit(@NonNull ElementVisitor visitor) {
-        visitor.visitDirectedThrowingWeapon(this);
+    protected float getLoftFactor() {
+        return 1.05f;
     }
 }

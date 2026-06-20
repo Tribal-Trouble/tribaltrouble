@@ -2,9 +2,8 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextLineRenderer;
+import com.oddlabs.util.Color;
 import com.oddlabs.util.Quad;
-import org.joml.Vector4f;
-import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -32,13 +31,13 @@ public final class CompassRenderer {
     private static final float LABEL_OFFSET = 14f;
     private static final float CENTER_DOT_SIZE = 3f;
 
-    private static final Vector4fc BG_COLOR = new Vector4f(0f, 0f, 0f, 0.4f);
-    private static final Vector4fc OUTLINE_COLOR = new Vector4f(0.7f, 0.7f, 0.7f, 0.6f);
-    private static final Vector4fc NORTH_COLOR = new Vector4f(0.9f, 0.2f, 0.2f, 0.85f);
-    private static final Vector4fc TICK_COLOR = new Vector4f(0.7f, 0.7f, 0.7f, 0.6f);
-    private static final Vector4fc CENTER_COLOR = new Vector4f(0.5f, 0.5f, 0.5f, 0.5f);
-    private static final Vector4fc LABEL_COLOR = new Vector4f(0.9f, 0.9f, 0.9f, 1f);
-    private static final Vector4fc NORTH_LABEL_COLOR = new Vector4f(1f, 0.3f, 0.3f, 1f);
+    private static final Color.Linear BG_COLOR = new Color.Standard(0f, 0f, 0f, 0.4f).linear();
+    private static final Color.Linear OUTLINE_COLOR = new Color.Standard(0.7f, 0.7f, 0.7f, 0.6f).linear();
+    private static final Color.Linear NORTH_COLOR = new Color.Standard(0.9f, 0.2f, 0.2f, 0.85f).linear();
+    private static final Color.Linear TICK_COLOR = new Color.Standard(0.7f, 0.7f, 0.7f, 0.6f).linear();
+    private static final Color.Linear CENTER_COLOR = new Color.Standard(0.5f, 0.5f, 0.5f, 0.5f).linear();
+    private static final Color.Linear LABEL_COLOR = new Color.Standard(0.9f, 0.9f, 0.9f, 1f).linear();
+    private static final Color.Linear NORTH_LABEL_COLOR = new Color.Standard(1f, 0.3f, 0.3f, 1f).linear();
 
     // Cardinal direction angles in world space (North = +Y = PI/2)
     private static final float NORTH_ANGLE = (float) (Math.PI / 2);
@@ -84,7 +83,7 @@ public final class CompassRenderer {
      * Approximate a filled circle using wedge-shaped quads radiating from center.
      */
     private static void drawCircle(@NonNull GUIRenderer renderer, float cx, float cy,
-            float radius, int segments, @NonNull Vector4fc color) {
+            float radius, int segments, Color.@NonNull Linear color) {
         MatrixStack stack = renderer.getMatrixStack();
         float angleStep = 360f / segments;
         for (int i = 0; i < segments; i++) {
@@ -102,7 +101,7 @@ public final class CompassRenderer {
      * Draw a circle outline as a ring of small rotated quads.
      */
     private static void drawRing(@NonNull GUIRenderer renderer, float cx, float cy,
-            float radius, float thickness, int segments, @NonNull Vector4fc color) {
+            float radius, float thickness, int segments, Color.@NonNull Linear color) {
         MatrixStack stack = renderer.getMatrixStack();
         float angleStep = 360f / segments;
         float segmentLength = 2f * radius * (float) Math.sin(Math.toRadians(angleStep / 2));
@@ -122,7 +121,7 @@ public final class CompassRenderer {
      */
     private static void drawTick(@NonNull GUIRenderer renderer, float cx, float cy,
             float horizAngle, float cardinalAngle, float width,
-            @NonNull Vector4fc color) {
+            Color.@NonNull Linear color) {
         float delta = cardinalAngle - horizAngle;
         float angleDeg = (float) Math.toDegrees(delta);
 
@@ -159,7 +158,7 @@ public final class CompassRenderer {
     private static void drawLabel(@NonNull GUIRenderer renderer, @NonNull Font font,
             float cx, float cy, float horizAngle,
             float cardinalAngle, @NonNull String label,
-            @NonNull Vector4fc color) {
+            Color.@NonNull Linear color) {
         float delta = cardinalAngle - horizAngle;
         float dx = (float) Math.sin(delta);
         float dy = (float) Math.cos(delta);

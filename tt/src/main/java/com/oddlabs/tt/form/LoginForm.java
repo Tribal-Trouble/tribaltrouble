@@ -3,7 +3,6 @@ package com.oddlabs.tt.form;
 import com.oddlabs.matchmaking.Login;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.MainMenu;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.ButtonObject;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.CheckBox;
@@ -52,10 +51,10 @@ public final class LoginForm extends Form {
         this.main_menu = main_menu;
         this.gui_root = gui_root;
         this.network = network;
-        boolean remember = Settings.getSettings().remember_login;
+        boolean remember = Renderer.getRenderer().getSettings().remember_login;
         if (!remember) {
-            Settings.getSettings().username = "";
-            Settings.getSettings().pw_digest = "";
+            Renderer.getRenderer().getSettings().username = "";
+            Renderer.getRenderer().getSettings().pw_digest = "";
         }
 
         // headline
@@ -68,13 +67,13 @@ public final class LoginForm extends Form {
         Label label_username = new Label(i18n("username"), Skin.getSkin().getEditFont());
         editline_username = new EditLine(EDITLINE_WIDTH, 255);
         editline_username.addEnterListener(login_listener);
-        editline_username.append(Settings.getSettings().username);
+        editline_username.append(Renderer.getRenderer().getSettings().username);
         Label label_password = new Label(i18n("password"), Skin.getSkin().getEditFont());
         editline_password = new PasswordLine(EDITLINE_WIDTH, 255);
         editline_password.addEnterListener(login_listener);
         if (remember) {
             editline_password.append("*************");
-            editline_password.setPasswordDigest(Settings.getSettings().pw_digest);
+            editline_password.setPasswordDigest(Renderer.getRenderer().getSettings().pw_digest);
         }
         remember_checkbox = new CheckBox(remember, i18n("remember_login"));
 
@@ -154,10 +153,10 @@ public final class LoginForm extends Form {
 
     private void doLogin(@NonNull String username, @NonNull String password, Login login, boolean remember_login) {
         if (remember_login) {
-            Settings.getSettings().username = username;
-            Settings.getSettings().pw_digest = password;
+            Renderer.getRenderer().getSettings().username = username;
+            Renderer.getRenderer().getSettings().pw_digest = password;
         }
-        Settings.getSettings().remember_login = remember_login;
+        Renderer.getRenderer().getSettings().remember_login = remember_login;
         Form connecting_form = new MatchmakingConnectingForm(network, gui_root, this, main_menu, login, null);
         gui_root.addModalForm(connecting_form);
     }

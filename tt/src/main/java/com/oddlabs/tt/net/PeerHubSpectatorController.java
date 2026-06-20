@@ -1,6 +1,7 @@
 package com.oddlabs.tt.net;
 
 import com.oddlabs.net.ARMIEvent;
+import com.oddlabs.tt.render.Renderer;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -34,8 +35,8 @@ final class PeerHubSpectatorController {
     }
 
     void onStart() {
-        if (Network.getMatchmakingClient().isConnected()) {
-            Network.getMatchmakingClient().getInterface().requestSpectatorEventLog();
+        if (Renderer.getRenderer().getNetwork().getMatchmakingClient().isConnected()) {
+            Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().requestSpectatorEventLog();
         }
     }
 
@@ -95,6 +96,6 @@ final class PeerHubSpectatorController {
         short eventSize = event.getEventSize();
         ByteBuffer buf = ByteBuffer.allocate(eventSize);
         event.write(buf);
-        Network.getMatchmakingClient().getInterface().updateCommandEvent(tick, clientId, eventSize, buf.array());
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().updateCommandEvent(tick, clientId, eventSize, buf.array());
     }
 }

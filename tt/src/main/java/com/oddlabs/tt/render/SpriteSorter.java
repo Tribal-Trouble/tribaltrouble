@@ -2,13 +2,14 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.util.PocketList;
 import org.jspecify.annotations.NonNull;
 
 final class SpriteSorter {
-    public static final int DETAIL_POINT = 1;
-    public static final int DETAIL_POLYGON = 2;
+    public enum DetailMode {
+        POINT,
+        POLYGON
+    }
 
     private static final int LOW_DETAIL_DIST = 200;
 
@@ -18,17 +19,17 @@ final class SpriteSorter {
     private int used_polys = 0;
 
     public SpriteSorter() {
-        this(Globals.UNIT_HIGH_POLY_COUNT[Settings.getSettings().graphic_detail]);
+        this(Globals.UNIT_HIGH_POLY_COUNT[Renderer.getRenderer().getSettings().graphic_detail]);
     }
 
     private SpriteSorter(int polycount_limit) {
         this.polycount_limit = polycount_limit;
     }
 
-    public int add(@NonNull LODObject model, @NonNull CameraState camera, boolean point) {
+    public @NonNull DetailMode add(@NonNull LODObject model, @NonNull CameraState camera, boolean point) {
         if (point && camera.inNoDetailMode()) {
             model.markDetailPoint();
-            return DETAIL_POINT;
+            return DetailMode.POINT;
         }
         used_polys += model.getTriangleCount(PolyDetail.LOW_POLY);
 
@@ -38,7 +39,7 @@ final class SpriteSorter {
         } else {
             addToPocket(dist_squared, model);
         }
-        return DETAIL_POLYGON;
+        return DetailMode.POLYGON;
     }
 
     private void addToPocket(float dist_squared, @NonNull LODObject model) {

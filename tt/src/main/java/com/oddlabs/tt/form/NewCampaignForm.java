@@ -1,9 +1,10 @@
 package com.oddlabs.tt.form;
 
+import com.oddlabs.tt.model.Difficulty;
+import com.oddlabs.tt.model.Race;
+
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.Menu;
-import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.ButtonObject;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.EditLine;
@@ -21,12 +22,12 @@ import com.oddlabs.tt.gui.PulldownItem;
 import com.oddlabs.tt.gui.PulldownMenu;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.EnterListener;
-import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.player.campaign.Campaign;
 import com.oddlabs.tt.player.campaign.CampaignState;
 import com.oddlabs.tt.player.campaign.NativeCampaign;
 import com.oddlabs.tt.player.campaign.VikingCampaign;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.DeterministicSerializerLoopbackInterface;
 import org.jspecify.annotations.NonNull;
@@ -35,11 +36,15 @@ import org.jspecify.annotations.Nullable;
 import java.io.FileNotFoundException;
 import java.io.InvalidClassException;
 import java.nio.file.NoSuchFileException;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 
+/**
+ * UI form for creating a new single-player campaign.
+ */
 public final class NewCampaignForm extends Form implements DeterministicSerializerLoopbackInterface<CampaignState[]> {
     private static final int BUTTON_WIDTH = 100;
     private static final int EDITLINE_WIDTH = 240;
@@ -47,19 +52,19 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
     private static final int INDEX_VIKINGS = 0;
     private static final int INDEX_NATIVES = 1;
 
-    private final @NonNull Menu main_menu;
-    private final @NonNull CampaignForm campaign_form;
     private static final ResourceBundle bundle = ResourceBundle.getBundle(NewCampaignForm.class.getName());
 
-    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
+    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
-    private final @NonNull EditLine editline_name;
-    private final @NonNull PulldownMenu<Void> race_pulldown;
-    private final @NonNull PulldownMenu<Void> difficulty_pulldown;
-    private final @NonNull GUIRoot gui_root;
     private final @NonNull NetworkSelector network;
+    private final @NonNull GUIRoot gui_root;
+    private final @NonNull Menu main_menu;
+    private final @NonNull CampaignForm campaign_form;
+    private final EditLine editline_name = new EditLine(EDITLINE_WIDTH, 200);
+    private final PulldownMenu<Race> race_pulldown = new PulldownMenu<>();
+    private final PulldownMenu<Difficulty> difficulty_pulldown = new PulldownMenu<>();
     private @NonNull CampaignState @Nullable [] campaign_states;
 
     public NewCampaignForm(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Menu main_menu,
@@ -75,28 +80,31 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
         // name
         Group group = new Group();
         Label name_label = new Label(i18n("name"), Skin.getSkin().getEditFont());
-        editline_name = new EditLine(EDITLINE_WIDTH, 200);
         editline_name.addEnterListener(new NameListener());
         group.addChild(name_label);
         group.addChild(editline_name);
 
         // race
         Label race_label = new Label(i18n("race"), Skin.getSkin().getEditFont());
-        race_pulldown = new PulldownMenu<>();
-        race_pulldown.addItem(new PulldownItem<>(i18n("vikings")));
-        race_pulldown.addItem(new PulldownItem<>(i18n("natives")));
-        race_pulldown.addItemChosenListener(new RaceListener());
-        PulldownButton<Void> race_pb = new PulldownButton<>(gui_root, race_pulldown, INDEX_VIKINGS, 100);
+        race_pulldown.addItem(new PulldownItem<>(i18n("vikings"), Race.VIKINGS));
+        race_pulldown.addItem(new PulldownItem<>(i18n("natives"), Race.NATIVES));
+        race_pulldown.addItemChosenListener((@NonNull PulldownMenu<Race> menu, int item_index) -> {
+            if (menu.getChosenItem().map(PulldownItem::getAttachment).orElse(Race.VIKINGS) == Race.NATIVES
+                    && (!Renderer.getRenderer().getSettings().has_native_campaign)) {
+                menu.chooseItem(INDEX_VIKINGS);
+                gui_root.addModalForm(new MessageForm(i18n("native_unavailable")));
+            }
+        });
+        PulldownButton<Race> race_pb = new PulldownButton<>(gui_root, race_pulldown, INDEX_VIKINGS, 100);
         group.addChild(race_label);
         group.addChild(race_pb);
 
         // difficulty
         Label difficulty_label = new Label(i18n("difficulty"), Skin.getSkin().getEditFont());
-        difficulty_pulldown = new PulldownMenu<>();
-        difficulty_pulldown.addItem(new PulldownItem<>(i18n("easy")));
-        difficulty_pulldown.addItem(new PulldownItem<>(i18n("normal")));
-        difficulty_pulldown.addItem(new PulldownItem<>(i18n("hard")));
-        PulldownButton<Void> difficulty_pb = new PulldownButton<>(gui_root, difficulty_pulldown, 1, 100);
+        difficulty_pulldown.addItem(new PulldownItem<>(i18n("easy"), Difficulty.EASY));
+        difficulty_pulldown.addItem(new PulldownItem<>(i18n("normal"), Difficulty.NORMAL));
+        difficulty_pulldown.addItem(new PulldownItem<>(i18n("hard"), Difficulty.HARD));
+        PulldownButton<Difficulty> difficulty_pb = new PulldownButton<>(gui_root, difficulty_pulldown, 1, 100);
         group.addChild(difficulty_label);
         group.addChild(difficulty_pb);
 
@@ -108,6 +116,7 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
         difficulty_pb.place(race_pb, BOTTOM_LEFT);
         difficulty_label.place(difficulty_pb, LEFT_MID);
         group.compileCanvas();
+
         addChild(group);
 
         // buttons
@@ -144,15 +153,10 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
         }
     }
 
-    private boolean nameIsUnique(String name) {
-        if (campaign_states != null) {
-            for (CampaignState campaign_state : campaign_states) {
-                if (campaign_state.getName().equals(name)) {
-                    return false;
-                }
-            }
-        }
-        return true;
+    private boolean nameIsUnique(@NonNull String name) {
+        return campaign_states == null || Arrays.stream(campaign_states)
+                .map(CampaignState::getName)
+                .noneMatch(campaign_name -> campaign_name.equals(name));
     }
 
     private void save() {
@@ -166,35 +170,27 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
             return;
         }
 
-        CampaignState[] new_states;
-        if (campaign_states != null) {
-            new_states = new CampaignState[campaign_states.length + 1];
-            System.arraycopy(campaign_states, 0, new_states, 0, campaign_states.length);
-        } else {
-            new_states = new CampaignState[1];
-        }
+        CampaignState[] new_states = campaign_states != null
+                ? Arrays.copyOf(campaign_states, campaign_states.length + 1)
+                : new CampaignState[1];
         Campaign campaign;
-        switch (race_pulldown.getChosenItemIndex()) {
-            case 0:
+        Race chosenRace = race_pulldown.getChosenItem().map(PulldownItem::getAttachment).orElse(Race.VIKINGS);
+        switch (chosenRace) {
+            case VIKINGS -> {
                 campaign = new VikingCampaign(network, gui_root);
-                campaign.getState().setRace(CampaignState.RACE_VIKINGS);
-                break;
-            case 1:
+                campaign.getState().setRace(Race.VIKINGS);
+            }
+            case NATIVES -> {
                 campaign = new NativeCampaign(network, gui_root);
-                campaign.getState().setRace(CampaignState.RACE_NATIVES);
-                break;
-            default:
-                throw new IllegalArgumentException();
+                campaign.getState().setRace(Race.NATIVES);
+            }
+            default -> throw new IllegalArgumentException();
         }
         campaign.getState().setName(name);
         campaign.getState().setDate(System.currentTimeMillis());
 
-        int difficulty = switch (difficulty_pulldown.getChosenItemIndex()) {
-            case 0 -> CampaignState.DIFFICULTY_EASY;
-            case 1 -> CampaignState.DIFFICULTY_NORMAL;
-            case 2 -> CampaignState.DIFFICULTY_HARD;
-            default -> throw new IllegalArgumentException();
-        };
+        Difficulty difficulty = difficulty_pulldown.getChosenItem().map(PulldownItem::getAttachment).orElse(
+                Difficulty.NORMAL);
         campaign.getState().setDifficulty(difficulty);
         new_states[new_states.length - 1] = campaign.getState();
         LoadCampaignBox.saveSavegames(new_states, this);
@@ -202,11 +198,7 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
     }
 
     @Override
-    public void saveSucceeded() {
-    }
-
-    @Override
-    public void loadSucceeded(CampaignState[] campaign_states) {
+    public void loadSucceeded(CampaignState @NonNull [] campaign_states) {
         this.campaign_states = campaign_states;
     }
 
@@ -215,7 +207,7 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
         if (e instanceof FileNotFoundException || e instanceof NoSuchFileException) {
         } else if (e instanceof InvalidClassException) {
         } else {
-            String failed_message = i18n("failed_message", Globals.getSavegamesFileName(), e.getMessage());
+            String failed_message = i18n("failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
             gui_root.addModalForm(new MessageForm(failed_message));
         }
     }
@@ -229,16 +221,6 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
         @Override
         public void enterPressed(@NonNull CharSequence text) {
             save();
-        }
-    }
-
-    private final class RaceListener implements ItemChosenListener<Void> {
-        @Override
-        public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
-            if (item_index == INDEX_NATIVES && (!Settings.getSettings().has_native_campaign)) {
-                menu.chooseItem(INDEX_VIKINGS);
-                gui_root.addModalForm(new MessageForm(i18n("native_unavailable")));
-            }
         }
     }
 }

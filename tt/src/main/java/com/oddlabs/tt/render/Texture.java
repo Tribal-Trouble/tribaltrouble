@@ -1,7 +1,7 @@
 package com.oddlabs.tt.render;
 
+import com.oddlabs.procedural.Channel;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.tt.resource.TextureFile;
@@ -17,6 +17,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL21;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 
@@ -32,7 +33,7 @@ import java.util.logging.Logger;
 /**
  * A 2D graphic image for drawing
  */
-public final class Texture extends NativeResource<Texture.NativeTexture> {
+public class Texture extends NativeResource<Texture.NativeTexture> {
     private static final Logger logger = Logger.getLogger(Texture.class.getSimpleName());
 
     /**
@@ -51,6 +52,7 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
         @Override
         public void close() {
             global_size.addAndGet(-size);
+            Renderer.getRenderer().getRenderContext().invalidateTexture(texture_handle);
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 IntBuffer handle_buffer = stack.mallocInt(1);
                 handle_buffer.put(0, texture_handle);
@@ -61,8 +63,13 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 
     private final int width;
     private final int height;
+    private final int target;
+    private int layer = 0;
+    private @NonNull GLImage[] source_mipmaps;
+    private @Nullable DXTImage source_dxt;
 
-    private static int initTexture(int min_filter, int mag_filter, int wrap_s, int wrap_t, int max_mipmap_level) {
+    private static int initTexture(int target, int min_filter, int mag_filter, int wrap_s, int wrap_t,
+            int max_mipmap_level) {
         int tex_handle;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer handle_buffer = stack.mallocInt(1);
@@ -75,20 +82,20 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
                 logger.severe(msg);
                 throw new OpenGLException(msg);
             }
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex_handle);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, wrap_s);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, wrap_t);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, min_filter);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, max_mipmap_level);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, mag_filter);
+            GL11.glBindTexture(target, tex_handle);
+            GL11.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_S, wrap_s);
+            GL11.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_T, wrap_t);
+            GL11.glTexParameteri(target, GL11.GL_TEXTURE_MIN_FILTER, min_filter);
+            GL11.glTexParameteri(target, GL12.GL_TEXTURE_MAX_LEVEL, max_mipmap_level);
+            GL11.glTexParameteri(target, GL11.GL_TEXTURE_MAG_FILTER, mag_filter);
 
             FloatBuffer border_color_buffer = stack.mallocFloat(4);
             border_color_buffer.put(0, 0f).put(1, 0f).put(2, 0f).put(3, 0f);
-            GL11.glTexParameterfv(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_BORDER_COLOR, border_color_buffer);
+            GL11.glTexParameterfv(target, GL11.GL_TEXTURE_BORDER_COLOR, border_color_buffer);
 
             if (GL.getCapabilities().GL_EXT_texture_filter_anisotropic) {
                 float max_anisotropy = GL11.glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
-                GL11.glTexParameterf(GL11.GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT,
+                GL11.glTexParameterf(target, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT,
                         max_anisotropy);
             }
         }
@@ -100,6 +107,52 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
         return NativeTexture.global_size.intValue();
     }
 
+    public Texture(float @NonNull [] pixels, int width, int height, int internal_format, int min_filter, int mag_filter,
+            int wrap) {
+        this(width, height, min_filter, mag_filter, wrap, wrap, Globals.NO_MIPMAP_CUTOFF);
+        uploadPixels(pixels, internal_format);
+    }
+
+    public Texture(@NonNull Channel channel, int internal_format, int min_filter, int mag_filter, int wrap) {
+        this(channel.getWidth(), channel.getHeight(), min_filter, mag_filter, wrap, wrap, Globals.NO_MIPMAP_CUTOFF);
+        uploadPixels(channel.getPixels(), internal_format);
+    }
+
+    private void uploadPixels(float @NonNull [] pixels, int internal_format) {
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(pixels.length);
+        buffer.put(pixels).flip();
+
+        GL11.glBindTexture(target, getHandle());
+        GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
+        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
+        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, 0);
+        GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
+
+        int format = GL11.GL_RED;
+        int type = GL11.GL_FLOAT;
+
+        GL11.glTexImage2D(target, 0, internal_format, width, height, 0, format, type, buffer);
+
+        int size = determineMipMapSize(0, internal_format, width, height);
+        setSize(size);
+        GLUtils.checkAndThrow("uploadPixels");
+    }
+
+    public void update(int x, int y, int width, int height, float value) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer buffer = stack.mallocFloat(1);
+            buffer.put(value).flip();
+
+            GL11.glBindTexture(target, getHandle());
+            GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
+            GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
+            GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, 0);
+            GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
+            GL11.glTexSubImage2D(target, 0, x, y, width, height, GL11.GL_RED, GL11.GL_FLOAT, buffer);
+        }
+        GLUtils.checkAndThrow("Texture update (single value)");
+    }
+
     public Texture(@NonNull TextureFile texture_file) {
         this(texture_file.isDXTImage() ? texture_file.getDXTImage() : null, !texture_file.isDXTImage() ? texture_file.getImage() : null, texture_file.getInternalFormat(), texture_file.getMinFilter(), texture_file.getMagFilter(), texture_file.getWrapS(), texture_file.getWrapT(), texture_file.getMaxMipmapLevel(), texture_file.getBaseFadeoutLevel(), texture_file.getFadeoutFactor(), texture_file.hasMaxAlpha());
     }
@@ -107,20 +160,23 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
     private Texture(@Nullable DXTImage dxtImage, @Nullable GLImage image, int internalFormat, int minFilter,
             int magFilter, int wrapS, int wrapT, int maxMipmapLevel, int baseFadeoutLevel, float fadeoutFactor,
             boolean max_alpha) {
-        this(dxtImage != null ? dxtImage.getWidth() : image.getWidth(), dxtImage != null ? dxtImage.getHeight() : image.getHeight(), minFilter, magFilter, wrapS, wrapT, maxMipmapLevel);
+        this(dxtImage != null ? dxtImage.getWidth() : image.getWidth(),
+                dxtImage != null ? dxtImage.getHeight() : image.getHeight(),
+                minFilter, magFilter, wrapS, wrapT, maxMipmapLevel);
 
         int total_size;
         if (dxtImage != null) {
+            this.source_dxt = dxtImage;
             total_size = uploadDXTTexture(dxtImage, internalFormat, maxMipmapLevel);
         } else {
-            GLImage[] mipmaps;
-            if (minFilter == GL11.GL_LINEAR_MIPMAP_LINEAR || minFilter == GL11.GL_NEAREST_MIPMAP_LINEAR) {
-                boolean isWrapping = wrapS == GL11.GL_REPEAT || wrapT == GL11.GL_REPEAT;
-                mipmaps = image.buildMipMaps(baseFadeoutLevel, fadeoutFactor, isWrapping, max_alpha);
-            } else {
-                mipmaps = new GLImage[]{image};
-            }
-            total_size = uploadTexture(mipmaps, internalFormat, maxMipmapLevel);
+            this.source_mipmaps = switch (minFilter) {
+                case GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_NEAREST_MIPMAP_LINEAR -> {
+                    boolean isWrapping = wrapS == GL11.GL_REPEAT || wrapT == GL11.GL_REPEAT;
+                    yield image.buildMipMaps(baseFadeoutLevel, fadeoutFactor, isWrapping, max_alpha);
+                }
+                default -> new GLImage[]{image};
+            };
+            total_size = uploadTexture(source_mipmaps, internalFormat, maxMipmapLevel);
         }
         setSize(total_size);
     }
@@ -131,20 +187,20 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 
     public Texture(int width, int height, int internal_format, int min_filter, int mag_filter, int wrap) {
         this(width, height, min_filter, mag_filter, wrap, wrap, 1000);
-        int format = GL11.GL_RGBA;
         int type = GL11.GL_UNSIGNED_BYTE;
-
-        if (internal_format == GL30.GL_DEPTH_COMPONENT24) {
-            format = GL11.GL_DEPTH_COMPONENT;
-            type = GL11.GL_FLOAT;
-        } else if (internal_format == GL30.GL_RGBA16F) {
-            format = GL11.GL_RGBA;
-            type = GL30.GL_HALF_FLOAT;
-        } else if (internal_format == GL11.GL_RGB || internal_format == GL11.GL_RGB8) {
-            format = GL11.GL_RGB;
-        } else if (internal_format == GL11.GL_RED || internal_format == GL30.GL_R8) {
-            format = GL11.GL_RED;
-        }
+        int format = switch (internal_format) {
+            case GL30.GL_DEPTH_COMPONENT24 -> {
+                type = GL11.GL_FLOAT;
+                yield GL11.GL_DEPTH_COMPONENT;
+            }
+            case GL30.GL_RGBA16F -> {
+                type = GL30.GL_HALF_FLOAT;
+                yield GL30.GL_RGBA;
+            }
+            case GL11.GL_RGB, GL11.GL_RGB8 -> GL11.GL_RGB;
+            case GL11.GL_RED, GL30.GL_R8 -> GL11.GL_RED;
+            default -> GL11.GL_RGBA;
+        };
 
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, internal_format, width, height, 0, format, type,
                 (java.nio.ByteBuffer) null);
@@ -153,18 +209,24 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
         setSize(size);
     }
 
-    public Texture(int width, int height, int min_filter, int mag_filter, int wrap_s, int wrap_t,
+    public Texture(int width, int height, int min_filter, int mag_filter, int wrap_s, int wrap_t, int max_mipmap_level)
+            throws IllegalArgumentException {
+        this(GL11.GL_TEXTURE_2D, width, height, min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level);
+    }
+
+    public Texture(int target, int width, int height, int min_filter, int mag_filter, int wrap_s, int wrap_t,
             int max_mipmap_level) throws IllegalArgumentException {
-        super(new NativeTexture(initTexture(min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level)));
+        super(new NativeTexture(initTexture(target, min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level)));
         if (width <= 0 || height <= 0) {
             throw new IllegalArgumentException("Width and height must be positive.");
         }
+        this.target = target;
         this.width = width;
         this.height = height;
     }
 
-    public Texture(@NonNull GLImage image, int internal_format, int min_filter, int mag_filter, int wrap_s,
-            int wrap_t) throws IllegalArgumentException, NullPointerException {
+    public Texture(@NonNull GLImage image, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t)
+            throws IllegalArgumentException, NullPointerException {
         this(image.createMipMaps(), internal_format, min_filter, mag_filter, wrap_s, wrap_t, Globals.NO_MIPMAP_CUTOFF);
     }
 
@@ -175,8 +237,9 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 
     public Texture(@NonNull GLImage @NonNull [] mipmaps, int internal_format, int min_filter, int mag_filter,
             int wrap_s, int wrap_t, int max_mipmap_level) throws IllegalArgumentException, NullPointerException {
-        this(getCheckedMipmaps(
-                mipmaps)[0].getWidth(), mipmaps[0].getHeight(), min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level);
+        this(getCheckedMipmaps(mipmaps)[0].getWidth(), mipmaps[0].getHeight(), min_filter, mag_filter, wrap_s, wrap_t,
+                max_mipmap_level);
+        this.source_mipmaps = mipmaps;
         int total_size = uploadTexture(mipmaps, internal_format, max_mipmap_level);
         setSize(total_size);
     }
@@ -191,7 +254,8 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
     }
 
     private static int getDetailShift(int num_mipmaps) {
-        return Math.min(num_mipmaps - 1, Globals.TEXTURE_MIP_SHIFT[Settings.getSettings().graphic_detail]);
+        return Math.min(num_mipmaps - 1, Globals.TEXTURE_MIP_SHIFT[Renderer.getRenderer()
+                .getSettings().graphic_detail]);
     }
 
     private static int getMaxMipmapIndex(int num_mipmaps, int max_mipmap_level, int detail_shift) {
@@ -213,9 +277,9 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 
     private int uploadDXTTexture(@NonNull DXTImage dxt_image, int internalFormat, int max_mipmap_level) {
         if (logger.isLoggable(Level.FINE)) {
-            logger.fine(
-                    "Uploading DXT texture: handle=" + getHandle() + ", " + dxt_image.getWidth() + "x" + dxt_image.getHeight() + ", internalFormat=0x" + Integer.toHexString(
-                            internalFormat) + ", mips=" + dxt_image.getNumMipMaps());
+            logger.fine("Uploading DXT texture: handle=" + getHandle() + ", " + dxt_image.getWidth() + "x" + dxt_image
+                    .getHeight() + ", internalFormat=0x" + Integer.toHexString(internalFormat) + ", mips=" + dxt_image
+                            .getNumMipMaps());
         }
         GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
         GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
@@ -228,7 +292,7 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
             int mipmap_level = i + detail_shift;
             ByteBuffer mipData = dxt_image.getMipMap(mipmap_level);
             total_size += mipData.remaining();
-            GL13.glCompressedTexImage2D(GL11.GL_TEXTURE_2D, i, internalFormat, dxt_image.getWidth(mipmap_level),
+            GL13.glCompressedTexImage2D(target, i, internalFormat, dxt_image.getWidth(mipmap_level),
                     dxt_image.getHeight(mipmap_level), 0, mipData);
         }
         GLUtils.checkAndThrow("uploadDXTTexture");
@@ -237,9 +301,9 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 
     private int uploadTexture(@NonNull GLImage @NonNull [] mipmaps, int internal_format, int max_mipmap_level) {
         if (logger.isLoggable(Level.FINE)) {
-            logger.fine(
-                    "Uploading standard texture: handle=" + getHandle() + ", " + mipmaps[0].getWidth() + "x" + mipmaps[0].getHeight() + ", internal_format=0x" + Integer.toHexString(
-                            internal_format) + ", mips=" + mipmaps.length);
+            logger.fine("Uploading standard texture: handle=" + getHandle() + ", " + mipmaps[0].getWidth() + "x"
+                    + mipmaps[0].getHeight() + ", internal_format=0x" + Integer.toHexString(internal_format) + ", mips="
+                    + mipmaps.length);
         }
         GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
         GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
@@ -250,8 +314,8 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
         int max_index = getMaxMipmapIndex(mipmaps.length, max_mipmap_level, detail_shift);
         for (int i = 0; i < max_index; i++) {
             GLImage mipmap = mipmaps[i + detail_shift];
-            assert Utils.isPowerOf2(mipmap.getWidth()) && Utils.isPowerOf2(
-                    mipmap.getHeight()) : "Mipmap level " + i + " dimensions are not power of two";
+            assert Utils.isPowerOf2(mipmap.getWidth()) && Utils.isPowerOf2(mipmap.getHeight()) : "Mipmap level " + i
+                    + " dimensions are not power of two";
             ByteBuffer originalPixels = mipmap.getPixels();
 
             ByteBuffer nativePixels = BufferUtils.createByteBuffer(originalPixels.capacity());
@@ -259,8 +323,8 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
             nativePixels.put(originalPixels);
             nativePixels.flip();
 
-            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, i, internal_format, mipmap.getWidth(), mipmap.getHeight(), 0,
-                    mipmap.getGLFormat(), mipmap.getGLType(), nativePixels);
+            GL11.glTexImage2D(target, i, internal_format, mipmap.getWidth(), mipmap.getHeight(), 0, mipmap
+                    .getGLFormat(), mipmap.getGLType(), nativePixels);
         }
 
         int total_size = 0;
@@ -273,20 +337,21 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
         return total_size;
     }
 
-    private static int determineMipMapSize(int mipmap, int internal_format, int width, int height) {
+    private int determineMipMapSize(int mipmap, int internal_format, int width, int height) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer size_buffer = stack.mallocInt(4);
-            GL11.glGetTexLevelParameteriv(GL11.GL_TEXTURE_2D, mipmap, GL13.GL_TEXTURE_COMPRESSED, size_buffer);
+            GL11.glGetTexLevelParameteriv(target, mipmap, GL13.GL_TEXTURE_COMPRESSED, size_buffer);
             boolean compressed = size_buffer.get(0) == GL11.GL_TRUE;
 
             if (compressed) {
-                GL11.glGetTexLevelParameteriv(GL11.GL_TEXTURE_2D, mipmap, GL13.GL_TEXTURE_COMPRESSED_IMAGE_SIZE,
+                GL11.glGetTexLevelParameteriv(target, mipmap, GL13.GL_TEXTURE_COMPRESSED_IMAGE_SIZE,
                         size_buffer);
                 return size_buffer.get(0);
             } else {
                 return switch (internal_format) {
-                    case GL13.GL_COMPRESSED_RGB, GL11.GL_RGB, GL11.GL_RGB8 -> width * height * 3;
-                    case GL13.GL_COMPRESSED_RGBA, GL11.GL_RGBA, GL11.GL_RGBA8 -> width * height * 4;
+                    case GL13.GL_COMPRESSED_RGB, GL11.GL_RGB, GL11.GL_RGB8, GL21.GL_SRGB8 -> width * height * 3;
+                    case GL13.GL_COMPRESSED_RGBA, GL11.GL_RGBA, GL11.GL_RGBA8, GL21.GL_SRGB8_ALPHA8 -> width * height
+                            * 4;
                     case GL11.GL_LUMINANCE, GL11.GL_ALPHA8, GL11.GL_ALPHA, GL13.GL_COMPRESSED_LUMINANCE,
                             GL13.GL_COMPRESSED_ALPHA, GL11.GL_RED, GL30.GL_R8 -> width * height;
                     case GL30.GL_R32F -> width * height * 4;
@@ -304,5 +369,37 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 
     public int getHandle() {
         return state.texture_handle;
+    }
+
+    public int getTarget() {
+        return target;
+    }
+
+    public int getDepth() {
+        return 1;
+    }
+
+    public int getLayer() {
+        return layer;
+    }
+
+    public void setLayer(int layer) {
+        this.layer = layer;
+    }
+
+    public @Nullable GLImage[] getSourceMipmaps() {
+        return source_mipmaps;
+    }
+
+    public void setSourceMipmaps(@Nullable GLImage[] mipmaps) {
+        this.source_mipmaps = mipmaps;
+    }
+
+    public @Nullable DXTImage getSourceDXT() {
+        return source_dxt;
+    }
+
+    public void setSourceDXT(@Nullable DXTImage dxt) {
+        this.source_dxt = dxt;
     }
 }

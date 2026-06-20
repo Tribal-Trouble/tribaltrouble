@@ -1,6 +1,6 @@
 package com.oddlabs.tt.util;
 
-import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 
 import java.io.File;
@@ -28,10 +28,10 @@ public final class FileLoader implements FileLoaderInterface {
             exception = e;
         }
         this.file_channel = tmp_channel;
-        if (LocalEventQueue.getQueue().getDeterministic().log(exception != null))
-            error(LocalEventQueue.getQueue().getDeterministic().log(exception));
+        if (Renderer.getRenderer().getEventQueue().getDeterministic().log(exception != null))
+            error(Renderer.getRenderer().getEventQueue().getDeterministic().log(exception));
         else
-            newFile(file, LocalEventQueue.getQueue().getDeterministic().log(file.length()));
+            newFile(file, Renderer.getRenderer().getEventQueue().getDeterministic().log(file.length()));
     }
 
     @Override
@@ -40,7 +40,8 @@ public final class FileLoader implements FileLoaderInterface {
     }
 
     public void load() {
-        if (LocalEventQueue.getQueue().getDeterministic().log(file_channel == null || !file_channel.isOpen()))
+        if (Renderer.getRenderer().getEventQueue().getDeterministic().log(file_channel == null || !file_channel
+                .isOpen()))
             return;
         buffer.clear();
         IOException exception;
@@ -58,12 +59,12 @@ public final class FileLoader implements FileLoaderInterface {
             exception = e;
             eof = true;
         }
-        if (LocalEventQueue.getQueue().getDeterministic().log(exception != null))
-            error(LocalEventQueue.getQueue().getDeterministic().log(exception));
+        if (Renderer.getRenderer().getEventQueue().getDeterministic().log(exception != null))
+            error(Renderer.getRenderer().getEventQueue().getDeterministic().log(exception));
         else
-            data(LocalEventQueue.getQueue().getDeterministic().log(buffer.array()),
-                    LocalEventQueue.getQueue().getDeterministic().log(buffer.position()),
-                    LocalEventQueue.getQueue().getDeterministic().log(eof));
+            data(Renderer.getRenderer().getEventQueue().getDeterministic().log(buffer.array()),
+                    Renderer.getRenderer().getEventQueue().getDeterministic().log(buffer.position()),
+                    Renderer.getRenderer().getEventQueue().getDeterministic().log(eof));
     }
 
     @Override

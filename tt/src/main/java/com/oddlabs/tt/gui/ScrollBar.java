@@ -71,8 +71,8 @@ public final class ScrollBar extends GUIObject {
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         ScrollBarData data = Skin.getSkin().getScrollBarData();
         Vertical scroll_bar = data.scrollBar();
-        scroll_bar.render(renderer, 0, less_button.getHeight(),
-                getHeight() - less_button.getHeight() - more_button.getHeight(), ModeIconQuads.Mode.NORMAL);
+        scroll_bar.render(renderer, 0, less_button.getHeight(), getHeight() - less_button.getHeight() - more_button
+                .getHeight(), ModeIconQuads.Mode.NORMAL);
     }
 
     public int getButtonX() {
@@ -81,7 +81,8 @@ public final class ScrollBar extends GUIObject {
 
     public int getButtonY() {
         ScrollBarData data = Skin.getSkin().getScrollBarData();
-        int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.bottomOffset() - data.topOffset();
+        int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.bottomOffset() - data
+                .topOffset();
         int size = getButtonHeight();
         int offset = max_height - size - (int) ((max_height - size) * owner.getScrollBarOffset());
         return less_button.getHeight() + data.bottomOffset() + offset;
@@ -89,10 +90,11 @@ public final class ScrollBar extends GUIObject {
 
     public int getButtonHeight() {
         ScrollBarData data = Skin.getSkin().getScrollBarData();
-        int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.bottomOffset() - data.topOffset();
-        float ratio = owner.getScrollBarRatio();
+        int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.bottomOffset() - data
+                .topOffset();
+        float ratio = Math.min(owner.getScrollBarRatio(), 1.0f);
         int size = Math.max((int) (ratio * max_height), data.scrollButton().getMinHeight());
-        return size;
+        return Math.clamp(size, 0, max_height);
     }
 
     @Override
@@ -150,16 +152,18 @@ public final class ScrollBar extends GUIObject {
         public void mousePressed(@NonNull MouseButton button, int x, int y) {
             start_offset = owner.getScrollBarOffset();
         }
-
+        // MERGE TODO: Did this do anything weird or we good?
         @Override
-        public void mouseDragged(@NonNull MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x,
-                int abs_y) {
-            int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.bottomOffset() - data.topOffset();
-            float ratio = owner.getScrollBarRatio();
-            int size = (int) (ratio * max_height);
+        public void mouseDragged(@NonNull MouseButton button, int x, int y, int rel_x, int rel_y,
+                int abs_x, int abs_y) {
+            int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.bottomOffset()
+                    - data.topOffset();
+            int size = getButtonHeight();
             int scroll_button_space = max_height - size;
-            owner.setScrollBarOffset(start_offset - abs_y / (float) scroll_button_space);
-            scroll_button.setupPos(ScrollBar.this);
+            if (scroll_button_space > 0) {
+                owner.setScrollBarOffset(start_offset - abs_y / (float) scroll_button_space);
+                scroll_button.setupPos(ScrollBar.this);
+            }
         }
 
         @Override

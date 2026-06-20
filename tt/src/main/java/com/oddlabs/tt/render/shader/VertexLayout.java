@@ -23,7 +23,7 @@ public final class VertexLayout<A extends Enum<A> & VertexAttribute> {
         return attributes.contains(attribute);
     }
 
-    private int getOffset(@NonNull A attribute) {
+    public int getOffset(@NonNull A attribute) {
         int offset = 0;
         for (A attr : attributes) {
             if (attr == attribute) {

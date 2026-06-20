@@ -1,30 +1,27 @@
 package com.oddlabs.tt.form;
 
-import java.util.EnumSet;
-import java.util.Set;
-import java.util.function.Consumer;
-
-import org.jspecify.annotations.NonNull;
-
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.LabelBox;
-
-import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
-import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
-
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputBinding;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.input.Key;
-import com.oddlabs.tt.input.KeyBindingConflicts;
 import com.oddlabs.tt.input.Modifier;
 import com.oddlabs.tt.render.Renderer;
+import org.jspecify.annotations.NonNull;
+
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.function.Consumer;
+
+import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
+import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 
 public class KeyBindingDialog extends Form {
     private final @NonNull GameAction action;
@@ -92,9 +89,8 @@ public class KeyBindingDialog extends Form {
                 return;
             }
 
-            boolean isModifierKey = (key == Key.LSHIFT || key == Key.RSHIFT || key == Key.LCONTROL
-                    || key == Key.RCONTROL || key == Key.LALT || key == Key.RALT || key == Key.LSUPER
-                    || key == Key.RSUPER);
+            boolean isModifierKey = (key == Key.LSHIFT || key == Key.RSHIFT || key == Key.LCONTROL || key
+                    == Key.RCONTROL || key == Key.LALT || key == Key.RALT || key == Key.LSUPER || key == Key.RSUPER);
 
             if (!isModifierKey && key != null && key != Key.KEY_UNKNOWN) {
                 var modifiers = EnumSet.noneOf(Modifier.class);
@@ -103,22 +99,6 @@ public class KeyBindingDialog extends Form {
                 if (event.isControlDown()) modifiers.add(Modifier.CONTROL);
                 if (event.isMetaDown()) modifiers.add(Modifier.META);
                 InputBinding binding = new InputBinding(key, modifiers, action);
-
-                GameAction conflict = KeyBindingConflicts.findConflict(action, binding,
-                        Renderer.getLocalInput().getInputManager());
-                if (conflict != null) {
-                    String otherName;
-                    try {
-                        otherName = AbstractOptionsMenu.i18n("action." + conflict.name());
-                    } catch (Exception e) {
-                        otherName = conflict.name();
-                    }
-                    guiRoot.addModalForm(new MessageForm(AbstractOptionsMenu.i18n("conflict_title"),
-                            AbstractOptionsMenu.i18n("conflict_message", otherName)));
-                    event.consume();
-                    return;
-                }
-
                 onBindingChosen.accept(Set.of(binding));
                 remove();
                 event.consume();

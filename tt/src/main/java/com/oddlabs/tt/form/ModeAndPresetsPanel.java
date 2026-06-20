@@ -62,7 +62,7 @@ public final class ModeAndPresetsPanel extends Panel {
         mode_menu.addItem(new PulldownItem<>(i18n("standard_title"), GameMode.STANDARD));
         PulldownButton<GameMode> mode_button = new PulldownButton<>(gui_root, mode_menu, 0, MODE_PULLDOWN_WIDTH);
         mode_menu.addItemChosenListener((menu, index) -> {
-            GameMode mode = menu.getItem(index).getAttachment();
+            GameMode mode = menu.getItem(index).map(PulldownItem::getAttachment).orElse(null);
             if (mode != null) {
                 handler.modeChosen(mode);
             }

@@ -3,12 +3,11 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.ReproduceUnitContainer;
 import com.oddlabs.tt.render.GUIRenderer;
-import org.joml.Vector4f;
-import org.joml.Vector4fc;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 public final class WatchStatusIcon extends StatusIcon {
-    private static final Vector4fc COLOR = new Vector4f(1f, 1f, 1f, .75f);
+    private static final Color.Linear COLOR = Color.Linear.WHITE.alpha(0.75f);
     private Building building;
 
     public WatchStatusIcon(int label_width, @NonNull IconQuad icon, @NonNull String tooltip) {
@@ -22,17 +21,15 @@ public final class WatchStatusIcon extends StatusIcon {
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         super.renderGeometry(renderer);
-        if (!building.isDead() && !building.getChieftainContainer().isTraining()
-                && building.getOwner().getUnitCountContainer().getNumSupplies() < building.getOwner().getWorld().getMaxUnitCount()) {
-            IconQuad[] watch = GUIIcons.getIcons().getWatch();
-            float progress = ((ReproduceUnitContainer) (building.getUnitContainer())).getBuildProgress();
-            int index = (int) (progress * (watch.length - 1));
-            int x = getWidth() - watch[0].getWidth();
-            int y = (getHeight() - watch[0].getHeight()) / 2;
+        if (!building.isDead() && !building.getChieftainContainer().orElseThrow().isTraining() && building.getOwner()
+                .getUnitCountContainer().getNumSupplies() < building.getOwner().getWorld().getMaxUnitCount()) {
+            float progress = ((ReproduceUnitContainer) (building.getUnitContainer().orElseThrow())).getBuildProgress();
+            var watch = GUIIcons.getIcons().getWatch(progress);
+            int x = getWidth() - watch.getWidth();
+            int y = (getHeight() - watch.getHeight()) / 2;
             x -= 5; // visual HAX
-            IconQuad icon = watch[index];
-            renderer.drawTexture(icon.getTexture(), x, y, icon.getWidth(), icon.getHeight(), icon.getU1(), icon.getV1(),
-                    icon.getU2(), icon.getV2(), COLOR);
+            renderer.drawTexture(watch.getTexture(), x, y, watch.getWidth(), watch.getHeight(),
+                    watch.getU1(), watch.getV1(), watch.getU2(), watch.getV2(), COLOR);
         }
     }
 }

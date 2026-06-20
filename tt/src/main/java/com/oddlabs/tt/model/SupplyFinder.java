@@ -7,24 +7,28 @@ import com.oddlabs.tt.pathfinder.RegionBuilder;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
+/**
+ * Finder filter that searches for closest available resources of a specific type.
+ */
 public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
     private final @NonNull Unit unit;
-    private final @NonNull Class<S> supply_class;
-    private final List<@NonNull List<@NonNull S>> region_list = new ArrayList<>();
+    private final @NonNull SupplyType supplyType;
+    private final Set<@NonNull Set<@NonNull S>> regions = new CopyOnWriteArraySet<>();
     private int max_region_dist_sqr;
 
-    public SupplyFinder(@NonNull Unit unit, @NonNull Class<S> supply_class) {
+    public SupplyFinder(@NonNull Unit unit, @NonNull SupplyType supplyType) {
         this.unit = unit;
-        this.supply_class = supply_class;
+        this.supplyType = supplyType;
     }
 
     @Override
     public @Nullable S getOccupantFromRegion(@NonNull Region region, boolean one_region) {
-        List<S> supplies = region.getObjects(supply_class);
+        @SuppressWarnings("unchecked") Class<S> supplyClass = (Class<S>) supplyType.getSupplyClass();
+        Set<S> supplies = region.getObjects(supplyClass);
         if (one_region) {
             if (!supplies.isEmpty()) {
                 S supply = findClosest(supplies);
@@ -36,14 +40,14 @@ public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
             int dy = region.getGridY() - unit.getGridY();
             int region_dist_sqr = dx * dx + dy * dy;
             if (!supplies.isEmpty()) {
-                if (region_list.isEmpty()) {
+                if (regions.isEmpty()) {
                     int region_dist = (int) Math.sqrt(region_dist_sqr);
                     int max_region_dist = region_dist + RegionBuilder.REGION_PATH_MAX_COST / 2;
                     max_region_dist_sqr = max_region_dist * max_region_dist;
                 }
-                region_list.add(supplies);
+                regions.add(supplies);
             }
-            if (!region_list.isEmpty() && region_dist_sqr > max_region_dist_sqr) {
+            if (!regions.isEmpty() && region_dist_sqr > max_region_dist_sqr) {
                 S supply = findClosest();
                 assert !supply.isEmpty();
                 return supply;
@@ -57,14 +61,18 @@ public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
         return findClosest();
     }
 
-    private @Nullable S findClosest(@NonNull List<S> supplies) {
-        return supplies.stream().min(Comparator.comparingInt(this::distanceSquared)).orElse(null);
+    private @Nullable S findClosest(@NonNull Set<S> supplies) {
+        return supplies.stream()
+                .min(Comparator.comparingInt(this::distanceSquared))
+                .orElse(null);
     }
 
     private @Nullable S findClosest() {
-        S closest = region_list.stream().flatMap(List::stream).min(Comparator.comparingInt(
-                this::distanceSquared)).orElse(null);
-        region_list.clear();
+        S closest = regions.stream()
+                .flatMap(Set::stream)
+                .min(Comparator.comparingInt(this::distanceSquared))
+                .orElse(null);
+        regions.clear();
         return closest;
     }
 
@@ -76,7 +84,7 @@ public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
 
     @Override
     public boolean acceptOccupant(@NonNull Occupant occ) {
-        if (supply_class.isInstance(occ)) {
+        if (supplyType.getSupplyClass().isInstance(occ)) {
             Supply supply = (Supply) occ;
             assert !supply.isEmpty();
             return true;

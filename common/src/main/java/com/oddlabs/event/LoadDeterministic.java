@@ -49,7 +49,7 @@ public final class LoadDeterministic extends Deterministic {
         try {
             channel.close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -91,7 +91,7 @@ public final class LoadDeterministic extends Deterministic {
             total_bytes_read += current_total;
             return bytes_read == -1 && current_total == 0;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -164,6 +164,7 @@ public final class LoadDeterministic extends Deterministic {
         }
     }
 
+    @Override
     protected @Nullable Path log(Path p, @NonNull Path def) {
         try {
             // Deserialize from File
@@ -180,7 +181,7 @@ public final class LoadDeterministic extends Deterministic {
         try (ObjectInputStream object_input_stream = new ObjectInputStream(byte_buffer_input_stream)) {
             o = (T) object_input_stream.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("Failed to log object", e);
         }
         return o;
     }
@@ -205,7 +206,17 @@ public final class LoadDeterministic extends Deterministic {
         @Override
         public int read() {
             byte b = log((byte) 0);
-            return ((int) b) & 0xFF;
+            return Byte.toUnsignedInt(b);
+        }
+
+        @Override
+        public int read(byte @NonNull [] b, int off, int len) throws IOException {
+            var remaining = len;
+            while (remaining-- > 0) {
+                b[off++] = log((byte) 0);
+            }
+
+            return len;
         }
     }
 }

@@ -52,6 +52,6 @@ public final class ARMIInterfaceMethods {
             if (methods[i].equals(method))
                 return i;
         }
-        throw new RuntimeException("Unknown method: " + method);
+        throw new IllegalArgumentException("Unknown method: " + method);
     }
 }

@@ -1,7 +1,7 @@
 package com.oddlabs.tt.audio;
 
 /**
- * buffered audio
+ * A handle to buffered audio data.
  */
 public interface Audio {
 }

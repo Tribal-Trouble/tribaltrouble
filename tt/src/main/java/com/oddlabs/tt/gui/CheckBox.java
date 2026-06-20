@@ -2,15 +2,12 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.CheckBoxListener;
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.tt.util.ToolTip;
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
-public final class CheckBox extends GUIObject implements ToolTip {
+public final class CheckBox extends GUIObject {
     private final List<@NonNull CheckBoxListener> event_listeners = new java.util.ArrayList<>();
-
-    private final String tool_tip;
 
     private boolean marked;
     private boolean pressed = false;
@@ -20,15 +17,14 @@ public final class CheckBox extends GUIObject implements ToolTip {
     }
 
     public CheckBox(boolean marked, @NonNull String text, String tool_tip) {
+        super(tool_tip != null && !tool_tip.isEmpty() ? () -> tool_tip : null);
         this.marked = marked;
-        this.tool_tip = tool_tip;
         Label label = new Label(text, Skin.getSkin().getEditFont());
         addChild(label);
-        label.setPos(Skin.getSkin().getCheckBoxMarked().quad(ModeIconQuads.Mode.NORMAL).getWidth(),
-                (Skin.getSkin().getCheckBoxMarked().quad(
-                        ModeIconQuads.Mode.NORMAL).getHeight() - label.getHeight()) / 2);
-        setDim(Skin.getSkin().getCheckBoxMarked().quad(ModeIconQuads.Mode.NORMAL).getWidth() + label.getWidth(),
-                Skin.getSkin().getCheckBoxMarked().quad(ModeIconQuads.Mode.NORMAL).getHeight());
+        label.setPos(Skin.getSkin().getCheckBoxMarked().quad(ModeIconQuads.Mode.NORMAL).getWidth(), (Skin.getSkin()
+                .getCheckBoxMarked().quad(ModeIconQuads.Mode.NORMAL).getHeight() - label.getHeight()) / 2);
+        setDim(Skin.getSkin().getCheckBoxMarked().quad(ModeIconQuads.Mode.NORMAL).getWidth() + label.getWidth(), Skin
+                .getSkin().getCheckBoxMarked().quad(ModeIconQuads.Mode.NORMAL).getHeight());
         setCanFocus(true);
     }
 
@@ -41,11 +37,6 @@ public final class CheckBox extends GUIObject implements ToolTip {
             this.marked = marked;
             checkedAll(marked);
         }
-    }
-
-    @Override
-    public void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
-        tool_tip_box.append(tool_tip);
     }
 
     private void toggleMarked() {
@@ -70,14 +61,21 @@ public final class CheckBox extends GUIObject implements ToolTip {
 
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
-        ModeIconQuads.Mode skinMode = isDisabled() ? ModeIconQuads.Mode.DISABLED : isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+        ModeIconQuads.Mode skinMode = isDisabled()
+                ? ModeIconQuads.Mode.DISABLED
+                : isActive()
+                        ? ModeIconQuads.Mode.ACTIVE
+                : ModeIconQuads.Mode.NORMAL;
 
         // When marked, active, pressed, and hovered, it should show the unmarked state
         // When unmarked, active, pressed, and hovered, it should show the marked state
-        ModeIconQuads quad_to_render = isMarked() ? (skinMode == ModeIconQuads.Mode.ACTIVE && pressed
-                && isHovered() ? Skin.getSkin().getCheckBoxUnmarked() : Skin.getSkin().getCheckBoxMarked()) : (skinMode == ModeIconQuads.Mode.ACTIVE
-                        && pressed
-                        && isHovered() ? Skin.getSkin().getCheckBoxMarked() : Skin.getSkin().getCheckBoxUnmarked());
+        ModeIconQuads quad_to_render = isMarked()
+                ? (skinMode == ModeIconQuads.Mode.ACTIVE && pressed && isHovered()
+                        ? Skin.getSkin().getCheckBoxUnmarked()
+                        : Skin.getSkin().getCheckBoxMarked())
+                : (skinMode == ModeIconQuads.Mode.ACTIVE && pressed && isHovered()
+                        ? Skin.getSkin().getCheckBoxMarked()
+                        : Skin.getSkin().getCheckBoxUnmarked());
 
         renderer.drawModeIcon(quad_to_render, skinMode, 0, 0);
     }

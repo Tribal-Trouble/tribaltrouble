@@ -4,6 +4,7 @@ import com.oddlabs.net.ARMIEvent;
 import com.oddlabs.net.AbstractConnection;
 import com.oddlabs.net.ConnectionInterface;
 import com.oddlabs.net.HostSequenceID;
+import com.oddlabs.tt.render.Renderer;
 
 import java.io.IOException;
 
@@ -14,13 +15,13 @@ public final class TunnelledConnection extends AbstractConnection {
     public TunnelledConnection(HostSequenceID address, ConnectionInterface conn_interface) {
         setConnectionInterface(conn_interface);
         this.address = address;
-        Network.getMatchmakingClient().registerTunnel(this.address, this);
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().registerTunnel(this.address, this);
         notifyConnected();
     }
 
     public TunnelledConnection(int address, ConnectionInterface conn_interface) {
         setConnectionInterface(conn_interface);
-        this.address = Network.getMatchmakingClient().registerTunnel(address, this);
+        this.address = Renderer.getRenderer().getNetwork().getMatchmakingClient().registerTunnel(address, this);
     }
 
     public void tunnelClosed() {
@@ -33,12 +34,12 @@ public final class TunnelledConnection extends AbstractConnection {
     }
 
     public void accept() {
-        Network.getMatchmakingClient().getInterface().acceptTunnel(address);
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().acceptTunnel(address);
     }
 
     @Override
     public void handle(ARMIEvent event) {
-        Network.getMatchmakingClient().getInterface().routeEvent(address, event);
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().getInterface().routeEvent(address, event);
         writeBufferDrained();
     }
 
@@ -49,7 +50,7 @@ public final class TunnelledConnection extends AbstractConnection {
     @Override
     protected void doClose() {
         if (open) {
-            Network.getMatchmakingClient().unregisterTunnel(address, this);
+            Renderer.getRenderer().getNetwork().getMatchmakingClient().unregisterTunnel(address, this);
             open = false;
         }
     }

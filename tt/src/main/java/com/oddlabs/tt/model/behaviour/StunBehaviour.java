@@ -3,6 +3,9 @@ package com.oddlabs.tt.model.behaviour;
 import com.oddlabs.tt.model.Unit;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * Behaviour that plays the idle animation and handles the stun duration.
+ */
 public final class StunBehaviour implements Behaviour {
     private final @NonNull StunController controller;
     private final @NonNull Unit unit;
@@ -25,5 +28,9 @@ public final class StunBehaviour implements Behaviour {
 
     @Override
     public void forceInterrupted() {
+    }
+
+    @Override
+    public void onCleanup() {
     }
 }

@@ -2,22 +2,27 @@ package com.oddlabs.tt.model.behaviour;
 
 import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.SupplyFinder;
+import com.oddlabs.tt.model.SupplyType;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FinderTrackerAlgorithm;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Controller that coordinates finding resource targets and dispatching peons to harvest them.
+ */
 public final class HarvestController<S extends Supply> extends Controller {
-    private final Unit unit;
-    private final Class<S> supply_class;
+    private final @NonNull Unit unit;
+    private final @NonNull SupplyType supplyType;
     private FinderTrackerAlgorithm<S> tracker;
 
     private @Nullable Supply supply;
 
-    public HarvestController(Unit unit, S supply, Class<S> supply_class) {
+    public HarvestController(@NonNull Unit unit, @Nullable S supply, @NonNull SupplyType supplyType) {
         super(1);
         this.unit = unit;
         this.supply = supply;
-        this.supply_class = supply_class;
+        this.supplyType = supplyType;
     }
 
     private void gather() {
@@ -25,7 +30,7 @@ public final class HarvestController<S extends Supply> extends Controller {
             resetGiveUpCounter(0);
             unit.setBehaviour(new HarvestBehaviour(unit, supply));
         } else if (!shouldGiveUp(0)) {
-            tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new SupplyFinder<>(unit, supply_class));
+            tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new SupplyFinder<>(unit, supplyType));
             unit.setBehaviour(new WalkBehaviour(unit, tracker, false));
         } else {
             unit.popController();
@@ -34,7 +39,8 @@ public final class HarvestController<S extends Supply> extends Controller {
 
     @Override
     public void decide() {
-        if (unit.getSupplyContainer().getSupplyType() == supply_class && unit.getSupplyContainer().isSupplyFull()) {
+        if (unit.getSupplyContainer().getSupplyType().orElse(null) == supplyType && unit.getSupplyContainer()
+                .isSupplyFull()) {
             unit.popController();
         } else {
             if (tracker != null) {

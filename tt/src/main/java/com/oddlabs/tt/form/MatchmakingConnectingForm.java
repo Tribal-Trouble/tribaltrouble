@@ -14,7 +14,7 @@ import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.net.MatchmakingListener;
-import com.oddlabs.tt.net.Network;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
@@ -37,14 +37,14 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
     public MatchmakingConnectingForm(@NonNull NetworkSelector network, GUIRoot gui_root, Form parent_form,
             MainMenu main_menu, Login login, LoginDetails login_details) {
         this(network, gui_root, parent_form, main_menu);
-        Network.getMatchmakingClient().login(network, login, login_details);
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().login(network, login, login_details);
     }
 
     public MatchmakingConnectingForm(@NonNull NetworkSelector network, GUIRoot gui_root, Form parent_form,
             MainMenu main_menu, boolean steamLogin) {
         this(network, gui_root, parent_form, main_menu);
         if (steamLogin) {
-            Network.getMatchmakingClient().loginWithSteam(network);
+            Renderer.getRenderer().getNetwork().getMatchmakingClient().loginWithSteam(network);
         }
     }
 
@@ -67,7 +67,7 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
         // headline
         compileCanvas();
         centerPos();
-        Network.setMatchmakingListener(this);
+        Renderer.getRenderer().getNetwork().setMatchmakingListener(this);
     }
 
     @Override
@@ -98,7 +98,7 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
     @Override
     public void doRemove() {
         super.doRemove();
-        Network.setMatchmakingListener(null);
+        Renderer.getRenderer().getNetwork().setMatchmakingListener(null);
     }
 
     @Override
@@ -136,6 +136,6 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
 
     @Override
     protected void doCancel() {
-        Network.getMatchmakingClient().close();
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().close();
     }
 }

@@ -1,13 +1,13 @@
 package com.oddlabs.tt.audio;
 
+import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * An audio source, which is a point in 3D space that emits sound.
- * This abstracts the underlying audio implementation (e.g., OpenAL).
+ * A point in 3D space that emits sound, abstracting the underlying audio implementation.
  */
-public interface AudioSource extends AutoCloseable {
+public interface AudioSource {
 
     enum State {
         INITIAL,
@@ -17,7 +17,7 @@ public interface AudioSource extends AutoCloseable {
     }
 
     /**
-     * @return the current state of the source
+     * {@return the current state of the source}
      */
     @NonNull
     State getState();
@@ -44,32 +44,42 @@ public interface AudioSource extends AutoCloseable {
     void setGain(float gain);
 
     /**
-     * Sets the minimum gain (volume) of the audio source for relative sources.
+     * Sets the minimum gain (volume) of the audio source.
      *
      * @param gain The gain value. 0 is mute, 1 is full volume.
      */
     void setMinGain(float gain);
 
     /**
-     * Sets the maximum gain (volume) of the audio source for relative sources.
+     * Sets the maximum gain (volume) of the audio source.
      *
      * @param gain The gain value. 0 is mute, 1 is full volume.
      */
     void setMaxGain(float gain);
 
     /**
-     * Sets the rolloff factor of the audio source.for relative sources.
+     * Sets the rolloff factor of the audio source.
      *
      * @param rolloff The rolloff value. 1 is the default.
      */
     void setRolloff(float rolloff);
 
     /**
-     * Sets the minimum gain (volume) of the audio source for relative sources.
+     * Sets the reference distance of the audio source.
      *
-     * @param gain The gain value. 0 is mute, 1 is full volume.
+     * @param distance the reference distance.
      */
-    void setDistance(float gain);
+    void setDistance(float distance);
+
+    /**
+     * {@return the current rolloff factor}
+     */
+    float getRolloff();
+
+    /**
+     * {@return the current reference distance (radius)}
+     */
+    float getDistance();
 
     /**
      * Sets the position of the audio source in 3D space.
@@ -122,18 +132,12 @@ public interface AudioSource extends AutoCloseable {
     void rewind();
 
     /**
-     * Gets the current state of the audio source (e.g., playing, stopped, paused).
-     *
-     * @return The state of the source, as defined by the underlying audio library's constants.
-     */
-    int getSourceState();
-
-    /**
      * Retrieves the position of the audio source.
      *
-     * @return A float array containing the position (x, y, z).
+     * @return The position (x, y, z).
      */
-    float @NonNull [] getPosition();
+    @NonNull
+    Vector3f getPosition();
 
     /**
      * Gets the priority rank of the audio source.
@@ -148,18 +152,27 @@ public interface AudioSource extends AutoCloseable {
      * @return The associated AbstractAudioPlayer.
      */
     @Nullable
-    AbstractAudioPlayer getAudioPlayer();
+    AudioPlayer getAudioPlayer();
 
     /**
      * Associates an audio player with this source.
      *
      * @param audioPlayer The audio player to associate.
      */
-    void setAudioPlayer(AbstractAudioPlayer audioPlayer);
+    void setAudioPlayer(@Nullable AudioPlayer audioPlayer);
 
     /**
-     * Closes the audio source and releases its native resources.
+     * Sets the auxiliary effect slot to send audio to (e.g., for reverb).
+     *
+     * @param slotId The effect slot ID.
+     * @param filterId The filter ID to apply to the send, or 0 for none.
      */
-    @Override
-    void close();
+    void setAuxiliarySend(int slotId, int filterId);
+
+    /**
+     * Sets the gain of the direct path high-frequency filter (air absorption).
+     *
+     * @param gainHF The gain value [0.0, 1.0].
+     */
+    void setDirectFilterGainHF(float gainHF);
 }

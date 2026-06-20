@@ -69,8 +69,8 @@ public final class KeyManager {
         }
     }
 
-    public static PrivateKey readPrivateKey(byte @NonNull [] encoded_private_key,
-            @NonNull String algorithm) throws InvalidKeySpecException {
+    public static PrivateKey readPrivateKey(byte @NonNull [] encoded_private_key, @NonNull String algorithm)
+            throws InvalidKeySpecException {
         try {
             KeyFactory key_factory = KeyFactory.getInstance(algorithm);
             KeySpec key_spec = new PKCS8EncodedKeySpec(encoded_private_key);
@@ -80,8 +80,8 @@ public final class KeyManager {
         }
     }
 
-    public static PublicKey readPublicKey(byte @NonNull [] encoded_public_key,
-            @NonNull String algorithm) throws InvalidKeySpecException {
+    public static PublicKey readPublicKey(byte @NonNull [] encoded_public_key, @NonNull String algorithm)
+            throws InvalidKeySpecException {
         try {
             KeyFactory key_factory = KeyFactory.getInstance(algorithm);
             KeySpec key_spec = new X509EncodedKeySpec(encoded_public_key);
@@ -114,8 +114,8 @@ public final class KeyManager {
         }
     }
 
-    public static @NonNull Cipher createPasswordCipherFromPassword(char[] password,
-            int mode) throws IOException, GeneralSecurityException {
+    public static @NonNull Cipher createPasswordCipherFromPassword(char[] password, int mode) throws IOException,
+            GeneralSecurityException {
         PBEKeySpec pbeKeySpec;
         PBEParameterSpec pbeParamSpec;
         SecretKeyFactory keyFac;
@@ -147,8 +147,8 @@ public final class KeyManager {
         return pbeCipher;
     }
 
-    public static @NonNull Cipher createPasswordCipher(String pass_prompt,
-            int mode) throws IOException, GeneralSecurityException {
+    public static @NonNull Cipher createPasswordCipher(String pass_prompt, int mode) throws IOException,
+            GeneralSecurityException {
         return createPasswordCipherFromPassword(readPassword(pass_prompt, System.in), mode);
     }
 
@@ -185,9 +185,8 @@ public final class KeyManager {
 
                 default:
                     if (--room < 0) {
-                        buf = new char[offset + 128];
+                        buf = Arrays.copyOf(lineBuffer, offset + 128);
                         room = buf.length - offset - 1;
-                        System.arraycopy(lineBuffer, 0, buf, 0, offset);
                         Arrays.fill(lineBuffer, ' ');
                         lineBuffer = buf;
                     }
@@ -200,8 +199,7 @@ public final class KeyManager {
             return null;
         }
 
-        char[] ret = new char[offset];
-        System.arraycopy(buf, 0, ret, 0, offset);
+        char[] ret = Arrays.copyOf(buf, offset);
         Arrays.fill(buf, ' ');
         return ret;
     }

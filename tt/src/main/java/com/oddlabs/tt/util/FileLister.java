@@ -1,6 +1,6 @@
 package com.oddlabs.tt.util;
 
-import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 
 import java.io.File;
@@ -12,7 +12,8 @@ public final class FileLister implements FileListerInterface {
 
     public FileLister(@NonNull File dir, String pattern, FileListerListener listener) {
         this.listener = listener;
-        newFiles(LocalEventQueue.getQueue().getDeterministic().log(dir.listFiles(new PatternFilenameFilter(pattern))));
+        newFiles(Renderer.getRenderer().getEventQueue().getDeterministic().log(dir.listFiles(new PatternFilenameFilter(
+                pattern))));
     }
 
     @Override

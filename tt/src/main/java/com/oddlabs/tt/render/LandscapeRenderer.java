@@ -5,20 +5,21 @@ import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.landscape.AbstractPatchGroup;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeLeaf;
 import com.oddlabs.tt.landscape.PatchGroup;
-import com.oddlabs.tt.landscape.PatchGroupVisitor;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.shader.LandscapeShader;
-import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.render.state.BlendMode;
 import com.oddlabs.tt.render.state.CullMode;
 import com.oddlabs.tt.render.state.DepthMode;
 import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.WorldInfo;
+import com.oddlabs.tt.scenery.Sky;
+import com.oddlabs.tt.scenery.Water;
 import com.oddlabs.tt.vbo.FloatVBO;
-import org.joml.Vector4f;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
@@ -29,40 +30,47 @@ import org.lwjgl.opengl.GL33;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Renders the 3D terrain landscape.
+ */
 public final class LandscapeRenderer implements SceneRenderer, Animated {
-
     private final List<@NonNull LandscapeLeaf> render_list = new ArrayList<>();
     private final @NonNull World world;
     private final @NonNull Texture diffuseMap;
     private final @NonNull Texture normalMap;
     private final @NonNull Texture detailMap;
-    private final @NonNull PatchMesh patchMesh;
+    private final @NonNull Texture detailNormalMap;
+    private final PatchMesh patchMesh = new PatchMesh();
     private final LandscapeShader shader = new LandscapeShader();
-    private final Vector4f lightDir = new Vector4f();
-    private FloatVBO instanceVBO;
-    private FloatBuffer instanceBuffer;
+    private @Nullable Water water;
+    private @NonNull FloatVBO instanceVBO = new FloatVBO(GL15.GL_STREAM_DRAW, 1024 * 3);
+    private @NonNull FloatBuffer instanceBuffer = BufferUtils.createFloatBuffer(1024 * 3);
 
     public @NonNull LandscapeShader getShader() {
         return shader;
     }
 
-    public LandscapeRenderer(@NonNull World world, @NonNull WorldInfo world_info, @NonNull AnimationManager manager) {
+    public void setWater(@NonNull Water water) {
+        this.water = water;
+    }
+
+    public LandscapeRenderer(@NonNull World world, @NonNull WorldInfo<Texture> world_info,
+            @NonNull AnimationManager manager) {
         this.world = world;
         this.diffuseMap = world_info.maps().diffuse();
         this.normalMap = world_info.maps().normal();
         this.detailMap = world_info.detail();
-        this.patchMesh = new PatchMesh();
-        this.instanceVBO = new FloatVBO(GL15.GL_STREAM_DRAW, 1024 * 2); // Initial capacity
-        this.instanceBuffer = BufferUtils.createFloatBuffer(1024 * 2);
+        this.detailNormalMap = world_info.detailNormal();
 
         manager.registerAnimation(this);
     }
 
-    public @NonNull List<@NonNull LandscapeLeaf> getVisiblePatches() {
+    public @NonNull Collection<@NonNull LandscapeLeaf> getVisiblePatches() {
         return render_list;
     }
 
@@ -71,34 +79,54 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
     }
 
     public void pick(@NonNull CameraState camera, boolean visible_override, @NonNull Set<LandscapeLeaf> set) {
-        doPrepareAll(camera, visible_override, false, set);
+        doPrepareAll(camera, visible_override, set);
     }
 
     public void prepareAll(@NonNull CameraState camera, boolean visible_override) {
-        prepareAll(camera, visible_override, false);
-    }
-
-    public void prepareAll(@NonNull CameraState camera, boolean visible_override, boolean aboveSea) {
         render_list.clear();
-        doPrepareAll(camera, visible_override, aboveSea, render_list);
+        doPrepareAll(camera, visible_override, render_list);
     }
 
-    private void doPrepareAll(@NonNull CameraState camera, final boolean visible_override, boolean aboveSea,
+    private void doPrepareAll(@NonNull CameraState camera, final boolean visible_override, @NonNull Collection<
+            LandscapeLeaf> result) {
+        traverse(world.getPatchRoot(), camera, visible_override, result);
+    }
+
+    private void traverse(@NonNull AbstractPatchGroup node, @NonNull CameraState camera, boolean visible_override,
             @NonNull Collection<LandscapeLeaf> result) {
-        var patch_visitor = new Visitor(camera, visible_override, aboveSea, aboveSea ? world.getHeightMap() : null,
-                result);
-        world.getPatchRoot().visit(patch_visitor);
+        switch (node) {
+            case PatchGroup group -> {
+                RenderTools.FrustumIntersection frustum_state = RenderTools.FrustumIntersection.ALL_OUTSIDE;
+                if (visible_override || (frustum_state = RenderTools.inFrustum(group, camera.getFrustum()))
+                        != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
+                    boolean next_visible_override = visible_override || frustum_state
+                            == RenderTools.FrustumIntersection.ALL_INSIDE;
+                    for (AbstractPatchGroup child : group.children()) {
+                        traverse(child, camera, next_visible_override, result);
+                    }
+                }
+            }
+            case LandscapeLeaf leaf -> {
+                if (visible_override || RenderTools.inFrustum(leaf, camera.getFrustum())
+                        != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
+                    result.add(leaf);
+                }
+            }
+        }
     }
 
     @Override
     public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull MatrixStack modelViewStack,
             @NonNull MatrixStack projectionStack) {
-        try (var _ = shader.use(); var _ = context.withBlendMode(BlendMode.NONE); var _ = context.withDepthMode(
+        try (var _ = shader.use(); var _ = context.withBlendMode(BlendMode.ALPHA); var _ = context.withDepthMode(
                 DepthMode.READ_WRITE); var _ = context.withCullMode(CullMode.NONE)) {
 
             // Set VTF Uniforms
             shader.setUniform(LandscapeShader.Uniforms.WORLD_SIZE, (float) world.getHeightMap().getMetersPerWorld());
             shader.setUniform(LandscapeShader.Uniforms.DETAIL_SCALE, Globals.LANDSCAPE_DETAIL_REPEAT_RATE);
+
+            Color stdColor = Sky.SEA_BOTTOM_COLOR.get(world.getTerrainType());
+            shader.setUniformColor3(LandscapeShader.Uniforms.SEA_BOTTOM_COLOR, stdColor);
 
             context.setTexture(0, diffuseMap);
             shader.setUniform(LandscapeShader.Uniforms.DIFFUSE_MAP, 0);
@@ -109,12 +137,17 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
             context.setTexture(2, detailMap);
             shader.setUniform(LandscapeShader.Uniforms.DETAIL_MAP, 2);
 
-            context.setTexture(3, world.getHeightMap().getHeightTexture());
+            context.setTexture(3, world.getHeightMap()
+                    .getClientState(HeightMapVisual.class)
+                    .map(HeightMapVisual::getHeightTexture).orElseThrow());
             shader.setUniform(LandscapeShader.Uniforms.HEIGHT_MAP, 3);
+
+            context.setTexture(4, detailNormalMap);
+            shader.setUniform(LandscapeShader.Uniforms.DETAIL_NORMAL_MAP, 4);
 
             if (Globals.draw_landscape && !render_list.isEmpty()) {
                 int instanceCount = render_list.size();
-                int requiredFloats = instanceCount * 2;
+                int requiredFloats = instanceCount * 3;
 
                 // Resize buffer if needed
                 if (instanceBuffer.capacity() < requiredFloats) {
@@ -126,13 +159,21 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
 
                 instanceBuffer.clear();
                 float patchSize = world.getHeightMap().getMetersPerPatch();
+                int patchesPerWorld = world.getHeightMap().getPatchesPerWorld();
+                Water activeWater = water;
+                BitSet activeOceanPatches = activeWater != null ? activeWater.getOceanPatches() : null;
                 for (LandscapeLeaf leaf : render_list) {
-                    instanceBuffer.put(leaf.getPatchX() * patchSize);
-                    instanceBuffer.put(leaf.getPatchY() * patchSize);
+                    int px = leaf.getPatchX();
+                    int py = leaf.getPatchY();
+                    float waveScale = (activeOceanPatches != null && activeOceanPatches.get(py * patchesPerWorld + px))
+                            ? 1.0f : 0.0f;
+                    instanceBuffer.put(px * patchSize);
+                    instanceBuffer.put(py * patchSize);
+                    instanceBuffer.put(waveScale);
                 }
                 instanceBuffer.flip();
 
-                instanceVBO.makeCurrent();
+                instanceVBO.bind(context);
                 GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, instanceBuffer);
 
                 patchMesh.bind();
@@ -140,7 +181,7 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
                 // Setup instance attribute (Location 4: in_InstancePatchOffset)
                 int offsetLoc = 4; // Hardcoded location from shader layout
                 GL20.glEnableVertexAttribArray(offsetLoc);
-                GL20.glVertexAttribPointer(offsetLoc, 2, GL11.GL_FLOAT, false, 0, 0);
+                GL20.glVertexAttribPointer(offsetLoc, 3, GL11.GL_FLOAT, false, 0, 0);
                 GL33.glVertexAttribDivisor(offsetLoc, 1);
 
                 patchMesh.drawInstanced(instanceCount);
@@ -169,66 +210,5 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
     @Override
     public void animate(float t) {
         // No animation needed for static VTF geometry
-    }
-
-    // Shadow rendering supported
-    void renderShadow(@NonNull ShaderProgram shader, int patch_x, int patch_y, int start_x, int start_y, int end_x,
-            int end_y) {
-        // Legacy shadow rendering (non-instanced for now as it renders specific sub-regions)
-        // Would need to update shader to support instance attribute if we wanted to batch this too
-        // But shadow rendering usually uses a specific projection/program
-        // For now, we just set the attribute to the single offset
-        // Since we removed the uniform, we must use the attribute
-        // This requires binding a VBO with 1 instance data
-
-        // Quick fix: Set attribute value directly using glVertexAttrib2f (Valid if attribute array is disabled)
-        // But we need to ensure the attribute array is disabled.
-
-        float patchSize = world.getHeightMap().getMetersPerPatch();
-        GL20.glDisableVertexAttribArray(4); // Ensure array is disabled
-        GL20.glVertexAttrib2f(4, patch_x * patchSize, patch_y * patchSize);
-
-        patchMesh.bind();
-        patchMesh.draw();
-        patchMesh.unbind();
-    }
-
-    private static final class Visitor implements PatchGroupVisitor {
-        private final @NonNull CameraState camera;
-        private boolean visible_override;
-        private final boolean aboveSea;
-        private final @Nullable HeightMap heightMap;
-        private final @NonNull Collection<LandscapeLeaf> result;
-
-        private Visitor(@NonNull CameraState camera, boolean visible_override, boolean aboveSea,
-                @Nullable HeightMap heightMap, @NonNull Collection<LandscapeLeaf> result) {
-            this.camera = camera;
-            this.visible_override = visible_override;
-            this.aboveSea = aboveSea;
-            this.heightMap = heightMap;
-            this.result = result;
-        }
-
-        @Override
-        public void visitGroup(@NonNull PatchGroup group) {
-            RenderTools.FrustumIntersection frustum_state = RenderTools.FrustumIntersection.ALL_OUTSIDE;
-            if (visible_override || (frustum_state = RenderTools.inFrustum(group,
-                    camera.getFrustum())) != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
-                boolean old_override = visible_override;
-                visible_override = visible_override || frustum_state == RenderTools.FrustumIntersection.ALL_INSIDE;
-                group.visitChildren(this);
-                visible_override = old_override;
-            }
-        }
-
-        @Override
-        public void visitLeaf(@NonNull LandscapeLeaf leaf) {
-            if (visible_override || RenderTools.inFrustum(leaf,
-                    camera.getFrustum()) != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
-                if (!aboveSea || !heightMap.isBelowSeaLevel(leaf.getPatchX(), leaf.getPatchY())) {
-                    result.add(leaf);
-                }
-            }
-        }
     }
 }

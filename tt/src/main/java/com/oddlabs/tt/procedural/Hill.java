@@ -5,28 +5,21 @@ import com.oddlabs.procedural.Layer;
 import org.jspecify.annotations.NonNull;
 
 public final class Hill {
+    public enum Shape {
+        CIRCLE,
+        OVAL,
+        SQUARE
+    }
+
     private Channel channel;
     private final int size;
 
-    public static final int CIRCLE = 1;
-    public static final int OVAL = 2;
-    public static final int SQUARE = 3;
-
-    public Hill(int size, int shape) {
+    public Hill(int size, @NonNull Shape shape) {
         this.size = size;
         switch (shape) {
-            case CIRCLE:
-                circle();
-                break;
-            case OVAL:
-                oval();
-                break;
-            case SQUARE:
-                square();
-                break;
-            default:
-                assert false : "illegal shape";
-                break;
+            case CIRCLE -> circle();
+            case OVAL -> oval();
+            case SQUARE -> square();
         }
     }
 

@@ -3,22 +3,24 @@ package com.oddlabs.tt.model;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.pathfinder.UnitGrid;
-import com.oddlabs.tt.procedural.Landscape;
-import com.oddlabs.tt.render.SpriteKey;
-import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.util.LinkedList;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public abstract class AbstractElementNode<T extends Element<T>> extends BoundingBox {
+/**
+ * Abstract base class for spatial partition tree nodes in the world entity grid.
+ */
+public abstract sealed class AbstractElementNode<T extends Element<T>> extends BoundingBox permits ElementNode,
+        ElementLeaf {
     private final LinkedList<T> models = new LinkedList<>();
 
     private int child_count = 0;
 
-    private final AbstractElementNode<T> owner;
+    private final @Nullable AbstractElementNode<T> owner;
 
-    protected AbstractElementNode(AbstractElementNode<T> owner) {
+    protected AbstractElementNode(@Nullable AbstractElementNode<T> owner) {
         this.owner = owner;
     }
 
@@ -64,59 +66,55 @@ public abstract class AbstractElementNode<T extends Element<T>> extends Bounding
         return this;
     }
 
+    public final @NonNull LinkedList<T> getModels() {
+        return models;
+    }
+
     public static <T extends Element<T>> @NonNull AbstractElementNode<T> newRoot(@NonNull HeightMap heightmap) {
         AbstractElementNode<T> root = new ElementNode<>(null, heightmap.getGridUnitsPerWorld(), 0, 0);
         return root;
     }
 
-    public static void buildSupplies(@NonNull World world, @NonNull List<int[]> iron_positions,
-            @NonNull List<int[]> rock_positions, float @NonNull [] @NonNull [] plants,
-            Landscape.@NonNull TerrainType terrain) {
+    public static void buildSupplies(@NonNull World world, @NonNull List<int[]> iron_positions, @NonNull List<
+            int[]> rock_positions, float @NonNull [] @NonNull [] plants, @NonNull Terrain terrain,
+            boolean insertPlants) {
         buildRockSupplies(world, rock_positions);
         buildIronSupplies(world, iron_positions);
-        addPlants(world, plants, terrain);
+        if (insertPlants) {
+            addPlants(world, plants, terrain);
+        }
     }
 
     private static void buildRockSupplies(@NonNull World world, @NonNull List<int[]> positions) {
-        SpriteKey[] sprite_renderers = world.getLandscapeResources().getRockFragments();
-        int num_supplies = positions.size();
-        IO.println("num_rocks = " + num_supplies);
-        for (int i = 0; i < num_supplies; i++) {
-            int[] coords = positions.get(i);
+        IO.println("num_rocks = " + positions.size());
+        positions.forEach(coords -> {
             int grid_x = coords[0];
             int grid_y = coords[1];
-            float x = UnitGrid.coordinateFromGrid(grid_x) + (world.getRandom().nextFloat() - .5f);
-            float y = UnitGrid.coordinateFromGrid(grid_y) + (world.getRandom().nextFloat() - .5f);
-            float rotation = world.getRandom().nextFloat() * 360f;
-            new RockSupply(world, sprite_renderers[i % sprite_renderers.length], 2f, grid_x, grid_y, x, y, rotation,
-                    true);
-        }
+            float x = UnitGrid.coordinateFromGrid(grid_x) + world.getRandom().nextFloat(-.5f, .5f);
+            float y = UnitGrid.coordinateFromGrid(grid_y) + world.getRandom().nextFloat(-.5f, .5f);
+            new RockSupply(world, grid_x, grid_y, x, y, true).spawnComplete();
+        });
     }
 
     private static void buildIronSupplies(@NonNull World world, @NonNull List<int[]> positions) {
-        SpriteKey[] sprite_renderers = world.getLandscapeResources().getIronFragments();
-        int num_supplies = positions.size();
-        IO.println("num_iron = " + num_supplies);
-        for (int i = 0; i < num_supplies; i++) {
-            int[] coords = positions.get(i);
+        IO.println("num_iron = " + positions.size());
+        positions.forEach(coords -> {
             int grid_x = coords[0];
             int grid_y = coords[1];
-            float x = UnitGrid.coordinateFromGrid(grid_x) + (world.getRandom().nextFloat() - .5f);
-            float y = UnitGrid.coordinateFromGrid(grid_y) + (world.getRandom().nextFloat() - .5f);
-            float rotation = world.getRandom().nextFloat() * 360f;
-            new IronSupply(world, sprite_renderers[i % sprite_renderers.length], 2f, grid_x, grid_y, x, y, rotation,
-                    true);
-        }
+            float x = UnitGrid.coordinateFromGrid(grid_x) + world.getRandom().nextFloat(-.5f, .5f);
+            float y = UnitGrid.coordinateFromGrid(grid_y) + world.getRandom().nextFloat(-.5f, .5f);
+            new IronSupply(world, grid_x, grid_y, x, y, true).spawnComplete();
+        });
     }
 
-    private static void addPlants(@NonNull World world, float @NonNull [] @NonNull [] plants,
-            Landscape.@NonNull TerrainType terrain) {
+    public static void addPlants(@NonNull World world, float @NonNull [] @NonNull [] plants,
+            @NonNull Terrain terrain) {
         int num_plants = 0;
         for (int t = 0; t < plants.length; t++) {
             num_plants += plants[t].length / 2;
             for (int p = 0; p < plants[t].length >> 1; p++) {
-                float dir_x = world.getRandom().nextFloat();
-                float dir_y = world.getRandom().nextFloat();
+                float dir_x = java.util.concurrent.ThreadLocalRandom.current().nextFloat();
+                float dir_y = java.util.concurrent.ThreadLocalRandom.current().nextFloat();
                 float len_sqr = dir_x * dir_x + dir_y * dir_y;
                 if (len_sqr < .001) {
                     dir_x = 1f;
@@ -127,19 +125,9 @@ public abstract class AbstractElementNode<T extends Element<T>> extends Bounding
                     dir_y *= inv_len;
                 }
                 new Plants(world, plants[t][2 * p], plants[t][2 * p + 1], dir_x, dir_y,
-                        world.getLandscapeResources().getPlants()[terrain.ordinal()][t]);
+                        world.getLandscapeResources().getPlantBounds(terrain, t));
             }
         }
         IO.println("num_plants = " + num_plants);
-    }
-
-    public abstract void visit(ElementNodeVisitor<T> visitor);
-
-    public final void visitElements(@NonNull ElementNodeVisitor<T> visitor) {
-        T model = models.getFirst();
-        while (model != null) {
-            visitor.visit(model);
-            model = model.getNext();
-        }
     }
 }

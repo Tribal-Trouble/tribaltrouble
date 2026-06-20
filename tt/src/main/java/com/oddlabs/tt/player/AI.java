@@ -1,17 +1,17 @@
 package com.oddlabs.tt.player;
 
+import com.oddlabs.tt.model.BuildingType;
+
+import com.oddlabs.tt.model.UnitType;
+
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.BuildSpinner;
-import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Building;
-import com.oddlabs.tt.model.IronSupply;
-import com.oddlabs.tt.model.Race;
-import com.oddlabs.tt.model.RockSupply;
-import com.oddlabs.tt.model.RubberSupply;
 import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.model.SupplyType;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.behaviour.DefendController;
 import com.oddlabs.tt.model.behaviour.GatherController;
@@ -20,12 +20,15 @@ import com.oddlabs.tt.model.behaviour.NullController;
 import com.oddlabs.tt.model.behaviour.PlaceBuildingController;
 import com.oddlabs.tt.model.behaviour.WalkController;
 import com.oddlabs.tt.pathfinder.UnitGrid;
-import com.oddlabs.tt.util.Target;
+import com.oddlabs.tt.model.Target;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Random;
 
+/**
+ * Base abstract class for artificial intelligence players controlling units and building construction.
+ */
 public abstract class AI implements Animated {
     private static final float SLEEP_SECONDS = 2f;
     private static final float MIN_SLEEP_SECONDS = 5f;
@@ -60,10 +63,10 @@ public abstract class AI implements Animated {
             int grid_start_x = UnitGrid.toGridCoordinate(owner.getStartX());
             int grid_start_y = UnitGrid.toGridCoordinate(owner.getStartY());
             if (unit_info.hasQuarters()) {
-                owner.buildBuilding(Race.BUILDING_QUARTERS, grid_start_x, grid_start_y);
+                owner.buildBuilding(BuildingType.QUARTERS, grid_start_x, grid_start_y);
             }
             if (unit_info.hasArmory()) {
-                owner.buildBuilding(Race.BUILDING_ARMORY, grid_start_x, grid_start_y);
+                owner.buildBuilding(BuildingType.ARMORY, grid_start_x, grid_start_y);
             }
             for (int i = 0; i < unit_info.numTowers(); i++) {
                 int center = owner.getWorld().getHeightMap().getGridUnitsPerWorld() / 2;
@@ -72,34 +75,34 @@ public abstract class AI implements Animated {
                 float inv_dist = 1f / (float) Math.sqrt(dx * dx + dy * dy);
                 int tx = (int) (grid_start_x + 10f * dx * inv_dist);
                 int ty = (int) (grid_start_y + 10f * dy * inv_dist);
-                owner.buildBuilding(Race.BUILDING_TOWER, tx, ty);
+                owner.buildBuilding(BuildingType.TOWER, tx, ty);
             }
             Random random = new Random(42);
             if (unit_info.hasChieftain()) {
                 Target t = getTarget(random);
-                Unit chieftain = new Unit(owner, t.getPositionX(), t.getPositionY(), null,
-                        owner.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN));
+                Unit chieftain = new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRaceInfo()
+                        .getUnitTemplate(UnitType.CHIEFTAIN));
                 owner.setActiveChieftain(chieftain);
             }
             for (int i = 0; i < unit_info.numPeons(); i++) {
                 Target t = getTarget(random);
-                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
-                        Race.UNIT_PEON));
+                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRaceInfo().getUnitTemplate(
+                        UnitType.PEON));
             }
             for (int i = 0; i < unit_info.numRockWarriors(); i++) {
                 Target t = getTarget(random);
-                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
-                        Race.UNIT_WARRIOR_ROCK));
+                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRaceInfo().getUnitTemplate(
+                        UnitType.WARRIOR_ROCK));
             }
             for (int i = 0; i < unit_info.numIronWarriors(); i++) {
                 Target t = getTarget(random);
-                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
-                        Race.UNIT_WARRIOR_IRON));
+                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRaceInfo().getUnitTemplate(
+                        UnitType.WARRIOR_IRON));
             }
             for (int i = 0; i < unit_info.numRubberWarriors(); i++) {
                 Target t = getTarget(random);
-                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
-                        Race.UNIT_WARRIOR_RUBBER));
+                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRaceInfo().getUnitTemplate(
+                        UnitType.WARRIOR_RUBBER));
             }
         }
     }
@@ -195,14 +198,14 @@ public abstract class AI implements Animated {
                     INDEX_IDLE_WARRIORS = i;
                 }
             } else if (s.getPrimaryController() instanceof GatherController<?> gc) {
-                Class<?> supply_type = gc.getSupplyType();
-                if (supply_type == TreeSupply.class) {
+                SupplyType supply_type = gc.getSupplyType();
+                if (supply_type == SupplyType.WOOD) {
                     INDEX_GATHER_TREE_PEONS = i;
-                } else if (supply_type == RockSupply.class) {
+                } else if (supply_type == SupplyType.ROCK) {
                     INDEX_GATHER_ROCK_PEONS = i;
-                } else if (supply_type == IronSupply.class) {
+                } else if (supply_type == SupplyType.IRON) {
                     INDEX_GATHER_IRON_PEONS = i;
-                } else if (supply_type == RubberSupply.class) {
+                } else if (supply_type == SupplyType.RUBBER) {
                     INDEX_GATHER_RUBBER_PEONS = i;
                 }
             } else if (s.getPrimaryController() instanceof NullController) {
@@ -258,7 +261,8 @@ public abstract class AI implements Animated {
     }
 
     private void reset() {
-        sleep_time = owner.getWorld().getRandom().nextFloat() * SLEEP_SECONDS + MIN_SLEEP_SECONDS;
+        sleep_time = owner.getWorld().getRandom().nextFloat(MIN_SLEEP_SECONDS,
+                MIN_SLEEP_SECONDS + SLEEP_SECONDS);
     }
 
     protected final boolean shouldDoAction(float time) {
@@ -287,8 +291,8 @@ public abstract class AI implements Animated {
         Selectable<?>[][] lists = owner.classifyUnits();
         for (Selectable<?>[] list : lists) {
             Selectable<?> s = list[0];
-            if (s instanceof Unit unit && !(s.getPrimaryController() instanceof WalkController
-                    && ((WalkController) s.getPrimaryController()).isAgressive())) {
+            if (s instanceof Unit unit && !(s.getPrimaryController() instanceof WalkController && ((WalkController) s
+                    .getPrimaryController()).isAgressive())) {
                 for (Selectable<?> thrower : list) {
                     if (unit.getAbilities().hasAbilities(Abilities.THROW)) {
                         owner.setLandscapeTarget(Selectable.newArray(thrower), target.getGridX(), target.getGridY(),
@@ -317,8 +321,8 @@ public abstract class AI implements Animated {
 
     protected final Target getTarget(@NonNull Random random) {
         float RADIUS = 30;
-        float target_x = owner.getStartX() + (random.nextFloat() * 2 - 1) * RADIUS;
-        float target_y = owner.getStartY() + (random.nextFloat() * 2 - 1) * RADIUS;
+        float target_x = owner.getStartX() + random.nextFloat(-RADIUS, RADIUS);
+        float target_y = owner.getStartY() + random.nextFloat(-RADIUS, RADIUS);
         return getUnitGrid().findGridTargets(UnitGrid.toGridCoordinate(target_x), UnitGrid.toGridCoordinate(target_y),
                 1, false)[0];
 

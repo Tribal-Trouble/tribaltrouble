@@ -22,8 +22,9 @@ public final class DateLabel extends Label {
     }
 
     private static @NonNull String format(long date) {
-        return date > 0 ? DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).withZone(
-                ZoneId.systemDefault()).format(Instant.ofEpochMilli(date)) : "-";
+        return date > 0 ? DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+                .withZone(ZoneId.systemDefault())
+                .format(Instant.ofEpochMilli(date)) : "-";
     }
 
     @Override

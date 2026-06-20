@@ -25,7 +25,7 @@ public final class CryptUtils {
             // The digest length is the length of the digest encoded as a unsigned hex string
             PASSWORD_DIGEST_LENGTH = digest.getDigestLength() * 2;
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new UnsupportedOperationException(e);
         }
     }
 

@@ -1,7 +1,7 @@
 package com.oddlabs.tt.model.behaviour;
 
 import com.oddlabs.tt.model.Unit;
-import com.oddlabs.tt.util.Target;
+import com.oddlabs.tt.model.Target;
 import org.jspecify.annotations.NonNull;
 
 public final class WalkController extends Controller {

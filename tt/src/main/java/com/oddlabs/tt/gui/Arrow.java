@@ -1,11 +1,16 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.util.Color;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * An animated arrow that points toward a specific 3D coordinate in the game world,
+ * constrained to the edges of the screen if the target is off-screen.
+ */
 public final class Arrow extends GUIObject {
     private static final float SECONDS_PER_FLASH = .5f;
     private static final float COLOR_DELTA = .5f;
@@ -13,21 +18,17 @@ public final class Arrow extends GUIObject {
     private final float target_x;
     private final float target_y;
     private final float target_z;
-    private final float r;
-    private final float g;
-    private final float b;
+    private final Color.Linear color;
     private final boolean show_always;
     private final @NonNull GUIRoot gui_root;
 
-    public Arrow(@NonNull HeightMap heightmap, @NonNull GUIRoot gui_root, float target_x, float target_y, float r,
-            float g, float b, boolean show_always) {
+    public Arrow(@NonNull HeightMap heightmap, @NonNull GUIRoot gui_root, float target_x, float target_y,
+            @NonNull Color color, boolean show_always) {
         this.gui_root = gui_root;
         this.target_x = target_x;
         this.target_y = target_y;
         this.target_z = heightmap.getNearestHeight(target_x, target_y);
-        this.r = r;
-        this.g = g;
-        this.b = b;
+        this.color = color instanceof Color.Linear linear ? linear : new Color.Linear(color);
         this.show_always = show_always;
         displayChangedNotify(gui_root.getWidth(), gui_root.getHeight());
     }
@@ -37,10 +38,7 @@ public final class Arrow extends GUIObject {
         setDim(width, height);
     }
 
-    private static final Vector4f point = new Vector4f();
-
-    private @NonNull Vector4f project3DTo2D(float x, float y, float z) {
-        point.set(x, y, z, 1);
+    private @NonNull Vector4f project3DTo2D(@NonNull Vector4f point) {
         gui_root.getDelegate().getCamera().getState().getProjectionModelView().transform(point, point);
         if (point.w < .1f)
             point.w = .1f;
@@ -54,11 +52,9 @@ public final class Arrow extends GUIObject {
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         int screen_width = gui_root.getWidth();
         int screen_height = gui_root.getHeight();
-        Vector4f result = project3DTo2D(target_x, target_y, target_z);
-        float x = result.x;
-        float y = result.y;
-        float dx = x - screen_width / 2f;
-        float dy = y - screen_height / 2f;
+        Vector4f point = project3DTo2D(new Vector4f(target_x, target_y, target_z, 1));
+        float dx = point.x - screen_width / 2f;
+        float dy = point.y - screen_height / 2f;
         float dist_sqr = dx * dx + dy * dy;
         if (dist_sqr < 1f) {
             dx = 1f;
@@ -72,7 +68,7 @@ public final class Arrow extends GUIObject {
         float angle = (float) Math.toDegrees(Math.acos(dx));
         if (dy < 0f)
             angle = 360f - angle;
-        float real_t = (x - screen_width / 2f) / dx;
+        float real_t = (point.x - screen_width / 2f) / dx;
         float t = real_t;
         float t_min_x = (-screen_width / 2f) / dx;
         float t_max_x = (screen_width / 2f) / dx;
@@ -89,12 +85,13 @@ public final class Arrow extends GUIObject {
             renderer.getMatrixStack().push();
             renderer.getMatrixStack().translate(screen_width / 2f + dx * t, screen_height / 2f + dy * t, 0f);
             renderer.getMatrixStack().rotate(angle, 0f, 0f, 1f);
-            float val = (LocalEventQueue.getQueue().getTime() % SECONDS_PER_FLASH) / (SECONDS_PER_FLASH * .5f);
+            float val = (Renderer.getRenderer().getEventQueue().getTime() % SECONDS_PER_FLASH) / (SECONDS_PER_FLASH
+                    * .5f);
             if (val > 1f)
                 val = 2f - val;
             val = COLOR_DELTA * val;
             IconQuad arrow = data.arrow();
-            renderer.drawIcon(arrow, -head_x, -head_y, new Vector4f(r, g, b, 1f - val));
+            renderer.drawIcon(arrow, -head_x, -head_y, color.alpha(1f - val));
             renderer.getMatrixStack().pop();
         }
     }

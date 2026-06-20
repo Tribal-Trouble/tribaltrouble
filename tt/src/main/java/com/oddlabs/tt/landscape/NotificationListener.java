@@ -1,7 +1,7 @@
 package com.oddlabs.tt.landscape;
 
 import com.oddlabs.tt.model.Selectable;
-import com.oddlabs.tt.util.Target;
+import com.oddlabs.tt.model.Target;
 import org.jspecify.annotations.NonNull;
 
 public interface NotificationListener {

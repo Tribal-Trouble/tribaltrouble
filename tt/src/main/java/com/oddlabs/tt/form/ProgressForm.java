@@ -1,11 +1,9 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.net.NetworkSelector;
-import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.camera.NullCamera;
 import com.oddlabs.tt.delegate.CameraDelegate;
 import com.oddlabs.tt.delegate.NullDelegate;
-import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.Fadable;
 import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIImage;
@@ -20,10 +18,14 @@ import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
+/**
+ * Manages the visual representation of loading progress, displaying a background image,
+ * a progress bar, and optional loading tips to the user.
+ */
 public final class ProgressForm {
     private static final int PROGRESSBAR_LOADINGTIP_SPACING = 45;
     private static final int NUM_TIPS = 39;
@@ -34,8 +36,20 @@ public final class ProgressForm {
         return Utils.getBundleString(bundle, key, args);
     }
 
-    private static final String[] LOADING_TIPS = IntStream.range(0, NUM_TIPS).mapToObj(idx -> i18n(
-            TIP_PREFIX + idx)).toArray(String[]::new);
+    private static final String[] LOADING_TIPS = IntStream.range(0, NUM_TIPS)
+            .mapToObj(idx -> i18n(TIP_PREFIX + idx))
+            .toArray(String[]::new);
+
+    private static final @NonNull ProgressBarInfo[] PROGRESS_BAR_INFO = new ProgressBarInfo[]{
+            new ProgressBarInfo(""/*"Loading landscape resources"*/, 10),
+            new ProgressBarInfo(""/*"Loading races resources"*/, 30),
+            new ProgressBarInfo(""/*"Generating textures"*/, 5),
+            new ProgressBarInfo(""/*"Generating terrain"*/, 5),
+            new ProgressBarInfo(""/*"Generating alpha maps"*/, 5),
+            new ProgressBarInfo(""/*"Blending textures"*/, 2f),
+            new ProgressBarInfo(""/*"Generating pathfinding grids"*/, 5),
+            new ProgressBarInfo(""/*"Generating quadtrees"*/, 6)
+    };
 
     private static @Nullable ProgressForm current_progress = null;
 
@@ -82,14 +96,7 @@ public final class ProgressForm {
         }
 
         Fadable load_fadable = () -> callback(gui, callback, first_progress);
-        current_progress = new ProgressForm(network, gui, load_fadable, first_progress,
-                new ProgressBarInfo[]{new ProgressBarInfo(""/*"Loading landscape resources"*/, 10), new ProgressBarInfo(
-                        ""/*"Loading races resources"*/, 30), new ProgressBarInfo(""/*"Generating textures"*/,
-                                5), new ProgressBarInfo(""/*"Generating terrain"*/, 5), new ProgressBarInfo(
-                                        ""/*"Generating alpha maps"*/, 5), new ProgressBarInfo(
-                                                ""/*"Blending textures"*/, 2f), new ProgressBarInfo(
-                                                        ""/*"Generating pathfinding grids"*/, 5), new ProgressBarInfo(
-                                                                ""/*"Generating quadtrees"*/, 6)},
+        current_progress = new ProgressForm(network, gui, load_fadable, first_progress, PROGRESS_BAR_INFO,
                 texture, texture_width, texture_height, image_width, image_height, progress_x, progress_y,
                 progress_width, show_tip);
 
@@ -97,11 +104,12 @@ public final class ProgressForm {
     }
 
     private ProgressForm(@NonNull NetworkSelector network, final @NonNull GUI gui, final Fadable load_fadable,
-            boolean first_progress, ProgressBarInfo @NonNull [] info, @NonNull String texture_name, int texture_width,
-            int texture_height, int image_width, int image_height, int progress_x, int progress_y, int progress_width,
+            boolean first_progress, @NonNull ProgressBarInfo @NonNull [] info,
+            @NonNull String texture_name, int texture_width, int texture_height, int image_width, int image_height,
+            int progress_x, int progress_y, int progress_width,
             boolean show_tip) {
         this.gui = gui;
-        AudioManager.getManager().stopSources();
+        Renderer.getRenderer().stopSound();
         var gui_root = first_progress ? gui.getGUIRoot() : gui.newFade(load_fadable, null);
         CameraDelegate<NullCamera> delegate = new NullDelegate(gui_root, false);
         gui_root.pushDelegate(delegate);
@@ -122,13 +130,13 @@ public final class ProgressForm {
         delegate.addChild(image);
         delegate.addChild(progress_bar);
         if (show_tip) {
-            Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
+            var random = ThreadLocalRandom.current();
             CharSequence tip_string = LOADING_TIPS[random.nextInt(LOADING_TIPS.length)];
             int tip_width = Math.min(gui_root.getWidth() - 10, Skin.getSkin().getEditFont().getWidth(tip_string));
             LabelBox tip = new LabelBox(tip_string, Skin.getSkin().getEditFont(), tip_width);
 //			Label tip = new Label(LOADING_TIPS[random.nextInt(LOADING_TIPS.length)], Skin.getSkin().getEditFont());
-            tip.setPos(progress_bar.getX() + progress_bar.getWidth() / 2 - tip.getWidth() / 2,
-                    progress_bar.getY() - tip.getHeight() - PROGRESSBAR_LOADINGTIP_SPACING);
+            tip.setPos(progress_bar.getX() + progress_bar.getWidth() / 2 - tip.getWidth() / 2, progress_bar.getY() - tip
+                    .getHeight() - PROGRESSBAR_LOADINGTIP_SPACING);
             delegate.addChild(tip);
         }
 
@@ -137,7 +145,7 @@ public final class ProgressForm {
     }
 
     private static void callback(@NonNull GUI gui, @NonNull LoadCallback callback, boolean first_progress) {
-        Fadable start_sources_fadable = () -> AudioManager.getManager().startSources();
+        Fadable start_sources_fadable = () -> Renderer.getRenderer().startSound();
 
         GUIRoot client_root = gui.createRoot();
         UIRenderer renderer = callback.load(client_root);

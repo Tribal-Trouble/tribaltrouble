@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * CLI Driver for TextureProcessor.
@@ -15,7 +16,7 @@ import java.util.List;
  */
 public final class Convert {
 
-    public static void main(@NonNull String @NonNull [] args) {
+    static void main(@NonNull String @NonNull... args) {
         if (args.length < 2) {
             System.err.println("Usage: Convert <infile/indir> [operations...] <outfile/outdir>");
             System.exit(1);
@@ -37,11 +38,11 @@ public final class Convert {
                     System.err.println("Input is a file, but output is a directory: " + output);
                     System.exit(1);
                 }
-                System.out.println("Converting " + input + " -> " + output);
-                TextureProcessor.processFile(input, operations, output);
+                IO.println("Converting " + input + " -> " + output);
+                TextureProcessor.processFiles(Stream.of(new TextureProcessor.SourceTarget(input, output)), operations);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(System.err);
             System.exit(1);
         }
     }

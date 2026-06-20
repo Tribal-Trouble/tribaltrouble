@@ -10,8 +10,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 
 public final class Connection extends AbstractConnection implements Handler, ConnectionPeerInterface {
@@ -19,7 +19,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
     private static final short HEADER_SIZE = 2;
 
     private final ByteBuffer read_buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
-    private final List<ARMIEvent> back_log_list = new LinkedList<>();
+    private final Deque<ARMIEvent> back_log_list = new ArrayDeque<>();
     private final ByteBuffer write_buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
     private final @NonNull ConnectionPeerInterface peer_interface;
     private final boolean ping_reply;
@@ -258,8 +258,8 @@ public final class Connection extends AbstractConnection implements Handler, Con
         read_buffer.limit(new_position);
         read_buffer.position(old_position);
         network.getDeterministic().log(read_buffer);
-        assert read_buffer.position() == new_position
-                && !read_buffer.hasRemaining() : read_buffer.position() + " " + new_position + " " + !read_buffer.hasRemaining();
+        assert read_buffer.position() == new_position && !read_buffer.hasRemaining() : read_buffer.position() + " "
+                + new_position + " " + !read_buffer.hasRemaining();
         read_buffer.limit(old_limit);
         return num_bytes_read;
     }
@@ -295,8 +295,8 @@ public final class Connection extends AbstractConnection implements Handler, Con
                 }
                 read_buffer.compact();
             }
-        } while (bytes_read && network.getDeterministic().log(network.getDeterministic().isPlayback()
-                || channel.isOpen()));
+        } while (bytes_read && network.getDeterministic().log(network.getDeterministic().isPlayback() || channel
+                .isOpen()));
     }
 
     @Override
@@ -330,8 +330,8 @@ public final class Connection extends AbstractConnection implements Handler, Con
             int new_ops = (interest_ops | SelectionKey.OP_READ) & ~SelectionKey.OP_CONNECT;
             if (!network.getDeterministic().isPlayback())
                 key.interestOps(new_ops);
-            connected(network.getDeterministic().log(
-                    network.getDeterministic().isPlayback() ? null : channel.socket().getLocalAddress()));
+            connected(network.getDeterministic().log(network.getDeterministic().isPlayback() ? null : channel.socket()
+                    .getLocalAddress()));
         } else {
             network.getDeterministic().checkpoint();
             if (writing)
@@ -342,8 +342,8 @@ public final class Connection extends AbstractConnection implements Handler, Con
 
     private boolean isKeyValid() {
         // double negation because we want to the common result to be false, the default logger value
-        return !network.getDeterministic().log(network.getDeterministic().isPlayback() || !(key != null
-                && key.isValid()));
+        return !network.getDeterministic().log(network.getDeterministic().isPlayback() || !(key != null && key
+                .isValid()));
     }
 
     @Override

@@ -1,7 +1,8 @@
 package com.oddlabs.tt.tutorial;
 
+import com.oddlabs.tt.model.BuildingType;
+
 import com.oddlabs.tt.camera.GameCamera;
-import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.player.Player;
 import org.jspecify.annotations.NonNull;
 
@@ -13,9 +14,9 @@ public final class ScrollTrigger extends TutorialTrigger {
         player.enableMoving(false);
         player.enableRepairing(false);
         player.enableAttacking(false);
-        player.enableBuilding(Race.BUILDING_QUARTERS, false);
-        player.enableBuilding(Race.BUILDING_ARMORY, false);
-        player.enableBuilding(Race.BUILDING_TOWER, false);
+        player.enableBuilding(BuildingType.QUARTERS, false);
+        player.enableBuilding(BuildingType.ARMORY, false);
+        player.enableBuilding(BuildingType.TOWER, false);
         player.enableChieftains(false);
     }
 

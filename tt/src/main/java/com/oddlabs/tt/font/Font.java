@@ -67,7 +67,7 @@ public final class Font {
     public int getWidestCodepoint(@NonNull CharSequence text) {
         assert !text.isEmpty() : "Empty CharSequence";
 
-        return text.codePoints().reduce(text.charAt(0), (current, codePoint) -> {
+        return text.codePoints().reduce(Character.codePointAt(text, 0), (current, codePoint) -> {
             var widest = getQuad(current);
             var quad = getQuad(codePoint);
 

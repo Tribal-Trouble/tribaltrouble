@@ -5,12 +5,17 @@ import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * Maintains the internal state of a camera, including its position, orientation,
+ * matrices, and frustum for culling and rendering.
+ */
 public final class CameraState {
     static final float MIN_ANGLE = -(float) Math.PI / 2f;//+ 0.01f;
     //  private static final float MAX_ANGLE = (float)Math.PI/2f;// - 0.0001f;
-    private static final float MAX_ANGLE = -0.0001f;
+    static final float MAX_ANGLE = -0.0001f;
 
     private final Matrix4f modl = new Matrix4f();
     private final Matrix4f proj = new Matrix4f();
@@ -23,12 +28,14 @@ public final class CameraState {
     private float target_camera_x;
     private float target_camera_y;
     private float target_camera_z;
-    private float target_vert_angle;
-    private float target_horiz_angle;
 
     private float camera_x;
     private float camera_y;
     private float camera_z;
+
+    private float target_vert_angle;
+    private float target_horiz_angle;
+
     private float vert_angle;
     private float horiz_angle;
 
@@ -38,7 +45,7 @@ public final class CameraState {
     private int height;
 
     public CameraState() {
-        this(new FogInfo(FogInfo.Mode.NONE, Color.BLACK, 0f));
+        this(new FogInfo(FogInfo.Mode.NONE, Color.Standard.BLACK, 0f));
     }
 
     public CameraState(@NonNull FogInfo fog) {
@@ -98,6 +105,14 @@ public final class CameraState {
         return camera_z;
     }
 
+    public @NonNull Vector3fc getTargetPosition() {
+        return new Vector3f(target_camera_x, target_camera_y, target_camera_z);
+    }
+
+    public @NonNull Vector3fc getCurrentPosition() {
+        return new Vector3f(camera_x, camera_y, camera_z);
+    }
+
     public @NonNull FogInfo getFog() {
         return fog;
     }
@@ -143,16 +158,17 @@ public final class CameraState {
     }
 
     public void set(@NonNull CameraState camera) {
-        setTargetX(camera.getTargetX());
-        setTargetY(camera.getTargetY());
-        setTargetZ(camera.getTargetZ());
+        target_camera_x = camera.target_camera_x;
+        target_camera_y = camera.target_camera_y;
+        target_camera_z = camera.target_camera_z;
+        camera_x = camera.camera_x;
+        camera_y = camera.camera_y;
+        camera_z = camera.camera_z;
+
         setTargetVertAngle(camera.getTargetVertAngle());
         setTargetHorizAngle(camera.getTargetHorizAngle());
         setNoDetailMode(camera.inNoDetailMode());
         setFog(camera.getFog());
-        camera_x = camera.camera_x;
-        camera_y = camera.camera_y;
-        camera_z = camera.camera_z;
         vert_angle = camera.vert_angle;
         horiz_angle = camera.horiz_angle;
         modl.set(camera.modl);
@@ -330,8 +346,8 @@ public final class CameraState {
 
         for (float[] frustum1 : frustum) {
             /* Normalize the result */
-            float length_inv = 1f / ((float) java.lang.Math.sqrt(
-                    frustum1[0] * frustum1[0] + frustum1[1] * frustum1[1] + frustum1[2] * frustum1[2]));
+            float length_inv = 1f / ((float) Math.sqrt(frustum1[0] * frustum1[0] + frustum1[1] * frustum1[1]
+                    + frustum1[2] * frustum1[2]));
             frustum1[0] *= length_inv;
             frustum1[1] *= length_inv;
             frustum1[2] *= length_inv;

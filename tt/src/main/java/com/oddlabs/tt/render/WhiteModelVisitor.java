@@ -1,22 +1,44 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.model.Model;
+import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
-import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
-class WhiteModelVisitor<M extends Model> extends ModelVisitor<M> {
-    private static final Vector4fc COLOR_TEAM = Color.WHITE;
+import java.util.Optional;
 
-    @Override
-    public final @NonNull Vector4fc getSelectionColor(@NonNull ElementRenderState<M> render_state) {
-        return COLOR_TEAM;
+/**
+ * A specialized {@link ModelVisitor} that renders models with a neutral white team color.
+ * Used as a base for custom visitors or for temporary visual effects.
+ */
+class WhiteModelVisitor<M extends Model> extends ModelVisitor<M> {
+    private static final WhiteModelVisitor<Model> INSTANCE = new WhiteModelVisitor<>();
+
+    @SuppressWarnings("unchecked")
+    @NonNull
+    public static <M extends Model> WhiteModelVisitor<M> getInstance() {
+        return (WhiteModelVisitor<M>) INSTANCE;
     }
 
     @Override
-    public final @NonNull Vector4fc getTeamColor(@NonNull ElementRenderState<M> render_state) {
-        return COLOR_TEAM;
+    public @NonNull Optional<SpriteKey> getSpriteKey(@NonNull ElementRenderState<M> render_state) {
+        return Optional.empty();
+    }
+
+    @Override
+    public @NonNull Color getSelectionColor(@NonNull ElementRenderState<M> render_state) {
+        return Color.Linear.WHITE;
+    }
+
+    @Override
+    public @NonNull Color getTeamColor(@NonNull ElementRenderState<M> render_state) {
+        return Color.Linear.WHITE;
+    }
+
+    @Override
+    public Selectable.@NonNull VisualPattern getPattern(@NonNull ElementRenderState<M> render_state) {
+        return Selectable.VisualPattern.NONE;
     }
 
     @Override

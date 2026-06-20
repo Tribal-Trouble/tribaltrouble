@@ -8,23 +8,25 @@ import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
-import com.oddlabs.tt.gui.ScrollableGroup;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
-import org.joml.Vector4f;
-import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
-import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 import static com.oddlabs.tt.gui.Placement.LEFT_MID;
+import static com.oddlabs.tt.gui.Placement.RIGHT_TOP;
 
+/**
+ * Displays in-game information overlay including player names, colors, races,
+ * and current team designations.
+ */
 public class DefaultInGameInfo implements InGameInfo {
     private static final ResourceBundle terrain_menu_bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
     private boolean replay_island_flag;
@@ -83,51 +85,55 @@ public class DefaultInGameInfo implements InGameInfo {
     }
 
     private void addGameInfos(@NonNull WorldViewer viewer, @NonNull Menu menu, @NonNull Group game_infos) {
-        Player[] players = viewer.getWorld().getPlayers();
-        ScrollableGroup scrollable = new ScrollableGroup(300, 50);
-
-        // Pre-calculate largest name width for column alignment
-        var nameLabels = new java.util.ArrayList<Label>();
-        int largestLabel = 0;
-        for (Player player : players) {
-            Label name = new Label(player.getPlayerInfo().getName(), Skin.getSkin().getHeadlineFont());
-            nameLabels.add(name);
-            if (name.getWidth() > largestLabel)
-                largestLabel = name.getWidth();
-        }
-
+        List<@NonNull Player> players = viewer.getWorld().getPlayers();
+        Group names = new Group();
         GUIObject last_name = null;
-        for (int i = 0; i < players.length; i++) {
-            PlayerInfo player_info = players[i].getPlayerInfo();
-            var color_floats = players[i].getColor();
-            Vector4fc color = viewer.getPeerHub().isAlive(players[i]) ? color_floats : new Vector4f(color_floats.x(),
-                    color_floats.y(), color_floats.z(), .25f);
-
-            Label name = nameLabels.get(i);
-            name.setDim(largestLabel, name.getHeight());
-            name.setColor(color);
-
+        Group races = new Group();
+        GUIObject last_race = null;
+        Group teams = new Group();
+        GUIObject last_team = null;
+        for (Player player : players) {
+            PlayerInfo player_info = player.getPlayerInfo();
+            var player_color = player.getColor();
+            var display_color = viewer.getPeerHub().isAlive(player) ? player_color : player_color.desaturate(0.3f)
+                    .alpha(0.8f);
+            Label name = new Label(player_info.getName(), Skin.getSkin().getHeadlineFont())
+                    .setColor(display_color);
             String race_str = RacesResources.getRaceName(player_info.getRace());
-            Label race = new Label(race_str, Skin.getSkin().getHeadlineFont()).setColor(color);
-            String team_str = Utils.getBundleString(terrain_menu_bundle, "team", Integer.toString(
-                    player_info.getTeam() + 1));
-            Label team = new Label(team_str, Skin.getSkin().getHeadlineFont()).setColor(color);
-
-            scrollable.addChild(name);
-            if (last_name != null) name.place(last_name, BOTTOM_LEFT);
-            else name.place();
+            Label race = new Label(race_str, Skin.getSkin().getHeadlineFont())
+                    .setColor(display_color);
+            String team_str = Utils.getBundleString(terrain_menu_bundle, "team", Integer.toString(player_info.getTeam()
+                    + 1));
+            Label team = new Label(team_str, Skin.getSkin().getHeadlineFont())
+                    .setColor(display_color);
+            names.addChild(name);
+            if (last_name != null)
+                name.place(last_name, BOTTOM_LEFT);
+            else
+                name.place();
             last_name = name;
-
-            scrollable.addChild(race);
-            race.place(last_name, RIGHT_MID);
-
-            scrollable.addChild(team);
-            team.place(race, RIGHT_MID);
+            races.addChild(race);
+            if (last_race != null)
+                race.place(last_race, BOTTOM_LEFT);
+            else
+                race.place();
+            last_race = race;
+            teams.addChild(team);
+            if (last_team != null)
+                team.place(last_team, BOTTOM_LEFT);
+            else
+                team.place();
+            last_team = team;
         }
-        scrollable.compileCanvas();
-        game_infos.addChild(scrollable);
-
-        scrollable.place();
+        names.compileCanvas();
+        races.compileCanvas();
+        teams.compileCanvas();
+        game_infos.addChild(names);
+        game_infos.addChild(races);
+        game_infos.addChild(teams);
+        names.place();
+        races.place(names, RIGHT_TOP);
+        teams.place(races, RIGHT_TOP);
         game_infos.compileCanvas();
     }
 

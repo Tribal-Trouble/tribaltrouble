@@ -20,10 +20,12 @@ public final class TransferUnitController extends Controller {
         if (building_tracker != null && building_tracker.getOccupant() != null && unit.isCloseEnough(0f,
                 building_tracker.getOccupant())) {
             Building building = building_tracker.getOccupant();
-            if (building.getUnitContainer().canEnter(unit))
-                building.getUnitContainer().enter(unit);
-            else
-                unit.popController();
+            building.getUnitContainer().ifPresentOrElse(c -> {
+                if (c.canEnter(unit))
+                    c.enter(unit);
+                else
+                    unit.popController();
+            }, unit::popController);
         } else if (!shouldGiveUp(0)) {
             building_tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new BuildingFinder(unit.getOwner(),
                     Abilities.SUPPLY_CONTAINER));

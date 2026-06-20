@@ -22,6 +22,7 @@ application {
     val args = mutableListOf(
         "-ea", "-esa",
         "--enable-native-access=ALL-UNNAMED",
+        "-Djava.awt.headless=true",
         "-Dcom.oddlabs.tt.developer=true",
         "-Djdk.crypto.KeyAgreement.legacyKDF=true",
         "-Xms80m", "-Xmx512m"

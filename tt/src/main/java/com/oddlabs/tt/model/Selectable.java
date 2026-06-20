@@ -8,7 +8,7 @@ import com.oddlabs.tt.pathfinder.ScanFilter;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.StateChecksum;
-import com.oddlabs.tt.util.Target;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -16,7 +16,31 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class Selectable<T extends Template> extends Model implements Target, Animated, ModelToolTip {
+/**
+ * Represents a {@link Model} that can be selected, commanded, and augmented with accessories.
+ * Base class for both {@link Unit} and {@link Building}.
+ */
+public abstract sealed class Selectable<T extends Template> extends Model implements Target, Animated,
+        ModelToolTip permits Unit, Building {
+
+    public enum VisualPattern {
+        NONE(Color.Standard.TRANSPARENT, Color.Standard.TRANSPARENT),
+        FRIENDLY(Color.Standard.GREEN, Color.Standard.DARK_GREEN),
+        NEUTRAL(Color.Standard.BLUE, Color.Standard.DARK_BLUE),
+        ENEMY(Color.Standard.RED, Color.Standard.DARK_RED),
+        FRIENDLY_BUILDING(Color.Standard.GREEN, Color.Standard.DARK_GREEN),
+        NEUTRAL_BUILDING(Color.Standard.BLUE, Color.Standard.DARK_BLUE),
+        ENEMY_BUILDING(Color.Standard.RED, Color.Standard.DARK_RED);
+
+        public final @NonNull Color selectedColor;
+        public final @NonNull Color hoveredColor;
+
+        VisualPattern(@NonNull Color selectedColor, @NonNull Color hoveredColor) {
+            this.selectedColor = selectedColor;
+            this.hoveredColor = hoveredColor;
+        }
+    }
+
     private final @NonNull Player owner;
     private @Nullable Behaviour current_behaviour;
     private final Abilities abilities = new Abilities(Abilities.NONE);
@@ -37,7 +61,7 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
     }
 
     @Override
-    public final float getShadowDiameter() {
+    public float getShadowDiameter() {
         return template.getShadowDiameter();
     }
 
@@ -77,6 +101,7 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
             case DONE -> decide();
         }
         doAnimate(t);
+        animateClientState(t);
         owner.getWorld().updateGlobalChecksum(grid_x + grid_y);
     }
 
@@ -136,7 +161,7 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
     }
 
     @Override
-    protected final void register() {
+    public final void register() {
         super.register();
         owner.getWorld().getAnimationManagerGameTime().registerAnimation(this);
         enable();
@@ -152,6 +177,9 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
 
     private void doDecide() {
         should_decide = false;
+        if (current_behaviour != null) {
+            current_behaviour.onCleanup();
+        }
         current_behaviour = null;
         getCurrentController().decide();
     }
@@ -189,6 +217,9 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
     public final void setBehaviour(@NonNull Behaviour behaviour) {
         assert !isDead();
         assert last != Behaviour.State.UNINTERRUPTIBLE : "Invalid behaviour state";
+        if (current_behaviour != null) {
+            current_behaviour.onCleanup();
+        }
         current_behaviour = behaviour;
     }
 
@@ -233,8 +264,8 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
 
     public final void setGridPosition(int grid_x, int grid_y) {
         assert !isDead();
-        assert owner.getWorld().getHeightMap().isGridInside(grid_x,
-                grid_y) : grid_x + " " + grid_y + " " + this.grid_x + " " + this.grid_y;
+        assert owner.getWorld().getHeightMap().isGridInside(grid_x, grid_y) : grid_x + " " + grid_y + " " + this.grid_x
+                + " " + this.grid_y;
         this.grid_x = grid_x;
         this.grid_y = grid_y;
     }
@@ -245,6 +276,24 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
 
     public final @NonNull Player getOwner() {
         return getOwnerNoCheck();
+    }
+
+    public final @NonNull VisualPattern getVisualPattern(@NonNull Player localPlayer) {
+        boolean isBuilding = this instanceof Building;
+        return owner == localPlayer
+                ? isBuilding ? VisualPattern.FRIENDLY_BUILDING : VisualPattern.FRIENDLY
+                : localPlayer.isEnemy(owner)
+                        ? isBuilding ? VisualPattern.ENEMY_BUILDING : VisualPattern.ENEMY
+                : isBuilding ? VisualPattern.NEUTRAL_BUILDING : VisualPattern.NEUTRAL;
+    }
+
+    public final @NonNull Color getSelectionColor(@NonNull Player localPlayer, boolean selected, boolean hovered) {
+        VisualPattern pattern = getVisualPattern(localPlayer);
+        return selected
+                ? pattern.selectedColor
+                : hovered
+                        ? pattern.hoveredColor
+                : owner.getColor();
     }
 
     @Override
@@ -287,7 +336,6 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
             owner.getWorld().getNotificationListener().newAttackNotification(this);
     }
 
-
     public static <T extends Template> @NonNull Class<Selectable<T>> genericClass() {
         //noinspection unchecked
         return (Class<Selectable<T>>) (Class<?>) Selectable.class;
@@ -295,11 +343,11 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
 
     public static <T extends Template> Selectable<T> @NonNull [] newArray(int length) {
         //noinspection unchecked
-        return new Selectable[length];
+        return (Selectable<T>[]) new Selectable[length];
     }
 
-    public static <T extends Template> Selectable<T> @NonNull [] newArray(
-            @NonNull Selectable<T> @NonNull... selectables) {
+    public static <T extends Template> Selectable<T> @NonNull [] newArray(@NonNull Selectable<T>
+        @NonNull... selectables) {
         return selectables;
     }
 }

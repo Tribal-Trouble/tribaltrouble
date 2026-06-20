@@ -3,7 +3,8 @@ package com.oddlabs.tt.landscape;
 import com.oddlabs.tt.global.Globals;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
+import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public final class HeightMap {
     static final int MIN_INTERSECTING_LEVEL = 5;
     private static final Vector3f plane = new Vector3f();
 
-    private final float @NonNull [] @NonNull [] world;
+    private final float @NonNull [] world;
     private final LandscapeLeaf @NonNull [] @NonNull [] landscape_leaves;
     private final List<int @NonNull []> trees;
     private final boolean[][] access_grid;
@@ -33,10 +34,11 @@ public final class HeightMap {
     private final float meters_per_chunk_border;
     private final float chunk_tex_scale;
     private final World world_instance;
-    private final com.oddlabs.tt.render.@NonNull Texture heightTexture;
+    private @Nullable ClientState clientState;
+    private static @Nullable ClientStateFactory clientStateFactory;
 
     public HeightMap(World world_instance, int meters_per_world, float sea_level_meters, int texels_per_colormap,
-            int chunks_per_colormap, float @NonNull [] @NonNull [] world, List<int[]> trees, boolean[][] access_grid,
+            int chunks_per_colormap, float @NonNull [] world, List<int[]> trees, boolean[][] access_grid,
             byte[][] build_grid) {
         this.world = world;
         this.world_instance = world_instance;
@@ -45,45 +47,52 @@ public final class HeightMap {
         this.build_grid = build_grid;
         this.meters_per_world = meters_per_world;
         this.sea_level_meters = sea_level_meters;
-        patches_per_world = world.length / GRID_UNITS_PER_PATCH;
+        this.grid_units_per_world = (int) Math.sqrt(world.length);
+        patches_per_world = grid_units_per_world / GRID_UNITS_PER_PATCH;
         meters_per_patch = GRID_UNITS_PER_PATCH * METERS_PER_UNIT_GRID;
-        grid_units_per_world = getPatchesPerWorld() * GRID_UNITS_PER_PATCH;
         inv_meters_per_patch = 1f / getMetersPerPatch();
         inv_meters_per_grid_unit = 1f / METERS_PER_UNIT_GRID;
         meters_per_chunk = getMetersPerWorld() / chunks_per_colormap;
         quadtree_min_level = (int) (Math.log(chunks_per_colormap) / Math.log(2));
         patches_per_chunk = meters_per_chunk / getMetersPerPatch();
 
-        int texels_per_colormap_noborder = texels_per_colormap - 2 * Globals.TEXELS_PER_CHUNK_BORDER * chunks_per_colormap;
+        int texels_per_colormap_noborder = texels_per_colormap - 2 * Globals.TEXELS_PER_CHUNK_BORDER
+                * chunks_per_colormap;
         float meters_per_texel = (float) getMetersPerWorld() / texels_per_colormap_noborder;
         meters_per_chunk_border = meters_per_texel * Globals.TEXELS_PER_CHUNK_BORDER;
         chunk_tex_scale = 1f / (meters_per_chunk + 2f * meters_per_chunk_border);
 
         landscape_leaves = new LandscapeLeaf[getPatchesPerWorld()][getPatchesPerWorld()];
-
-        // Create Height Texture
-        java.nio.FloatBuffer buffer = org.lwjgl.BufferUtils.createFloatBuffer(
-                grid_units_per_world * grid_units_per_world);
-        for (int y = 0; y < grid_units_per_world; y++) {
-            for (int x = 0; x < grid_units_per_world; x++) {
-                buffer.put(world[y][x]);
-            }
-        }
-        buffer.flip();
-        heightTexture = new com.oddlabs.tt.render.Texture(grid_units_per_world, grid_units_per_world,
-                org.lwjgl.opengl.GL30.GL_R32F, org.lwjgl.opengl.GL11.GL_LINEAR, org.lwjgl.opengl.GL11.GL_LINEAR,
-                org.lwjgl.opengl.GL11.GL_REPEAT);
-        GL11.glBindTexture(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, heightTexture.getHandle());
-        GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_ROW_LENGTH, 0);
-        GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_SKIP_PIXELS, 0);
-        GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_SKIP_ROWS, 0);
-        GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_ALIGNMENT, 1);
-        GL11.glTexSubImage2D(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, 0, 0, 0, grid_units_per_world, grid_units_per_world,
-                GL11.GL_RED, GL11.GL_FLOAT, buffer);
     }
 
-    public com.oddlabs.tt.render.@NonNull Texture getHeightTexture() {
-        return heightTexture;
+    /**
+     * Client-side visual state for HeightMap.
+     */
+    public interface ClientState {
+        void editHeight(int x, int y, float height);
+    }
+
+    /**
+     * Factory for creating the client-side visual state of HeightMap.
+     */
+    public interface ClientStateFactory {
+        @Nullable
+        ClientState createClientState(@NonNull HeightMap heightMap);
+    }
+
+    public static void setClientStateFactory(@Nullable ClientStateFactory factory) {
+        clientStateFactory = factory;
+    }
+
+    public <C extends ClientState> @NonNull Optional<C> getClientState(@NonNull Class<? extends C> type) {
+        if (clientState == null && clientStateFactory != null) {
+            clientState = clientStateFactory.createClientState(this);
+        }
+        return Optional.ofNullable(type.isInstance(clientState) ? type.cast(clientState) : null);
+    }
+
+    public float @NonNull [] getHeightData() {
+        return world;
     }
 
     public @NonNull World getWorld() {
@@ -197,8 +206,8 @@ public final class HeightMap {
     public boolean isBelowSeaLevel(int patch_x, int patch_y) {
         int offset_x = patch_x * getGridUnitsPerPatch();
         int offset_y = patch_y * getGridUnitsPerPatch();
-        for (int y = 0; y < getGridUnitsPerPatch(); y++) {
-            for (int x = 0; x < getGridUnitsPerPatch(); x++) {
+        for (int y = 0; y <= getGridUnitsPerPatch(); y++) {
+            for (int x = 0; x <= getGridUnitsPerPatch(); x++) {
                 float height = getWrappedHeight(offset_x + x, offset_y + y);
                 if (height < getSeaLevelMeters())
                     return true;
@@ -233,10 +242,10 @@ public final class HeightMap {
         float dx = x_f - x0;
         float dy = y_f - y0;
 
-        float h00 = world[y0][x0];
-        float h10 = world[y0][x1];
-        float h01 = world[y1][x0];
-        float h11 = world[y1][x1];
+        float h00 = world[y0 * size + x0];
+        float h10 = world[y0 * size + x1];
+        float h01 = world[y1 * size + x0];
+        float h11 = world[y1 * size + x1];
 
         float h0 = h00 * (1 - dx) + h10 * dx;
         float h1 = h01 * (1 - dx) + h11 * dx;
@@ -249,9 +258,9 @@ public final class HeightMap {
     }
 
     public float getClampedHeight(int grid_x, int grid_y) {
-        if (grid_x < 0 || grid_x >= world.length)
+        if (grid_x < 0 || grid_x >= grid_units_per_world)
             grid_x = 0;
-        if (grid_y < 0 || grid_y >= world.length)
+        if (grid_y < 0 || grid_y >= grid_units_per_world)
             grid_y = 0;
 
         return getHeight(grid_x, grid_y);
@@ -274,38 +283,35 @@ public final class HeightMap {
     }
 
     private int wrapGridCoord(int coord) {
-        return (coord + getGridUnitsPerWorld()) & (getGridUnitsPerWorld() - 1);
+        int size = getGridUnitsPerWorld();
+        return (coord % size + size) % size;
     }
 
     public float getHeight(int grid_x, int grid_y) {
-        return world[grid_y][grid_x];
+        return world[grid_y * grid_units_per_world + grid_x];
     }
 
     public void editHeight(int grid_x, int grid_y, float height) {
-        grid_x = wrapGridCoord(grid_x);
-        grid_y = wrapGridCoord(grid_y);
-        world[grid_y][grid_x] = height;
+        final int wrappedX = wrapGridCoord(grid_x);
+        final int wrappedY = wrapGridCoord(grid_y);
+        world[wrappedY * grid_units_per_world + wrappedX] = height;
 
-        java.nio.FloatBuffer buf = org.lwjgl.BufferUtils.createFloatBuffer(1);
-        buf.put(height).flip();
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, heightTexture.getHandle());
-        GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
-        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
-        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, 0);
-        GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
-        GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, grid_x, grid_y, 1, 1, GL11.GL_RED, GL11.GL_FLOAT, buf);
+        getClientState(ClientState.class).ifPresent(cs -> cs.editHeight(wrappedX, wrappedY, height));
 
-        int patch_x1 = grid_x / GRID_UNITS_PER_PATCH;
-        int patch_y1 = grid_y / GRID_UNITS_PER_PATCH;
-        boolean x_border = patch_x1 * GRID_UNITS_PER_PATCH == grid_x;
-        boolean y_border = patch_y1 * GRID_UNITS_PER_PATCH == grid_y;
-        int patch_x0 = (patch_x1 - (x_border ? 1 : 0) + patches_per_world) & (patches_per_world - 1);
-        int patch_y0 = (patch_y1 - (y_border ? 1 : 0) + patches_per_world) & (patches_per_world - 1);
+        int patch_x1 = wrappedX / GRID_UNITS_PER_PATCH;
 
-        for (int y = patch_y0; y <= patch_y1; y++) {
-            for (int x = patch_x0; x <= patch_x1; x++) {
+        int patch_y1 = wrappedY / GRID_UNITS_PER_PATCH;
+        boolean x_border = patch_x1 * GRID_UNITS_PER_PATCH == wrappedX;
+        boolean y_border = patch_y1 * GRID_UNITS_PER_PATCH == wrappedY;
+        int patch_x0 = (patch_x1 - (x_border ? 1 : 0) + patches_per_world) % patches_per_world;
+        int patch_y0 = (patch_y1 - (y_border ? 1 : 0) + patches_per_world) % patches_per_world;
+
+        for (int y = patch_y0;; y = (y + 1) % patches_per_world) {
+            for (int x = patch_x0;; x = (x + 1) % patches_per_world) {
                 landscape_leaves[y][x].editHeight(height);
+                if (x == patch_x1) break;
             }
+            if (y == patch_y1) break;
         }
         world_instance.getNotificationListener().patchesEdited(patch_x0, patch_y0, patch_x1, patch_y1);
     }

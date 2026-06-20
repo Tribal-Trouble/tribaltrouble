@@ -128,6 +128,7 @@ public final class SaveDeterministic extends Deterministic {
         return o;
     }
 
+    @Override
     protected Path log(@NonNull Path p, Path def) {
         try {
             // For backwards compatibility we convert to Serializable File

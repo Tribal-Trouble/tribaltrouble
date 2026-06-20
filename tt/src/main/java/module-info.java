@@ -11,4 +11,5 @@ module com.oddlabs.tt {
     requires org.lwjgl.opengl;
     requires org.lwjgl.stb;
     requires org.lwjgl.tinyfd;
+    requires kotlin.stdlib;
 }

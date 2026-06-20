@@ -2,9 +2,8 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.geometry.AnimationInfo;
 import com.oddlabs.geometry.SpriteInfo;
-import com.oddlabs.tt.render.shader.SpriteShader;
 import com.oddlabs.tt.resource.SpriteFile;
-import com.oddlabs.tt.util.BoundingBox;
+import com.oddlabs.tt.model.BoundingBox;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 
@@ -23,8 +21,12 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+/**
+ * Manages a collection of 3D sprites and their associated shared OpenGL resources,
+ * including index buffers, vertex attributes, and TBO textures.
+ */
 public final class SpriteList implements AutoCloseable {
-    private static final @NonNull SpriteList QUAD_INSTANCE = new SpriteList();
+    private static final @NonNull SpriteList QUAD_INSTANCE = new SpriteList(new float[]{0, 0, 1, 0, 1, 1, 0, 1});
 
     private final @NonNull BoundingBox @NonNull [] bounds;
     private final @NonNull Sprite @NonNull [] sprites;
@@ -41,15 +43,23 @@ public final class SpriteList implements AutoCloseable {
         return QUAD_INSTANCE;
     }
 
-    private SpriteList() {
+    public static @NonNull SpriteList createQuadInstance(float u1, float v1, float u2, float v2) {
+        return new SpriteList(new float[]{u1, v1, u2, v1, u2, v2, u1, v2});
+    }
+
+    private SpriteList(float[] quad_texcoords) {
         // Private constructor for the quad instance
         this.bounds = new BoundingBox[]{new BoundingBox()};
         this.type_array = new AnimationInfo.AnimationType[]{AnimationInfo.AnimationType.LOOP};
         this.animation_names = new String[]{"default"};
 
-        float[] quad_vertices = {-0.5f, -0.5f, 0f, 0.5f, -0.5f, 0f, 0.5f, 0.5f, 0f, -0.5f, 0.5f, 0f};
+        float[] quad_vertices = {
+                -0.5f, -0.5f, 0f,
+                0.5f, -0.5f, 0f,
+                0.5f, 0.5f, 0f,
+                -0.5f, 0.5f, 0f
+        };
         float[] quad_normals = {0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1};
-        float[] quad_texcoords = {0, 0, 1, 0, 1, 1, 0, 1};
         short[] quad_indices = {0, 1, 2, 0, 2, 3};
 
         FloatBuffer vertAndNormBuf = BufferUtils.createFloatBuffer(quad_vertices.length + quad_normals.length);
@@ -72,7 +82,7 @@ public final class SpriteList implements AutoCloseable {
     }
 
     public SpriteList(@NonNull SpriteFile sprite_file) {
-        Object[] sprites_and_animations = Utils.loadObject(sprite_file.getURL());
+        Object[] sprites_and_animations = Utils.loadObject(Object[].class, sprite_file.getURL());
         SpriteInfo[] sprite_infos = (SpriteInfo[]) sprites_and_animations[0];
         AnimationInfo[] animation_infos = (AnimationInfo[]) sprites_and_animations[1];
         bounds = Stream.generate(BoundingBox::new).limit(animation_infos.length).toArray(BoundingBox[]::new);
@@ -139,45 +149,11 @@ public final class SpriteList implements AutoCloseable {
     private void initTBO() {
         tboTextureHandle = org.lwjgl.opengl.GL11.glGenTextures();
         org.lwjgl.opengl.GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, tboTextureHandle);
-        // vertices_and_normals is a VBO. We need its handle.
-        // Assuming getHandle() exists or accessing protected field via VBO.
-        // VBO.java likely stores handle.
-        // I will use getHandle() and assume I need to expose it if missing.
         GL31.glTexBuffer(GL31.GL_TEXTURE_BUFFER, GL30.GL_RGB32F, vertices_and_normals.getHandle());
     }
 
-    public int getTBOTextureHandle() {
+    int getTBOTextureHandle() {
         return tboTextureHandle;
-    }
-
-    public void initVAO(@NonNull SpriteShader shader) {
-        if (vao != null) return;
-
-        vao = new VertexArray();
-        vao.bind();
-
-        int texCoordLoc = shader.getAttributeLocation(SpriteShader.Attributes.TEX_COORD);
-        int posLoc = shader.getAttributeLocation(SpriteShader.Attributes.POSITION);
-        int normLoc = shader.getAttributeLocation(SpriteShader.Attributes.NORMAL);
-
-        indices.makeCurrent();
-
-        if (texCoordLoc >= 0) {
-            GL20.glEnableVertexAttribArray(texCoordLoc);
-        }
-
-        if (posLoc >= 0) {
-            GL20.glEnableVertexAttribArray(posLoc);
-        }
-
-        if (normLoc >= 0) {
-            GL20.glEnableVertexAttribArray(normLoc);
-        }
-        vao.unbind();
-    }
-
-    public @Nullable VertexArray getVAO() {
-        return vao;
     }
 
     public float @NonNull [] getClearColor() {
@@ -213,18 +189,22 @@ public final class SpriteList implements AutoCloseable {
         return -1;
     }
 
-    public @NonNull ShortVBO getIndices() {
+    @NonNull
+    ShortVBO getIndices() {
         return indices;
     }
 
-    public @NonNull FloatVBO getVerticesAndNormals() {
+    @NonNull
+    FloatVBO getVerticesAndNormals() {
         return vertices_and_normals;
     }
 
-    public @NonNull FloatVBO getTexcoords() {
+    @NonNull
+    FloatVBO getTexcoords() {
         return texcoords;
     }
 
+    @Override
     public void close() {
         if (tboTextureHandle != 0) {
             org.lwjgl.opengl.GL11.glDeleteTextures(tboTextureHandle);

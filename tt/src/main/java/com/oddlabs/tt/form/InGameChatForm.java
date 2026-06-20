@@ -15,7 +15,7 @@ import com.oddlabs.tt.net.ChatCommand;
 import com.oddlabs.tt.net.ChatListener;
 import com.oddlabs.tt.net.ChatMessage;
 import com.oddlabs.tt.net.ChatMethod;
-import com.oddlabs.tt.net.Network;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
@@ -77,20 +77,20 @@ public final class InGameChatForm extends Form implements ChatListener {
         radio_all.place(chat_line, BOTTOM_LEFT);
         radio_team.place(chat_line, BOTTOM_RIGHT);
         compileCanvas();
-        Network.getMatchmakingClient().clearInGameChatHistory();
+        Renderer.getRenderer().getNetwork().getMatchmakingClient().clearInGameChatHistory();
     }
 
     @Override
     protected void doAdd() {
         super.doAdd();
-        Network.getChatHub().addListener(this);
+        Renderer.getRenderer().getNetwork().getChatHub().addListener(this);
         refreshMessages();
     }
 
     @Override
     protected void doRemove() {
         super.doRemove();
-        Network.getChatHub().removeListener(this);
+        Renderer.getRenderer().getNetwork().getChatHub().removeListener(this);
     }
 
     public void setReceivers(boolean all) {
@@ -112,7 +112,7 @@ public final class InGameChatForm extends Form implements ChatListener {
     }
 
     private void refreshMessages() {
-        List<String> messages = Network.getMatchmakingClient().getInGameChatHistory();
+        List<String> messages = Renderer.getRenderer().getNetwork().getMatchmakingClient().getInGameChatHistory();
         chat_box.clear();
         for (int i = 0; i < messages.size(); i++) {
             if (i != 0)

@@ -20,8 +20,11 @@ public final class SliderButton extends ButtonObject {
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         GUIObject parent = getParent();
-        ModeIconQuads.Mode skinMode = parent.isDisabled() ? ModeIconQuads.Mode.DISABLED : (isHovered()
-                || parent.isActive()) ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+        ModeIconQuads.Mode skinMode = parent.isDisabled()
+                ? ModeIconQuads.Mode.DISABLED
+                : (isHovered() || parent.isActive())
+                        ? ModeIconQuads.Mode.ACTIVE
+                : ModeIconQuads.Mode.NORMAL;
 
         renderer.drawModeIcon(button, skinMode, 0, 0);
     }

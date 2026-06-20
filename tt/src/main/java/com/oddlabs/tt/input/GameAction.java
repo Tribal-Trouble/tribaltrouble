@@ -54,6 +54,9 @@ public enum GameAction {
     UNIT_EXIT_TOWER,
     UNIT_BEACON,
     UNIT_NEXT_IDLE,
+    UNIT_ADD_IDLE,
+    UNIT_ALL_IDLE,
+    UNIT_ADD_ALL_IDLE,
     UNIT_SET_RALLY,
     GAMEPLAY_BACK,
 
@@ -134,6 +137,9 @@ public enum GameAction {
     CHEAT_7,
     CHEAT_8,
     CHEAT_9,
+    CHEAT_10,
+    CHEAT_11,
+    CHEAT_12,
 
     DEBUG_PRINT_INFO,
     DEBUG_KILL_SELECTED,

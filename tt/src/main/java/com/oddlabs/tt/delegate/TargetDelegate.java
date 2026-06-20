@@ -10,12 +10,17 @@ import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
-public class TargetDelegate extends ControllableCameraDelegate {
+public class TargetDelegate extends ControllableCameraDelegate<GameCamera> {
     private final @NonNull Action action;
 
     public TargetDelegate(@NonNull WorldViewer viewer, @NonNull GameCamera camera, @NonNull Action action) {
         super(viewer, camera);
         this.action = action;
+    }
+
+    @Override
+    protected void pushZoomDelegate() {
+        getGUIRoot().pushDelegate(new ZoomDelegate(getViewer(), getCamera()));
     }
 
     @Override
@@ -30,9 +35,6 @@ public class TargetDelegate extends ControllableCameraDelegate {
 
     @Override
     public void handleInput(@NonNull InputEvent event) {
-        // Prevent base GUIObject from handling UI_ACTIVATE (Space/Return as Click)
-        event.consumeAction(GameAction.UI_ACTIVATE);
-
         if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
             if (event.consumeAction(GameAction.UI_CANCEL)) {
                 pop();
@@ -40,7 +42,6 @@ public class TargetDelegate extends ControllableCameraDelegate {
                 return;
             }
         }
-
         super.handleInput(event);
         if (event.isConsumed()) return;
     }
@@ -48,9 +49,9 @@ public class TargetDelegate extends ControllableCameraDelegate {
     @Override
     public void mousePressed(@NonNull MouseButton button, int x, int y) {
         if (button == MouseButton.LEFT) {
-            getViewer().getPicker().pickTarget(getViewer().getSelection().getCurrentSelection(),
-                    getViewer().getGUIRoot().getDelegate().getCamera().getState(),
-                    getViewer().getPeerHub().getPlayerInterface(), x, y, action);
+            getViewer().getPicker().pickTarget(getViewer().getSelection().getCurrentSelection(), getViewer()
+                    .getGUIRoot().getDelegate().getCamera().getState(), getViewer().getPeerHub().getPlayerInterface(),
+                    x, y, action);
             pop();
         } else {
             super.mousePressed(button, x, y);

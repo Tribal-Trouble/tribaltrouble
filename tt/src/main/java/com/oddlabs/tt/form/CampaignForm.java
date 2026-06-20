@@ -1,8 +1,9 @@
 package com.oddlabs.tt.form;
 
+import com.oddlabs.tt.model.Race;
+
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.Menu;
-import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.Form;
@@ -32,7 +33,8 @@ import java.util.logging.Logger;
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 
-public final class CampaignForm extends Form implements DeterministicSerializerLoopbackInterface<@NonNull CampaignState[]> {
+public final class CampaignForm extends Form implements DeterministicSerializerLoopbackInterface<
+        @NonNull CampaignState[]> {
     private static final Logger logger = Logger.getLogger(CampaignForm.class.getSimpleName());
 
     private final @NonNull HorizButton button_vikings;
@@ -120,8 +122,9 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
     }
 
     public void load(@NonNull CampaignState campaign_state) {
-        Campaign campaign = campaign_state.getRace() == CampaignState.RACE_VIKINGS ? new VikingCampaign(network,
-                gui_root, campaign_state) : new NativeCampaign(network, gui_root, campaign_state);
+        Campaign campaign = campaign_state.getRace() == Race.VIKINGS
+                ? new VikingCampaign(network, gui_root, campaign_state)
+                : new NativeCampaign(network, gui_root, campaign_state);
         setDisabled(true);
         if (campaign_state.getIslandState(0) == CampaignState.ISLAND_COMPLETED) {
             campaign.pushDelegate(network, gui_root.getGUI());
@@ -157,7 +160,7 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
         } else if (e instanceof InvalidClassException) {
         } else {
             logger.log(Level.SEVERE, "Load failed", e);
-            String failed_message = i18n("failed_message", Globals.getSavegamesFileName(), e.getMessage());
+            String failed_message = i18n("failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
             gui_root.addModalForm(new MessageForm(failed_message));
         }
     }

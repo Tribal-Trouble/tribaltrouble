@@ -4,12 +4,16 @@ import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.BuildingFinder;
 import com.oddlabs.tt.model.Supply;
+import com.oddlabs.tt.model.SupplyType;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FinderTrackerAlgorithm;
 import com.oddlabs.tt.pathfinder.TargetTrackerAlgorithm;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Controller that coordinates peon gathering loop: moving to a resource, harvesting it, and dropping it off.
+ */
 public final class GatherController<S extends Supply> extends Controller {
     private enum State {
         HARVEST,
@@ -17,38 +21,38 @@ public final class GatherController<S extends Supply> extends Controller {
     }
 
     private final @NonNull Unit unit;
-    private final @NonNull Class<S> supply_type;
+    private final @NonNull SupplyType supplyType;
     private @Nullable S supply;
     private @Nullable FinderTrackerAlgorithm<Building> building_tracker;
 
-    public GatherController(@NonNull Unit unit, @Nullable S supply, @NonNull Class<S> supply_type) {
+    public GatherController(@NonNull Unit unit, @Nullable S supply, @NonNull SupplyType supplyType) {
         super(State.values().length);
         this.unit = unit;
         this.supply = supply;
-        this.supply_type = supply_type;
+        this.supplyType = supplyType;
     }
 
-    public @NonNull Class<S> getSupplyType() {
-        return supply_type;
+    public @NonNull SupplyType getSupplyType() {
+        return supplyType;
     }
 
     @Override
     public @NonNull String getKey() {
-        return super.getKey() + supply_type;
+        return super.getKey() + supplyType;
     }
 
     private void gather() {
-        resetGiveUpCounter(State.DROPOFF.ordinal());
+        resetGiveUpCounter(State.DROPOFF);
         if (supply != null && supply.isDead()) {
             supply = null;
-            resetGiveUpCounter(State.HARVEST.ordinal());
+            resetGiveUpCounter(State.HARVEST);
         }
 
         if (supply != null && unit.isCloseEnough(unit.getRange(supply), supply)) {
-            unit.pushController(new HarvestController<>(unit, supply, supply_type));
-        } else if (!shouldGiveUp(State.HARVEST.ordinal())) {
+            unit.pushController(new HarvestController<>(unit, supply, supplyType));
+        } else if (!shouldGiveUp(State.HARVEST)) {
             if (supply == null) {
-                unit.pushController(new HarvestController<>(unit, supply, supply_type));
+                unit.pushController(new HarvestController<>(unit, supply, supplyType));
             } else {
                 TargetTrackerAlgorithm supply_tracker = new TargetTrackerAlgorithm(unit.getUnitGrid(), 0f, supply);
                 unit.setBehaviour(new WalkBehaviour(unit, supply_tracker, false));
@@ -59,20 +63,22 @@ public final class GatherController<S extends Supply> extends Controller {
     }
 
     private void dropoff() {
-        resetGiveUpCounter(State.HARVEST.ordinal());
+        resetGiveUpCounter(State.HARVEST);
         if (building_tracker != null && building_tracker.getOccupant() != null && unit.isCloseEnough(0f,
                 building_tracker.getOccupant())) {
             Building building = building_tracker.getOccupant();
-            Class<? extends Supply> unit_supply_type = unit.getSupplyContainer().getSupplyType();
-            int num_supplies = building.getSupplyContainer(unit_supply_type).increaseSupply(
-                    unit.getSupplyContainer().getNumSupplies());
-            unit.getSupplyContainer().increaseSupply(-num_supplies, unit_supply_type);
+            unit.getSupplyContainer().getSupplyType().ifPresent(unit_supply_type -> {
+                int num_supplies = building.getSupplyContainer(unit_supply_type).orElseThrow().increaseSupply(unit
+                        .getSupplyContainer()
+                        .getNumSupplies());
+                unit.getSupplyContainer().increaseSupply(-num_supplies, unit_supply_type);
+            });
             if (unit.getSupplyContainer().getNumSupplies() > 0) {
                 unit.popController();
                 unit.pushController(new EnterController(unit, building));
             } else
                 gather();
-        } else if (!shouldGiveUp(State.DROPOFF.ordinal())) {
+        } else if (!shouldGiveUp(State.DROPOFF)) {
             building_tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new BuildingFinder(unit.getOwner(),
                     Abilities.SUPPLY_CONTAINER));
             unit.setBehaviour(new WalkBehaviour(unit, building_tracker, false));
@@ -83,8 +89,8 @@ public final class GatherController<S extends Supply> extends Controller {
 
     @Override
     public void decide() {
-        if (unit.getSupplyContainer().getNumSupplies() > 0
-                && unit.getSupplyContainer().getSupplyType() == supply_type) {
+        if (unit.getSupplyContainer().getNumSupplies() > 0 && unit.getSupplyContainer().getSupplyType().orElse(null)
+                == supplyType) {
             dropoff();
         } else {
             gather();

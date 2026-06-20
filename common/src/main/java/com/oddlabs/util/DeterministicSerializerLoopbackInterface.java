@@ -3,9 +3,11 @@ package com.oddlabs.util;
 import org.jspecify.annotations.NonNull;
 
 public interface DeterministicSerializerLoopbackInterface<T> {
-    void saveSucceeded();
+    default void saveSucceeded() {
+    }
 
-    void loadSucceeded(T object);
+    default void loadSucceeded(@NonNull T object) {
+    }
 
     void failed(@NonNull Throwable e);
 }

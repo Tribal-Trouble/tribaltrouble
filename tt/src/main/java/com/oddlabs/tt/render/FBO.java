@@ -1,13 +1,33 @@
 package com.oddlabs.tt.render;
 
+import com.oddlabs.tt.render.state.RenderContext;
+import com.oddlabs.tt.resource.NativeResource;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 
-public final class FBO implements AutoCloseable {
-    private int id;
+/**
+ * Wraps a native Framebuffer Object
+ */
+public final class FBO extends NativeResource<FBO.Buffer> {
+
+    static final class Buffer extends NativeResource.NativeState {
+
+        private final int handle;
+
+        Buffer() {
+            handle = GL30.glGenFramebuffers();
+        }
+
+        @Override
+        public void close() {
+            Renderer.getRenderer().getRenderContext().invalidateFramebuffer(handle);
+            GL30.glDeleteFramebuffers(handle);
+        }
+    }
+
     private int width;
     private int height;
     private @Nullable Texture colorTexture;
@@ -15,9 +35,9 @@ public final class FBO implements AutoCloseable {
     private @Nullable Texture depthTexture;
 
     public FBO(int width, int height) {
+        super(new Buffer());
         this.width = width;
         this.height = height;
-        this.id = GL30.glGenFramebuffers();
     }
 
     public static @NonNull FBO createSceneFBO(int width, int height) {
@@ -43,7 +63,8 @@ public final class FBO implements AutoCloseable {
         fbo.depthTexture = depth;
 
         // Explicitly declare draw buffers
-        GL30.glDrawBuffers(new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1});
+        Renderer.getRenderer().getRenderContext().setDrawBuffers(new int[]{GL30.GL_COLOR_ATTACHMENT0,
+                GL30.GL_COLOR_ATTACHMENT1});
 
         fbo.checkStatus();
         fbo.unbind();
@@ -51,7 +72,6 @@ public final class FBO implements AutoCloseable {
     }
 
     public void resize(int width, int height) {
-        if (width <= 0 || height <= 0) return;
         if (this.width == width && this.height == height) return;
         this.width = width;
         this.height = height;
@@ -75,24 +95,49 @@ public final class FBO implements AutoCloseable {
         }
 
         bind();
+        var context = Renderer.getRenderer().getRenderContext();
         if (colorTexture != null) attachTexture(GL30.GL_COLOR_ATTACHMENT0, colorTexture);
         if (maskTexture != null) attachTexture(GL30.GL_COLOR_ATTACHMENT1, maskTexture);
         if (depthTexture != null) attachTexture(GL30.GL_DEPTH_ATTACHMENT, depthTexture);
 
-        // Restore draw buffers state after resize/rebind
-        GL30.glDrawBuffers(new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1});
+        // Restore draw buffers state after resize/rebind (if we have color attachments)
+        if (colorTexture != null || maskTexture != null) {
+            context.setDrawBuffers(new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1});
+        } else {
+            context.setDrawBuffers(new int[]{GL11.GL_NONE});
+            GL11.glReadBuffer(GL11.GL_NONE);
+        }
 
         checkStatus();
         unbind();
     }
 
+    public void bind(@NonNull RenderContext context) {
+        context.bindFramebuffer(GL30.GL_FRAMEBUFFER, getHandle());
+        context.setViewport(0, 0, width, height);
+    }
+
     public void bind() {
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, id);
-        GL11.glViewport(0, 0, width, height);
+        bind(Renderer.getRenderer().getRenderContext());
     }
 
     public void unbind() {
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+        unbind(Renderer.getRenderer().getRenderContext());
+    }
+
+    public void unbind(@NonNull RenderContext context) {
+        context.bindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+    }
+
+    public void detachAll() {
+        bind();
+        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL11.GL_TEXTURE_2D, 0, 0);
+        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT1, GL11.GL_TEXTURE_2D, 0, 0);
+        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL11.GL_TEXTURE_2D, 0, 0);
+        colorTexture = null;
+        maskTexture = null;
+        depthTexture = null;
+        unbind();
     }
 
     public @Nullable Texture getColorTexture() {
@@ -107,6 +152,16 @@ public final class FBO implements AutoCloseable {
         return depthTexture;
     }
 
+    public void blitDepthTo(@NonNull FBO target) {
+        var context = Renderer.getRenderer().getRenderContext();
+        context.bindFramebuffer(GL30.GL_READ_FRAMEBUFFER, getHandle());
+        context.bindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, target.getHandle());
+        GL30.glBlitFramebuffer(0, 0, width, height, 0, 0, target.width, target.height,
+                GL11.GL_DEPTH_BUFFER_BIT, GL11.GL_NEAREST);
+        // Bind back to original target
+        context.bindFramebuffer(GL30.GL_FRAMEBUFFER, getHandle());
+    }
+
     public void attachTexture(int attachmentPoint, @NonNull Texture texture) {
         attachTexture(attachmentPoint, texture, 0);
     }
@@ -114,12 +169,15 @@ public final class FBO implements AutoCloseable {
     public void attachTexture(int attachmentPoint, @NonNull Texture texture, int level) {
         GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, attachmentPoint, GL11.GL_TEXTURE_2D, texture.getHandle(),
                 level);
+        if (attachmentPoint == GL30.GL_COLOR_ATTACHMENT0) colorTexture = texture;
+        else if (attachmentPoint == GL30.GL_COLOR_ATTACHMENT1) maskTexture = texture;
+        else if (attachmentPoint == GL30.GL_DEPTH_ATTACHMENT) depthTexture = texture;
     }
 
     public void checkStatus() {
         int status = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
         if (status != GL30.GL_FRAMEBUFFER_COMPLETE) {
-            throw new RuntimeException("Framebuffer is incomplete: " + status);
+            throw new IllegalStateException("Framebuffer is incomplete: " + status);
         }
     }
 
@@ -131,11 +189,25 @@ public final class FBO implements AutoCloseable {
         return height;
     }
 
+    public int getHandle() {
+        return state.handle;
+    }
+
     @Override
     public void close() {
-        if (id != 0) {
-            GL30.glDeleteFramebuffers(id);
-            id = 0;
+        super.close();
+
+        if (colorTexture != null) {
+            colorTexture.close();
+            colorTexture = null;
+        }
+        if (maskTexture != null) {
+            maskTexture.close();
+            maskTexture = null;
+        }
+        if (depthTexture != null) {
+            depthTexture.close();
+            depthTexture = null;
         }
     }
 }

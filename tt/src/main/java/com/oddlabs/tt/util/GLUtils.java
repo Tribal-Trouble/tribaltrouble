@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class GLUtils {
+    private static final boolean DEBUG = Boolean.getBoolean("com.oddlabs.tt.developer");
     private static final Logger logger = Logger.getLogger(GLUtils.class.getSimpleName());
     public static final String SCREENSHOT_DEFAULT = "screenshot";
 
@@ -24,8 +25,8 @@ public final class GLUtils {
             do {
                 filename = SCREENSHOT_DEFAULT + "000000";
                 String number = "" + i;
-                filename = System.getProperty("user.home") + File.separator + filename.substring(0,
-                        filename.length() - number.length()) + number + ".bmp";
+                filename = System.getProperty("user.home") + File.separator + filename.substring(0, filename.length()
+                        - number.length()) + number + ".bmp";
                 file = new File(filename);
                 i++;
             } while (file.exists());
@@ -69,14 +70,17 @@ public final class GLUtils {
      * @return A list of error codes found.
      */
     public static @NonNull List<Integer> checkGLError(@NonNull String message) {
-        List<Integer> errors = new ArrayList<>();
-        int error;
-        while ((error = GL11.glGetError()) != GL11.GL_NO_ERROR) {
-            logger.log(Level.WARNING, "OpenGL Error (" + message + "): " + errorToString(error), new Throwable(
-                    "stacktrace"));
-            errors.add(error);
+        List<Integer> errors = null;
+        if (DEBUG) {
+            int error;
+            while ((error = GL11.glGetError()) != GL11.GL_NO_ERROR) {
+                logger.log(Level.WARNING, "OpenGL Error (" + message + "): " + errorToString(error), new Throwable(
+                        "stacktrace"));
+                if (errors == null) errors = new ArrayList<>();
+                errors.add(error);
+            }
         }
-        return errors;
+        return null == errors ? List.of() : errors;
     }
 
     /**

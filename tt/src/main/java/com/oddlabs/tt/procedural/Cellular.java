@@ -6,27 +6,36 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.Random;
 
+/**
+ * Procedural texture generator using cellular automata or Worley noise algorithms.
+ */
 public final class Cellular {
+    // hitpoint distribution
+    public enum Distribution {
+        SINGULAR,
+        HEXAGONAL
+    }
+
+    // distance metrics
+    public enum Metric {
+        NORMAL,
+        OVAL,
+        SQUARE,
+        MANHATTAN,
+        EUCLIDEAN
+    }
+
+    // value type
+    public enum Value {
+        DISTANCE,
+        HITPOINT,
+        HITCLIP
+    }
+
     // coordinate indexing
     public static final int X = 0;
     public static final int Y = 1;
     public static final int SEED = 2;
-
-    // hitpoint distribution
-    public static final int SINGULAR = 0;
-    public static final int HEXAGONAL = 1;
-
-    // distance metrics
-    public static final int NORMAL = 0;
-    public static final int OVAL = 1;
-    public static final int SQUARE = 2;
-    public static final int MANHATTAN = 3;
-    public static final int EUCLIDEAN = 4;
-
-    // value type
-    public static final int DISTANCE = 0;
-    public static final int HITPOINT = 1;
-    public static final int HITCLIP = 2;
 
     private final @NonNull Random random;
     public Channel channel;
@@ -35,7 +44,8 @@ public final class Cellular {
     public Channel dist3;
 
     public Cellular(int width, int height, int x_order, int y_order, int checkradius, float randomness,
-            float[] coefficients, long seed, int distribution_type, int metric_type, int value_type) {
+            float[] coefficients, long seed, @NonNull Distribution distribution_type, @NonNull Metric metric_type,
+            @NonNull Value value_type) {
         x_order = Math.max(1, x_order);
         y_order = Math.max(1, y_order);
         checkradius = Math.max(1, checkradius);
@@ -47,30 +57,33 @@ public final class Cellular {
 
         // fill in hitpoints according to distribution_type
         switch (distribution_type) {
-            case SINGULAR:
+            case SINGULAR -> {
                 for (int j = 0; j < y_order; j++) {
                     for (int i = 0; i < x_order; i++) {
-                        domains[i][j][X] = (1 - randomness) * ((i + 0.5f) / x_order) + randomness * ((i + random.nextFloat()) / x_order);
-                        domains[i][j][Y] = (1 - randomness) * ((j + 0.5f) / y_order) + randomness * ((j + random.nextFloat()) / y_order);
+                        domains[i][j][X] = (1 - randomness) * ((i + 0.5f) / x_order) + randomness * ((i + random
+                                .nextFloat()) / x_order);
+                        domains[i][j][Y] = (1 - randomness) * ((j + 0.5f) / y_order) + randomness * ((j + random
+                                .nextFloat()) / y_order);
                         domains[i][j][SEED] = random.nextFloat();
                     }
                 }
-                break;
-            case HEXAGONAL:
+            }
+            case HEXAGONAL -> {
                 for (int j = 0; j < y_order; j++) {
                     for (int i = 0; i < x_order; i++) {
                         if ((j & 0x1) == 0) {
-                            domains[i][j][X] = (1 - randomness) * ((float) i / x_order) + randomness * ((i + random.nextFloat()) / x_order);
+                            domains[i][j][X] = (1 - randomness) * ((float) i / x_order) + randomness * ((i + random
+                                    .nextFloat()) / x_order);
                         } else {
-                            domains[i][j][X] = (1 - randomness) * ((i + 0.5f) / x_order) + randomness * ((i + random.nextFloat()) / x_order);
+                            domains[i][j][X] = (1 - randomness) * ((i + 0.5f) / x_order) + randomness * ((i + random
+                                    .nextFloat()) / x_order);
                         }
-                        domains[i][j][Y] = (1 - randomness) * ((float) j / y_order) + randomness * ((j + random.nextFloat()) / y_order);
+                        domains[i][j][Y] = (1 - randomness) * ((float) j / y_order) + randomness * ((j + random
+                                .nextFloat()) / y_order);
                         domains[i][j][SEED] = random.nextFloat();
                     }
                 }
-                break;
-            default:
-                assert false : "incorrect distribution_type";
+            }
         }
 
         // create image
@@ -131,28 +144,16 @@ public final class Cellular {
                         dy *= y_order;
 
                         // metric type
-                        switch (metric_type) {
-                            case NORMAL:
-                                dist = dx * dx + dy * dy;
-                                break;
-                            case OVAL:
-                                dist = dx * dx * dx + dy * dy * dy;
-                                break;
-                            case SQUARE:
-                                dist = dx * dx * dx * dx + dy * dy * dy * dy;
-                                break;
-                            case MANHATTAN:
-                                dist = dx + dy;//Math.max(dx, dy);
-                                break;
-                            case EUCLIDEAN:
-                                dist = (float) Math.sqrt(dx * dx + dy * dy);
-                                break;
-                            default:
-                                assert false : "incorrect metric_type";
-                        }
+                        dist = switch (metric_type) {
+                            case NORMAL -> dx * dx + dy * dy;
+                            case OVAL -> dx * dx * dx + dy * dy * dy;
+                            case SQUARE -> dx * dx * dx * dx + dy * dy * dy * dy;
+                            case MANHATTAN -> dx + dy;//Math.max(dx, dy);
+                            case EUCLIDEAN -> (float) Math.hypot(dx, dy);
+                        };
 
                         // maintain F1, F2, F3 and nearest hit point values
-                        if (value_type == DISTANCE) {
+                        if (value_type == Value.DISTANCE) {
                             if (dist <= min1) {
                                 min3 = min2;
                                 min2 = min1;
@@ -183,23 +184,19 @@ public final class Cellular {
 
                 // calculate final pixel values
                 switch (value_type) {
-                    case DISTANCE:
-                        channel.putPixel(x, y,
-                                coefficients[0] * min1 + coefficients[1] * min2 + coefficients[2] * min3);
-                        break;
-                    case HITPOINT:
-                        channel.putPixel(x, y,
-                                coefficients[0] * hitpoint1 + coefficients[1] * hitpoint2 + coefficients[2] * hitpoint3);
-                        break;
-                    case HITCLIP:
+                    case DISTANCE ->
+                        channel.putPixel(x, y, coefficients[0] * min1 + coefficients[1] * min2 + coefficients[2]
+                                * min3);
+                    case HITPOINT ->
+                        channel.putPixel(x, y, coefficients[0] * hitpoint1 + coefficients[1] * hitpoint2
+                                + coefficients[2] * hitpoint3);
+                    case HITCLIP -> {
                         if (coefficients[0] * min1 + coefficients[1] * min2 + coefficients[2] * min3 < pixelwidth) {
                             channel.putPixel(x, y, 0f);
                         } else {
                             channel.putPixel(x, y, 1f);
                         }
-                        break;
-                    default:
-                        assert false : "incorrect value_type";
+                    }
                 }
             }
         }

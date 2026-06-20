@@ -29,11 +29,11 @@ public final class GLByteImage extends GLImage {
 
     public GLByteImage(@NonNull Channel channel, int format) {
         this(channel.getWidth(), channel.getHeight(), format);
-        for (int y = 0; y < getHeight(); y++) {
-            for (int x = 0; x < getWidth(); x++) {
-                int pixel = Math.round(channel.getPixel(x, y) * 255);
-                putPixel(x, y, Math.clamp(pixel, 0, 255));
-            }
+        float[] pixels = channel.getPixels();
+        ByteBuffer buffer = getPixels();
+        for (int i = 0; i < pixels.length; i++) {
+            int pixel = Math.round(pixels[i] * 255);
+            buffer.put(i, (byte) Math.clamp(pixel, 0, 255));
         }
     }
 
@@ -53,6 +53,23 @@ public final class GLByteImage extends GLImage {
             sourceChannel = layer.r;
         }
         return new GLByteImage(sourceChannel, format);
+    }
+
+    public @NonNull Channel toChannel() {
+        Channel channel = new Channel(getWidth(), getHeight());
+        float[] dest = channel.getPixels();
+        ByteBuffer source = getPixels();
+        for (int i = 0; i < dest.length; i++) {
+            dest[i] = (source.get(i) & 0xff) / 255f;
+        }
+        return channel;
+    }
+
+    @Override
+    public @NonNull GLImage scale(int newWidth, int newHeight) {
+        return newWidth == getWidth() && newHeight == getHeight()
+                ? this
+                : new GLByteImage(toChannel().scale(newWidth, newHeight), getGLFormat());
     }
 
     @Override

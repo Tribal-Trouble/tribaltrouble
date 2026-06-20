@@ -3,6 +3,9 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * A 9-patch box definition for GUI background and border rendering.
+ */
 public final class Box {
     private final @NonNull ModeIconQuads left_bottom;
     private final @NonNull ModeIconQuads bottom;
@@ -88,5 +91,57 @@ public final class Box {
 
     public int getTopOffset() {
         return top_offset;
+    }
+
+    public @NonNull ModeIconQuads getLeftBottom() {
+        return left_bottom;
+    }
+
+    public @NonNull ModeIconQuads getBottom() {
+        return bottom;
+    }
+
+    public @NonNull ModeIconQuads getRightBottom() {
+        return right_bottom;
+    }
+
+    public @NonNull ModeIconQuads getRight() {
+        return right;
+    }
+
+    public @NonNull ModeIconQuads getRightTop() {
+        return right_top;
+    }
+
+    public @NonNull ModeIconQuads getTop() {
+        return top;
+    }
+
+    public @NonNull ModeIconQuads getLeftTop() {
+        return left_top;
+    }
+
+    public @NonNull ModeIconQuads getLeft() {
+        return left;
+    }
+
+    public @NonNull ModeIconQuads getCenter() {
+        return center;
+    }
+
+    public int getLeftWidth() {
+        return left_width;
+    }
+
+    public int getRightWidth() {
+        return right_width;
+    }
+
+    public int getBottomHeight() {
+        return bottom_height;
+    }
+
+    public int getTopHeight() {
+        return top_height;
     }
 }

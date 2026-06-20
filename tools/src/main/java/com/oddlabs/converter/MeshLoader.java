@@ -20,8 +20,8 @@ public final class MeshLoader {
     private MeshLoader() {
     }
 
-    public static @NonNull ModelInfo loadMesh(@NonNull Path file,
-            @Nullable Map<@NonNull String, @NonNull Bone> name_to_bone_map, float scale) {
+    public static @NonNull ModelInfo loadMesh(@NonNull Path file, @Nullable Map<@NonNull String,
+            @NonNull Bone> name_to_bone_map, float scale) {
         try (var input_stream = Files.newInputStream(file)) {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setValidating(true);

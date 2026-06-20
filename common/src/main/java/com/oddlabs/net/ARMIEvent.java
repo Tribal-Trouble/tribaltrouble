@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.io.Serial;
 import java.io.Serializable;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.nio.ByteBuffer;
@@ -27,8 +28,8 @@ public final class ARMIEvent implements Serializable {
         return createProxy(broker, default_writer, armi_interface);
     }
 
-    public static @NonNull Object createProxy(ARMIEventWriter broker, ARMIArgumentWriter writer,
-            @NonNull Class<?> armi_interface) {
+    public static @NonNull Object createProxy(ARMIEventWriter broker, ARMIArgumentWriter writer, @NonNull Class<
+            ?> armi_interface) {
         ARMIInterfaceMethods armi_interface_methods = new ARMIInterfaceMethods(armi_interface);
         ARMIInvocationHandler handler = new ARMIInvocationHandler(broker, writer, armi_interface_methods);
         return Proxy.newProxyInstance(ARMIEvent.class.getClassLoader(), new Class<?>[]{armi_interface}, handler);
@@ -57,8 +58,8 @@ public final class ARMIEvent implements Serializable {
         return new ARMIEvent(method_id, command_stream);
     }
 
-    private static byte[] createByteArrayFromCommand(@NonNull ARMIArgumentWriter writer,
-            Class<?>[] method_parameter_types, Object @Nullable [] args) {
+    private static byte[] createByteArrayFromCommand(@NonNull ARMIArgumentWriter writer, Class<
+            ?>[] method_parameter_types, Object @Nullable [] args) {
         if (args != null) {
             try {
                 static_byte_stream.reset();
@@ -69,7 +70,7 @@ public final class ARMIEvent implements Serializable {
                 }
                 return static_byte_stream.toByteArray();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedIOException(e);
             }
         } else
             return null;
@@ -85,8 +86,8 @@ public final class ARMIEvent implements Serializable {
         this.command_stream = command_stream;
     }
 
-    private Object @Nullable [] parseArgs(@NonNull ARMIArgumentReader reader,
-            @NonNull Method method) throws IOException, ClassNotFoundException {
+    private Object @Nullable [] parseArgs(@NonNull ARMIArgumentReader reader, @NonNull Method method)
+            throws IOException, ClassNotFoundException {
         Class<?>[] parameter_types = method.getParameterTypes();
         int num_params = parameter_types.length;
         if (num_params == 0)
@@ -101,8 +102,8 @@ public final class ARMIEvent implements Serializable {
         return args;
     }
 
-    public void execute(@NonNull ARMIInterfaceMethods interface_methods,
-            @NonNull Object instance) throws IllegalARMIEventException {
+    public void execute(@NonNull ARMIInterfaceMethods interface_methods, @NonNull Object instance)
+            throws IllegalARMIEventException {
         execute(interface_methods, default_reader, instance);
     }
 
@@ -118,7 +119,7 @@ public final class ARMIEvent implements Serializable {
         Object[] args;
         try {
             args = parseArgs(reader, method);
-        } catch (Exception e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new IllegalARMIEventException(e);
         }
         interface_methods.invoke(instance, method, args);

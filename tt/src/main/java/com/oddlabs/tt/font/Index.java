@@ -3,11 +3,11 @@ package com.oddlabs.tt.font;
 import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.render.GUIRenderer;
-import org.joml.Vector4fc;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Text insertion point.
+ * Renders a blinking text insertion cursor (caret) for text input fields.
  */
 public final class Index implements Updatable<TimerAnimation> {
     public static final int INDEX_WIDTH = 1;
@@ -33,12 +33,12 @@ public final class Index implements Updatable<TimerAnimation> {
     }
 
     public static void renderIndex(@NonNull GUIRenderer renderer, int render_x, int render_y, @NonNull Font font,
-            @NonNull Vector4fc color) {
+            Color.@NonNull Linear color) {
         index.doRenderIndex(renderer, render_x, render_y, font, color);
     }
 
     private void doRenderIndex(@NonNull GUIRenderer renderer, int render_x, int render_y, @NonNull Font font,
-            @NonNull Vector4fc color) {
+            Color.@NonNull Linear color) {
         if (blink_on) {
             renderer.drawColoredQuad(render_x, render_y + 3, INDEX_WIDTH, font.getHeight() - 6, color);
         }

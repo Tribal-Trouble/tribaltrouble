@@ -1,95 +1,85 @@
 package com.oddlabs.tt.audio;
 
-import com.oddlabs.util.ByteBufferOutputStream;
+import com.oddlabs.tt.resource.NativeResource;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBVorbis;
 import org.lwjgl.stb.STBVorbisInfo;
 import org.lwjgl.system.MemoryStack;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-public final class OGGStream implements AutoCloseable {
-    private final long decoder;
-    private final int channels;
-    private final int sampleRate;
-    private final @NonNull ByteBuffer vorbisData; // Keep reference to prevent GC
+/**
+ * A stream used to decode OGG Vorbis audio data.
+ */
+public final class OGGStream extends NativeResource<OGGStream.Decoder> {
 
-    // Temp buffer for reading samples (4096 samples * 2 channels usually)
-    private final @NonNull ShortBuffer pcmBuffer;
+    protected static class Decoder extends NativeResource.NativeState {
+        // STBVorbis JNI wrapper doesn't appear to correctly hold a reference to the buffer, so we must hold one.
+        @SuppressWarnings("FieldCanBeLocal")
+        private final @NonNull ByteBuffer decoderData;
+        private final long decoder;
+        private final int channels;
+        private final int sampleRate;
 
-    public OGGStream(@NonNull URL file) throws IOException {
-        byte[] bytes = readAllBytes(file);
-        vorbisData = BufferUtils.createByteBuffer(bytes.length);
-        vorbisData.put(bytes);
-        vorbisData.flip();
+        private Decoder(byte @NonNull [] vorbis) throws IOException {
+            decoderData = BufferUtils.createByteBuffer(vorbis.length);
+            decoderData.put(vorbis);
+            decoderData.flip();
 
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            IntBuffer error = stack.mallocInt(1);
-            decoder = STBVorbis.stb_vorbis_open_memory(vorbisData, error, null);
-            if (decoder == 0) {
-                throw new IOException("Failed to open OGG Vorbis file. Error: " + error.get(0));
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                IntBuffer error = stack.mallocInt(1);
+                decoder = STBVorbis.stb_vorbis_open_memory(decoderData, error, null);
+                if (decoder == 0) {
+                    throw new IOException("Failed to open OGG Vorbis file. Error: " + error.get(0));
+                }
+
+                STBVorbisInfo info = STBVorbisInfo.malloc(stack);
+                STBVorbis.stb_vorbis_get_info(decoder, info);
+                this.channels = info.channels();
+                this.sampleRate = info.sample_rate();
             }
-
-            STBVorbisInfo info = STBVorbisInfo.malloc(stack);
-            STBVorbis.stb_vorbis_get_info(decoder, info);
-            this.channels = info.channels();
-            this.sampleRate = info.sample_rate();
         }
 
-        // Allocate reasonable chunk size (e.g. 4096 frames)
-        pcmBuffer = BufferUtils.createShortBuffer(4096 * channels);
+
+        @Override
+        public void close() {
+            STBVorbis.stb_vorbis_close(decoder);
+        }
     }
 
-    private static byte[] readAllBytes(@NonNull URL url) throws IOException {
-        try (InputStream is = url.openStream(); ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
-            int nRead;
-            byte[] data = new byte[16384];
-            while ((nRead = is.read(data, 0, data.length)) != -1) {
-                buffer.write(data, 0, nRead);
-            }
-            return buffer.toByteArray();
+    public OGGStream(@NonNull URL source) throws IOException {
+        this(source.openStream());
+    }
+
+    /** Reads OGG from the stream and in all cases closes the stream */
+    public OGGStream(@NonNull InputStream stream) throws IOException {
+        byte[] bytes;
+        try (stream) {
+            bytes = stream.readAllBytes();
         }
+        this(bytes);
+    }
+
+    public OGGStream(byte @NonNull [] bytes) throws IOException {
+        super(new Decoder(bytes));
     }
 
     public int getChannels() {
-        return channels;
+        return state.channels;
     }
 
     public int getRate() {
-        return sampleRate;
+        return state.sampleRate;
     }
 
-    public int read(@NonNull ByteBufferOutputStream output) {
-        int samplesRead = STBVorbis.stb_vorbis_get_samples_short_interleaved(decoder, channels, pcmBuffer);
-
-        if (samplesRead > 0) {
-            int totalSamples = samplesRead * channels;
-            // Write to output stream
-            // ByteBufferOutputStream writes bytes. We need to convert shorts to bytes in Native Order.
-            boolean littleEndian = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
-
-            for (int i = 0; i < totalSamples; i++) {
-                short val = pcmBuffer.get(i);
-                if (littleEndian) {
-                    output.write((byte) (val & 0xFF));
-                    output.write((byte) ((val >> 8) & 0xFF));
-                } else {
-                    output.write((byte) ((val >> 8) & 0xFF));
-                    output.write((byte) (val & 0xFF));
-                }
-            }
-            return totalSamples * 2; // bytes written
-        }
-
-        return 0;
+    public void seek(int sample) {
+        STBVorbis.stb_vorbis_seek(state.decoder, sample);
     }
 
     /**
@@ -99,15 +89,16 @@ public final class OGGStream implements AutoCloseable {
      * @return The number of short values written to the buffer.
      */
     public int read(@NonNull ShortBuffer buffer) {
-        int samplesPerChannelRequest = buffer.remaining() / channels;
-        int samplesRead = STBVorbis.stb_vorbis_get_samples_short_interleaved(decoder, channels, buffer);
-        return samplesRead * channels;
+        assert buffer.position() == 0 && buffer.hasRemaining()
+                : "Buffer must have remaining space and be at position 0";
+        int samplesPerChannelRequest = buffer.remaining() / state.channels;
+        int samplesRead = STBVorbis.stb_vorbis_get_samples_short_interleaved(state.decoder, state.channels, buffer);
+        buffer.position(samplesRead * state.channels);
+        return samplesRead * state.channels;
     }
 
     @Override
     public void close() {
-        if (decoder != 0) {
-            STBVorbis.stb_vorbis_close(decoder);
-        }
+        super.close();
     }
 }

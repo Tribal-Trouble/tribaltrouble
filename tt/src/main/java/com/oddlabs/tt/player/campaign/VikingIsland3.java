@@ -1,26 +1,33 @@
 package com.oddlabs.tt.player.campaign;
 
+import com.oddlabs.tt.model.Race;
+
+import com.oddlabs.tt.model.Difficulty;
+
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.form.InGameCampaignDialogForm;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.landscape.HeightMap;
-import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.SceneryModel;
+import com.oddlabs.tt.model.Terrain;
 import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.UnitInfo;
-import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.trigger.campaign.GameStartedTrigger;
 import com.oddlabs.tt.trigger.campaign.VictoryTrigger;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
+import com.oddlabs.tt.render.VisualRegistry;
 
 import java.util.ResourceBundle;
 import java.util.stream.IntStream;
 
+/**
+ * Campaign level logic for Viking Island 3, containing objectives and triggers.
+ */
 public final class VikingIsland3 extends Island {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland3.class.getName());
 
@@ -34,13 +41,15 @@ public final class VikingIsland3 extends Island {
 
     @Override
     public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-        String[] ai_names = IntStream.range(0, 6).mapToObj(i -> i18n("name" + i)).toArray(String[]::new);
+        String[] ai_names = IntStream.range(0, 6)
+                .mapToObj(i -> i18n("name" + i))
+                .toArray(String[]::new);
         // gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
-        GameNetwork game_network = startNewGame(network, gui_root, 512, Landscape.TerrainType.NATIVE, .75f, 1f, .5f,
+        GameNetwork game_network = startNewGame(network, gui_root, 512, Terrain.NATIVE, .75f, 1f, .5f,
                 96443, 3, VikingCampaign.MAX_UNITS, ai_names);
         game_network.getClient().getServerInterface().setPlayerSlot(0,
                 PlayerSlot.HUMAN,
-                RacesResources.RACE_VIKINGS,
+                Race.VIKINGS.getValue(),
                 0,
                 true,
                 PlayerSlot.AI_NONE);
@@ -52,15 +61,15 @@ public final class VikingIsland3 extends Island {
                         getCampaign().getState().getNumRubberWarriors()));
         int ai_difficulty;
         int ai_peons = switch (getCampaign().getState().getDifficulty()) {
-            case CampaignState.DIFFICULTY_EASY -> {
+            case Difficulty.EASY -> {
                 ai_difficulty = PlayerSlot.AI_NORMAL;
                 yield 2;
             }
-            case CampaignState.DIFFICULTY_NORMAL -> {
+            case Difficulty.NORMAL -> {
                 ai_difficulty = PlayerSlot.AI_HARD;
                 yield 5;
             }
-            case CampaignState.DIFFICULTY_HARD -> {
+            case Difficulty.HARD -> {
                 ai_difficulty = PlayerSlot.AI_HARD;
                 yield 15;
             }
@@ -68,7 +77,7 @@ public final class VikingIsland3 extends Island {
         };
         game_network.getClient().getServerInterface().setPlayerSlot(2,
                 PlayerSlot.AI,
-                RacesResources.RACE_NATIVES,
+                Race.NATIVES.getValue(),
                 1,
                 true,
                 ai_difficulty);
@@ -79,7 +88,7 @@ public final class VikingIsland3 extends Island {
     @Override
     protected void start() {
         Runnable runnable;
-        final Player enemy = getViewer().getWorld().getPlayers()[1];
+        final Player enemy = getViewer().getWorld().getPlayers().get(1);
 
         // Introduction
         runnable = () -> {
@@ -103,29 +112,30 @@ public final class VikingIsland3 extends Island {
         new VictoryTrigger(getViewer(), runnable);
 
         // Put warrior in tower
-        enemy.getAI().manTowers(1); // TODO: exchange with insertGuardTower()
+        enemy.getAI().ifPresent(ai -> ai.manTowers(1)); // TODO: exchange with insertGuardTower()
 
         // Insert treasures
+        var treasures = VisualRegistry.getInstance().getTreasures();
         float shadow_diameter = 2.6f;
 
         float offset = HeightMap.METERS_PER_UNIT_GRID / 2f;
         float dir = (float) Math.sin(Math.PI / 4);
-        new SceneryModel(getViewer().getWorld(), 134 * 2 + offset, 29 * 2 + offset, dir, -dir,
-                getViewer().getWorld().getRacesResources().getTreasures()[4], shadow_diameter, true, i18n("statue"));
-        new SceneryModel(getViewer().getWorld(), 130 * 2 + offset, 28 * 2 + offset, 0, -1,
-                getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, i18n("statue"));
-        new SceneryModel(getViewer().getWorld(), 130 * 2 + offset, 34 * 2 + offset, 0, 1,
-                getViewer().getWorld().getRacesResources().getTreasures()[3], shadow_diameter, true, i18n("statue"));
-        new SceneryModel(getViewer().getWorld(), 125 * 2 + offset, 37 * 2 + offset, 0, 1,
-                getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, i18n("statue"));
-        new SceneryModel(getViewer().getWorld(), 121 * 2 + offset, 32 * 2 + offset, -1, 0,
-                getViewer().getWorld().getRacesResources().getTreasures()[5], shadow_diameter, true, i18n("statue"));
-        new SceneryModel(getViewer().getWorld(), 124 * 2 + offset, 28 * 2 + offset, -dir, -dir,
-                getViewer().getWorld().getRacesResources().getTreasures()[3], shadow_diameter, true, i18n("statue"));
-        new SceneryModel(getViewer().getWorld(), 136 * 2 + offset, 38 * 2 + offset, dir, dir,
-                getViewer().getWorld().getRacesResources().getTreasures()[4], shadow_diameter, true, i18n("statue"));
-        new SceneryModel(getViewer().getWorld(), 139 * 2 + offset, 33 * 2 + offset, 1, 0,
-                getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, i18n("statue"));
+        new SceneryModel(getViewer().getWorld(), 134 * 2 + offset, 29 * 2 + offset, dir, -dir, treasures[4],
+                shadow_diameter, true, i18n("statue"));
+        new SceneryModel(getViewer().getWorld(), 130 * 2 + offset, 28 * 2 + offset, 0, -1, treasures[1],
+                shadow_diameter, true, i18n("statue"));
+        new SceneryModel(getViewer().getWorld(), 130 * 2 + offset, 34 * 2 + offset, 0, 1, treasures[3], shadow_diameter,
+                true, i18n("statue"));
+        new SceneryModel(getViewer().getWorld(), 125 * 2 + offset, 37 * 2 + offset, 0, 1, treasures[1], shadow_diameter,
+                true, i18n("statue"));
+        new SceneryModel(getViewer().getWorld(), 121 * 2 + offset, 32 * 2 + offset, -1, 0, treasures[5],
+                shadow_diameter, true, i18n("statue"));
+        new SceneryModel(getViewer().getWorld(), 124 * 2 + offset, 28 * 2 + offset, -dir, -dir, treasures[3],
+                shadow_diameter, true, i18n("statue"));
+        new SceneryModel(getViewer().getWorld(), 136 * 2 + offset, 38 * 2 + offset, dir, dir, treasures[4],
+                shadow_diameter, true, i18n("statue"));
+        new SceneryModel(getViewer().getWorld(), 139 * 2 + offset, 33 * 2 + offset, 1, 0, treasures[1], shadow_diameter,
+                true, i18n("statue"));
     }
 
     @Override

@@ -8,11 +8,17 @@ import com.oddlabs.tt.Main;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.animation.Updatable;
-import com.oddlabs.tt.audio.AbstractAudioPlayer;
 import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.audio.AudioParameters;
+import com.oddlabs.tt.audio.AudioPlayer;
+import com.oddlabs.tt.audio.openal.OpenALManager;
 import com.oddlabs.tt.camera.MenuCamera;
 import com.oddlabs.tt.delegate.MainMenu;
+import com.oddlabs.tt.camera.StaticCamera;
+import com.oddlabs.tt.delegate.InGameDelegate;
+import com.oddlabs.tt.delegate.InGameMainMenu;
+import com.oddlabs.tt.landscape.HeightMap;
+import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.MessageForm;
 import com.oddlabs.tt.form.ProgressForm;
@@ -24,15 +30,17 @@ import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Languages;
 import com.oddlabs.tt.gui.LocalInput;
-import com.oddlabs.tt.landscape.LandscapeResources;
 import com.oddlabs.tt.landscape.NotificationListener;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.landscape.WorldParameters;
+import com.oddlabs.tt.model.Terrain;
+import com.oddlabs.tt.net.Network;
+import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
-import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.state.GLRenderContext;
 import com.oddlabs.tt.render.state.RenderContext;
+import com.oddlabs.tt.resource.AudioAssets;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.resource.IslandGenerator;
@@ -48,7 +56,9 @@ import com.oddlabs.tt.vbo.VBO;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
+import com.oddlabs.tt.window.LWJGL3Window;
 import com.oddlabs.tt.window.Window;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -61,45 +71,98 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.ResourceBundle;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import static com.oddlabs.util.Utils.tryGetLoopbackAddress;
+
+/**
+ * The main rendering engine and application controller.
+ * Manages the game loop, window lifecycle, input handling, and audio coordination.
+ */
 public final class Renderer implements AutoCloseable {
-    private static final Logger logger = Logger.getLogger(Renderer.class.getName());
+    private static final Logger logger = Logger.getLogger(Renderer.class.getSimpleName());
+    private static final boolean DEBUG = Boolean.getBoolean("com.oddlabs.tt.developer");
+
+    private static final Locale default_locale = Locale.of(Locale.getDefault().getLanguage(), Locale.getDefault()
+            .getCountry(), "default");
+
     private static final ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
 
     private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
     }
 
+    private static final int INSTRUMENTATION_FRAME_COUNT = Integer.MAX_VALUE;
+
     private static final Renderer renderer_instance = new Renderer();
-    private final GLRenderContext renderContext = new GLRenderContext();
+
+    static {
+        com.oddlabs.tt.model.Model.setClientStateFactory(model -> {
+            VisualModel visualModel = new VisualModel(model);
+            if (model instanceof com.oddlabs.tt.model.Unit unit) {
+                if (unit.getAbilities().hasAbilities(com.oddlabs.tt.model.Abilities.BUILD)) {
+                    visualModel.getAccessories().add(new CarriedResourceAccessory(unit));
+                }
+            } else if (model instanceof com.oddlabs.tt.model.Building building) {
+                float hitOffsetZ = building.getHitOffsetZ();
+                visualModel.getAccessories().add(new BuildingDamagedAccessory(building, hitOffsetZ));
+                visualModel.getAccessories().add(new BuildingProductionAccessory(building));
+            } else if (model instanceof com.oddlabs.tt.model.IronSupply ironSupply) {
+                visualModel.getAccessories().add(new IronSupplyVisualAccessory(ironSupply));
+            } else if (model instanceof com.oddlabs.tt.model.RockSupply rockSupply) {
+                visualModel.getAccessories().add(new RockSupplyVisualAccessory(rockSupply));
+            } else if (model instanceof com.oddlabs.tt.model.weapon.LightningCloud cloud) {
+                visualModel.getAccessories().add(new LightningCloudVisualAccessory(cloud));
+            } else if (model instanceof com.oddlabs.tt.model.weapon.PoisonFog fog) {
+                visualModel.getAccessories().add(new PoisonFogVisualAccessory(fog));
+            } else if (model instanceof com.oddlabs.tt.model.weapon.Stun stun) {
+                visualModel.getAccessories().add(new StunVisualAccessory(stun));
+            } else if (model instanceof com.oddlabs.tt.model.weapon.SonicBlast blast) {
+                visualModel.getAccessories().add(new SonicBlastVisualAccessory(blast));
+            }
+            return visualModel;
+        });
+        HeightMap.setClientStateFactory(HeightMapVisual::new);
+    }
+
     private static final StatCounter fps = new StatCounter(10);
     private static int num_triangles_rendered;
-
     private static boolean grab_frames = false;
 
-    private final Locale default_locale = Locale.of(Locale.getDefault().getLanguage(), Locale.getDefault().getCountry(),
-            "default");
-
-    private AbstractAudioPlayer music;
-    private String music_path;
-    private @Nullable TimerAnimation music_timer;
-
     private static volatile boolean finished = false;
+
+    private final Settings settings = new Settings();
+    private final GLRenderContext renderContext = new GLRenderContext();
+    private final Window window = new LWJGL3Window();
+    private final Network network = new Network();
+    private final LocalInput localInput = new LocalInput(window);
+
+    // Currently only OpenAL is supported
+    private @Nullable OpenALManager audioManager;
+
+    private AudioPlayer music;
+    private @Nullable AudioParameters music_audio;
+    private @Nullable TimerAnimation music_timer;
 
     private boolean movie_recording_started = false;
     private AmbientAudio ambient;
 
-    private final Window window = new com.oddlabs.tt.window.LWJGL3Window();
-
-    private final LocalInput localInput = new LocalInput(window);
+    private int instrumentationFrameCounter;
+    private long totalPollEventsTime;
+    private long totalRunGameLoopTime;
+    private long totalAudioUpdateTime;
+    private long totalWindowUpdateTime;
+    private long totalDisplayTime;
+    private long totalGLFinishTime;
+    private long totalLoopTime;
 
     private @Nullable Cheat cheat = new Cheat();
 
@@ -115,7 +178,7 @@ public final class Renderer implements AutoCloseable {
         try {
             getRenderer().getWindow().makeCurrent();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("Failed to make OpenGL context current", e);
         }
     }
 
@@ -123,6 +186,11 @@ public final class Renderer implements AutoCloseable {
     public void close() {
         logger.info("Closing LocalInput...");
         getLocalInput().close();
+        logger.info("Closing AudioManager...");
+        if (audioManager != null) {
+            audioManager.close();
+            audioManager = null;
+        }
         logger.info("Closing Window...");
         window.close();
     }
@@ -133,6 +201,36 @@ public final class Renderer implements AutoCloseable {
 
     public static @NonNull Renderer getRenderer() {
         return renderer_instance;
+    }
+
+    public @NonNull Settings getSettings() {
+        return settings;
+    }
+
+    public @NonNull AudioManager getAudioManager() {
+        AudioManager manager = audioManager;
+        if (null == manager) {
+            throw new IllegalStateException("AudioManager not initialized");
+        }
+        return manager;
+    }
+
+    /** global sound enable */
+    public void startSound() {
+        Objects.requireNonNull(audioManager).startSources();
+    }
+
+    /** global sound disable */
+    public void stopSound() {
+        Objects.requireNonNull(audioManager).stopSources();
+    }
+
+    public @NonNull LocalEventQueue getEventQueue() {
+        return LocalEventQueue.getQueue();
+    }
+
+    public @NonNull Network getNetwork() {
+        return network;
     }
 
     public @NonNull RenderContext getRenderContext() {
@@ -161,7 +259,14 @@ public final class Renderer implements AutoCloseable {
         NativeResource.processGLCleanupTasks();
         GLUtils.checkGLError("After Cleanup");
 
+        // Ensure viewport is correct for the main pass
+        renderContext.setViewport(0, 0, window.getWidth(), window.getHeight());
+
         gui.render(ambient);
+
+        if (Globals.debugRenderingEnabled()) {
+            renderContext.validate();
+        }
     }
 
     public void updateProgress(@NonNull GUI gui) {
@@ -197,7 +302,7 @@ public final class Renderer implements AutoCloseable {
                     continue;
                 deleteLog(log.toPath());
             } catch (IOException _) {
-
+                /* ignore */
             }
     }
 
@@ -237,7 +342,7 @@ public final class Renderer implements AutoCloseable {
             try {
                 result = Files.createTempDirectory(property);
             } catch (IOException | SecurityException totalFailure) {
-                result = null;
+                logger.log(Level.WARNING, "Failed to create temp directory for " + property, totalFailure);
             }
         }
 
@@ -357,6 +462,7 @@ public final class Renderer implements AutoCloseable {
                 xdgConfigHome = System.getenv("XDG_CONFIG_HOME");
                 appData = System.getenv("APPDATA");
             } catch (SecurityException _) {
+                /* ignore */
             }
 
             Path preferred = null;
@@ -446,6 +552,7 @@ public final class Renderer implements AutoCloseable {
                 try {
                     xdgStateHome = System.getenv("XDG_STATE_HOME");
                 } catch (SecurityException _) {
+                    /* ignore */
                 }
 
                 if (xdgStateHome != null && !xdgStateHome.isEmpty()) {
@@ -459,6 +566,7 @@ public final class Renderer implements AutoCloseable {
                 try {
                     localAppData = System.getenv("LOCALAPPDATA");
                 } catch (SecurityException _) {
+                    /* ignore */
                 }
 
                 if (localAppData != null) {
@@ -513,15 +621,14 @@ public final class Renderer implements AutoCloseable {
                     case "normal":
                         break;
                     default:
-                        throw new RuntimeException("Unknown event load mode: " + args[i]);
+                        throw new IllegalArgumentException("Unknown event load mode: " + args[i]);
                 }
             }
             case "--silent" -> silent = true;
             default -> throw new IllegalArgumentException("Unknown command line flag: " + args[i]);
             }
 
-        // fetch initial settings
-        Settings settings = new Settings();
+        Settings settings = getSettings();
         settings.load(game_dir);
 
         if (eventload || grab_frames) {
@@ -529,32 +636,30 @@ public final class Renderer implements AutoCloseable {
             logger.info("last_event_log_path = " + last_event_log_path);
             // Only use when anal debugging
 //			ChecksumLogger.initLogging();
-            LocalEventQueue.getQueue().loadEvents(last_event_log_path, zipped);
+            getEventQueue().loadEvents(last_event_log_path, zipped);
         }
 
         Path event_logs_dir = paths.logDir();
         Path event_log_dir = event_logs_dir.resolve(Long.toString(System.currentTimeMillis()));
         if (settings.save_event_log) {
             setupLogging(event_log_dir, silent);
-            LocalEventQueue.getQueue().setEventsLogged(event_log_dir.resolve(com.oddlabs.util.Utils.EVENT_LOG));
+            getEventQueue().setEventsLogged(event_log_dir.resolve(com.oddlabs.util.Utils.EVENT_LOG));
         }
-        Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
+        Deterministic deterministic = getEventQueue().getDeterministic();
         game_dir = deterministic.log(game_dir);
         event_log_dir = deterministic.log(event_log_dir);
-        settings = deterministic.log(settings);
-        String default_language = deterministic.log(Locale.getDefault().getLanguage());
+        deterministic.log(settings);
+        String default_language = deterministic.log(default_locale.getLanguage());
         String language = settings.language;
         if (language.equals("default"))
             language = default_language;
         if (!Languages.hasLanguage(language))
             language = "en";
         Locale.setDefault(Locale.of(language));
-        Settings.setSettings(settings);
         Globals.gamespeed = settings.gamespeed;
         Path last_event_log_dir = settings.last_event_log_dir;
         boolean crashed = settings.crashed;
-        NetworkSelector network = new NetworkSelector(LocalEventQueue.getQueue().getDeterministic(),
-                LocalEventQueue.getQueue()::getMillis);
+        NetworkSelector network = new NetworkSelector(getEventQueue().getDeterministic(), getEventQueue()::getMillis);
         initNetwork(network);
         Renderer.getLocalInput().settings(game_dir, event_log_dir, settings);
         try {
@@ -572,62 +677,116 @@ public final class Renderer implements AutoCloseable {
 
         Duration startup_time_init = Duration.between(start_time, Instant.now());
         logger.info("Init done after " + startup_time_init + "ms");
-        ambient = new AmbientAudio(AudioManager.getManager());
+        ambient = new AmbientAudio(getAudioManager());
 
         Runnable load_task = setupMainMenu(network, gui, true);
 
         boolean reset_keyboard = false;
-        boolean wasActive = false;
+        boolean wasActive = window.isActive();
+        boolean autoPaused = false;
         try {
             while (!finished) {
-                window.pollEvents();
+                long frameStart = System.nanoTime();
+
+                // Use a small timeout when not the active window to save CPU
                 boolean isActive = window.isActive();
+                long t0 = System.nanoTime();
+                if (isActive) {
+                    window.pollEvents();
+                } else {
+                    ((LWJGL3Window) window).pollEvents(100);
+                }
+                long t1 = System.nanoTime();
+                totalPollEventsTime += (t1 - t0);
+
                 if (isActive && !wasActive) {
-                    if (window.isIconified()) window.restore();
-                    if (!window.isVisible()) window.show();
+                    if (window.isIconified()) {
+                        window.restore();
+                    }
+                    if (!window.isVisible()) {
+                        window.show();
+                    }
                     window.focus();
+                    if (autoPaused) {
+                        var guiRoot = gui.getGUIRoot();
+                        if (guiRoot.getDelegate() instanceof InGameMainMenu igmm) {
+                            igmm.pop();
+                        }
+                        autoPaused = false;
+                    }
+                } else if (!isActive && wasActive) {
+                    if (getSettings().fullscreen) {
+                        window.minimize();
+                    }
+                    var guiRoot = gui.getGUIRoot();
+                    if (guiRoot.getDelegate() instanceof InGameDelegate igd) {
+                        WorldViewer viewer = igd.getViewer();
+                        if (!viewer.isPaused()) {
+                            guiRoot.pushDelegate(new InGameMainMenu(viewer, new StaticCamera(igd.getCamera()
+                                    .getState())));
+                            autoPaused = true;
+                            display(gui);
+                            window.update();
+                        }
+                    }
                 }
                 wasActive = isActive;
 
-                // Always run simulation and network to avoid freezing multiplayer
-                runGameLoop(network, gui);
+                if (first_frame || (window.isVisible() && isActive)) {
+                    long t2 = System.nanoTime();
+                    runGameLoop(network, gui);
+                    long t3 = System.nanoTime();
+                    totalRunGameLoopTime += (t3 - t2);
 
-                if (isActive) {
+                    long t4 = System.nanoTime();
+                    audioManager.update(AnimationManager.ANIMATION_SECONDS_PER_TICK);
+                    long t5 = System.nanoTime();
+                    totalAudioUpdateTime += (t5 - t4);
+
+                    getAudioManager().setMasterGain(1f);
                     if (reset_keyboard) {
                         reset_keyboard = false;
                         Renderer.getLocalInput().resetKeyboard();
                     }
-                } else {
-                    reset_keyboard = true;
-                }
-
-                if (!window.isIconified()) {
+                    long t6 = System.nanoTime();
                     if (!first_frame) {
                         window.update();
                     }
+                    long t7 = System.nanoTime();
+                    totalWindowUpdateTime += (t7 - t6);
+
                     if (window.wasResized()) {
                         int width = window.getWidth();
                         int height = window.getHeight();
                         // Persist logical (point) dims so the saved value is what glfwCreateWindow
                         // will accept on next launch; using framebuffer dims doubles on retina.
-                        Settings.getSettings().view_width = window.getLogicalWidth();
-                        Settings.getSettings().view_height = window.getLogicalHeight();
+                        getSettings().view_width = window.getLogicalWidth();
+                        getSettings().view_height = window.getLogicalHeight();
                         GL11.glViewport(0, 0, width, height);
                         initGL();
                         gui.getGUIRoot().displayChanged(width, height);
                     }
+                    long t8 = System.nanoTime();
                     display(gui);
+                    long t9 = System.nanoTime();
+                    totalDisplayTime += (t9 - t8);
+
+                    long tf0 = System.nanoTime();
+                    GL11.glFinish();
+                    long tf1 = System.nanoTime();
+                    totalGLFinishTime += (tf1 - tf0);
+
                     if (first_frame) {
                         Duration startup_time = Duration.between(start_time, Instant.now());
                         logger.info("First frame rendered after " + startup_time);
                         first_frame = false;
                         if (load_task != null) {
                             window.update();
-                            LocalEventQueue.getQueue().getDeterministic().setEnabled(true);
+                            getEventQueue().getDeterministic().setEnabled(true);
                             try {
                                 load_task.run();
                             } finally {
-                                LocalEventQueue.getQueue().getDeterministic().setEnabled(false);
+                                getEventQueue().getDeterministic().setEnabled(false);
                                 renderContext.reset(); // Fix texture bleeding after loading
                             }
                             load_task = null;
@@ -635,17 +794,51 @@ public final class Renderer implements AutoCloseable {
                     }
                     if (grab_frames && movie_recording_started)
                         GLUtils.takeScreenshot("");
+
+                    long frameEnd = System.nanoTime();
+                    totalLoopTime += (frameEnd - frameStart);
+
+                    instrumentationFrameCounter++;
+                    if (DEBUG && (finished || instrumentationFrameCounter >= INSTRUMENTATION_FRAME_COUNT)) {
+                        logger.info(String.format(Locale.ROOT,
+                                "[Instrumentation] Averages over %d frames: "
+                                        + "Total frame: %.2f ms | "
+                                        + "pollEvents: %.2f ms | "
+                                        + "runGameLoop: %.2f ms | "
+                                        + "audioUpdate: %.2f ms | "
+                                        + "windowUpdate: %.2f ms | "
+                                        + "display: %.2f ms | "
+                                        + "glFinish: %.2f ms",
+                                instrumentationFrameCounter,
+                                (totalLoopTime / (float) instrumentationFrameCounter) / 1_000_000f,
+                                (totalPollEventsTime / (float) instrumentationFrameCounter) / 1_000_000f,
+                                (totalRunGameLoopTime / (float) instrumentationFrameCounter) / 1_000_000f,
+                                (totalAudioUpdateTime / (float) instrumentationFrameCounter) / 1_000_000f,
+                                (totalWindowUpdateTime / (float) instrumentationFrameCounter) / 1_000_000f,
+                                (totalDisplayTime / (float) instrumentationFrameCounter) / 1_000_000f,
+                                (totalGLFinishTime / (float) instrumentationFrameCounter) / 1_000_000f));
+
+                        instrumentationFrameCounter = 0;
+                        totalPollEventsTime = 0;
+                        totalRunGameLoopTime = 0;
+                        totalAudioUpdateTime = 0;
+                        totalWindowUpdateTime = 0;
+                        totalDisplayTime = 0;
+                        totalGLFinishTime = 0;
+                        totalLoopTime = 0;
+                    }
                 } else {
-                    // Minimized: throttle to save CPU since we can't render anyway
-                    try {
-                        TimeUnit.MILLISECONDS.sleep(10);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException("woken", e);
+                    AnimationManager.freezeTime();
+                    reset_keyboard = true;
+                    getAudioManager().setMasterGain(0f);
+                    if (window.isIconified() && getSettings().fullscreen) {
+                        // Keep sleeping if minimized
                     }
                 }
             }
-            LocalEventQueue.getQueue().getDeterministic().setEnabled(true);
-            Settings.getSettings().save();
+
+            getEventQueue().getDeterministic().setEnabled(true);
+            getSettings().save();
         } finally {
             cleanup();
         }
@@ -679,6 +872,7 @@ public final class Renderer implements AutoCloseable {
             }
         } catch (IOException e) {
             logger.log(Level.WARNING, "Failed to setup file logging", e);
+            throw e;
         }
     }
 
@@ -697,7 +891,8 @@ public final class Renderer implements AutoCloseable {
 
     private static @Nullable Runnable setupMainMenu(final @NonNull NetworkSelector network, @NonNull GUI gui,
             final boolean first_progress) {
-        final WorldGenerator generator = new IslandGenerator(256, Landscape.TerrainType.NATIVE, Globals.LANDSCAPE_HILLS,
+        final WorldGenerator generator = new IslandGenerator(
+                Terrain.NATIVE, 256, Globals.LANDSCAPE_HILLS,
                 Globals.LANDSCAPE_VEGETATION, Globals.LANDSCAPE_RESOURCES, Globals.LANDSCAPE_SEED);
         return ProgressForm.setProgressForm(network, gui, (GUIRoot gui_root) -> finishMainMenu(network, gui_root,
                 first_progress, generator), first_progress);
@@ -706,28 +901,32 @@ public final class Renderer implements AutoCloseable {
     private static @NonNull UIRenderer finishMainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root,
             boolean first_progress, @NonNull WorldGenerator generator) {
         AnimationManager.freezeTime();
-        PlayerInfo player_info = new PlayerInfo(0, 0, "");
         MatrixStack modelViewStack = new MatrixStack();
         MatrixStack projectionStack = new MatrixStack();
         WorldParameters world_params = new WorldParameters(Game.GAMESPEED_NORMAL, "", 2, Player.DEFAULT_MAX_UNIT_COUNT);
-        PlayerInfo[] players = new PlayerInfo[]{player_info};
-        WorldInfo world_info = generator.generate(players.length, world_params.getInitialUnitCount(), 0f);
-        FogInfo fog_info = generator.getFogInfo();
+        var players = List.of(new PlayerInfo(0, Race.NATIVES, ""));
+        @SuppressWarnings("unchecked") WorldInfo<Texture> world_info = (WorldInfo<Texture>) generator.generate(players
+                .size(), world_params.getInitialUnitCount(), 0f);
         RenderQueues render_queues = new RenderQueues();
-        LandscapeResources landscape_resources = World.loadCommon(render_queues);
-        World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, new NotificationListener() {
-        }, world_params, world_info, generator.getTerrainType(), players, fog_info);
+        LandscapeResources landscape_resources = new LandscapeResources(render_queues);
+        com.oddlabs.tt.form.ProgressForm.progress();
+        World world = World.newWorld(getRenderer().getAudioManager()::newAudio, landscape_resources, null,
+                new NotificationListener() {
+                }, world_params, world_info, players,
+                getRenderer().getSettings().linear_team_colours,
+                Globals.INSERT_PLANTS[getRenderer().getSettings().graphic_detail]);
         AnimationManager manager = new AnimationManager();
         LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, manager);
-        Player local_player = world.getPlayers()[0];
+        Player local_player = world.getPlayers().get(0);
         Selection selection = new Selection(local_player);
         UIRenderer renderer = new DefaultRenderer(getRenderer().cheat, local_player, render_queues, world_info,
                 landscape_renderer, new Picker(manager, local_player, gui_root, render_queues, landscape_renderer,
-                        selection), selection, generator, modelViewStack, projectionStack);
-        Renderer.getRenderer().setMusicPath("/music/menu.ogg", 0f);
+                        selection), selection, modelViewStack, projectionStack);
+        Renderer.getRenderer().setMusic(AudioAssets.MUSIC_MENU, 0f);
         MainMenu main_menu = new MainMenu(network, gui_root, new MenuCamera(world, manager));
         gui_root.pushDelegate(main_menu);
-        if (first_progress && Settings.getSettings().warning_no_sound && !Renderer.getLocalInput().audioIsCreated()) {
+        if (first_progress && getRenderer().getSettings().warning_no_sound && !Renderer.getLocalInput()
+                .audioIsCreated()) {
             ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
             gui_root.addModalForm(new WarningForm(i18n("sound_not_available_caption"), i18n(
                     "sound_not_available_message")));
@@ -753,13 +952,13 @@ public final class Renderer implements AutoCloseable {
         boolean is_network_created;
         try {
             network.initSelector();
-            com.oddlabs.util.Utils.tryGetLoopbackAddress();
+            tryGetLoopbackAddress();
             is_network_created = true;
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to initialize network", e);
             is_network_created = false;
         }
-        return LocalEventQueue.getQueue().getDeterministic().log(is_network_created);
+        return getRenderer().getEventQueue().getDeterministic().log(is_network_created);
     }
 
     public void startMovieRecording() {
@@ -769,15 +968,21 @@ public final class Renderer implements AutoCloseable {
 
     public void cleanup() {
         logger.info("Cleaning up...");
+        logger.info("closing ambient audio");
+        if (null != ambient) {
+            ambient.close();
+            ambient = null;
+        }
         logger.info("Disposing LocalEventQueue...");
-        LocalEventQueue.getQueue().close();
+        getEventQueue().close();
         destroyNative();
         logger.fine("Native resources still registered: " + NativeResource.getCount());
         logger.info("Cleanup complete. Exiting");
     }
 
     public @NonNull SerializableDisplayMode getCurrentDisplayMode() {
-        return LocalEventQueue.getQueue().getDeterministic().log(window.getDisplayMode());
+        return getEventQueue().getDeterministic()
+                .log(window.getDisplayMode());
     }
 
     public static void resetInput() {
@@ -786,13 +991,14 @@ public final class Renderer implements AutoCloseable {
 
     public void toggleFullscreen() {
         try {
-            boolean fs = !window.isFullscreen() && !LocalEventQueue.getQueue().getDeterministic().isPlayback();
+            boolean fs = !window.isFullscreen() && !getEventQueue().getDeterministic().isPlayback();
+            logger.info("Toggling fullscreen to: " + fs + ". Current mode: " + window.getDisplayMode());
             window.setFullscreen(fs);
-            Settings.getSettings().fullscreen = fs;
+            getSettings().fullscreen = fs;
             resetInput();
         } catch (Exception e) {
             logger.log(java.util.logging.Level.SEVERE, "Mode switching failed with exception", e);
-            throw new RuntimeException("Mode switching failed");
+            throw new IllegalStateException("Mode switching failed", e);
         }
     }
 
@@ -810,16 +1016,16 @@ public final class Renderer implements AutoCloseable {
 
     public void setModeToNearest(@NonNull SerializableDisplayMode mode) {
         // Use window create to ensure window is created/resized
-        boolean fs = Settings.getSettings().fullscreen && !OsPlatform.IS_MAC;
+        boolean fs = getSettings().fullscreen && !OsPlatform.IS_MAC;
         window.create(mode, fs);
         modeSwitchedNow(mode);
     }
 
     private void modeSwitchedLater(@NonNull SerializableDisplayMode new_mode) {
-        Settings.getSettings().fullscreen = window.isFullscreen();
-        Settings.getSettings().new_view_width = new_mode.getWidth();
-        Settings.getSettings().new_view_height = new_mode.getHeight();
-        Settings.getSettings().new_view_freq = new_mode.getFrequency();
+        settings.fullscreen = window.isFullscreen();
+        settings.new_view_width = new_mode.getWidth();
+        settings.new_view_height = new_mode.getHeight();
+        settings.new_view_freq = new_mode.getFrequency();
     }
 
     private void modeSwitchedNow(@NonNull SerializableDisplayMode new_mode) {
@@ -828,19 +1034,23 @@ public final class Renderer implements AutoCloseable {
     }
 
     private void modeSwitched() {
-        SerializableDisplayMode new_mode = LocalEventQueue.getQueue().getDeterministic().log(window.getDisplayMode());
-        logger.info("Switched mode to " + new_mode);
-        Settings.getSettings().view_width = new_mode.getWidth();
-        Settings.getSettings().view_height = new_mode.getHeight();
-        Settings.getSettings().view_freq = new_mode.getFrequency();
+        SerializableDisplayMode new_mode = getCurrentDisplayMode();
+        logger.info("Mode switch detected. New mode: " + new_mode);
+        settings.view_width = new_mode.getWidth();
+        settings.view_height = new_mode.getHeight();
+        settings.view_freq = new_mode.getFrequency();
     }
 
     private static void destroyNative() {
         logger.info("Clearing Resources...");
         Resources.clearResources();
+
         logger.info("Closing AudioManager...");
-        AudioManager.getManager().close();
-        getRenderer().close();
+        var audioManager = getRenderer().audioManager;
+        if (null != audioManager) {
+            audioManager.close();
+        }
+
         logger.info("Renderer Closed.");
     }
 
@@ -859,65 +1069,56 @@ public final class Renderer implements AutoCloseable {
                     GL30.GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE);
             int stencil = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL30.GL_STENCIL,
                     GL30.GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE);
-            logger.info(
-                    "Window Info: r=" + r + " g=" + g + " b=" + b + " a=" + a + " depth=" + depth + " stencil=" + stencil);
+            logger.info("Window Info: r=" + r + " g=" + g + " b=" + b + " a=" + a + " depth=" + depth + " stencil="
+                    + stencil);
         } catch (Exception e) {
             logger.log(Level.WARNING, "Failed to dump window info", e);
         }
     }
 
     private void initNative(boolean crashed) throws Exception {
-        String os_name = System.getProperty("os.name");
-        logger.info("os.name = '" + os_name + "'");
-        String os_arch = System.getProperty("os.arch");
-        logger.info("os.arch = '" + os_arch + "'");
-        String os_version = System.getProperty("os.version");
-        logger.info("os.version = '" + os_version + "'");
-        String java_version = System.getProperty("java.version");
-        logger.info("java.version = '" + java_version + "'");
-        String java_vendor = System.getProperty("java.vendor");
-        logger.info("java.vendor = '" + java_vendor + "'");
-        long total_mem = Runtime.getRuntime().maxMemory();
-        logger.info("maxMemory = '" + total_mem + "'");
-
-        AudioManager.getManager();
+        this.audioManager = new OpenALManager(getSettings().headphone_mode)
+                .setSfxGain(getSettings().sound_gain)
+                .setMusicGain(getSettings().music_gain)
+                .setSfxEnabled(getSettings().play_sfx);
 
         try {
             int bpp = 32;
             try {
                 bpp = window.getDisplayMode().getBitsPerPixel();
             } catch (Exception _) {
+                /* ignore */
             } // ignore if not created
 
             window.setTitle("Tribal Trouble");
             // Fullscreen handled in create
 
             SerializableDisplayMode target_mode;
-            int width = crashed ? Settings.getSettings().view_width : Settings.getSettings().new_view_width;
-            int height = crashed ? Settings.getSettings().view_height : Settings.getSettings().new_view_height;
-            int freq = crashed ? Settings.getSettings().view_freq : Settings.getSettings().new_view_freq;
+            int width = crashed ? getSettings().view_width : getSettings().new_view_width;
+            int height = crashed ? getSettings().view_height : getSettings().new_view_height;
+            int freq = crashed ? getSettings().view_freq : getSettings().new_view_freq;
 
-            if (width == -1 || height == -1) {
+            if (width < SerializableDisplayMode.MIN_WIDTH || height < SerializableDisplayMode.MIN_HEIGHT) {
                 try {
-                    SerializableDisplayMode[] modes = window.getAvailableDisplayModes();
-                    if (modes.length > 0) {
-                        target_mode = modes[0];
-                    } else {
-                        target_mode = new SerializableDisplayMode(800, 600, 32, 60);
-                    }
+                    var modes = window.getFullscreenDisplayModes();
+                    target_mode = modes.isEmpty()
+                            ? new SerializableDisplayMode(SerializableDisplayMode.MIN_WIDTH,
+                                    SerializableDisplayMode.MIN_HEIGHT, 32, 60)
+                            : modes.getFirst();
                 } catch (Exception e) {
                     logger.log(Level.WARNING, "Failed to get available modes for default selection", e);
-                    target_mode = new SerializableDisplayMode(800, 600, 32, 60);
+                    target_mode = new SerializableDisplayMode(SerializableDisplayMode.MIN_WIDTH,
+                            SerializableDisplayMode.MIN_HEIGHT, 32, 60);
                 }
             } else {
                 target_mode = new SerializableDisplayMode(width, height, bpp, freq);
             }
 
-            // On macOS, ignore the persisted fullscreen flag — GLFW fullscreen has known issues
+            // On macOS, ignore the persisted fullscreen flag; GLFW fullscreen has known issues
             // there and users get a better experience via the native green button.
-            boolean fs = Settings.getSettings().fullscreen
+            boolean fs = getSettings().fullscreen
                     && !OsPlatform.IS_MAC
-                    && (!LocalEventQueue.getQueue().getDeterministic().isPlayback() || grab_frames);
+                    && (!getEventQueue().getDeterministic().isPlayback() || grab_frames);
             window.create(target_mode, fs);
             setModeToNearest(target_mode);
 
@@ -928,17 +1129,20 @@ public final class Renderer implements AutoCloseable {
             logger.info("Setting icon from: " + iconPath.toAbsolutePath());
             window.setIcon(iconPath);
 
-            int[] physSize = window.getMonitorPhysicalSize();
-            logger.info("Monitor Physical Size: " + physSize[0] + "mm x " + physSize[1] + "mm");
-            float[] monScale = window.getMonitorContentScale();
-            logger.info("Monitor Content Scale: " + monScale[0] + "x, " + monScale[1] + "y");
-            float[] winScale = window.getWindowContentScale();
-            logger.info("Window Content Scale: " + winScale[0] + "x, " + winScale[1] + "y");
+            var physSize = window.getMonitorPhysicalSize();
+            logger.info("Monitor Physical Size: " + (int) physSize.x() + "mm x " + (int) physSize.y() + "mm");
+            var monScale = window.getMonitorContentScale();
+            logger.info("Monitor Content Scale: " + monScale.x() + "x, " + monScale.y() + "y");
+            var winScale = window.getWindowContentScale();
+            logger.info("Window Content Scale: " + winScale.x() + "x, " + winScale.y() + "y");
 
 //if (System.currentTimeMillis() > 0)
 //throw new LWJGLException("It failed because you asked it to.");
         } catch (Exception e) {
-            AudioManager.getManager().close();
+            if (null != audioManager) {
+                audioManager.close();
+                audioManager = null;
+            }
             failedOpenGL(e);
             throw e;
         }
@@ -955,45 +1159,46 @@ public final class Renderer implements AutoCloseable {
         int num_combined_tex_units = GL11.glGetInteger(GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
         logger.info("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: " + num_combined_tex_units);
         if (num_combined_tex_units < 8) {
-            throw new RuntimeException(
-                    "Number of combined texture image units " + num_combined_tex_units + " is less than the required 8.");
+            throw new IllegalStateException("Number of combined texture image units " + num_combined_tex_units
+                    + " is less than the required 8.");
         }
 
         resetInput();
-        logger.info("vsync = " + Settings.getSettings().vsync);
-        if (Settings.getSettings().vsync)
+        logger.info("vsync = " + getSettings().vsync);
+        if (getSettings().vsync)
             window.setVSyncEnabled(true);
         initGL();
         initVisibleGL();
+
+        startSound();
     }
 
     public void toggleSound() {
-        Settings.getSettings().play_sfx = !Settings.getSettings().play_sfx;
-        if (Settings.getSettings().play_sfx)
-            AudioManager.getManager().startSources();
-        else
-            AudioManager.getManager().stopSources();
+        getSettings().play_sfx = !getSettings().play_sfx;
+        getAudioManager().setSfxEnabled(getSettings().play_sfx);
     }
 
     public void toggleMusic() {
-        Settings.getSettings().play_music = !Settings.getSettings().play_music;
-        if (Settings.getSettings().play_music) {
+        getSettings().play_music = !getSettings().play_music;
+        if (getSettings().play_music) {
             initMusicPlayer();
         } else if (music != null) {
-            music.stop(2.5f, Settings.getSettings().music_gain);
+            music.stop(1.2f);
         }
     }
 
     private void initMusicPlayer() {
-        music = AudioManager.getManager().newAudio(new AudioParameters<>(music_path));
+        assert null != music_audio && music_audio.audio().isStreaming() : "Inappropriate music file";
+        music = getAudioManager().newAudio(0f, 0f, 0f, music_audio);
     }
 
-    public void setMusicPath(String music_path, float delay) {
-        if (music != null && Settings.getSettings().play_music) {
-            music.stop(2.5f, Settings.getSettings().music_gain);
+    public void setMusic(@NonNull AudioParameters music_audio, float delay) {
+        this.music_audio = music_audio;
+
+        if (music != null && getSettings().play_music) {
+            music.stop(1.2f);
         }
-        Renderer.getRenderer().music_path = music_path;
-        if (Settings.getSettings().play_music) {
+        if (getSettings().play_music) {
             if (music_timer != null)
                 music_timer.stop();
             music_timer = new TimerAnimation(new MusicTimer(), delay);
@@ -1001,19 +1206,19 @@ public final class Renderer implements AutoCloseable {
         }
     }
 
-    private final class MusicTimer implements Updatable {
+    private final class MusicTimer implements Updatable<TimerAnimation> {
         @Override
-        public void update(@NonNull Object anim) {
+        public void update(@NonNull TimerAnimation anim) {
             if (music_timer != null)
                 music_timer.stop();
             music_timer = null;
-            if (Settings.getSettings().play_music) {
+            if (getSettings().play_music) {
                 initMusicPlayer();
             }
         }
     }
 
-    public AbstractAudioPlayer getMusicPlayer() {
+    public AudioPlayer getMusicPlayer() {
         return music;
     }
 
@@ -1022,12 +1227,17 @@ public final class Renderer implements AutoCloseable {
     }
 
     public static void initGL() {
-        VBO.releaseAll();
-        getRenderer().renderContext.applyDefaults();
+        RenderContext context = getRenderer().renderContext;
+        VBO.releaseAll(context);
+        context.applyDefaults();
+        // Sync viewport with actual window dimensions
+        Window window = getRenderer().window;
+        context.setViewport(0, 0, window.getWidth(), window.getHeight());
     }
 
     public static void clearScreen() {
-        GL11.glClearColor(0f, 0f, 0f, 0f);
+        GL11.glClearColor(Color.Linear.BLACK.r(), Color.Linear.BLACK.g(), Color.Linear.BLACK.b(), Color.Linear.BLACK
+                .a());
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
     }
 

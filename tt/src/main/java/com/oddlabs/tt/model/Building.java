@@ -1,7 +1,5 @@
 package com.oddlabs.tt.model;
 
-import com.oddlabs.tt.audio.AudioParameters;
-import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.gui.BuildSpinner;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
@@ -17,142 +15,102 @@ import com.oddlabs.tt.model.weapon.RockSpearWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberSpearWeapon;
 import com.oddlabs.tt.model.weapon.ThrowingWeapon;
-import com.oddlabs.tt.particle.LinearEmitter;
-import com.oddlabs.tt.particle.RandomAccelerationEmitter;
-import com.oddlabs.tt.particle.RandomVelocityEmitter;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
-import com.oddlabs.tt.render.SpriteKey;
-import com.oddlabs.tt.util.Target;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import com.oddlabs.tt.resource.AudioAssets;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Represents a static building structure in the game world.
+ */
 public final class Building extends Selectable<BuildingTemplate> implements Occupant {
     private static final float REMOVE_DELAY = 1f / 10f;
-
-    public enum BuildState {
-        START,
-        HALFBUILT,
-        BUILT
-    }
 
     private static final int PLACING_BORDER = 1;
     private static final int MAX_SUPPLY_COUNT = 200;
 
-    @SuppressWarnings({"unchecked"})
-    public static final Cost COST_ROCK_WEAPON = new Cost(new Class[]{TreeSupply.class, RockSupply.class},
-            new int[]{2, 1});
-    @SuppressWarnings({"unchecked"})
-    public static final Cost COST_IRON_WEAPON = new Cost(new Class[]{TreeSupply.class, IronSupply.class},
-            new int[]{2, 1});
-    @SuppressWarnings({"unchecked"})
-    public static final Cost COST_RUBBER_WEAPON = new Cost(
-            new Class[]{TreeSupply.class, RockSupply.class, IronSupply.class, RubberSupply.class},
-            new int[]{2, 1, 1, 1});
+    public static final Cost COST_ROCK_WEAPON = new Cost(Map.of(
+            SupplyType.WOOD, 2,
+            SupplyType.ROCK, 1));
+    public static final Cost COST_IRON_WEAPON = new Cost(Map.of(
+            SupplyType.WOOD, 2,
+            SupplyType.IRON, 1));
+    public static final Cost COST_RUBBER_WEAPON = new Cost(Map.of(
+            SupplyType.WOOD, 2,
+            SupplyType.ROCK, 1,
+            SupplyType.IRON, 1,
+            SupplyType.RUBBER, 1));
 
-    private static final float DAMAGED_PARTICLE_ALPHA = 3f;
+    private static final Color.Linear DAMAGE_BASE_COLOR = new Color.Standard(0.3f, 0.8f).linear();
+    private static final Color.Linear DAMAGE_FACTOR_END = new Color.Linear(0.3f, 1.0f);
+    private static final Color.Linear SOOT_TINT = new Color.Linear(1.0f, 0.9f, 0.7f, 1.0f);
+    private static final Color.LinearDelta SOOT_DELTA = Color.LinearDelta.red(0.05f);
 
     private final Map<@NonNull Class<?>, @NonNull SupplyContainer> supply_containers = new HashMap<>();
+    private final Map<@NonNull SupplyType, @NonNull SupplyContainer> resource_containers
+            = new EnumMap<>(SupplyType.class);
     private final Map<@NonNull Class<?>, @NonNull BuildProductionContainer> build_containers = new HashMap<>();
-    private final Map<@NonNull DeployType, @NonNull DeployContainer> deploy_containers = new EnumMap<>(
-            DeployType.class);
-    private final @NonNull LinearEmitter damaged_emitter;
-    private final @NonNull LinearEmitter production_emitter;
+    private final Map<@NonNull DeployType, @NonNull DeployContainer> deploy_containers
+            = new EnumMap<>(DeployType.class);
 
     private @Nullable ChieftainContainer chieftain_container = null;
     private @Nullable WeaponsProducer weapons_producer = null;
     private float remove_delay = 0;
     private int hit_points = 1;
-    private int build_points = 0;
+    private int build_points = 0; // 0 = not placed, > 0 = placed
     private float[][] old_landscape_heights;
 
-    private Target rally_point = this;
+    private @NonNull Target rally_point = this;
     private boolean is_training_chieftain = false;
+
+    /**
+     * Represents the construction stages of a building in the game world.
+     */
+    public enum BuildStage {
+        /** The building template has not yet been placed on the terrain grid. */
+        UNPLACED,
+        /** Construction has started but is under 50% completed. */
+        START,
+        /** Construction progress is between 50% and 99%. */
+        HALFBUILT,
+        /** Construction is completed (100% built). */
+        BUILT
+    }
 
     public Building(@NonNull Player owner, @NonNull BuildingTemplate template, int grid_x, int grid_y) {
         super(owner, template);
         setGridPosition(grid_x, grid_y);
-        UnitGrid unit_grid = getUnitGrid();
         float x = UnitGrid.coordinateFromGrid(grid_x);
         float y = UnitGrid.coordinateFromGrid(grid_y);
         setPosition(x, y);
         pushController(new NullController(this));
-        /*
-           Vector3f position, float offset_z, float uv_angle,
-           float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
-           int num_particles, float particles_per_second,
-           Vector3f velocity, Vector3f acceleration,
-           Vector4f color, Vector4f delta_color,
-           Vector3f particle_radius, Vector3f growth_rate, int energy, float friction,
-           int src_blend_func, int dst_blend_func,
-           Texture texture
-        */
-        damaged_emitter = new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(),
-                getPositionZ() + getHitOffsetZ()), 0f, 0f,
-                0.01f, 0.01f, 0.5f, .7f,
-                -1, 4f,
-                new Vector3f(0f, 0f, 5f), new Vector3f(0f, 0f, 0f),
-                new Vector4f(.3f, .3f, .3f, DAMAGED_PARTICLE_ALPHA), new Vector4f(0f, 0f, 0f, 0f),
-                new Vector3f(1.5f, 1.5f, 1.5f), new Vector3f(.6f, .6f, .6f), 1.5f, .75f,
-                GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
-                owner.getWorld().getRacesResources().getDamageSmokeTextures(),
-                owner.getWorld().getAnimationManagerRealTime());
-        damaged_emitter.stop();
-
-        float xc = getPositionX() + getTemplate().getChimneyX();
-        float yc = getPositionY() + getTemplate().getChimneyY();
-        float zc = getPositionZ() + getTemplate().getChimneyZ();
-
-        float energy = 4f;
-        float alpha = .6f;
-        production_emitter = new RandomAccelerationEmitter(owner.getWorld(), new Vector3f(xc, yc, zc), 0f,
-                0.01f, 0.01f, 1.5f, 0.1f,
-                -1, 6f,
-                new Vector3f(0f, 0f, 1.3f), new Vector3f(0f, 0f, .25f), .7f,
-                new Vector4f(.35f, .35f, .35f, alpha), new Vector4f(0f, 0f, 0f, -alpha / energy),
-                new Vector3f(.3f, .3f, .3f), new Vector3f(.5f, .5f, .5f), energy, 1f,
-                GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
-                owner.getWorld().getRacesResources().getSmokeTextures(),
-                owner.getWorld().getAnimationManagerRealTime());
-        production_emitter.stop();
-    }
-
-    @Override
-    public void visit(@NonNull ElementVisitor visitor) {
-        visitor.visitBuilding(this);
     }
 
     public boolean hasRallyPoint() {
         return rally_point != this;
     }
 
-    public Target getRallyPoint() {
+    public @NonNull Target getRallyPoint() {
         return rally_point;
     }
 
-    @Override
-    protected void onReinsert() {
-        super.onReinsert();
-        float xc = getPositionX() + getTemplate().getChimneyX();
-        float yc = getPositionY() + getTemplate().getChimneyY();
-        float zc = getPositionZ() + getTemplate().getChimneyZ();
-        production_emitter.setPosition(new Vector3f(xc, yc, zc));
+    public boolean isProducing() {
+        return weapons_producer != null && weapons_producer.isProducing();
     }
 
     @Override
     protected void doAnimate(float t) {
         if (!isDead()) {
-            UnitContainer unit_container = getUnitContainer();
-            if (unit_container != null)
-                unit_container.animate(t);
+            getUnitContainer().ifPresent(unit_container -> unit_container.animate(t));
             if (weapons_producer != null) {
                 weapons_producer.animate(t);
             }
@@ -177,39 +135,41 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
             remove_delay -= t;
             if (remove_delay <= 0) {
                 remove();
-                damaged_emitter.done();
-                production_emitter.done();
-                if (weapons_producer != null)
-                    weapons_producer.stopSound();
-                float energy = 3f;
-                float fade_speed = 2.5f;
-
-                new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(),
-                        getPositionZ()), 0f,
-                        getTemplate().getSmokeRadius(), getTemplate().getSmokeHeight(), 0.05f, (float) Math.PI,
-                        getTemplate().getNumFragments(), getTemplate().getNumFragments(),
-                        new Vector3f(0f, 0f, 5f), new Vector3f(0f, 0f, -25f),
-                        new Vector4f(1f, 1f, 1f, energy * fade_speed), new Vector4f(0f, 0f, 0f, -fade_speed),
-                        new Vector3f(1f, 1f, 1f), new Vector3f(0f, 0f, 0f), energy, .75f,
-                        getOwner().getWorld().getRacesResources().getWoodFragments(),
-                        getOwner().getWorld().getAnimationManagerRealTime());
             }
         }
     }
 
-    public @Nullable UnitContainer getUnitContainer() {
-        assert !isDead();
-        return (UnitContainer) getSupplyContainer(Unit.class);
+    @Override
+    public void remove() {
+        super.remove();
+        getClientState(ModelClient.class).ifPresent(ModelClient::close);
     }
 
-    public @Nullable SupplyContainer getSupplyContainer(@NonNull Class<?> key) {
+    public @NonNull Optional<UnitContainer> getUnitContainer() {
         assert !isDead();
-        return supply_containers.get(key);
+        return getSupplyContainer(Unit.class).map(c -> (UnitContainer) c);
     }
 
-    public @Nullable BuildSupplyContainer getBuildSupplyContainer(@NonNull Class<?> key) {
+    public @NonNull Optional<SupplyContainer> getSupplyContainer(@NonNull Class<?> key) {
         assert !isDead();
-        return build_containers.get(key);
+        SupplyContainer container = supply_containers.get(key);
+        if (container == null) {
+            SupplyType type = SupplyType.fromClass(key);
+            if (type != null) {
+                container = resource_containers.get(type);
+            }
+        }
+        return Optional.ofNullable(container);
+    }
+
+    public @NonNull Optional<SupplyContainer> getSupplyContainer(@NonNull SupplyType key) {
+        assert !isDead();
+        return Optional.ofNullable(resource_containers.get(key));
+    }
+
+    public @NonNull Optional<BuildSupplyContainer> getBuildSupplyContainer(@NonNull Class<?> key) {
+        assert !isDead();
+        return Optional.ofNullable(build_containers.get(key));
     }
 
     public DeployContainer getDeployContainer(DeployType type) {
@@ -217,9 +177,9 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
         return deploy_containers.get(type);
     }
 
-    public @Nullable ChieftainContainer getChieftainContainer() {
+    public @NonNull Optional<ChieftainContainer> getChieftainContainer() {
         assert !isDead();
-        return chieftain_container;
+        return Optional.ofNullable(chieftain_container);
     }
 
     @Override
@@ -229,25 +189,21 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
 
     public int getUnitCount() {
         assert !isDead();
-        return getUnitContainer().getNumSupplies();
+        return getUnitContainer().map(SupplyContainer::getNumSupplies).orElse(0);
     }
 
     public boolean canExitTower() {
-        return !isDead() && getAbilities().hasAbilities(Abilities.ATTACK) && getUnitContainer().getNumSupplies() > 0
+        return !isDead() && getAbilities().hasAbilities(Abilities.ATTACK)
+                && getUnitContainer().map(c -> c.getNumSupplies() > 0).orElse(false)
                 && getOwner().canExitTowers() &&
-                !(((MountUnitContainer) getUnitContainer()).getUnit().getCurrentController() instanceof StunController);
+                getUnitContainer().map(c -> !(((MountUnitContainer) c).getUnit()
+                        .getCurrentController() instanceof StunController)).orElse(false);
     }
 
     public void exitTower() {
         assert !isDead();
-        UnitContainer container = getUnitContainer();
         if (canExitTower()) {
-//			Army selection = Selection.singleton.getCurrentSelection();
-            Unit unit = container.exit();
-            /*			if (getOwner().isControllable()) {
-            				selection.clear();
-            				selection.add(unit);
-            			}*/
+            getUnitContainer().ifPresent(UnitContainer::exit);
         }
     }
 
@@ -260,19 +216,21 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
 
     public void createHarvesters(int num_tree, int num_rock, int num_iron, int num_rubber) {
         assert !isDead();
-        createHarvesters(TreeSupply.class, num_tree);
-        createHarvesters(RockSupply.class, num_rock);
-        createHarvesters(IronSupply.class, num_iron);
-        createHarvesters(RubberSupply.class, num_rubber);
+        createHarvesters(SupplyType.WOOD, num_tree);
+        createHarvesters(SupplyType.ROCK, num_rock);
+        createHarvesters(SupplyType.IRON, num_iron);
+        createHarvesters(SupplyType.RUBBER, num_rubber);
     }
 
-    private void createHarvesters(@NonNull Class<? extends Supply> supply_type, int amount) {
-        Race race = getOwner().getRace();
+    private void createHarvesters(@NonNull SupplyType supplyType, int amount) {
+        RaceInfo raceInfo = getOwner().getRaceInfo();
         for (int i = 0; i < amount; i++) {
-            getUnitContainer().prepareDeploy(-1);
-            getUnitContainer().exit();
-            Unit unit = createUnit(null, race.getUnitTemplate(Race.UNIT_PEON));
-            unit.pushController(new GatherController<>(unit, null, supply_type));
+            getUnitContainer().ifPresent(c -> {
+                c.prepareDeploy(-1);
+                c.exit();
+            });
+            Unit unit = createUnit(null, raceInfo.getUnitTemplate(UnitType.PEON));
+            unit.pushController(new GatherController<>(unit, null, supplyType));
         }
     }
 
@@ -282,12 +240,12 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
             getOwner().getWorld().updateGlobalChecksum(num_weapons);
         else
             getOwner().getWorld().updateGlobalChecksum(1000000);
-        ((BuildProductionContainer) getBuildSupplyContainer(type)).orderSupply(num_weapons, infinite);
+        getBuildSupplyContainer(type).ifPresent(c -> ((BuildProductionContainer) c).orderSupply(num_weapons, infinite));
     }
 
     public boolean canBuildChieftain() {
-        return !isDead() && chieftain_container != null && getOwner().canBuildChieftains()
-                && !getOwner().hasActiveChieftain() && !getOwner().isTrainingChieftain();
+        return !isDead() && chieftain_container != null && getOwner().canBuildChieftains() && !getOwner()
+                .hasActiveChieftain() && !getOwner().isTrainingChieftain();
     }
 
     public boolean canStopChieftain() {
@@ -310,29 +268,31 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
         chieftain_container.stopTraining();
         getOwner().setTrainingChieftain(false);
         is_training_chieftain = false;
-        Unit chieftain = createUnit(null, getOwner().getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN));
+        Unit chieftain = createUnit(null, getOwner().getRaceInfo().getUnitTemplate(UnitType.CHIEFTAIN));
         getOwner().setActiveChieftain(chieftain);
     }
 
-    private @NonNull Unit createUnit(Target rally_point, @NonNull UnitTemplate template) {
+    private @NonNull Unit createUnit(@Nullable Target rally_point, @NonNull UnitTemplate template) {
         return new Unit(getOwner(), getPositionX(), getPositionY(), rally_point, template, null, true, true);
     }
 
     public void createArmy(int num_peon, int num_rock, int num_iron, int num_rubber) {
         assert !isDead();
-        createArmy(num_peon, Race.UNIT_PEON);
-        createArmy(num_rock, Race.UNIT_WARRIOR_ROCK);
-        createArmy(num_iron, Race.UNIT_WARRIOR_IRON);
-        createArmy(num_rubber, Race.UNIT_WARRIOR_RUBBER);
+        createArmy(num_peon, UnitType.PEON);
+        createArmy(num_rock, UnitType.WARRIOR_ROCK);
+        createArmy(num_iron, UnitType.WARRIOR_IRON);
+        createArmy(num_rubber, UnitType.WARRIOR_RUBBER);
     }
 
-    private void createArmy(int amount, int template) {
-        Race race = getOwner().getRace();
+    private void createArmy(int amount, @NonNull UnitType template) {
+        RaceInfo raceInfo = getOwner().getRaceInfo();
         checkRallyPoint();
         for (int i = 0; i < amount; i++) {
-            getUnitContainer().prepareDeploy(-1);
-            getUnitContainer().exit();
-            Unit unit = createUnit(hasRallyPoint() ? rally_point : null, race.getUnitTemplate(template));
+            getUnitContainer().ifPresent(c -> {
+                c.prepareDeploy(-1);
+                c.exit();
+            });
+            Unit unit = createUnit(hasRallyPoint() ? rally_point : null, raceInfo.getUnitTemplate(template));
             if (getAbilities().hasAbilities(Abilities.REPRODUCE) && !hasRallyPoint()) {
                 unit.pushController(new TransferUnitController(unit));
             }
@@ -341,10 +301,10 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
 
     public void createTransporters(int num_tree, int num_rock, int num_iron, int num_rubber) {
         assert !isDead();
-        createTransporters(num_tree, TreeSupply.class);
-        createTransporters(num_rock, RockSupply.class);
-        createTransporters(num_iron, IronSupply.class);
-        createTransporters(num_rubber, RubberSupply.class);
+        createTransporters(num_tree, SupplyType.WOOD);
+        createTransporters(num_rock, SupplyType.ROCK);
+        createTransporters(num_iron, SupplyType.IRON);
+        createTransporters(num_rubber, SupplyType.RUBBER);
     }
 
     private void checkRallyPoint() {
@@ -352,16 +312,16 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
             rally_point = this;
     }
 
-    private void createTransporters(int amount, Class<? extends Supply> supply) {
-        Race race = getOwner().getRace();
+    private void createTransporters(int amount, SupplyType supply) {
+        RaceInfo raceInfo = getOwner().getRaceInfo();
         checkRallyPoint();
         for (int i = 0; i < amount; i++) {
-            getUnitContainer().prepareDeploy(-1);
-            getUnitContainer().exit();
-            Unit unit = createUnit(hasRallyPoint() ? rally_point : null, race.getUnitTemplate(Race.UNIT_PEON));
+            getUnitContainer().ifPresent(c -> {
+                c.prepareDeploy(-1);
+                c.exit();
+            });
+            Unit unit = createUnit(hasRallyPoint() ? rally_point : null, raceInfo.getUnitTemplate(UnitType.PEON));
             unit.getSupplyContainer().increaseSupply(unit.getSupplyContainer().getMaxSupplyCount(), supply);
-            //	getSupplyContainer(supply).increaseSupply(-unit.getSupplyContainer().getMaxSupplyCount());
-            //	getSupplyContainer(supply).prepareDeploy(-unit.getSupplyContainer().getMaxSupplyCount());
         }
 
     }
@@ -375,18 +335,12 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
         return hit_points;
     }
 
+    private void adjustHitPoints(int amount) {
+        setHitPoints(hit_points + amount);
+    }
+
     private void setHitPoints(int new_hit_points) {
-        final float MIN_ENERGY = 3f;
-        final float MAX_ENERGY = 5f;
-        final int START_SMOKE = getTemplate().getMaxHitPoints() / 2;
-        hit_points = Math.max(Math.min(new_hit_points, getTemplate().getMaxHitPoints()), 0);
-        if (build_points == getTemplate().getMaxHitPoints() && hit_points < START_SMOKE) {
-            float energy = MIN_ENERGY + ((1 - (float) hit_points / (START_SMOKE)) * (MAX_ENERGY - MIN_ENERGY));
-            damaged_emitter.start();
-            damaged_emitter.setDeltaColor(new Vector4f(0f, 0f, 0f, -DAMAGED_PARTICLE_ALPHA / energy));
-            damaged_emitter.setEnergy(energy);
-        } else
-            damaged_emitter.stop();
+        hit_points = Math.clamp(new_hit_points, 0, Math.min(build_points, getTemplate().getMaxHitPoints()));
     }
 
     public void repair(int amount) {
@@ -395,87 +349,16 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
         if (!isDamaged())
             return;
 
-        setHitPoints(hit_points + amount);
-        if (build_points < getTemplate().getMaxHitPoints()) {
-            build_points = Math.min(build_points + amount, getTemplate().getMaxHitPoints());
+        if (!isBuilt()) {
+            var max_hitpoints = getTemplate().getMaxHitPoints();
+            build_points = Math.min(build_points + amount, max_hitpoints);
             reinsert();
-            if (build_points == getTemplate().getMaxHitPoints()) {
-                getOwner().getWorld().getNotificationListener().newSelectableNotification(this);
-                getAbilities().addAbilities(getTemplate().getAbilities());
-                supply_containers.put(Unit.class, getTemplate().getUnitContainerFactory().createContainer(this));
-                if (getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER)) {
-                    SupplyContainer tree_supply = new SupplyContainer(MAX_SUPPLY_COUNT);
-                    SupplyContainer rock_supply = new SupplyContainer(MAX_SUPPLY_COUNT);
-                    SupplyContainer iron_supply = new SupplyContainer(MAX_SUPPLY_COUNT);
-                    SupplyContainer rubber_supply = new SupplyContainer(MAX_SUPPLY_COUNT);
-                    supply_containers.put(TreeSupply.class, tree_supply);
-                    supply_containers.put(RockSupply.class, rock_supply);
-                    supply_containers.put(IronSupply.class, iron_supply);
-                    supply_containers.put(RubberSupply.class, rubber_supply);
-
-                    SupplyContainer rock_weapon_container = new SupplyContainer(MAX_SUPPLY_COUNT);
-                    supply_containers.put(RockAxeWeapon.class, rock_weapon_container);
-                    supply_containers.put(RockSpearWeapon.class, rock_weapon_container);
-                    SupplyContainer iron_weapon_container = new SupplyContainer(MAX_SUPPLY_COUNT);
-                    supply_containers.put(IronAxeWeapon.class, iron_weapon_container);
-                    supply_containers.put(IronSpearWeapon.class, iron_weapon_container);
-                    SupplyContainer rubber_weapon_container = new SupplyContainer(MAX_SUPPLY_COUNT);
-                    supply_containers.put(RubberAxeWeapon.class, rubber_weapon_container);
-                    supply_containers.put(RubberSpearWeapon.class, rubber_weapon_container);
-
-                    BuildProductionContainer rock_axe_weapon = new BuildProductionContainer(BuildSpinner.INFINITE_LIMIT,
-                            rock_weapon_container,
-                            this,
-                            COST_ROCK_WEAPON,
-                            40f);
-                    BuildProductionContainer iron_axe_weapon = new BuildProductionContainer(BuildSpinner.INFINITE_LIMIT,
-                            iron_weapon_container,
-                            this,
-                            COST_IRON_WEAPON,
-                            80f);
-                    BuildProductionContainer rubber_axe_weapon = new BuildProductionContainer(
-                            BuildSpinner.INFINITE_LIMIT,
-                            rubber_weapon_container,
-                            this,
-                            COST_RUBBER_WEAPON,
-                            120f);
-                    build_containers.put(RockAxeWeapon.class, rock_axe_weapon);
-                    build_containers.put(IronAxeWeapon.class, iron_axe_weapon);
-                    build_containers.put(RubberAxeWeapon.class, rubber_axe_weapon);
-                    BuildProductionContainer[] production_containers = new BuildProductionContainer[]{rock_axe_weapon, iron_axe_weapon, rubber_axe_weapon};
-
-                    weapons_producer = new WeaponsProducer(this, (WorkerUnitContainer) getUnitContainer(),
-                            production_containers, production_emitter);
-
-                    deploy_containers.put(DeployType.ROCK_WARRIOR, new DeployContainer(this, 1f,
-                            DeployType.ROCK_WARRIOR, RockAxeWeapon.class));
-                    deploy_containers.put(DeployType.IRON_WARRIOR, new DeployContainer(this, 1.5f,
-                            DeployType.IRON_WARRIOR, IronAxeWeapon.class));
-                    deploy_containers.put(DeployType.RUBBER_WARRIOR, new DeployContainer(this, 2f,
-                            DeployType.RUBBER_WARRIOR, RubberAxeWeapon.class));
-                    deploy_containers.put(DeployType.PEON, new DeployContainer(this, .5f, DeployType.PEON, null));
-                    deploy_containers.put(DeployType.PEON_HARVEST_TREE, new DeployContainer(this, .5f,
-                            DeployType.PEON_HARVEST_TREE, null));
-                    deploy_containers.put(DeployType.PEON_TRANSPORT_TREE, new DeployContainer(this, .5f,
-                            DeployType.PEON_TRANSPORT_TREE, TreeSupply.class));
-                    deploy_containers.put(DeployType.PEON_HARVEST_ROCK, new DeployContainer(this, .5f,
-                            DeployType.PEON_HARVEST_ROCK, null));
-                    deploy_containers.put(DeployType.PEON_TRANSPORT_ROCK, new DeployContainer(this, .5f,
-                            DeployType.PEON_TRANSPORT_ROCK, RockSupply.class));
-                    deploy_containers.put(DeployType.PEON_HARVEST_IRON, new DeployContainer(this, .5f,
-                            DeployType.PEON_HARVEST_IRON, null));
-                    deploy_containers.put(DeployType.PEON_TRANSPORT_IRON, new DeployContainer(this, .5f,
-                            DeployType.PEON_TRANSPORT_IRON, IronSupply.class));
-                    deploy_containers.put(DeployType.PEON_HARVEST_RUBBER, new DeployContainer(this, .5f,
-                            DeployType.PEON_HARVEST_RUBBER, null));
-                    deploy_containers.put(DeployType.PEON_TRANSPORT_RUBBER, new DeployContainer(this, .5f,
-                            DeployType.PEON_TRANSPORT_RUBBER, RubberSupply.class));
-                } else if (getAbilities().hasAbilities(Abilities.REPRODUCE)) {
-                    chieftain_container = new ChieftainContainer(this);
-                    deploy_containers.put(DeployType.PEON, new DeployContainer(this, .5f, DeployType.PEON, null));
-                }
+            if (build_points == max_hitpoints) {
+                buildingCompleted();
             }
         }
+
+        adjustHitPoints(amount);
     }
 
     public static boolean isPlacingLegal(@NonNull UnitGrid unit_grid, @NonNull BuildingTemplate template, int grid_x,
@@ -484,23 +367,118 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
     }
 
     public boolean isPlacingLegal() {
-        return !isDead() && getOwner().canBuild(getTemplate().getTemplateID()) &&
-                doIsPlacingLegal(getUnitGrid(), getGridX(), getGridY(),
-                        getTemplate().getPlacingSize() - PLACING_BORDER);
+        return !isDead() && getOwner().canBuild(getTemplate().getBuildingType()) &&
+                doIsPlacingLegal(getUnitGrid(), getGridX(), getGridY(), getTemplate().getPlacingSize()
+                        - PLACING_BORDER);
     }
 
+    /** {@return true if the building is placed, false otherwise} */
     public boolean isPlaced() {
         assert !isDead();
-        return build_points != 0;
+        return getBuildStage() != BuildStage.UNPLACED;
     }
 
-    public boolean isComplete() {
+    /** {@return true if construction is complete, false otherwise} */
+    public boolean isBuilt() {
         return build_points == getTemplate().getMaxHitPoints();
+    }
+
+    public int getBuildPoints() {
+        return build_points;
+    }
+
+    public @NonNull BuildStage getBuildStage() {
+        var max_points = getTemplate().getMaxHitPoints();
+        return build_points == max_points
+                ? BuildStage.BUILT
+                : (float) build_points / max_points > .5f
+                        ? BuildStage.HALFBUILT
+                : build_points > 0 ? BuildStage.START : BuildStage.UNPLACED;
+    }
+
+    private void buildingCompleted() {
+        getOwner().getWorld().getNotificationListener().newSelectableNotification(this);
+        getAbilities().addAbilities(getTemplate().getAbilities());
+        supply_containers.put(Unit.class, getTemplate().getUnitContainerFactory().createContainer(this));
+        if (getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER)) {
+            resource_containers.put(SupplyType.WOOD, new SupplyContainer(MAX_SUPPLY_COUNT));
+            resource_containers.put(SupplyType.ROCK, new SupplyContainer(MAX_SUPPLY_COUNT));
+            resource_containers.put(SupplyType.IRON, new SupplyContainer(MAX_SUPPLY_COUNT));
+            resource_containers.put(SupplyType.RUBBER, new SupplyContainer(MAX_SUPPLY_COUNT));
+
+            SupplyContainer rock_weapon_container = new SupplyContainer(MAX_SUPPLY_COUNT);
+            supply_containers.put(RockAxeWeapon.class, rock_weapon_container);
+            supply_containers.put(RockSpearWeapon.class, rock_weapon_container);
+            SupplyContainer iron_weapon_container = new SupplyContainer(MAX_SUPPLY_COUNT);
+            supply_containers.put(IronAxeWeapon.class, iron_weapon_container);
+            supply_containers.put(IronSpearWeapon.class, iron_weapon_container);
+            SupplyContainer rubber_weapon_container = new SupplyContainer(MAX_SUPPLY_COUNT);
+            supply_containers.put(RubberAxeWeapon.class, rubber_weapon_container);
+            SupplyContainer rubber_spear_weapon = new SupplyContainer(MAX_SUPPLY_COUNT);
+            supply_containers.put(RubberSpearWeapon.class, rubber_spear_weapon);
+
+            BuildProductionContainer rock_axe_weapon = new BuildProductionContainer(BuildSpinner.INFINITE_LIMIT,
+                    rock_weapon_container,
+                    this,
+                    COST_ROCK_WEAPON,
+                    40f);
+            BuildProductionContainer iron_axe_weapon = new BuildProductionContainer(BuildSpinner.INFINITE_LIMIT,
+                    iron_weapon_container,
+                    this,
+                    COST_IRON_WEAPON,
+                    80f);
+            BuildProductionContainer rubber_axe_weapon = new BuildProductionContainer(
+                    BuildSpinner.INFINITE_LIMIT,
+                    rubber_weapon_container,
+                    this,
+                    COST_RUBBER_WEAPON,
+                    120f);
+            build_containers.put(RockAxeWeapon.class, rock_axe_weapon);
+            build_containers.put(IronAxeWeapon.class, iron_axe_weapon);
+            build_containers.put(RubberAxeWeapon.class, rubber_axe_weapon);
+            BuildProductionContainer[] production_containers = new BuildProductionContainer[]{rock_axe_weapon,
+                    iron_axe_weapon, rubber_axe_weapon};
+
+            weapons_producer = new WeaponsProducer(this, (WorkerUnitContainer) getUnitContainer().orElseThrow(),
+                    production_containers);
+
+            deploy_containers.put(DeployType.ROCK_WARRIOR, new DeployContainer(this, 1f,
+                    DeployType.ROCK_WARRIOR, RockAxeWeapon.class));
+            deploy_containers.put(DeployType.IRON_WARRIOR, new DeployContainer(this, 1.5f,
+                    DeployType.IRON_WARRIOR, IronAxeWeapon.class));
+            deploy_containers.put(DeployType.RUBBER_WARRIOR, new DeployContainer(this, 2f,
+                    DeployType.RUBBER_WARRIOR, RubberAxeWeapon.class));
+            deploy_containers.put(DeployType.PEON, new DeployContainer(this, .5f, DeployType.PEON, null));
+            deploy_containers.put(DeployType.PEON_HARVEST_TREE, new DeployContainer(this, .5f,
+                    DeployType.PEON_HARVEST_TREE, null));
+            deploy_containers.put(DeployType.PEON_TRANSPORT_TREE, new DeployContainer(this, .5f,
+                    DeployType.PEON_TRANSPORT_TREE, TreeSupply.class));
+            deploy_containers.put(DeployType.PEON_HARVEST_ROCK, new DeployContainer(this, .5f,
+                    DeployType.PEON_HARVEST_ROCK, null));
+            deploy_containers.put(DeployType.PEON_TRANSPORT_ROCK, new DeployContainer(this, .5f,
+                    DeployType.PEON_TRANSPORT_ROCK, RockSupply.class));
+            deploy_containers.put(DeployType.PEON_HARVEST_IRON, new DeployContainer(this, .5f,
+                    DeployType.PEON_HARVEST_IRON, null));
+            deploy_containers.put(DeployType.PEON_TRANSPORT_IRON, new DeployContainer(this, .5f,
+                    DeployType.PEON_TRANSPORT_IRON, IronSupply.class));
+            deploy_containers.put(DeployType.PEON_HARVEST_RUBBER, new DeployContainer(this, .5f,
+                    DeployType.PEON_HARVEST_RUBBER, null));
+            deploy_containers.put(DeployType.PEON_TRANSPORT_RUBBER, new DeployContainer(this, .5f,
+                    DeployType.PEON_TRANSPORT_RUBBER, RubberSupply.class));
+        } else if (getAbilities().hasAbilities(Abilities.REPRODUCE)) {
+            chieftain_container = new ChieftainContainer(this);
+            deploy_containers.put(DeployType.PEON, new DeployContainer(this, .5f, DeployType.PEON, null));
+        }
     }
 
     @Override
     public float getHitOffsetZ() {
-        return getTemplate().getHitOffsetZ(getRenderLevel().ordinal());
+        int index = switch (getBuildStage()) {
+            case START -> 0;
+            case HALFBUILT -> 1;
+            case UNPLACED, BUILT -> 2;
+        };
+        return getTemplate().getHitOffsetZ(index);
     }
 
     public static boolean doIsPlacingLegal(@NonNull UnitGrid unit_grid, int grid_x, int grid_y, int size) {
@@ -522,16 +500,18 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
 
     @Override
     public AttackScanFilter.@NonNull Priority getAttackPriority() {
-        return getAbilities().hasAbilities(
-                Abilities.ATTACK) ? AttackScanFilter.Priority.TOWER : getAbilities().hasAbilities(
-                        Abilities.BUILD_ARMIES) ? AttackScanFilter.Priority.ARMORY : AttackScanFilter.Priority.QUARTERS;
+        return getAbilities().hasAbilities(Abilities.ATTACK)
+                ? AttackScanFilter.Priority.TOWER
+                : getAbilities().hasAbilities(Abilities.BUILD_ARMIES)
+                        ? AttackScanFilter.Priority.ARMORY
+                : AttackScanFilter.Priority.QUARTERS;
     }
 
     @Override
     protected void setTarget(@NonNull Target target, @NonNull Action action, boolean aggressive) {
         if (getAbilities().hasAbilities(Abilities.ATTACK)) {
             if (target != this) {
-                Unit unit = ((MountUnitContainer) getUnitContainer()).getUnit();
+                Unit unit = ((MountUnitContainer) getUnitContainer().orElseThrow()).getUnit();
                 boolean kill_friendly = action == Action.ATTACK;
                 if (unit != null && unit.canAttack(target, kill_friendly))
                     unit.pushController(new AttackController(unit, (Selectable<?>) target));
@@ -568,35 +548,18 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
 
     @Override
     protected void removeDying() {
-
-        new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(), getPositionZ()),
-                0f, 0f,
-                getTemplate().getSmokeRadius(), getTemplate().getSmokeHeight(), 1f, 1f,
-                30, 400f,
-                new Vector3f(0f, 0f, .1f), new Vector3f(0f, 0f, -2.5f),
-                new Vector4f(1f, .8f, .6f, 1f), new Vector4f(0f, 0f, 0f, -1f),
-                new Vector3f(1f, 1f, 1f), new Vector3f(7.5f, 7.5f, 7.5f), 1, 0.75f,
-                GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
-                getOwner().getWorld().getRacesResources().getSmokeTextures(),
-                getOwner().getWorld().getAnimationManagerRealTime());
-
         remove_delay = REMOVE_DELAY;
-        getOwner().getWorld().getAudio().newAudio(new AudioParameters<>(
-                getOwner().getWorld().getRacesResources().getBuildingCollapseSound(), getPositionX(), getPositionY(),
-                getPositionZ(), AudioPlayer.AUDIO_RANK_BUILDING_COLLAPSE, AudioPlayer.AUDIO_DISTANCE_BUILDING_COLLAPSE,
-                AudioPlayer.AUDIO_GAIN_BUILDING_COLLAPSE, AudioPlayer.AUDIO_RADIUS_BUILDING_COLLAPSE));
-        if (getUnitContainer() != null) {
-            while (getUnitContainer().getNumSupplies() > 0) {
-                Unit unit = getUnitContainer().exit();
+        getUnitContainer().ifPresent(c -> {
+            while (c.getNumSupplies() > 0) {
+                Unit unit = c.exit();
                 if (unit != null)
                     unit.removeNow();
             }
-        }
-        SupplyContainer worker_container = getBuildSupplyContainer(Unit.class);
-        if (worker_container != null) {
+        });
+        getBuildSupplyContainer(Unit.class).ifPresent(worker_container -> {
             int result = getOwner().getUnitCountContainer().increaseSupply(-worker_container.getNumSupplies());
             assert result == -worker_container.getNumSupplies();
-        }
+        });
         for (DeployContainer deploy_container : deploy_containers.values()) {
             int result = getOwner().getUnitCountContainer().increaseSupply(-deploy_container.getNumSupplies());
             assert result == -deploy_container.getNumSupplies();
@@ -609,35 +572,34 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
     }
 
     public boolean isValidRallyPoint(Target t) {
-        if (!(t instanceof Building b))
-            return false;
-        return getOwner() == b.getOwner() && b.getAbilities().hasAbilities(Abilities.RALLY_TO);
+        return t instanceof Building b &&
+                getOwner() == b.getOwner() &&
+                b.getAbilities().hasAbilities(Abilities.RALLY_TO);
     }
 
     public void setRallyPoint(@NonNull Target target) {
         if (!getOwner().canSetRallyPoints())
             return;
-        rally_point = isValidRallyPoint(target) ? target : getUnitGrid().findGridTargets(target.getGridX(),
-                target.getGridY(), 1, false)[0];
-    }
-
-    public @NonNull BuildState getRenderLevel() {
-        return build_points == getTemplate().getMaxHitPoints() ? BuildState.BUILT : (float) build_points / getTemplate().getMaxHitPoints() < .5 ? BuildState.START : BuildState.HALFBUILT;
+        rally_point = isValidRallyPoint(target)
+                ? target
+                : getUnitGrid().findGridTargets(target.getGridX(), target.getGridY(), 1, false)[0];
     }
 
     @Override
-    public @NonNull SpriteKey getSpriteRenderer() {
-        BuildState render_level = getRenderLevel();
-        return switch (render_level) {
-            case START -> getTemplate().getStartRenderer();
-            case HALFBUILT -> getTemplate().getHalfbuiltRenderer();
-            case BUILT -> getTemplate().getBuiltRenderer();
+    public float getShadowOpacity() {
+        return switch (getBuildStage()) {
+            case UNPLACED, START -> 0.0f;
+            case HALFBUILT, BUILT -> super.getShadowOpacity();
         };
     }
 
     @Override
-    public void visit(@NonNull ToolTipVisitor visitor) {
-        visitor.visitBuilding(this);
+    protected @NonNull BoundingBox @NonNull [] getLocalBounds() {
+        return switch (getBuildStage()) {
+            case START -> getTemplate().getStartBounds();
+            case HALFBUILT -> getTemplate().getHalfbuiltBounds();
+            case UNPLACED, BUILT -> getTemplate().getBuiltBounds();
+        };
     }
 
     private void flattenLandscape() {
@@ -659,8 +621,8 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
         float new_height = total_height / (height_points * height_points);
         for (int y = 0; y < height_points; y++) {
             for (int x = 0; x < height_points; x++) {
-                getOwner().getWorld().getHeightMap().editHeight(offset_x + x + PLACING_BORDER,
-                        offset_y + y + PLACING_BORDER, new_height);
+                getOwner().getWorld().getHeightMap().editHeight(offset_x + x + PLACING_BORDER, offset_y + y
+                        + PLACING_BORDER, new_height);
             }
         }
     }
@@ -671,8 +633,8 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
         int offset_y = getGridY() - (size - 1);
         for (int y = 0; y < old_landscape_heights.length; y++) {
             for (int x = 0; x < old_landscape_heights[y].length; x++) {
-                getOwner().getWorld().getHeightMap().editHeight(offset_x + x + PLACING_BORDER,
-                        offset_y + y + PLACING_BORDER, old_landscape_heights[y][x]);
+                getOwner().getWorld().getHeightMap().editHeight(offset_x + x + PLACING_BORDER, offset_y + y
+                        + PLACING_BORDER, old_landscape_heights[y][x]);
             }
         }
     }
@@ -680,7 +642,7 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
     @SuppressWarnings("unchecked")
     private void occupy() {
         UnitGrid grid = getUnitGrid();
-        grid.getRegion(getGridX(), getGridY()).registerObject((Class<Building>) getClass(), this);
+        grid.getRegion(getGridX(), getGridY()).registerObject(Building.class, this);
         int size = getTemplate().getPlacingSize() * 2 - 1;
         for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
@@ -692,7 +654,7 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
     @SuppressWarnings("unchecked")
     private void free() {
         UnitGrid grid = getUnitGrid();
-        grid.getRegion(getGridX(), getGridY()).unregisterObject((Class<Building>) getClass(), this);
+        grid.getRegion(getGridX(), getGridY()).unregisterObject(Building.class, this);
         int size = getTemplate().getPlacingSize() * 2 - 1;
         for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
@@ -705,13 +667,12 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
     public void hit(int damage, float dir_x, float dir_y, @NonNull Player owner) {
         super.hit(damage, dir_x, dir_y, owner);
         if (!isDead()) {
-            setHitPoints(hit_points - damage);
+            adjustHitPoints(-damage);
             World world = getOwner().getWorld();
-            world.getAudio().newAudio(new AudioParameters<>(world.getRacesResources().getBuildingHitSound(
-                    world.getRandom()), getPositionX(), getPositionY(), getPositionZ(),
-                    AudioPlayer.AUDIO_RANK_WEAPON_HIT, AudioPlayer.AUDIO_DISTANCE_WEAPON_HIT,
-                    AudioPlayer.AUDIO_GAIN_WEAPON_HIT, AudioPlayer.AUDIO_RADIUS_WEAPON_HIT));
-            if (hit_points == 0) {
+            world.getAudio().newAudio(getPositionX(), getPositionY(), getPositionZ(),
+                    AudioAssets.BUILDING_HITS[ThreadLocalRandom.current()
+                            .nextInt(AudioAssets.BUILDING_HITS.length)]);
+            if (hit_points <= 0) {
                 // stats
                 getOwner().buildingLost();
                 owner.buildingDestroyed();
@@ -728,42 +689,48 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
     }
 
     public void fillSupplies(@NonNull Class<?> key, int max) {
-        SupplyContainer container = getSupplyContainer(key);
-        if (container != null) {
+        getSupplyContainer(key).ifPresent(container -> {
             container.increaseSupply(Math.min(container.getMaxSupplyCount() - container.getNumSupplies(), max));
-        }
+        });
     }
 
     public void removeSupplies(@NonNull Class<?> key) {
-        SupplyContainer container = getSupplyContainer(key);
-        if (container != null) {
+        getSupplyContainer(key).ifPresent(container -> {
             container.increaseSupply(-container.getNumSupplies());
-        }
+        });
     }
 
     @Override
     public int getStatusValue() {
-        return getAbilities().hasAbilities(
-                Abilities.REPRODUCE) ? getUnitContainer().getNumSupplies() : getAbilities().hasAbilities(
-                        Abilities.BUILD_ARMIES) ? getUnitContainer().getNumSupplies() + getSupplyContainer(
-                                RockAxeWeapon.class).getNumSupplies() + getSupplyContainer(
-                                        IronAxeWeapon.class).getNumSupplies() * 3 + getSupplyContainer(
-                                                RubberAxeWeapon.class).getNumSupplies() * 8 : 0;
+        return getAbilities().hasAbilities(Abilities.REPRODUCE)
+                ? getUnitContainer().map(SupplyContainer::getNumSupplies).orElse(0)
+                : getAbilities().hasAbilities(Abilities.BUILD_ARMIES)
+                        ? getUnitContainer().map(SupplyContainer::getNumSupplies).orElse(0) +
+                                getSupplyContainer(RockAxeWeapon.class).map(SupplyContainer::getNumSupplies).orElse(0) +
+                                getSupplyContainer(IronAxeWeapon.class).map(SupplyContainer::getNumSupplies).orElse(0)
+                                        * 3 +
+                                getSupplyContainer(RubberAxeWeapon.class).map(SupplyContainer::getNumSupplies).orElse(0)
+                                        * 8
+                : 0;
     }
 
     public void printDebugInfo() {
         IO.println("-----------------------------------");
         if (getAbilities().hasAbilities(Abilities.REPRODUCE)) {
-            IO.println("Units = " + getUnitContainer().getNumSupplies());
+            IO.println("Units = " + getUnitContainer().map(SupplyContainer::getNumSupplies).orElse(0));
         } else if (getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
-            IO.println("Units = " + getUnitContainer().getNumSupplies());
-            IO.println("Tree = " + getSupplyContainer(TreeSupply.class).getNumSupplies());
-            IO.println("Rock = " + getSupplyContainer(RockSupply.class).getNumSupplies());
-            IO.println("Iron = " + getSupplyContainer(IronSupply.class).getNumSupplies());
-            IO.println("Rubber = " + getSupplyContainer(RubberSupply.class).getNumSupplies());
-            IO.println("Rock Weapons = " + getSupplyContainer(RockAxeWeapon.class).getNumSupplies());
-            IO.println("Iron Weapons = " + getSupplyContainer(IronAxeWeapon.class).getNumSupplies());
-            IO.println("Rubber Weapons = " + getSupplyContainer(RubberAxeWeapon.class).getNumSupplies());
+            IO.println("Units = " + getUnitContainer().map(SupplyContainer::getNumSupplies).orElse(0));
+            IO.println("Tree = " + getSupplyContainer(TreeSupply.class).map(SupplyContainer::getNumSupplies).orElse(0));
+            IO.println("Rock = " + getSupplyContainer(RockSupply.class).map(SupplyContainer::getNumSupplies).orElse(0));
+            IO.println("Iron = " + getSupplyContainer(IronSupply.class).map(SupplyContainer::getNumSupplies).orElse(0));
+            IO.println("Rubber = " + getSupplyContainer(RubberSupply.class).map(SupplyContainer::getNumSupplies).orElse(
+                    0));
+            IO.println("Rock Weapons = " + getSupplyContainer(RockAxeWeapon.class).map(SupplyContainer::getNumSupplies)
+                    .orElse(0));
+            IO.println("Iron Weapons = " + getSupplyContainer(IronAxeWeapon.class).map(SupplyContainer::getNumSupplies)
+                    .orElse(0));
+            IO.println("Rubber Weapons = " + getSupplyContainer(RubberAxeWeapon.class).map(
+                    SupplyContainer::getNumSupplies).orElse(0));
         }
     }
 }

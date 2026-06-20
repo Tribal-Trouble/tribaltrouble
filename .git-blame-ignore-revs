@@ -4,3 +4,6 @@ a5e019fafb77e2983ee029a6e2cafba036f7fe63
 
 # normalize line endings to LF on 5 stragglers
 c9bca670e4262e6c8c8c196ab03e0f3388cb2e3a
+
+# Style: Conservative reformat codebase with spotless JDT formatter
+6114bbb589e2b4f9a9e4c2ddd4b80b726e47f4f8

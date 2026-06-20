@@ -53,12 +53,12 @@ public final class Grass {
             float color4_r = color4_g * (0.5f + 0.5f * Tools.gaussify(random.nextFloat()));
             float color4_b = color4_r * (0.4f + 0.6f * Tools.gaussify(random.nextFloat()));
 
-            int cluster = (int) (clusters * random.nextFloat());
+            int cluster = random.nextInt(clusters);
 
             float p1_x = (float) cluster / clusters + Tools.gaussify(Tools.gaussify(random.nextFloat())) / clusters;
             float p1_y = 0.25f * (1f - ((float) leaf / leaves));
             float p2_x = Math.clamp(p1_x + aspect * Tools.gaussify(random.nextFloat()) - 0.5f * aspect, 0.025f, 0.975f);
-            float p2_y = Math.clamp(0.7f * random.nextFloat(), 0.25f, 0.975f);
+            float p2_y = Math.clamp(random.nextFloat(0.7f), 0.25f, 0.975f);
 
             p2_x = (1 - p2_y) * p1_x + p2_y * p2_x;
 
@@ -66,7 +66,7 @@ public final class Grass {
             float p3_y;
 
             if (p2_y < 0.2 && random.nextFloat() < 0.5) {
-                p3_y = Math.clamp(p2_y * (random.nextFloat() + 1f), 0.025f, 0.975f);
+                p3_y = Math.clamp(p2_y * random.nextFloat(1f, 2f), 0.025f, 0.975f);
             } else {
                 p3_y = Math.clamp(p2_y + 1.25f * p2_y * Tools.gaussify(random.nextFloat()) - 0.5f * p2_y, 0.025f,
                         0.975f);
@@ -131,28 +131,29 @@ public final class Grass {
                 float color_b = 0;
 
                 switch ((int) (t * 4)) {
-                    case 0:
+                    case 0 -> {
                         color_r = Tools.interpolateLinear(color0_r, color1_r, t / 0.25f);
                         color_g = Tools.interpolateLinear(color0_g, color1_g, t / 0.25f);
                         color_b = Tools.interpolateLinear(color0_b, color1_b, t / 0.25f);
-                        break;
-                    case 1:
+                    }
+                    case 1 -> {
                         color_r = Tools.interpolateLinear(color1_r, color2_r, (t - 0.25f) / 0.25f);
                         color_g = Tools.interpolateLinear(color1_g, color2_g, (t - 0.25f) / 0.25f);
                         color_b = Tools.interpolateLinear(color1_b, color2_b, (t - 0.25f) / 0.25f);
-                        break;
-                    case 2:
+                    }
+                    case 2 -> {
                         color_r = Tools.interpolateLinear(color2_r, color3_r, (t - 0.50f) / 0.25f);
                         color_g = Tools.interpolateLinear(color2_g, color3_g, (t - 0.50f) / 0.25f);
                         color_b = Tools.interpolateLinear(color2_b, color3_b, (t - 0.50f) / 0.25f);
-                        break;
-                    case 3:
+                    }
+                    case 3 -> {
                         color_r = Tools.interpolateLinear(color3_r, color4_r, (t - 0.75f) / 0.25f);
                         color_g = Tools.interpolateLinear(color3_g, color4_g, (t - 0.75f) / 0.25f);
                         color_b = Tools.interpolateLinear(color3_b, color4_b, (t - 0.75f) / 0.25f);
-                        break;
-                    default:
+                    }
+                    default -> {
                         assert false : "incorrect color point";
+                    }
                 }
 
                 int x_int = (int) x;

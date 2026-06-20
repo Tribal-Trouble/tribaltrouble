@@ -106,10 +106,10 @@ public abstract class GLImage {
                 int g = (pixel >>> 8) & 0xff;
                 int b = pixel & 0xff;
 
-                a = (int) (a * factor);
-                r = (int) (r * factor);
-                g = (int) (g * factor);
-                b = (int) (b * factor);
+                a = Math.round(a * factor);
+                r = Math.round(r * factor);
+                g = Math.round(g * factor);
+                b = Math.round(b * factor);
 
                 image.putPixel(x, y, (a << 24) | (r << 16) | (g << 8) | b);
             }
@@ -120,14 +120,14 @@ public abstract class GLImage {
      * Applies a progressive alpha fade-out effect to a series of mipmaps.
      * This is used to smoothly fade objects out of view at a distance.
      *
-     * @param mipmaps            An array of GLImages representing the mipmap levels.
+     * @param mipmaps An array of GLImages representing the mipmap levels.
      * @param base_fadeout_level The mipmap level at which to start the fade-out.
-     * @param fadeout_factor     The factor by which to reduce the alpha at each successive level.
-     * @param start_x            The starting X coordinate of the area to modify.
-     * @param start_y            The starting Y coordinate of the area to modify.
-     * @param width              The width of the area to modify.
-     * @param height             The height of the area to modify.
-     * @param max_alpha          If true, only pixels with full alpha (255) are faded.
+     * @param fadeout_factor The factor by which to reduce the alpha at each successive level.
+     * @param start_x The starting X coordinate of the area to modify.
+     * @param start_y The starting Y coordinate of the area to modify.
+     * @param width The width of the area to modify.
+     * @param height The height of the area to modify.
+     * @param max_alpha If true, only pixels with full alpha (255) are faded.
      */
     public static void updateMipMapsArea(GLImage @NonNull [] mipmaps, int base_fadeout_level, float fadeout_factor,
             int start_x, int start_y, int width, int height, boolean max_alpha) {
@@ -150,8 +150,8 @@ public abstract class GLImage {
     public static void blendMipMapsArea(GLImage @NonNull [] dest_mipmaps, GLImage @NonNull [] source_mipmaps,
             int base_fadeout_level, float fadeout_factor, int start_x, int start_y, int width, int height) {
         int mip_map_level = 0;
-        while (source_mipmaps[0].getWidth() != dest_mipmaps[mip_map_level].getWidth()
-                && source_mipmaps[0].getHeight() != dest_mipmaps[mip_map_level].getHeight())
+        while (source_mipmaps[0].getWidth() != dest_mipmaps[mip_map_level].getWidth() && source_mipmaps[0].getHeight()
+                != dest_mipmaps[mip_map_level].getHeight())
             mip_map_level++;
         for (int i = 1; i < dest_mipmaps.length; i++) {
             int height_div = dest_mipmaps[i - 1].getHeight() / dest_mipmaps[i].getHeight();
@@ -174,16 +174,16 @@ public abstract class GLImage {
      * used for generating mipmap levels. It can apply a fadeout effect and uses
      * the maximum alpha value from the source block instead of averaging if specified.
      *
-     * @param last_img           The source image (previous mipmap level).
-     * @param x                  The top-left x-coordinate of the block in the source image.
-     * @param y                  The top-left y-coordinate of the block in the source image.
-     * @param height_div         The height of the pixel block to average.
-     * @param width_div          The width of the pixel block to average.
+     * @param last_img The source image (previous mipmap level).
+     * @param x The top-left x-coordinate of the block in the source image.
+     * @param y The top-left y-coordinate of the block in the source image.
+     * @param height_div The height of the pixel block to average.
+     * @param width_div The width of the pixel block to average.
      * @param base_fadeout_level The mipmap level at which to begin applying fadeout.
-     * @param fadeout_factor     The factor by which to reduce color components for fading.
-     * @param current_level      The current mipmap level being generated.
-     * @param max_alpha          If true, the resulting alpha is the maximum from the source block;
-     *                           otherwise, it's the average.
+     * @param fadeout_factor The factor by which to reduce color components for fading.
+     * @param current_level The current mipmap level being generated.
+     * @param max_alpha If true, the resulting alpha is the maximum from the source block;
+     *            otherwise, it's the average.
      * @return The calculated 32-bit ARGB pixel value.
      */
     private static int averagePixel(@NonNull GLImage last_img, int x, int y, int height_div, int width_div,
@@ -223,9 +223,9 @@ public abstract class GLImage {
         // Calculate average color based on weight
         int r_avg, g_avg, b_avg;
         if (weight_acc > 0) {
-            r_avg = (int) (r_acc / weight_acc);
-            g_avg = (int) (g_acc / weight_acc);
-            b_avg = (int) (b_acc / weight_acc);
+            r_avg = (int) ((r_acc + weight_acc / 2) / weight_acc);
+            g_avg = (int) ((g_acc + weight_acc / 2) / weight_acc);
+            b_avg = (int) ((b_acc + weight_acc / 2) / weight_acc);
         } else {
             r_avg = 0;
             g_avg = 0;
@@ -233,14 +233,14 @@ public abstract class GLImage {
         }
 
         if (current_level >= base_fadeout_level) {
-            a_acc = (int) (a_acc * fadeout_factor);
+            a_acc = Math.round(a_acc * fadeout_factor);
             // Don't fade color, only alpha? Original faded color too.
             // If we fade color towards black, it becomes anemic.
             // Usually distance fadeout only affects Alpha.
             // But original code faded R,G,B too.
-            r_avg = (int) (r_avg * fadeout_factor);
-            g_avg = (int) (g_avg * fadeout_factor);
-            b_avg = (int) (b_avg * fadeout_factor);
+            r_avg = Math.round(r_avg * fadeout_factor);
+            g_avg = Math.round(g_avg * fadeout_factor);
+            b_avg = Math.round(b_avg * fadeout_factor);
         }
 
         if (max_alpha) {
@@ -249,7 +249,7 @@ public abstract class GLImage {
                 a_acc = 255;
             }
         } else {
-            a_acc = (int) (a_acc * inv_num_averaged);
+            a_acc = Math.round(a_acc * inv_num_averaged);
         }
 
         return (a_acc << 24) | (r_avg << 16) | (g_avg << 8) | b_avg;
@@ -260,15 +260,15 @@ public abstract class GLImage {
      * This alternative implementation averages all channels, including alpha, and then
      * applies a simple threshold to the averaged alpha if {@code max_alpha} is true.
      *
-     * @param last_img           The source image (previous mipmap level).
-     * @param x                  The top-left x-coordinate of the block in the source image.
-     * @param y                  The top-left y-coordinate of the block in the source image.
-     * @param height_div         The height of the pixel block to average.
-     * @param width_div          The width of the pixel block to average.
+     * @param last_img The source image (previous mipmap level).
+     * @param x The top-left x-coordinate of the block in the source image.
+     * @param y The top-left y-coordinate of the block in the source image.
+     * @param height_div The height of the pixel block to average.
+     * @param width_div The width of the pixel block to average.
      * @param base_fadeout_level The mipmap level at which to begin applying fadeout.
-     * @param fadeout_factor     The factor by which to reduce color components for fading.
-     * @param current_level      The current mipmap level being generated.
-     * @param max_alpha          If true, sets alpha to 255 if the average is >= 128.
+     * @param fadeout_factor The factor by which to reduce color components for fading.
+     * @param current_level The current mipmap level being generated.
+     * @param max_alpha If true, sets alpha to 255 if the average is >= 128.
      * @return The calculated 32-bit ARGB pixel value.
      */
 
@@ -289,15 +289,15 @@ public abstract class GLImage {
             }
         }
         if (current_level >= base_fadeout_level) {
-            col1 = (int) (col1 * fadeout_factor);
-            col2 = (int) (col2 * fadeout_factor);
-            col3 = (int) (col3 * fadeout_factor);
-            col4 = (int) (col4 * fadeout_factor);
+            col1 = Math.round(col1 * fadeout_factor);
+            col2 = Math.round(col2 * fadeout_factor);
+            col3 = Math.round(col3 * fadeout_factor);
+            col4 = Math.round(col4 * fadeout_factor);
         }
-        col1 = (int) (col1 * inv_num_averaged);
-        col2 = (int) (col2 * inv_num_averaged);
-        col3 = (int) (col3 * inv_num_averaged);
-        col4 = (int) (col4 * inv_num_averaged);
+        col1 = Math.round(col1 * inv_num_averaged);
+        col2 = Math.round(col2 * inv_num_averaged);
+        col3 = Math.round(col3 * inv_num_averaged);
+        col4 = Math.round(col4 * inv_num_averaged);
         if (max_alpha) {
             if (col1 >= 128)
                 col1 = 255;
@@ -319,7 +319,7 @@ public abstract class GLImage {
         int yy = y;
         for (; yy < y + height; yy++) {
             for (int xx = x; xx < x + width; xx++) {
-                putPixel(yy, xx, color);
+                putPixel(xx, yy, color);
             }
         }
     }
@@ -362,8 +362,11 @@ public abstract class GLImage {
                 dg = dpixel >>> 8 & 0xff;
                 db = dpixel & 0xff;
                 da = dpixel >>> 24;
-                putPixel(x + dx, y + dy,
-                        (((sa * sa + da * sa_inverse) / 255) << 24) + (((sr * sa + dr * sa_inverse) / 255) << 16) + (((sg * sa + dg * sa_inverse) / 255) << 8) + ((sb * sa + db * sa_inverse) / 255));
+                putPixel(x + dx, y + dy, (((sa * 255 + da * sa_inverse + 127) / 255) << 24) + (((sr * sa + dr
+                        * sa_inverse + 127)
+                        / 255) << 16) + (((sg * sa + dg * sa_inverse + 127) / 255) << 8) + ((sb * sa + db * sa_inverse
+                                + 127)
+                                / 255));
 //				System.out.println("result dp " + Integer.toHexString(pixels[x+dy_loop]) + " sp " + Integer.toHexString(spixel) + " dp " + Integer.toHexString(dpixel) + " sa " + Integer.toHexString(sa) + " sa_inv " + Integer.toHexString(sa_inverse) + " sr " + Integer.toHexString(sr) + " sg " + Integer.toHexString(sg) + " sb " + Integer.toHexString(sb) + " dr " + Integer.toHexString(dr) + " dg " + Integer.toHexString(dg)  + " db " + Integer.toHexString(db) + " da " + Integer.toHexString(da));
             }
         }
@@ -374,6 +377,15 @@ public abstract class GLImage {
     public final @NonNull ByteBuffer getPixels() {
         return pixel_data;
     }
+
+    /**
+     * Scales the image to the specified dimensions.
+     *
+     * @param newWidth The new width.
+     * @param newHeight The new height.
+     * @return A new GLImage with the scaled content.
+     */
+    public abstract @NonNull GLImage scale(int newWidth, int newHeight);
 
     public final void drawImage(@NonNull GLImage img, int dx, int dy, int sx, int sy, int w, int h) {
         int pixel_size = getPixelSize();
@@ -403,14 +415,19 @@ public abstract class GLImage {
         Channel g = new Channel(width, height);
         Channel b = new Channel(width, height);
         Channel a = new Channel(width, height);
+        float[] r_pixels = r.getPixels();
+        float[] g_pixels = g.getPixels();
+        float[] b_pixels = b.getPixels();
+        float[] a_pixels = a.getPixels();
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int pixel = getPixel(x, y);
+                int index = y * width + x;
                 // Unpack ABGR
-                a.putPixel(x, y, (pixel >>> 24) / 255f);
-                b.putPixel(x, y, ((pixel >> 16) & 0xff) / 255f);
-                g.putPixel(x, y, ((pixel >> 8) & 0xff) / 255f);
-                r.putPixel(x, y, (pixel & 0xff) / 255f);
+                a_pixels[index] = (pixel >>> 24) / 255f;
+                b_pixels[index] = ((pixel >> 16) & 0xff) / 255f;
+                g_pixels[index] = ((pixel >> 8) & 0xff) / 255f;
+                r_pixels[index] = (pixel & 0xff) / 255f;
             }
         }
         return new Layer(r, g, b, a);

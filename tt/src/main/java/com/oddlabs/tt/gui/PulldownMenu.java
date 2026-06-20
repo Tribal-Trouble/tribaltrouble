@@ -10,22 +10,26 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+/**
+ * A dropdown menu group containing list items that can be chosen.
+ */
 public class PulldownMenu<T> extends Group {
     private final Set<@NonNull ItemChosenListener<T>> chosen_listeners = new CopyOnWriteArraySet<>();
 
     protected final List<@NonNull PulldownItem<T>> items = new ArrayList<>();
-    protected int chosen_item_index = -1;
+    private int chosen_item_index = -1;
 
     public PulldownMenu() {
         setCanFocus(true);
         setFocusCycle(true);
     }
 
-    public @NonNull PulldownItem<T> getItem(int index) {
-        return items.get(index);
+    public @NonNull Optional<PulldownItem<T>> getItem(int index) {
+        return index >= 0 && index < items.size() ? Optional.of(items.get(index)) : Optional.empty();
     }
 
     public int getSize() {
@@ -79,21 +83,31 @@ public class PulldownMenu<T> extends Group {
         return this;
     }
 
+    /** Sets the dimensions directly via {@link Group}, bypassing this class's layout logic. */
     protected void super_setDim(int width, int height) {
         super.setDim(width, height);
     }
 
+    public @NonNull Optional<PulldownItem<T>> getChosenItem() {
+        return -1 != chosen_item_index ? Optional.of(items.get(chosen_item_index)) : Optional.empty();
+    }
+
+    /** {@return index of the chosen item, or -1 if no item is chosen} */
     public int getChosenItemIndex() {
         return chosen_item_index;
     }
 
+    /**
+     * Chooses an item by its index.
+     *
+     * @param index index of the item to choose or -1 to clear the chosen item
+     */
     public void chooseItem(int index) {
         chosen_item_index = index;
         itemChosenAll();
     }
 
-    // Update the selection without notifying listeners, for programmatic state sync that must not run the
-    // user-selection side effects (closing an open menu, resending the slot to the server).
+    /** Sets the chosen item without firing item-chosen listeners. */
     public void chooseItemSilently(int index) {
         chosen_item_index = index;
     }

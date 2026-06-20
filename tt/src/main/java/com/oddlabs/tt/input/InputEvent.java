@@ -5,11 +5,14 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class InputEvent {
+    private static final Logger logger = Logger.getLogger(InputEvent.class.getSimpleName());
     private final @NonNull Set<@NonNull GameAction> actions;
     private final @NonNull InputPhase phase;
-    private final char character;
+    private final int codepoint;
     private final boolean shiftDown;
     private final boolean controlDown;
     private final boolean altDown;
@@ -26,13 +29,19 @@ public final class InputEvent {
         this.actions = EnumSet.copyOf(actions);
         this.phase = phase;
         this.keyCode = keyboardEvent.keyCode();
-        this.character = keyboardEvent.keyChar();
+        this.codepoint = keyboardEvent.keyCodepoint();
         this.shiftDown = keyboardEvent.shiftDown();
         this.controlDown = keyboardEvent.controlDown();
         this.altDown = keyboardEvent.altDown();
         this.metaDown = keyboardEvent.metaDown();
         this.clicks = keyboardEvent.clicks();
         this.consumed = false;
+    }
+
+    @Override
+    public String toString() {
+        return "InputEvent{" + "actions=" + actions + ", phase=" + phase + ", keyCode=" + keyCode + ", consumed="
+                + consumed + '}';
     }
 
     public @NonNull Set<GameAction> getActions() {
@@ -43,8 +52,8 @@ public final class InputEvent {
         return phase;
     }
 
-    public char getCharacter() {
-        return character;
+    public int getCodepoint() {
+        return codepoint;
     }
 
     public boolean isShiftDown() {
@@ -90,11 +99,12 @@ public final class InputEvent {
      * Marks the physical event as fully handled, stopping further propagation.
      */
     public void consume() {
+        logger.log(Level.INFO, "InputEvent: " + this + " consumed", new Throwable("InputEvent.consume()"));
         this.consumed = true;
     }
 
     /**
-     * @return true if there are unconsumed actions
+     * {@return true if there are unconsumed actions}
      */
     public boolean hasActions() {
         return !actions.isEmpty();

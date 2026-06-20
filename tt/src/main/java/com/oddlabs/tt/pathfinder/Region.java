@@ -9,10 +9,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
+/**
+ * Represents a logical sub-region of the unit grid used to optimize pathfinding and object lookups.
+ */
 public final class Region extends Node {
-    private final Map<Class<?>, List<?>> object_lists = new HashMap<>();
-    private final List<Region> neighbours = new ArrayList<>();
+    private final Map<@NonNull Class<?>, @NonNull Set<?>> objectSets = new HashMap<>();
+    private final List<@NonNull Region> neighbours = new ArrayList<>();
 
     private int center_x;
     private int center_y;
@@ -56,20 +61,19 @@ public final class Region extends Node {
         r2.addNeighbour(r1);
     }
 
-    public <K> @NonNull List<K> getObjects(Class<? super K> key) {
-        @SuppressWarnings("unchecked") List<K> list = (List<K>) object_lists.computeIfAbsent(key,
-                k -> new ArrayList<>());
-        return list;
+    public <K> @NonNull Set<K> getObjects(@NonNull Class<? super K> key) {
+        //noinspection unchecked
+        return (Set<K>) objectSets.computeIfAbsent(key, k -> new CopyOnWriteArraySet<>());
     }
 
-    public <K> void registerObject(Class<? super K> key, K object) {
+    public <K> void registerObject(@NonNull Class<? super K> key, K object) {
         getObjects(key).add(object);
     }
 
-    public <K> void unregisterObject(Class<? super K> key, K object) {
-        @SuppressWarnings("unchecked") List<K> list = (List<K>) object_lists.get(key);
+    public <K> boolean unregisterObject(@NonNull Class<? super K> key, K object) {
+        @SuppressWarnings("unchecked") Set<K> list = (Set<K>) objectSets.get(key);
         assert list != null : "Unknown key";
-        list.remove(object);
+        return null != list && list.remove(object);
     }
 
     private void addNeighbour(Region n) {
@@ -80,8 +84,8 @@ public final class Region extends Node {
     public boolean addNeighbours(@NonNull PathFinderAlgorithm finder, UnitGrid unit_grid) {
         for (Region neighbour : neighbours) {
             if (!neighbour.isVisited())
-                PathFinder.addToOpenList(finder, neighbour, this, estimateCost(neighbour.getGridX(),
-                        neighbour.getGridY()));
+                PathFinder.addToOpenList(finder, neighbour, this, estimateCost(neighbour.getGridX(), neighbour
+                        .getGridY()));
         }
         return false;
     }

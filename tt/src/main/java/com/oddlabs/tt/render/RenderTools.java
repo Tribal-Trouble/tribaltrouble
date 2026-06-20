@@ -2,10 +2,14 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.model.Model;
-import com.oddlabs.tt.util.BoundingBox;
+import com.oddlabs.tt.model.BoundingBox;
 import com.oddlabs.tt.util.DebugRender;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * Utility class providing common rendering operations, including frustum culling,
+ * coordinate transformations, and debug visualization.
+ */
 public final class RenderTools {
 
     enum FrustumIntersection {
@@ -79,35 +83,32 @@ public final class RenderTools {
         float distx = camera_x - box.getCX();
         float disty = camera_y - box.getCY();
         float distz = camera_z - box.getCZ();
-        float dist2 = distx * distx + disty * disty + distz * distz;
-        return dist2;
+        return distx * distx + disty * disty + distz * distz;
     }
 
     static float getCameraDistanceXYSquared(@NonNull BoundingBox box, float camera_x, float camera_y) {
-        float distx = camera_x - box.getCX();
-        float disty = camera_y - box.getCY();
-        float dist2 = distx * distx + disty * disty;
-        return dist2;
+        float dx = camera_x - box.getCX();
+        float dy = camera_y - box.getCY();
+        return dx * dx + dy * dy;
     }
 
     static float getCameraDistanceSquared(@NonNull BoundingBox box, float camera_x, float camera_y, float camera_z) {
-        float distz = camera_z - box.getCZ();
-        float dist2 = getCameraDistanceXYSquared(box, camera_x, camera_y) + distz * distz;
-        return dist2;
+        return getEyeDistanceSquared(box, camera_x, camera_y, camera_z);
     }
 
-    static void draw(@NonNull BoundingBox box) {
+    public static void draw(@NonNull BoundingBox box) {
         draw(box, 1f, 1f, 1f);
     }
 
-    static void draw(@NonNull BoundingBox box, float r, float g, float b) {
+    public static void draw(@NonNull BoundingBox box, float r, float g, float b) {
         DebugRender.drawBox(box.bmin_x, box.bmax_x, box.bmin_y, box.bmax_y, box.bmin_z, box.bmax_z, r, g, b);
     }
 
-    static void draw(@NonNull BoundingBox box, @NonNull BoundingMode bound_type, float r, float g, float b) {
+    public static void draw(@NonNull BoundingBox box, @NonNull BoundingMode bound_type, float r, float g, float b) {
         draw(box, r, g, b);
     }
 
     private RenderTools() {
+        // no instances
     }
 }
