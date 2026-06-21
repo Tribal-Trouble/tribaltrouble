@@ -125,7 +125,7 @@ public final class PeerHub implements Animated, RouterHandler {
         GameArgumentReader argument_reader = new GameArgumentReader(distributable_table);
         List<Peer> peer_index_to_peer_list = new ArrayList<>();
         List<@NonNull Player> players = local_player.getWorld().getPlayers();
-        int local_peer_index = -1;
+        this.local_peer_index = -1;
         if (!is_multiplayer) {
             this.router = new Router(network, com.oddlabs.util.Utils.getLoopbackAddress(), 0, Logger
                     .getAnonymousLogger(), (IOException e) -> {

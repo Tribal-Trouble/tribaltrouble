@@ -16,4 +16,6 @@ module com.oddlabs.common {
     exports com.oddlabs.registration;
     exports com.oddlabs.router;
     exports com.oddlabs.util;
+        
+    opens com.oddlabs.matchmaking to com.fasterxml.jackson.databind;
 }

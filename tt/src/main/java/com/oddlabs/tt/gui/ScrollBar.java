@@ -81,8 +81,10 @@ public final class ScrollBar extends GUIObject {
 
     public int getButtonY() {
         ScrollBarData data = Skin.getSkin().getScrollBarData();
-        int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.bottomOffset() - data
-                .topOffset();
+        // Floor at 0: during construction setDim runs before the parent lays this out, so getHeight() can be small
+        // enough that this goes negative. Math.clamp (used in getButtonHeight) throws on an inverted range.
+        int max_height = Math.max(0, getHeight() - less_button.getHeight() - more_button.getHeight()
+                - data.bottomOffset() - data.topOffset());
         int size = getButtonHeight();
         int offset = max_height - size - (int) ((max_height - size) * owner.getScrollBarOffset());
         return less_button.getHeight() + data.bottomOffset() + offset;
@@ -90,8 +92,10 @@ public final class ScrollBar extends GUIObject {
 
     public int getButtonHeight() {
         ScrollBarData data = Skin.getSkin().getScrollBarData();
-        int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.bottomOffset() - data
-                .topOffset();
+        // Floor at 0: during construction setDim runs before the parent lays this out, so getHeight() can be small
+        // enough that this goes negative, which makes Math.clamp throw on an inverted (min > max) range.
+        int max_height = Math.max(0, getHeight() - less_button.getHeight() - more_button.getHeight()
+                - data.bottomOffset() - data.topOffset());
         float ratio = Math.min(owner.getScrollBarRatio(), 1.0f);
         int size = Math.max((int) (ratio * max_height), data.scrollButton().getMinHeight());
         return Math.clamp(size, 0, max_height);
@@ -152,7 +156,6 @@ public final class ScrollBar extends GUIObject {
         public void mousePressed(@NonNull MouseButton button, int x, int y) {
             start_offset = owner.getScrollBarOffset();
         }
-        // MERGE TODO: Did this do anything weird or we good?
         @Override
         public void mouseDragged(@NonNull MouseButton button, int x, int y, int rel_x, int rel_y,
                 int abs_x, int abs_y) {

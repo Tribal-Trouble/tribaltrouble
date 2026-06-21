@@ -25,8 +25,12 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class Client implements ARMIEventBroker, GameClientInterface, ConnectionInterface {
+    private static final Logger logger = Logger.getLogger(Client.class.getName());
+
     private static final int CONNECTING = 1;
     private static final int NEGOTIATING = 2;
     private static final int CLOSED = 5;
@@ -150,7 +154,10 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
     public void handle(Object sender, @NonNull ARMIEvent armi_event) {
         try {
             armi_event.execute(interface_methods, this);
-        } catch (IllegalARMIEventException _) {
+        } catch (IllegalARMIEventException e) {
+            // Log the full cause chain before tearing down. An ARMI handler throwing is otherwise invisible
+            // (the connection just drops with "Connection to game host lost").
+            logger.log(Level.SEVERE, "ARMI event handler failed; closing connection", e);
             error();
         }
     }

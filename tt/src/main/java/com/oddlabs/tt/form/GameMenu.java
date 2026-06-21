@@ -143,7 +143,8 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
         team_buttons = (PulldownButton<Integer>[]) new PulldownButton[player_count];
         ready_marks = new Diode[player_count];
         ratings = new Label[player_count];
-        Group player_group = new Group();
+        // With more than 6 players the roster won't fit, so put it in a bounded scroll grid; otherwise a plain group.
+        Group player_group = player_count > DEFAULT_PLAYER_COUNT ? new ScrollableGroup(170, 64) : new Group();
         GUIObject previous = null;
         for (int i = 0; i < player_count; i++) {
             previous = createPlayerPulldown(gui_root, player_group, previous, slot_buttons, race_buttons, team_buttons,
