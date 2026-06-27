@@ -59,6 +59,16 @@ public class GeneralPanel extends Panel {
         cb_aggressive_units.place();
         group_aggressive_units.compileCanvas();
 
+        // Show compass
+        Group group_show_compass = new Group();
+        addChild(group_show_compass);
+        CheckBox cb_show_compass = new CheckBox(Renderer.getRenderer().getSettings().show_compass,
+                AbstractOptionsMenu.i18n("show_compass"), AbstractOptionsMenu.i18n("show_compass_tip"));
+        cb_show_compass.addCheckBoxListener(marked -> Renderer.getRenderer().getSettings().show_compass = marked);
+        group_show_compass.addChild(cb_show_compass);
+        cb_show_compass.place();
+        group_show_compass.compileCanvas();
+
         // Mapmode delay
         Group group_mapmode = new Group();
         addChild(group_mapmode);
@@ -167,7 +177,8 @@ public class GeneralPanel extends Panel {
         group_tooltip.place(group_mapmode, BOTTOM_LEFT);
         group_invert_camera.place(group_tooltip, BOTTOM_LEFT);
         group_aggressive_units.place(group_invert_camera, BOTTOM_LEFT);
-        group_domain.place(group_aggressive_units, BOTTOM_LEFT);
+        group_show_compass.place(group_aggressive_units, BOTTOM_LEFT);
+        group_domain.place(group_show_compass, BOTTOM_LEFT);
         compileCanvas();
     }
 
