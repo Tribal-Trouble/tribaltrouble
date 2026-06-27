@@ -123,7 +123,7 @@ public final class InputManager {
 //        def(GameAction.UNIT_ALL_IDLE, Key.N, Modifier.CONTROL);
 //        def(GameAction.UNIT_ADD_ALL_IDLE, Key.N, Modifier.CONTROL, Modifier.SHIFT);
         def(GameAction.UNIT_SET_RALLY, Key.R);
-        def(GameAction.GAMEPLAY_BACK, Key.BACK);
+        def(GameAction.GAMEPLAY_BACK, Key.ESCAPE);
 
         // Army Shortcuts (0-9)
         def(GameAction.ARMY_SELECT_0, Key.KEY_0);

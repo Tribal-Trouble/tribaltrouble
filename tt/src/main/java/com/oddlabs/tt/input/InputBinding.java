@@ -27,9 +27,9 @@ public record InputBinding(@NonNull Key key, int codepoint, @NonNull Set<@NonNul
     }
 
     public boolean matches(@NonNull KeyboardEvent event) {
-        return (codepoint != -1) && (event.keyCodepoint() != -1)
-               ? event.keyCodepoint() == codepoint
-               : event.keyCode() == key && modifiers.equals(event.modifiers());
+        return ((codepoint != -1) && (event.keyCodepoint() != -1))
+                ? event.keyCodepoint() == codepoint
+                : event.keyCode() == key && modifiers.equals(event.modifiers());
     }
 
     public boolean shift() {

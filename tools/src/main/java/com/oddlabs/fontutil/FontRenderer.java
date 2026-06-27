@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 public final class FontRenderer {
@@ -50,11 +51,13 @@ public final class FontRenderer {
     static void main(@NonNull String @NonNull... args) {
         if (args.length < 9) {
             IO.println(
-                    "FontRenderer <font_name> <font_size> <max_image_width> <max_chars> <scale_factor> <font_info_dir> <font_tex_dir> <font_tex_classpath> <additional_chars>");
+                    "FontRenderer <font_name> <font_size> <max_image_width> <max_chars> <scale_factor> <font_info_dir> <font_tex_dir> <font_tex_classpath> <additional_codepoints_hex>");
         }
         try {
-            int[] codepoints = IntStream.concat(IntStream.range(0, Integer.parseInt(args[3])),
-                    args[8].codePoints()).toArray();
+            int baseCharCount = Integer.parseInt(args[3]);
+            IntStream baseCodepoints = IntStream.range(0, baseCharCount);
+            IntStream extraCodepoints = parseHexCodepoints(args[8]);
+            int[] codepoints = IntStream.concat(baseCodepoints, extraCodepoints).toArray();
 
             new FontRenderer(Path.of(args[0]),
                     Integer.parseInt(args[1]), Float.parseFloat(args[4]),
@@ -66,6 +69,21 @@ public final class FontRenderer {
             all.printStackTrace(System.err);
             System.exit(1);
         }
+    }
+
+    /**
+     * Parses a comma-separated list of hexadecimal Unicode codepoints (e.g. {@code "2026,221e"}).
+     * The codepoints are passed as ASCII hex rather than literal characters so glyphs outside the
+     * platform code page survive the command-line argv boundary (Windows {@code sun.jnu.encoding}
+     * is the legacy ANSI code page and would otherwise replace them with '?').
+     */
+    private static @NonNull IntStream parseHexCodepoints(@NonNull String csv) {
+        if (csv.isEmpty()) {
+            return IntStream.empty();
+        }
+        return Arrays.stream(csv.split(","))
+                .map(String::trim)
+                .mapToInt(hex -> Integer.parseInt(hex, 16));
     }
 
     public FontRenderer(@NonNull Path font_file,

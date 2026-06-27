@@ -20,7 +20,7 @@ lwjgl {
 }
 
 // Configuration for running internal tools
-val converter by configurations.creating
+val converter = configurations.create("converter")
 dependencies {
     converter(project(":common"))
     converter(project(":tools"))
@@ -152,6 +152,14 @@ val convertPixelPerfect = convertBatch("convertPixelPerfect", "textures/pixelper
 val fontInfoDir = layout.buildDirectory.dir("resources/font")
 val fontTexClasspath = "/textures/font"
 
+// Extra glyphs to bake into the font atlases beyond the base codepoint range.
+// Passed to FontRenderer as ASCII hex codepoints rather than literal characters: command-line
+// arguments are encoded through the JVM's sun.jnu.encoding, which is the legacy ANSI code page on
+// Windows (e.g. Cp1252) and silently replaces non-Latin-1 glyphs like ∞ ← ⌘ with '?'. Hex is ASCII
+// and survives the argv boundary identically on every platform.
+val extraGlyphs = "…–—•°™©✔✖︎︎︎∞␡␈←↑→↓⏴⏵⏶⏷⌃⇧⌥⌘□"
+val extraGlyphCodepoints = extraGlyphs.codePoints().toArray().joinToString(",") { Integer.toHexString(it) }
+
 val renderTahomaFont = tasks.register<JavaExec>("renderTahomaFont") {
     group = "build"
     description = "Renders Tahoma TTF font to PNG texture and font metadata."
@@ -162,12 +170,13 @@ val renderTahomaFont = tasks.register<JavaExec>("renderTahomaFont") {
     val ttfFile = file("font/tahoma.ttf")
     val outDir = layout.buildDirectory.dir("font_png/tahoma")
 
+    inputs.property("glyphs", extraGlyphs)
     outputs.files(
         fontInfoDir.get().file("tahoma_13.font"),
         outDir.get().file("tahoma_13.png")
     )
 
-    args = listOf(ttfFile.absolutePath, "13", "1024", "1200", "2", fontInfoDir.get().asFile.absolutePath, outDir.get().asFile.absolutePath, fontTexClasspath, "…–—•°™∞␡␈c←↑→↓⌃⇧⌥⌘□")
+    args = listOf(ttfFile.absolutePath, "13", "1024", "1200", "2", fontInfoDir.get().asFile.absolutePath, outDir.get().asFile.absolutePath, fontTexClasspath, extraGlyphCodepoints)
     onlyIf { ttfFile.exists() }
 }
 
@@ -194,12 +203,13 @@ val renderImpactFont = tasks.register<JavaExec>("renderImpactFont") {
     val ttfFile = file("font/impact.ttf")
     val outDir = layout.buildDirectory.dir("font_png/impact")
 
+    inputs.property("glyphs", extraGlyphs)
     outputs.files(
         fontInfoDir.get().file("impact_24.font"),
         outDir.get().file("impact_24.png")
     )
 
-    args = listOf(ttfFile.absolutePath, "24", "1024", "600", "2", fontInfoDir.get().asFile.absolutePath, outDir.get().asFile.absolutePath, fontTexClasspath, "…–—•°™∞␡␈c←↑→↓⌃⇧⌥⌘□")
+    args = listOf(ttfFile.absolutePath, "24", "1024", "600", "2", fontInfoDir.get().asFile.absolutePath, outDir.get().asFile.absolutePath, fontTexClasspath, extraGlyphCodepoints)
     onlyIf { ttfFile.exists() }
 }
 
@@ -228,12 +238,13 @@ val renderInterLightFont = tasks.register<JavaExec>("renderInterLightFont") {
     val outDir = layout.buildDirectory.dir("font_png/light")
 
     inputs.file(ttfFile)
+    inputs.property("glyphs", extraGlyphs)
     outputs.files(
         fontInfoDir.get().file("inter-light_13.font"),
         outDir.get().file("inter-light_13.png")
     )
 
-    args = listOf(ttfFile.absolutePath, "13", "2048", "1200", "2", fontInfoDir.get().asFile.absolutePath, outDir.get().asFile.absolutePath, fontTexClasspath, "…–—•°™∞␡␈c←↑→↓⌃⇧⌥⌘□")
+    args = listOf(ttfFile.absolutePath, "13", "2048", "1200", "2", fontInfoDir.get().asFile.absolutePath, outDir.get().asFile.absolutePath, fontTexClasspath, extraGlyphCodepoints)
     onlyIf { ttfFile.exists() }
 }
 
@@ -252,12 +263,13 @@ val renderInterTightBlackFont = tasks.register<JavaExec>("renderInterTightBlackF
     val outDir = layout.buildDirectory.dir("font_png/black")
 
     inputs.file(ttfFile)
+    inputs.property("glyphs", extraGlyphs)
     outputs.files(
         fontInfoDir.get().file("intertight-black_28.font"),
         outDir.get().file("intertight-black_28.png")
     )
 
-    args = listOf(ttfFile.absolutePath, "28", "2048", "1200", "2", fontInfoDir.get().asFile.absolutePath, outDir.get().asFile.absolutePath, fontTexClasspath, "…–—•°™∞␡␈c←↑→↓⌃⇧⌥⌘□")
+    args = listOf(ttfFile.absolutePath, "28", "2048", "1200", "2", fontInfoDir.get().asFile.absolutePath, outDir.get().asFile.absolutePath, fontTexClasspath, extraGlyphCodepoints)
     onlyIf { ttfFile.exists() }
 }
 

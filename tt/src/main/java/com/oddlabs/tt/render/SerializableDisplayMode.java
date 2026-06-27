@@ -14,7 +14,7 @@ public final class SerializableDisplayMode implements Serializable, Comparable<S
     private static final long serialVersionUID = 1;
 
     public static final int MIN_WIDTH = 1024;
-    public static final int MIN_HEIGHT = 768;
+    public static final int MIN_HEIGHT = 720;
     public static final int MIN_PIXELS = MIN_WIDTH * MIN_HEIGHT;
     public static final int MIN_FREQ = 24; // may also be zero for "unknown"
     public static final int MIN_BPP = 8;
@@ -53,7 +53,6 @@ public final class SerializableDisplayMode implements Serializable, Comparable<S
         int dy = Math.abs(DEFAULT_MODE.getHeight() - mode.getHeight());
         return dx + dy;
     }
-
 
     /**
      * A mode is valid if at least one dimension is as large as the minimum size, has at least as many pixels as the

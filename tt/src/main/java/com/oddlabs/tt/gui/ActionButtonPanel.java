@@ -86,8 +86,6 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
     private final @NonNull NonFocusIconButton harvest_button;
     private final @NonNull NonFocusIconButton build_button;
     private final @NonNull NonFocusIconButton army_button;
-    private final @NonNull NonFocusIconButton transport_button;
-    private final @NonNull NonFocusIconButton rally_point_button;
 
     private final @NonNull StatusIcon unit_status;
     private final @NonNull StatusIcon weapon_rock_status;
@@ -101,30 +99,25 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
     private final @NonNull WatchStatusIcon quarters_unit_status;
     private final @NonNull DeploySpinner quarters_peon_button;
     private final @NonNull ChieftainButton quarters_chieftain_button;
-    private final @NonNull NonFocusIconButton quarters_rally_point_button;
 
     private final @NonNull DeploySpinner harvest_tree_button;
     private final @NonNull DeploySpinner harvest_rock_button;
     private final @NonNull DeploySpinner harvest_iron_button;
     private final @NonNull DeploySpinner harvest_rubber_button;
-    private final @NonNull NonFocusIconButton harvest_back_button;
 
     private final @NonNull BuildSpinner build_weapon_rock_button;
     private final @NonNull BuildSpinner build_weapon_iron_button;
     private final @NonNull BuildSpinner build_weapon_rubber_button;
-    private final @NonNull NonFocusIconButton build_back_button;
 
     private final @NonNull DeploySpinner army_peon_button;
     private final @NonNull DeploySpinner army_warrior_rock_button;
     private final @NonNull DeploySpinner army_warrior_iron_button;
     private final @NonNull DeploySpinner army_warrior_rubber_button;
-    private final @NonNull NonFocusIconButton army_back_button;
 
     private final @NonNull DeploySpinner transport_tree_button;
     private final @NonNull DeploySpinner transport_rock_button;
     private final @NonNull DeploySpinner transport_iron_button;
     private final @NonNull DeploySpinner transport_rubber_button;
-    private final @NonNull NonFocusIconButton transport_back_button;
 
     private final @NonNull GameCamera camera;
     private final @NonNull WorldViewer viewer;
@@ -264,8 +257,8 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 //		if (Renderer.getRenderer().getSettings().developer_mode) {
         quarters_group.addChild(quarters_chieftain_button);
 //		}
-        quarters_rally_point_button = new NonFocusIconButton(race_icons.rallyPointIcon(), GameAction.UNIT_SET_RALLY,
-                () -> i18n("rally_point_tip", getBinding(GameAction.UNIT_SET_RALLY)));
+        var quarters_rally_point_button = new NonFocusIconButton(race_icons.rallyPointIcon(),
+                GameAction.UNIT_SET_RALLY, () -> i18n("rally_point_tip", getBinding(GameAction.UNIT_SET_RALLY)));
         quarters_group.addChild(quarters_rally_point_button);
         quarters_rally_point_button.addMouseClickListener(this::setRallyPoint);
         quarters_peon_button.place();
@@ -292,11 +285,11 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         army_button.setIconDisabler(() -> !viewer.getLocalPlayer().canBuildArmies());
         armory_group.addChild(army_button);
         army_button.addMouseClickListener((_, _, _, _) -> doProdArmyAction());
-        transport_button = new NonFocusIconButton(race_icons.transportIcon(), GameAction.PROD_TRANSPORT,
+        var transport_button = new NonFocusIconButton(race_icons.transportIcon(), GameAction.PROD_TRANSPORT,
                 () -> i18n("transport_resources_tip", getBinding(GameAction.PROD_TRANSPORT)));
         armory_group.addChild(transport_button);
         transport_button.addMouseClickListener((_, _, _, _) -> doProdTransportAction());
-        rally_point_button = new NonFocusIconButton(race_icons.rallyPointIcon(), GameAction.UNIT_SET_RALLY,
+        var rally_point_button = new NonFocusIconButton(race_icons.rallyPointIcon(), GameAction.UNIT_SET_RALLY,
                 () -> i18n("rally_point_tip", getBinding(GameAction.UNIT_SET_RALLY)));
         rally_point_button.setIconDisabler(() -> !viewer.getLocalPlayer().canSetRallyPoints());
         armory_group.addChild(rally_point_button);
@@ -308,20 +301,23 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         rally_point_button.place(transport_button, Placement.BOTTOM_MID);
         armory_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
 
-        harvest_tree_button = new DeploySpinner(viewer, player_interface, icons.getTreeIcon(), i18n("harvest_tree_tip"),
-                List.of(race_icons.unitStatusIcon()), GameAction.RES_TREE, GameAction.RES_TREE_DEC);
+        harvest_tree_button = new DeploySpinner(viewer, player_interface, icons.getTreeIcon(),
+                i18n("harvest_tree_tip"), List.of(race_icons.unitStatusIcon()),
+                GameAction.RES_TREE, GameAction.RES_TREE_DEC);
         harvest_group.addChild(harvest_tree_button);
-        harvest_rock_button = new DeploySpinner(viewer, player_interface, icons.getRockIcon(), i18n("harvest_rock_tip"),
-                List.of(race_icons.unitStatusIcon()), GameAction.RES_ROCK, GameAction.RES_ROCK_DEC);
+        harvest_rock_button = new DeploySpinner(viewer, player_interface, icons.getRockIcon(),
+                i18n("harvest_rock_tip"), List.of(race_icons.unitStatusIcon()),
+                GameAction.RES_ROCK, GameAction.RES_ROCK_DEC);
         harvest_group.addChild(harvest_rock_button);
-        harvest_iron_button = new DeploySpinner(viewer, player_interface, icons.getIronIcon(), i18n("harvest_iron_tip"),
-                List.of(race_icons.unitStatusIcon()), GameAction.RES_IRON, GameAction.RES_IRON_DEC);
+        harvest_iron_button = new DeploySpinner(viewer, player_interface, icons.getIronIcon(),
+                i18n("harvest_iron_tip"), List.of(race_icons.unitStatusIcon()),
+                GameAction.RES_IRON, GameAction.RES_IRON_DEC);
         harvest_group.addChild(harvest_iron_button);
         harvest_rubber_button = new DeploySpinner(viewer, player_interface, icons.getRubberIcon(), i18n(
-                "harvest_chicken_tip"), List.of(race_icons.unitStatusIcon()), GameAction.RES_CHICKEN,
-                GameAction.RES_CHICKEN_DEC);
+                "harvest_chicken_tip"), List.of(race_icons.unitStatusIcon()),
+                GameAction.RES_CHICKEN, GameAction.RES_CHICKEN_DEC);
         harvest_group.addChild(harvest_rubber_button);
-        harvest_back_button = new NonFocusIconButton(skin.getBackButton(), GameAction.GAMEPLAY_BACK,
+        var harvest_back_button = new NonFocusIconButton(skin.getBackButton(), GameAction.GAMEPLAY_BACK,
                 () -> i18n("back_tip", getBinding(GameAction.GAMEPLAY_BACK)));
         harvest_back_button.addMouseClickListener(this::cancelSubMenu);
         harvest_group.addChild(harvest_back_button);
@@ -332,19 +328,21 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         harvest_back_button.place(harvest_rubber_button, Placement.BOTTOM_MID);
         harvest_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
 
-        build_weapon_rock_button = new BuildSpinner(viewer, player_interface, race_icons.buildWeaponRockIcon(), i18n(
-                "build_rock_tip"), Building.COST_ROCK_WEAPON.iconList(), GameAction.RES_ROCK, GameAction.RES_ROCK_DEC);
+        build_weapon_rock_button = new BuildSpinner(viewer, player_interface, race_icons.buildWeaponRockIcon(),
+                i18n("build_rock_tip"), Building.COST_ROCK_WEAPON.iconList(),
+                GameAction.RES_ROCK, GameAction.RES_ROCK_DEC);
         build_group.addChild(build_weapon_rock_button);
-        build_weapon_iron_button = new BuildSpinner(viewer, player_interface, race_icons.buildWeaponIronIcon(), i18n(
-                "build_iron_tip"), Building.COST_IRON_WEAPON.iconList(), GameAction.RES_IRON, GameAction.RES_IRON_DEC);
+        build_weapon_iron_button = new BuildSpinner(viewer, player_interface, race_icons.buildWeaponIronIcon(),
+                i18n("build_iron_tip"), Building.COST_IRON_WEAPON.iconList(),
+                GameAction.RES_IRON, GameAction.RES_IRON_DEC);
         build_group.addChild(build_weapon_iron_button);
         build_weapon_rubber_button = new BuildSpinner(viewer, player_interface, race_icons.buildWeaponRubberIcon(),
                 i18n("build_chicken_tip"), Building.COST_RUBBER_WEAPON.iconList(),
                 GameAction.RES_CHICKEN, GameAction.RES_CHICKEN_DEC);
         build_group.addChild(build_weapon_rubber_button);
-        build_back_button = new NonFocusIconButton(skin.getBackButton(), GameAction.GAMEPLAY_BACK, () -> i18n(
-                "back_tip", getBinding(
-                        GameAction.GAMEPLAY_BACK)));
+        var build_back_button = new NonFocusIconButton(skin.getBackButton(), GameAction.GAMEPLAY_BACK,
+                () -> i18n("back_tip", getBinding(GameAction.GAMEPLAY_BACK))
+        );
         build_back_button.addMouseClickListener(this::cancelSubMenu);
         build_group.addChild(build_back_button);
         build_weapon_rock_button.place();
@@ -353,30 +351,27 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         build_back_button.place(build_weapon_rubber_button, Placement.BOTTOM_MID);
         build_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
 
-        army_peon_button = new DeploySpinner(viewer, player_interface, race_icons.peonIcon(), i18n("deploy_peon_tip"),
-                List.of(race_icons.unitStatusIcon()), GameAction.TRAIN_PEON, GameAction.TRAIN_PEON_DEC);
+        army_peon_button = new DeploySpinner(viewer, player_interface, race_icons.peonIcon(),
+                i18n("deploy_peon_tip"), List.of(race_icons.unitStatusIcon()),
+                GameAction.TRAIN_PEON, GameAction.TRAIN_PEON_DEC);
         army_group.addChild(army_peon_button);
-        army_warrior_rock_button = new DeploySpinner(viewer, player_interface, race_icons.warriorRockIcon(), i18n(
-                "deploy_rock_tip"),
-                List.of(race_icons.unitStatusIcon(), race_icons.weaponRockStatusIcon()),
+        army_warrior_rock_button = new DeploySpinner(viewer, player_interface, race_icons.warriorRockIcon(),
+                i18n("deploy_rock_tip"), List.of(race_icons.unitStatusIcon(), race_icons.weaponRockStatusIcon()),
                 GameAction.RES_ROCK, GameAction.RES_ROCK_DEC);
         army_group.addChild(army_warrior_rock_button);
 
-        army_warrior_iron_button = new DeploySpinner(viewer, player_interface, race_icons.warriorIronIcon(), i18n(
-                "deploy_iron_tip"),
-                List.of(race_icons.unitStatusIcon(), race_icons.weaponIronStatusIcon()),
+        army_warrior_iron_button = new DeploySpinner(viewer, player_interface, race_icons.warriorIronIcon(),
+                i18n("deploy_iron_tip"), List.of(race_icons.unitStatusIcon(), race_icons.weaponIronStatusIcon()),
                 GameAction.RES_IRON, GameAction.RES_IRON_DEC);
         army_group.addChild(army_warrior_iron_button);
 
-        army_warrior_rubber_button = new DeploySpinner(viewer, player_interface, race_icons.warriorRubberIcon(), i18n(
-                "deploy_chicken_tip"),
-                List.of(race_icons.unitStatusIcon(), race_icons.weaponRubberStatusIcon()),
+        army_warrior_rubber_button = new DeploySpinner(viewer, player_interface, race_icons.warriorRubberIcon(),
+                i18n("deploy_chicken_tip"), List.of(race_icons.unitStatusIcon(), race_icons.weaponRubberStatusIcon()),
                 GameAction.RES_CHICKEN, GameAction.RES_CHICKEN_DEC);
         army_group.addChild(army_warrior_rubber_button);
 
-        army_back_button = new NonFocusIconButton(skin.getBackButton(), GameAction.GAMEPLAY_BACK, () -> i18n("back_tip",
-                getBinding(
-                        GameAction.GAMEPLAY_BACK)));
+        var army_back_button = new NonFocusIconButton(skin.getBackButton(), GameAction.GAMEPLAY_BACK,
+                () -> i18n("back_tip", getBinding(GameAction.GAMEPLAY_BACK)));
         army_back_button.addMouseClickListener(this::cancelSubMenu);
         army_group.addChild(army_back_button);
         army_peon_button.place();
@@ -386,29 +381,24 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         army_back_button.place(army_warrior_rubber_button, Placement.BOTTOM_MID);
         army_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
 
-        transport_tree_button = new DeploySpinner(viewer, player_interface, icons.getTreeIcon(), i18n(
-                "transport_tree_tip"),
-                List.of(race_icons.unitStatusIcon(), icons.getTreeStatusIcon()),
+        transport_tree_button = new DeploySpinner(viewer, player_interface, icons.getTreeIcon(),
+                i18n("transport_tree_tip"), List.of(race_icons.unitStatusIcon(), icons.getTreeStatusIcon()),
                 GameAction.RES_TREE, GameAction.RES_TREE_DEC);
         transport_group.addChild(transport_tree_button);
-        transport_rock_button = new DeploySpinner(viewer, player_interface, icons.getRockIcon(), i18n(
-                "transport_rock_tip"),
-                List.of(race_icons.unitStatusIcon(), icons.getRockStatusIcon()),
+        transport_rock_button = new DeploySpinner(viewer, player_interface, icons.getRockIcon(),
+                i18n("transport_rock_tip"), List.of(race_icons.unitStatusIcon(), icons.getRockStatusIcon()),
                 GameAction.RES_ROCK, GameAction.RES_ROCK_DEC);
         transport_group.addChild(transport_rock_button);
-        transport_iron_button = new DeploySpinner(viewer, player_interface, icons.getIronIcon(), i18n(
-                "transport_iron_tip"),
-                List.of(race_icons.unitStatusIcon(), icons.getIronStatusIcon()),
+        transport_iron_button = new DeploySpinner(viewer, player_interface, icons.getIronIcon(),
+                i18n("transport_iron_tip"), List.of(race_icons.unitStatusIcon(), icons.getIronStatusIcon()),
                 GameAction.RES_IRON, GameAction.RES_IRON_DEC);
         transport_group.addChild(transport_iron_button);
-        transport_rubber_button = new DeploySpinner(viewer, player_interface, icons.getRubberIcon(), i18n(
-                "transport_chicken_tip"),
-                List.of(race_icons.unitStatusIcon(), icons.getRubberStatusIcon()),
+        transport_rubber_button = new DeploySpinner(viewer, player_interface, icons.getRubberIcon(),
+                i18n("transport_chicken_tip"), List.of(race_icons.unitStatusIcon(), icons.getRubberStatusIcon()),
                 GameAction.RES_CHICKEN, GameAction.RES_CHICKEN_DEC);
         transport_group.addChild(transport_rubber_button);
-        transport_back_button = new NonFocusIconButton(skin.getBackButton(), GameAction.GAMEPLAY_BACK, () -> i18n(
-                "back_tip", getBinding(
-                        GameAction.GAMEPLAY_BACK)));
+        var transport_back_button = new NonFocusIconButton(skin.getBackButton(), GameAction.GAMEPLAY_BACK,
+                () -> i18n("back_tip", getBinding(GameAction.GAMEPLAY_BACK)));
         transport_back_button.addMouseClickListener(this::cancelSubMenu);
         transport_group.addChild(transport_back_button);
         transport_tree_button.place();
@@ -729,7 +719,8 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
                         return;
                     }
                 }
-                if (event.consumeAction(GameAction.UNIT_BUILD_TOWER) || event.consumeAction(GameAction.PROD_TRANSPORT)) {
+                if (event.consumeAction(GameAction.UNIT_BUILD_TOWER) || event.consumeAction(
+                        GameAction.PROD_TRANSPORT)) {
                     // T - Tower or Transport
                     if (current_peon) {
                         doBuildTowerAction();

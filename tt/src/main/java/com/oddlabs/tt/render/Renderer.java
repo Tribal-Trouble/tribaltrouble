@@ -718,6 +718,7 @@ public final class Renderer implements AutoCloseable {
                     if (getSettings().fullscreen) {
                         window.minimize();
                     }
+                    reset_keyboard = true;
                     var guiRoot = gui.getGUIRoot();
                     if (guiRoot.getDelegate() instanceof InGameDelegate igd) {
                         WorldViewer viewer = igd.getViewer();
@@ -732,40 +733,40 @@ public final class Renderer implements AutoCloseable {
                 }
                 wasActive = isActive;
 
-                if (first_frame || (window.isVisible() && isActive)) {
-                    long t2 = System.nanoTime();
-                    runGameLoop(network, gui);
-                    long t3 = System.nanoTime();
-                    totalRunGameLoopTime += (t3 - t2);
+                long t2 = System.nanoTime();
+                runGameLoop(network, gui);
+                long t3 = System.nanoTime();
+                totalRunGameLoopTime += (t3 - t2);
 
-                    long t4 = System.nanoTime();
-                    audioManager.update(AnimationManager.ANIMATION_SECONDS_PER_TICK);
-                    long t5 = System.nanoTime();
-                    totalAudioUpdateTime += (t5 - t4);
+                long t4 = System.nanoTime();
+                audioManager.update(AnimationManager.ANIMATION_SECONDS_PER_TICK);
+                long t5 = System.nanoTime();
+                totalAudioUpdateTime += (t5 - t4);
 
-                    getAudioManager().setMasterGain(1f);
-                    if (reset_keyboard) {
-                        reset_keyboard = false;
-                        Renderer.getLocalInput().resetKeyboard();
-                    }
-                    long t6 = System.nanoTime();
-                    if (!first_frame) {
-                        window.update();
-                    }
-                    long t7 = System.nanoTime();
-                    totalWindowUpdateTime += (t7 - t6);
+                getAudioManager().setMasterGain(isActive ? 1f : 0f);
+                if (reset_keyboard) {
+                    reset_keyboard = false;
+                    Renderer.getLocalInput().resetKeyboard();
+                }
+                long t6 = System.nanoTime();
+                if (!first_frame && window.isVisible()) {
+                    window.update();
+                }
+                long t7 = System.nanoTime();
+                totalWindowUpdateTime += (t7 - t6);
 
-                    if (window.wasResized()) {
-                        int width = window.getWidth();
-                        int height = window.getHeight();
-                        // Persist logical (point) dims so the saved value is what glfwCreateWindow
-                        // will accept on next launch; using framebuffer dims doubles on retina.
-                        getSettings().view_width = window.getLogicalWidth();
-                        getSettings().view_height = window.getLogicalHeight();
-                        GL11.glViewport(0, 0, width, height);
-                        initGL();
-                        gui.getGUIRoot().displayChanged(width, height);
-                    }
+                if (window.wasResized()) {
+                    int width = window.getWidth();
+                    int height = window.getHeight();
+                    // Persist logical (point) dims so the saved value is what glfwCreateWindow
+                    // will accept on next launch; using framebuffer dims doubles on retina.
+                    getSettings().view_width = window.getLogicalWidth();
+                    getSettings().view_height = window.getLogicalHeight();
+                    GL11.glViewport(0, 0, width, height);
+                    initGL();
+                    gui.getGUIRoot().displayChanged(width, height);
+                }
+                if (first_frame || window.isVisible()) {
                     long t8 = System.nanoTime();
                     display(gui);
                     long t9 = System.nanoTime();
@@ -775,65 +776,58 @@ public final class Renderer implements AutoCloseable {
                     GL11.glFinish();
                     long tf1 = System.nanoTime();
                     totalGLFinishTime += (tf1 - tf0);
+                }
 
-                    if (first_frame) {
-                        Duration startup_time = Duration.between(start_time, Instant.now());
-                        logger.info("First frame rendered after " + startup_time);
-                        first_frame = false;
-                        if (load_task != null) {
-                            window.update();
-                            getEventQueue().getDeterministic().setEnabled(true);
-                            try {
-                                load_task.run();
-                            } finally {
-                                getEventQueue().getDeterministic().setEnabled(false);
-                                renderContext.reset(); // Fix texture bleeding after loading
-                            }
-                            load_task = null;
+                if (first_frame) {
+                    Duration startup_time = Duration.between(start_time, Instant.now());
+                    logger.info("First frame rendered after " + startup_time);
+                    first_frame = false;
+                    if (load_task != null) {
+                        window.update();
+                        getEventQueue().getDeterministic().setEnabled(true);
+                        try {
+                            load_task.run();
+                        } finally {
+                            getEventQueue().getDeterministic().setEnabled(false);
+                            renderContext.reset(); // Fix texture bleeding after loading
                         }
+                        load_task = null;
                     }
-                    if (grab_frames && movie_recording_started)
-                        GLUtils.takeScreenshot("");
+                }
+                if (grab_frames && movie_recording_started)
+                    GLUtils.takeScreenshot("");
 
-                    long frameEnd = System.nanoTime();
-                    totalLoopTime += (frameEnd - frameStart);
+                long frameEnd = System.nanoTime();
+                totalLoopTime += (frameEnd - frameStart);
 
-                    instrumentationFrameCounter++;
-                    if (DEBUG && (finished || instrumentationFrameCounter >= INSTRUMENTATION_FRAME_COUNT)) {
-                        logger.info(String.format(Locale.ROOT,
-                                "[Instrumentation] Averages over %d frames: "
-                                        + "Total frame: %.2f ms | "
-                                        + "pollEvents: %.2f ms | "
-                                        + "runGameLoop: %.2f ms | "
-                                        + "audioUpdate: %.2f ms | "
-                                        + "windowUpdate: %.2f ms | "
-                                        + "display: %.2f ms | "
-                                        + "glFinish: %.2f ms",
-                                instrumentationFrameCounter,
-                                (totalLoopTime / (float) instrumentationFrameCounter) / 1_000_000f,
-                                (totalPollEventsTime / (float) instrumentationFrameCounter) / 1_000_000f,
-                                (totalRunGameLoopTime / (float) instrumentationFrameCounter) / 1_000_000f,
-                                (totalAudioUpdateTime / (float) instrumentationFrameCounter) / 1_000_000f,
-                                (totalWindowUpdateTime / (float) instrumentationFrameCounter) / 1_000_000f,
-                                (totalDisplayTime / (float) instrumentationFrameCounter) / 1_000_000f,
-                                (totalGLFinishTime / (float) instrumentationFrameCounter) / 1_000_000f));
+                instrumentationFrameCounter++;
+                if (DEBUG && (finished || instrumentationFrameCounter >= INSTRUMENTATION_FRAME_COUNT)) {
+                    logger.info(String.format(Locale.ROOT,
+                            "[Instrumentation] Averages over %d frames: "
+                                    + "Total frame: %.2f ms | "
+                                    + "pollEvents: %.2f ms | "
+                                    + "runGameLoop: %.2f ms | "
+                                    + "audioUpdate: %.2f ms | "
+                                    + "windowUpdate: %.2f ms | "
+                                    + "display: %.2f ms | "
+                                    + "glFinish: %.2f ms",
+                            instrumentationFrameCounter,
+                            (totalLoopTime / (float) instrumentationFrameCounter) / 1_000_000f,
+                            (totalPollEventsTime / (float) instrumentationFrameCounter) / 1_000_000f,
+                            (totalRunGameLoopTime / (float) instrumentationFrameCounter) / 1_000_000f,
+                            (totalAudioUpdateTime / (float) instrumentationFrameCounter) / 1_000_000f,
+                            (totalWindowUpdateTime / (float) instrumentationFrameCounter) / 1_000_000f,
+                            (totalDisplayTime / (float) instrumentationFrameCounter) / 1_000_000f,
+                            (totalGLFinishTime / (float) instrumentationFrameCounter) / 1_000_000f));
 
-                        instrumentationFrameCounter = 0;
-                        totalPollEventsTime = 0;
-                        totalRunGameLoopTime = 0;
-                        totalAudioUpdateTime = 0;
-                        totalWindowUpdateTime = 0;
-                        totalDisplayTime = 0;
-                        totalGLFinishTime = 0;
-                        totalLoopTime = 0;
-                    }
-                } else {
-                    AnimationManager.freezeTime();
-                    reset_keyboard = true;
-                    getAudioManager().setMasterGain(0f);
-                    if (window.isIconified() && getSettings().fullscreen) {
-                        // Keep sleeping if minimized
-                    }
+                    instrumentationFrameCounter = 0;
+                    totalPollEventsTime = 0;
+                    totalRunGameLoopTime = 0;
+                    totalAudioUpdateTime = 0;
+                    totalWindowUpdateTime = 0;
+                    totalDisplayTime = 0;
+                    totalGLFinishTime = 0;
+                    totalLoopTime = 0;
                 }
             }
 
@@ -917,7 +911,7 @@ public final class Renderer implements AutoCloseable {
                 Globals.INSERT_PLANTS[getRenderer().getSettings().graphic_detail]);
         AnimationManager manager = new AnimationManager();
         LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, manager);
-        Player local_player = world.getPlayers().get(0);
+        Player local_player = world.getPlayers().getFirst();
         Selection selection = new Selection(local_player);
         UIRenderer renderer = new DefaultRenderer(getRenderer().cheat, local_player, render_queues, world_info,
                 landscape_renderer, new Picker(manager, local_player, gui_root, render_queues, landscape_renderer,

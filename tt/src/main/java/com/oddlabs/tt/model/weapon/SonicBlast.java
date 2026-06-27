@@ -19,7 +19,6 @@ import org.jspecify.annotations.Nullable;
  */
 public final class SonicBlast extends Model implements Magic {
 
-
     private final float hit_radius;
     private final float hit_chance_closest;
     private final float hit_chance_farthest;

@@ -15,6 +15,9 @@ import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * Main menu overlay displayable during gameplay.
+ */
 public final class InGameMainMenu extends Menu {
     private final @NonNull WorldViewer viewer;
 

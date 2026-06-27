@@ -60,7 +60,6 @@ public final class RenderQueues implements AutoCloseable {
         GLImage[] mipmaps = texture.getSourceMipmaps();
         if (mipmaps != null) {
             pending_array_uploads.put(layer, mipmaps);
-            texture.setSourceMipmaps(null);
         } else if (texture.getSourceDXT() != null) {
             throw new IllegalArgumentException(
                     "Compressed DXT textures are not supported as source for the effect array.");
@@ -77,7 +76,6 @@ public final class RenderQueues implements AutoCloseable {
         GLImage[] mipmaps = texture.getSourceMipmaps();
         if (mipmaps != null) {
             pending_array_uploads.put(layer, mipmaps);
-            texture.setSourceMipmaps(null);
         } else if (texture.getSourceDXT() != null) {
             throw new IllegalArgumentException(
                     "Compressed DXT textures are not supported as source for the effect array.");
