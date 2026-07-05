@@ -199,4 +199,15 @@ public final class ServerConfiguration {
             return -1;
         }
     }
+
+    /**
+     * True when the Steam Web API is configured for stat and achievement pushes:
+     * a Web API key is set and STEAM_APP_ID yields a valid target app ID. This is
+     * independent of {@link #isSteamOnlyAuth()} — a server can push Steam stats
+     * while still allowing non-Steam logins.
+     */
+    public boolean isSteamStatsConfigured() {
+        String apiKey = get(STEAM_WEB_API_KEY);
+        return apiKey != null && !apiKey.isEmpty() && getMainSteamAppId() != -1;
+    }
 }

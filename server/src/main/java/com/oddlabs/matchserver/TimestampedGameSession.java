@@ -487,7 +487,7 @@ public final class TimestampedGameSession {
     }
 
     private void updateSteamAchievements(int[] team_result) {
-        if (!ServerConfiguration.getInstance().isSteamOnlyAuth()) {
+        if (!ServerConfiguration.getInstance().isSteamStatsConfigured()) {
             return;
         }
 

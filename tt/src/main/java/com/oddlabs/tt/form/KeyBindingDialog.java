@@ -1,8 +1,7 @@
 package com.oddlabs.tt.form;
 
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.jspecify.annotations.NonNull;
@@ -29,11 +28,11 @@ import com.oddlabs.tt.render.Renderer;
 
 public class KeyBindingDialog extends Form {
     private final @NonNull GameAction action;
-    private final @NonNull Consumer<List<InputBinding>> onBindingChosen;
+    private final @NonNull Consumer<@NonNull Set<@NonNull InputBinding>> onBindingChosen;
     private final @NonNull GUIRoot guiRoot;
 
     public KeyBindingDialog(@NonNull GUIRoot guiRoot, @NonNull GameAction action,
-            @NonNull Consumer<@NonNull List<@NonNull InputBinding>> onBindingChosen) {
+            @NonNull Consumer<@NonNull Set<@NonNull InputBinding>> onBindingChosen) {
         this.guiRoot = guiRoot;
         this.action = action;
         this.onBindingChosen = onBindingChosen;
@@ -53,7 +52,7 @@ public class KeyBindingDialog extends Form {
 
         HorizButton clear_button = new HorizButton(AbstractOptionsMenu.i18n("btn_clear"), 80);
         clear_button.addMouseClickListener((_, _, _, _) -> {
-            onBindingChosen.accept(Collections.emptyList());
+            onBindingChosen.accept(Set.of());
             remove();
         });
         button_group.addChild(clear_button);
@@ -120,7 +119,7 @@ public class KeyBindingDialog extends Form {
                     return;
                 }
 
-                onBindingChosen.accept(List.of(binding));
+                onBindingChosen.accept(Set.of(binding));
                 remove();
                 event.consume();
                 return;

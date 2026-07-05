@@ -19,6 +19,8 @@ jobs:
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+      - name: Seed Spotless eclipse formatter p2 cache (avoids download.eclipse.org dependency)
+        run: mkdir -p ~/.m2/repository/dev/equo && cp -r ci/p2-data ~/.m2/repository/dev/equo/
       - name: Verify code is formatted
         run: ./gradlew spotlessCheck
 

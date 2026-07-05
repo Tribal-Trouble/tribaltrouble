@@ -1,0 +1,121 @@
+name: Build & Deploy Server
+
+# Builds ONLY the server from source at a chosen ref and deploys it to the test
+# or prod box, restarting matchmaker + router. Completely independent of the
+# client build/release pipeline (gradle.yml): use this to ship a server-only
+# change (a matchmaking/stats/Discord fix, a config tweak) without rebuilding or
+# republishing the game client to Steam / itch / the website.
+#
+# The server artifact is never shipped to players, so there is no reason to tie
+# it to a player-facing release tag -- it is built fresh from the ref you pick.
+#
+# Runs under the 'release' environment guard (one approval click). SSH by target:
+#   test -> vars.DEPLOY_HOST_TEST / DEPLOY_USER_TEST, secret DEPLOY_SSH_KEY_TEST
+#   prod -> vars.DEPLOY_HOST_PROD / DEPLOY_USER_PROD, secret DEPLOY_SSH_KEY_PROD
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag, or SHA to build the server from'
+        required: true
+        type: string
+        default: main
+      target:
+        description: 'Which box to deploy to'
+        required: true
+        type: choice
+        options:
+          - test
+          - prod
+        default: test
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0  # version label + generateBuildInfo need full history
+
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26-ea'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build server distribution
+        run: ./gradlew :server:installDist
+
+      - name: Compute release label
+        id: label
+        run: |
+          # Same scheme as gradle.yml's version job, plus the short SHA so a
+          # rebuild of the same version (e.g. two hotfixes before a bump) still
+          # lands in its own releases/ dir on the box.
+          BASE=$(grep 'version = "' build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          API=$(grep 'API_VERSION' common/src/main/java/com/oddlabs/util/Compatibility.java | sed 's/.*= \([0-9]*\);/\1/')
+          VERSION_PATTERN="version = .$(echo "$BASE" | sed 's/\./\\./g')."
+          ANCHOR=$(git log --format=%H -G"$VERSION_PATTERN" -- build.gradle.kts | head -1)
+          if [ -z "$ANCHOR" ]; then PATCH=0; else PATCH=$(git rev-list --count "${ANCHOR}..HEAD"); fi
+          SHORT=$(git rev-parse --short HEAD)
+          echo "tag=v${BASE}.${PATCH}-${API}-${SHORT}" >> "$GITHUB_OUTPUT"
+          echo "short=${SHORT}" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve deploy target
+        id: tgt
+        run: |
+          if [ "${{ inputs.target }}" = "prod" ]; then
+            echo "host=${{ vars.DEPLOY_HOST_PROD }}" >> "$GITHUB_OUTPUT"
+            echo "user=${{ vars.DEPLOY_USER_PROD }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "host=${{ vars.DEPLOY_HOST_TEST }}" >> "$GITHUB_OUTPUT"
+            echo "user=${{ vars.DEPLOY_USER_TEST }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Bundle server build and deploy scripts
+        run: |
+          mkdir -p incoming/dist
+          cp -a server/build/install/server/. incoming/dist/
+          cp server/deploy/deploy.sh incoming/
+          cp server/deploy/matchmaker.service server/deploy/router.service incoming/
+          chmod +x incoming/deploy.sh
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          if [ "${{ inputs.target }}" = "prod" ]; then
+            echo "${{ secrets.DEPLOY_SSH_KEY_PROD }}" > ~/.ssh/id_ed25519
+          else
+            echo "${{ secrets.DEPLOY_SSH_KEY_TEST }}" > ~/.ssh/id_ed25519
+          fi
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ steps.tgt.outputs.host }}" >> ~/.ssh/known_hosts
+
+      - name: Copy files to the server
+        run: |
+          TARGET="${{ steps.tgt.outputs.user }}@${{ steps.tgt.outputs.host }}"
+          ssh "$TARGET" 'rm -rf ~/incoming && mkdir -p ~/incoming'
+          rsync -a --delay-updates incoming/ "$TARGET:incoming/"
+
+      - name: Deploy and restart the server
+        run: |
+          ssh "${{ steps.tgt.outputs.user }}@${{ steps.tgt.outputs.host }}" \
+            "bash ~/incoming/deploy.sh '${{ steps.label.outputs.tag }}'"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Server deploy: ${{ steps.label.outputs.tag }} -> ${{ inputs.target }}"
+            echo ""
+            echo "- built from \`${{ inputs.ref }}\` (${{ steps.label.outputs.short }})"
+            echo "- host: \`${{ steps.tgt.outputs.host }}\`"
+            echo "- matchmaker (:33214) + router (:11221) restarted and health-checked"
+            echo "- auto-rolls-back to the previous release on health-check failure"
+          } >> "$GITHUB_STEP_SUMMARY"
