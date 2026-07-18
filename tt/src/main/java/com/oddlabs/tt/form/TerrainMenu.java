@@ -1176,7 +1176,7 @@ public final class TerrainMenu extends Group {
             ScrollableGroup new_group = buildPlayerSlots(player_count);
             if (multiplayer) {
                 roster_panel.setRoster(new_group);
-            } else {
+            } else if (!steam) {
                 if (current_race_team != null) {
                     standard.removeChild(current_race_team);
                 }
@@ -1193,7 +1193,7 @@ public final class TerrainMenu extends Group {
                     team_pulldown_menus[i].chooseItem(Math.min(prev_team[i], player_count - 1));
                 } else {
                     team_pulldown_menus[i].chooseItem(defaultTeam(i));
-                    if (!multiplayer && i == 1) {
+                    if (!multiplayer && !steam && i == 1) {
                         difficulty_pulldown_menus[i].chooseItem(PlayerSlot.AI_EASY);
                         race_pulldown_menus[i].chooseItem((race_pulldown_menus[0].getChosenItemIndex() + 1) % 2);
                     } else if (i != 0) {
