@@ -59,6 +59,8 @@ public final class SteamP2P implements SteamNetworkingCallback {
     private final List<SteamP2PConnection>[] pending_incoming;
     /** Connections whose drained notification is due on the next pump; see SteamP2PConnection.handle. */
     private final List<SteamP2PConnection> pending_drained = new ArrayList<>();
+    /** Connections whose send failed; errored on the next pump so callers are not reentered. */
+    private final List<SteamP2PConnection> pending_failed = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
     private SteamP2P() {
@@ -108,6 +110,14 @@ public final class SteamP2P implements SteamNetworkingCallback {
     }
 
     private void pumpPackets() {
+        if (!pending_failed.isEmpty()) {
+            List<SteamP2PConnection> failed = new ArrayList<>(pending_failed);
+            pending_failed.clear();
+            for (SteamP2PConnection conn : failed) {
+                connections[conn.getChannel()].remove(SteamNativeHandle.getNativeHandle(conn.getRemoteID()));
+                conn.remoteClosed(new IOException("Steam P2P send failed"));
+            }
+        }
         if (!pending_drained.isEmpty()) {
             List<SteamP2PConnection> drained = new ArrayList<>(pending_drained);
             pending_drained.clear();
@@ -138,6 +148,8 @@ public final class SteamP2P implements SteamNetworkingCallback {
         byte type = packet.get();
         long sender_handle = SteamNativeHandle.getNativeHandle(sender);
         SteamP2PConnection conn = connections[channel].get(sender_handle);
+        if (type != PACKET_EVENT)
+            logger.info("Steam P2P control packet " + type + " from " + sender + " channel " + channel);
         switch (type) {
             case PACKET_HELLO -> {
                 if (conn != null)
@@ -216,11 +228,20 @@ public final class SteamP2P implements SteamNetworkingCallback {
     }
 
     private void send(@NonNull SteamID remote, int channel, @NonNull ByteBuffer packet) {
+        boolean sent;
         try {
-            if (!networking.sendP2PPacket(remote, packet, SteamNetworking.P2PSend.Reliable, channel))
-                logger.warning("sendP2PPacket returned false for " + remote);
+            sent = networking.sendP2PPacket(remote, packet, SteamNetworking.P2PSend.Reliable, channel);
         } catch (SteamException e) {
             logger.log(Level.WARNING, "sendP2PPacket failed", e);
+            sent = false;
+        }
+        if (!sent) {
+            logger.warning("sendP2PPacket returned false for " + remote + " channel " + channel);
+            // Surface the failure as a connection error instead of silently playing on without
+            // the peer. Deferred to the next pump so senders are not reentered.
+            SteamP2PConnection conn = connections[channel].get(SteamNativeHandle.getNativeHandle(remote));
+            if (conn != null && !pending_failed.contains(conn))
+                pending_failed.add(conn);
         }
     }
 
