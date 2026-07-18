@@ -1,8 +1,11 @@
 name: Build & Release
 
+# TEMPORARY steam-p2p changes: the steam-p2p branch triggers builds and publishes to the Steam
+# "steam-p2p" beta branch (main game + demo) instead of prerelease, skipping itch, website, and
+# GitHub releases. Revert these before merging into main.
 on:
   push:
-    branches: [ "main", "release" ]
+    branches: [ "main", "release", "steam-p2p" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
@@ -126,7 +129,7 @@ jobs:
           path: tt/build/dist/linux/TribalTrouble.AppDir
 
   build-mac-arm64-app:
-    if: github.ref == 'refs/heads/release'
+    if: github.ref == 'refs/heads/release' || github.ref == 'refs/heads/steam-p2p'
     needs: [version]
     runs-on: macos-latest
 
@@ -150,7 +153,7 @@ jobs:
           path: tt/build/dist/macosx-arm64-app/
 
   build-mac-x86-app:
-    if: github.ref == 'refs/heads/release'
+    if: github.ref == 'refs/heads/release' || github.ref == 'refs/heads/steam-p2p'
     needs: [version]
     runs-on: macos-15-intel
 
@@ -266,7 +269,7 @@ jobs:
           path: tt/build/dist/macosx-arm64/
 
   steam-prerelease:
-    if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/steam-p2p') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: [ version, build-mac-arm64-app, build-mac-x86-app, build-windows, build-linux ]
     runs-on: ubuntu-latest
     environment: release
@@ -297,14 +300,14 @@ jobs:
           username: ${{ vars.STEAM_USER }}
           configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
           appId: ${{ vars.STEAM_APP_ID }}
-          buildDescription: ${{ needs.version.outputs.full }}.${{ github.run_number }}
+          buildDescription: ${{ needs.version.outputs.full }}.${{ github.run_number }}${{ github.ref == 'refs/heads/steam-p2p' && '-p2p' || '' }}
           firstDepotIdOverride: 3945722
           rootPath: tt/build/dist/
           depot1Path: windows
           depot2Path: macosx-arm64-app
           depot3Path: macosx-x86-app
           depot4Path: linux
-          releaseBranch: prerelease
+          releaseBranch: ${{ github.ref == 'refs/heads/steam-p2p' && 'steam-p2p' || 'prerelease' }}
       - name: Reset BuildOutput between Steam uploads
         run: sudo rm -rf BuildOutput
       - name: Upload to steam (demo)
@@ -313,13 +316,13 @@ jobs:
           username: ${{ vars.STEAM_USER }}
           configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
           appId: ${{ vars.STEAM_DEMO_APP_ID }}
-          buildDescription: ${{ needs.version.outputs.full }}.${{ github.run_number }}
+          buildDescription: ${{ needs.version.outputs.full }}.${{ github.run_number }}${{ github.ref == 'refs/heads/steam-p2p' && '-p2p' || '' }}
           rootPath: tt/build/dist/
           depot1Path: windows
           depot2Path: macosx-arm64-app
           depot3Path: macosx-x86-app
           depot4Path: linux
-          releaseBranch: prerelease
+          releaseBranch: ${{ github.ref == 'refs/heads/steam-p2p' && 'steam-p2p' || 'prerelease' }}
 
   itch-prerelease:
     if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
@@ -378,7 +381,9 @@ jobs:
           ./butler push "dist/mac-x86/tribal-trouble-mac-x86_${VERSION}.dmg"           "$PROJECT:osx-x86-prerelease"   --userversion "$VERSION"
 
   github-prerelease:
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/release') || github.event_name == 'workflow_dispatch'
+    # steam-p2p guard: require the release ref for dispatch too, so a manual run on the
+    # steam-p2p branch cannot tag or create a GitHub release.
+    if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: [ version, build-linux, build-server, build-windows, build-mac-x86, build-mac-arm64 ]
     runs-on: ubuntu-latest
     environment: release
