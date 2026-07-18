@@ -40,6 +40,7 @@ import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
+import com.oddlabs.tt.steam.SteamLobbySession;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -178,8 +179,15 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
         if (local_player_slot == 0)
             start_button.place(ready_button, LEFT_MID);
         if (owner == null) {
-            // The Steam lobby's wider buttons do not fit four to a row, so Game info gets its own.
+            // The Steam lobby's wider buttons do not fit four to a row, so the second row lines up
+            // under the first: Game info below Ready, Invite friends below Cancel (host only).
             info_button.place(ready_button, BOTTOM_MID);
+            if (SteamLobbySession.isHost()) {
+                HorizButton invite_button = new HorizButton("Invite friends", button_width);
+                addChild(invite_button);
+                invite_button.addMouseClickListener((_, _, _, _) -> SteamLobbySession.openInviteDialog());
+                invite_button.place(cancel_button, BOTTOM_MID);
+            }
         } else {
             info_button.place(chat_line_group, BOTTOM_LEFT);
         }
