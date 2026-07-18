@@ -71,7 +71,15 @@ public final class SteamP2PConnection extends AbstractConnection {
     @Override
     public void handle(ARMIEvent event) {
         SteamP2P.getInstance().sendEvent(remote_id, channel, event);
-        writeBufferDrained();
+        // The drained notification must not fire synchronously: listeners like the router's
+        // heartbeat scheduling assume the socket-transport behavior where it arrives on a later
+        // tick, and mutating their timeout state reentrantly corrupts it.
+        SteamP2P.getInstance().notifyDrainedLater(this);
+    }
+
+    void notifyDrained() {
+        if (open)
+            writeBufferDrained();
     }
 
     @Override

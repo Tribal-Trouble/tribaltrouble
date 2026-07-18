@@ -57,6 +57,8 @@ public final class SteamP2P implements SteamNetworkingCallback {
     private final SteamP2PConnectionListener[] listeners = new SteamP2PConnectionListener[NUM_CHANNELS];
     /** HELLOs that arrived before a listener registered on their channel, delivered on register. */
     private final List<SteamP2PConnection>[] pending_incoming;
+    /** Connections whose drained notification is due on the next pump; see SteamP2PConnection.handle. */
+    private final List<SteamP2PConnection> pending_drained = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
     private SteamP2P() {
@@ -100,7 +102,18 @@ public final class SteamP2P implements SteamNetworkingCallback {
             instance.pumpPackets();
     }
 
+    void notifyDrainedLater(@NonNull SteamP2PConnection conn) {
+        if (!pending_drained.contains(conn))
+            pending_drained.add(conn);
+    }
+
     private void pumpPackets() {
+        if (!pending_drained.isEmpty()) {
+            List<SteamP2PConnection> drained = new ArrayList<>(pending_drained);
+            pending_drained.clear();
+            for (SteamP2PConnection conn : drained)
+                conn.notifyDrained();
+        }
         for (int channel = 0; channel < NUM_CHANNELS; channel++) {
             while (networking.isP2PPacketAvailable(channel, packet_size_out)) {
                 SteamID sender = new SteamID();
