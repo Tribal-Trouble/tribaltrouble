@@ -160,3 +160,18 @@ jobs:
           depot3Path: macosx-x86-app
           depot4Path: linux
           releaseBranch: steam-p2p
+      - name: Reset BuildOutput between Steam uploads
+        run: sudo rm -rf BuildOutput
+      - name: Upload to steam (demo, steam-p2p beta branch)
+        uses: game-ci/steam-deploy@8bd9baca6407f9abd210bd1eef3c45f56e12d8d9  # v3
+        with:
+          username: ${{ vars.STEAM_USER }}
+          configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
+          appId: ${{ vars.STEAM_DEMO_APP_ID }}
+          buildDescription: ${{ needs.version.outputs.full }}.${{ github.run_number }}
+          rootPath: tt/build/dist/
+          depot1Path: windows
+          depot2Path: macosx-arm64-app
+          depot3Path: macosx-x86-app
+          depot4Path: linux
+          releaseBranch: steam-p2p
