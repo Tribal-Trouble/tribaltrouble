@@ -11,7 +11,9 @@ import com.oddlabs.tt.form.TutorialForm;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.MenuButton;
+import com.oddlabs.tt.net.Client;
 import com.oddlabs.tt.net.Network;
+import com.oddlabs.tt.steam.SteamLobbySession;
 import com.oddlabs.tt.steam.SteamManager;
 import org.jspecify.annotations.NonNull;
 
@@ -24,6 +26,9 @@ public final class MainMenu extends Menu {
         reload();
         SteamManager.clearRichPresence();
         SteamManager.setInActiveWorld(false);
+        SteamLobbySession.leave();
+        SteamLobbySession.setJoinHandler(info -> joinGame(network, gui_root.getGUI(), Client.STEAM_HOST_ID, false,
+                info.gamespeed(), info.mapcode(), null, info.randomStartPos(), info.maxUnitCount(), info.size()));
     }
 
     private void addGameTypeButtons() {
@@ -40,6 +45,13 @@ public final class MainMenu extends Menu {
         single_player.addMouseClickListener((_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(),
                 MainMenu.this)));
         addChild(single_player);
+
+        if (SteamManager.getInstance() != null) {
+            MenuButton steam_game = new MenuButton("Steam Game", COLOR_NORMAL, COLOR_ACTIVE);
+            steam_game.addMouseClickListener((_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(),
+                    MainMenu.this, true)));
+            addChild(steam_game);
+        }
 
         if (!Settings.getSettings().hide_multiplayer) {
             MenuButton multi_player = new MenuButton(Menu.i18n("multiplayer"), COLOR_NORMAL, COLOR_ACTIVE);

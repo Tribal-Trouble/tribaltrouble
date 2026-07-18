@@ -46,6 +46,8 @@ import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.steam.SteamLobbySession;
+import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.util.WordsEncoding;
@@ -113,6 +115,8 @@ public final class TerrainMenu extends Group {
     private final @NonNull Label @NonNull [] labels_players;
     private final @NonNull CheckBox cb_rated;
     private final boolean multiplayer;
+    /** Serverless Steam private match: multiplayer game flow without any matchmaking server. */
+    private final boolean steam;
     private final @NonNull PulldownMenu<Void> pm_gamespeed;
     private final @NonNull GUIRoot gui_root;
     private final @NonNull NetworkSelector network;
@@ -157,12 +161,18 @@ public final class TerrainMenu extends Group {
         MAX_VALUE = max;
     }
 
-    @SuppressWarnings("unchecked")
     public TerrainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @Nullable Menu main_menu,
             boolean multiplayer, @Nullable TerrainMenuListener owner) {
+        this(network, gui_root, main_menu, multiplayer, false, owner);
+    }
+
+    @SuppressWarnings("unchecked")
+    public TerrainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @Nullable Menu main_menu,
+            boolean multiplayer, boolean steam, @Nullable TerrainMenuListener owner) {
         this.network = network;
         this.main_menu = main_menu;
         this.multiplayer = multiplayer;
+        this.steam = steam;
         this.owner = owner;
         this.gui_root = gui_root;
 
@@ -219,7 +229,7 @@ public final class TerrainMenu extends Group {
         pb_gamespeed.place(label_gamespeed, RIGHT_MID);
         group_gamespeed.compileCanvas();
 
-        if (multiplayer) {
+        if (multiplayer || steam) {
             group_map_options.addChild(group_gamespeed);
         }
         // size
@@ -353,7 +363,8 @@ public final class TerrainMenu extends Group {
         ScrollableGroup group_race_team = buildPlayerSlots(player_count);
         if (multiplayer) {
             roster_panel.setRoster(group_race_team);
-        } else {
+        } else if (!steam) {
+            // Steam private matches configure slots in the lobby screen, like matchmaking games.
             standard.addChild(group_race_team);
         }
 
@@ -379,7 +390,7 @@ public final class TerrainMenu extends Group {
         addChild(group_buttons);
 
         // map options
-        if (multiplayer) {
+        if (multiplayer || steam) {
             group_gamespeed.place();
             group_size.place(group_gamespeed, BOTTOM_RIGHT);
         } else {
@@ -398,6 +409,8 @@ public final class TerrainMenu extends Group {
                 label_default_name.place(label_name, RIGHT_MID);
             cb_rated.place(label_name, BOTTOM_LEFT, Skin.getSkin().getFormData().sectionSpacing());
             group_map_options.place(cb_rated, BOTTOM_LEFT);
+        } else if (steam) {
+            group_map_options.place();
         } else {
             group_map_options.place();
             group_race_team.place(group_map_options, BOTTOM_LEFT, Skin.getSkin().getFormData().sectionSpacing());
@@ -433,7 +446,7 @@ public final class TerrainMenu extends Group {
         for (int i = 0; i < player_count; i++) {
             difficulty_pulldown_menus[i].addItemChosenListener(new PulldownUpdateHardListener());
             team_pulldown_menus[i].chooseItem(defaultTeam(i));
-            if (!multiplayer && i == 1) {
+            if (!multiplayer && !steam && i == 1) {
                 difficulty_pulldown_menus[i].chooseItem(PlayerSlot.AI_EASY);
                 race_pulldown_menus[i].chooseItem((race_pulldown_menus[0].getChosenItemIndex() + 1) % 2);
             } else {
@@ -747,7 +760,7 @@ public final class TerrainMenu extends Group {
      * slot-based assignment. Single-player keeps the host on team 1 and the AIs on team 2 (you vs the AIs).
      */
     private int defaultTeam(int i) {
-        if (multiplayer) {
+        if (multiplayer || steam) {
             return i;
         }
         return i == 0 ? 0 : 1;
@@ -780,6 +793,21 @@ public final class TerrainMenu extends Group {
                                     (byte) (pm_gamespeed.getChosenItemIndex() + 1)).mapcode(
                                             label_mapcode.getContents()).randomStartPos(random_start_pos).maxUnitCount(
                                                     Player.DEFAULT_MAX_UNIT_COUNT).build();
+        } else if (steam) {
+            if (SteamManager.getInstance() == null) {
+                gui_root.addModalForm(new MessageForm("Steam is not available"));
+                return false;
+            }
+            float random_start_pos = LocalEventQueue.getQueue().getTime() % 1f;
+            String game_name = SteamManager.getInstance().getPersonaName();
+            if (game_name.length() > Game.MAX_LENGTH)
+                game_name = game_name.substring(0, Game.MAX_LENGTH);
+            game = Game.builder().name(game_name).size((byte) pulldown_size.getChosenItemIndex()).terrain(
+                    (byte) terrain_type.ordinal()).hills((byte) hills).trees((byte) vegetation_amount).supplies(
+                            (byte) supplies_amount).rated(false).gamespeed(
+                                    (byte) (pm_gamespeed.getChosenItemIndex() + 1)).mapcode(
+                                            label_mapcode.getContents()).randomStartPos(random_start_pos).maxUnitCount(
+                                                    Player.DEFAULT_MAX_UNIT_COUNT).build();
         } else {
             boolean has_enemy = false;
             for (int i = 1; i < player_count; i++) {
@@ -809,13 +837,15 @@ public final class TerrainMenu extends Group {
         for (int i = 0; i < ai_names.length; i++) {
             ai_names[i] = ai_string + i;
         }
-        InGameInfo ingame_info = multiplayer ? new MultiplayerInGameInfo(game.getRandomStartPos(),
+        if (steam)
+            SteamLobbySession.startHosting(game);
+        InGameInfo ingame_info = multiplayer || steam ? new MultiplayerInGameInfo(game.getRandomStartPos(),
                 game.isRated()) : new DefaultInGameInfo();
         GameNetwork game_network = Menu.startNewGame(network, gui_root,
                 menu,
-                new WorldParameters(multiplayer ? game.getGamespeed() : Globals.gamespeed,
+                new WorldParameters(multiplayer || steam ? game.getGamespeed() : Globals.gamespeed,
                         label_mapcode.getContents(), Player.INITIAL_UNIT_COUNT,
-                        multiplayer ? game.getMaxUnitCount() : Player.DEFAULT_MAX_UNIT_COUNT,
+                        multiplayer || steam ? game.getMaxUnitCount() : Player.DEFAULT_MAX_UNIT_COUNT,
                         pulldown_size.getChosenItemIndex()),
                 ingame_info,
                 new Menu.DefaultWorldInitAction(),
@@ -830,13 +860,13 @@ public final class TerrainMenu extends Group {
                 ai_names,
                 player_count);
         game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN,
-                race_pulldown_menus[0].getChosenItemIndex(), team_pulldown_menus[0].getChosenItemIndex(), !multiplayer,
-                PlayerSlot.AI_NONE);
+                race_pulldown_menus[0].getChosenItemIndex(), team_pulldown_menus[0].getChosenItemIndex(),
+                !multiplayer && !steam, PlayerSlot.AI_NONE);
         if (multiplayer) {
             // Carry the host's roster into the lobby; GameMenu applies it once on open (host only).
             game_network.setInitialRoster(snapshotRoster());
         }
-        if (!multiplayer) {
+        if (!multiplayer && !steam) {
             for (int i = 1; i < player_count; i++) {
                 if (isChosen(difficulty_pulldown_menus[i]))
                     game_network.getClient().getServerInterface().setPlayerSlot(i, PlayerSlot.AI,

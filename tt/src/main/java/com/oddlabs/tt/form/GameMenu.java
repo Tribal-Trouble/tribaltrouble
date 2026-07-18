@@ -87,7 +87,8 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
     private final Diode @NonNull [] ready_marks;
     private final @NonNull HorizButton ready_button;
     private final @NonNull HorizButton start_button;
-    private final SelectGameMenu owner;
+    private final @Nullable SelectGameMenu owner;
+    private @Nullable Runnable close_action;
     private final GUIRoot gui_root;
     private final int local_player_slot;
     private final boolean rated;
@@ -487,10 +488,22 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
         Network.getChatHub().removeListener(this);
     }
 
+    /** Used when the menu has no SelectGameMenu owner (serverless Steam lobby). */
+    public void setCloseAction(@Nullable Runnable close_action) {
+        this.close_action = close_action;
+    }
+
+    private void closeOwner() {
+        if (owner != null)
+            owner.removeGameMenu();
+        else if (close_action != null)
+            close_action.run();
+    }
+
     @Override
     public void connectionLost() {
         remove();
-        owner.removeGameMenu();
+        closeOwner();
         gui_root.addModalForm(new MessageForm(i18n("connection_lost")));
     }
 
@@ -552,7 +565,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 
     void cancel() {
         game_network.close();
-        owner.removeGameMenu();
+        closeOwner();
     }
 
     private final class InfoButtonListener implements MouseClickListener {

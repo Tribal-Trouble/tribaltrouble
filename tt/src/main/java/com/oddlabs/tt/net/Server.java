@@ -16,6 +16,11 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
+import com.oddlabs.tt.steam.SteamLobbySession;
+import com.oddlabs.tt.steam.SteamManager;
+import com.oddlabs.tt.steam.SteamP2P;
+import com.oddlabs.tt.steam.SteamP2PConnectionListener;
+import com.oddlabs.tt.steam.SteamP2PIdentifier;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -305,7 +310,18 @@ public final class Server implements ConnectionListenerInterface {
         int rating = 0;
         String name;
         TunnelAddress address;
-        if (remote_address instanceof InetAddress) {
+        if (remote_address instanceof InetAddress && SteamLobbySession.isHost()) {
+            // Serverless Steam match: the host's own client connects over loopback; remote joiners
+            // arrive over Steam P2P instead of a matchmaking tunnel.
+            address = null;
+            if (register_server)
+                tunnelled_listener = new SteamP2PConnectionListener(SteamP2P.CHANNEL_LOBBY, this);
+            name = SteamManager.getInstance() != null ? SteamManager.getInstance().getPersonaName() : Utils.getBundleString(
+                    ResourceBundle.getBundle(MatchmakingClient.class.getName()), "player");
+        } else if (remote_address instanceof SteamP2PIdentifier identifier) {
+            address = null;
+            name = identifier.personaName();
+        } else if (remote_address instanceof InetAddress) {
             address = Network.getMatchmakingClient().getLocalAddress();
             if (register_server) {
                 tunnelled_listener = new TunnelledConnectionListener(this);
