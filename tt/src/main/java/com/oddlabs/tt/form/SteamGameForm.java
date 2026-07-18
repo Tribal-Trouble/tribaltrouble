@@ -18,10 +18,9 @@ import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
  * since without a matchmaking game browser the Steam overlay invite is the only way in.
  */
 public final class SteamGameForm extends Form {
-    // Same button width the matchmaking screen passes to GameMenu; four of these plus spacing
-    // must fit inside the panel width.
-    private static final int BUTTON_WIDTH = 110;
-    private static final int INVITE_BUTTON_WIDTH = 170;
+    // Three of these plus spacing must fit inside the panel width; GameMenu puts Game info on its
+    // own row for the Steam lobby.
+    private static final int BUTTON_WIDTH = 170;
     private static final int PANEL_COMPARE_WIDTH = 620;
     private static final int PANEL_COMPARE_HEIGHT = 460;
 
@@ -42,7 +41,7 @@ public final class SteamGameForm extends Form {
 
         game_menu.place();
         if (SteamLobbySession.isHost()) {
-            HorizButton invite_button = new HorizButton("Invite friends", INVITE_BUTTON_WIDTH);
+            HorizButton invite_button = new HorizButton("Invite friends", BUTTON_WIDTH);
             invite_button.addMouseClickListener((_, _, _, _) -> SteamLobbySession.openInviteDialog());
             addChild(invite_button);
             invite_button.place(game_menu, BOTTOM_MID);
