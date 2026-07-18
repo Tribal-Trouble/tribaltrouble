@@ -38,6 +38,6 @@ public final class TerrainMenuForm extends Form implements TerrainMenuListener {
 
     @Override
     public void terrainMenuOK() {
-
+        remove();
     }
 }

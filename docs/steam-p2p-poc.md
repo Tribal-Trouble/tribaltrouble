@@ -7,10 +7,12 @@ Steam lobby handles discovery and invites.
 
 ## Player flow
 
-Host: main menu -> "Steam Game" (visible only when Steam is running) -> map setup screen
-(terrain, size, gamespeed) -> OK creates a friends-only Steam lobby, starts the in-process game
-server, and opens the usual multiplayer lobby screen with an "Invite friends" button (the Steam
-overlay invite dialog also opens automatically). AI slots are configured in the lobby screen.
+Host: main menu -> "Skirmish" (with Steam running this hosts a friends-joinable lobby; without
+Steam it falls back to the legacy local game) -> the full game creation screen (presets, standard
+and advanced options, roster with Open/Closed/AI slots, gamespeed) -> OK creates a friends-only
+Steam lobby, starts the in-process game server, and opens the usual multiplayer lobby screen with
+an "Invite friends" button (the Steam overlay invite dialog also opens automatically). The roster
+built on the creation screen seeds the lobby slots; AI slots can also be changed in the lobby.
 
 Joiner: accept the invite in Steam (or join via friends list) -> the game joins the Steam lobby,
 reads the host's SteamID and world parameters from lobby data, connects to the host over Steam

@@ -179,13 +179,14 @@ public final class TerrainMenu extends Group {
         // headline
         Label label_headline = new Label(i18n(multiplayer ? "new_game" : "skirmish"), Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
-        if (multiplayer) {
+        if (multiplayer || steam) {
             preset_library.load(Renderer.getLocalInput().getGameDir().resolve(Globals.getPresetsFileName()));
         }
-        mode_and_presets = multiplayer ? new ModeAndPresetsPanel(gui_root, preset_library, new PresetsHandler()) : null;
+        mode_and_presets = multiplayer || steam ? new ModeAndPresetsPanel(gui_root, preset_library,
+                new PresetsHandler()) : null;
         Panel standard = new Panel(i18n("standard_options"));
         Panel advanced = new Panel(i18n("advanced_options"));
-        roster_panel = multiplayer ? new RosterPanel() : null;
+        roster_panel = multiplayer || steam ? new RosterPanel() : null;
         Group group_map_options = new Group();
 
         // game name
@@ -361,10 +362,9 @@ public final class TerrainMenu extends Group {
         race_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
         team_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
         ScrollableGroup group_race_team = buildPlayerSlots(player_count);
-        if (multiplayer) {
+        if (multiplayer || steam) {
             roster_panel.setRoster(group_race_team);
-        } else if (!steam) {
-            // Steam private matches configure slots in the lobby screen, like matchmaking games.
+        } else {
             standard.addChild(group_race_team);
         }
 
@@ -423,7 +423,7 @@ public final class TerrainMenu extends Group {
         group_seed.place(group_num_players, BOTTOM_LEFT, Skin.getSkin().getFormData().sectionSpacing());
         advanced.compileCanvas();
 
-        PanelGroup panel_group = multiplayer ? new PanelGroup(1, mode_and_presets, standard, advanced,
+        PanelGroup panel_group = multiplayer || steam ? new PanelGroup(1, mode_and_presets, standard, advanced,
                 roster_panel) : new PanelGroup(standard, advanced);
         addChild(panel_group);
         var playersChangedListener = new PulldownUpdatePlayersChangedListener(standard);
@@ -689,9 +689,10 @@ public final class TerrainMenu extends Group {
             if (i == 0) {
                 difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("human")));
             } else {
-                // MP slots can wait for a human joiner; SP has no joiners so it omits Open. Adding Open shifts the MP
-                // slot indices (Open 0, Closed 1, AI 2-4). See fillToDifficultyIndex / difficultyIndexToFill.
-                if (multiplayer) {
+                // MP and skirmish slots can wait for a human joiner; the legacy local game has no joiners so it omits
+                // Open. Adding Open shifts the slot indices (Open 0, Closed 1, AI 2-4). See fillToDifficultyIndex /
+                // difficultyIndexToFill.
+                if (multiplayer || steam) {
                     difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("open")));
                 }
                 difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("closed")));
@@ -862,7 +863,7 @@ public final class TerrainMenu extends Group {
         game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN,
                 race_pulldown_menus[0].getChosenItemIndex(), team_pulldown_menus[0].getChosenItemIndex(),
                 !multiplayer && !steam, PlayerSlot.AI_NONE);
-        if (multiplayer) {
+        if (multiplayer || steam) {
             // Carry the host's roster into the lobby; GameMenu applies it once on open (host only).
             game_network.setInitialRoster(snapshotRoster());
         }
@@ -1174,9 +1175,9 @@ public final class TerrainMenu extends Group {
             }
 
             ScrollableGroup new_group = buildPlayerSlots(player_count);
-            if (multiplayer) {
+            if (multiplayer || steam) {
                 roster_panel.setRoster(new_group);
-            } else if (!steam) {
+            } else {
                 if (current_race_team != null) {
                     standard.removeChild(current_race_team);
                 }

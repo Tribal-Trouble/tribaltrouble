@@ -41,17 +41,11 @@ public final class MainMenu extends Menu {
                 MainMenu.this)));
         addChild(campaign_menu);
 
-        MenuButton single_player = new MenuButton(Menu.i18n("skirmish"), COLOR_NORMAL, COLOR_ACTIVE);
-        single_player.addMouseClickListener((_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(),
-                MainMenu.this)));
-        addChild(single_player);
-
-        if (SteamManager.getInstance() != null) {
-            MenuButton steam_game = new MenuButton("Steam Game", COLOR_NORMAL, COLOR_ACTIVE);
-            steam_game.addMouseClickListener((_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(),
-                    MainMenu.this, true)));
-            addChild(steam_game);
-        }
+        MenuButton skirmish = new MenuButton(Menu.i18n("skirmish"), COLOR_NORMAL, COLOR_ACTIVE);
+        // With Steam running, skirmish hosts a friends-joinable lobby; without it, the legacy local game.
+        skirmish.addMouseClickListener((_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(),
+                MainMenu.this, SteamManager.getInstance() != null)));
+        addChild(skirmish);
 
         if (!Settings.getSettings().hide_multiplayer) {
             MenuButton multi_player = new MenuButton(Menu.i18n("multiplayer"), COLOR_NORMAL, COLOR_ACTIVE);

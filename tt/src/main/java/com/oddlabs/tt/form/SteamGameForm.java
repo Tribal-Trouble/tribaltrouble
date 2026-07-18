@@ -1,6 +1,7 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.Game;
+import com.oddlabs.matchmaking.RosterTemplate;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.HorizButton;
@@ -18,8 +19,8 @@ import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
  */
 public final class SteamGameForm extends Form {
     private static final int BUTTON_WIDTH = 170;
-    private static final int PANEL_COMPARE_WIDTH = 500;
-    private static final int PANEL_COMPARE_HEIGHT = 280;
+    private static final int PANEL_COMPARE_WIDTH = 620;
+    private static final int PANEL_COMPARE_HEIGHT = 460;
 
     public SteamGameForm(@NonNull GameNetwork game_network, @NonNull GUIRoot gui_root, @NonNull Game game,
             WorldGenerator generator, int player_slot, int player_count) {
@@ -31,6 +32,10 @@ public final class SteamGameForm extends Form {
         });
         addChild(game_menu);
         game_network.getClient().setConfigurationListener(game_menu);
+        RosterTemplate initial_roster = game_network.getInitialRoster();
+        if (initial_roster != null) {
+            game_menu.applyInitialRoster(initial_roster);
+        }
 
         game_menu.place();
         if (SteamLobbySession.isHost()) {
