@@ -44,6 +44,7 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
 
     private static @Nullable SteamLobbySession active;
     private static @Nullable JoinHandler join_handler;
+    private static long pending_launch_lobby;
 
     private final SteamMatchmaking matchmaking;
     private final boolean is_host;
@@ -74,8 +75,21 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
         return active.host_id;
     }
 
+    /**
+     * Records the lobby id from a "+connect_lobby" launch argument. The join is deferred until
+     * the main menu registers its join handler, since at parse time no GUI exists to receive it.
+     */
+    public static void setPendingLaunchLobby(long lobby_handle) {
+        pending_launch_lobby = lobby_handle;
+    }
+
     public static void setJoinHandler(@Nullable JoinHandler handler) {
         join_handler = handler;
+        if (handler != null && pending_launch_lobby != 0) {
+            long lobby = pending_launch_lobby;
+            pending_launch_lobby = 0;
+            joinRequested(SteamID.createFromNativeHandle(lobby));
+        }
     }
 
     /**

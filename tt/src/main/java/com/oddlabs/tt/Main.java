@@ -1,6 +1,7 @@
 package com.oddlabs.tt;
 
 import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.steam.SteamLobbySession;
 import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -49,6 +50,17 @@ public final class Main {
         int status = 1;
         try {
             SteamManager.init();
+            // Steam passes "+connect_lobby <id>" when the game is launched by accepting an invite
+            // while it was not running; the join fires once the main menu is up.
+            for (int i = 0; i < args.length - 1; i++) {
+                if ("+connect_lobby".equals(args[i])) {
+                    try {
+                        SteamLobbySession.setPendingLaunchLobby(Long.parseLong(args[i + 1]));
+                    } catch (NumberFormatException e) {
+                        logger.warning("Malformed +connect_lobby argument: " + args[i + 1]);
+                    }
+                }
+            }
             logger.info("Starting game....");
             Renderer.getRenderer().run(args);
             status = 0;
