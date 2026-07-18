@@ -2,6 +2,8 @@ package com.oddlabs.tt.gui;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.function.Supplier;
+
 public record RaceIcons(@NonNull IconQuad unitStatusIcon,
                         @NonNull IconQuad weaponRockStatusIcon,
                         @NonNull IconQuad weaponIronStatusIcon,
@@ -26,7 +28,7 @@ public record RaceIcons(@NonNull IconQuad unitStatusIcon,
                         @NonNull ModeIconQuads towerExitIcon,
                         @NonNull ModeIconQuads rallyPointIcon,
                         @NonNull ModeIconQuads magic1Icon,
-                        @NonNull String magic1Desc,
+                        @NonNull Supplier<@NonNull String> magic1Desc,
                         @NonNull ModeIconQuads magic2Icon,
-                        @NonNull String magic2Desc) {
+                        @NonNull Supplier<@NonNull String> magic2Desc) {
 }

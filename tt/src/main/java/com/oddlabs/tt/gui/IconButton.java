@@ -1,15 +1,24 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.function.Supplier;
+
+/** a click-able button represented by an icon */
 public class IconButton extends ButtonObject {
     private final @NonNull ModeIconQuads icon;
-    private @Nullable IconDisabler icon_disabler = null;
+    private @Nullable IconDisabler icon_disabler;
 
-    public IconButton(@NonNull ModeIconQuads icon) {
-        super(Skin.getSkin().getEditFont());
+    public IconButton(@NonNull ModeIconQuads icon, @Nullable Supplier<@NonNull String> tool_tip) {
+        this(icon, null, tool_tip);
+    }
+
+    public IconButton(@NonNull ModeIconQuads icon, @Nullable GameAction action,
+            @Nullable Supplier<@NonNull String> tool_tip) {
+        super(Skin.getSkin().getEditFont(), action, tool_tip);
         this.icon = icon;
         var normal = icon.quad(ModeIconQuads.Mode.NORMAL);
         setDim(normal.getWidth(), normal.getHeight());

@@ -5,6 +5,9 @@ import com.oddlabs.tt.gui.IconQuad;
 import com.oddlabs.tt.landscape.TreeSupply;
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class Cost {
     private final @NonNull Class<? extends Supply> @NonNull [] supply_types;
     private final int @NonNull [] supply_amounts;
@@ -23,20 +26,14 @@ public final class Cost {
         return supply_amounts;
     }
 
-    public @NonNull IconQuad @NonNull [] toIconArray() {
-        int size = 0;
-        for (int supplyAmount : supply_amounts) {
-            size += supplyAmount;
-        }
-        IconQuad[] result = new IconQuad[size];
-        int index = 0;
+    public List<@NonNull IconQuad> iconList() {
+        List<IconQuad> result = new ArrayList<>();
         for (int i = 0; i < supply_types.length; i++) {
             IconQuad icon = getIconQuad(supply_types[i]);
             for (int j = 0; j < supply_amounts[i]; j++) {
-                result[index++] = icon;
+                result.add(icon);
             }
         }
-        assert index == result.length;
         return result;
     }
 

@@ -1,7 +1,6 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.gui.GUIIcons;
-import com.oddlabs.tt.gui.IconQuad;
 import com.oddlabs.tt.gui.ToolTipBox;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
@@ -9,103 +8,100 @@ import com.oddlabs.tt.model.ModelToolTip;
 import com.oddlabs.tt.model.SceneryModel;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Supply;
-import com.oddlabs.tt.model.ToolTipVisitor;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.behaviour.Controller;
 import com.oddlabs.tt.model.behaviour.GatherController;
 import com.oddlabs.tt.player.Player;
-import com.oddlabs.tt.util.ToolTip;
-import com.oddlabs.tt.util.Utils;
+import com.oddlabs.tt.gui.ToolTip;
 import org.jspecify.annotations.NonNull;
 
-import java.util.ResourceBundle;
+import java.util.List;
+import java.util.Objects;
 
-final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
-    private final ModelToolTip model;
-    private final Player local_player;
-    private ToolTipBox tool_tip_box;
+/**
+ * Adapter that maps simulation-side ModelToolTip entities to the UI ToolTip representation.
+ */
+final class ToolTipAdapter implements ToolTip {
+    private final @NonNull ModelToolTip model;
+    private final @NonNull Player local_player;
 
-    ToolTipAdapter(ModelToolTip model, Player local_player) {
+    ToolTipAdapter(@NonNull ModelToolTip model, @NonNull Player local_player) {
         this.local_player = local_player;
         this.model = model;
     }
 
-    private void visitPlayer(@NonNull Player player) {
-        tool_tip_box.append(player.getPlayerInfo().getName());
-        tool_tip_box.append(" - ");
-        //      tool_tip_box.append(team_tip);
-        //      tool_tip_box.append(" ");
+    private void visitPlayer(@NonNull ToolTipBox tool_tip, @NonNull Player player) {
+        tool_tip.append(player.getPlayerInfo().getName());
+        tool_tip.append(" - ");
+        //      tool_tip.append(team_tip);
+        //      tool_tip.append(" ");
         //      if (Settings.getSettings().inDeveloperMode()) {
-        //          tool_tip_box.append("total_units=");
-        //          tool_tip_box.append(unit_count.getNumSupplies());
-        //          tool_tip_box.append(" ");
+        //          tool_tip.append("total_units=");
+        //          tool_tip.append(unit_count.getNumSupplies());
+        //          tool_tip.append(" ");
         //      }
     }
 
-    private void visitSelectable(@NonNull Selectable<?> selectable) {
+    private void visitSelectable(@NonNull ToolTipBox tool_tip, @NonNull Selectable<?> selectable) {
         assert !selectable.isDead();
-        visitPlayer(selectable.getOwner());
+        visitPlayer(tool_tip, selectable.getOwner());
         /*      if (Settings.getSettings().developer_mode) {
         		if (getCurrentBehaviour() instanceof WalkBehaviour)
-        		((WalkBehaviour)getCurrentBehaviour()).appendToolTip(tool_tip_box);
+        		((WalkBehaviour)getCurrentBehaviour()).appendToolTip(tool_tip);
         		else*/
-        //tool_tip_box.append(getPrimaryController().getClass().getName());
+        //tool_tip.append(getPrimaryController().getClass().getName());
         //}
     }
 
     @Override
     public void appendToolTip(ToolTipBox tool_tip) {
-        tool_tip_box = tool_tip;
-        model.visit(this);
+        switch (model) {
+            case Unit unit -> visitUnit(tool_tip, unit);
+            case Building building -> visitBuilding(tool_tip, building);
+            case Supply supply -> visitSupply(tool_tip, supply);
+            case SceneryModel scenery -> visitSceneryModel(tool_tip, scenery);
+            default -> {
+            }
+        }
     }
 
-    @Override
-    public void visitSceneryModel(@NonNull SceneryModel model) {
+    private void visitSceneryModel(@NonNull ToolTipBox tool_tip, @NonNull SceneryModel model) {
         String name = model.getName();
         if (name != null)
-            tool_tip_box.append(name);
+            tool_tip.append(name);
     }
 
-    @Override
-    public void visitSupply(@NonNull Supply model) {
-        tool_tip_box.append(Utils.getBundleString(ResourceBundle.getBundle(model.getClass().getName()), "name"));
-        tool_tip_box.append(GUIIcons.getIcons().getToolTipIcon(model.getClass()));
+    private void visitSupply(@NonNull ToolTipBox tool_tip, @NonNull Supply supply) {
+        tool_tip.append(supply.getName());
+        tool_tip.append(GUIIcons.getIcons().getToolTipIcon(supply.getClass()));
     }
 
-    @Override
-    public void visitBuilding(@NonNull Building building) {
-        visitSelectable(building);
-        tool_tip_box.append(building.getTemplate().getName());
-        IconQuad[] watch = GUIIcons.getIcons().getWatch();
-        tool_tip_box.append(
-                watch[((watch.length - 1) * building.getHitPoints() / building.getTemplate().getMaxHitPoints())]);
+    private void visitBuilding(@NonNull ToolTipBox tool_tip, @NonNull Building building) {
+        visitSelectable(tool_tip, building);
+        tool_tip.append(building.getTemplate().getName());
+        var health = (float) building.getHitPoints() / building.getTemplate().getMaxHitPoints();
+        var watch = List.of(GUIIcons.getIcons().getWatch(health));
+        tool_tip.append(watch);
         //      if (getUnitContainer() != null && Settings.getSettings().developer_mode) {
-        //          tool_tip_box.append(" units_in_building ");
-        //          tool_tip_box.append(getUnitContainer().getNumSupplies());
+        //          tool_tip.append(" units_in_building ");
+        //          tool_tip.append(getUnitContainer().getNumSupplies());
         //      }
 
     }
 
-    @Override
-    public void visitUnit(@NonNull Unit unit) {
-        visitSelectable(unit);
+    private void visitUnit(@NonNull ToolTipBox tool_tip, @NonNull Unit unit) {
+        visitSelectable(tool_tip, unit);
         String name = unit.getName();
-        if (name != null)
-            tool_tip_box.append(name);
-        else
-            tool_tip_box.append(unit.getTemplate().getName());
+        tool_tip.append(Objects.requireNonNullElseGet(name, () -> unit.getTemplate().getName()));
         Controller c = unit.getPrimaryController();
         if (unit.getAbilities().hasAbilities(Abilities.MAGIC)) {
-            IconQuad[] watch = GUIIcons.getIcons().getWatch();
-            int hit_points = unit.getHitPoints();
-            int index = ((watch.length - 1) * hit_points / unit.getTemplate().getMaxHitPoints());
-            assert hit_points > 0 && hit_points <= unit.getTemplate().getMaxHitPoints() : "Invalid hit points";
-            tool_tip_box.append(watch[index]);
+            var health = (float) unit.getHitPoints() / unit.getTemplate().getMaxHitPoints();
+            tool_tip.append(List.of(GUIIcons.getIcons().getWatch(health)));
         } else if (unit.getOwner() == local_player && c instanceof GatherController<?> gc) {
-            tool_tip_box.append(GUIIcons.getIcons().getToolTipIcon(gc.getSupplyType()));
+            tool_tip.append(GUIIcons.getIcons().getToolTipIcon(gc.getSupplyType()));
         }
         /*      if (getCurrentBehaviour() instanceof WalkBehaviour)
-        		((WalkBehaviour)getCurrentBehaviour()).appendToolTip(tool_tip_box);*/
+        		((WalkBehaviour)getCurrentBehaviour()).appendToolTip(tool_tip);*/
 
     }
 }

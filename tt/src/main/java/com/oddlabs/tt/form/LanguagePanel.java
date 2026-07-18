@@ -16,6 +16,7 @@ import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 
+import java.util.List;
 import java.util.Locale;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
@@ -50,7 +51,7 @@ public class LanguagePanel extends Panel {
         Row<Locale, IconLabel> selectedLanguage = null;
         IconLabel label = new IconLabel(Skin.getSkin().getFlagDefault(), new Label(AbstractOptionsMenu.i18n(
                 "system_default"), Skin.getSkin().getMultiColumnComboBoxData().font()));
-        Row<Locale, IconLabel> row = new Row<>(new IconLabel[]{label}, Renderer.getRenderer().getDefaultLocale());
+        Row<Locale, IconLabel> row = new Row<>(List.of(label), Renderer.getRenderer().getDefaultLocale());
         language_list_box.addRow(row);
         if (Settings.getSettings().language.equals("default"))
             selectedLanguage = row;

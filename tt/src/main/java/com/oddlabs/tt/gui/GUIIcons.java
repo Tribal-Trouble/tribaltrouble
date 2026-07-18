@@ -1,5 +1,7 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
@@ -10,8 +12,11 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.w3c.dom.Node;
 
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 public class GUIIcons {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(Icons.class.getName());
@@ -38,7 +43,7 @@ public class GUIIcons {
     private final @NonNull IconQuad infinite;
     private final @NonNull NotifyArrowData notify_arrow_data;
 
-    private final @NonNull Map<@NonNull Class<?>, @NonNull IconQuad @NonNull []> tool_tip_icons;
+    private final @NonNull Map<@NonNull Class<?>, @NonNull List<@NonNull IconQuad>> tool_tip_icons;
 
     public static GUIIcons getIcons() {
         return ICONS;
@@ -58,24 +63,31 @@ public class GUIIcons {
         iron_status_icon = Icons.getNamedIconQuad(root, "iron_status_icon", texture);
         rubber_status_icon = Icons.getNamedIconQuad(root, "rubber_status_icon", texture);
         cheat_icon = Icons.getNamedIconQuad(root, "cheat_icon", texture);
-        String tt_caption = i18n("terrifying_toot", "S");
-        String rr_caption = i18n("ravaging_roar", "C");
-        String ss_caption = i18n("stinking_stew", "S");
-        String cc_caption = i18n("crackling_cloud", "C");
+
+        Supplier<String> tt_caption = () -> i18n("terrifying_toot",
+                Renderer.getLocalInput().getInputManager().getBindingString(GameAction.MAGIC_1));
+        Supplier<String> rr_caption = () -> i18n("ravaging_roar",
+                Renderer.getLocalInput().getInputManager().getBindingString(GameAction.MAGIC_2));
+        Supplier<String> ss_caption = () -> i18n("stinking_stew",
+                Renderer.getLocalInput().getInputManager().getBindingString(GameAction.MAGIC_1));
+        Supplier<String> cc_caption = () -> i18n("crackling_cloud",
+                Renderer.getLocalInput().getInputManager().getBindingString(GameAction.MAGIC_2));
+
         viking_icons = GUIIcons.parseRaceIcons(root, "vikings", tt_caption, rr_caption, texture);
         native_icons = GUIIcons.parseRaceIcons(root, "natives", ss_caption, cc_caption, texture);
         watch = generateWatchIcons();
         infinite = Icons.getNamedIconQuad(root, "infinite", texture);
         notify_arrow_data = GUIIcons.parseNotifyArrowData(root, texture);
         tool_tip_icons = Map.of(
-                com.oddlabs.tt.landscape.TreeSupply.class, new IconQuad[]{tree_status_icon},
-                com.oddlabs.tt.model.RockSupply.class, new IconQuad[]{rock_status_icon},
-                com.oddlabs.tt.model.IronSupply.class, new IconQuad[]{iron_status_icon},
-                com.oddlabs.tt.model.RubberSupply.class, new IconQuad[]{rubber_status_icon});
+                com.oddlabs.tt.landscape.TreeSupply.class, List.of(tree_status_icon),
+                com.oddlabs.tt.model.RockSupply.class, List.of(rock_status_icon),
+                com.oddlabs.tt.model.IronSupply.class, List.of(iron_status_icon),
+                com.oddlabs.tt.model.RubberSupply.class, List.of(rubber_status_icon));
     }
 
-    private static @NonNull RaceIcons parseRaceIcons(@NonNull Node n, @NonNull String head, @NonNull String magic1_desc,
-            @NonNull String magic2_desc, @NonNull Texture texture) {
+    private static @NonNull RaceIcons parseRaceIcons(@NonNull Node n, @NonNull String head,
+            @NonNull Supplier<@NonNull String> magic1_desc, @NonNull Supplier<@NonNull String> magic2_desc,
+            @NonNull Texture texture) {
         return new RaceIcons(Icons.getNamedIconQuad(n, head + "_unit_status_icon", texture),
                 Icons.getNamedIconQuad(n, head + "_weapon_rock_status_icon", texture),
                 Icons.getNamedIconQuad(n, head + "_weapon_iron_status_icon", texture),
@@ -109,6 +121,7 @@ public class GUIIcons {
         int numIcons = 25;
         int iconSize = 64;
         int textureSize = 512;
+        int perRow = textureSize / iconSize;
 
         GLIntImage image = new GLIntImage(textureSize, textureSize, GL11.GL_RGBA);
         image.clearAll(0);
@@ -136,8 +149,8 @@ public class GUIIcons {
             int whiteColor = 0xFFFFFFFF;
             int rimColor = 0xFFC0C0C0;
 
-            int col = i % 8;
-            int row = i / 8;
+            int col = i % perRow;
+            int row = i / perRow;
             int startX = col * iconSize;
             int startY = row * iconSize;
 
@@ -213,10 +226,9 @@ public class GUIIcons {
         Texture texture = new Texture(new GLImage[]{image}, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR,
                 GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
 
-        IconQuad[] icons = new IconQuad[numIcons];
-        for (int i = 0; i < numIcons; i++) {
-            int col = i % 8;
-            int row = i / 8;
+        return IntStream.range(0, numIcons).mapToObj(i -> {
+            int col = i % perRow;
+            int row = i / perRow;
             int startX = col * iconSize;
             int startY = row * iconSize;
 
@@ -225,9 +237,8 @@ public class GUIIcons {
             float u2 = (startX + iconSize) / (float) textureSize;
             float v2 = 1f - startY / (float) textureSize;
 
-            icons[i] = new IconQuad(u1, v1, u2, v2, 22, 22, texture);
-        }
-        return icons;
+            return new IconQuad(u1, v1, u2, v2, 22, 22, texture);
+        }).toArray(IconQuad[]::new);
     }
 
     private static @NonNull NotifyArrowData parseNotifyArrowData(@NonNull Node n, @NonNull Texture texture) {
@@ -239,7 +250,7 @@ public class GUIIcons {
                 Icons.getInt(node, "end_y"));
     }
 
-    public @NonNull IconQuad @Nullable [] getToolTipIcon(@NonNull Class<?> key) {
+    public @Nullable List<@NonNull IconQuad> getToolTipIcon(@NonNull Class<?> key) {
         return tool_tip_icons.get(key);
     }
 
@@ -291,8 +302,8 @@ public class GUIIcons {
         return rubber_icon;
     }
 
-    public final @NonNull IconQuad @NonNull [] getWatch() {
-        return watch;
+    public final @NonNull IconQuad getWatch(float progress) {
+        return watch[(int) (progress * (watch.length - 1))];
     }
 
     public final @NonNull IconQuad getInfinite() {

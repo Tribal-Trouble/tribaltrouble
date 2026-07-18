@@ -1,29 +1,19 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.tt.util.ToolTip;
 import org.jspecify.annotations.NonNull;
 
-public class MapIslandButton extends IconButton implements ToolTip {
-    private final @NonNull String tool_tip;
+public class MapIslandButton extends IconButton {
     private final int islandIndex;
 
-    public MapIslandButton(@NonNull ModeIconQuads icon, @NonNull String tool_tip, int islandIndex) {
-        super(icon);
-        this.tool_tip = tool_tip;
+    public MapIslandButton(@NonNull ModeIconQuads icon, int islandIndex) {
+        super(icon, () -> "");
         this.islandIndex = islandIndex;
         setCanFocus(true);
     }
 
     public int getIslandIndex() {
         return islandIndex;
-    }
-
-    @Override
-    public void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
-        if (!tool_tip.isEmpty()) {
-            tool_tip_box.append(tool_tip);
-        }
     }
 
     @Override

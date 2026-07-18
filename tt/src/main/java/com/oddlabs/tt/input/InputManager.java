@@ -10,9 +10,11 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -24,7 +26,7 @@ import java.util.stream.Collectors;
  */
 public final class InputManager {
     private static final Logger logger = Logger.getLogger(InputManager.class.getName());
-    private static final Map<GameAction, Set<InputBinding>> DEFAULT_BINDINGS = new EnumMap<>(GameAction.class);
+    private static final Map<GameAction, NavigableSet<InputBinding>> DEFAULT_BINDINGS = new EnumMap<>(GameAction.class);
 
     static {
         // Global
@@ -225,11 +227,10 @@ public final class InputManager {
     private static void def(@NonNull GameAction action, @NonNull Key key, @NonNull Modifier @NonNull... modifiers) {
         Set<Modifier> modSet = EnumSet.noneOf(Modifier.class);
         Collections.addAll(modSet, modifiers);
-        DEFAULT_BINDINGS.computeIfAbsent(action, k -> new CopyOnWriteArraySet<>()).add(new InputBinding(key, modSet,
-                action));
+        DEFAULT_BINDINGS.computeIfAbsent(action, k -> new TreeSet<>()).add(new InputBinding(key, modSet, action));
     }
 
-    private final Set<@NonNull InputBinding> bindings = new CopyOnWriteArraySet<>();
+    private final NavigableSet<@NonNull InputBinding> bindings = new TreeSet<>();
     private final Set<@NonNull GameAction> activeActions = EnumSet.noneOf(GameAction.class);
     private final Map<@NonNull Key, @NonNull Set<@NonNull GameAction>> keyState = new EnumMap<>(Key.class);
 
@@ -253,7 +254,7 @@ public final class InputManager {
             if (value != null) {
 
                 try {
-                    Set<InputBinding> loaded = parseBindings(value, action);
+                    NavigableSet<InputBinding> loaded = parseBindings(value, action);
                     // An empty result is only an intentional unbind when the saved value is an
                     // explicit empty list; parseBindings returns empty for malformed input
                     // without throwing.
@@ -277,14 +278,14 @@ public final class InputManager {
 
 //Improved saveBindings to properly save empty binding lists
     public void saveBindings(@NonNull Properties props) {
-        Map<GameAction, Set<InputBinding>> currentMap = new EnumMap<>(GameAction.class);
+        Map<GameAction, NavigableSet<InputBinding>> currentMap = new EnumMap<>(GameAction.class);
         for (InputBinding b : bindings) {
-            currentMap.computeIfAbsent(b.action(), k -> new CopyOnWriteArraySet<>()).add(b);
+            currentMap.computeIfAbsent(b.action(), k -> new TreeSet<>()).add(b);
         }
 
         for (GameAction action : GameAction.values()) {
-            Set<InputBinding> current = currentMap.get(action);
-            Set<InputBinding> defaults = DEFAULT_BINDINGS.get(action);
+            var current = currentMap.get(action);
+            var defaults = DEFAULT_BINDINGS.get(action);
 
             if (current != null) {
                 if (current.isEmpty()) {
@@ -300,13 +301,18 @@ public final class InputManager {
         }
     }
 
-    public @NonNull Set<@NonNull InputBinding> getBindings(GameAction action) {
-        return bindings.stream().filter(b -> b.action() == action).collect(Collectors.toSet());
+    public @NonNull NavigableSet<@NonNull InputBinding> getBindings(GameAction action) {
+        return bindings.stream().filter(b -> b.action() == action).collect(Collectors.toCollection(TreeSet::new));
     }
 
-    public @NonNull Set<@NonNull InputBinding> getDefaultBindings(GameAction action) {
+    public @NonNull String getBindingString(@NonNull GameAction action) {
+        NavigableSet<InputBinding> set = getBindings(action);
+        return set.isEmpty() ? "" : set.getFirst().toString();
+    }
+
+    public @NonNull NavigableSet<@NonNull InputBinding> getDefaultBindings(GameAction action) {
         var defaults = DEFAULT_BINDINGS.get(action);
-        return defaults == null ? Set.of() : new CopyOnWriteArraySet<>(defaults);
+        return defaults == null ? Collections.emptyNavigableSet() : new TreeSet<>(defaults);
     }
 
     public void setBindings(GameAction action, @NonNull Collection<InputBinding> newBindings) {
@@ -400,8 +406,8 @@ public final class InputManager {
                         Collectors.joining(", ", "[", "]"));
     }
 
-    private @NonNull Set<InputBinding> parseBindings(@NonNull String json, @NonNull GameAction action) {
-        Set<InputBinding> set = new CopyOnWriteArraySet<>();
+    private @NonNull NavigableSet<InputBinding> parseBindings(@NonNull String json, @NonNull GameAction action) {
+        NavigableSet<InputBinding> set = new TreeSet<>();
         String trimmed = json.trim();
         if (trimmed.length() < 2 || !trimmed.startsWith("[") || !trimmed.endsWith("]")) return set;
 

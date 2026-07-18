@@ -6,22 +6,28 @@ import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 public final class Row<T, C extends GUIObject & Comparable<C>> extends GUIObject implements Comparable<Row<T, C>> {
-    private final @NonNull C @NonNull [] columns;
+    private final @NonNull List<@NonNull C> columns;
     private final @Nullable T content_object;
     private int sort_index;
     private final Vector4f color = new Vector4f(com.oddlabs.util.Color.TRANSPARENT);
     private boolean marked = false;
 
     public Row(@NonNull C @NonNull [] columns, @Nullable T content_object) {
+        this(List.of(columns), content_object);
+    }
+
+    public Row(@NonNull List<@NonNull C> columns, @Nullable T content_object) {
         this.columns = columns;
         this.content_object = content_object;
-        setDim(0, columns[0].getHeight());
+        setDim(0, columns.stream().mapToInt(C::getHeight).max().orElse(0));
         setCanFocus(true);
     }
 
     public @NonNull C getColumn(int index) {
-        return columns[index];
+        return columns.get(index);
     }
 
     public void setColumnInfos(@NonNull ColumnInfo @NonNull [] column_infos) {

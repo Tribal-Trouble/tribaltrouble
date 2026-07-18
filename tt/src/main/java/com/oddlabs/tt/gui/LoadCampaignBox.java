@@ -12,6 +12,7 @@ import com.oddlabs.util.DeterministicSerializerLoopbackInterface;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.io.FileNotFoundException;
 import java.io.InvalidClassException;
 import java.nio.file.Files;
@@ -98,14 +99,14 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
                 default -> throw new IllegalArgumentException("invalid difficulty");
             };
             Row<CampaignState, Label> row = new Row<>(
-                    new Label[]{new Label(campaign_state.getName(), Skin.getSkin().getMultiColumnComboBoxData().font(),
-                            WIDTH_NAME - box.getLeftOffset() - 1), new Label(race,
-                                    Skin.getSkin().getMultiColumnComboBoxData().font(), WIDTH_RACE), new Label(
-                                            difficulty, Skin.getSkin().getMultiColumnComboBoxData().font(),
-                                            WIDTH_DIFFICULTY), new DateLabel(campaign_state.getDate(),
-                                                    Skin.getSkin().getMultiColumnComboBoxData().font(),
-                                                    WIDTH_DATE - box.getRightOffset() + 1)
-                    }, campaign_state);
+                    List.of(
+                            new Label(campaign_state.getName(), Skin.getSkin().getMultiColumnComboBoxData().font(),
+                                    WIDTH_NAME - box.getLeftOffset() - 1),
+                            new Label(race, Skin.getSkin().getMultiColumnComboBoxData().font(), WIDTH_RACE),
+                            new Label(difficulty, Skin.getSkin().getMultiColumnComboBoxData().font(), WIDTH_DIFFICULTY),
+                            new DateLabel(campaign_state.getDate(), Skin.getSkin().getMultiColumnComboBoxData().font(),
+                                    WIDTH_DATE - box.getRightOffset() + 1)
+                    ), campaign_state);
             list_box.addRow(row);
         }
     }

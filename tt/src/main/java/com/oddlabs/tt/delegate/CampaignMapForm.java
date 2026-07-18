@@ -122,7 +122,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
             GUIObject island = switch (state) {
                 case CampaignState.ISLAND_AVAILABLE -> {
                     final int index = i;
-                    MapIslandButton button = new MapIslandButton(data.button(), "", index);
+                    MapIslandButton button = new MapIslandButton(data.button(), index);
                     button.addMouseClickListener((_, _, _, _) -> campaign.islandChosen(network, getGUIRoot(), index));
                     addChild(button);
                     islandButtons.add(button);

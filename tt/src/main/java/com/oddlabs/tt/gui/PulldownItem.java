@@ -17,8 +17,7 @@ public class PulldownItem<T> extends ButtonObject {
     public PulldownItem(@NonNull String label_str, @Nullable T attachment) {
         super(Skin.getSkin().getPulldownData().font());
         this.attachment = attachment;
-        PulldownData data = Skin.getSkin().getPulldownData();
-        label = new Label(label_str, data.font(), 0, Origin.AT_START);
+        label = new Label(label_str, getFont(), 0, Origin.AT_START);
         addChild(label);
         setDim(0, label.getHeight());
     }

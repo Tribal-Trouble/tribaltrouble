@@ -384,16 +384,13 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
     }
 
     private void updateRankingList(@NonNull RankingEntry ranking) {
-        Row<RankingEntry, Label> row = new Row<>(new Label[]{new IntegerLabel(ranking.getRanking(),
-                Skin.getSkin().getMultiColumnComboBoxData().font()), new Label(ranking.getName(),
-                        Skin.getSkin().getMultiColumnComboBoxData().font(), user_name_size), new IntegerLabel(
-                                ranking.getRating(),
-                                Skin.getSkin().getMultiColumnComboBoxData().font()), new IntegerLabel(ranking.getWins(),
-                                        Skin.getSkin().getMultiColumnComboBoxData().font()), new IntegerLabel(
-                                                ranking.getLosses(),
-                                                Skin.getSkin().getMultiColumnComboBoxData().font()), new IntegerLabel(
-                                                        ranking.getInvalid(),
-                                                        Skin.getSkin().getMultiColumnComboBoxData().font())}, ranking);
+        Row<RankingEntry, Label> row = new Row<>(List.of(
+                new IntegerLabel(ranking.getRanking(), Skin.getSkin().getMultiColumnComboBoxData().font()),
+                new Label(ranking.getName(), Skin.getSkin().getMultiColumnComboBoxData().font(), user_name_size),
+                new IntegerLabel(ranking.getRating(), Skin.getSkin().getMultiColumnComboBoxData().font()),
+                new IntegerLabel(ranking.getWins(), Skin.getSkin().getMultiColumnComboBoxData().font()),
+                new IntegerLabel(ranking.getLosses(), Skin.getSkin().getMultiColumnComboBoxData().font()),
+                new IntegerLabel(ranking.getInvalid(), Skin.getSkin().getMultiColumnComboBoxData().font())), ranking);
         ranking_list_box.addRow(row);
     }
 
@@ -402,9 +399,11 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         for (GameHost game_host : game_hosts) {
             String rated = ServerMessageBundler.getRatedString(game_host.getGame().isRated());
             String size = ServerMessageBundler.getSizeString(game_host.getGame().getSize());
-            Row<GameHost, Label> row = new Row<>(new Label[]{new Label(game_host.getGame().getName(), combofont,
-                    game_name_size), new Label(rated, combofont), new Label(ServerMessageBundler.getGamespeedString(
-                            game_host.getGame().getGamespeed()), combofont), new Label(size, combofont)},
+            Row<GameHost, Label> row = new Row<>(List.of(
+                    new Label(game_host.getGame().getName(), combofont, game_name_size),
+                    new Label(rated, combofont),
+                    new Label(ServerMessageBundler.getGamespeedString(game_host.getGame().getGamespeed()), combofont),
+                    new Label(size, combofont)),
                     game_host);
             game_list_box.addRow(row);
         }
@@ -415,8 +414,9 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         for (ChatRoomEntry chat_room_info : chat_rooms) {
             String users_and_max = i18n("users_and_max", chat_room_info.getNumJoined(),
                     MatchmakingServerInterface.MAX_ROOM_USERS);
-            Row<ChatRoomEntry, Label> row = new Row<>(new Label[]{new Label(chat_room_info.getName(), combofont,
-                    room_name_size), new Label(users_and_max, combofont)},
+            Row<ChatRoomEntry, Label> row = new Row<>(List.of(
+                    new Label(chat_room_info.getName(), combofont, room_name_size),
+                    new Label(users_and_max, combofont)),
                     chat_room_info);
             chat_room_list_box.addRow(row);
         }

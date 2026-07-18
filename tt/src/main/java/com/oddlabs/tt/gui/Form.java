@@ -47,14 +47,14 @@ public class Form extends Group {
 
             GUIObject label = new Label(caption, font);
             label.setPos(form_data.captionLeft(), getHeight() - form_data.captionY() - font.getHeight() / 2);
-            addChild(label);
             label.addMouseMotionListener(new DragListener(this));
+            addChild(label);
 
-            GUIObject close_button = new IconButton(Skin.getSkin().getFormData().formClose());
+            GUIObject close_button = new IconButton(Skin.getSkin().getFormData().formClose(), null);
             close_button.setPos(getWidth() - close_button.getWidth() - form_data.closeRight(),
                     getHeight() - close_button.getHeight() - form_data.closeTop());
-            addChild(close_button);
             close_button.addMouseClickListener((_, _, _, _) -> this.cancel());
+            addChild(close_button);
         } else {
             form = Skin.getSkin().getFormData().slimForm();
             super.compileCanvas(form.getLeftOffset() + spacing,

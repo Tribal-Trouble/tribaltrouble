@@ -46,8 +46,8 @@ public final class MenuButton extends ButtonObject {
             scaleHovered(renderer);
         } else c = isDisabled() ? Label.DISABLED_COLOR : color_normal;
 
-        TextLineRenderer.render(renderer, getFont(), text, -getWidth() / 2f, -getHeight() / 2f, Float.NEGATIVE_INFINITY,
-                Float.POSITIVE_INFINITY, c);
+        TextLineRenderer.render(renderer, getFont(), text, -getWidth() / 2f, -getHeight() / 2f,
+                Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, c);
         renderer.getMatrixStack().pop();
     }
 

@@ -2,13 +2,12 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.model.SupplyCounter;
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
-public class StatusIcon extends GUIObject implements ToolTip {
+public class StatusIcon extends GUIObject {
     private final @NonNull IconQuad icon;
     private final @NonNull TextField label;
     private final @NonNull String tooltip;
