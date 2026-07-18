@@ -3,6 +3,7 @@ package com.oddlabs.tt.form;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.ColumnInfo;
+import com.oddlabs.tt.gui.EditLine;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
@@ -15,6 +16,8 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.SortedLabel;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputBinding;
+import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.KeyBindingConflicts;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
@@ -30,6 +33,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
@@ -82,6 +86,7 @@ public class KeyBindingPanel extends Panel {
     private final @NonNull MultiColumnComboBox<GameAction> list_box;
     private final @NonNull GUIRoot gui_root;
     private @Nullable GameAction last_selected_action;
+    private @NonNull String filter = "";
 
     public KeyBindingPanel(@NonNull GUIRoot gui_root) {
         super(AbstractOptionsMenu.i18n("key_bindings_title"));
@@ -93,6 +98,16 @@ public class KeyBindingPanel extends Panel {
 
         list_box = new MultiColumnComboBox<>(gui_root, infos, 300, false);
         addChild(list_box);
+
+        Group filter_group = new Group();
+        Label filter_label = new Label(AbstractOptionsMenu.i18n("filter_bindings"), Skin.getSkin().getEditFont());
+        filter_group.addChild(filter_label);
+        EditLine filter_line = new FilterLine();
+        filter_group.addChild(filter_line);
+        filter_label.place();
+        filter_line.place(filter_label, RIGHT_MID);
+        filter_group.compileCanvas();
+        addChild(filter_group);
 
         updateList();
 
@@ -132,7 +147,8 @@ public class KeyBindingPanel extends Panel {
         btn_load.place(btn_save, RIGHT_MID);
         button_group.compileCanvas();
 
-        list_box.place();
+        filter_group.place();
+        list_box.place(filter_group, BOTTOM_LEFT);
         button_group.place(list_box, BOTTOM_LEFT);
 
         compileCanvas();
@@ -151,7 +167,17 @@ public class KeyBindingPanel extends Panel {
             if (action.name().startsWith("CHEAT_") && !Renderer.getRenderer().isCheater()) {
                 continue;
             }
-            byCategory.computeIfAbsent(categorize(action), k -> new ArrayList<>()).add(action);
+            Category category = categorize(action);
+            if (!filter.isEmpty()) {
+                String name = AbstractOptionsMenu.i18n("action." + action.name());
+                String category_name = AbstractOptionsMenu.i18n(category.i18nKey);
+                String bindings = formatBindings(Renderer.getLocalInput().getInputManager().getBindings(action));
+                if (!name.toLowerCase().contains(filter) && !category_name.toLowerCase().contains(filter)
+                        && !bindings.toLowerCase().contains(filter)) {
+                    continue;
+                }
+            }
+            byCategory.computeIfAbsent(category, k -> new ArrayList<>()).add(action);
         }
 
         for (Category category : Category.values()) {
@@ -180,23 +206,7 @@ public class KeyBindingPanel extends Panel {
                     l2 = new InvertedLabel(AbstractOptionsMenu.i18n("unassigned"),
                             Skin.getSkin().getMultiColumnComboBoxData().font(), COL_BINDINGS_WIDTH);
                 } else {
-                    boolean isMac = System.getProperty("os.name", "").toLowerCase().contains("mac");
-                    String bindingStr = bindings.stream().map(b -> {
-                        String s = "";
-                        if (isMac) {
-                            if (b.control()) s = s + "⌃";
-                            if (b.alt()) s = s + "⌥";
-                            if (b.shift()) s = s + "⇧";
-                            if (b.meta()) s = s + "⌘";
-                        } else {
-                            if (b.control()) s = s + "Ctrl+";
-                            if (b.alt()) s = s + "Alt+";
-                            if (b.shift()) s = s + "Shift+";
-                            if (b.meta()) s = s + "Meta+";
-                        }
-                        return s + b.key().getDisplayName();
-                    }).collect(Collectors.joining(", "));
-                    l2 = new Label(bindingStr, Skin.getSkin().getMultiColumnComboBoxData().font());
+                    l2 = new Label(formatBindings(bindings), Skin.getSkin().getMultiColumnComboBoxData().font());
                 }
 
                 Label l1 = new SortedLabel(name, categoryBase + withinCategory,
@@ -218,6 +228,44 @@ public class KeyBindingPanel extends Panel {
         list_box.setOffsetY(savedOffset);
         if (rowToReselect != null) {
             list_box.selectRow(rowToReselect);
+        }
+    }
+
+    private static @NonNull String formatBindings(@NonNull Set<@NonNull InputBinding> bindings) {
+        boolean isMac = System.getProperty("os.name", "").toLowerCase().contains("mac");
+        return bindings.stream().map(b -> {
+            String s = "";
+            if (isMac) {
+                if (b.control()) s = s + "⌃";
+                if (b.alt()) s = s + "⌥";
+                if (b.shift()) s = s + "⇧";
+                if (b.meta()) s = s + "⌘";
+            } else {
+                if (b.control()) s = s + "Ctrl+";
+                if (b.alt()) s = s + "Alt+";
+                if (b.shift()) s = s + "Shift+";
+                if (b.meta()) s = s + "Meta+";
+            }
+            return s + b.key().getDisplayName();
+        }).collect(Collectors.joining(", "));
+    }
+
+    // Filters the list as you type: an action stays visible while its name or binding text
+    // contains the box contents.
+    private final class FilterLine extends EditLine {
+        FilterLine() {
+            super(250, 40);
+        }
+
+        @Override
+        protected void handleInput(@NonNull InputEvent event) {
+            super.handleInput(event);
+            String text = getContents().trim().toLowerCase();
+            if (!text.equals(filter)) {
+                filter = text;
+                updateList();
+                list_box.setOffsetY(0);
+            }
         }
     }
 

@@ -173,7 +173,7 @@ public final class KeyboardInput {
                     break;
             }
 
-            if (checkMagicKey(event_key_down, event_key, false, repeat_event))
+            if (!gui_root.isCapturingKeyBinding() && checkMagicKey(event_key_down, event_key, false, repeat_event))
                 continue;
 
             Set<Modifier> modifiers = EnumSet.noneOf(Modifier.class);

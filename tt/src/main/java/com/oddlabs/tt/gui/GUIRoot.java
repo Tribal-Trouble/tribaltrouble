@@ -5,6 +5,7 @@ import com.oddlabs.tt.delegate.CameraDelegate;
 import com.oddlabs.tt.delegate.ModalDelegate;
 import com.oddlabs.tt.delegate.NullDelegate;
 import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.form.KeyBindingDialog;
 import com.oddlabs.tt.form.QuitForm;
 import com.oddlabs.tt.form.Status;
 import com.oddlabs.tt.global.Globals;
@@ -207,6 +208,19 @@ public final class GUIRoot extends GUIObject {
         GUIObject child = modal.getFirstChild();
         while (child != null) {
             if (child instanceof QuitForm) return true;
+            child = child.getNext();
+        }
+        return false;
+    }
+
+    // True while a key-capture dialog is the active modal, so low-level key handling
+    // (developer magic keys) can step aside and let the dialog capture the combo.
+    public boolean isCapturingKeyBinding() {
+        ModalDelegate modal = getModalDelegate();
+        if (modal == null) return false;
+        GUIObject child = modal.getFirstChild();
+        while (child != null) {
+            if (child instanceof KeyBindingDialog) return true;
             child = child.getNext();
         }
         return false;

@@ -31,13 +31,26 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 public final class ActionButtonPanel extends GUIObject implements Animated {
     private static final int GROUP_LEFT_OFFSET = 10;
     private static final int GROUP_BOTTOM_OFFSET = 10;
     private static final int GROUP_RIGHT_OFFSET = 10;
     private static final int GROUP_TOP_OFFSET = 20;
+
+    // Every action handled inside the armory submenus: the spinner rows and the back button.
+    // A key bound to any of these keeps that meaning while a submenu is open, even in a
+    // submenu without that row, so it never doubles as a submenu switch (see canSwitchSubmenu).
+    private static final Set<GameAction> ARMORY_SUBMENU_ACTIONS = EnumSet.of(GameAction.RES_TREE,
+            GameAction.RES_TREE_DEC, GameAction.RES_TREE_BATCH, GameAction.RES_TREE_BATCH_DEC, GameAction.RES_ROCK,
+            GameAction.RES_ROCK_DEC, GameAction.RES_ROCK_BATCH, GameAction.RES_ROCK_BATCH_DEC, GameAction.RES_IRON,
+            GameAction.RES_IRON_DEC, GameAction.RES_IRON_BATCH, GameAction.RES_IRON_BATCH_DEC, GameAction.RES_CHICKEN,
+            GameAction.RES_CHICKEN_DEC, GameAction.RES_CHICKEN_BATCH, GameAction.RES_CHICKEN_BATCH_DEC,
+            GameAction.TRAIN_PEON, GameAction.TRAIN_PEON_DEC, GameAction.TRAIN_PEON_BATCH,
+            GameAction.TRAIN_PEON_BATCH_DEC, GameAction.GAMEPLAY_BACK);
 
     private final Group unit_group = new NonFocusGroup();
     private final Group peon_group = new NonFocusGroup();
@@ -270,36 +283,22 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         harvest_button = new NonFocusIconButton(icons.getHarvestIcon(), formatTip("gather_resources_tip", "G"));
         harvest_button.setIconDisabler(() -> !viewer.getLocalPlayer().canHarvest());
         armory_group.addChild(harvest_button);
-        harvest_button.addMouseClickListener((_, _, _, _) -> {
-            armory_group.remove();
-            addChild(harvest_group);
-            current_submenu = harvest_group;
-        });
+        harvest_button.addMouseClickListener((_, _, _, _) -> openSubmenu(harvest_group));
         build_button = new NonFocusIconButton(race_icons.buildWeaponsIcon(), formatTip("produce_weapons_tip", "W"));
         build_button.setIconDisabler(() -> !viewer.getLocalPlayer().canBuildWeapons());
         armory_group.addChild(build_button);
         build_button.addMouseClickListener((_, _, _, _) -> {
-            armory_group.remove();
-            addChild(build_group);
-            current_submenu = build_group;
+            openSubmenu(build_group);
             updateCounters();
         });
         army_button = new NonFocusIconButton(race_icons.armyIcon(), formatTip("deploy_army_tip", "A"));
         army_button.setIconDisabler(() -> !viewer.getLocalPlayer().canBuildArmies());
         armory_group.addChild(army_button);
-        army_button.addMouseClickListener((_, _, _, _) -> {
-            armory_group.remove();
-            addChild(army_group);
-            current_submenu = army_group;
-        });
+        army_button.addMouseClickListener((_, _, _, _) -> openSubmenu(army_group));
         transport_button = new NonFocusIconButton(race_icons.transportIcon(), formatTip("transport_resources_tip",
                 "T"));
         armory_group.addChild(transport_button);
-        transport_button.addMouseClickListener((_, _, _, _) -> {
-            armory_group.remove();
-            addChild(transport_group);
-            current_submenu = transport_group;
-        });
+        transport_button.addMouseClickListener((_, _, _, _) -> openSubmenu(transport_group));
         rally_point_button = new NonFocusIconButton(race_icons.rallyPointIcon(), formatTip("rally_point_tip", "R"));
         rally_point_button.setIconDisabler(() -> !viewer.getLocalPlayer().canSetRallyPoints());
         armory_group.addChild(rally_point_button);
@@ -677,14 +676,14 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         if (pressed) {
             if (!repeat) {
                 // Re-ordered the submenu openers to come first in the chain, fixed Q not working inside submenus
-                if (current_armory && current_submenu == null && event.consumeAction(GameAction.PROD_WEAPONS)) {
+                if (current_armory && canSwitchSubmenu(event) && event.consumeAction(GameAction.PROD_WEAPONS)) {
                     activate(event, build_button);
-                } else if (current_armory && current_submenu == null && event.consumeAction(GameAction.PROD_ARMY)) {
+                } else if (current_armory && canSwitchSubmenu(event) && event.consumeAction(GameAction.PROD_ARMY)) {
                     activate(event, army_button);
-                } else if (current_armory && current_submenu == null && event.consumeAction(
+                } else if (current_armory && canSwitchSubmenu(event) && event.consumeAction(
                         GameAction.PROD_TRANSPORT)) {
                             activate(event, transport_button);
-                        } else if (current_armory && current_submenu == null && event.consumeAction(
+                        } else if (current_armory && canSwitchSubmenu(event) && event.consumeAction(
                                 GameAction.PROD_HARVEST)) {
                                     activate(event, harvest_button);
                                 }
@@ -706,7 +705,9 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
                             // G - Gather or Harvest
                             if (current_unit) {
                                 activate(event, gather_repair_button);
-                            } else if (current_armory && current_submenu == null) { // Added missing context for submenu, was opening gather resources from any submenu. TY Pyprohly
+                            } else if (current_armory && current_submenu == null) {
+                                // Legacy gather alias only works from the top level; direct submenu
+                                // switching is reserved for the PROD_HARVEST binding handled above.
                                 activate(event, harvest_button);
                             }
                         } else if ((current_peon || current_armory) && event.consumeAction(
@@ -836,6 +837,9 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
                                         transport_tree_button);
                             } else if (event.consumeAction(GameAction.UNIT_BUILD_TOWER) || event.consumeAction(
                                     GameAction.PROD_TRANSPORT)) {
+                                        // Legacy transport alias (tower key) only works from the top
+                                        // level, so it cannot hijack an open submenu. Direct submenu
+                                        // switching is reserved for the PROD_TRANSPORT press handling.
                                         if (current_armory && current_submenu == null) {
                                             transport_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
                                         }
@@ -935,6 +939,27 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
     private void cancelSubMenu(@NonNull MouseButton button, int x, int y, int clicks) {
         removeGroups();
         update = true;
+    }
+
+    private void openSubmenu(@NonNull Group submenu) {
+        if (current_submenu != null)
+            current_submenu.remove();
+        armory_group.remove();
+        addChild(submenu);
+        current_submenu = submenu;
+    }
+
+    /**
+     * A submenu-opening key works from inside another submenu only when its binding doesn't
+     * collide with anything the submenus handle (spinners, back). On collision the submenu
+     * meaning wins everywhere, so a key bound to a spinner row never switches submenus.
+     */
+    private boolean canSwitchSubmenu(@NonNull InputEvent event) {
+        if (current_submenu == null) return true;
+        for (GameAction action : ARMORY_SUBMENU_ACTIONS) {
+            if (event.hasAction(action)) return false;
+        }
+        return true;
     }
 
     /**
