@@ -6,6 +6,7 @@ import com.codedisaster.steamworks.SteamNativeHandle;
 import com.codedisaster.steamworks.SteamNetworking;
 import com.codedisaster.steamworks.SteamNetworkingCallback;
 import com.oddlabs.net.ARMIEvent;
+import com.oddlabs.net.Connection;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -27,11 +28,6 @@ import java.util.logging.Logger;
  * {@link #pump()} once per animation tick.
  */
 public final class SteamP2P implements SteamNetworkingCallback {
-    /** Channel for game setup negotiation (Server/Client handshake). */
-    public static final int CHANNEL_LOBBY = 0;
-    /** Channel for in-game router traffic (RouterClient to the host's embedded Router). */
-    public static final int CHANNEL_GAME = 1;
-
     private static final int NUM_CHANNELS = 2;
 
     // Packet types. Every packet is [type byte][payload].
@@ -41,15 +37,13 @@ public final class SteamP2P implements SteamNetworkingCallback {
     static final byte PACKET_EVENT = 3;
     static final byte PACKET_CLOSE = 4;
 
-    private static final int BUFFER_SIZE = 65536;
-
     private static final Logger logger = Logger.getLogger(SteamP2P.class.getName());
 
     private static @Nullable SteamP2P instance;
 
     private final SteamNetworking networking;
-    private final ByteBuffer send_buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
-    private final ByteBuffer receive_buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
+    private final ByteBuffer send_buffer = ByteBuffer.allocateDirect(Connection.BUFFER_SIZE);
+    private final ByteBuffer receive_buffer = ByteBuffer.allocateDirect(Connection.BUFFER_SIZE);
     private final int[] packet_size_out = new int[1];
 
     /** Established and half-open connections, keyed by remote SteamID handle, per channel. */
