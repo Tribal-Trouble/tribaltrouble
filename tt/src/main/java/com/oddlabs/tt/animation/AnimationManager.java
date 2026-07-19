@@ -164,6 +164,7 @@ public final class AnimationManager {
             LocalEventQueue.getQueue().tickHighPrecision(ANIMATION_SECONDS_PER_PRECISION_TICK);
             while (execution_time >= ANIMATION_MILLISECONDS_PER_TICK && !Renderer.isFinished()) {
                 network.tick();
+                SteamManager.runCallbacks();
                 P2P.get().pump();
 
                 Renderer.getLocalInput().poll(gui.getGUIRoot());
@@ -182,7 +183,6 @@ public final class AnimationManager {
                 execution_time -= ANIMATION_MILLISECONDS_PER_TICK;
                 checksum_millisecond_counter += ANIMATION_MILLISECONDS_PER_TICK;
                 if (checksum_millisecond_counter >= ANIMATION_MILLISECONDS_PER_CHECKSUM) {
-                    SteamManager.runCallbacks();
                     checksum_millisecond_counter -= ANIMATION_MILLISECONDS_PER_CHECKSUM;
                     int checksum = LocalEventQueue.getQueue().computeChecksum();
                     int logged_checksum = deterministic.log(checksum);

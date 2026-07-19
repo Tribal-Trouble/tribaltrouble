@@ -90,6 +90,12 @@ public final class SteamP2P implements SteamNetworkingCallback {
 
     public static void shutdown() {
         if (instance != null) {
+            // Close every live connection so remotes get a CLOSE packet and react immediately,
+            // instead of waiting out Steam's multi-second send-failure timeout.
+            for (int channel = 0; channel < NUM_CHANNELS; channel++) {
+                for (SteamP2PConnection conn : new ArrayList<>(instance.connections[channel].values()))
+                    conn.close();
+            }
             instance.networking.dispose();
             instance = null;
         }
