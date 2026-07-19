@@ -50,16 +50,6 @@ public final class Main {
     static void main(@NonNull String @NonNull... args) {
         int status = 1;
         try {
-            // Mirror logging to a file: clients launched from Steam have no console, which made
-            // remote play sessions undiagnosable.
-            try {
-                java.util.logging.FileHandler file_handler = new java.util.logging.FileHandler(
-                        "%h/tribaltrouble-%g.log", 1 << 20, 2, false);
-                file_handler.setFormatter(new java.util.logging.SimpleFormatter());
-                Logger.getLogger("").addHandler(file_handler);
-            } catch (java.io.IOException e) {
-                logger.log(Level.WARNING, "Could not open log file", e);
-            }
             if (SteamManager.init())
                 P2P.install(new SteamP2PProvider());
             P2P.get().handleLaunchArguments(args);
