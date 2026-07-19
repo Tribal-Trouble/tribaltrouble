@@ -113,10 +113,8 @@ public final class SteamP2P implements SteamNetworkingCallback {
         if (!pending_failed.isEmpty()) {
             List<SteamP2PConnection> failed = new ArrayList<>(pending_failed);
             pending_failed.clear();
-            for (SteamP2PConnection conn : failed) {
-                connections[conn.getChannel()].remove(SteamNativeHandle.getNativeHandle(conn.getRemoteID()));
-                conn.remoteClosed(new IOException("Steam P2P send failed"));
-            }
+            for (SteamP2PConnection conn : failed)
+                dropConnection(conn, new IOException("Steam P2P send failed"));
         }
         if (!pending_drained.isEmpty()) {
             List<SteamP2PConnection> drained = new ArrayList<>(pending_drained);
@@ -171,20 +169,16 @@ public final class SteamP2P implements SteamNetworkingCallback {
                     conn.remoteAccepted();
             }
             case PACKET_REJECT -> {
-                if (conn != null) {
-                    connections[channel].remove(sender_handle);
-                    conn.remoteClosed(new IOException("Connection rejected by host"));
-                }
+                if (conn != null)
+                    dropConnection(conn, new IOException("Connection rejected by host"));
             }
             case PACKET_EVENT -> {
                 if (conn != null)
                     conn.remoteEvent(packet);
             }
             case PACKET_CLOSE -> {
-                if (conn != null) {
-                    connections[channel].remove(sender_handle);
-                    conn.remoteClosed(new IOException("Connection closed"));
-                }
+                if (conn != null)
+                    dropConnection(conn, new IOException("Connection closed"));
             }
             default -> logger.warning("Unknown Steam P2P packet type: " + type);
         }
@@ -200,6 +194,18 @@ public final class SteamP2P implements SteamNetworkingCallback {
             connections[conn.getChannel()].remove(handle);
             networking.closeP2PChannelWithUser(conn.getRemoteID(), conn.getChannel());
         }
+        pending_incoming[conn.getChannel()].remove(conn);
+    }
+
+    /**
+     * Removes a dying connection from all transport bookkeeping before erroring it out. A parked
+     * connection must leave pending_incoming too, or a listener registering later would be handed
+     * a dead peer.
+     */
+    private void dropConnection(@NonNull SteamP2PConnection conn, @NonNull IOException reason) {
+        connections[conn.getChannel()].remove(SteamNativeHandle.getNativeHandle(conn.getRemoteID()));
+        pending_incoming[conn.getChannel()].remove(conn);
+        conn.remoteClosed(reason);
     }
 
     void setListener(int channel, @Nullable SteamP2PConnectionListener listener) {
@@ -270,9 +276,9 @@ public final class SteamP2P implements SteamNetworkingCallback {
     public void onP2PSessionConnectFail(SteamID steamIDRemote, SteamNetworking.P2PSessionError sessionError) {
         long handle = SteamNativeHandle.getNativeHandle(steamIDRemote);
         for (int channel = 0; channel < NUM_CHANNELS; channel++) {
-            SteamP2PConnection conn = connections[channel].remove(handle);
+            SteamP2PConnection conn = connections[channel].get(handle);
             if (conn != null)
-                conn.remoteClosed(new IOException("Steam P2P session failed: " + sessionError));
+                dropConnection(conn, new IOException("Steam P2P session failed: " + sessionError));
         }
     }
 }
