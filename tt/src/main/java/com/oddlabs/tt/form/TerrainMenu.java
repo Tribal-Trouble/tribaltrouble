@@ -803,6 +803,8 @@ public final class TerrainMenu extends Group {
             String game_name = P2P.get().getLocalName();
             if (game_name.length() > Game.MAX_LENGTH)
                 game_name = game_name.substring(0, Game.MAX_LENGTH);
+            else if (game_name.length() < Game.MIN_LENGTH)
+                game_name = i18n("default_name", game_name);
             game = Game.builder().name(game_name).size((byte) pulldown_size.getChosenItemIndex()).terrain(
                     (byte) terrain_type.ordinal()).hills((byte) hills).trees((byte) vegetation_amount).supplies(
                             (byte) supplies_amount).rated(false).gamespeed(
