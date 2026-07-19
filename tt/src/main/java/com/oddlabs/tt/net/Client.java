@@ -17,9 +17,8 @@ import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.UnitInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
-import com.oddlabs.tt.steam.SteamLobbySession;
-import com.oddlabs.tt.steam.SteamP2P;
-import com.oddlabs.tt.steam.SteamP2PConnection;
+import com.oddlabs.tt.p2p.P2P;
+import com.oddlabs.tt.p2p.P2PProvider;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -30,7 +29,7 @@ import java.net.InetSocketAddress;
 
 public final class Client implements ARMIEventBroker, GameClientInterface, ConnectionInterface {
     /** host_id sentinel: connect to the Steam lobby session's host over Steam P2P. */
-    public static final int STEAM_HOST_ID = -2;
+    public static final int P2P_HOST_ID = -2;
 
     private static final int CONNECTING = 1;
     private static final int NEGOTIATING = 2;
@@ -66,8 +65,8 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
         this.ingame_info = ingame_info;
         this.world_params = world_params;
         this.initial_action = initial_action;
-        if (host_id == STEAM_HOST_ID)
-            this.connection = new SteamP2PConnection(SteamLobbySession.getHostID(), SteamP2P.CHANNEL_LOBBY, this);
+        if (host_id == P2P_HOST_ID)
+            this.connection = P2P.get().connectToHost(P2PProvider.CHANNEL_LOBBY, this);
         else if (host_id != -1)
             this.connection = new TunnelledConnection(host_id, this);
         else

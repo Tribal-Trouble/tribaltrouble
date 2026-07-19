@@ -3,6 +3,7 @@ package com.oddlabs.tt.net;
 import com.oddlabs.net.ARMIEvent;
 import com.oddlabs.net.ARMIEventWriter;
 import com.oddlabs.net.ARMIInterfaceMethods;
+import com.oddlabs.net.AbstractConnectionListener;
 import com.oddlabs.net.IllegalARMIEventException;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.router.Router;
@@ -20,10 +21,8 @@ import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInterface;
-import com.oddlabs.tt.steam.SteamLobbySession;
-import com.oddlabs.tt.steam.SteamP2P;
-import com.oddlabs.tt.steam.SteamP2PConnection;
-import com.oddlabs.tt.steam.SteamP2PConnectionListener;
+import com.oddlabs.tt.p2p.P2P;
+import com.oddlabs.tt.p2p.P2PProvider;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.NotificationManager;
@@ -75,7 +74,7 @@ public final class PeerHub implements Animated, RouterHandler {
     private final @NonNull NetworkSelector network;
     private final @NonNull RouterClient router_client;
     private final @Nullable Router router;
-    private final @Nullable SteamP2PConnectionListener steam_game_listener;
+    private final @Nullable AbstractConnectionListener p2p_game_listener;
     private final NotificationManager notification_manager;
     private final @NonNull Player local_player;
     private final @NonNull AnimationManager manager;
@@ -127,25 +126,23 @@ public final class PeerHub implements Animated, RouterHandler {
         List<Peer> peer_index_to_peer_list = new ArrayList<>();
         Player[] players = local_player.getWorld().getPlayers();
         this.local_peer_index = -1;
-        if (!is_multiplayer || SteamLobbySession.isHost()) {
+        if (!is_multiplayer || P2P.get().isHost()) {
             this.router = new Router(network, com.oddlabs.util.Utils.getLoopbackAddress(), 0,
                     Logger.getAnonymousLogger(), (IOException e) -> {
                         //					PeerHub.this.routerFailed(e);
                         throw new RuntimeException(e);
                     });
-            // In a serverless Steam match the host runs the embedded router for everyone: its own
-            // client connects over loopback and the joiners connect over Steam P2P.
-            this.steam_game_listener = SteamLobbySession.isHost() ? new SteamP2PConnectionListener(
-                    SteamP2P.CHANNEL_GAME, router) : null;
+            // In a serverless P2P match the host runs the embedded router for everyone: its own
+            // client connects over loopback and the joiners connect over the P2P transport.
+            this.p2p_game_listener = P2P.get().isHost() ? P2P.get().listen(P2PProvider.CHANNEL_GAME, router) : null;
             this.router_client = new RouterClient(network, this, router.getPort());
-        } else if (SteamLobbySession.isJoiner()) {
+        } else if (P2P.get().isJoiner()) {
             this.router = null;
-            this.steam_game_listener = null;
-            this.router_client = new RouterClient(new SteamP2PConnection(SteamLobbySession.getHostID(),
-                    SteamP2P.CHANNEL_GAME, null), this);
+            this.p2p_game_listener = null;
+            this.router_client = new RouterClient(P2P.get().connectToHost(P2PProvider.CHANNEL_GAME, null), this);
         } else {
             this.router = null;
-            this.steam_game_listener = null;
+            this.p2p_game_listener = null;
             this.router_client = new RouterClient(network, Settings.getSettings().getRouterAddress(), this);
         }
         for (short i = 0; i < players.length; i++) {
@@ -552,8 +549,8 @@ public final class PeerHub implements Animated, RouterHandler {
 
     private void closeNetwork() {
         router_client.close();
-        if (steam_game_listener != null)
-            steam_game_listener.close();
+        if (p2p_game_listener != null)
+            p2p_game_listener.close();
         if (router != null)
             router.close();
         Object[] peers = peer_to_player.keySet().toArray();

@@ -7,6 +7,7 @@ import com.codedisaster.steamworks.SteamNativeHandle;
 import com.codedisaster.steamworks.SteamResult;
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
+import com.oddlabs.tt.p2p.P2PProvider;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -23,16 +24,6 @@ import java.util.logging.Logger;
  * host SteamID long after the Steam lobby itself has served its purpose.
  */
 public final class SteamLobbySession implements SteamMatchmakingCallback {
-    /** Parameters a joiner needs before connecting, mirrored from the host's create-game dialog. */
-    public record JoinInfo(long hostSteamID, int gamespeed, String mapcode, float randomStartPos, int maxUnitCount,
-                           int size) {
-    }
-
-    /** Callback used to hand an accepted Steam invite to the UI layer. */
-    public interface JoinHandler {
-        void steamLobbyJoined(@NonNull JoinInfo info);
-    }
-
     private static final String KEY_HOST = "tt_host";
     private static final String KEY_GAMESPEED = "tt_gamespeed";
     private static final String KEY_MAPCODE = "tt_mapcode";
@@ -43,7 +34,7 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
     private static final Logger logger = Logger.getLogger(SteamLobbySession.class.getName());
 
     private static @Nullable SteamLobbySession active;
-    private static @Nullable JoinHandler join_handler;
+    private static P2PProvider.@Nullable JoinHandler join_handler;
     private static long pending_launch_lobby;
 
     private final SteamMatchmaking matchmaking;
@@ -83,7 +74,7 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
         pending_launch_lobby = lobby_handle;
     }
 
-    public static void setJoinHandler(@Nullable JoinHandler handler) {
+    public static void setJoinHandler(P2PProvider.@Nullable JoinHandler handler) {
         join_handler = handler;
         if (handler != null && pending_launch_lobby != 0) {
             long lobby = pending_launch_lobby;
@@ -180,10 +171,11 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
             return;
         }
         lobby_id = steamIDLobby;
-        JoinInfo info;
+        P2PProvider.JoinInfo info;
+        long host_handle;
         try {
-            long host_handle = Long.parseLong(matchmaking.getLobbyData(steamIDLobby, KEY_HOST));
-            info = new JoinInfo(host_handle,
+            host_handle = Long.parseLong(matchmaking.getLobbyData(steamIDLobby, KEY_HOST));
+            info = new P2PProvider.JoinInfo(
                     Integer.parseInt(matchmaking.getLobbyData(steamIDLobby, KEY_GAMESPEED)),
                     matchmaking.getLobbyData(steamIDLobby, KEY_MAPCODE),
                     Float.parseFloat(matchmaking.getLobbyData(steamIDLobby, KEY_RANDOM_START)),
@@ -194,10 +186,10 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
             leave();
             return;
         }
-        host_id = SteamID.createFromNativeHandle(info.hostSteamID());
+        host_id = SteamID.createFromNativeHandle(host_handle);
         logger.info("Entered Steam lobby " + steamIDLobby + ", host " + host_id);
         if (join_handler != null)
-            join_handler.steamLobbyJoined(info);
+            join_handler.lobbyJoined(info);
         else
             logger.warning("No Steam join handler registered, ignoring lobby join");
     }

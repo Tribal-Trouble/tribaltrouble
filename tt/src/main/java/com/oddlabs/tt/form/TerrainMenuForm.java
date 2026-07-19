@@ -15,8 +15,8 @@ public final class TerrainMenuForm extends Form implements TerrainMenuListener {
     }
 
     public TerrainMenuForm(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, Menu main_menu,
-            boolean steam) {
-        terrain = new TerrainMenu(network, gui_root, main_menu, false, steam, this);
+            boolean p2p) {
+        terrain = new TerrainMenu(network, gui_root, main_menu, false, p2p, this);
         addChild(terrain);
         terrain.place();
         compileCanvas();

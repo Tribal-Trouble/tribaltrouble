@@ -1,8 +1,9 @@
 package com.oddlabs.tt;
 
+import com.oddlabs.tt.p2p.P2P;
 import com.oddlabs.tt.render.Renderer;
-import com.oddlabs.tt.steam.SteamLobbySession;
 import com.oddlabs.tt.steam.SteamManager;
+import com.oddlabs.tt.steam.SteamP2PProvider;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
@@ -59,18 +60,9 @@ public final class Main {
             } catch (java.io.IOException e) {
                 logger.log(Level.WARNING, "Could not open log file", e);
             }
-            SteamManager.init();
-            // Steam passes "+connect_lobby <id>" when the game is launched by accepting an invite
-            // while it was not running; the join fires once the main menu is up.
-            for (int i = 0; i < args.length - 1; i++) {
-                if ("+connect_lobby".equals(args[i])) {
-                    try {
-                        SteamLobbySession.setPendingLaunchLobby(Long.parseLong(args[i + 1]));
-                    } catch (NumberFormatException e) {
-                        logger.warning("Malformed +connect_lobby argument: " + args[i + 1]);
-                    }
-                }
-            }
+            if (SteamManager.init())
+                P2P.install(new SteamP2PProvider());
+            P2P.get().handleLaunchArguments(args);
             logger.info("Starting game....");
             Renderer.getRenderer().run(args);
             status = 0;

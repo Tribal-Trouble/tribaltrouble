@@ -14,7 +14,7 @@ import com.oddlabs.tt.net.ConfigurationListener;
 import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.resource.WorldGenerator;
-import com.oddlabs.tt.steam.SteamLobbySession;
+import com.oddlabs.tt.p2p.P2P;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
@@ -72,7 +72,7 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
             if (owner != null)
                 owner.createGameMenu(game_network, game, generator, player_slot, player_count);
             else
-                gui_root.addModalForm(new SteamGameForm(game_network, gui_root, game, generator, player_slot,
+                gui_root.addModalForm(new P2PGameForm(game_network, gui_root, game, generator, player_slot,
                         player_count));
 //			GameMenu panel = new GameMenu(owner, game, generator, player_slot);
 //			owner.setGameMenu(panel);
@@ -107,6 +107,6 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
     protected void doCancel() {
         game_network.close();
         if (owner == null && multiplayer)
-            SteamLobbySession.leave();
+            P2P.get().leave();
     }
 }

@@ -13,7 +13,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.MenuButton;
 import com.oddlabs.tt.net.Client;
 import com.oddlabs.tt.net.Network;
-import com.oddlabs.tt.steam.SteamLobbySession;
+import com.oddlabs.tt.p2p.P2P;
 import com.oddlabs.tt.steam.SteamManager;
 import org.jspecify.annotations.NonNull;
 
@@ -26,8 +26,8 @@ public final class MainMenu extends Menu {
         reload();
         SteamManager.clearRichPresence();
         SteamManager.setInActiveWorld(false);
-        SteamLobbySession.leave();
-        SteamLobbySession.setJoinHandler(info -> joinGame(network, gui_root.getGUI(), Client.STEAM_HOST_ID, false,
+        P2P.get().leave();
+        P2P.get().setJoinHandler(info -> joinGame(network, gui_root.getGUI(), Client.P2P_HOST_ID, false,
                 info.gamespeed(), info.mapcode(), null, info.randomStartPos(), info.maxUnitCount(), info.size()));
     }
 
@@ -42,9 +42,10 @@ public final class MainMenu extends Menu {
         addChild(campaign_menu);
 
         MenuButton skirmish = new MenuButton(Menu.i18n("skirmish"), COLOR_NORMAL, COLOR_ACTIVE);
-        // With Steam running, skirmish hosts a friends-joinable lobby; without it, the legacy local game.
+        // With a P2P provider available, skirmish hosts a friends-joinable lobby; without one,
+        // the legacy local game.
         skirmish.addMouseClickListener((_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(),
-                MainMenu.this, SteamManager.getInstance() != null)));
+                MainMenu.this, P2P.get().isAvailable())));
         addChild(skirmish);
 
         if (!Settings.getSettings().hide_multiplayer) {

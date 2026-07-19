@@ -20,8 +20,14 @@ P2P, and lands in the same lobby screen. Ready up; host starts.
 
 ## Architecture
 
-The transport plugs in beneath the existing `AbstractConnection` / ARMI event layer, alongside
-the TCP and matchmaking-tunnel transports:
+Provider-neutral seam: core code (net, forms, menus) talks only to `p2p/P2PProvider` via
+`P2P.get()` — session lifecycle (host, invite, join, leave), transport (`connectToHost`,
+`listen`, `pump`), and peer identity (`P2PIdentifier`). `Main` installs `SteamP2PProvider` when
+Steam is up; without it a no-op provider answers, and only the legacy flows are reachable. A
+future backend (Epic, direct IP) implements one interface and touches nothing else.
+
+The Steam transport plugs in beneath the existing `AbstractConnection` / ARMI event layer,
+alongside the TCP and matchmaking-tunnel transports:
 
 - `steam/SteamP2P` — singleton registry and per-frame packet pump (called next to
   `NetworkSelector.tick()` in `AnimationManager`). One reliable P2P packet per ARMI event.

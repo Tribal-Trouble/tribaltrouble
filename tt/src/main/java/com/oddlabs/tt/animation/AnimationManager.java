@@ -4,8 +4,8 @@ import com.oddlabs.event.Deterministic;
 import com.oddlabs.net.MonotoneTimeManager;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.p2p.P2P;
 import com.oddlabs.tt.steam.SteamManager;
-import com.oddlabs.tt.steam.SteamP2P;
 import com.oddlabs.tt.form.QuitForm;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
@@ -164,7 +164,7 @@ public final class AnimationManager {
             LocalEventQueue.getQueue().tickHighPrecision(ANIMATION_SECONDS_PER_PRECISION_TICK);
             while (execution_time >= ANIMATION_MILLISECONDS_PER_TICK && !Renderer.isFinished()) {
                 network.tick();
-                SteamP2P.pump();
+                P2P.get().pump();
 
                 Renderer.getLocalInput().poll(gui.getGUIRoot());
                 if (deterministic.log(Renderer.getRenderer().getWindow().isOpen()

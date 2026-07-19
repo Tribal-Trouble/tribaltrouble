@@ -1,9 +1,11 @@
 package com.oddlabs.tt.steam;
 
+import com.codedisaster.steamworks.SteamNativeHandle;
 import com.oddlabs.net.AbstractConnection;
 import com.oddlabs.net.AbstractConnectionListener;
 import com.oddlabs.net.ConnectionInterface;
 import com.oddlabs.net.ConnectionListenerInterface;
+import com.oddlabs.tt.p2p.P2PIdentifier;
 import org.jspecify.annotations.NonNull;
 
 import java.util.LinkedList;
@@ -30,7 +32,7 @@ public final class SteamP2PConnectionListener extends AbstractConnectionListener
         incoming_connections.add(conn);
         String name = SteamManager.getInstance() != null ? SteamManager.getInstance().getFriendPersonaName(
                 conn.getRemoteID()) : conn.getRemoteID().toString();
-        notifyIncomingConnection(new SteamP2PIdentifier(conn.getRemoteID(), name));
+        notifyIncomingConnection(new P2PIdentifier(SteamNativeHandle.getNativeHandle(conn.getRemoteID()), name));
     }
 
     private SteamP2PConnection getNextConnection() {
