@@ -134,6 +134,7 @@ public final class GameOverTrigger implements Animated {
     }
 
     private void createDelayTrigger(@NonNull String text) {
+        viewer.setGameConcluded();
         GUIRoot gui_root = viewer.getGUIRoot();
         new GameOverDelayTrigger(viewer, gui_root.getDelegate().getCamera(), text);
     }
