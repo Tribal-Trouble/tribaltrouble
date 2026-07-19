@@ -165,7 +165,10 @@ public final class AnimationManager {
             while (execution_time >= ANIMATION_MILLISECONDS_PER_TICK && !Renderer.isFinished()) {
                 network.tick();
                 SteamManager.runCallbacks();
-                P2P.get().pump();
+                // P2P packets bypass the Deterministic log, so a replayed session must not pump
+                // live traffic into the played-back world; P2P matches are not replayable.
+                if (!deterministic.isPlayback())
+                    P2P.get().pump();
 
                 Renderer.getLocalInput().poll(gui.getGUIRoot());
                 if (deterministic.log(Renderer.getRenderer().getWindow().isOpen()
