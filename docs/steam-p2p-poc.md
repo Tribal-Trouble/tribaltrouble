@@ -54,7 +54,7 @@ alongside the TCP and matchmaking-tunnel transports:
   determinism is between peers, not the log).
 - Spectators and web spectator streaming are not wired for Steam matches.
 - No rated games, rankings, or persistent stats (by design, there is no server).
-- UI strings ("Steam Game", "Invite friends") are hardcoded English, not in resource bundles.
+- UI strings are English-only (bundle defaults; no translations yet).
 - Non-friend joiners may show an empty name until Steam resolves their persona.
 - Steam lobby chat is not used; lobby-screen chat rides the game's own connection once joined,
   so there is no chat during the brief connect window.

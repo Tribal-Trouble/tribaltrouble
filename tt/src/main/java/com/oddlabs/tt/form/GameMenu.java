@@ -183,7 +183,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
             // under the first: Game info below Ready, Invite friends below Cancel (host only).
             info_button.place(ready_button, BOTTOM_MID);
             if (P2P.get().isHost()) {
-                HorizButton invite_button = new HorizButton("Invite friends", button_width);
+                HorizButton invite_button = new HorizButton(i18n("invite_friends"), button_width);
                 addChild(invite_button);
                 invite_button.addMouseClickListener((_, _, _, _) -> P2P.get().openInviteDialog());
                 invite_button.place(cancel_button, BOTTOM_MID);

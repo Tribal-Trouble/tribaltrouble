@@ -796,7 +796,7 @@ public final class TerrainMenu extends Group {
                                                     Player.DEFAULT_MAX_UNIT_COUNT).build();
         } else if (p2p) {
             if (!P2P.get().isAvailable()) {
-                gui_root.addModalForm(new MessageForm("Online service is not available"));
+                gui_root.addModalForm(new MessageForm(i18n("no_online_service")));
                 return false;
             }
             float random_start_pos = LocalEventQueue.getQueue().getTime() % 1f;
