@@ -57,7 +57,6 @@ public final class P2PGameForm extends Form {
                 gui_root.addModalForm(new MessageForm(i18n("lobby_failed", P2P.get().getPlatformName())));
                 game_menu.cancel();
             });
-            P2P.get().openInviteDialog();
         }
     }
 
