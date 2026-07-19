@@ -35,6 +35,7 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
 
     private static @Nullable SteamLobbySession active;
     private static P2PProvider.@Nullable JoinHandler join_handler;
+    private static @Nullable Runnable failure_action;
     private static long pending_launch_lobby;
 
     private final SteamMatchmaking matchmaking;
@@ -42,6 +43,8 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
     private @Nullable Game game; // host only, published as lobby data once the lobby exists
     private @Nullable SteamID lobby_id;
     private @Nullable SteamID host_id;
+    /** An invite dialog was requested before lobby creation completed; opened on onLobbyCreated. */
+    private boolean invite_pending;
 
     private SteamLobbySession(boolean is_host) {
         this.matchmaking = new SteamMatchmaking(this);
@@ -117,10 +120,21 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
         session.matchmaking.joinLobby(lobby);
     }
 
-    /** Opens the Steam overlay invite dialog for the current lobby (host only). */
+    public static void setFailureAction(@Nullable Runnable action) {
+        failure_action = action;
+    }
+
+    /**
+     * Opens the Steam overlay invite dialog for the current lobby (host only). Lobby creation is
+     * asynchronous, so a request that arrives before the lobby exists is deferred until it does.
+     */
     public static void openInviteDialog() {
-        if (active != null && active.lobby_id != null && SteamManager.getInstance() != null)
+        if (active == null || SteamManager.getInstance() == null)
+            return;
+        if (active.lobby_id != null)
             SteamManager.getInstance().activateInviteDialog(active.lobby_id);
+        else
+            active.invite_pending = true;
     }
 
     /** Marks the match as started: the lobby stops accepting joins but the session stays alive. */
@@ -131,6 +145,7 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
 
     /** Tears down the session and leaves the Steam lobby. Idempotent. */
     public static void leave() {
+        failure_action = null;
         if (active != null) {
             if (active.lobby_id != null)
                 active.matchmaking.leaveLobby(active.lobby_id);
@@ -147,7 +162,10 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
             return;
         if (result != SteamResult.OK) {
             logger.warning("Steam lobby creation failed: " + result);
+            Runnable action = failure_action;
             leave();
+            if (action != null)
+                action.run();
             return;
         }
         lobby_id = steamIDLobby;
@@ -159,6 +177,10 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
         matchmaking.setLobbyData(steamIDLobby, KEY_MAX_UNITS, Integer.toString(game.getMaxUnitCount()));
         matchmaking.setLobbyData(steamIDLobby, KEY_SIZE, Integer.toString(game.getSize()));
         logger.info("Steam lobby created: " + steamIDLobby);
+        if (invite_pending) {
+            invite_pending = false;
+            openInviteDialog();
+        }
     }
 
     @Override

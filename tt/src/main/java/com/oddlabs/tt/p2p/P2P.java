@@ -73,6 +73,10 @@ public final class P2P {
         }
 
         @Override
+        public void setFailureAction(@Nullable Runnable action) {
+        }
+
+        @Override
         public void handleLaunchArguments(@NonNull String @NonNull [] args) {
         }
 

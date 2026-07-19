@@ -70,6 +70,11 @@ public final class SteamP2PProvider implements P2PProvider {
     }
 
     @Override
+    public void setFailureAction(@Nullable Runnable action) {
+        SteamLobbySession.setFailureAction(action);
+    }
+
+    @Override
     public void handleLaunchArguments(@NonNull String @NonNull [] args) {
         // Steam passes "+connect_lobby <id>" when the game is launched by accepting an invite
         // while it was not running.

@@ -60,6 +60,13 @@ public interface P2PProvider {
     void setJoinHandler(@Nullable JoinHandler handler);
 
     /**
+     * Registers a callback run when the hosted session fails to start (e.g. the platform lobby
+     * could not be created). The session is already torn down when the callback runs. Cleared by
+     * {@link #leave()}.
+     */
+    void setFailureAction(@Nullable Runnable action);
+
+    /**
      * Scans launch arguments for a platform join request (e.g. an invite accepted while the game
      * was not running) and defers it until a join handler registers.
      */
