@@ -849,6 +849,7 @@ public final class TerrainMenu extends Group {
                 game.isRated()) : new DefaultInGameInfo();
         GameNetwork game_network = Menu.startNewGame(network, gui_root,
                 menu,
+                main_menu,
                 new WorldParameters(networked ? game.getGamespeed() : Globals.gamespeed,
                         label_mapcode.getContents(), Player.INITIAL_UNIT_COUNT,
                         networked ? game.getMaxUnitCount() : Player.DEFAULT_MAX_UNIT_COUNT,
