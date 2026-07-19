@@ -5,6 +5,7 @@ import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.form.CampaignForm;
 import com.oddlabs.tt.form.LoginForm;
 import com.oddlabs.tt.form.MatchmakingConnectingForm;
+import com.oddlabs.tt.form.MessageForm;
 import com.oddlabs.tt.form.SelectGameMenu;
 import com.oddlabs.tt.form.TerrainMenuForm;
 import com.oddlabs.tt.form.TutorialForm;
@@ -27,8 +28,17 @@ public final class MainMenu extends Menu {
         SteamManager.clearRichPresence();
         SteamManager.setInActiveWorld(false);
         P2P.get().leave();
-        P2P.get().setJoinHandler(info -> joinGame(network, gui_root.getGUI(), Client.P2P_HOST_ID, false,
-                info.gamespeed(), info.mapcode(), null, info.randomStartPos(), info.maxUnitCount(), info.size()));
+        P2P.get().setJoinHandler(info -> {
+            if (Network.getMatchmakingClient().isConnected()) {
+                // Online mode owns live server state (login, chat, possibly a game lobby); a P2P
+                // match on top would strand all of it. Refuse loudly instead of tearing it down.
+                P2P.get().leave();
+                gui_root.addModalForm(new MessageForm(Menu.i18n("leave_online_first")));
+                return;
+            }
+            joinGame(network, gui_root.getGUI(), Client.P2P_HOST_ID, false, info.gamespeed(), info.mapcode(),
+                    null, info.randomStartPos(), info.maxUnitCount(), info.size());
+        });
     }
 
     private void addGameTypeButtons() {
