@@ -47,7 +47,7 @@ public final class MainMenu extends Menu {
         addChild(single_player);
 
         if (P2P.get().isAvailable()) {
-            MenuButton play_with_friends = new MenuButton("Play with friends on " + P2P.get().getPlatformName(),
+            MenuButton play_with_friends = new MenuButton("Friends on " + P2P.get().getPlatformName(),
                     COLOR_NORMAL, COLOR_ACTIVE);
             play_with_friends.addMouseClickListener((_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(),
                     getGUIRoot(), MainMenu.this, true)));
