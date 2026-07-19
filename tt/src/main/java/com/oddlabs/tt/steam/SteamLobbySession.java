@@ -106,11 +106,12 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
     public static void joinRequested(@NonNull SteamID lobby) {
         if (SteamManager.getInstance() == null)
             return;
-        if (active != null && active.is_host) {
-            logger.info("Ignoring Steam join request while hosting");
+        if (active != null) {
+            // Hosting, joining or already in a lobby: tearing the live session down here would
+            // pull it out from under the open lobby UI and its connections.
+            logger.info("Ignoring Steam join request while a session is active");
             return;
         }
-        leave();
         SteamLobbySession session = new SteamLobbySession(false);
         active = session;
         session.matchmaking.joinLobby(lobby);
