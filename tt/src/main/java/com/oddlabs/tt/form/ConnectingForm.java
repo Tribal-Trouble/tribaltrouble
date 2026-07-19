@@ -93,6 +93,8 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
     @Override
     public void connectionLost() {
         remove();
+        if (owner == null && multiplayer)
+            P2P.get().leave();
         gui_root.addModalForm(new MessageForm(i18n("connection_lost")));
     }
 
