@@ -24,6 +24,11 @@ public final class SteamP2PProvider implements P2PProvider {
     }
 
     @Override
+    public @NonNull String getPlatformName() {
+        return "Steam";
+    }
+
+    @Override
     public @NonNull String getLocalName() {
         SteamManager steam = SteamManager.getInstance();
         return steam != null ? steam.getPersonaName() : "";

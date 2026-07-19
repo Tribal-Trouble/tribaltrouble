@@ -41,12 +41,18 @@ public final class MainMenu extends Menu {
                 MainMenu.this)));
         addChild(campaign_menu);
 
-        MenuButton skirmish = new MenuButton(Menu.i18n("skirmish"), COLOR_NORMAL, COLOR_ACTIVE);
-        // With a P2P provider available, skirmish hosts a friends-joinable lobby; without one,
-        // the legacy local game.
-        skirmish.addMouseClickListener((_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(),
-                MainMenu.this, P2P.get().isAvailable())));
-        addChild(skirmish);
+        MenuButton single_player = new MenuButton(Menu.i18n("skirmish"), COLOR_NORMAL, COLOR_ACTIVE);
+        single_player.addMouseClickListener((_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(),
+                MainMenu.this)));
+        addChild(single_player);
+
+        if (P2P.get().isAvailable()) {
+            MenuButton play_with_friends = new MenuButton("Play with friends on " + P2P.get().getPlatformName(),
+                    COLOR_NORMAL, COLOR_ACTIVE);
+            play_with_friends.addMouseClickListener((_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(),
+                    getGUIRoot(), MainMenu.this, true)));
+            addChild(play_with_friends);
+        }
 
         if (!Settings.getSettings().hide_multiplayer) {
             MenuButton multi_player = new MenuButton(Menu.i18n("multiplayer"), COLOR_NORMAL, COLOR_ACTIVE);

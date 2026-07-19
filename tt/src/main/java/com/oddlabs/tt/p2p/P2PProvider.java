@@ -33,6 +33,10 @@ public interface P2PProvider {
     /** Whether the provider's platform is up (e.g. the Steam client is running). */
     boolean isAvailable();
 
+    /** The platform's display name for UI labels, e.g. "Steam". */
+    @NonNull
+    String getPlatformName();
+
     /** The local player's platform display name, used as the default game name. */
     @NonNull
     String getLocalName();

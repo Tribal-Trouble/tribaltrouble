@@ -176,7 +176,8 @@ public final class TerrainMenu extends Group {
         this.gui_root = gui_root;
 
         // headline
-        Label label_headline = new Label(i18n(multiplayer ? "new_game" : "skirmish"), Skin.getSkin().getHeadlineFont());
+        Label label_headline = new Label(i18n(multiplayer ? "new_game" : p2p ? "p2p" : "skirmish"),
+                Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
         if (multiplayer || p2p) {
             preset_library.load(Renderer.getLocalInput().getGameDir().resolve(Globals.getPresetsFileName()));

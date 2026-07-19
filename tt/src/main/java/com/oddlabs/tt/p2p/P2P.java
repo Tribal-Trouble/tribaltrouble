@@ -33,6 +33,11 @@ public final class P2P {
         }
 
         @Override
+        public @NonNull String getPlatformName() {
+            return "";
+        }
+
+        @Override
         public @NonNull String getLocalName() {
             return "";
         }
