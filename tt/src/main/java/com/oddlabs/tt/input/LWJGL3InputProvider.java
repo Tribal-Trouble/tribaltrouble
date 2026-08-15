@@ -264,6 +264,11 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
     }
 
     @Override
+    public boolean isCursorInWindow() {
+        return GLFW.glfwGetWindowAttrib(windowHandle, GLFW.GLFW_HOVERED) == GLFW.GLFW_TRUE;
+    }
+
+    @Override
     public void setNativeCursor(@Nullable Long cursor) {
         // cursor object would be GLFW cursor handle (Long)
         if (null != cursor && cursor != MemoryUtil.NULL) {

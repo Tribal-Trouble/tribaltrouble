@@ -222,22 +222,23 @@ public final class GameCamera extends Camera {
 
     private void doPitch(float time_delta) {
         checkKeys();
-        if ((pitch_down && !Settings.getSettings().invert_camera_pitch) ||
-                (pitch_up && Settings.getSettings().invert_camera_pitch)) {
-            getState().setTargetVertAngle(getState().getTargetVertAngle() - time_delta * ANGLE_DELTA);
-            checkPosition();
-        }
-        if ((pitch_up && !Settings.getSettings().invert_camera_pitch) ||
-                (pitch_down && Settings.getSettings().invert_camera_pitch)) {
-            getState().setTargetVertAngle(getState().getTargetVertAngle() + time_delta * ANGLE_DELTA);
+        if (pitch_up != pitch_down) {
+            float da = pitch_up ? time_delta * ANGLE_DELTA : -time_delta * ANGLE_DELTA;
+            if (Settings.getSettings().invert_camera_pitch) {
+                da *= -1;
+            }
+            getState().setTargetVertAngle(getState().getTargetVertAngle() + da);
             checkPosition();
         }
     }
 
     private void doRotate(float time_delta) {
         checkKeys();
-        if (rotate_left || rotate_right) {
-            float da = rotate_left ? -time_delta * ANGLE_DELTA : time_delta * ANGLE_DELTA;
+        if (rotate_left != rotate_right) {
+            float da = rotate_left ? time_delta * ANGLE_DELTA : -time_delta * ANGLE_DELTA;
+            if (Settings.getSettings().invert_camera_yaw) {
+                da *= -1;
+            }
             getState().setTargetHorizAngle(getState().getTargetHorizAngle() + da);
         }
     }

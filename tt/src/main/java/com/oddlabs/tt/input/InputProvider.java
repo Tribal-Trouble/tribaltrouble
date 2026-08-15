@@ -52,6 +52,9 @@ public interface InputProvider<C> extends AutoCloseable {
 
     boolean isGrabbed();
 
+    /** @return true if the cursor is currently within the game viewport */
+    boolean isCursorInWindow();
+
     // Cursor
     void setNativeCursor(@Nullable C cursor);
 

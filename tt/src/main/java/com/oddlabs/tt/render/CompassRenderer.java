@@ -161,7 +161,7 @@ public final class CompassRenderer {
             float cardinalAngle, @NonNull String label,
             @NonNull Vector4fc color) {
         float delta = cardinalAngle - horizAngle;
-        float dx = (float) Math.sin(delta);
+        float dx = -(float) Math.sin(delta);
         float dy = (float) Math.cos(delta);
 
         float labelDist = RADIUS + LABEL_OFFSET;

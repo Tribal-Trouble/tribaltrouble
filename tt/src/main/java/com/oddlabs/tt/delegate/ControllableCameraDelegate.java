@@ -25,12 +25,16 @@ public abstract class ControllableCameraDelegate extends InGameDelegate {
 
         if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
             if (event.consumeAction(GameAction.CAMERA_FIRST_PERSON)) {
-                pushFirstPersonDelegate(true);
+                if (isCursorInWindow()) {
+                    pushFirstPersonDelegate(true);
+                }
                 event.consume();
                 return;
             }
             if (event.consumeAction(GameAction.CAMERA_ZOOM_MODE)) {
-                pushZoomDelegate();
+                if (isCursorInWindow()) {
+                    pushZoomDelegate();
+                }
                 event.consume();
                 return;
             }
@@ -75,6 +79,13 @@ public abstract class ControllableCameraDelegate extends InGameDelegate {
         if (button == MouseButton.MIDDLE && first_person_delegate != null) {
             first_person_delegate.mouseDragged(button, x, y, relative_x, relative_y, absolute_x, absolute_y);
         }
+    }
+
+    // Pivot and zoom modes anchor the cursor to the viewport. If the cursor is outside the window
+    // when entering the mode, it can escape its usual confines and is able to drift far from the
+    // playable area. Ignore the key until the cursor is inside.
+    private boolean isCursorInWindow() {
+        return Renderer.getLocalInput().getInputProvider().isCursorInWindow();
     }
 
     private void pushFirstPersonDelegate(boolean key_pressed) {

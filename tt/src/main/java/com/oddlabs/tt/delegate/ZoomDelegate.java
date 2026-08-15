@@ -13,8 +13,6 @@ import org.jspecify.annotations.NonNull;
 public class ZoomDelegate extends InGameDelegate {
     private static final float ZOOM_FACTOR_CORRECTION = .25f;
 
-    private final int start_x;
-    private final int start_y;
     private final int physical_start_x;
     private final int physical_start_y;
 
@@ -28,9 +26,6 @@ public class ZoomDelegate extends InGameDelegate {
         var localInput = Renderer.getLocalInput();
         physical_start_x = localInput.getMouseX();
         physical_start_y = localInput.getMouseY();
-        float scale = viewer.getGUIRoot().getGlobalScale();
-        start_x = Math.round(physical_start_x / scale);
-        start_y = Math.round(physical_start_y / scale);
     }
 
     private void release() {
@@ -60,7 +55,9 @@ public class ZoomDelegate extends InGameDelegate {
     @Override
     public void mouseMoved(int x, int y) {
         if (!done) {
-            int dy = y - start_y;
+            // Use physical coordinates from LocalInput rather than the logical (GUI-scaled)
+            // y parameter, so zoom speed is independent of UI scale.
+            int dy = Renderer.getLocalInput().getMouseY() - physical_start_y;
 
             float zoom_factor = dy * ZOOM_FACTOR_CORRECTION;
             game_camera.zoom(zoom_factor);

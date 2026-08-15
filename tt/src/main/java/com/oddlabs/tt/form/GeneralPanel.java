@@ -35,10 +35,15 @@ public class GeneralPanel extends Panel {
         Group group_invert_camera = new Group();
         addChild(group_invert_camera);
         CheckBox cb_invert_camera = new CheckBox(Settings.getSettings().invert_camera_pitch, AbstractOptionsMenu.i18n(
-                "invert_camera"), AbstractOptionsMenu.i18n("invert_camera_tip"));
+                "invert_camera_pitch"), AbstractOptionsMenu.i18n("invert_camera_pitch_tip"));
         cb_invert_camera.addCheckBoxListener(marked -> Settings.getSettings().invert_camera_pitch = marked);
         group_invert_camera.addChild(cb_invert_camera);
+        CheckBox cb_invert_camera_yaw = new CheckBox(Settings.getSettings().invert_camera_yaw, AbstractOptionsMenu.i18n(
+                "invert_camera_yaw"), AbstractOptionsMenu.i18n("invert_camera_yaw_tip"));
+        cb_invert_camera_yaw.addCheckBoxListener(marked -> Settings.getSettings().invert_camera_yaw = marked);
+        group_invert_camera.addChild(cb_invert_camera_yaw);
         cb_invert_camera.place();
+        cb_invert_camera_yaw.place(cb_invert_camera, BOTTOM_LEFT);
         group_invert_camera.compileCanvas();
 
         // Aggressive units

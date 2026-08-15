@@ -60,15 +60,9 @@ public final class InputState {
     }
 
     public void mouseMoved(short x, short y) {
+        GUIObject gui_hit = pick();
         float scale = gui_root.getGlobalScale();
-        // Skip GUI hit-testing when cursor is grabbed (middle mouse wheel or 'first person')
-        // the virtual cursor position is meaningless for picking
-        if (Renderer.getLocalInput().getPointerInput().isGrabbed()) {
-            gui_root.getCurrentGUIObject().mouseMovedAll((short) Math.round(x / scale), (short) Math.round(y / scale));
-        } else {
-            GUIObject gui_hit = pick();
-            gui_hit.mouseMovedAll((short) Math.round(x / scale), (short) Math.round(y / scale));
-        }
+        gui_hit.mouseMovedAll((short) Math.round(x / scale), (short) Math.round(y / scale));
     }
 
     private void resetKeyTimer() {
