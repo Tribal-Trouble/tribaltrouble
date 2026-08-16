@@ -15,6 +15,7 @@ import com.oddlabs.tt.gui.MenuButton;
 import com.oddlabs.tt.net.Client;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.p2p.P2P;
+import com.oddlabs.tt.p2p.P2PProvider;
 import com.oddlabs.tt.steam.SteamManager;
 import org.jspecify.annotations.NonNull;
 
@@ -28,16 +29,24 @@ public final class MainMenu extends Menu {
         SteamManager.clearRichPresence();
         SteamManager.setInActiveWorld(false);
         P2P.get().leave();
-        P2P.get().setJoinHandler(info -> {
-            if (Network.getMatchmakingClient().isConnected()) {
-                // Online mode owns live server state (login, chat, possibly a game lobby); a P2P
-                // match on top would strand all of it. Refuse loudly instead of tearing it down.
-                P2P.get().leave();
-                gui_root.addModalForm(new MessageForm(Menu.i18n("leave_online_first")));
-                return;
+        P2P.get().setJoinHandler(new P2PProvider.JoinHandler() {
+            @Override
+            public void lobbyJoined(P2PProvider.@NonNull JoinInfo info) {
+                if (Network.getMatchmakingClient().isConnected()) {
+                    // Online mode owns live server state (login, chat, possibly a game lobby); a P2P
+                    // match on top would strand all of it. Refuse loudly instead of tearing it down.
+                    P2P.get().leave();
+                    gui_root.addModalForm(new MessageForm(Menu.i18n("leave_online_first")));
+                    return;
+                }
+                joinGame(network, gui_root.getGUI(), Client.P2P_HOST_ID, false, info.gamespeed(), info.mapcode(),
+                        null, info.randomStartPos(), info.maxUnitCount(), info.size());
             }
-            joinGame(network, gui_root.getGUI(), Client.P2P_HOST_ID, false, info.gamespeed(), info.mapcode(),
-                    null, info.randomStartPos(), info.maxUnitCount(), info.size());
+
+            @Override
+            public void versionMismatch() {
+                gui_root.addModalForm(new MessageForm(Menu.i18n("p2p_version_mismatch")));
+            }
         });
     }
 

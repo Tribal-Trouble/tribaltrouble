@@ -8,6 +8,7 @@ import com.codedisaster.steamworks.SteamResult;
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.tt.p2p.P2PProvider;
+import com.oddlabs.util.Compatibility;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -30,6 +31,8 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
     private static final String KEY_RANDOM_START = "tt_randstart";
     private static final String KEY_MAX_UNITS = "tt_maxunits";
     private static final String KEY_SIZE = "tt_size";
+    private static final String KEY_API = "tt_api";
+    private static final String KEY_SIM = "tt_sim";
 
     private static final Logger logger = Logger.getLogger(SteamLobbySession.class.getName());
 
@@ -176,6 +179,8 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
         matchmaking.setLobbyData(steamIDLobby, KEY_RANDOM_START, Float.toString(game.getRandomStartPos()));
         matchmaking.setLobbyData(steamIDLobby, KEY_MAX_UNITS, Integer.toString(game.getMaxUnitCount()));
         matchmaking.setLobbyData(steamIDLobby, KEY_SIZE, Integer.toString(game.getSize()));
+        matchmaking.setLobbyData(steamIDLobby, KEY_API, Integer.toString(Compatibility.API_VERSION));
+        matchmaking.setLobbyData(steamIDLobby, KEY_SIM, Integer.toString(Compatibility.SIM_VERSION));
         logger.info("Steam lobby created: " + steamIDLobby);
         if (invite_pending) {
             invite_pending = false;
@@ -194,6 +199,17 @@ public final class SteamLobbySession implements SteamMatchmakingCallback {
             return;
         }
         lobby_id = steamIDLobby;
+        if (!Integer.toString(Compatibility.API_VERSION).equals(matchmaking.getLobbyData(steamIDLobby, KEY_API))
+                || !Integer.toString(Compatibility.SIM_VERSION).equals(
+                        matchmaking.getLobbyData(steamIDLobby, KEY_SIM))) {
+            logger.warning("Steam lobby version mismatch (host api/sim " + matchmaking.getLobbyData(steamIDLobby,
+                    KEY_API) + "/" + matchmaking.getLobbyData(steamIDLobby,
+                            KEY_SIM) + ", ours " + Compatibility.API_VERSION + "/" + Compatibility.SIM_VERSION + "), leaving");
+            leave();
+            if (join_handler != null)
+                join_handler.versionMismatch();
+            return;
+        }
         P2PProvider.JoinInfo info;
         long host_handle;
         try {

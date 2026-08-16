@@ -24,6 +24,9 @@ public interface P2PProvider {
     /** Callback used to hand an accepted invite to the UI layer. */
     interface JoinHandler {
         void lobbyJoined(@NonNull JoinInfo info);
+
+        /** The lobby exists but was created by a build this one cannot play with. */
+        void versionMismatch();
     }
 
     /** Parameters a joiner needs before connecting, mirrored from the host's create-game dialog. */
