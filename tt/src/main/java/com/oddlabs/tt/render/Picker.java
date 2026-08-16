@@ -12,13 +12,7 @@ import com.oddlabs.tt.landscape.LandscapeLeaf;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.landscape.LandscapeTargetRespond;
 import com.oddlabs.tt.landscape.TreeSupply;
-import com.oddlabs.tt.model.Abilities;
-import com.oddlabs.tt.model.Action;
-import com.oddlabs.tt.model.Army;
-import com.oddlabs.tt.model.Building;
-import com.oddlabs.tt.model.ModelToolTip;
-import com.oddlabs.tt.model.SceneryModel;
-import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.model.*;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInterface;
@@ -251,19 +245,34 @@ public final class Picker implements Updatable<TimerAnimation> {
     private @NonNull Selectable<?> @NonNull [] createSinglePick(@NonNull CameraState camera, int clicks) {
         var nearest = (Selectable<?>) getNearestPick(element_pick_list, Selectable.class);
         if (nearest != null) {
-            if (clicks > 1) {
-                if (nearest.getAbilities().hasAbilities(Abilities.THROW)) {
-                    return pickAll(camera, Abilities.THROW);
-                } else if (nearest.getAbilities().hasAbilities(Abilities.HARVEST)) {
-                    return pickAll(camera, Abilities.HARVEST);
-                } else {
+            switch (clicks) {
+                case 2:
+                    return selectDoubleClick(camera, nearest);
+                case 3:
+                    return selectTripleClick(camera, nearest);
+                default:
                     return Selectable.newArray(nearest);
-                }
-            } else {
-                return Selectable.newArray(nearest);
             }
         } else {
             return Selectable.newArray(0);
+        }
+    }
+
+    private @NonNull Selectable<?> @NonNull [] selectDoubleClick(@NonNull CameraState camera, Selectable<?> nearest) {
+        if (nearest.getAbilities().hasAbilities(Abilities.THROW)) {
+            return pickAll(camera, Abilities.THROW);
+        } else if (nearest.getAbilities().hasAbilities(Abilities.HARVEST)) {
+            return pickAll(camera, Abilities.HARVEST);
+        } else {
+            return Selectable.newArray(nearest);
+        }
+    }
+
+    private Selectable<?>[] selectTripleClick(@NonNull CameraState camera, Selectable<?> nearest) {
+        if (nearest.getAbilities().hasAbilities(Abilities.THROW)) {
+            return pickUnitType(camera, (UnitTemplate) nearest.getTemplate());
+        } else {
+            return Selectable.newArray(nearest);
         }
     }
 
@@ -277,6 +286,13 @@ public final class Picker implements Updatable<TimerAnimation> {
     private @NonNull Selectable<?> @NonNull [] pickAll(@NonNull CameraState camera, int ability_filter) {
         Selectable<?>[] complete_list = pickBoxed(camera, 0, 0, gui_root.getWidth() - 1, gui_root.getHeight() - 1, 2);
         return Arrays.stream(complete_list).filter(s -> s.getAbilities().hasAbilities(ability_filter)).toArray(
+                Selectable::newArray);
+    }
+
+    private @NonNull Selectable<?> @NonNull [] pickUnitType(@NonNull CameraState camera,
+            UnitTemplate unit_type_filter) {
+        Selectable<?>[] complete_list = pickBoxed(camera, 0, 0, gui_root.getWidth() - 1, gui_root.getHeight() - 1, 3);
+        return Arrays.stream(complete_list).filter(s -> (s.getTemplate() == unit_type_filter)).toArray(
                 Selectable::newArray);
     }
 
