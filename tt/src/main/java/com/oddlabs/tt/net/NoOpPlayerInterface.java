@@ -65,6 +65,10 @@ public final class NoOpPlayerInterface implements PlayerInterface {
     }
 
     @Override
+    public final void setSailingTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y) {
+    }
+
+    @Override
     public void setLandscapeTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action,
             boolean aggressive) {
     }

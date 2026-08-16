@@ -27,6 +27,7 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
             MatchmakingServerLoginInterface.class);
     private final int host_id;
     private InetAddress local_remote_address;
+    private int sim_version = com.oddlabs.util.Compatibility.SIM_LEGACY;
 
     public Authenticator(MatchmakingServer server, SecureConnection conn, InetAddress remote_address, int host_id) {
         this.conn = conn;
@@ -63,6 +64,10 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
 
     public void setLocalRemoteAddress(InetAddress local_remote_address) {
         this.local_remote_address = local_remote_address;
+    }
+
+    public void setSimVersion(int sim_version) {
+        this.sim_version = sim_version;
     }
 
     public static void checkUsername(String name) throws InvalidUsernameException {
@@ -200,7 +205,7 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
         if (local_remote_address != null) {
             client_interface.loginOK(username, new TunnelAddress(getHostID(), remote_address, local_remote_address));
             server.loginClient(remote_address, local_remote_address, username, conn.getWrappedConnectionAndShutdown(),
-                    revision, host_id);
+                    revision, sim_version, host_id);
         } else {
             error(new IllegalStateException("Client didnt set local_remote_address"));
         }

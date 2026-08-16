@@ -5,7 +5,10 @@ import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class HeightMap {
     public static final int METERS_PER_UNIT_GRID = 2;
@@ -19,6 +22,11 @@ public final class HeightMap {
     private final LandscapeLeaf @NonNull [] @NonNull [] landscape_leaves;
     private final List<int @NonNull []> trees;
     private final boolean[][] access_grid;
+    private final boolean[][] dock_grid;
+    private final byte[][] water_grid;
+    private final List<int[]> island_locations;
+    private final int[][] island_ids;
+    private final Map<Integer, IslandInfo> island_info;
     private final byte[][] build_grid;
     private final int meters_per_world;
     private final int patches_per_world;
@@ -35,14 +43,34 @@ public final class HeightMap {
     private final World world_instance;
     private final com.oddlabs.tt.render.@NonNull Texture heightTexture;
 
-    public HeightMap(World world_instance, int meters_per_world, float sea_level_meters, int texels_per_colormap,
-            int chunks_per_colormap, float @NonNull [] @NonNull [] world, List<int[]> trees, boolean[][] access_grid,
-            byte[][] build_grid) {
+    public HeightMap(
+            World world_instance,
+            int meters_per_world,
+            float sea_level_meters,
+            int texels_per_colormap,
+            int chunks_per_colormap,
+            float @NonNull [] @NonNull [] world,
+            List<int[]> island_locations,
+            List<int[]> trees,
+            boolean[][] access_grid,
+            boolean[][] dock_grid,
+            byte[][] water_grid,
+            byte[][] build_grid,
+            int[][] island_ids,
+            List<IslandInfo> island_infos) {
         this.world = world;
         this.world_instance = world_instance;
         this.trees = trees;
         this.access_grid = access_grid;
+        this.dock_grid = dock_grid;
+        this.water_grid = water_grid;
         this.build_grid = build_grid;
+        this.island_locations = island_locations;
+        this.island_ids = island_ids;
+        Map<Integer, IslandInfo> island_info_map = new LinkedHashMap<>();
+        for (IslandInfo info : island_infos)
+            island_info_map.put(info.id(), info);
+        this.island_info = island_info_map;
         this.meters_per_world = meters_per_world;
         this.sea_level_meters = sea_level_meters;
         patches_per_world = world.length / GRID_UNITS_PER_PATCH;
@@ -160,6 +188,49 @@ public final class HeightMap {
         return access_grid;
     }
 
+    public final boolean[][] getDockGrid() {
+        return dock_grid;
+    }
+
+    public final byte[][] getWaterGrid() {
+        return water_grid;
+    }
+
+    public final List<int[]> getIslandLocations() {
+        return island_locations;
+    }
+
+    public final int[][] getIslandIdGrid() {
+        return island_ids;
+    }
+
+    public final int getIslandId(int grid_x, int grid_y) {
+        return island_ids[wrapGridCoord(grid_y)][wrapGridCoord(grid_x)];
+    }
+
+    public final List<Integer> getIslandIds() {
+        return new ArrayList<>(island_info.keySet());
+    }
+
+    public final IslandInfo getIslandInfo(int island_id) {
+        return island_info.get(island_id);
+    }
+
+    public final int getIslandTreeCount(int island_id) {
+        IslandInfo info = island_info.get(island_id);
+        return info != null ? info.trees() : 0;
+    }
+
+    public final int getIslandRockCount(int island_id) {
+        IslandInfo info = island_info.get(island_id);
+        return info != null ? info.rocks() : 0;
+    }
+
+    public final int getIslandIronCount(int island_id) {
+        IslandInfo info = island_info.get(island_id);
+        return info != null ? info.iron() : 0;
+    }
+
     void makePlaneVector(int x0, int y0, int x1, int y1, int x2, int y2, @NonNull Vector3f plane) {
         makePlaneVector(x0, y0, getWrappedHeight(x0, y0),
                 x1, y1, getWrappedHeight(x1, y1),
@@ -265,6 +336,12 @@ public final class HeightMap {
         grid_x = wrapGridCoord(grid_x);
         grid_y = wrapGridCoord(grid_y);
         return build_grid[grid_y][grid_x] >= val;
+    }
+
+    public final boolean canDock(int grid_x, int grid_y) {
+        grid_x = wrapGridCoord(grid_x);
+        grid_y = wrapGridCoord(grid_y);
+        return dock_grid[grid_y][grid_x];
     }
 
     public float getWrappedHeight(int grid_x, int grid_y) {

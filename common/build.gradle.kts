@@ -73,7 +73,7 @@ val generateBuildInfo by tasks.registering {
 
             public final class BuildInfo {
                 public static final String VERSION = "$effectiveVersion";
-                public static final String FULL_VERSION = "v" + VERSION + "-" + Compatibility.API_VERSION;
+                public static final String FULL_VERSION = "v" + VERSION + "-" + Compatibility.API_VERSION + "." + Compatibility.SIM_VERSION;
                 private BuildInfo() {}
             }
 

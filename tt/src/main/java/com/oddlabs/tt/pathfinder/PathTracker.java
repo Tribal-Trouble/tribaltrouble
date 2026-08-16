@@ -111,7 +111,7 @@ public final class PathTracker {
 
     private @Nullable PathTracker getNextDeadlocked() {
         Occupant occupant = getNextOccupantUnchecked();
-        if (occupant != unit && occupant instanceof Movable next) {
+        if (occupant != unit && occupant instanceof Movable next && next.getTracker() != null) {
             if (next.isMoving() && (next.getTracker().state == State.SOFTBLOCKED
                     || next.getTracker().state == State.BLOCKED)) {
                 return next.getTracker();

@@ -211,8 +211,8 @@ public final class NativeIsland3 extends Island {
 
         float dir = (float) Math.sin(Math.PI / 4);
         new SceneryModel(getViewer().getWorld(), thor_x, thor_y, dir, dir, enemy.getRace().getUnitTemplate(
-                Race.UNIT_CHIEFTAIN).getSpriteRenderer(), shadow_diameter, true, i18n("god"),
-                Unit.Animation.THOR.ordinal(), -1f, 0f);
+                Race.UNIT_CHIEFTAIN).getSpriteRenderer(), shadow_diameter, true, i18n("god"), Unit.Animation.THOR, -1f,
+                0f);
 
 
         // Insert reinforcements

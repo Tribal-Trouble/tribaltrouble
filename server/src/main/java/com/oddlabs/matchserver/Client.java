@@ -52,6 +52,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
     private int update_key = 0;
 
     private final int revision;
+    private final int sim_version;
     private final String username;
     private final boolean guest;
     private @Nullable Profile active_profile;
@@ -62,7 +63,8 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
     private @Nullable ChatRoom current_room;
 
     public Client(@NonNull MatchmakingServer server, AbstractConnection conn, InetAddress remote_address,
-            InetAddress local_remote_address, String username, boolean guest, int revision, int host_id) {
+            InetAddress local_remote_address, String username, boolean guest, int revision, int sim_version,
+            int host_id) {
         this.conn = conn;
         this.server = server;
         this.remote_address = remote_address;
@@ -72,6 +74,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
         this.username = username;
         this.guest = guest;
         this.revision = revision;
+        this.sim_version = sim_version;
         this.host_id = host_id;
         conn.setConnectionInterface(this);
     }
@@ -389,8 +392,8 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
         return remote_address;
     }
 
-    private int getRevision() {
-        return revision;
+    public int getSimVersion() {
+        return sim_version;
     }
 
     public void requestList(int type, int update_key) {
@@ -407,10 +410,11 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
                 GameHost[] game_hosts_chunk = new GameHost[CHUNK_SIZE];
                 while (it.hasNext()) {
                     Client client = (Client) it.next();
+                    // Only advertise games this client can actually play
+                    if (client.getSimVersion() != sim_version) continue;
                     Game game = client.getCurrentGame();
                     int host_id = client.getHostID();
-                    int game_revision = client.getRevision();
-                    game_hosts_chunk[chunk_index++] = new GameHost(game, host_id, game_revision);
+                    game_hosts_chunk[chunk_index++] = new GameHost(game, host_id, client.getSimVersion());
                     if (chunk_index == game_hosts_chunk.length) {
                         client_interface.updateList(type, game_hosts_chunk);
                         chunk_index = 0;
@@ -477,7 +481,9 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
         HostSequenceID host_seq_id = new HostSequenceID(getHostID(), seq);
         Client client = server.getClientFromID(address_to);
         tunnels.put(host_seq_id, client);
-        if (client != null) {
+        // Refuse tunnels to sim-incompatible game hosts; the filtered game list
+        // already hides them, this guards clients that bypass it
+        if (client != null && (!game_hosts.contains(client) || client.getSimVersion() == sim_version)) {
             client.tunnelOpened(host_seq_id, remote_address, local_remote_address, active_profile, this);
         } else
             tunnelClosed(host_seq_id);
@@ -556,7 +562,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
             current_game = game;
             game_hosts.add(this);
             MatchmakingServer.getLogger().info("Game registered, name = " + current_game.getName());
-            DBInterface.createGame(game, getProfile().getNick());
+            DBInterface.createGame(game, getProfile().getNick(), sim_version);
 
             if (current_room != null) {
                 String formatted_message = getProfile().getNick() + " has created a game called \"" + current_game.getName() + "\".";

@@ -28,7 +28,7 @@ public final class KeyBindingConflicts {
     };
 
     // Active when a unit/group is selected: unit actions, build, magic, exit tower, gameplay back.
-    private static final GameAction[] UNIT_CONTEXT = {GameAction.UNIT_MOVE, GameAction.UNIT_ATTACK, GameAction.UNIT_GATHER, GameAction.UNIT_BUILD_QUARTERS, GameAction.UNIT_BUILD_ARMORY, GameAction.UNIT_BUILD_TOWER, GameAction.UNIT_EXIT_TOWER, GameAction.MAGIC_1, GameAction.MAGIC_2, GameAction.GAMEPLAY_BACK,
+    private static final GameAction[] UNIT_CONTEXT = {GameAction.UNIT_MOVE, GameAction.UNIT_ATTACK, GameAction.UNIT_GATHER, GameAction.UNIT_BUILD_QUARTERS, GameAction.UNIT_BUILD_ARMORY, GameAction.UNIT_BUILD_TOWER, GameAction.UNIT_BUILD_SHIP, GameAction.UNIT_EXIT_TOWER, GameAction.MAGIC_1, GameAction.MAGIC_2, GameAction.GAMEPLAY_BACK,
     };
 
     // Armory/Quarters top-level: production category, set-rally, train chieftain,

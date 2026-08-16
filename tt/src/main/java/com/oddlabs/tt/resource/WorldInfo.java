@@ -1,5 +1,6 @@
 package com.oddlabs.tt.resource;
 
+import com.oddlabs.tt.landscape.IslandInfo;
 import com.oddlabs.tt.render.Texture;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -11,7 +12,12 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
                         float @NonNull [] @NonNull [] heightmap, @NonNull List<int[]> trees,
                         @NonNull List<int[]> palm_trees, @NonNull List<int[]> rocks, @NonNull List<int[]> iron,
                         float @NonNull [] @NonNull [] plants, boolean @NonNull [] @NonNull [] access_grid,
-                        byte @NonNull [] @NonNull [] build_grid, float @NonNull [] @NonNull [] starting_locations,
+                        boolean @NonNull [] @NonNull [] dock_grid,
+                        byte @NonNull [] @NonNull [] water_grid,
+                        byte @NonNull [] @NonNull [] build_grid, @NonNull List<int[]> island_locations,
+                        int @NonNull [] @NonNull [] island_ids,
+                        @NonNull List<IslandInfo> island_infos,
+                        float @NonNull [] @NonNull [] starting_locations,
                         @NonNull BlendInfo @NonNull [] blend_infos) {
     public record Maps(Texture diffuse, Texture normal) {
     }
@@ -21,8 +27,11 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
             float @NonNull [] @NonNull [] heightmap, @NonNull List<int @NonNull []> trees,
             @NonNull List<int @NonNull []> palm_trees, @NonNull List<int[]> rocks, @NonNull List<int[]> iron,
             float @NonNull [] @NonNull [] plants, boolean @NonNull [] @NonNull [] access_grid,
-            byte @NonNull [] @NonNull [] build_grid, float @NonNull [] @NonNull [] starting_locations,
-            BlendInfo @NonNull [] blend_infos) {
+            boolean @NonNull [] @NonNull [] dock_grid, byte @NonNull [] @NonNull [] water_grid,
+            byte @NonNull [] @NonNull [] build_grid, @NonNull List<int[]> island_locations,
+            int @NonNull [] @NonNull [] island_ids,
+            @NonNull List<IslandInfo> island_infos,
+            float @NonNull [] @NonNull [] starting_locations, BlendInfo @NonNull [] blend_infos) {
         this.texels_per_colormap = texels_per_colormap;
         this.chunks_per_colormap = chunks_per_colormap;
         this.sea_level_meters = sea_level_meters;
@@ -37,6 +46,11 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
         this.plants = plants;
         this.palm_trees = palm_trees;
         this.access_grid = access_grid;
+        this.dock_grid = dock_grid;
+        this.water_grid = water_grid;
+        this.island_locations = island_locations;
+        this.island_ids = island_ids;
+        this.island_infos = island_infos;
         this.build_grid = build_grid;
         this.starting_locations = starting_locations;
         this.blend_infos = blend_infos;

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+<!DOCTYPE skeleton [
+    <!ELEMENT skeleton   (bones, init_pose)>
+    <!ELEMENT bones      (bone+)>
+    <!ELEMENT init_pose  (transform+)>
+    <!ELEMENT bone        EMPTY>
+    <!ELEMENT transform   EMPTY>
+    <!ATTLIST transform name CDATA #REQUIRED>
+    <!ATTLIST transform m00 CDATA #REQUIRED>
+    <!ATTLIST transform m01 CDATA #REQUIRED>
+    <!ATTLIST transform m02 CDATA #REQUIRED>
+    <!ATTLIST transform m03 CDATA #REQUIRED>
+    <!ATTLIST transform m10 CDATA #REQUIRED>
+    <!ATTLIST transform m11 CDATA #REQUIRED>
+    <!ATTLIST transform m12 CDATA #REQUIRED>
+    <!ATTLIST transform m13 CDATA #REQUIRED>
+    <!ATTLIST transform m20 CDATA #REQUIRED>
+    <!ATTLIST transform m21 CDATA #REQUIRED>
+    <!ATTLIST transform m22 CDATA #REQUIRED>
+    <!ATTLIST transform m23 CDATA #REQUIRED>
+    <!ATTLIST transform m30 CDATA #REQUIRED>
+    <!ATTLIST transform m31 CDATA #REQUIRED>
+    <!ATTLIST transform m32 CDATA #REQUIRED>
+    <!ATTLIST transform m33 CDATA #REQUIRED>
+    <!ATTLIST bone name CDATA #REQUIRED>
+    <!ATTLIST bone parent CDATA #REQUIRED>
+]>
+
+<skeleton>
+    <bones>
+        <bone name='ship' parent='root'/>
+        <bone name='ship bottom' parent='ship'/>
+        <bone name='ship column' parent='ship bottom'/>
+        <bone name='ship sail base' parent='ship column'/>
+        <bone name='ship sail  1' parent='ship sail base'/>
+        <bone name='ship sail  2' parent='ship sail  1'/>
+        <bone name='ship sail 3' parent='ship sail base'/>
+        <bone name='ship sail 4' parent='ship sail 3'/>
+    </bones>
+    <init_pose>
+        <transform name='ship'
+            m00='0.027977170422673225' m10='-0.9928436279296875' m20='0.11609801650047302' m30='0.5090197324752808'
+            m01='-0.11609819531440735' m11='-0.11858485639095306' m21='-0.986133337020874' m31='0.06373582035303116'
+            m02='0.992843747138977' m12='0.0141105642542243' m22='-0.1185850203037262' m32='0.8409090638160706'
+            m03='0.0' m13='0.0' m23='0.0' m33='1.0'/>
+        <transform name='ship bottom'
+            m00='-1.1471274774521589e-07' m10='-1.0' m20='1.4901161193847656e-08' m30='-0.48382389545440674'
+            m01='-0.11776315420866013' m11='0.0' m21='-0.9930418133735657' m31='-0.054849036037921906'
+            m02='0.9930417537689209' m12='-2.7939677238464355e-09' m22='-0.11776313930749893' m32='0.8550196290016174'
+            m03='0.0' m13='0.0' m23='0.0' m33='1.0'/>
+        <transform name='ship column'
+            m00='0.9944515824317932' m10='0.008323759771883488' m20='-0.10486562550067902' m30='-5.411092758178711'
+            m01='-0.1047530472278595' m11='-0.012973815202713013' m21='-0.9944137930870056' m31='-0.054849036037921906'
+            m02='-0.009637866169214249' m12='0.9998812675476074' m22='-0.012029871344566345' m32='0.8550196290016174'
+            m03='0.0' m13='0.0' m23='0.0' m33='1.0'/>
+        <transform name='ship sail base'
+            m00='0.9844748377799988' m10='-0.13734297454357147' m20='-0.10929796099662781' m30='-5.379798412322998'
+            m01='-0.10870549827814102' m11='0.011829795315861702' m21='-0.9940037727355957' m31='-0.10362592339515686'
+            m02='0.1378122717142105' m12='0.9904530048370361' m22='-0.0032837800681591034' m32='4.6142144203186035'
+            m03='0.0' m13='0.0' m23='0.0' m33='1.0'/>
+        <transform name='ship sail  1'
+            m00='0.9294111132621765' m10='0.06495179980993271' m20='-0.3632851243019104' m30='-5.971714019775391'
+            m01='-0.11873631179332733' m11='0.9846776127815247' m21='-0.12771858274936676' m31='-0.05264230817556381'
+            m02='0.34942305088043213' m12='0.16183820366859436' m22='0.9228824377059937' m32='8.882831573486328'
+            m03='0.0' m13='0.0' m23='0.0' m33='1.0'/>
+        <transform name='ship sail  2'
+            m00='0.9159687757492065' m10='0.15028192102909088' m20='-0.37204331159591675' m30='-5.849033355712891'
+            m01='-0.11850561201572418' m11='0.9871721267700195' m21='0.10699475556612015' m31='1.8072123527526855'
+            m02='0.38335007429122925' m12='-0.0539146363735199' m22='0.922028124332428' m32='9.18851089477539'
+            m03='0.0' m13='0.0' m23='0.0' m33='1.0'/>
+        <transform name='ship sail 3'
+            m00='0.986421525478363' m10='0.16055506467819214' m20='-0.03455974906682968' m30='-5.971714019775391'
+            m01='0.1584050953388214' m11='-0.9856753945350647' m21='-0.05789973586797714' m31='-0.05264230817556381'
+            m02='-0.04336101934313774' m12='0.05163922905921936' m22='-0.9977242350578308' m32='8.882831573486328'
+            m03='0.0' m13='0.0' m23='0.0' m33='1.0'/>
+        <transform name='ship sail 4'
+            m00='0.9957802891731262' m10='0.08367016166448593' m20='-0.037691544741392136' m30='-5.6256561279296875'
+            m01='0.0830550491809845' m11='-0.9963896870613098' m21='-0.017604369670152664' m31='-2.177151679992676'
+            m02='-0.03902864828705788' m12='0.014399748295545578' m22='-0.9991345405578613' m32='8.994133949279785'
+            m03='0.0' m13='0.0' m23='0.0' m33='1.0'/>
+    </init_pose>
+</skeleton>

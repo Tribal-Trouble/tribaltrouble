@@ -16,7 +16,8 @@ public final class NullController extends Controller {
     public @NonNull String getKey() {
         return super.getKey() + selectable.getAbilities().hasAbilities(
                 Abilities.BUILD_ARMIES) + selectable.getAbilities().hasAbilities(
-                        Abilities.REPRODUCE) + selectable.getAbilities().hasAbilities(Abilities.ATTACK);
+                        Abilities.REPRODUCE) + selectable.getAbilities().hasAbilities(
+                                Abilities.ATTACK) + selectable.getAbilities().hasAbilities(Abilities.SAIL);
     }
 
     @Override

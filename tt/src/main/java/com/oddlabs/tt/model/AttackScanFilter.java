@@ -13,7 +13,8 @@ public final class AttackScanFilter implements ScanFilter {
         ARMORY(1),
         TOWER(2),
         PEON(3),
-        WARRIOR(4);
+        WARRIOR(4),
+        SHIP(5);
 
         public final int value;
 
@@ -56,7 +57,7 @@ public final class AttackScanFilter implements ScanFilter {
 
     @Override
     public boolean filter(int grid_x, int grid_y, @NonNull Occupant occ) {
-        if (occ instanceof Selectable<?> s && owner.isEnemy(s.getOwner())) {
+        if (occ instanceof Selectable<?> s && !s.isDead() && owner.isEnemy(s.getOwner())) {
             Priority priority = s.getAttackPriority();
             if (target_priority.value < priority.value) {
                 target_priority = priority;

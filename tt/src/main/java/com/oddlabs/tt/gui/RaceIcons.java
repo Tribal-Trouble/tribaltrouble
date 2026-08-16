@@ -30,5 +30,6 @@ public record RaceIcons(@NonNull IconQuad unitStatusIcon,
                         @NonNull ModeIconQuads magic1Icon,
                         @NonNull Supplier<@NonNull String> magic1Desc,
                         @NonNull ModeIconQuads magic2Icon,
-                        @NonNull Supplier<@NonNull String> magic2Desc) {
+                        @NonNull Supplier<@NonNull String> magic2Desc,
+                        @NonNull ModeIconQuads shipIcon) {
 }

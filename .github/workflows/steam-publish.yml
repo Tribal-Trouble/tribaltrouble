@@ -1,0 +1,198 @@
+name: Steam Publish
+
+# Builds the game from a chosen ref and uploads it to a chosen Steam branch of
+# the main game. For feature previews and betas (archipelago, p2p, ...) instead
+# of one-off workflows per feature: keep the feature's configuration (flag
+# flips, SIM_VERSION bump) as commits on the ref being built. The Steam branch
+# must exist on the partner dashboard first (App admin > Steamworks > builds).
+#
+# The regular release pipeline is untouched: `prerelease` and `default` are
+# refused here; pushes to the git release branch remain the only way to publish
+# to Steam prerelease, and promoting to default stays manual on the dashboard.
+#
+# The demo app is intentionally not uploaded here; add a second steam-deploy
+# step with STEAM_DEMO_APP_ID if a matching branch is created on the demo too.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag, or SHA to build from'
+        required: true
+        type: string
+      steam_branch:
+        description: 'Steam branch to publish to (must already exist; prerelease/default refused)'
+        required: true
+        type: string
+
+jobs:
+  show-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show dispatch inputs
+        run: |
+          {
+            echo "## Dispatch inputs"
+            echo "- ref: \`${{ inputs.ref }}\`"
+            echo "- steam_branch: \`${{ inputs.steam_branch }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      full: ${{ steps.compute.outputs.full }}
+    steps:
+      - name: Refuse reserved Steam branches
+        run: |
+          case "${{ inputs.steam_branch }}" in
+            prerelease|default|"")
+              echo "::error::Steam branch '${{ inputs.steam_branch }}' is reserved for the release pipeline"
+              exit 1;;
+          esac
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+      - id: compute
+        name: Compute version string
+        run: |
+          BASE=$(grep 'version = "' build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          API=$(grep 'API_VERSION =' common/src/main/java/com/oddlabs/util/Compatibility.java | sed 's/.*= \([0-9]*\);/\1/')
+          SIM=$(grep 'SIM_VERSION =' common/src/main/java/com/oddlabs/util/Compatibility.java | sed 's/.*= \([0-9]*\);/\1/')
+          VERSION_PATTERN="version = .$(echo "$BASE" | sed 's/\./\\./g')."
+          ANCHOR=$(git log --format=%H -G"$VERSION_PATTERN" -- build.gradle.kts | head -1)
+          if [ -z "$ANCHOR" ]; then PATCH=0; else PATCH=$(git rev-list --count "${ANCHOR}..HEAD"); fi
+          echo "full=v${BASE}.${PATCH}-${API}.${SIM}" >> $GITHUB_OUTPUT
+          echo "Resolved version: v${BASE}.${PATCH}-${API}.${SIM}"
+
+  build-windows:
+    needs: [version]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0  # generateBuildInfo needs full history to find the bump-commit anchor
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26-ea'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build Windows Package
+        run: ./gradlew :tt:packageWindows
+      - name: Upload files
+        uses: actions/upload-artifact@v4
+        with:
+          name: tribal-trouble-windows_${{ needs.version.outputs.full }}
+          path: tt/build/dist/windows/
+
+  build-linux:
+    needs: [version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0  # generateBuildInfo needs full history to find the bump-commit anchor
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26-ea'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build Linux AppImage
+        run: ./gradlew :tt:packageLinux
+      - name: Upload Linux Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: tribal-trouble-linux-package_${{ needs.version.outputs.full }}
+          path: tt/build/dist/linux/TribalTrouble.AppDir
+
+  build-mac-arm64-app:
+    needs: [version]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0  # generateBuildInfo needs full history to find the bump-commit anchor
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26-ea'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build mac binaries
+        run: ./gradlew :tt:packageMacArm64App
+      - name: Upload files
+        uses: actions/upload-artifact@v4
+        with:
+          name: tribal-trouble-mac-arm64-app_${{ needs.version.outputs.full }}
+          path: tt/build/dist/macosx-arm64-app/
+
+  build-mac-x86-app:
+    needs: [version]
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0  # generateBuildInfo needs full history to find the bump-commit anchor
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26-ea'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build mac binaries
+        run: ./gradlew :tt:packageMacX86App
+      - name: Upload files
+        uses: actions/upload-artifact@v4
+        with:
+          name: tribal-trouble-mac-x86-app_${{ needs.version.outputs.full }}
+          path: tt/build/dist/macosx-x86-app/
+
+  steam-publish:
+    needs: [version, build-windows, build-linux, build-mac-arm64-app, build-mac-x86-app]
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-windows_${{ needs.version.outputs.full }}
+          path: tt/build/dist/windows/
+      - name: Download Mac x86 Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-mac-x86-app_${{ needs.version.outputs.full }}
+          path: tt/build/dist/macosx-x86-app/
+      - name: Download Mac arm64 Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-mac-arm64-app_${{ needs.version.outputs.full }}
+          path: tt/build/dist/macosx-arm64-app/
+      - name: Download Linux Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tribal-trouble-linux-package_${{ needs.version.outputs.full }}
+          path: tt/build/dist/linux/
+      - name: Upload to steam
+        uses: game-ci/steam-deploy@8bd9baca6407f9abd210bd1eef3c45f56e12d8d9  # v3
+        with:
+          username: ${{ vars.STEAM_USER }}
+          configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
+          appId: ${{ vars.STEAM_APP_ID }}
+          buildDescription: ${{ needs.version.outputs.full }}.${{ github.run_number }}
+          firstDepotIdOverride: 3945722
+          rootPath: tt/build/dist/
+          depot1Path: windows
+          depot2Path: macosx-arm64-app
+          depot3Path: macosx-x86-app
+          depot4Path: linux
+          releaseBranch: ${{ inputs.steam_branch }}

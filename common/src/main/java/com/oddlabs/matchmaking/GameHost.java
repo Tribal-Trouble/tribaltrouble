@@ -11,6 +11,9 @@ public final class GameHost implements Serializable {
 
     private final @NonNull Game game;
     private final int host_id;
+    // Carries the host's Compatibility.SIM_VERSION. The field keeps its
+    // historical name for serialization stream compatibility with old clients,
+    // which receive it but never read it.
     private final int revision;
 
     public GameHost(@NonNull Game game, int host_id, int revision) {
@@ -27,7 +30,7 @@ public final class GameHost implements Serializable {
         return host_id;
     }
 
-    public int getRevision() {
+    public int getSimVersion() {
         return revision;
     }
 }

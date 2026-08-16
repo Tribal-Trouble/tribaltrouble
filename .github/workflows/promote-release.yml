@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag to promote (e.g. v2.0.14-103)'
+        description: 'Release tag to promote (e.g. v2.0.14-103.1)'
         required: true
         type: string
       deploy_server:

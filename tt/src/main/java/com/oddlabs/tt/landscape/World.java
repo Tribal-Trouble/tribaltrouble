@@ -186,7 +186,10 @@ public final class World {
 
         world = new HeightMap(this, world_info.meters_per_world(), world_info.sea_level_meters(),
                 world_info.texels_per_colormap(), world_info.chunks_per_colormap(), world_info.heightmap(),
-                world_info.trees(), world_info.access_grid(), world_info.build_grid());
+                world_info.island_locations(), world_info.trees(), world_info.access_grid(), world_info.dock_grid(),
+                world_info.water_grid(), world_info.build_grid(), world_info.island_ids(),
+                world_info.island_infos());
+
         animation_manager_game_time = new AnimationManager();
         animation_manager_real_time = new AnimationManager();
         random = new Random(42);
@@ -200,8 +203,13 @@ public final class World {
                 "****************** Finished landscape in " + ((time_stop - time_start) / 1000f) + " sec ********************");
         this.supply_managers = new SupplyManagers(this);
         this.unit_grid = new UnitGrid(world);
-        RegionBuilder.buildRegions(unit_grid, world_info.starting_locations()[0][0],
-                world_info.starting_locations()[0][1]);
+        boolean archipelago = world_info.island_locations().size() > 1;
+        if (archipelago) {
+            RegionBuilder.buildRegions(unit_grid);
+        } else {
+            RegionBuilder.buildRegions(unit_grid, world_info.starting_locations()[0][0],
+                    world_info.starting_locations()[0][1]);
+        }
         this.patch_root = new PatchGroup(this);
         this.treePositions = world_info.trees();
         this.tree_root = AbstractTreeGroup.newRoot(this, world_info.trees(), world_info.palm_trees(), terrain);

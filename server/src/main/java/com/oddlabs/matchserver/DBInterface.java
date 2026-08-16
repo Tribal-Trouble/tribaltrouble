@@ -527,9 +527,9 @@ public final class DBInterface {
         }
     }
 
-    public static void createGame(Game game, String nick) {
+    public static void createGame(Game game, String nick, int sim_version) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "INSERT INTO games (time_create, name, rated, speed, size, hills," + " trees, resources, mapcode, status) VALUES (?, ?, ?, ?, ?, ?, ?," + " ?, ?, ?)",
+                "INSERT INTO games (time_create, name, rated, speed, size, hills," + " trees, resources, mapcode, status, sim_version) VALUES (?, ?, ?, ?, ?, ?, ?," + " ?, ?, ?, ?)",
                 java.sql.Statement.RETURN_GENERATED_KEYS)) {
             stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
             stmt.setString(2, game.getName());
@@ -541,6 +541,7 @@ public final class DBInterface {
             stmt.setInt(8, game.getSupplies());
             stmt.setString(9, game.getMapcode());
             stmt.setString(10, "created");
+            stmt.setInt(11, sim_version);
 
             stmt.executeUpdate();
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {

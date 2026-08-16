@@ -50,11 +50,13 @@ public final class RacesResources {
     public static final int QUARTERS_SIZE = 5;
     public static final int ARMORY_SIZE = 5;
     public static final int TOWER_SIZE = 3;
+    public static final int SHIP_SIZE = 12;
     public static final int MAX_BUILDING_SIZE = IntStream.of(QUARTERS_SIZE, ARMORY_SIZE,
             TOWER_SIZE).max().orElseThrow();
     public static final int QUARTERS_HIT_POINTS = 200;
     public static final int ARMORY_HIT_POINTS = 200;
     public static final int TOWER_HIT_POINTS = 100;
+    public static final int SHIP_HIT_POINTS = 250;
     public static final int VIKING_CHIEFTAIN_HIT_POINTS = 60;
     public static final int NATIVE_CHIEFTAIN_HIT_POINTS = 40;
 
@@ -112,6 +114,7 @@ public final class RacesResources {
     private static @NonNull BuildingTemplate createBuildingTemplate(
             @NonNull RenderQueues queues,
             int template_id,
+            int type,
             @NonNull String built_name,
             float built_selection_radius,
             float built_selection_height,
@@ -138,7 +141,9 @@ public final class RacesResources {
             float rally_z,
             float chimney_x,
             float chimney_y,
-            float chimney_z, @NonNull String name) {
+            float chimney_z,
+            boolean is_vikings,
+            @NonNull String name) {
         assert hit_offset_z.length == 3;
 
         final float ring_mid = 0.38f;
@@ -148,14 +153,16 @@ public final class RacesResources {
         ShadowListKey shadow_renderer = queues.registerSelectableShadowList(building_shadow_desc);
         SpriteFile building = new SpriteFile(built_name,
                 Globals.NO_MIPMAP_CUTOFF,
-                true, true, true, false);
+                true, false, true, false);
         SpriteFile building_halfbuilt = new SpriteFile(halfbuilt_name,
                 Globals.NO_MIPMAP_CUTOFF,
-                true, true, true, false);
+                true, false, true, false);
         SpriteFile building_start = new SpriteFile(start_name,
                 Globals.NO_MIPMAP_CUTOFF,
-                true, true, true, false);
-        return new BuildingTemplate(template_id,
+                true, false, true, false);
+        return new BuildingTemplate(
+                template_id,
+                type,
                 placing_size,
                 smoke_radius,
                 smoke_height,
@@ -183,11 +190,13 @@ public final class RacesResources {
                 rally_z,
                 chimney_x,
                 chimney_y,
-                chimney_z, name);
+                chimney_z,
+                is_vikings,
+                name);
     }
 
     public RacesResources(@NonNull RenderQueues queues) {
-        int num_progress = 23;
+        int num_progress = 25;
         SpriteFile native_rock_sprite = new SpriteFile("/geometry/natives/rock_resource.binsprite",
                 Globals.NO_MIPMAP_CUTOFF,
                 true, true, true, false);
@@ -198,12 +207,28 @@ public final class RacesResources {
         SpriteFile native_rubber_sprite = new SpriteFile("/geometry/natives/rubber_resource.binsprite",
                 Globals.NO_MIPMAP_CUTOFF,
                 true, true, true, false);
+        SpriteFile native_right_paddle_sprite = new SpriteFile(
+                "/geometry/natives/right_paddle.binsprite",
+                Globals.NO_MIPMAP_CUTOFF,
+                true,
+                true,
+                true,
+                false);
+        SpriteFile native_left_paddle_sprite = new SpriteFile(
+                "/geometry/natives/left_paddle.binsprite",
+                Globals.NO_MIPMAP_CUTOFF,
+                true,
+                true,
+                true,
+                false);
         ProgressForm.progress(1f / num_progress);
         Map<Class<? extends Supply>, SpriteKey> native_supply_sprite_lists = Map.of(
                 TreeSupply.class, queues.register(native_wood_sprite),
                 RockSupply.class, queues.register(native_rock_sprite),
                 IronSupply.class, queues.register(native_rock_sprite, 1),
-                RubberSupply.class, queues.register(native_rubber_sprite)
+                RubberSupply.class, queues.register(native_rubber_sprite),
+                LeftPaddle.class, queues.register(native_left_paddle_sprite),
+                RightPaddle.class, queues.register(native_right_paddle_sprite)
         );
 
         SpriteFile viking_wood_sprite = new SpriteFile("/geometry/vikings/wood_resource.binsprite",
@@ -216,12 +241,29 @@ public final class RacesResources {
         SpriteFile viking_rock_sprite = new SpriteFile("/geometry/vikings/rock_resource.binsprite",
                 Globals.NO_MIPMAP_CUTOFF,
                 true, true, true, false);
+        SpriteFile viking_right_paddle_sprite = new SpriteFile(
+                "/geometry/vikings/right_paddle.binsprite",
+                Globals.NO_MIPMAP_CUTOFF,
+                true,
+                true,
+                true,
+                false);
+        SpriteFile viking_left_paddle_sprite = new SpriteFile(
+                "/geometry/vikings/left_paddle.binsprite",
+                Globals.NO_MIPMAP_CUTOFF,
+                true,
+                true,
+                true,
+                false);
+
         ProgressForm.progress(1f / num_progress);
         Map<Class<? extends Supply>, SpriteKey> viking_supply_sprite_lists = Map.of(
                 TreeSupply.class, queues.register(viking_wood_sprite),
                 RockSupply.class, queues.register(viking_rock_sprite),
                 IronSupply.class, queues.register(viking_rock_sprite, 1),
-                RubberSupply.class, queues.register(viking_rubber_sprite)
+                RubberSupply.class, queues.register(viking_rubber_sprite),
+                LeftPaddle.class, queues.register(viking_left_paddle_sprite),
+                RightPaddle.class, queues.register(viking_right_paddle_sprite)
         );
 
         smoke_textures[0] = queues.registerTexture(new GeneratorSmoke(), 0);
@@ -322,6 +364,7 @@ public final class RacesResources {
         BuildingTemplate viking_quarters_template = createBuildingTemplate(
                 queues,
                 Race.BUILDING_QUARTERS,
+                BuildingTemplate.TYPE_BUILDING,
                 "/geometry/vikings/quarters.binsprite",
                 3.5f, 7f,
                 "/geometry/vikings/quarters_halfbuilt.binsprite",
@@ -334,11 +377,13 @@ public final class RacesResources {
                 new float[]{0f, 1f, 3f}, 0f, 6f,
                 3.65f, .25f, 8f,
                 0f, 0f, 0f,
+                true,
                 i18n("quarters"));
         ProgressForm.progress(1f / num_progress);
         BuildingTemplate viking_armory_template = createBuildingTemplate(
                 queues,
                 Race.BUILDING_ARMORY,
+                BuildingTemplate.TYPE_BUILDING,
                 "/geometry/vikings/armory.binsprite",
                 3.5f, 7f,
                 "/geometry/vikings/armory_halfbuilt.binsprite",
@@ -352,11 +397,13 @@ public final class RacesResources {
                 new float[]{0f, 1f, 3f}, 0f, 6f,
                 0f, 2.25f, 10f,
                 .25f, -2.8f, 13.1f,
+                true,
                 i18n("armory"));
         ProgressForm.progress(1f / num_progress);
         BuildingTemplate viking_tower_template = createBuildingTemplate(
                 queues,
                 Race.BUILDING_TOWER,
+                BuildingTemplate.TYPE_BUILDING,
                 "/geometry/vikings/tower.binsprite",
                 1.25f, 11f,
                 "/geometry/vikings/tower_halfbuilt.binsprite",
@@ -369,11 +416,13 @@ public final class RacesResources {
                 new float[]{0f, 2f, 7.5f}, 9.55f, 2.5f,
                 .85f, .85f, 9.5f,
                 0f, 0f, 0f,
+                true,
                 i18n("tower"));
         ProgressForm.progress(1f / num_progress);
         BuildingTemplate native_quarters_template = createBuildingTemplate(
                 queues,
                 Race.BUILDING_QUARTERS,
+                BuildingTemplate.TYPE_BUILDING,
                 "/geometry/natives/quarters.binsprite",
                 4f, 8f,
                 "/geometry/natives/quarters_halfbuilt.binsprite",
@@ -386,11 +435,13 @@ public final class RacesResources {
                 new float[]{0f, 1f, 3f}, 0f, 6f,
                 -1.15f, -.77f, 11f,
                 0f, 0f, 0f,
+                false,
                 i18n("quarters"));
         ProgressForm.progress(1f / num_progress);
         BuildingTemplate native_armory_template = createBuildingTemplate(
                 queues,
                 Race.BUILDING_ARMORY,
+                BuildingTemplate.TYPE_BUILDING,
                 "/geometry/natives/armory.binsprite",
                 4f, 8f,
                 "/geometry/natives/armory_halfbuilt.binsprite",
@@ -404,11 +455,13 @@ public final class RacesResources {
                 new float[]{0f, 1f, 3f}, 0f, 6f,
                 0f, -.4f, 12f,
                 0f, -1f, 11.5f,
+                false,
                 i18n("armory"));
         ProgressForm.progress(1f / num_progress);
         BuildingTemplate native_tower_template = createBuildingTemplate(
                 queues,
                 Race.BUILDING_TOWER,
+                BuildingTemplate.TYPE_BUILDING,
                 "/geometry/natives/tower.binsprite",
                 1f, 14f,
                 "/geometry/natives/tower_halfbuilt.binsprite",
@@ -421,8 +474,82 @@ public final class RacesResources {
                 new float[]{0f, 11.5f, 11.5f}, 13f, 2.5f,
                 .95f, 0f, 13f,
                 0f, 0f, 0f,
+                false,
                 i18n("tower"));
         ProgressForm.progress(1f / num_progress);
+
+        BuildingTemplate native_ship_template = createBuildingTemplate(
+                queues,
+                Race.BUILDING_SHIP,
+                BuildingTemplate.TYPE_SHIP,
+                "/geometry/natives/ship.binsprite",
+                3.5f,
+                7f,
+                "/geometry/natives/ship_halfbuilt.binsprite",
+                3.5f,
+                6f,
+                "/geometry/natives/ship_start.binsprite",
+                5f,
+                1f,
+                22f,
+                .001f,
+                SHIP_SIZE,
+                6f,
+                9f,
+                100,
+                SHIP_HIT_POINTS,
+                null,
+                new Abilities(
+                        Abilities.SUPPLY_CONTAINER | Abilities.SAIL | Abilities.RALLY_TO | Abilities.TARGET),
+                new float[]{0f, 1f, 3f},
+                1.9f,
+                6f,
+                -0.5f,
+                0.0f,
+                3.1f,
+                1.0f,
+                0.0f,
+                5.0f,
+                false,
+                Utils.getBundleString(bundle, "ship"));
+        ProgressForm.progress(1f / num_progress);
+
+        BuildingTemplate viking_ship_template = createBuildingTemplate(
+                queues,
+                Race.BUILDING_SHIP,
+                BuildingTemplate.TYPE_SHIP,
+                "/geometry/vikings/ship.binsprite",
+                3.5f,
+                7f,
+                "/geometry/vikings/ship_halfbuilt.binsprite",
+                3.5f,
+                6f,
+                "/geometry/vikings/ship_start.binsprite",
+                5f,
+                1f,
+                22f,
+                .001f,
+                SHIP_SIZE,
+                6f,
+                9f,
+                100,
+                SHIP_HIT_POINTS,
+                null,
+                new Abilities(
+                        Abilities.SUPPLY_CONTAINER | Abilities.SAIL | Abilities.RALLY_TO | Abilities.TARGET),
+                new float[]{0f, 1f, 3f},
+                1.9f,
+                6f,
+                -0.5f,
+                0.0f,
+                3.1f,
+                1.0f,
+                0.0f,
+                5.0f,
+                true,
+                Utils.getBundleString(bundle, "ship"));
+        ProgressForm.progress(1f / num_progress);
+
         final float shadow_diameter_warrior = 1.9f;
         final float shadow_diameter_peon = 1.6f;
         final float shadow_diameter_chieftain = 2.2f;
@@ -707,6 +834,7 @@ public final class RacesResources {
         Race natives_race = new Race(native_quarters_template,
                 native_armory_template,
                 native_tower_template,
+                native_ship_template,
                 native_warrior_rock_template,
                 native_warrior_iron_template,
                 native_warrior_rubber_template,
@@ -724,6 +852,7 @@ public final class RacesResources {
         Race vikings_race = new Race(viking_quarters_template,
                 viking_armory_template,
                 viking_tower_template,
+                viking_ship_template,
                 viking_warrior_rock_template,
                 viking_warrior_iron_template,
                 viking_warrior_rubber_template,

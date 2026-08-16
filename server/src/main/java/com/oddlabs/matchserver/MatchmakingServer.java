@@ -103,14 +103,14 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
 //	}
 
     public void loginClient(InetAddress remote_address, InetAddress local_remote_address, String username,
-            AbstractConnection conn, int revision, int host_id) {
+            AbstractConnection conn, int revision, int sim_version, int host_id) {
         Client old_logged_in = online_users.remove(username.toLowerCase());
         if (old_logged_in != null) {
             old_logged_in.close();
             logger.info(username + " overtaked old login");
         }
         Client client = new Client(this, conn, remote_address, local_remote_address, username, false, revision,
-                host_id);
+                sim_version, host_id);
         online_users.put(username.toLowerCase(), client);
         client_map.put(client.getHostID(), client);
         logger.info(username + " logged in");
