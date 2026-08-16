@@ -275,12 +275,13 @@ public final class Picker implements Updatable<TimerAnimation> {
         }
     }
 
-    private Selectable<?>[] selectTripleClick(@NonNull CameraState camera, Selectable<?> nearest) {
-        if (nearest.getAbilities().hasAbilities(Abilities.THROW)) {
-            return pickUnitType(camera, (UnitTemplate) nearest.getTemplate());
-        } else {
-            return Selectable.newArray(nearest);
+    private @NonNull Selectable<?> @NonNull [] selectTripleClick(@NonNull CameraState camera,
+            @NonNull Selectable<?> nearest) {
+        var template = nearest.getTemplate();
+        if (nearest.getAbilities().hasAbilities(Abilities.THROW) && template instanceof UnitTemplate) {
+            return pickUnitType(camera, (UnitTemplate) template);
         }
+        return Selectable.newArray(nearest);
     }
 
     private @NonNull Selectable<?> @NonNull [] createBoxedPick() {
