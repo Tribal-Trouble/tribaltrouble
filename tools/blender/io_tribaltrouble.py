@@ -260,17 +260,29 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
                          description="Flip the vertical texture coordinate on export")
 
     def execute(self, context):
-        obj = context.active_object
-        if obj is None or obj.type != "MESH":
-            self.report({"ERROR"}, "Select a mesh object to export")
+        objs = [o for o in context.selected_objects if o.type == "MESH"]
+        if not objs and context.active_object is not None and context.active_object.type == "MESH":
+            objs = [context.active_object]
+        if not objs:
+            self.report({"ERROR"}, "Select at least one mesh object to export")
             return {"CANCELLED"}
 
-        texture = self.texture or obj.get("tt_texture", "")
+        texture = self.texture
+        if not texture:
+            for o in objs:
+                if o.get("tt_texture"):
+                    texture = o["tt_texture"]
+                    break
 
-        # Work on a triangulated evaluated copy so modifiers apply
+        # Merge every selected object in world space into one triangulated mesh, with modifiers applied.
         depsgraph = context.evaluated_depsgraph_get()
         bm = bmesh.new()
-        bm.from_object(obj, depsgraph)
+        for o in objs:
+            eval_obj = o.evaluated_get(depsgraph)
+            me = eval_obj.to_mesh()
+            me.transform(o.matrix_world)
+            bm.from_mesh(me)
+            eval_obj.to_mesh_clear()
         bmesh.ops.triangulate(bm, faces=bm.faces)
         bm.normal_update()
 
@@ -309,7 +321,7 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
 
         with open(self.filepath, "w", encoding="utf-8", newline="\n") as f:
             f.write("\n".join(lines) + "\n")
-        self.report({"INFO"}, f"Exported {os.path.basename(self.filepath)}")
+        self.report({"INFO"}, f"Exported {len(objs)} object(s) merged into {os.path.basename(self.filepath)}")
         return {"FINISHED"}
 
 
