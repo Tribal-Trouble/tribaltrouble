@@ -21,7 +21,7 @@ import xml.etree.ElementTree as ET
 import bpy
 import bmesh
 from bpy_extras.io_utils import ImportHelper, ExportHelper
-from bpy.props import StringProperty, BoolProperty
+from bpy.props import StringProperty, BoolProperty, CollectionProperty
 
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
@@ -86,20 +86,37 @@ class ImportTTMesh(bpy.types.Operator, ImportHelper):
     bl_label = "Import Tribal Trouble Mesh"
     filename_ext = ".xml"
     filter_glob: StringProperty(default="*.xml", options={"HIDDEN"})
+    files: CollectionProperty(type=bpy.types.OperatorFileListElement, options={"HIDDEN", "SKIP_SAVE"})
+    directory: StringProperty(subtype="DIR_PATH", options={"HIDDEN", "SKIP_SAVE"})
     flip_v: BoolProperty(name="Flip V", default=False,
                          description="Flip the vertical texture coordinate on import")
 
     def execute(self, context):
-        try:
-            root = ET.parse(self.filepath).getroot()
-        except ET.ParseError as e:
-            self.report({"ERROR"}, f"XML parse error: {e}")
-            return {"CANCELLED"}
-        if root.tag != "mesh":
-            self.report({"ERROR"}, "Not a Tribal Trouble mesh file (no <mesh> root)")
-            return {"CANCELLED"}
+        paths = [os.path.join(self.directory, f.name) for f in self.files if f.name]
+        if not paths:
+            paths = [self.filepath]
 
-        name = os.path.splitext(os.path.basename(self.filepath))[0]
+        imported = 0
+        for path in paths:
+            if self.import_one(context, path):
+                imported += 1
+        if imported == 0:
+            return {"CANCELLED"}
+        if len(paths) > 1:
+            self.report({"INFO"}, f"Imported {imported} of {len(paths)} meshes")
+        return {"FINISHED"}
+
+    def import_one(self, context, filepath):
+        try:
+            root = ET.parse(filepath).getroot()
+        except ET.ParseError as e:
+            self.report({"WARNING"}, f"{os.path.basename(filepath)}: XML parse error: {e}")
+            return False
+        if root.tag != "mesh":
+            self.report({"WARNING"}, f"{os.path.basename(filepath)}: not a Tribal Trouble mesh file (no <mesh> root)")
+            return False
+
+        name = os.path.splitext(os.path.basename(filepath))[0]
         verts = []           # deduped positions
         vert_index = {}      # (x, y, z) -> index
         faces = []
@@ -161,7 +178,7 @@ class ImportTTMesh(bpy.types.Operator, ImportHelper):
         context.view_layer.objects.active = obj
         obj.select_set(True)
         self.report({"INFO"}, f"Imported {len(verts)} verts, {len(faces)} tris, texture '{obj['tt_texture']}'")
-        return {"FINISHED"}
+        return True
 
 
 class ExportTTMesh(bpy.types.Operator, ExportHelper):

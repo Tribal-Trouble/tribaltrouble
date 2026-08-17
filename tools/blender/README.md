@@ -9,7 +9,7 @@ Official Blender import/export addon for Tribal Trouble geometry. Maintained in 
 
 ## Use
 
-- **Import**: File > Import > Tribal Trouble Mesh (.xml). Point it at any mesh under `assets/geometry/`. UVs, vertex colors, and bone weights (as vertex groups) come along. Texture atlases are the PNGs in `assets/textures/models/`; load one into a material to texture the model. If a texture appears vertically flipped, re-import with "Flip V" checked.
+- **Import**: File > Import > Tribal Trouble Mesh (.xml). Point it at any mesh under `assets/geometry/`; shift-select several files to import them all at once, one object each. UVs, vertex colors, and bone weights (as vertex groups) come along. Texture atlases are the PNGs in `assets/textures/models/`; load one into a material to texture the model. If a texture appears vertically flipped, re-import with "Flip V" checked.
 - **Export**: File > Export > Tribal Trouble Mesh (.xml). Exports the active object, triangulated, with every vertex skinned to `dummy_bone` (the static-prop convention used by plants and rocks). Set the texture atlas name in the export options or a `tt_texture` custom property on the object.
 
 ## Scope (v1)
