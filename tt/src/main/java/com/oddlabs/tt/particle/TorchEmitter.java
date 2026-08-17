@@ -33,6 +33,7 @@ public final class TorchEmitter extends LinearEmitter {
     private final @NonNull Random random;
     private final float scale;
     private int spawn_counter = 0;
+    private boolean prop_visible = false;
 
     public static @NonNull List<TorchEmitter> getActiveTorches() {
         return active_torches;
@@ -61,6 +62,14 @@ public final class TorchEmitter extends LinearEmitter {
 
     public float getLightRadius() {
         return LIGHT_RADIUS * scale;
+    }
+
+    public void setPropVisible(boolean prop_visible) {
+        this.prop_visible = prop_visible;
+    }
+
+    public boolean isPropVisible() {
+        return prop_visible;
     }
 
     @Override

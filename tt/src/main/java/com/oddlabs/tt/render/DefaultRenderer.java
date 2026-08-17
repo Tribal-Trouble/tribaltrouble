@@ -342,6 +342,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         // Rally point uses SpriteShader (Mask) -> Enable
         setDrawBuffers(true);
         renderRallyPoint(context, frustum_state);
+        renderTorchProps(context);
 
         assert ShaderProgram.activeShader() == null : "Shader still active=" + ShaderProgram.activeShader();
 
@@ -354,6 +355,38 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
         if (Globals.debugRenderingEnabled()) {
             context.validate();
+        }
+    }
+
+    /** Draws the torch prop model at every visible torch position, alternating variants by position. */
+    private void renderTorchProps(@NonNull RenderContext context) {
+        java.util.List<com.oddlabs.tt.particle.TorchEmitter> torches =
+                com.oddlabs.tt.particle.TorchEmitter.getActiveTorches();
+        if (torches.isEmpty())
+            return;
+        com.oddlabs.tt.render.SpriteKey[] keys = world.getRacesResources().getTorchSprites();
+        try (var _ = spriteShader.use(); var _ = context.withBlendMode(BlendMode.ALPHA)) {
+            for (com.oddlabs.tt.particle.TorchEmitter torch : torches) {
+                if (!torch.isPropVisible() || torch.getWorld() != world)
+                    continue;
+                Vector3f pos = torch.getPosition();
+                float z = world.getHeightMap().getNearestHeight(pos.x, pos.y);
+                int hash = Float.floatToIntBits(pos.x * 13f + pos.y * 7f) >>> 1;
+                SpriteRenderer renderer = render_queues.getRenderer(keys[hash % keys.length]);
+                Sprite sprite = renderer.getSpriteList().getSprite(0);
+                sprite.setupShaderUniforms(context, spriteShader, 0, false);
+
+                float angle = (hash & 0xffff) / 65535f * (float) Math.PI * 2f;
+                modelViewStack.push();
+                RenderTools.translateAndRotate(pos.x, pos.y, z, (float) Math.cos(angle), (float) Math.sin(angle),
+                        modelViewStack);
+                spriteShader.setUniformMatrix4(SpriteShader.Uniforms.MODEL_VIEW_MATRIX, false,
+                        modelViewStack.current());
+                spriteShader.setUniform(SpriteShader.Uniforms.DECAL_COLOR, 1f, 1f, 1f, 1f);
+                spriteShader.setUniform(SpriteShader.Uniforms.COLOR, 1f, 1f, 1f, 1f);
+                sprite.renderShader(spriteShader, 0, 0f, renderer.getSpriteList());
+                modelViewStack.pop();
+            }
         }
     }
 

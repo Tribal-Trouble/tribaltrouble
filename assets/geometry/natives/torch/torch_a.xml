@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!DOCTYPE mesh [
+        <!ELEMENT mesh       (polygons, skeleton?)>
+        <!ELEMENT polygons   (polygon+)>
+        <!ELEMENT polygon    (vertex, vertex, vertex)>
+        <!ELEMENT vertex     (skin+)>
+        <!ELEMENT skin        EMPTY>
+        <!ELEMENT skeleton   (bones, init_pose)>
+        <!ELEMENT bones      (bone+)>
+        <!ELEMENT init_pose  (transform+)>
+        <!ELEMENT bone        EMPTY>
+        <!ELEMENT transform   EMPTY>
+        <!ATTLIST mesh texture CDATA #IMPLIED>
+        <!ATTLIST vertex x CDATA #REQUIRED>
+        <!ATTLIST vertex y CDATA #REQUIRED>
+        <!ATTLIST vertex z CDATA #REQUIRED>
+        <!ATTLIST vertex r CDATA #REQUIRED>
+        <!ATTLIST vertex g CDATA #REQUIRED>
+        <!ATTLIST vertex b CDATA #REQUIRED>
+        <!ATTLIST vertex a CDATA #REQUIRED>
+        <!ATTLIST vertex nx CDATA #REQUIRED>
+        <!ATTLIST vertex ny CDATA #REQUIRED>
+        <!ATTLIST vertex nz CDATA #REQUIRED>
+        <!ATTLIST vertex u CDATA #REQUIRED>
+        <!ATTLIST vertex v CDATA #REQUIRED>
+        <!ATTLIST vertex u2 CDATA #IMPLIED>
+        <!ATTLIST vertex v2 CDATA #IMPLIED>
+        <!ATTLIST skin bone CDATA #REQUIRED>
+        <!ATTLIST skin weight CDATA #REQUIRED>
+        <!ATTLIST transform name CDATA #REQUIRED>
+        <!ATTLIST transform m00 CDATA #REQUIRED>
+        <!ATTLIST transform m01 CDATA #REQUIRED>
+        <!ATTLIST transform m02 CDATA #REQUIRED>
+        <!ATTLIST transform m03 CDATA #REQUIRED>
+        <!ATTLIST transform m10 CDATA #REQUIRED>
+        <!ATTLIST transform m11 CDATA #REQUIRED>
+        <!ATTLIST transform m12 CDATA #REQUIRED>
+        <!ATTLIST transform m13 CDATA #REQUIRED>
+        <!ATTLIST transform m20 CDATA #REQUIRED>
+        <!ATTLIST transform m21 CDATA #REQUIRED>
+        <!ATTLIST transform m22 CDATA #REQUIRED>
+        <!ATTLIST transform m23 CDATA #REQUIRED>
+        <!ATTLIST transform m30 CDATA #REQUIRED>
+        <!ATTLIST transform m31 CDATA #REQUIRED>
+        <!ATTLIST transform m32 CDATA #REQUIRED>
+        <!ATTLIST transform m33 CDATA #REQUIRED>
+        ]>
+
+<mesh texture="native_building_hi">
+    <polygons>
+        <polygon>
+            <vertex x="0.0142012" y="-0.0980585" z="-0.0502705" r="1" g="1" b="1" a="1" nx="-0.579215" ny="-0.814834" nz="0.0235634" u="0.0122188" v="0.0139297">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.0214836" y="-0.0272014" z="2.57901" r="1" g="1" b="1" a="1" nx="-0.579215" ny="-0.814834" nz="0.0235634" u="0.369901" v="0.0109013">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.120274" y="0.0743877" z="2.60746" r="1" g="1" b="1" a="1" nx="-0.579215" ny="-0.814834" nz="0.0235634" u="0.377232" v="0.0355355">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0142012" y="-0.0980585" z="-0.0502705" r="1" g="1" b="1" a="1" nx="-0.550498" ny="-0.834423" nz="0.0262874" u="0.0122188" v="0.0139297">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.120274" y="0.0743877" z="2.60746" r="1" g="1" b="1" a="1" nx="-0.550498" ny="-0.834423" nz="0.0262874" u="0.377232" v="0.0355355">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.106747" y="-0.0169549" z="-0.0086818" r="1" g="1" b="1" a="1" nx="-0.550498" ny="-0.834423" nz="0.0262874" u="0.0163021" v="0.0364198">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.106747" y="-0.0169549" z="-0.0086818" r="1" g="1" b="1" a="1" nx="-0.797482" ny="0.602818" nz="-0.0251709" u="0.0122188" v="0.0139297">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.120274" y="0.0743877" z="2.60746" r="1" g="1" b="1" a="1" nx="-0.797482" ny="0.602818" nz="-0.0251709" u="0.369901" v="0.0109013">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.0192886" y="0.209005" z="2.63193" r="1" g="1" b="1" a="1" nx="-0.797482" ny="0.602818" nz="-0.0251709" u="0.377232" v="0.0355355">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.106747" y="-0.0169549" z="-0.0086818" r="1" g="1" b="1" a="1" nx="-0.78904" ny="0.613775" nz="-0.0263881" u="0.0122188" v="0.0139297">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.0192886" y="0.209005" z="2.63193" r="1" g="1" b="1" a="1" nx="-0.78904" ny="0.613775" nz="-0.0263881" u="0.377232" v="0.0355355">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.0194477" y="0.0978013" z="0.0501399" r="1" g="1" b="1" a="1" nx="-0.78904" ny="0.613775" nz="-0.0263881" u="0.0163021" v="0.0364198">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0194477" y="0.0978013" z="0.0501399" r="1" g="1" b="1" a="1" nx="0.49689" ny="0.867008" nz="-0.0373746" u="0.0163021" v="0.0364198">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.0192886" y="0.209005" z="2.63193" r="1" g="1" b="1" a="1" nx="0.49689" ny="0.867008" nz="-0.0373746" u="0.377232" v="0.0355355">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.106206" y="0.13621" z="2.61169" r="1" g="1" b="1" a="1" nx="0.49689" ny="0.867008" nz="-0.0373746" u="0.369901" v="0.0109013">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0194477" y="0.0978013" z="0.0501399" r="1" g="1" b="1" a="1" nx="0.513607" ny="0.857181" nz="-0.0380473" u="0.0163021" v="0.0364198">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.106206" y="0.13621" z="2.61169" r="1" g="1" b="1" a="1" nx="0.513607" ny="0.857181" nz="-0.0380473" u="0.369901" v="0.0109013">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.111993" y="0.0172102" z="0.00881297" r="1" g="1" b="1" a="1" nx="0.513607" ny="0.857181" nz="-0.0380473" u="0.0122188" v="0.0139297">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.111993" y="0.0172102" z="0.00881297" r="1" g="1" b="1" a="1" nx="0.885638" ny="-0.463799" nz="0.0231734" u="0.0163021" v="0.0364198">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.106206" y="0.13621" z="2.61169" r="1" g="1" b="1" a="1" nx="0.885638" ny="-0.463799" nz="0.0231734" u="0.377232" v="0.0355355">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.0214836" y="-0.0272014" z="2.57901" r="1" g="1" b="1" a="1" nx="0.885638" ny="-0.463799" nz="0.0231734" u="0.369901" v="0.0109013">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.111993" y="0.0172102" z="0.00881297" r="1" g="1" b="1" a="1" nx="0.758536" ny="-0.651448" nz="0.0154551" u="0.0163021" v="0.0364198">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.0214836" y="-0.0272014" z="2.57901" r="1" g="1" b="1" a="1" nx="0.758536" ny="-0.651448" nz="0.0154551" u="0.369901" v="0.0109013">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.0142012" y="-0.0980585" z="-0.0502705" r="1" g="1" b="1" a="1" nx="0.758536" ny="-0.651448" nz="0.0154551" u="0.0122188" v="0.0139297">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.000215003" y="0.381013" z="1.90623" r="1" g="1" b="1" a="1" nx="-0.349098" ny="0.913885" nz="0.207231" u="0.808465" v="0.763664">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.200961" y="0.303821" z="1.90774" r="1" g="1" b="1" a="1" nx="-0.349098" ny="0.913885" nz="0.207231" u="0.842744" v="0.757042">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.0192886" y="0.209005" z="2.63193" r="1" g="1" b="1" a="1" nx="-0.349098" ny="0.913885" nz="0.207231" u="0.802917" v="0.641823">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.325023" y="0.0259702" z="1.92427" r="1" g="1" b="1" a="1" nx="-0.899705" ny="-0.323916" nz="0.292592" u="0.888445" v="0.73831">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.24791" y="-0.17468" z="1.93925" r="1" g="1" b="1" a="1" nx="-0.899705" ny="-0.323916" nz="0.292592" u="0.917543" v="0.718943">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.120274" y="0.0743877" z="2.60746" r="1" g="1" b="1" a="1" nx="-0.899705" ny="-0.323916" nz="0.292592" u="0.836607" v="0.628026">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.120274" y="0.0743877" z="2.60746" r="1" g="1" b="1" a="1" nx="-0.485204" ny="-0.784952" nz="0.385263" u="0.766535" v="0.641514">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.24791" y="-0.17468" z="1.93925" r="1" g="1" b="1" a="1" nx="-0.485204" ny="-0.784952" nz="0.385263" u="0.759106" v="0.763299">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.0214836" y="-0.0272014" z="2.57901" r="1" g="1" b="1" a="1" nx="-0.485204" ny="-0.784952" nz="0.385263" u="0.802917" v="0.641823">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0192886" y="0.209005" z="2.63193" r="1" g="1" b="1" a="1" nx="-0.793085" ny="0.545794" nz="0.270418" u="0.802917" v="0.641823">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.200961" y="0.303821" z="1.90774" r="1" g="1" b="1" a="1" nx="-0.793085" ny="0.545794" nz="0.270418" u="0.842744" v="0.757042">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.120274" y="0.0743877" z="2.60746" r="1" g="1" b="1" a="1" nx="-0.793085" ny="0.545794" nz="0.270418" u="0.836607" v="0.628026">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0214836" y="-0.0272014" z="2.57901" r="1" g="1" b="1" a="1" nx="0.774504" ny="-0.483191" nz="0.408252" u="0.802917" v="0.641823">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.231537" y="-0.220937" z="1.95121" r="1" g="1" b="1" a="1" nx="0.774504" ny="-0.483191" nz="0.408252" u="0.842744" v="0.757042">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.106206" y="0.13621" z="2.61169" r="1" g="1" b="1" a="1" nx="0.774504" ny="-0.483191" nz="0.408252" u="0.836607" v="0.628026">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.106206" y="0.13621" z="2.61169" r="1" g="1" b="1" a="1" nx="0.515314" ny="0.813062" nz="0.27089" u="0.766535" v="0.641514">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.278496" y="0.257564" z="1.91971" r="1" g="1" b="1" a="1" nx="0.515314" ny="0.813062" nz="0.27089" u="0.759106" v="0.763299">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.0192886" y="0.209005" z="2.63193" r="1" g="1" b="1" a="1" nx="0.515314" ny="0.813062" nz="0.27089" u="0.802917" v="0.641823">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.200961" y="0.303821" z="1.90774" r="1" g="1" b="1" a="1" nx="-0.882148" ny="0.407885" nz="0.235468" u="0.842744" v="0.757042">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.325023" y="0.0259702" z="1.92427" r="1" g="1" b="1" a="1" nx="-0.882148" ny="0.407885" nz="0.235468" u="0.888445" v="0.73831">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.120274" y="0.0743877" z="2.60746" r="1" g="1" b="1" a="1" nx="-0.882148" ny="0.407885" nz="0.235468" u="0.836607" v="0.628026">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.24791" y="-0.17468" z="1.93925" r="1" g="1" b="1" a="1" nx="-0.392807" ny="-0.846042" nz="0.360439" u="0.759106" v="0.763299">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.0303611" y="-0.298133" z="1.95274" r="1" g="1" b="1" a="1" nx="-0.392807" ny="-0.846042" nz="0.360439" u="0.808465" v="0.763664">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.0214836" y="-0.0272014" z="2.57901" r="1" g="1" b="1" a="1" nx="-0.392807" ny="-0.846042" nz="0.360439" u="0.802917" v="0.641823">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.231537" y="-0.220937" z="1.95121" r="1" g="1" b="1" a="1" nx="0.859911" ny="-0.362613" nz="0.359257" u="0.842744" v="0.757042">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.355599" y="0.0569098" z="1.9347" r="1" g="1" b="1" a="1" nx="0.859911" ny="-0.362613" nz="0.359257" u="0.888445" v="0.73831">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.106206" y="0.13621" z="2.61169" r="1" g="1" b="1" a="1" nx="0.859911" ny="-0.362613" nz="0.359257" u="0.836607" v="0.628026">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.355599" y="0.0569098" z="1.9347" r="1" g="1" b="1" a="1" nx="0.887563" ny="0.362321" nz="0.284527" u="0.888445" v="0.73831">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.278496" y="0.257564" z="1.91971" r="1" g="1" b="1" a="1" nx="0.887563" ny="0.362321" nz="0.284527" u="0.917543" v="0.718943">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.106206" y="0.13621" z="2.61169" r="1" g="1" b="1" a="1" nx="0.887563" ny="0.362321" nz="0.284527" u="0.836607" v="0.628026">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.278496" y="0.257564" z="1.91971" r="1" g="1" b="1" a="1" nx="0.386309" ny="0.895119" nz="0.222547" u="0.759106" v="0.763299">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="0.000215003" y="0.381013" z="1.90623" r="1" g="1" b="1" a="1" nx="0.386309" ny="0.895119" nz="0.222547" u="0.808465" v="0.763664">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+            <vertex x="-0.0192886" y="0.209005" z="2.63193" r="1" g="1" b="1" a="1" nx="0.386309" ny="0.895119" nz="0.222547" u="0.802917" v="0.641823">
+                <skin bone="dummy_bone" weight="1"/>
+            </vertex>
+        </polygon>
+    </polygons>
+</mesh>

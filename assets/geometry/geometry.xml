@@ -351,6 +351,18 @@
         </sprite>
     </group>
     <group name="natives">
+        <sprite name="torch_a">
+            <model r="90" g="60" b="30">
+                natives/torch/torch_a.xml
+                <texture name="native_building_hi"/>
+            </model>
+        </sprite>
+        <sprite name="torch_b">
+            <model r="90" g="60" b="30">
+                natives/torch/torch_b.xml
+                <texture name="native_building_hi"/>
+            </model>
+        </sprite>
         <sprite name="chieftain">
             <skeleton>natives/chieftain/native_chieftain_skeleton.xml</skeleton>
             <model r="90" g="60" b="30">

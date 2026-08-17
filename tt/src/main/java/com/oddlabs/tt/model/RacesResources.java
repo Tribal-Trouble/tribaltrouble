@@ -133,6 +133,7 @@ public final class RacesResources {
     private final Map<@NonNull Class<? extends Supply>, @NonNull Audio[]> harvest_sounds = new HashMap<>();
     private final @NonNull SpriteKey[] wood_fragment_sprites = new SpriteKey[4];
     private final @NonNull SpriteKey[] treasure_sprites = new SpriteKey[6];
+    private final @NonNull SpriteKey[] torch_sprites = new SpriteKey[2];
     private final @NonNull Race @NonNull [] races;
     private final @NonNull Map<String, PlayerSkins> skins;
 
@@ -441,6 +442,10 @@ public final class RacesResources {
         List<AttachmentEntry> attachments = loadAttachments();
         Map<Class<? extends Supply>, SpriteKey> native_supply_sprite_lists = carried(queues, attachments, "natives");
         ProgressForm.progress(1f / num_progress);
+        torch_sprites[0] = queues.register(new SpriteFile("/geometry/natives/torch_a.binsprite",
+                Globals.NO_MIPMAP_CUTOFF, true, true, true, false));
+        torch_sprites[1] = queues.register(new SpriteFile("/geometry/natives/torch_b.binsprite",
+                Globals.NO_MIPMAP_CUTOFF, true, true, true, false));
         ProgressForm.progress(1f / num_progress);
         Map<Class<? extends Supply>, SpriteKey> viking_supply_sprite_lists = carried(queues, attachments, "vikings");
         ProgressForm.progress(1f / num_progress);
@@ -1105,6 +1110,10 @@ public final class RacesResources {
 
         ProgressForm.progress(1f / num_progress);
         ProgressForm.progress(1f / num_progress);
+    }
+
+    public @NonNull SpriteKey @NonNull [] getTorchSprites() {
+        return torch_sprites;
     }
 
     public @NonNull TextureKey @NonNull [] getSmokeTextures() {
