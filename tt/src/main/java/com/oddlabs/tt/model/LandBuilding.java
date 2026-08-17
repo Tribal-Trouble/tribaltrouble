@@ -134,7 +134,7 @@ public final class LandBuilding extends Building {
         float d = (getSize() + 1f) * 0.7071f;
         float tx = getPositionX() + d;
         float ty = getPositionY() - d;
-        float tz = getOwner().getWorld().getHeightMap().getNearestHeight(tx, ty) + 1.2f;
+        float tz = getOwner().getWorld().getHeightMap().getNearestHeight(tx, ty) + 2.2f;
         return new Vector3f(tx, ty, tz);
     }
 
