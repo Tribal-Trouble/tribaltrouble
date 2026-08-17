@@ -26,8 +26,10 @@ import com.oddlabs.tt.model.weapon.RockSpearWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberSpearWeapon;
 import com.oddlabs.tt.model.weapon.WeaponFactory;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.particle.BalancedParametricEmitter;
 import com.oddlabs.tt.particle.StunFunction;
+import com.oddlabs.tt.particle.TorchEmitter;
 import com.oddlabs.tt.pathfinder.Movable;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.PathFinder;
@@ -81,7 +83,11 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     private final float[] magic_energy = new float[2];
     private int last_magic_index = -1;
 
+    private static final float TORCH_SCALE = 0.6f;
+    private static final float TORCH_HEIGHT = 2f;
+
     private @Nullable BalancedParametricEmitter stun_marker;
+    private @Nullable TorchEmitter torch_emitter;
     private int hit_points;
     private @NonNull int animation = Animation.IDLING;
     private float anim_speed;
@@ -139,6 +145,14 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         }
 
         pushController(new IdleController(this, new AttackScanFilter(getOwner(), AttackScanFilter.UNIT_RANGE), true));
+        if (getAbilities().hasAbilities(Abilities.MAGIC) && !imaginary) {
+            // The chieftain carries a torch at night.
+            torch_emitter = new TorchEmitter(owner.getWorld(),
+                    new Vector3f(getPositionX(), getPositionY(), getPositionZ() + TORCH_HEIGHT), TORCH_SCALE,
+                    owner.getWorld().getRacesResources().getSmokeTextures(),
+                    owner.getWorld().getAnimationManagerRealTime());
+            torch_emitter.stop();
+        }
         if (!getAbilities().hasAbilities(Abilities.MAGIC) && !imaginary) {
             int result = getOwner().getUnitCountContainer().increaseSupply(1);
             assert (result == 1) : "No room for new unit in player unit container.";
@@ -454,6 +468,18 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
                 increaseMagicEnergy(i, t);
             }
         }
+
+        // Visual only: the torch draws no sim RNG, so gating it on the render-side night flag
+        // cannot desync lockstep.
+        if (torch_emitter != null) {
+            if (Globals.night_mode && !isDead() && !mounted) {
+                torch_emitter.start();
+                torch_emitter.setPosition(
+                        new Vector3f(getPositionX(), getPositionY(), getPositionZ() + TORCH_HEIGHT));
+            } else {
+                torch_emitter.stop();
+            }
+        }
     }
 
     public final void increaseMagicEnergy(int index, float amount) {
@@ -496,6 +522,10 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         if (stun_marker != null) {
             stun_marker.done();
             stun_marker = null;
+        }
+        if (torch_emitter != null) {
+            torch_emitter.dispose();
+            torch_emitter = null;
         }
         super.removeDying();
     }
