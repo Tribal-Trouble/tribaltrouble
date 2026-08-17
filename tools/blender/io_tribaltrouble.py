@@ -26,7 +26,7 @@ from bpy.props import StringProperty, BoolProperty, CollectionProperty
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 1, 0),
+    "version": (1, 2, 0),
     "blender": (4, 0, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -239,9 +239,11 @@ class ImportTTMesh(bpy.types.Operator, ImportHelper):
                 groups[bone].add([idx], weight, "REPLACE")
 
         if self.load_textures:
-            image_path = find_texture_image(filepath, obj["tt_texture"])
+            # Units can declare a comma-separated atlas list (one per weapon tier); preview with the first.
+            primary = obj["tt_texture"].split(",")[0].strip()
+            image_path = find_texture_image(filepath, primary)
             if image_path is not None:
-                obj.data.materials.append(get_atlas_material(obj["tt_texture"], image_path))
+                obj.data.materials.append(get_atlas_material(primary, image_path))
 
         context.view_layer.objects.active = obj
         obj.select_set(True)
@@ -258,6 +260,12 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
                             description="Texture atlas name (defaults to the object's tt_texture property)")
     flip_v: BoolProperty(name="Flip V", default=False,
                          description="Flip the vertical texture coordinate on export")
+
+    def invoke(self, context, event):
+        objs = [o for o in context.selected_objects if o.type == "MESH"]
+        if len(objs) == 1:
+            self.filepath = objs[0].name + ".xml"
+        return super().invoke(context, event)
 
     def execute(self, context):
         objs = [o for o in context.selected_objects if o.type == "MESH"]
