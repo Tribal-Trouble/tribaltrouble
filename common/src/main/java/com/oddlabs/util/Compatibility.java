@@ -18,7 +18,7 @@ public final class Compatibility {
      * behavior (model, pathfinding, landscape generation, behaviours). Needs no
      * server deploy and locks nobody out.
      */
-    public static final int SIM_VERSION = 1;
+    public static final int SIM_VERSION = 2;
 
     /** Sim version assumed for clients that predate sim version reporting. */
     public static final int SIM_LEGACY = 0;
