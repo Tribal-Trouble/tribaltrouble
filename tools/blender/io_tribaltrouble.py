@@ -26,7 +26,7 @@ from bpy.props import StringProperty, BoolProperty, CollectionProperty
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 2, 0),
+    "version": (1, 3, 0),
     "blender": (4, 0, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -251,6 +251,55 @@ class ImportTTMesh(bpy.types.Operator, ImportHelper):
         return True
 
 
+def write_mesh_xml(objs, filepath, texture, flip_v, depsgraph):
+    """Merge objs in world space into one triangulated mesh and write it as game XML."""
+    bm = bmesh.new()
+    for o in objs:
+        eval_obj = o.evaluated_get(depsgraph)
+        me = eval_obj.to_mesh()
+        me.transform(o.matrix_world)
+        bm.from_mesh(me)
+        eval_obj.to_mesh_clear()
+    bmesh.ops.triangulate(bm, faces=bm.faces)
+    bm.normal_update()
+
+    uv_layer = bm.loops.layers.uv.active
+    col_layer = bm.loops.layers.color.active
+    lines = ['<?xml version="1.0" encoding="UTF-8" standalone="yes"?>', "", DOCTYPE, ""]
+    lines.append(f'<mesh texture="{texture}">' if texture else "<mesh>")
+    lines.append("    <polygons>")
+    for face in bm.faces:
+        lines.append("        <polygon>")
+        for loop in face.loops:
+            co = loop.vert.co
+            # Smooth-shaded vertex normal; matches how the game lights static props
+            n = loop.vert.normal if face.smooth else face.normal
+            if uv_layer is not None:
+                u, v = loop[uv_layer].uv
+            else:
+                u, v = 0.0, 0.0
+            if flip_v:
+                v = 1.0 - v
+            if col_layer is not None:
+                r, g, b, a = loop[col_layer]
+            else:
+                r, g, b, a = 1.0, 1.0, 1.0, 1.0
+            lines.append(
+                f'            <vertex x="{co.x:.6g}" y="{co.y:.6g}" z="{co.z:.6g}" '
+                f'r="{r:.4g}" g="{g:.4g}" b="{b:.4g}" a="{a:.4g}" '
+                f'nx="{n.x:.6g}" ny="{n.y:.6g}" nz="{n.z:.6g}" '
+                f'u="{u:.6g}" v="{v:.6g}">')
+            lines.append('                <skin bone="dummy_bone" weight="1"/>')
+            lines.append("            </vertex>")
+        lines.append("        </polygon>")
+    lines.append("    </polygons>")
+    lines.append("</mesh>")
+    bm.free()
+
+    with open(filepath, "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(lines) + "\n")
+
+
 class ExportTTMesh(bpy.types.Operator, ExportHelper):
     bl_idname = "export_mesh.tt_xml"
     bl_label = "Export Tribal Trouble Mesh"
@@ -260,6 +309,9 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
                             description="Texture atlas name (defaults to the object's tt_texture property)")
     flip_v: BoolProperty(name="Flip V", default=False,
                          description="Flip the vertical texture coordinate on export")
+    batch_per_object: BoolProperty(name="One File Per Object", default=False,
+                                   description="Export each selected object to its own <object name>.xml "
+                                               "in the chosen folder instead of merging them into one file")
 
     def invoke(self, context, event):
         objs = [o for o in context.selected_objects if o.type == "MESH"]
@@ -275,60 +327,23 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
             self.report({"ERROR"}, "Select at least one mesh object to export")
             return {"CANCELLED"}
 
+        depsgraph = context.evaluated_depsgraph_get()
+
+        if self.batch_per_object and len(objs) > 1:
+            out_dir = os.path.dirname(self.filepath)
+            for o in objs:
+                texture = self.texture or o.get("tt_texture", "")
+                write_mesh_xml([o], os.path.join(out_dir, o.name + ".xml"), texture, self.flip_v, depsgraph)
+            self.report({"INFO"}, f"Exported {len(objs)} files into {out_dir}")
+            return {"FINISHED"}
+
         texture = self.texture
         if not texture:
             for o in objs:
                 if o.get("tt_texture"):
                     texture = o["tt_texture"]
                     break
-
-        # Merge every selected object in world space into one triangulated mesh, with modifiers applied.
-        depsgraph = context.evaluated_depsgraph_get()
-        bm = bmesh.new()
-        for o in objs:
-            eval_obj = o.evaluated_get(depsgraph)
-            me = eval_obj.to_mesh()
-            me.transform(o.matrix_world)
-            bm.from_mesh(me)
-            eval_obj.to_mesh_clear()
-        bmesh.ops.triangulate(bm, faces=bm.faces)
-        bm.normal_update()
-
-        uv_layer = bm.loops.layers.uv.active
-        col_layer = bm.loops.layers.color.active
-        lines = ['<?xml version="1.0" encoding="UTF-8" standalone="yes"?>', "", DOCTYPE, ""]
-        lines.append(f'<mesh texture="{texture}">' if texture else "<mesh>")
-        lines.append("    <polygons>")
-        for face in bm.faces:
-            lines.append("        <polygon>")
-            for loop in face.loops:
-                co = loop.vert.co
-                # Smooth-shaded vertex normal; matches how the game lights static props
-                n = loop.vert.normal if face.smooth else face.normal
-                if uv_layer is not None:
-                    u, v = loop[uv_layer].uv
-                else:
-                    u, v = 0.0, 0.0
-                if self.flip_v:
-                    v = 1.0 - v
-                if col_layer is not None:
-                    r, g, b, a = loop[col_layer]
-                else:
-                    r, g, b, a = 1.0, 1.0, 1.0, 1.0
-                lines.append(
-                    f'            <vertex x="{co.x:.6g}" y="{co.y:.6g}" z="{co.z:.6g}" '
-                    f'r="{r:.4g}" g="{g:.4g}" b="{b:.4g}" a="{a:.4g}" '
-                    f'nx="{n.x:.6g}" ny="{n.y:.6g}" nz="{n.z:.6g}" '
-                    f'u="{u:.6g}" v="{v:.6g}">')
-                lines.append('                <skin bone="dummy_bone" weight="1"/>')
-                lines.append("            </vertex>")
-            lines.append("        </polygon>")
-        lines.append("    </polygons>")
-        lines.append("</mesh>")
-        bm.free()
-
-        with open(self.filepath, "w", encoding="utf-8", newline="\n") as f:
-            f.write("\n".join(lines) + "\n")
+        write_mesh_xml(objs, self.filepath, texture, self.flip_v, depsgraph)
         self.report({"INFO"}, f"Exported {len(objs)} object(s) merged into {os.path.basename(self.filepath)}")
         return {"FINISHED"}
 

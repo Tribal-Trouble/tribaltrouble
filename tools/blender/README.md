@@ -10,7 +10,7 @@ Official Blender import/export addon for Tribal Trouble geometry. Maintained in 
 ## Use
 
 - **Import**: File > Import > Tribal Trouble Mesh (.xml). Point it at any mesh under `assets/geometry/`; shift-select several files to import them all at once, one object each. UVs, vertex colors, and bone weights (as vertex groups) come along. When importing from inside the repo, the matching atlas PNG from `assets/textures/models/` is found automatically and a material is built for it ("Load Textures" option, on by default). If a texture appears vertically flipped, re-import with "Flip V" checked.
-- **Export**: File > Export > Tribal Trouble Mesh (.xml). Exports every selected mesh object, merged in world space into one mesh (the scene is untouched), triangulated, with every vertex skinned to `dummy_bone` (the static-prop convention used by plants and rocks). Object positions matter: what you see relative to the world origin is what the game gets. Set the texture atlas name in the export options or a `tt_texture` custom property on an object.
+- **Export**: File > Export > Tribal Trouble Mesh (.xml). Exports every selected mesh object, merged in world space into one mesh (the scene is untouched), triangulated, with every vertex skinned to `dummy_bone` (the static-prop convention used by plants and rocks). Object positions matter: what you see relative to the world origin is what the game gets. Set the texture atlas name in the export options or a `tt_texture` custom property on an object. For kits of separate parts (a unit plus its held items), check "One File Per Object" to write each selected object to its own `<object name>.xml` instead of merging. Held items should be modeled with their grip point at the origin.
 
 ## Scope (v1)
 
