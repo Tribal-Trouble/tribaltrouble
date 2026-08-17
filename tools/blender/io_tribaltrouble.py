@@ -81,13 +81,10 @@ DOCTYPE = """<!DOCTYPE mesh [
         ]>"""
 
 
-def find_texture_image(mesh_path, texture):
-    """Walk up from the mesh file looking for textures/models/<texture>.png (repo layout: assets/)."""
-    if not texture:
-        return None
-    d = os.path.dirname(os.path.abspath(mesh_path))
+def find_up(start_path, relative):
+    d = os.path.dirname(os.path.abspath(start_path))
     for _ in range(8):
-        candidate = os.path.join(d, "textures", "models", texture + ".png")
+        candidate = os.path.join(d, relative)
         if os.path.isfile(candidate):
             return candidate
         parent = os.path.dirname(d)
@@ -95,6 +92,32 @@ def find_texture_image(mesh_path, texture):
             break
         d = parent
     return None
+
+
+def find_registry_texture(mesh_path):
+    """Buildings carry no texture attribute; their atlas is assigned in the geometry.xml registry."""
+    registry = find_up(mesh_path, "geometry.xml")
+    if registry is None:
+        return None
+    try:
+        root = ET.parse(registry).getroot()
+    except ET.ParseError:
+        return None
+    mesh_norm = os.path.abspath(mesh_path).replace("\\", "/").lower()
+    for model in root.iter("model"):
+        text = (model.text or "").strip().replace("\\", "/").lower()
+        if text and mesh_norm.endswith(text):
+            tex = model.find("texture")
+            if tex is not None:
+                return tex.get("name")
+    return None
+
+
+def find_texture_image(mesh_path, texture):
+    """Walk up from the mesh file looking for textures/models/<texture>.png (repo layout: assets/)."""
+    if not texture:
+        return None
+    return find_up(mesh_path, os.path.join("textures", "models", texture + ".png"))
 
 
 def get_atlas_material(texture, image_path):
@@ -205,7 +228,7 @@ class ImportTTMesh(bpy.types.Operator, ImportHelper):
             col_layer.data[i].color = col
 
         obj = bpy.data.objects.new(name, mesh)
-        obj["tt_texture"] = root.get("texture", "")
+        obj["tt_texture"] = root.get("texture") or find_registry_texture(filepath) or ""
         context.collection.objects.link(obj)
 
         # Preserve skinning as vertex groups for reference
