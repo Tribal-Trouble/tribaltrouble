@@ -81,6 +81,44 @@ DOCTYPE = """<!DOCTYPE mesh [
         ]>"""
 
 
+def find_texture_image(mesh_path, texture):
+    """Walk up from the mesh file looking for textures/models/<texture>.png (repo layout: assets/)."""
+    if not texture:
+        return None
+    d = os.path.dirname(os.path.abspath(mesh_path))
+    for _ in range(8):
+        candidate = os.path.join(d, "textures", "models", texture + ".png")
+        if os.path.isfile(candidate):
+            return candidate
+        parent = os.path.dirname(d)
+        if parent == d:
+            break
+        d = parent
+    return None
+
+
+def get_atlas_material(texture, image_path):
+    mat_name = "tt_" + texture
+    mat = bpy.data.materials.get(mat_name)
+    if mat is not None:
+        return mat
+    mat = bpy.data.materials.new(mat_name)
+    mat.use_nodes = True
+    bsdf = mat.node_tree.nodes.get("Principled BSDF")
+    tex_node = mat.node_tree.nodes.new("ShaderNodeTexImage")
+    tex_node.image = bpy.data.images.load(image_path, check_existing=True)
+    tex_node.location = (-350, 300)
+    if bsdf is not None:
+        mat.node_tree.links.new(bsdf.inputs["Base Color"], tex_node.outputs["Color"])
+        mat.node_tree.links.new(bsdf.inputs["Alpha"], tex_node.outputs["Alpha"])
+        bsdf.inputs["Roughness"].default_value = 1.0
+    try:
+        mat.blend_method = "CLIP"
+    except AttributeError:
+        pass
+    return mat
+
+
 class ImportTTMesh(bpy.types.Operator, ImportHelper):
     bl_idname = "import_mesh.tt_xml"
     bl_label = "Import Tribal Trouble Mesh"
@@ -90,6 +128,8 @@ class ImportTTMesh(bpy.types.Operator, ImportHelper):
     directory: StringProperty(subtype="DIR_PATH", options={"HIDDEN", "SKIP_SAVE"})
     flip_v: BoolProperty(name="Flip V", default=False,
                          description="Flip the vertical texture coordinate on import")
+    load_textures: BoolProperty(name="Load Textures", default=True,
+                                description="Find the model's atlas PNG under textures/models and build a material")
 
     def execute(self, context):
         paths = [os.path.join(self.directory, f.name) for f in self.files if f.name]
@@ -174,6 +214,11 @@ class ImportTTMesh(bpy.types.Operator, ImportHelper):
         for idx, skin in enumerate(skins):
             for bone, weight in skin:
                 groups[bone].add([idx], weight, "REPLACE")
+
+        if self.load_textures:
+            image_path = find_texture_image(filepath, obj["tt_texture"])
+            if image_path is not None:
+                obj.data.materials.append(get_atlas_material(obj["tt_texture"], image_path))
 
         context.view_layer.objects.active = obj
         obj.select_set(True)
