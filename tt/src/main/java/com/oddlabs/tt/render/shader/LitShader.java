@@ -38,6 +38,26 @@ public interface LitShader extends Shader {
             """;
 
     /**
+     * Accumulated contribution of nearby point lights (torches). View-space inputs; uses
+     * half-Lambert wrap so billboard sprites with awkward normals still catch light.
+     */
+    String POINT_LIGHTS_FUNCTION = """
+            vec3 calculatePointLights(vec3 viewPos, vec3 normal) {
+                vec3 result = vec3(0.0);
+                int count = int(u_numPointLights);
+                for (int i = 0; i < count; i++) {
+                    vec3 toLight = u_pointLightPos[i].xyz - viewPos;
+                    float dist = length(toLight);
+                    float atten = clamp(1.0 - dist / u_pointLightPos[i].w, 0.0, 1.0);
+                    atten *= atten;
+                    float wrap = clamp((dot(normal, toLight / max(dist, 0.0001)) + 0.6) / 1.6, 0.0, 1.0);
+                    result += u_pointLightColor[i].rgb * (atten * wrap);
+                }
+                return result;
+            }
+            """;
+
+    /**
      * Simple vertex-based diffuse lighting (Legacy/FFP emulation).
      */
     String VERTEX_LIGHTING_FUNCTION = """
@@ -53,7 +73,7 @@ public interface LitShader extends Shader {
                 float diffuse = max(dot(transformedNormal, normalize(u_lightDirection)), 0.0);
 
                 // Combine ambient and diffuse
-                vec3 light = u_globalAmbient + vec3(diffuse);
+                vec3 light = u_globalAmbient + u_sunColor * diffuse;
 
                 // Apply lighting to material color
                 return vec4(materialColor.rgb * clamp(light, 0.0, 1.0), materialColor.a);
@@ -78,9 +98,9 @@ public interface LitShader extends Shader {
                 vec3 viewDir = normalize(-viewPos);
                 vec3 halfDir = normalize(lightDir + viewDir);
                 float spec = pow(max(dot(normal, halfDir), 0.0), 32.0);
-                vec3 specular = specularStrength * spec * vec3(1.0);
+                vec3 specular = specularStrength * spec * u_sunColor;
 
-                return ambient + diff * vec3(1.0) + specular;
+                return ambient + diff * u_sunColor + specular;
             }
             """;
 }

@@ -58,6 +58,9 @@ public final class SeaBottomShader extends ShaderProgram implements FogShader {
                    color.rgb = mix(color.rgb, detail.rgb, detail.a);
                 }
 
+                // The sea bottom has daylight baked into its base color; the scene tint darkens it at night.
+                color.rgb *= u_sceneTint;
+
                 float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
                 out_FragColor = vec4(mix(u_fogColor.rgb, color.rgb, fogFactor), color.a);
             }

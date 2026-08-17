@@ -98,6 +98,11 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
             fog_info.setEnabled(!fog_info.isEnabled());
             return true;
         }
+        if (actions.contains(GameAction.CHEAT_10)) {
+            // F10 toggles night mode
+            com.oddlabs.tt.global.Globals.night_mode = !com.oddlabs.tt.global.Globals.night_mode;
+            return true;
+        }
 
         // If in developer mode
         if (!Settings.getSettings().inDeveloperMode())

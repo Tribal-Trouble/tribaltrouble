@@ -35,6 +35,11 @@ public interface Shader {
                 float u_fogHeightFactor;
                 float u_globalTime;
                 int u_fogMode;
+                vec3 u_sunColor;
+                vec3 u_sceneTint;
+                float u_numPointLights;
+                vec4 u_pointLightPos[8];
+                vec4 u_pointLightColor[8];
             };
             """;
 

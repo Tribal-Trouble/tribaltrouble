@@ -68,7 +68,7 @@ public final class LandscapeShader extends ShaderProgram implements FogShader, L
 
     private static final String FRAGMENT_SHADER = """
             #version 410 core
-            """ + GLOBAL_STATE_BLOCK + FOG_FUNCTION + """
+            """ + GLOBAL_STATE_BLOCK + FOG_FUNCTION + POINT_LIGHTS_FUNCTION + """
             uniform sampler2D u_DiffuseMap;
             uniform sampler2D u_NormalMap;
             uniform sampler2D u_DetailMap;
@@ -94,9 +94,9 @@ public final class LandscapeShader extends ShaderProgram implements FogShader, L
                 // Apply detail map
                 diffuseColor.rgb = mix(diffuseColor.rgb, detailColor.rgb, detailColor.a);
 
-                // Lighting is already baked into u_DiffuseMap in LandscapeBaker.
-                // We use intensity 1.0 to avoid double-lighting.
-                vec3 intensity = vec3(1.0);
+                // Lighting is already baked into u_DiffuseMap in LandscapeBaker; the scene
+                // tint (1.0 by day) scales the baked result without double-lighting.
+                vec3 intensity = u_sceneTint + calculatePointLights(v_viewPosition, normalize(v_viewNormal));
                 vec4 litColor = vec4(diffuseColor.rgb * intensity, diffuseColor.a);
 
                 float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);

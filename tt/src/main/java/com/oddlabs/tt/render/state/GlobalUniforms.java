@@ -18,19 +18,29 @@ import java.nio.ByteBuffer;
  * Helper class to pack global uniform data into a ByteBuffer according to std140 layout.
  */
 public final class GlobalUniforms {
-    private final ByteBuffer buffer = BufferUtils.createByteBuffer(256);
+    public static final int MAX_POINT_LIGHTS = 8;
+
+    private final ByteBuffer buffer = BufferUtils.createByteBuffer(512);
 
     public @NonNull ByteBuffer getBuffer() {
         buffer.flip();
         return buffer;
     }
 
+    /**
+     * @param pointLights up to MAX_POINT_LIGHTS entries of 8 floats each:
+     *                    world x, y, z, radius, r, g, b, unused. Positions are transformed to view space here.
+     */
     public void update(
             @NonNull CameraState camera,
             @NonNull Vector3fc lightDir,
             @NonNull Vector3fc skyAmbient,
             @NonNull Vector3fc groundAmbient,
-            float time
+            @NonNull Vector3fc sunColor,
+            @NonNull Vector3fc sceneTint,
+            float time,
+            float @NonNull [] pointLights,
+            int numPointLights
     ) {
         buffer.clear();
 
@@ -67,11 +77,12 @@ public final class GlobalUniforms {
         buffer.putFloat(0f); // padding
 
         // 176: vec4 fogColor (16)
+        // Fog is tinted by the scene tint so night fog darkens with the rest of the scene.
         FogInfo fog = camera.getFog();
         Vector4fc color = fog.getColor();
-        buffer.putFloat(color.x());
-        buffer.putFloat(color.y());
-        buffer.putFloat(color.z());
+        buffer.putFloat(color.x() * sceneTint.x());
+        buffer.putFloat(color.y() * sceneTint.y());
+        buffer.putFloat(color.z() * sceneTint.z());
         buffer.putFloat(color.w());
 
         // 192: vec3 fogParams (16 aligned)
@@ -115,6 +126,37 @@ public final class GlobalUniforms {
         buffer.putFloat(time);
         buffer.putInt(mode);
 
-        buffer.position(224); // End of data (220 used, pad to 224 for 16-byte alignment)
+        // 224: vec3 sunColor (16 aligned)
+        buffer.position(224);
+        buffer.putFloat(sunColor.x());
+        buffer.putFloat(sunColor.y());
+        buffer.putFloat(sunColor.z());
+        buffer.putFloat(0f); // padding
+
+        // 240: vec3 sceneTint, then float numPointLights packed into the same 16-byte slot
+        buffer.putFloat(sceneTint.x());
+        buffer.putFloat(sceneTint.y());
+        buffer.putFloat(sceneTint.z());
+        int count = Math.min(numPointLights, MAX_POINT_LIGHTS);
+        buffer.putFloat(count);
+
+        // 256: vec4 pointLightPos[8] (view-space xyz + radius), 384: vec4 pointLightColor[8]
+        Vector3f viewLightPos = new Vector3f();
+        for (int i = 0; i < count; i++) {
+            int base = i * 8;
+            viewLightPos.set(pointLights[base], pointLights[base + 1], pointLights[base + 2]);
+            viewMatrix.transformPosition(viewLightPos);
+            buffer.position(256 + i * 16);
+            buffer.putFloat(viewLightPos.x);
+            buffer.putFloat(viewLightPos.y);
+            buffer.putFloat(viewLightPos.z);
+            buffer.putFloat(pointLights[base + 3]);
+            buffer.position(384 + i * 16);
+            buffer.putFloat(pointLights[base + 4]);
+            buffer.putFloat(pointLights[base + 5]);
+            buffer.putFloat(pointLights[base + 6]);
+            buffer.putFloat(0f);
+        }
+        buffer.position(512);
     }
 }

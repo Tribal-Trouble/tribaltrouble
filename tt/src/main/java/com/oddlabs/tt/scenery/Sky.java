@@ -135,6 +135,7 @@ public final class Sky implements SceneRenderer, AutoCloseable {
 
             skyShader.setUniformMatrix4(SkyShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
             skyShader.setUniform(SkyShader.Uniforms.SKY_COLOR, color.get(0), color.get(1), color.get(2), color.get(3));
+            skyShader.setUniform(SkyShader.Uniforms.NIGHT_FACTOR, Globals.night_mode ? 1f : 0f);
 
             context.setTexture(0, clouds[GeneratorClouds.INNER]);
             skyShader.setUniform(SkyShader.Uniforms.TEXTURE_0, 0);

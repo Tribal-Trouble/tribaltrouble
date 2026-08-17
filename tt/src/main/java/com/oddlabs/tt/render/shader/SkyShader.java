@@ -13,6 +13,7 @@ public final class SkyShader extends ShaderProgram {
         String INNER_OFFSET = "u_innerOffset";
         String OUTER_OFFSET = "u_outerOffset";
         String SKY_COLOR = "u_skyColor";
+        String NIGHT_FACTOR = "u_nightFactor";
         String INNER_CLOUD_DENSITY = "u_innerCloudDensity";
         String OUTER_CLOUD_DENSITY = "u_outerCloudDensity";
 
@@ -64,6 +65,7 @@ public final class SkyShader extends ShaderProgram {
             uniform sampler2D u_texture0;
             uniform sampler2D u_texture1;
             uniform vec4 u_skyColor;
+            uniform float u_nightFactor;
 
             in vec2 v_texCoord0;
             in vec2 v_texCoord1;
@@ -84,7 +86,11 @@ public final class SkyShader extends ShaderProgram {
                 vec3 color0 = vc * (1.0 - c0) + sc * c0;
                 vec3 color1 = color0 * (1.0 - c1) + sc * c1;
 
-                out_FragColor = vec4(color1, 1.0);
+                // Night replaces the day palette's hue entirely (the day horizon can be a warm
+                // sunset) by remapping sky luminance onto a deep night blue.
+                float lum = dot(color1, vec3(0.299, 0.587, 0.114));
+                vec3 nightSky = lum * vec3(0.20, 0.26, 0.48);
+                out_FragColor = vec4(mix(color1, nightSky, u_nightFactor), 1.0);
             }
             """;
 

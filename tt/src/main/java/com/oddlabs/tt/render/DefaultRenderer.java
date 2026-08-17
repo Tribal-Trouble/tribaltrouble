@@ -70,6 +70,15 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     private final Vector3f groundAmbientClassic = new Vector3f(0.65f, 0.65f, 0.65f);
     private final Vector3f globalAmbientEnhanced = new Vector3f(0.4f, 0.4f, 0.45f);
     private final Vector3f groundAmbientEnhanced = new Vector3f(0.15f, 0.12f, 0.1f);
+    private final Vector3f sunColorDay = new Vector3f(1f, 1f, 1f);
+    private final Vector3f sceneTintDay = new Vector3f(1f, 1f, 1f);
+    private final Vector3f sunColorNight = new Vector3f(0.34f, 0.40f, 0.58f);
+    private final Vector3f sceneTintNight = new Vector3f(0.30f, 0.35f, 0.52f);
+    private final Vector3f globalAmbientNight = new Vector3f(0.22f, 0.25f, 0.36f);
+    private final Vector3f groundAmbientNight = new Vector3f(0.10f, 0.11f, 0.18f);
+
+    private static final Vector3f TORCH_LIGHT_COLOR = new Vector3f(1f, 0.6f, 0.25f);
+    private final float[] pointLights = new float[GlobalUniforms.MAX_POINT_LIGHTS * 8];
 
     private @Nullable Building selected_building;
     private final @Nullable SpectatorView spectator_view;
@@ -93,6 +102,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
             @NonNull Selection selection, @NonNull WorldGenerator generator, @NonNull MatrixStack modelViewStack,
             @NonNull MatrixStack projectionStack, @Nullable SpectatorView spectator_view) {
         this.world = local_player.getWorld();
+        com.oddlabs.tt.particle.TorchEmitter.purge(this.world);
         this.cheat = cheat;
         this.render_queues = render_queues;
         this.picker = picker;
@@ -347,6 +357,37 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         }
     }
 
+    /** Packs the burning torches nearest the camera into the point light array; returns the light count. */
+    private int collectPointLights(@NonNull CameraState camera, float time) {
+        java.util.List<com.oddlabs.tt.particle.TorchEmitter> torches = new java.util.ArrayList<>();
+        for (com.oddlabs.tt.particle.TorchEmitter torch : com.oddlabs.tt.particle.TorchEmitter.getActiveTorches()) {
+            if (torch.isStarted() && torch.getWorld() == world)
+                torches.add(torch);
+        }
+        float cx = camera.getCurrentX();
+        float cy = camera.getCurrentY();
+        float cz = camera.getCurrentZ();
+        if (torches.size() > GlobalUniforms.MAX_POINT_LIGHTS) {
+            torches.sort(java.util.Comparator.comparingDouble(
+                    torch -> torch.getPosition().distanceSquared(cx, cy, cz)));
+        }
+        int count = Math.min(torches.size(), GlobalUniforms.MAX_POINT_LIGHTS);
+        for (int i = 0; i < count; i++) {
+            Vector3f pos = torches.get(i).getPosition();
+            float flicker = 0.8f + 0.2f * (float) Math.sin(time * 11f + pos.x * 13.7f + pos.y * 7.3f);
+            int base = i * 8;
+            pointLights[base] = pos.x;
+            pointLights[base + 1] = pos.y;
+            pointLights[base + 2] = pos.z + 0.5f;
+            pointLights[base + 3] = torches.get(i).getLightRadius();
+            pointLights[base + 4] = TORCH_LIGHT_COLOR.x * flicker;
+            pointLights[base + 5] = TORCH_LIGHT_COLOR.y * flicker;
+            pointLights[base + 6] = TORCH_LIGHT_COLOR.z * flicker;
+            pointLights[base + 7] = 0f;
+        }
+        return count;
+    }
+
     @Override
     public void render(@NonNull RenderContext context, @NonNull AmbientAudio ambient,
             @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root) {
@@ -357,8 +398,12 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
             context.clear(true, true);
         }
 
-        Vector3f ga = Globals.classic_lighting ? globalAmbientClassic : globalAmbientEnhanced;
-        Vector3f gga = Globals.classic_lighting ? groundAmbientClassic : groundAmbientEnhanced;
+        boolean night = Globals.night_mode;
+        Vector3f ga = night ? globalAmbientNight : Globals.classic_lighting ? globalAmbientClassic : globalAmbientEnhanced;
+        Vector3f gga = night ? groundAmbientNight : Globals.classic_lighting ? groundAmbientClassic : groundAmbientEnhanced;
+        Vector3f sunColor = night ? sunColorNight : sunColorDay;
+        Vector3f sceneTint = night ? sceneTintNight : sceneTintDay;
+        int numLights = collectPointLights(frustum_state, LocalEventQueue.getQueue().getTime());
 
         boolean lowDetail = Settings.getSettings().graphic_detail == Globals.DETAIL_LOW;
 
@@ -366,7 +411,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         // rendered from there. The output image will be used to color the water as if it's a reflection
         CameraState waterCamera = frustum_state.reflectCamera(world.getHeightMap().getSeaLevelMeters());
         if (!lowDetail) {
-            globalUniforms.update(waterCamera, sunDirection, ga, gga, LocalEventQueue.getQueue().getTime());
+            globalUniforms.update(waterCamera, sunDirection, ga, gga, sunColor, sceneTint,
+                    LocalEventQueue.getQueue().getTime(), pointLights, numLights);
             context.updateGlobalState(globalUniforms.getBuffer());
             modelViewStack.current().set(waterCamera.getModelView());
             reflectionFBO.bind();
@@ -374,7 +420,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
             renderScene(context, waterCamera, gui_root, false, null, null, true);
         }
 
-        globalUniforms.update(frustum_state, sunDirection, ga, gga, LocalEventQueue.getQueue().getTime());
+        globalUniforms.update(frustum_state, sunDirection, ga, gga, sunColor, sceneTint,
+                LocalEventQueue.getQueue().getTime(), pointLights, numLights);
         context.updateGlobalState(globalUniforms.getBuffer());
         ambient.updateSoundListener(frustum_state, world.getHeightMap());
         modelViewStack.current().set(frustum_state.getModelView());

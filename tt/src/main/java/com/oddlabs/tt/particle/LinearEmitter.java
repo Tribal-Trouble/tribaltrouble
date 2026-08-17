@@ -82,6 +82,10 @@ public abstract class LinearEmitter extends Emitter<LinearParticle> {
         started = false;
     }
 
+    public final boolean isStarted() {
+        return started;
+    }
+
     public final void done() {
         num_particles = 0;
     }
