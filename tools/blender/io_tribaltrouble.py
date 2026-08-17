@@ -26,7 +26,7 @@ from bpy.props import StringProperty, BoolProperty, CollectionProperty
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 0, 0),
+    "version": (1, 1, 0),
     "blender": (4, 0, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
