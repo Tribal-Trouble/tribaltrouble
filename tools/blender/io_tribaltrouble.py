@@ -251,6 +251,19 @@ class ImportTTMesh(bpy.types.Operator, ImportHelper):
         return True
 
 
+def material_image_name(objs):
+    """Fall back to the name of an image used by the objects' materials, without extension."""
+    for o in objs:
+        for slot in o.material_slots:
+            mat = slot.material
+            if mat is None or not mat.use_nodes:
+                continue
+            for node in mat.node_tree.nodes:
+                if node.type == "TEX_IMAGE" and node.image is not None:
+                    return os.path.splitext(node.image.name)[0]
+    return ""
+
+
 def write_mesh_xml(objs, filepath, texture, flip_v, depsgraph):
     """Merge objs in world space into one triangulated mesh and write it as game XML."""
     bm = bmesh.new()
@@ -343,6 +356,8 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
                 if o.get("tt_texture"):
                     texture = o["tt_texture"]
                     break
+        if not texture:
+            texture = material_image_name(objs)
         write_mesh_xml(objs, self.filepath, texture, self.flip_v, depsgraph)
         self.report({"INFO"}, f"Exported {len(objs)} object(s) merged into {os.path.basename(self.filepath)}")
         return {"FINISHED"}
