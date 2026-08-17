@@ -384,4 +384,8 @@ public final class ShipTrajectory {
 
         return false;
     }
+
+    public boolean isBackwards() {
+        return backwards;
+    }
 }
