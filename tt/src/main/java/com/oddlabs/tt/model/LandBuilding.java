@@ -131,7 +131,10 @@ public final class LandBuilding extends Building {
 
     /** A ground-standing torch just outside the building footprint, off the front-right corner. */
     private @NonNull Vector3f torchPosition() {
-        float d = (getSize() + 1f) * 0.7071f;
+        // Viking buildings overhang their placing radius more than native ones, so give them extra clearance.
+        boolean viking = getOwner().getRace() == getOwner().getWorld().getRacesResources().getRace(
+                RacesResources.RACE_VIKINGS);
+        float d = (getSize() + (viking ? 2.5f : 1f)) * 0.7071f;
         float tx = getPositionX() + d;
         float ty = getPositionY() - d;
         float tz = getOwner().getWorld().getHeightMap().getNearestHeight(tx, ty) + 2.2f;
