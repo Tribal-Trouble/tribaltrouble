@@ -83,7 +83,7 @@ public final class ShipProxy extends Building {
     }
 
     public final void hit(int damage, float dir_x, float dir_y, Player owner) {
-        ship.hit(damage, dir_x, dir_y, owner);
+        assert (false);
     }
 
     public final UnitContainer getUnitContainer() {

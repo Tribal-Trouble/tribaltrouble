@@ -10,25 +10,21 @@ import org.jspecify.annotations.NonNull;
 
 public final class SailBehaviour implements Behaviour {
     private static final float SHIP_SPEED = 0.45f;
-    private ShipTrajectoryPoint next_pose = null;
 
     private final Ship ship;
     private final Target target;
-    private float timer = 0.0f;
 
     private final ShipTrajectory trajectory;
-
-    private boolean blocked = false;
+    private ShipTrajectoryPoint next_pose = null;
 
     public SailBehaviour(Ship ship, Target t) {
         this.ship = ship;
         this.target = t;
-
         this.trajectory = new ShipTrajectory(ship, t);
     }
 
     public final boolean isBlocking() {
-        return blocked;
+        return false;
     }
 
     public final ShipTrajectory getTrajectory() {
@@ -36,22 +32,7 @@ public final class SailBehaviour implements Behaviour {
     }
 
     public void appendToolTip(ToolTipBox tool_tip_box) {
-        tool_tip_box.append("SailBehaviour: ");
-        if (blocked) {
-            tool_tip_box.append("BLOCKED");
-        } else {
-            tool_tip_box.append("MOVING");
-        }
-    }
-
-    private State endTrip() {
-        if (!trajectory.isComplete() || !trajectory.almostReachedGoal()) {
-            ship.reportStuck();
-            return State.INTERRUPTIBLE;
-        } else {
-            ship.endTrip();
-            return State.DONE;
-        }
+        tool_tip_box.append("SailBehaviour: MOVING");
     }
 
     @Override
@@ -71,11 +52,7 @@ public final class SailBehaviour implements Behaviour {
             return State.INTERRUPTIBLE;
         }
 
-        int rowers = ship.getShipHR().countRowers();
-        if (rowers == 0) {
-            ship.endTrip();
-            return State.DONE;
-        }
+        int rowers = ship.getShipHR().countRowers() + 1;
 
         if (next_pose == null) {
             float speed = rowers * SHIP_SPEED;
@@ -83,23 +60,19 @@ public final class SailBehaviour implements Behaviour {
         }
 
         if (trajectory.reachedGoal()) {
-            return endTrip();
+            ship.endTrip();
+            return State.DONE;
         }
 
         ShipTrajectoryPoint fromPoint = new ShipTrajectoryPoint(ship);
 
         var grid = ship.getUnitGrid();
 
-        if (ShipTrajectory.checkShipsCollision(grid, ship, fromPoint, next_pose.moved(8))) {
-            timer += t;
-            if (timer >= 0.5f) {
-                return endTrip();
-            } else {
-                return State.UNINTERRUPTIBLE;
-            }
+        if (ShipTrajectory.checkShipsCollision(grid, ship, fromPoint, next_pose.moved(8)) ||
+                ShipTrajectory.checkLandCollision(grid, fromPoint, next_pose)) {
+            ship.endTrip();
+            return State.INTERRUPTIBLE;
         }
-
-        timer = 0.0f;
 
         ship.free();
         ship.setPosition(next_pose.positionX, next_pose.positionY);

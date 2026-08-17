@@ -14,15 +14,13 @@ public final class ShipTrajectory {
 
     private final Ship ship;
     private final UnitGrid grid;
-    private final boolean DEBUG = false;
 
     private final List<ShipTrajectorySegment> trajectory;
-
-    private boolean isComplete = true;
 
     private int currentSegmentIndex = 0;
     private float segmentProgress = 0.0f;
     private float totalProgress = 0.0f;
+    private boolean backwards;
 
     public ShipTrajectory(Ship ship, Target t) {
         this.ship = ship;
@@ -30,67 +28,25 @@ public final class ShipTrajectory {
         grid = ship.getUnitGrid();
 
         ShipTrajectoryPoint p0 = new ShipTrajectoryPoint(ship);
-        ShipTrajectoryPoint p1 = p0.moved(10);
+        ShipTrajectoryPoint p2 = new ShipTrajectoryPoint(t);
+        ShipTrajectoryPoint tmp = p0.clone();
+        tmp.setDirectionTo(p2);
 
-        boolean waterTarget = grid.isDeepWater(t.getGridX(), t.getGridY());
-        boolean waterStart = grid.isDeepWater(ship.getGridX(), ship.getGridY());
+        float dot = p0.directionX * tmp.directionX + p0.directionY * tmp.directionY;
+        backwards = dot < 0.0f;
 
-        ShipTrajectoryPoint p2 = null;
-
-        if (waterTarget) {
-            p2 = new ShipTrajectoryPoint(t);
-        } else {
-            p2 = pickTargetPosition(grid, ship, t);
+        if (backwards) {
+            p0.rotate(180.0f);
         }
 
-        var regionPath = findRegionPath(p1, p2);
+        ShipTrajectoryPoint p1 = p0.moved(5);
 
-        if (regionPath != null) {
-            optimizePath(regionPath);
-            regionPath.add(0, p0);
-            trajectory = createTrajectory(regionPath);
-        } else {
-            trajectory = null;
-        }
-    }
-
-    private List<ShipTrajectoryPoint> findRegionPath(ShipTrajectoryPoint from, ShipTrajectoryPoint to) {
         List<ShipTrajectoryPoint> points = new ArrayList<>();
-        if (from == null || to == null) {
-            return null;
-        }
+        points.add(p0);
+        points.add(p1);
+        points.add(p2);
 
-        Region src_region = findRegion(from.gridX, from.gridY);
-        Region dst_region = findRegion(to.gridX, to.gridY);
-        if (src_region == null || dst_region == null) {
-            return null;
-        }
-
-        Region path_end = PathFinder.findPathRegion(grid, src_region, dst_region);
-        if (path_end == null) {
-            return null;
-        }
-
-        RegionNode node = (RegionNode) path_end.newPath();
-        points.add(from);
-        while (node != null) {
-            ShipTrajectoryPoint pt = new ShipTrajectoryPoint(
-                    node.getRegion().getGridX(),
-                    node.getRegion().getGridY());
-            points.add(pt);
-            node = (RegionNode) node.getParent();
-        }
-        points.add(to);
-
-        return points;
-    }
-
-    private Region findRegion(int grid_x, int grid_y) {
-        int size = grid.getGridSize();
-        if (grid_x < 0 || grid_x >= size || grid_y < 0 || grid_y >= size) {
-            return null;
-        }
-        return grid.getRegion(grid_x, grid_y, UnitGrid.SEA);
+        trajectory = createTrajectory(points);
     }
 
     public void debugRender(HeightMap heightmap) {
@@ -131,10 +87,6 @@ public final class ShipTrajectory {
         return trajectory != null && trajectory.size() > 0;
     }
 
-    public boolean isComplete() {
-        return isComplete;
-    }
-
     private ShipTrajectorySegment get(int index) {
         return trajectory.get(index);
     }
@@ -155,22 +107,14 @@ public final class ShipTrajectory {
                 currentSegmentIndex++;
             }
         }
+        if (backwards) {
+            pt.rotate(180.0f);
+        }
         return pt;
     }
 
     public boolean reachedGoal() {
         if (currentSegmentIndex >= trajectory.size()) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean almostReachedGoal() {
-        if (currentSegmentIndex >= trajectory.size()) {
-            return true;
-        }
-        float d = trajectory.get(trajectory.size() - 1).p1.gridDistanceTo(new ShipTrajectoryPoint(ship));
-        if (d <= 4) {
             return true;
         }
         return false;
@@ -222,7 +166,6 @@ public final class ShipTrajectory {
             } else {
                 // If there's no intersection, that's not a realistic turn the ship
                 // could make. So we'll assume the path is incomplete and stop here.
-                isComplete = false;
                 return result;
             }
         }
@@ -245,29 +188,6 @@ public final class ShipTrajectory {
             float radius,
             ShipTrajectoryPoint center) {
         return new ShipTrajectorySegment(p0, p1, radius, center);
-    }
-
-    private final void optimizePath(List<ShipTrajectoryPoint> path) {
-        if (path == null || path.size() < 3) {
-            return;
-        }
-
-        boolean changed = true;
-        while (changed && path.size() >= 3) {
-            changed = false;
-            int i = 1;
-            while (i < path.size() - 1) {
-                ShipTrajectoryPoint prev = path.get(i - 1);
-                ShipTrajectoryPoint next = path.get(i + 1);
-
-                if (!checkLandCollision(grid, prev, next)) {
-                    path.remove(i);
-                    changed = true;
-                } else {
-                    i++;
-                }
-            }
-        }
     }
 
     static class DeepWaterFinder implements ScanFilter {

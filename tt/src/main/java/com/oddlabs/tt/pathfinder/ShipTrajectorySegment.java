@@ -36,9 +36,6 @@ public final class ShipTrajectorySegment {
         this.angle_sign = swept >= 0.0f ? +1 : -1;
         float speed_factor = 1.0f;
         float cost_offset = 0.0f;
-        if (radius < 10.0f) {
-            speed_factor = 0.1f;
-        }
         this.length = StrictMath.abs(swept) * radius;
         this.cost = length / speed_factor;
     }
