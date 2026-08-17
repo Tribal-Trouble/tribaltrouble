@@ -360,8 +360,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
     /** Draws the torch prop model at every visible torch position, alternating variants by position. */
     private void renderTorchProps(@NonNull RenderContext context) {
-        java.util.List<com.oddlabs.tt.particle.TorchEmitter> torches =
-                com.oddlabs.tt.particle.TorchEmitter.getActiveTorches();
+        java.util.List<com.oddlabs.tt.particle.TorchEmitter> torches = com.oddlabs.tt.particle.TorchEmitter.getActiveTorches();
         if (torches.isEmpty())
             return;
         com.oddlabs.tt.render.SpriteKey[] keys = world.getRacesResources().getTorchSprites();
