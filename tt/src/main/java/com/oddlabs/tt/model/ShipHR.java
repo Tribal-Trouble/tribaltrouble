@@ -15,26 +15,21 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class ShipHR {
 
     private final boolean vikings;
 
     protected float unitSize(Unit unit) {
-        //if (vikings) {
         if (unit.isWarrior()) {
             return 1.20f;
         } else {
             return 0.70f;
         }
-        /*} else {
-            if (unit.isWarrior()) {
-                return 1.20f;
-            } else {
-                return 0.60f;
-            }
-        }*/
     }
 
     interface Row {
@@ -322,9 +317,11 @@ public final class ShipHR {
         public void killAll() {
             if (left != null) {
                 left.drown();
+                left = null;
             }
             if (right != null) {
                 right.drown();
+                right = null;
             }
         }
 
@@ -367,7 +364,7 @@ public final class ShipHR {
         }
     }
 
-    private HashMap<Unit, Row> unit2row = new HashMap<>();
+    private LinkedHashMap<Unit, Row> unit2row = new LinkedHashMap<>();
 
     private ArrayList<Row> rows = new ArrayList<>();
 
@@ -578,20 +575,21 @@ public final class ShipHR {
 
     public boolean pickVictim(float random, int damage, float dir_x, float dir_y, @NonNull Player owner) {
         int index = StrictMath.round(random * 120);
-        if (index < unit2row.size()) {
-            Unit unit = unit2row.keySet().toArray(new Unit[0])[index];
-            Row row = unit2row.get(unit);
-            if (unit.getHitPoints() - damage <= 0) {
-                unit.drown();
-                row.exit(unit);
-                unit2row.remove(unit);
-            } else {
-                unit.hit(damage, dir_x, dir_y, owner);
-            }
-            return true;
-        } else {
+        if (index >= unit2row.size()) {
             return false;
         }
+        Iterator<Map.Entry<Unit, Row>> it = unit2row.entrySet().iterator();
+        Map.Entry<Unit, Row> victim = it.next();
+        for (int i = 0; i < index; i++) {
+            victim = it.next();
+        }
+        Unit unit = victim.getKey();
+        Row row = victim.getValue();
+        if (unit.absorbHit(damage, dir_x, dir_y, owner)) {
+            row.exit(unit);
+            unit2row.remove(unit);
+        }
+        return true;
     }
 
     public int countRowers() {

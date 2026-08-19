@@ -477,13 +477,28 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     @Override
     public final void hit(int damage, float direction_x, float direction_y, @NonNull Player owner) {
         super.hit(damage, direction_x, direction_y, owner);
-        if (mounted && !on_ship) {
+        if (mounted) {
             mounted_building.hit(damage, direction_x, direction_y, owner);
         } else if (!isDead()) {
             hit_points = Math.clamp(hit_points - damage, 0, getTemplate().getMaxHitPoints());
             if (hit_points == 0) {
                 startDying();
             }
+        }
+    }
+
+    public final boolean absorbHit(int damage, float direction_x, float direction_y, @NonNull Player owner) {
+        super.hit(damage, direction_x, direction_y, owner);
+        if (!isDead()) {
+            hit_points = Math.clamp(hit_points - damage, 0, getTemplate().getMaxHitPoints());
+            if (hit_points == 0) {
+                drown();
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
         }
     }
 

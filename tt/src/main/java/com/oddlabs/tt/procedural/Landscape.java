@@ -171,8 +171,8 @@ public final class Landscape {
             }
             case 2048 -> {
                 size_multiplier = 40;
-                height_scale = 76;
-                access_threshold = 0.02f;
+                height_scale = 56;
+                access_threshold = 0.025f;
             }
             default -> {
                 size_multiplier = 0;
