@@ -82,6 +82,10 @@ public final class InputManager {
         def(GameAction.CAMERA_ZOOM_MODE, Key.Z);
 
         def(GameAction.CAMERA_CINEMATIC, Key.F, Modifier.CONTROL);
+        def(GameAction.CAMERA_ORBIT_LEFT, Key.LEFT, Modifier.CONTROL);
+        def(GameAction.CAMERA_ORBIT_RIGHT, Key.RIGHT, Modifier.CONTROL);
+        def(GameAction.CAMERA_AUTO_PAN_FORWARD, Key.UP, Modifier.CONTROL);
+        def(GameAction.CAMERA_AUTO_PAN_BACKWARD, Key.DOWN, Modifier.CONTROL);
 
         // UI
         def(GameAction.UI_ACTIVATE, Key.SPACE);

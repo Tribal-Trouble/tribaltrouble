@@ -225,6 +225,34 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                     return;
                 }
 
+                if (event.consumeAction(GameAction.CAMERA_ORBIT_LEFT)) {
+                    if (!map_mode)
+                        game_camera.toggleOrbit(1);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.CAMERA_ORBIT_RIGHT)) {
+                    if (!map_mode)
+                        game_camera.toggleOrbit(-1);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.CAMERA_AUTO_PAN_FORWARD)) {
+                    if (!map_mode)
+                        game_camera.toggleAutoPan(1);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.CAMERA_AUTO_PAN_BACKWARD)) {
+                    if (!map_mode)
+                        game_camera.toggleAutoPan(-1);
+                    event.consume();
+                    return;
+                }
+
                 if (event.hasAction(GameAction.CAMERA_FIRST_PERSON) || event.hasAction(GameAction.CAMERA_ZOOM_MODE)) {
                     if (map_mode) {
                         event.consume(); // Consume in map mode
