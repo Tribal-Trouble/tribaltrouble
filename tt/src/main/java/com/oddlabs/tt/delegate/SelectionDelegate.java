@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public final class SelectionDelegate extends ControllableCameraDelegate {
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(SelectionDelegate.class.getName());
     private static final Vector4fc SELECTION_COLOR = Color.argb4v(0xFF_4C_FF_00);
     private static final GameAction[] ARMY_CREATES = new GameAction[]{GameAction.ARMY_CREATE_0, GameAction.ARMY_CREATE_1, GameAction.ARMY_CREATE_2, GameAction.ARMY_CREATE_3, GameAction.ARMY_CREATE_4, GameAction.ARMY_CREATE_5, GameAction.ARMY_CREATE_6, GameAction.ARMY_CREATE_7, GameAction.ARMY_CREATE_8, GameAction.ARMY_CREATE_9,
     };
@@ -63,8 +64,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     public SelectionDelegate(@NonNull WorldViewer viewer, @NonNull GameCamera camera) {
         super(viewer, camera);
-        String observer_mode = Utils.getBundleString(ResourceBundle.getBundle(SelectionDelegate.class.getName()),
-                "observer_mode");
+        String observer_mode = Utils.getBundleString(bundle, "observer_mode");
         this.observer_label = new Label(observer_mode, Skin.getSkin().getHeadlineFont());
         this.game_camera = (GameCamera) getCamera();
         displayChangedNotify(getGUIRoot().getWidth(), getGUIRoot().getHeight());
@@ -213,6 +213,14 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
                 if (event.consumeAction(GameAction.GLOBAL_TOGGLE_HUD)) {
                     setHUDVisible(!Globals.draw_hud);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.CAMERA_CINEMATIC)) {
+                    Globals.cinematic_camera = !Globals.cinematic_camera;
+                    getGUIRoot().getInfoPrinter().print(Utils.getBundleString(bundle,
+                            Globals.cinematic_camera ? "cinematic_on" : "cinematic_off"));
                     event.consume();
                     return;
                 }

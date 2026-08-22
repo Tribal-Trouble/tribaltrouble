@@ -60,6 +60,7 @@ public final class Globals {
 
     public static boolean draw_status = false;
     public static boolean draw_hud = true;
+    public static boolean cinematic_camera = false;
     public static final boolean draw_landscape = true;
     public static final boolean draw_trees = true;
     public static boolean draw_misc = true;

@@ -30,7 +30,7 @@ public abstract class Camera implements Animated {
      * Controls the interpolation speed for camera movements. A higher value results in faster, more responsive
      * movement, while a lower value provides a smoother, more dampened feel.
      */
-    private static final float SMOOTHNESS_FACTOR = 15;
+    protected static final float SMOOTHNESS_FACTOR = 15;
     /**
      * Minimum vertical distance to maintain between the camera's center and the ground below it.
      * This prevents the camera from sinking into the terrain.
@@ -87,9 +87,13 @@ public abstract class Camera implements Animated {
             state.setTargetY(dy * scale + mid);
         }
         if (!bounce(state.getTargetX(), state.getTargetY(), state.getTargetZ(), state.getWidth(), state.getHeight())) {
-            if (state.getTargetZ() > GameCamera.MAX_Z)
-                state.setTargetZ(GameCamera.MAX_Z);
+            if (state.getTargetZ() > getMaxZ())
+                state.setTargetZ(getMaxZ());
         }
+    }
+
+    protected float getMaxZ() {
+        return GameCamera.MAX_Z;
     }
 
     protected final boolean bounce(float x, float y, float z, int width, int height) {

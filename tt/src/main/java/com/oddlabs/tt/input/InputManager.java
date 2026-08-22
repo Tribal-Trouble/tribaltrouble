@@ -81,6 +81,8 @@ public final class InputManager {
         def(GameAction.CAMERA_FIRST_PERSON, Key.F);
         def(GameAction.CAMERA_ZOOM_MODE, Key.Z);
 
+        def(GameAction.CAMERA_CINEMATIC, Key.F, Modifier.CONTROL);
+
         // UI
         def(GameAction.UI_ACTIVATE, Key.SPACE);
         def(GameAction.UI_ACTIVATE, Key.RETURN);

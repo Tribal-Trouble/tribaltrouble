@@ -26,6 +26,7 @@ public enum GameAction {
     CAMERA_MAP_MODE,
     CAMERA_FIRST_PERSON,
     CAMERA_ZOOM_MODE,
+    CAMERA_CINEMATIC,
 
     // UI
     UI_ACTIVATE,

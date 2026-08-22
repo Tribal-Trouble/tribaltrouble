@@ -10,7 +10,8 @@ import org.jspecify.annotations.NonNull;
 public final class CameraState {
     static final float MIN_ANGLE = -(float) Math.PI / 2f;//+ 0.01f;
     //  private static final float MAX_ANGLE = (float)Math.PI/2f;// - 0.0001f;
-    private static final float MAX_ANGLE = -0.0001f;
+    static final float MAX_ANGLE = -0.0001f;
+    static final float MAX_ANGLE_UNLOCKED = (float) Math.PI / 6f;
 
     private final Matrix4f modl = new Matrix4f();
     private final Matrix4f proj = new Matrix4f();
@@ -31,6 +32,7 @@ public final class CameraState {
     private float camera_z;
     private float vert_angle;
     private float horiz_angle;
+    private float max_vert_angle = MAX_ANGLE;
 
     private @NonNull FogInfo fog;
     private boolean no_detail_mode;
@@ -143,6 +145,7 @@ public final class CameraState {
     }
 
     public void set(@NonNull CameraState camera) {
+        max_vert_angle = camera.max_vert_angle;
         setTargetX(camera.getTargetX());
         setTargetY(camera.getTargetY());
         setTargetZ(camera.getTargetZ());
@@ -175,7 +178,12 @@ public final class CameraState {
     private float capVertAngle(float angle) {
         if (angle < MIN_ANGLE)
             return MIN_ANGLE;
-        else return Math.min(angle, MAX_ANGLE);
+        else return Math.min(angle, max_vert_angle);
+    }
+
+    void setMaxVertAngle(float angle) {
+        max_vert_angle = Math.max(MIN_ANGLE, Math.min(angle, MAX_ANGLE_UNLOCKED));
+        target_vert_angle = capVertAngle(target_vert_angle);
     }
 
     public float getTargetVertAngle() {
