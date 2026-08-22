@@ -127,7 +127,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     }
 
     private void renderRallyPoint(@NonNull RenderContext context, @NonNull CameraState camera_state) {
-        if (selected_building != null && !selected_building.isDead() && selected_building.hasRallyPoint())
+        if (Globals.draw_hud && selected_building != null && !selected_building.isDead()
+                && selected_building.hasRallyPoint())
             doRenderRallyPoint(context, camera_state);
     }
 

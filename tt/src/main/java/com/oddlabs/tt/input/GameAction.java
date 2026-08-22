@@ -9,6 +9,7 @@ public enum GameAction {
     GLOBAL_CHAT_TEAM,
     GLOBAL_MENU,
     GLOBAL_TOGGLE_STATUS,
+    GLOBAL_TOGGLE_HUD,
     GLOBAL_AGGRESSIVE_UNITS,
 
     // Camera

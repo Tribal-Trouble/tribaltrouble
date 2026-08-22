@@ -3,9 +3,11 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.font.Font;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.net.ChatListener;
 import com.oddlabs.tt.net.ChatMessage;
 import com.oddlabs.tt.net.Network;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
@@ -37,6 +39,13 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 
     public @NonNull GUIRoot getGUIRoot() {
         return gui_root;
+    }
+
+    @Override
+    protected void render(@NonNull GUIRenderer renderer, float clip_left, float clip_right, float clip_bottom,
+            float clip_top) {
+        if (Globals.draw_hud)
+            super.render(renderer, clip_left, clip_right, clip_bottom, clip_top);
     }
 
     @Override

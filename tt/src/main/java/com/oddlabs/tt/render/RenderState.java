@@ -186,7 +186,7 @@ final class RenderState implements ElementVisitor {
             if (!picking && selectable.isEnabled() && sort_status == SpriteSorter.DETAIL_POLYGON) {
                 SelectableShadowRenderer shadow_renderer = (SelectableShadowRenderer) render_queues.getShadowRenderer(
                         selectable.getTemplate().getSelectableShadowRenderer());
-                if (isHovered(selectable) || isSelected(selectable)) {
+                if (Globals.draw_hud && (isHovered(selectable) || isSelected(selectable))) {
                     shadow_renderer.addToSelectionList(state);
                 } else {
                     shadow_renderer.addToShadowList(state);

@@ -3,8 +3,10 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.camera.MapCamera;
 import com.oddlabs.tt.form.InGameChatForm;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.ActionButtonPanel;
 import com.oddlabs.tt.gui.CursorType;
+import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
@@ -89,7 +91,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     public void setObserverMode() {
         observer = true;
         getViewer().getSelection().clearSelection();
-        if (!map_mode)
+        if (!map_mode && Globals.draw_hud)
             addChild(observer_label);
     }
 
@@ -205,6 +207,12 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
                 if (event.consumeAction(GameAction.GAME_SPEED_DOWN)) {
                     changeGamespeed(-1);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.GLOBAL_TOGGLE_HUD)) {
+                    setHUDVisible(!Globals.draw_hud);
                     event.consume();
                     return;
                 }
@@ -335,10 +343,12 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         game_camera.getState().snapToTarget();
         setCamera(game_camera);
         getCamera().enable();
-        if (observer)
-            addChild(observer_label);
-        else
-            addChild(getActionButtonPanel());
+        if (Globals.draw_hud) {
+            if (observer)
+                addChild(observer_label);
+            else
+                addChild(getActionButtonPanel());
+        }
 
         if (chat_visible) {
             chat_form.remove();
@@ -526,6 +536,17 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         return selection;
     }
 
+    private void setHUDVisible(boolean visible) {
+        Globals.draw_hud = visible;
+        if (map_mode)
+            return;
+        GUIObject hud = observer ? observer_label : getActionButtonPanel();
+        if (visible)
+            addChild(hud);
+        else
+            hud.remove();
+    }
+
     @Override
     public boolean keyboardBlocked() {
         return chat_visible && chat_form.isActive();
@@ -533,6 +554,8 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     @Override
     public void render2D(@NonNull GUIRenderer renderer) {
+        if (!Globals.draw_hud)
+            return;
         if (com.oddlabs.tt.global.Settings.getSettings().show_compass && getCamera() != null) {
             float horizAngle = getCamera().getState().getHorizAngle();
             CompassRenderer.render(renderer, Skin.getSkin().getEditFont(),

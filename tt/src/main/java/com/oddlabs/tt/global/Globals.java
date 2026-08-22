@@ -59,6 +59,7 @@ public final class Globals {
     public static final boolean process_shadows = true;
 
     public static boolean draw_status = false;
+    public static boolean draw_hud = true;
     public static final boolean draw_landscape = true;
     public static final boolean draw_trees = true;
     public static boolean draw_misc = true;
