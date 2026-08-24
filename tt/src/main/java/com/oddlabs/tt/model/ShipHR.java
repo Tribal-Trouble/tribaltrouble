@@ -46,6 +46,8 @@ public final class ShipHR {
 
         public abstract boolean needRowers();
 
+        public abstract boolean canSparePeons();
+
         public abstract int countRowers();
     }
 
@@ -95,6 +97,10 @@ public final class ShipHR {
         }
 
         public boolean needRowers() {
+            return false;
+        }
+
+        public boolean canSparePeons() {
             return false;
         }
 
@@ -194,6 +200,11 @@ public final class ShipHR {
         public boolean needRowers() {
             int required = (left_rower ? 1 : 0) + (right_rower ? 1 : 0);
             return peons.size() < required;
+        }
+
+        public boolean canSparePeons() {
+            int required = (left_rower ? 1 : 0) + (right_rower ? 1 : 0);
+            return peons.size() > required;
         }
 
         public int countRowers() {
@@ -346,6 +357,10 @@ public final class ShipHR {
             return false;
         }
 
+        public boolean canSparePeons() {
+            return false;
+        }
+
         public int countRowers() {
             return 0;
         }
@@ -480,7 +495,7 @@ public final class ShipHR {
     }
 
     public Unit exitUnit(UnitTemplate template) {
-        boolean warrior = (template.getWeaponFactory() != null);
+        boolean warrior = (template.getWeaponFactory().getType() != null);
         if (warrior) {
             for (int i = 0; i < rows.size(); i++) {
                 Row row = rows.get(i);
@@ -501,8 +516,18 @@ public final class ShipHR {
             for (int i = rows.size() - 1; i >= 0; i--) {
                 Row row = rows.get(i);
                 Unit unit = row.findUnit(template);
+                if (unit != null && row.canSparePeons()) {
+                    row.exit(unit);
+                    unit2row.remove(unit);
+                    unit.setReference(null);
+                    unit.unmount();
+                    return unit;
+                }
+            }
+            for (int i = rows.size() - 1; i >= 0; i--) {
+                Row row = rows.get(i);
+                Unit unit = row.findUnit(template);
                 if (unit != null) {
-                    ShipAllocation alloc = row.getAllocation(unit);
                     row.exit(unit);
                     unit2row.remove(unit);
                     unit.setReference(null);
