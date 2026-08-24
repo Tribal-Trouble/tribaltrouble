@@ -614,6 +614,10 @@ public class Ship extends Building implements Movable {
                 if (occupant != null && !(occupant instanceof StaticOccupant)) {
                     return false;
                 }
+                occupant = unit_grid.getOccupant(current_grid_x, current_grid_y, UnitGrid.SEA);
+                if (occupant != null && occupant instanceof Ship) {
+                    return false;
+                }
             }
         }
         return true;

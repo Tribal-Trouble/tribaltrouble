@@ -32,13 +32,20 @@ public final class ShipTrajectory {
         ShipTrajectoryPoint p0 = new ShipTrajectoryPoint(ship);
         ShipTrajectoryPoint p1 = pickTargetPosition(grid, ship, t);
 
-        var regionPath = findRegionPath(p0, p1);
-
-        if (regionPath != null) {
-            optimizePath(regionPath);
-            trajectory = createTrajectory(regionPath);
+        boolean simple = !checkLandCollision(grid, p0, p1);
+        if (simple) {
+            var path = new ArrayList<ShipTrajectoryPoint>();
+            path.add(p0);
+            path.add(p1);
+            trajectory = createTrajectory(path);
         } else {
-            trajectory = null;
+            var regionPath = findRegionPath(p0, p1);
+            if (regionPath != null) {
+                optimizePath(regionPath);
+                trajectory = createTrajectory(regionPath);
+            } else {
+                trajectory = null;
+            }
         }
     }
 
