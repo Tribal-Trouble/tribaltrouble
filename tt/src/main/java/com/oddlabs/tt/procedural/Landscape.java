@@ -1058,21 +1058,23 @@ public final class Landscape {
             IO.println("Number of iron ore placed: " + iron.count(1f));
         }
 
-        // place extra supplies around starting locations
-        int num_rock = 2;
-        int num_iron = 1;
-        for (int p = 0; p < num_players; p++) {
-            for (int r = 0; r < num_rock; r++) {
-                int[] location = access.find((unit_grids_per_world >> 1), supply_locations[p][0],
-                        supply_locations[p][1], 1f);
-                rock.putPixel(location[0], location[1], 1f);
-                access.putPixel(location[0], location[1], 0f);
-            }
-            for (int i = 0; i < num_iron; i++) {
-                int[] location = access.find((unit_grids_per_world >> 1), supply_locations[p][0],
-                        supply_locations[p][1], 1f);
-                iron.putPixel(location[0], location[1], 1f);
-                access.putPixel(location[0], location[1], 0f);
+        if (!archipelago) {
+            // place extra supplies around starting locations
+            int num_rock = 2;
+            int num_iron = 1;
+            for (int p = 0; p < num_players; p++) {
+                for (int r = 0; r < num_rock; r++) {
+                    int[] location = access.find((unit_grids_per_world >> 1), supply_locations[p][0],
+                            supply_locations[p][1], 1f);
+                    rock.putPixel(location[0], location[1], 1f);
+                    access.putPixel(location[0], location[1], 0f);
+                }
+                for (int i = 0; i < num_iron; i++) {
+                    int[] location = access.find((unit_grids_per_world >> 1), supply_locations[p][0],
+                            supply_locations[p][1], 1f);
+                    iron.putPixel(location[0], location[1], 1f);
+                    access.putPixel(location[0], location[1], 0f);
+                }
             }
         }
 
