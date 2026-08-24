@@ -2,6 +2,7 @@ package com.oddlabs.tt.pathfinder;
 
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.model.Ship;
+import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.DebugRender;
 import com.oddlabs.tt.util.Target;
 
@@ -441,16 +442,19 @@ public final class ShipTrajectory {
         int center_x = (p0.gridX + p1.gridX) / 2;
         int center_y = (p0.gridY + p1.gridY) / 2;
         int radius = (int) StrictMath.round(poly[0].gridDistanceTo(poly[2])) + 10;
-        ShipFinder finder = new ShipFinder(radius, ship);
-        grid.scan(finder, center_x, center_y, UnitGrid.SEA);
-        grid.scan(finder, center_x, center_y, UnitGrid.LAND);
-        for (Ship otherShip : finder.results()) {
-            int dist_dx = ship.getGridX() - otherShip.getGridX();
-            int dist_dy = ship.getGridY() - otherShip.getGridY();
-            if (dist_dx * dist_dx + dist_dy * dist_dy < 14 * 14) {
-                var otherPoly = shipToPolygon(otherShip);
-                if (polygonCollision(poly, otherPoly)) {
-                    return true;
+        int r2 = radius * radius;
+
+        for (Player player : ship.getOwner().getWorld().getPlayers()) {
+            for (var s : player.getUnits().getSet()) {
+                if (s instanceof Ship otherShip && otherShip != ship) {
+                    int dist_dx = center_x - otherShip.getGridX();
+                    int dist_dy = center_y - otherShip.getGridY();
+                    if (dist_dx * dist_dx + dist_dy * dist_dy < r2) {
+                        var otherPoly = shipToPolygon(otherShip);
+                        if (polygonCollision(poly, otherPoly)) {
+                            return true;
+                        }
+                    }
                 }
             }
         }

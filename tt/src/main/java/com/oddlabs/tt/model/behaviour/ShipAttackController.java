@@ -25,7 +25,7 @@ public final class ShipAttackController extends Controller {
         this.ship = ship;
         this.allocation = allocation;
         this.scan_filter = filter;
-        this.ship_attack_behaviour = new ShipAttackBehaviour(this, unit, ship, allocation);
+        this.ship_attack_behaviour = new ShipAttackBehaviour(this, unit, ship, allocation, false);
     }
 
     public final boolean shouldSleep(float t) {

@@ -85,11 +85,10 @@ public final class Landscape {
     private Channel height;
     private Channel slope;
     private Channel water_map;
+    private Channel deep_water_map;
     private Channel dock_map;
     private Channel island_ids;
-    private Channel good_starts;
     private Channel access;
-    private Channel resources_access;
     private Channel access_exported;
     private Channel relheight;
     private Channel highlight;
@@ -263,7 +262,6 @@ public final class Landscape {
         if (DEBUG) {
             island_ids.copy().multiply(1.0f / last_id).toLayer().saveAsPNG("island_ids");
         }
-        good_starts = island_ids.copy().threshold(0.5f, last_id + 1.0f);
 
         this.structures = new GLIntImage[layers.length];
         this.structure_normals = new GLIntImage[layers.length];
@@ -647,7 +645,6 @@ public final class Landscape {
         } else {
             access = generateThresholdMap(slope, access_threshold).largestConnected(1f);
         }
-        resources_access = access.copy();
         access_exported = access.copy();
         if (DEBUG) access.toLayer().saveAsPNG("access");
         build = Landscape.generateBuildMap(generateThresholdMap(slope, build_threshold).channelMultiply(access));
@@ -725,7 +722,6 @@ public final class Landscape {
         } else {
             access = generateThresholdMap(slope, access_threshold).largestConnected(1f);
         }
-        resources_access = access.copy();
         access_exported = access.copy();
         if (DEBUG) access.toLayer().saveAsPNG("access");
         build = Landscape.generateBuildMap(generateThresholdMap(slope, build_threshold).channelMultiply(access));
@@ -1028,30 +1024,30 @@ public final class Landscape {
         if (DEBUG) rock_channel.toLayer().saveAsPNG("supplies_rocks");
         if (DEBUG) iron_channel.toLayer().saveAsPNG("supplies_iron");
 
-        Channel supplies = resources_access.copy();
+        Channel supplies = access.copy();
         float accessible = supplies.sum();
 
         // place trees
         trees = placeSupplies(tree_channel, supplies, 64, (int) (vegetation_amount * max_trees * (accessible / area)),
                 0.33f);
-        resources_access.channelSubtract(trees);
+        access.channelSubtract(trees);
         if (DEBUG) trees.toLayer().saveAsPNG("supplies_trees_placed");
 
         // place palmtrees
         palmtrees = placeSupplies(palmtree_channel, supplies, 64,
                 (int) (vegetation_amount * max_palmtrees * (accessible / area)), 0.25f);
-        resources_access.channelSubtract(palmtrees);
+        access.channelSubtract(palmtrees);
         if (DEBUG) palmtrees.toLayer().saveAsPNG("supplies_palmtrees_placed");
 
         // place rock
         rock = placeSupplies(rock_channel, supplies, 64, (int) (supplies_amount * max_rock), 0f);
-        resources_access.channelSubtract(rock);
+        access.channelSubtract(rock);
         shadow.channelBrightest(rock.copy().multiply(0.5f));
         if (DEBUG) rock.toLayer().saveAsPNG("supplies_rock_placed");
 
         // place iron
         iron = placeSupplies(iron_channel, supplies, 64, (int) (supplies_amount * max_iron), 0f);
-        resources_access.channelSubtract(iron);
+        access.channelSubtract(iron);
         shadow.channelBrightest(iron.copy().multiply(0.5f));
         if (DEBUG) iron.toLayer().saveAsPNG("supplies_iron_placed");
 
@@ -1065,25 +1061,18 @@ public final class Landscape {
         // place extra supplies around starting locations
         int num_rock = 2;
         int num_iron = 1;
-        int num_tree = 4;
         for (int p = 0; p < num_players; p++) {
             for (int r = 0; r < num_rock; r++) {
-                int[] location = resources_access.find((unit_grids_per_world >> 1), supply_locations[p][0],
+                int[] location = access.find((unit_grids_per_world >> 1), supply_locations[p][0],
                         supply_locations[p][1], 1f);
                 rock.putPixel(location[0], location[1], 1f);
-                resources_access.putPixel(location[0], location[1], 0f);
+                access.putPixel(location[0], location[1], 0f);
             }
             for (int i = 0; i < num_iron; i++) {
-                int[] location = resources_access.find((unit_grids_per_world >> 1), supply_locations[p][0],
+                int[] location = access.find((unit_grids_per_world >> 1), supply_locations[p][0],
                         supply_locations[p][1], 1f);
                 iron.putPixel(location[0], location[1], 1f);
-                resources_access.putPixel(location[0], location[1], 0f);
-            }
-            for (int i = 0; i < num_tree; i++) {
-                int[] location = resources_access.find((unit_grids_per_world >> 1), supply_locations[p][0],
-                        supply_locations[p][1], 1f);
-                trees.putPixel(location[0], location[1], 1f);
-                resources_access.putPixel(location[0], location[1], 0f);
+                access.putPixel(location[0], location[1], 0f);
             }
         }
 
@@ -1246,46 +1235,41 @@ public final class Landscape {
             int x = (int) (radius * (float) Math.cos(angle) + (unit_grids_per_world >> 1) + 0.5f);
             int y = (int) (radius * (float) Math.sin(angle) + (unit_grids_per_world >> 1) + 0.5f);
             angle += angle_step;
-            location_quarters = buildmap.findNoWrap((unit_grids_per_world >> 1), x, y, 1f);
-            for (int k = -(RacesResources.QUARTERS_SIZE/* - 1*/); k <= (RacesResources.QUARTERS_SIZE/* - 1*/); k++) {
-                for (int l = -(RacesResources.QUARTERS_SIZE/* - 1*/); l <= (RacesResources.QUARTERS_SIZE/* - 1*/); l++) {
-                    access.putPixelWrap(location_quarters[0] + k, location_quarters[1] + l, 0f);
-                    good_starts.putPixelWrap(location_quarters[0] + k, location_quarters[1] + l, 0f);
-                    buildmap.putPixelWrap(location_quarters[0] + k, location_quarters[1] + l, 0f);
-                }
-            }
-            location_armory = buildmap.find((unit_grids_per_world >> 1), location_quarters[0], location_quarters[1],
-                    1f);
-            for (int k = -(RacesResources.ARMORY_SIZE/* - 1*/); k <= (RacesResources.ARMORY_SIZE/* - 1*/); k++) {
-                for (int l = -(RacesResources.ARMORY_SIZE/* - 1*/); l <= (RacesResources.ARMORY_SIZE/* - 1*/); l++) {
-                    access.putPixelWrap(location_armory[0] + k, location_armory[1] + l, 0f);
-                    good_starts.putPixelWrap(location_armory[0] + k, location_armory[1] + l, 0f);
-                    buildmap.putPixelWrap(location_armory[0] + k, location_armory[1] + l, 0f);
-                }
-            }
-            int[] location_unit_start;
             if (archipelago) {
-                location_unit_start = good_starts.find((unit_grids_per_world >> 1), location_quarters[0],
-                        location_quarters[1], 1f);
+                var loc = deep_water_map.find(unit_grids_per_world >> 1, x, y, 1f);
+                for (int u = 0; u < initial_unit_count; u++) {
+                    player_locations[i][2 * u] = (loc[0] * scale);
+                    player_locations[i][2 * u + 1] = (loc[1] * scale);
+                }
             } else {
+                location_quarters = buildmap.findNoWrap((unit_grids_per_world >> 1), x, y, 1f);
+                for (int k = -(RacesResources.QUARTERS_SIZE/* - 1*/); k <= (RacesResources.QUARTERS_SIZE/* - 1*/); k++) {
+                    for (int l = -(RacesResources.QUARTERS_SIZE/* - 1*/); l <= (RacesResources.QUARTERS_SIZE/* - 1*/); l++) {
+                        access.putPixelWrap(location_quarters[0] + k, location_quarters[1] + l, 0f);
+                        buildmap.putPixelWrap(location_quarters[0] + k, location_quarters[1] + l, 0f);
+                    }
+                }
+                location_armory = buildmap.find((unit_grids_per_world >> 1), location_quarters[0], location_quarters[1],
+                        1f);
+                for (int k = -(RacesResources.ARMORY_SIZE/* - 1*/); k <= (RacesResources.ARMORY_SIZE/* - 1*/); k++) {
+                    for (int l = -(RacesResources.ARMORY_SIZE/* - 1*/); l <= (RacesResources.ARMORY_SIZE/* - 1*/); l++) {
+                        access.putPixelWrap(location_armory[0] + k, location_armory[1] + l, 0f);
+                        buildmap.putPixelWrap(location_armory[0] + k, location_armory[1] + l, 0f);
+                    }
+                }
+                int[] location_unit_start;
                 location_unit_start = access.find((unit_grids_per_world >> 1), location_quarters[0],
                         location_quarters[1], 1f);
-            }
-            supply_locations[i][0] = location_armory[0];
-            supply_locations[i][1] = location_armory[1];
-            int[] location_unit = new int[2];
-            for (int u = 0; u < initial_unit_count; u++) {
-                if (archipelago) {
-                    location_unit = good_starts.find((unit_grids_per_world >> 1), location_unit_start[0],
-                            location_unit_start[1], 1f);
-                } else {
+                supply_locations[i][0] = location_armory[0];
+                supply_locations[i][1] = location_armory[1];
+                int[] location_unit = new int[2];
+                for (int u = 0; u < initial_unit_count; u++) {
                     location_unit = access.find((unit_grids_per_world >> 1), location_unit_start[0],
                             location_unit_start[1], 1f);
+                    access.putPixelWrap(location_unit[0], location_unit[1], 0f);
+                    player_locations[i][2 * u] = (location_unit[0] * scale);
+                    player_locations[i][2 * u + 1] = (location_unit[1] * scale);
                 }
-                access.putPixelWrap(location_unit[0], location_unit[1], 0f);
-                good_starts.putPixelWrap(location_unit[0], location_unit[1], 0f);
-                player_locations[i][2 * u] = (location_unit[0] * scale);
-                player_locations[i][2 * u + 1] = (location_unit[1] * scale);
             }
         }
 
@@ -1323,7 +1307,7 @@ public final class Landscape {
                 Globals.SEA_LEVEL + 0.1f / height_scale);
         dock_map = water_map.copy().smooth(6).threshold(0.0f, 0.99f).channelMultiply(beach).channelMultiply(shore_line);
         Channel near_beach = dock_map.copy().smooth(8);
-        Channel deep_water_map = water_map.copy().smooth(4).threshold(0.99f, 1.0f);
+        deep_water_map = water_map.copy().smooth(4).threshold(0.99f, 1.0f);
         if (DEBUG) deep_water_map.toLayer().saveAsPNG("deep_water");
         if (DEBUG) beach.toLayer().saveAsPNG("beach");
         if (DEBUG) dock_map.toLayer().saveAsPNG("dock_map");

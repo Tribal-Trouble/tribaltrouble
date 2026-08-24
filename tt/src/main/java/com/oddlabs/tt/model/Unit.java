@@ -297,7 +297,6 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     public final void mount(Ship ship, ShipAllocation ship_allocation) {
         assert !isDead();
         mounted_building = ship;
-        mount_offset = ship_allocation.getOffset().z;
         if (!imaginary) {
             disable();
             free();
@@ -733,6 +732,10 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     @Override
     public final float getAnimationTicks() {
         return anim_time;
+    }
+
+    public final void setMountOffset(float offset) {
+        mount_offset = offset;
     }
 
     public final float getMountOffset() {

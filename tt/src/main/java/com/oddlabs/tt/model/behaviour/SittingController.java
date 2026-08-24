@@ -12,7 +12,7 @@ public final class SittingController extends Controller {
     public SittingController(Unit unit, Ship ship, ShipAllocation allocation) {
         super(0);
         this.unit = unit;
-        this.sitting_behaviour = new SittingBehaviour(this, unit, ship, allocation);
+        this.sitting_behaviour = new SittingBehaviour(this, unit, ship, allocation, false);
     }
 
     public final boolean shouldSleep(float t) {

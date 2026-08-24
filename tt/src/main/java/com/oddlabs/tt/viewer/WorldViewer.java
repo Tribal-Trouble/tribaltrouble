@@ -2,6 +2,7 @@ package com.oddlabs.tt.viewer;
 
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.router.SessionID;
+import com.oddlabs.matchmaking.Game;
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.audio.AudioManager;
@@ -21,10 +22,12 @@ import com.oddlabs.tt.landscape.LandscapeResources;
 import com.oddlabs.tt.landscape.NotificationListener;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.landscape.WorldParameters;
+import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.net.DistributableTable;
 import com.oddlabs.tt.net.PeerHub;
 import com.oddlabs.tt.net.PlayerSlot;
@@ -232,22 +235,42 @@ public final class WorldViewer implements Animated, AutoCloseable {
             player.setAI(ai);
         } else {
             player.setPreferredGamespeed(initial_gamespeed);
+            boolean archipelago = world_params.getMapSize() == Game.SIZE_ARCHIPELAGO;
+            Ship ship = null;
+            if (archipelago) {
+                int x = UnitGrid.toGridCoordinate(starting_location[0]);
+                int y = UnitGrid.toGridCoordinate(starting_location[1]);
+                ship = new Ship(player, player.getRace().getBuildingTemplate(Race.BUILDING_SHIP), x, y);
+                ship.instantBuild();
+            }
             int i = 0;
             for (int j = 0; j < unit_info.numPeons(); j++, i++) {
-                new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null,
+                Unit unit = new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null,
                         player.getRace().getUnitTemplate(Race.UNIT_PEON));
+                if (ship != null) {
+                    ship.getUnitContainer().enter(unit);
+                }
             }
             for (int j = 0; j < unit_info.numRockWarriors(); j++, i++) {
-                new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null,
+                Unit unit = new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null,
                         player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
+                if (ship != null) {
+                    ship.getUnitContainer().enter(unit);
+                }
             }
             for (int j = 0; j < unit_info.numIronWarriors(); j++, i++) {
-                new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null,
+                Unit unit = new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null,
                         player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
+                if (ship != null) {
+                    ship.getUnitContainer().enter(unit);
+                }
             }
             for (int j = 0; j < unit_info.numRubberWarriors(); j++, i++) {
-                new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null,
+                Unit unit = new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null,
                         player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
+                if (ship != null) {
+                    ship.getUnitContainer().enter(unit);
+                }
             }
             if (unit_info.hasChieftain()) {
                 Unit chieftain;

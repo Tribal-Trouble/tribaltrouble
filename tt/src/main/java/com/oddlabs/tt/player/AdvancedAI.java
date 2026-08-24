@@ -1,6 +1,5 @@
 package com.oddlabs.tt.player;
 
-import com.oddlabs.matchmaking.Game;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Action;
@@ -20,6 +19,7 @@ import com.oddlabs.tt.model.weapon.RockSpearWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberSpearWeapon;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
+import com.oddlabs.tt.landscape.IslandInfo;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -92,10 +92,14 @@ public final class AdvancedAI extends AI {
             nodeGuardTowers(1);
 
         if (isArchipelago()) {
-            reclassify();
-            if (baseBuildingsDone())
-                nodeBuildShipAndLoad();
-            nodeUseShip();
+            if (hasFoundIsland()) {
+                reclassify();
+                if (baseBuildingsDone())
+                    nodeBuildShipAndLoad();
+                nodeUseShip();
+            } else {
+                nodePickIsland();
+            }
         }
 
         reclassify();
@@ -482,10 +486,6 @@ public final class AdvancedAI extends AI {
         }
     }
 
-    private boolean isArchipelago() {
-        return getOwner().getWorld().getMapSize() == Game.SIZE_ARCHIPELAGO;
-    }
-
     private boolean baseBuildingsDone() {
         return getQuarters() != null && getArmory() != null
                 && !quartersUnderConstruction() && !armoryUnderConstruction() && !towerUnderConstruction();
@@ -511,6 +511,67 @@ public final class AdvancedAI extends AI {
                 ships.add(ship);
         }
         return ships;
+    }
+
+    private void nodePickIsland() {
+        Ship ship = getInitShip();
+        if (ship == null) {
+            return;
+        }
+        if (ship.getEntrance() == ship) {
+            if (!ship.isMoving()) {
+                var islands = getOwner().getWorld().getHeightMap().getIslandInfos();
+                IslandInfo best = null;
+                int best_d2 = 1000;
+                int contact_x = 0;
+                int contact_y = 0;
+                for (int i = 0; i < islands.size(); i++) {
+                    var island = islands.get(i);
+                    if (island.trees() > 25 && island.rocks() > 10 && island.iron() > 10) {
+                        int[] cxs = new int[8];
+                        int[] cys = new int[8];
+                        cxs[0] = island.minX();
+                        cys[0] = island.minY();
+                        cxs[1] = island.minX();
+                        cys[1] = island.centerY();
+                        cxs[2] = island.minX();
+                        cys[2] = island.maxY();
+                        cxs[3] = island.centerX();
+                        cys[3] = island.minY();
+                        cxs[4] = island.centerX();
+                        cys[4] = island.maxY();
+                        cxs[5] = island.maxX();
+                        cys[5] = island.minY();
+                        cxs[6] = island.maxX();
+                        cys[6] = island.centerY();
+                        cxs[7] = island.maxX();
+                        cys[7] = island.maxY();
+                        for (int j = 0; j < 8; j++) {
+                            int dx = cxs[j] - ship.getGridX();
+                            int dy = cys[j] - ship.getGridY();
+                            int d2 = dx * dx + dy * dy;
+                            if (best == null || d2 < best_d2) {
+                                best = island;
+                                best_d2 = d2;
+                                contact_x = cxs[j];
+                                contact_y = cys[j];
+                            }
+                        }
+                    }
+                }
+                if (best != null) {
+                    getOwner().setSailingTarget(Selectable.newArray(ship), (best.centerX() + contact_x) / 2,
+                            (best.centerY() + contact_y) / 2);
+                }
+            }
+            return;
+        }
+
+        if (ship.getShipHR().countUnits() > 0) {
+            getOwner().deployUnits(ship, DeployType.PEON, ship.getShipHR().countPeons());
+        } else {
+            setFoundIsland();
+        }
     }
 
     private void nodeUseShip() {
@@ -684,6 +745,14 @@ public final class AdvancedAI extends AI {
                         && controller.getBuilding() instanceof Ship ship && !ship.isDead())
                     return ship;
             }
+        }
+        return null;
+    }
+
+    private @Nullable Ship getInitShip() {
+        for (Selectable<?> s : getOwner().getUnits().getSet()) {
+            if (s instanceof Ship ship && !ship.isDead() && !shipIncomplete(ship))
+                return ship;
         }
         return null;
     }

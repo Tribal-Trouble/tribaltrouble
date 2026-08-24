@@ -634,6 +634,18 @@ public class Ship extends Building implements Movable {
         occupy();
     }
 
+    public final void instantBuild() {
+        setLayer(UnitGrid.SEA);
+        register();
+        occupy();
+        int result = getOwner().getBuildingCountContainer().increaseSupply(1);
+        assert (result == 1) : "Too many buildings";
+        reinsert();
+        build_points = 1;
+        repair(getTemplate().getMaxHitPoints());
+        slid = true;
+    }
+
     public final void place() {
         assert !isDead();
         assert isPlacingLegal();
