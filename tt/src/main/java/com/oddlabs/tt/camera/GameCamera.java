@@ -106,6 +106,18 @@ public final class GameCamera extends Camera {
         return Globals.cinematic_camera ? Settings.getSettings().cinematic_camera_speed : 1f;
     }
 
+    static float panSpeedFactor() {
+        return Settings.getSettings().camera_pan_speed * cinematicSpeedFactor();
+    }
+
+    static float rotateSpeedFactor() {
+        return Settings.getSettings().camera_rotate_speed * cinematicSpeedFactor();
+    }
+
+    static float zoomSpeedFactor() {
+        return Settings.getSettings().camera_zoom_speed * cinematicSpeedFactor();
+    }
+
     private static boolean limitsUnlocked() {
         return Globals.cinematic_camera && Settings.getSettings().cinematic_unlock_limits;
     }
@@ -147,7 +159,7 @@ public final class GameCamera extends Camera {
     private void doOrbit(float time_delta) {
         if (orbit_direction == 0)
             return;
-        float da = orbit_direction * time_delta * ORBIT_SPEED * cinematicSpeedFactor();
+        float da = orbit_direction * time_delta * ORBIT_SPEED * rotateSpeedFactor();
         if (Settings.getSettings().invert_camera_yaw) {
             da *= -1;
         }
@@ -164,7 +176,7 @@ public final class GameCamera extends Camera {
     private void doAutoPan(float time_delta) {
         if (auto_pan_direction == 0)
             return;
-        float distance = auto_pan_direction * time_delta * AUTO_PAN_SPEED * cinematicSpeedFactor();
+        float distance = auto_pan_direction * time_delta * AUTO_PAN_SPEED * panSpeedFactor();
         getState().setTargetX(getState().getTargetX() + (float) Math.cos(getState().getTargetHorizAngle()) * distance);
         getState().setTargetY(getState().getTargetY() + (float) Math.sin(getState().getTargetHorizAngle()) * distance);
         checkPosition();
@@ -218,7 +230,7 @@ public final class GameCamera extends Camera {
     }
 
     private void doZoom(float time_delta) {
-        zoom(zoom_time * time_delta * ZOOM_SPEED * cinematicSpeedFactor() * getState().getTargetZ());
+        zoom(zoom_time * time_delta * ZOOM_SPEED * zoomSpeedFactor() * getState().getTargetZ());
         if (zoom_time < 0f)
             zoom_time = Math.min(0f, zoom_time + time_delta);
         else if (zoom_time > 0f)
@@ -274,7 +286,7 @@ public final class GameCamera extends Camera {
             return;
         var inputManager = Renderer.getLocalInput().getInputManager();
         float scroll_speed = scroll_start_speed * (.4f + (scroll_acceleration_seconds / SCROLL_ACCELERATION_SECONDS_MAX) * SCROLL_ACCELERATION_FACTOR);
-        float scroll_factor = time_delta * scroll_speed * cinematicSpeedFactor();
+        float scroll_factor = time_delta * scroll_speed * panSpeedFactor();
         boolean blocked = viewer.getGUIRoot().getDelegate().keyboardBlocked();
 
         scrolling_x = inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !inputManager.isActive(
@@ -300,7 +312,7 @@ public final class GameCamera extends Camera {
     private void doPitch(float time_delta) {
         checkKeys();
         if (pitch_up != pitch_down) {
-            float da = (pitch_up ? time_delta : -time_delta) * ANGLE_DELTA * cinematicSpeedFactor();
+            float da = (pitch_up ? time_delta : -time_delta) * ANGLE_DELTA * rotateSpeedFactor();
             if (Settings.getSettings().invert_camera_pitch) {
                 da *= -1;
             }
@@ -312,7 +324,7 @@ public final class GameCamera extends Camera {
     private void doRotate(float time_delta) {
         checkKeys();
         if (rotate_left != rotate_right) {
-            float da = (rotate_left ? time_delta : -time_delta) * ANGLE_DELTA * cinematicSpeedFactor();
+            float da = (rotate_left ? time_delta : -time_delta) * ANGLE_DELTA * rotateSpeedFactor();
             if (Settings.getSettings().invert_camera_yaw) {
                 da *= -1;
             }

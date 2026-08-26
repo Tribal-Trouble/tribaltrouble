@@ -75,6 +75,9 @@ public final class Settings implements Serializable {
     public boolean invert_camera_yaw = false;
     public boolean aggressive_units = false;
     public boolean show_compass = true;
+    public float camera_pan_speed = 1f;
+    public float camera_rotate_speed = 1f;
+    public float camera_zoom_speed = 1f;
     public float cinematic_camera_speed = .4f;
     public boolean cinematic_unlock_limits = true;
     public boolean confine_cursor = true;
@@ -230,6 +233,9 @@ public final class Settings implements Serializable {
         setProperty(props, "invert_camera_yaw", invert_camera_yaw, defaults.invert_camera_yaw);
         setProperty(props, "aggressive_units", aggressive_units, defaults.aggressive_units);
         setProperty(props, "show_compass", show_compass, defaults.show_compass);
+        setProperty(props, "camera_pan_speed", camera_pan_speed, defaults.camera_pan_speed);
+        setProperty(props, "camera_rotate_speed", camera_rotate_speed, defaults.camera_rotate_speed);
+        setProperty(props, "camera_zoom_speed", camera_zoom_speed, defaults.camera_zoom_speed);
         setProperty(props, "cinematic_camera_speed", cinematic_camera_speed, defaults.cinematic_camera_speed);
         setProperty(props, "cinematic_unlock_limits", cinematic_unlock_limits, defaults.cinematic_unlock_limits);
         setProperty(props, "confine_cursor", confine_cursor, defaults.confine_cursor);
@@ -298,6 +304,9 @@ public final class Settings implements Serializable {
         invert_camera_yaw = getBoolean(props, "invert_camera_yaw", invert_camera_yaw);
         aggressive_units = getBoolean(props, "aggressive_units", aggressive_units);
         show_compass = getBoolean(props, "show_compass", show_compass);
+        camera_pan_speed = getFloat(props, "camera_pan_speed", camera_pan_speed);
+        camera_rotate_speed = getFloat(props, "camera_rotate_speed", camera_rotate_speed);
+        camera_zoom_speed = getFloat(props, "camera_zoom_speed", camera_zoom_speed);
         cinematic_camera_speed = getFloat(props, "cinematic_camera_speed", cinematic_camera_speed);
         cinematic_unlock_limits = getBoolean(props, "cinematic_unlock_limits", cinematic_unlock_limits);
         confine_cursor = getBoolean(props, "confine_cursor", confine_cursor);

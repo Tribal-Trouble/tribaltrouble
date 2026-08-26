@@ -31,21 +31,6 @@ public class GeneralPanel extends Panel {
     public GeneralPanel(@NonNull GUIRoot gui_root, @NonNull IntConsumer onGamespeedChange) {
         super(AbstractOptionsMenu.i18n("general_settings_caption"));
 
-        // Invert camera
-        Group group_invert_camera = new Group();
-        addChild(group_invert_camera);
-        CheckBox cb_invert_camera = new CheckBox(Settings.getSettings().invert_camera_pitch, AbstractOptionsMenu.i18n(
-                "invert_camera_pitch"), AbstractOptionsMenu.i18n("invert_camera_pitch_tip"));
-        cb_invert_camera.addCheckBoxListener(marked -> Settings.getSettings().invert_camera_pitch = marked);
-        group_invert_camera.addChild(cb_invert_camera);
-        CheckBox cb_invert_camera_yaw = new CheckBox(Settings.getSettings().invert_camera_yaw, AbstractOptionsMenu.i18n(
-                "invert_camera_yaw"), AbstractOptionsMenu.i18n("invert_camera_yaw_tip"));
-        cb_invert_camera_yaw.addCheckBoxListener(marked -> Settings.getSettings().invert_camera_yaw = marked);
-        group_invert_camera.addChild(cb_invert_camera_yaw);
-        cb_invert_camera.place();
-        cb_invert_camera_yaw.place(cb_invert_camera, BOTTOM_LEFT);
-        group_invert_camera.compileCanvas();
-
         // Aggressive units
         Group group_aggressive_units = new Group();
         addChild(group_aggressive_units);
@@ -128,33 +113,6 @@ public class GeneralPanel extends Panel {
         cb_show_compass.place();
         group_show_compass.compileCanvas();
 
-        // Cinematic camera
-        Group group_cinematic = new Group();
-        addChild(group_cinematic);
-        Label label_cinematic_headline = new Label(AbstractOptionsMenu.i18n("cinematic_camera_speed"),
-                Skin.getSkin().getEditFont());
-        group_cinematic.addChild(label_cinematic_headline);
-        Label label_cinematic_slow = new Label(AbstractOptionsMenu.i18n("speed_slow"), Skin.getSkin().getEditFont());
-        group_cinematic.addChild(label_cinematic_slow);
-        Label label_cinematic_fast = new Label(AbstractOptionsMenu.i18n("speed_fast"), Skin.getSkin().getEditFont());
-        group_cinematic.addChild(label_cinematic_fast);
-        Slider slider_cinematic = new Slider(SLIDER_WIDTH, 1, MAX_VALUE,
-                Math.round(Settings.getSettings().cinematic_camera_speed * MAX_VALUE));
-        group_cinematic.addChild(slider_cinematic);
-        slider_cinematic.addValueListener(
-                value -> Settings.getSettings().cinematic_camera_speed = (float) value / MAX_VALUE);
-        CheckBox cb_unlock_limits = new CheckBox(Settings.getSettings().cinematic_unlock_limits,
-                AbstractOptionsMenu.i18n("cinematic_unlock_limits"),
-                AbstractOptionsMenu.i18n("cinematic_unlock_limits_tip"));
-        cb_unlock_limits.addCheckBoxListener(marked -> Settings.getSettings().cinematic_unlock_limits = marked);
-        group_cinematic.addChild(cb_unlock_limits);
-        label_cinematic_headline.place();
-        label_cinematic_slow.place(label_cinematic_headline, BOTTOM_LEFT);
-        slider_cinematic.place(label_cinematic_slow, RIGHT_MID);
-        label_cinematic_fast.place(slider_cinematic, RIGHT_MID);
-        cb_unlock_limits.place(label_cinematic_slow, BOTTOM_LEFT);
-        group_cinematic.compileCanvas();
-
         // Multiplayer domain
         Group group_domain = new Group();
         addChild(group_domain);
@@ -192,11 +150,9 @@ public class GeneralPanel extends Panel {
         group_gamespeed.place();
         group_mapmode.place(group_gamespeed, BOTTOM_LEFT);
         group_tooltip.place(group_mapmode, BOTTOM_LEFT);
-        group_invert_camera.place(group_tooltip, BOTTOM_LEFT);
-        group_aggressive_units.place(group_invert_camera, BOTTOM_LEFT);
+        group_aggressive_units.place(group_tooltip, BOTTOM_LEFT);
         group_show_compass.place(group_aggressive_units, BOTTOM_LEFT);
-        group_cinematic.place(group_show_compass, BOTTOM_LEFT);
-        group_domain.place(group_cinematic, BOTTOM_LEFT);
+        group_domain.place(group_show_compass, BOTTOM_LEFT);
         compileCanvas();
     }
 
