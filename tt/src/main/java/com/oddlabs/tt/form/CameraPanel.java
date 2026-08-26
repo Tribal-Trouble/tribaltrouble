@@ -20,7 +20,7 @@ public class CameraPanel extends Panel {
         super(AbstractOptionsMenu.i18n("camera_caption"));
 
         // Pan speed
-        Slider slider_pan = new Slider(SLIDER_WIDTH, MAX_VALUE / 4, 2 * MAX_VALUE,
+        Slider slider_pan = new Slider(SLIDER_WIDTH, MAX_VALUE / 4, MAX_VALUE * 7 / 4,
                 Math.round(Settings.getSettings().camera_pan_speed * MAX_VALUE));
         slider_pan.addValueListener(value -> Settings.getSettings().camera_pan_speed = (float) value / MAX_VALUE);
         Group group_pan = speedGroup("camera_pan_speed", slider_pan);
@@ -37,13 +37,13 @@ public class CameraPanel extends Panel {
         group_pan_accel.compileCanvas();
 
         // Rotate speed
-        Slider slider_rotate = new Slider(SLIDER_WIDTH, MAX_VALUE / 4, 2 * MAX_VALUE,
+        Slider slider_rotate = new Slider(SLIDER_WIDTH, MAX_VALUE / 4, MAX_VALUE * 7 / 4,
                 Math.round(Settings.getSettings().camera_rotate_speed * MAX_VALUE));
         slider_rotate.addValueListener(value -> Settings.getSettings().camera_rotate_speed = (float) value / MAX_VALUE);
         Group group_rotate = speedGroup("camera_rotate_speed", slider_rotate);
 
         // Zoom speed
-        Slider slider_zoom = new Slider(SLIDER_WIDTH, MAX_VALUE / 4, 2 * MAX_VALUE,
+        Slider slider_zoom = new Slider(SLIDER_WIDTH, MAX_VALUE / 4, MAX_VALUE * 7 / 4,
                 Math.round(Settings.getSettings().camera_zoom_speed * MAX_VALUE));
         slider_zoom.addValueListener(value -> Settings.getSettings().camera_zoom_speed = (float) value / MAX_VALUE);
         Group group_zoom = speedGroup("camera_zoom_speed", slider_zoom);
