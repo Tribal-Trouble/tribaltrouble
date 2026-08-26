@@ -8,9 +8,11 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.resource.CursorFile;
+import com.oddlabs.tt.resource.GLIntImage;
 import com.oddlabs.tt.resource.Resources;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -38,6 +40,7 @@ public final class PointerInput {
         cursors.put(CursorType.TEXT, Resources.findResource(new CursorFile("/textures/gui/pointer_text_32_8.png", 6,
                 11)));
         cursors.put(CursorType.DEBUG, debug_cursor);
+        cursors.put(CursorType.HIDDEN, new Cursor(new GLIntImage(1, 1, GL11.GL_RGBA), 0, 0));
         cursors.put(CursorType.NULL, Cursor.NULL_CURSOR);
     }
 

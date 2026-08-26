@@ -368,7 +368,14 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     @Override
     protected @NonNull CursorType getCursorType() {
+        if (!Globals.draw_hud)
+            return CursorType.HIDDEN;
         return map_mode ? CursorType.TARGET : CursorType.NORMAL;
+    }
+
+    @Override
+    public boolean renderCursor() {
+        return Globals.draw_hud;
     }
 
     public void exitMapMode() {
@@ -574,6 +581,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     private void setHUDVisible(boolean visible) {
         Globals.draw_hud = visible;
+        Renderer.getLocalInput().getPointerInput().setActiveCursor(getCursorType());
         if (map_mode)
             return;
         GUIObject hud = observer ? observer_label : getActionButtonPanel();
