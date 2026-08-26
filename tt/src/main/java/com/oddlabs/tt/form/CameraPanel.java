@@ -25,6 +25,17 @@ public class CameraPanel extends Panel {
         slider_pan.addValueListener(value -> Settings.getSettings().camera_pan_speed = (float) value / MAX_VALUE);
         Group group_pan = speedGroup("camera_pan_speed", slider_pan);
 
+        // Pan acceleration
+        Group group_pan_accel = new Group();
+        addChild(group_pan_accel);
+        CheckBox cb_pan_accel = new CheckBox(Settings.getSettings().camera_pan_acceleration,
+                AbstractOptionsMenu.i18n("camera_pan_acceleration"),
+                AbstractOptionsMenu.i18n("camera_pan_acceleration_tip"));
+        cb_pan_accel.addCheckBoxListener(marked -> Settings.getSettings().camera_pan_acceleration = marked);
+        group_pan_accel.addChild(cb_pan_accel);
+        cb_pan_accel.place();
+        group_pan_accel.compileCanvas();
+
         // Rotate speed
         Slider slider_rotate = new Slider(SLIDER_WIDTH, MAX_VALUE / 4, 2 * MAX_VALUE,
                 Math.round(Settings.getSettings().camera_rotate_speed * MAX_VALUE));
@@ -72,7 +83,8 @@ public class CameraPanel extends Panel {
 
         // Placement
         group_pan.place();
-        group_rotate.place(group_pan, BOTTOM_LEFT);
+        group_pan_accel.place(group_pan, BOTTOM_LEFT);
+        group_rotate.place(group_pan_accel, BOTTOM_LEFT);
         group_zoom.place(group_rotate, BOTTOM_LEFT);
         group_cinematic.place(group_zoom, BOTTOM_LEFT);
         group_limits.place(group_cinematic, BOTTOM_LEFT);

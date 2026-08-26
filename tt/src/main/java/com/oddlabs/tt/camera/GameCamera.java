@@ -285,7 +285,8 @@ public final class GameCamera extends Camera {
         if (!viewer.getGUIRoot().getDelegate().canScroll())
             return;
         var inputManager = Renderer.getLocalInput().getInputManager();
-        float scroll_speed = scroll_start_speed * (.4f + (scroll_acceleration_seconds / SCROLL_ACCELERATION_SECONDS_MAX) * SCROLL_ACCELERATION_FACTOR);
+        float acceleration = Settings.getSettings().camera_pan_acceleration ? scroll_acceleration_seconds / SCROLL_ACCELERATION_SECONDS_MAX : 1f;
+        float scroll_speed = scroll_start_speed * (.4f + acceleration * SCROLL_ACCELERATION_FACTOR);
         float scroll_factor = time_delta * scroll_speed * panSpeedFactor();
         boolean blocked = viewer.getGUIRoot().getDelegate().keyboardBlocked();
 

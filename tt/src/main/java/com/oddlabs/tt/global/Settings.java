@@ -76,6 +76,7 @@ public final class Settings implements Serializable {
     public boolean aggressive_units = false;
     public boolean show_compass = true;
     public float camera_pan_speed = 1f;
+    public boolean camera_pan_acceleration = true;
     public float camera_rotate_speed = 1f;
     public float camera_zoom_speed = 1f;
     public float cinematic_camera_speed = .4f;
@@ -234,6 +235,7 @@ public final class Settings implements Serializable {
         setProperty(props, "aggressive_units", aggressive_units, defaults.aggressive_units);
         setProperty(props, "show_compass", show_compass, defaults.show_compass);
         setProperty(props, "camera_pan_speed", camera_pan_speed, defaults.camera_pan_speed);
+        setProperty(props, "camera_pan_acceleration", camera_pan_acceleration, defaults.camera_pan_acceleration);
         setProperty(props, "camera_rotate_speed", camera_rotate_speed, defaults.camera_rotate_speed);
         setProperty(props, "camera_zoom_speed", camera_zoom_speed, defaults.camera_zoom_speed);
         setProperty(props, "cinematic_camera_speed", cinematic_camera_speed, defaults.cinematic_camera_speed);
@@ -305,6 +307,7 @@ public final class Settings implements Serializable {
         aggressive_units = getBoolean(props, "aggressive_units", aggressive_units);
         show_compass = getBoolean(props, "show_compass", show_compass);
         camera_pan_speed = getFloat(props, "camera_pan_speed", camera_pan_speed);
+        camera_pan_acceleration = getBoolean(props, "camera_pan_acceleration", camera_pan_acceleration);
         camera_rotate_speed = getFloat(props, "camera_rotate_speed", camera_rotate_speed);
         camera_zoom_speed = getFloat(props, "camera_zoom_speed", camera_zoom_speed);
         cinematic_camera_speed = getFloat(props, "cinematic_camera_speed", cinematic_camera_speed);
