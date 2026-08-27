@@ -2,7 +2,7 @@ name: Sync Translations
 
 on:
   push:
-    branches: [ "main", "translations-sheet-sync" ]
+    branches: [ "main" ]
     paths:
       - 'tt/src/main/resources/**/*.properties'
       - 'tt/translations-baseline.csv'
