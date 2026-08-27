@@ -3,6 +3,8 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.Font;
 import org.jspecify.annotations.NonNull;
 
+// Prefer NumericLabel instead
+
 public final class IntegerLabel extends Label {
     private final int val;
 

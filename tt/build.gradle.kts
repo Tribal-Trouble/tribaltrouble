@@ -45,6 +45,8 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.addAll(listOf("--add-reads", "com.oddlabs.tt=ALL-UNNAMED"))
 }
 
+apply(from = "translations.gradle.kts")
+
 // --- Revision ---
 
 val revision = tasks.register("revision") {

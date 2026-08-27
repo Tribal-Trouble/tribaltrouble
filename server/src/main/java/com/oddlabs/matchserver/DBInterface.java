@@ -1,10 +1,23 @@
 package com.oddlabs.matchserver;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.GamePlayer;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.Login;
 import com.oddlabs.matchmaking.LoginDetails;
+import com.oddlabs.matchmaking.OpenSkillLeaderboardRankingEntry;
+import com.oddlabs.matchmaking.OpenSkillRating;
 import com.oddlabs.matchmaking.Participant;
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.matchmaking.RankingEntry;
@@ -14,14 +27,6 @@ import com.oddlabs.matchserver.models.VersusMatchupModel;
 import com.oddlabs.matchserver.models.VersusMatchupResultModel;
 import com.oddlabs.util.CryptUtils;
 import com.oddlabs.util.DBUtils;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 public final class DBInterface {
 
@@ -169,6 +174,64 @@ public final class DBInterface {
         }
     }
 
+    /**
+     * Returns [word, match_type] rows from banned_words. Fails open (empty list) so a missing or
+     * broken table degrades to no filtering instead of blocking logins and profile creation.
+     */
+    public static List<String[]> getBannedWords() {
+        List<String[]> words = new ArrayList<>();
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT word, match_type FROM banned_words")) {
+            try (ResultSet result = stmt.executeQuery()) {
+                while (result.next()) {
+                    words.add(new String[]{result.getString("word"), result.getString("match_type")});
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Exception: " + e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getBannedWords", e);
+        }
+        return words;
+    }
+
+    public static boolean addBannedWord(String word, String match_type) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "INSERT IGNORE INTO banned_words (word, match_type) VALUES (?, ?)")) {
+            stmt.setString(1, word);
+            stmt.setString(2, match_type);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Exception: " + e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "addBannedWord", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean removeBannedWord(String word) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "DELETE FROM banned_words WHERE word = ?")) {
+            stmt.setString(1, word);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Exception: " + e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "removeBannedWord", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean setBannedByNick(String nick, boolean banned) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE registrations R INNER JOIN profiles P ON P.reg_id = R.id SET" + " R.banned = ? WHERE lower(P.nick) = lower(?)")) {
+            stmt.setBoolean(1, banned);
+            stmt.setString(2, nick);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Exception: " + e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "setBannedByNick", e);
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void saveGameReport(int game_id, int tick, int[] team_score) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
                 "INSERT INTO game_report_teams (game_id, tick, team_index, score) VALUES (?, ?, ?, ?)")) {
@@ -217,6 +280,7 @@ public final class DBInterface {
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "createProfile", e);
             throw new RuntimeException(e);
         }
+        createOpenSkillRating(nick);
     }
 
     public static void deleteProfile(String username, String nick) {
@@ -247,6 +311,7 @@ public final class DBInterface {
                 System.out.println("Exception: " + e);
                 MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "deleteProfile DELETE", e);
             }
+            deleteOpenSkillRating(nick);
         }
     }
 
@@ -527,9 +592,159 @@ public final class DBInterface {
         }
     }
 
-    public static void createGame(Game game, String nick) {
+    //region OpenSkill
+
+    @NullMarked
+    public static @Nullable OpenSkillRating getOpenSkillRating(String nick) throws SQLException {
+        try (
+             Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT mu, sigma FROM openskill_rating WHERE nick = ?");
+        ) {
+            stmt.setString(1, nick);
+            try (ResultSet result = stmt.executeQuery()) {
+                if (result.next()) {
+                    var mu = result.getDouble("mu");
+                    var sigma = result.getDouble("sigma");
+                    return new OpenSkillRating(nick, mu, sigma);
+                }
+            }
+        }
+        return null;
+    }
+
+    @NullMarked
+    public static void upsertOpenSkillRating(OpenSkillRating rating) throws SQLException {
+        try (
+             Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                     "INSERT INTO openskill_rating (nick, mu, sigma) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE mu = VALUES(mu), sigma = VALUES(sigma)");
+        ) {
+            stmt.setString(1, rating.nick());
+            stmt.setDouble(2, rating.mu());
+            stmt.setDouble(3, rating.sigma());
+            stmt.executeUpdate();
+        }
+    }
+
+    @NullMarked
+    private static void createOpenSkillRating(String nick) {
+        try {
+            upsertOpenSkillRating(new OpenSkillRating(nick, OpenSkillRatingSystem.INITIAL_MU,
+                    OpenSkillRatingSystem.INITIAL_SIGMA));
+        } catch (SQLException e) {
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "seedOpenSkillRating", e);
+        }
+    }
+
+    @NullMarked
+    private static void deleteOpenSkillRating(String nick) {
+        try (
+             Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                     "DELETE FROM openskill_rating WHERE nick = ?");
+        ) {
+            stmt.setString(1, nick);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "deleteOpenSkillRating", e);
+        }
+    }
+
+    /**
+     * Returns the top {@code n} OpenSkill players ordered by display rating
+     * ({@code SCALING_FACTOR*(mu - sigma)}). Players who have never played a game (sigma still at
+     * the default value) are excluded; players who have played but whose skill is still uncertain
+     * (sigma above the provisional threshold) are included and marked provisional so the client
+     * can show a {@code ?} next to their rating. Players tied on rating share the same rank.
+     */
+    @NullMarked
+    public static OpenSkillLeaderboardRankingEntry[] getTopOpenSkillRankingEntries(int n) {
+        try (
+             Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                     """
+                             SELECT
+                                 nick,
+                                 mu,
+                                 sigma,
+                                 RANK() OVER (ORDER BY ? * (mu - sigma) DESC) AS `rank`
+                             FROM openskill_rating
+                             WHERE sigma < ?
+                             ORDER BY ? * (mu - sigma) DESC
+                             LIMIT ?
+                             """
+             );
+        ) {
+            stmt.setDouble(1, OpenSkillRatingSystem.SCALING_FACTOR);
+            stmt.setDouble(2, OpenSkillRatingSystem.INITIAL_SIGMA);
+            stmt.setDouble(3, OpenSkillRatingSystem.SCALING_FACTOR);
+            stmt.setInt(4, n);
+            try (ResultSet result = stmt.executeQuery()) {
+                List<OpenSkillLeaderboardRankingEntry> rankings = new ArrayList<>();
+                while (result.next()) {
+                    String nick = result.getString("nick");
+                    double mu = result.getDouble("mu");
+                    double sigma = result.getDouble("sigma");
+                    int rank = result.getInt("rank");
+                    int rating = OpenSkillRatingSystem.displayRating(mu, sigma);
+                    boolean provisional = OpenSkillRatingSystem.isProvisional(sigma);
+                    rankings.add(new OpenSkillLeaderboardRankingEntry(rank, nick, rating, provisional, mu, sigma));
+                }
+                return rankings.toArray(OpenSkillLeaderboardRankingEntry[]::new);
+            }
+        } catch (SQLException e) {
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getTopOpenSkillRankingEntries", e);
+            return new OpenSkillLeaderboardRankingEntry[0];
+        }
+    }
+
+    /**
+     * Returns the OpenSkill leaderboard entry for a single nick, with the rank computed against
+     * the same ranking population and ordering as {@link #getTopOpenSkillRankingEntries}
+     * (players who have never played a game are unranked). Returns {@code null} if the nick has
+     * no OpenSkill rating row or is unranked.
+     */
+    @NullMarked
+    public static @Nullable OpenSkillLeaderboardRankingEntry getOpenSkillRankingEntry(String nick) {
+        try (
+             Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                     """
+                             WITH t AS (
+                                 SELECT
+                                     nick,
+                                     mu,
+                                     sigma,
+                                     RANK() OVER (ORDER BY ? * (mu - sigma) DESC) AS `rank`
+                                 FROM openskill_rating
+                                 WHERE sigma < ?
+                             )
+                             SELECT mu, sigma, `rank`
+                             FROM t
+                             WHERE nick = ?
+                             """
+             );
+        ) {
+            stmt.setDouble(1, OpenSkillRatingSystem.SCALING_FACTOR);
+            stmt.setDouble(2, OpenSkillRatingSystem.INITIAL_SIGMA);
+            stmt.setString(3, nick);
+            try (ResultSet result = stmt.executeQuery()) {
+                if (result.next()) {
+                    double mu = result.getDouble("mu");
+                    double sigma = result.getDouble("sigma");
+                    int rank = result.getInt("rank");
+                    int rating = OpenSkillRatingSystem.displayRating(mu, sigma);
+                    boolean provisional = OpenSkillRatingSystem.isProvisional(sigma);
+                    return new OpenSkillLeaderboardRankingEntry(rank, nick, rating, provisional, mu, sigma);
+                }
+            }
+        } catch (SQLException e) {
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getOpenSkillRankingEntry", e);
+        }
+        return null;
+    }
+
+    //endregion
+
+    public static void createGame(Game game, String nick, int sim_version) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "INSERT INTO games (time_create, name, rated, speed, size, hills," + " trees, resources, mapcode, status) VALUES (?, ?, ?, ?, ?, ?, ?," + " ?, ?, ?)",
+                "INSERT INTO games (time_create, name, rated, speed, size, hills," + " trees, resources, mapcode, status, sim_version) VALUES (?, ?, ?, ?, ?, ?, ?," + " ?, ?, ?, ?)",
                 java.sql.Statement.RETURN_GENERATED_KEYS)) {
             stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
             stmt.setString(2, game.getName());
@@ -541,6 +756,7 @@ public final class DBInterface {
             stmt.setInt(8, game.getSupplies());
             stmt.setString(9, game.getMapcode());
             stmt.setString(10, "created");
+            stmt.setInt(11, sim_version);
 
             stmt.executeUpdate();
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {

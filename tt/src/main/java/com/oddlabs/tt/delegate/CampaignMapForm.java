@@ -85,7 +85,9 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
                             campaign.getIcons().getFaces()[0],
                             Origin.AT_START,
                             runnable_next);
-                    SteamManager.unlockAchievement(SteamAchievementNames.COMPLETE_VIKING_CAMPAIGN_NORMAL);
+                    if (campaign.getState().getDifficulty() != CampaignState.DIFFICULTY_EASY) {
+                        SteamManager.unlockAchievement(SteamAchievementNames.COMPLETE_VIKING_CAMPAIGN_NORMAL);
+                    }
                     if (campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_HARD) {
                         SteamManager.unlockAchievement(SteamAchievementNames.COMPLETE_VIKING_CAMPAIGN_HARD);
                     }
@@ -106,7 +108,9 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
                             campaign.getIcons().getFaces()[0],
                             Origin.AT_START,
                             runnable);
-                    SteamManager.unlockAchievement(SteamAchievementNames.COMPLETE_NATIVE_CAMPAIGN_NORMAL);
+                    if (campaign.getState().getDifficulty() != CampaignState.DIFFICULTY_EASY) {
+                        SteamManager.unlockAchievement(SteamAchievementNames.COMPLETE_NATIVE_CAMPAIGN_NORMAL);
+                    }
                     if (campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_HARD) {
                         SteamManager.unlockAchievement(SteamAchievementNames.COMPLETE_NATIVE_CAMPAIGN_HARD);
                     }

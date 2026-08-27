@@ -7,6 +7,7 @@ import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.model.Accessories;
 import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.UnitTemplate;
 import com.oddlabs.tt.player.Player;
@@ -26,6 +27,10 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
     private final @NonNull Audio @NonNull [] hit_sounds;
     private final @NonNull Player owner;
     private final boolean hit;
+    private final Unit unit;
+    private float miss_x = 0.0f;
+    private float miss_y = 0.0f;
+    private float damage_ratio = 1.0f;
 
     private @NonNull Selectable<?> target;
     private float start_x;
@@ -44,6 +49,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
         super(target.getOwner().getWorld(), sprite_renderer);
         this.hit = hit;
         this.hit_sounds = hit_sounds;
+        this.unit = src;
 
         owner = src.getOwner();
 
@@ -76,7 +82,18 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
     }
 
     protected final void setTarget(@NonNull Selectable<?> target) {
+        if (target instanceof Ship ship) {
+            Selectable shipVictim = ship.pickVictim();
+            if (shipVictim != null) {
+                target = shipVictim;
+            }
+        }
         this.target = target;
+        float hit_error = unit.getHitError();
+        miss_x = hit_error * (owner.getWorld().getRandom().nextFloat() - 0.5f) * 2.0f;
+        miss_y = hit_error * (owner.getWorld().getRandom().nextFloat() - 0.5f) * 2.0f;
+        float s = target.getSize();
+        damage_ratio = 1.0f - Math.min(1.0f, (miss_x * miss_x + miss_y * miss_y) / (s * s));
         updateDirection();
         calcNumUpdatesAndZSpeed();
     }
@@ -98,8 +115,8 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
     protected abstract float getMetersPerSecond();
 
     private void updateTarget() {
-        end_x = target.getPositionX();
-        end_y = target.getPositionY();
+        end_x = target.getPositionX() + miss_x;
+        end_y = target.getPositionY() + miss_y;
     }
 
     private void updateDirection() {
@@ -171,7 +188,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
                     AudioPlayer.AUDIO_RADIUS_DEATH,
                     1f + (owner.getWorld().getRandom().nextFloat() - .5f) * ((UnitTemplate) target.getTemplate()).getDeathPitch()));
         }
-        target.hit(getDamage(), dir_x, dir_y, owner);
+        target.hit(StrictMath.round(getDamage() * damage_ratio), dir_x, dir_y, owner);
     }
 
     protected abstract int getDamage();

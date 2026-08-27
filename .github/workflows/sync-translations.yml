@@ -1,0 +1,114 @@
+name: Sync Translations
+
+on:
+  push:
+    branches: [ "main", "translations-sheet-sync" ]
+    paths:
+      - 'tt/src/main/resources/**/*.properties'
+      - 'tt/translations-baseline.csv'
+      - '.github/workflows/sync-translations.yml'
+  schedule:
+    - cron: '0 9 * * 1'  # Mondays 09:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-translations
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Download sheet as CSV
+        env:
+          SHEET_URL: ${{ secrets.TRANSLATIONS_SHEET_URL }}
+          SHEET_TOKEN: ${{ secrets.TRANSLATIONS_SHEET_SYNC_TOKEN }}
+        run: |
+          TOKEN=$(python3 -c "import urllib.parse, os; print(urllib.parse.quote(os.environ['SHEET_TOKEN'], safe=''))")
+          curl -sSfL "${SHEET_URL}?token=${TOKEN}" -o sheet.csv
+
+      - name: Merge game strings with sheet
+        shell: bash
+        run: |
+          # A brand-new sheet downloads as empty; seed it from the code in that case.
+          # Anything else that is not a translations export (e.g. an Apps Script error
+          # page) fails the run instead of risking an overwrite of real translations.
+          if [ ! -s sheet.csv ]; then
+            echo "Sheet is empty; seeding from code"
+            ./gradlew :tt:exportTranslations | tee merge-log.txt
+          elif head -1 sheet.csv | grep -q '^File,Key,English'; then
+            ./gradlew :tt:exportTranslations -PsheetCsv=sheet.csv | tee merge-log.txt
+          else
+            echo "::error::Sheet response is neither empty nor a translations CSV:"
+            head -3 sheet.csv
+            exit 1
+          fi
+
+      - name: Upload merged CSV back to sheet
+        env:
+          SHEET_URL: ${{ secrets.TRANSLATIONS_SHEET_URL }}
+          SHEET_TOKEN: ${{ secrets.TRANSLATIONS_SHEET_SYNC_TOKEN }}
+        run: |
+          # note: no -X POST; it would pin the method through Apps Script's 302 redirect
+          # and drop the body, causing a 411 from Google
+          TOKEN=$(python3 -c "import urllib.parse, os; print(urllib.parse.quote(os.environ['SHEET_TOKEN'], safe=''))")
+          LANGS=$(python3 -c "import urllib.parse; print(urllib.parse.quote(open('tt/build/sheet-langs.txt').read(), safe=''))")
+          RESPONSE=$(curl -sSfL --data-binary @tt/build/translations.csv \
+            -H "Content-Type: text/csv" "${SHEET_URL}?token=${TOKEN}&langs=${LANGS}")
+          echo "$RESPONSE"
+          echo "$RESPONSE" | grep -q '^OK ' || { echo "::error::Sheet update failed"; exit 1; }
+
+      - name: Import translations into properties files
+        run: ./gradlew :tt:importTranslations -PsheetCsv=tt/build/translations.csv
+
+      - name: Open pull request if translations changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$(git status --porcelain -- tt/src tt/translations-baseline.csv)" ]; then
+            echo "No translation changes"
+            exit 0
+          fi
+          BRANCH=sync-translations
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add tt/src/main/resources tt/translations-baseline.csv
+          git commit -m "Update translations from sheet"
+          git push -f origin "$BRANCH"
+
+          {
+            echo "Automated sync from the translations Google Sheet."
+            echo
+            echo '```'
+            git diff --stat HEAD~1 -- tt/src
+            echo '```'
+            if grep -q '^CONFLICT:' merge-log.txt; then
+              echo
+              echo "**Merge conflicts (sheet value kept):**"
+              echo '```'
+              grep -A2 '^CONFLICT:' merge-log.txt
+              echo '```'
+            fi
+          } > pr-body.txt
+
+          if gh pr list --head "$BRANCH" --state open --json number --jq length | grep -q '^0$'; then
+            gh pr create --base "${{ github.ref_name }}" --head "$BRANCH" \
+              --title "Update translations from sheet" --body-file pr-body.txt
+          else
+            gh pr edit "$BRANCH" --body-file pr-body.txt
+            echo "PR already open; branch and body updated"
+          fi

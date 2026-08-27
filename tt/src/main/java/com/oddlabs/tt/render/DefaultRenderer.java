@@ -21,6 +21,7 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.shader.DebugMeshShader;
 import com.oddlabs.tt.render.shader.DebugShaderRenderer;
@@ -144,7 +145,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
             float x = rally_point.getPositionX();
             float y = rally_point.getPositionY();
-            float z = world.getHeightMap().getNearestHeight(rally_point.getPositionX(), rally_point.getPositionY());
+            float z = Math.max(world.getHeightMap().getSeaLevelMeters(), world.getHeightMap().getNearestHeight(
+                    rally_point.getPositionX(), rally_point.getPositionY()));
             if (rally_point instanceof Building rally_building) {
                 x += rally_building.getTemplate().getRallyX();
                 y += rally_building.getTemplate().getRallyY();
@@ -208,6 +210,11 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
                 if (obj instanceof Unit unit) unit.debugRender();
             }
         }
+        if (Globals.isBoundsEnabled(BoundingMode.SHIPS)) {
+            for (Object obj : selection.getCurrentSelection().getSet()) {
+                if (obj instanceof Ship ship) ship.debugRender();
+            }
+        }
         DebugRender.flush();
     }
 
@@ -235,7 +242,10 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
         if (Globals.draw_sky) {
             sky.render(context, frustum_state, modelViewStack, projectionStack);
-            sky.renderSeaBottom(context, frustum_state, modelViewStack, projectionStack);
+            // The underwater backdrop must not appear in the water reflection pass
+            if (!aboveSea) {
+                sky.renderSeaBottom(context, frustum_state, modelViewStack, projectionStack);
+            }
         }
 
         if (Globals.process_landscape) {

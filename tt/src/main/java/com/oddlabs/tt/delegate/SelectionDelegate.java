@@ -15,8 +15,10 @@ import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Army;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.LandBuilding;
 import com.oddlabs.tt.model.BuildingTemplate;
 import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.UnitTemplate;
 import com.oddlabs.tt.model.behaviour.IdleController;
@@ -346,7 +348,8 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     }
 
     private void updateSelection(@NonNull List<@NonNull Selectable<UnitTemplate>> friendly_units,
-            Selectable<BuildingTemplate> friendly_building, Selectable<?> enemy) {
+            @NonNull List<@NonNull Ship> friendly_ships, Selectable<BuildingTemplate> friendly_building,
+            Selectable<?> enemy) {
         Army current_selection = getViewer().getSelection().getCurrentSelection();
         Selectable<?> first = current_selection.getSet().iterator().next();
         if (first instanceof Building || first.getOwner() != getViewer().getLocalPlayer()) {
@@ -355,15 +358,23 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
             }
             return;
         }
+        if (first instanceof Ship) {
+            toggleSelection(current_selection, friendly_ships);
+            return;
+        }
+        toggleSelection(current_selection, friendly_units);
+    }
 
+    private void toggleSelection(@NonNull Army current_selection,
+            @NonNull List<? extends @NonNull Selectable<?>> picked) {
         boolean add = false;
-        for (Selectable<?> selectable : friendly_units) {
+        for (Selectable<?> selectable : picked) {
             if (!current_selection.contains(selectable)) {
                 add = true;
                 break;
             }
         }
-        for (Selectable<?> selectable : friendly_units) {
+        for (Selectable<?> selectable : picked) {
             if (add) {
                 if (!current_selection.contains(selectable))
                     current_selection.add(selectable);
@@ -374,12 +385,17 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     }
 
     private void replaceSelection(@NonNull List<Selectable<UnitTemplate>> friendly_units,
-            @Nullable Selectable<BuildingTemplate> friendly_building, @Nullable Selectable<?> enemy) {
+            @NonNull List<Ship> friendly_ships, @Nullable Selectable<BuildingTemplate> friendly_building,
+            @Nullable Selectable<?> enemy) {
         Army current_selection = getViewer().getSelection().getCurrentSelection();
         current_selection.clear();
         if (!friendly_units.isEmpty()) {
             for (Selectable<?> friendlyUnit : friendly_units) {
                 current_selection.add(friendlyUnit);
+            }
+        } else if (!friendly_ships.isEmpty()) {
+            for (Ship ship : friendly_ships) {
+                current_selection.add(ship);
             }
         } else if (friendly_building != null) {
             current_selection.add(friendly_building);
@@ -397,17 +413,21 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                         getViewer().getGUIRoot().getDelegate().getCamera().getState(), selection_x1, selection_y1,
                         selection_x2, selection_y2, clicks);
                 List<Selectable<UnitTemplate>> friendly_units = new ArrayList<>();
+                List<Ship> friendly_ships = new ArrayList<>();
                 Selectable<BuildingTemplate> friendly_building = null;
                 Selectable<?> enemy = null;
                 for (Selectable<?> selectable : picked) {
                     if (selectable != null) {
                         if (selectable.getOwner() == getViewer().getLocalPlayer()) {
-                            if (selectable instanceof Building building)
+                            if (selectable instanceof Ship ship) {
+                                friendly_ships.add(ship);
+                            } else if (selectable instanceof LandBuilding building) {
                                 friendly_building = building;
-                            else if (selectable instanceof Unit unit)
+                            } else if (selectable instanceof Unit unit) {
                                 friendly_units.add(unit);
-                            else
+                            } else {
                                 throw new RuntimeException();
+                            }
                         } else {
                             enemy = selectable;
                         }
@@ -415,9 +435,9 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                 }
                 if (Renderer.getLocalInput().isShiftDownCurrently()
                         && getViewer().getSelection().getCurrentSelection().size() > 0)
-                    updateSelection(friendly_units, friendly_building, enemy);
+                    updateSelection(friendly_units, friendly_ships, friendly_building, enemy);
                 else
-                    replaceSelection(friendly_units, friendly_building, enemy);
+                    replaceSelection(friendly_units, friendly_ships, friendly_building, enemy);
                 pick_done = true;
             }
         }
@@ -478,10 +498,16 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                         break;
                     case RIGHT: {
                         Army selection = getViewer().getSelection().getCurrentSelection();
-                        if (selection.size() > 0 && selection.containsAbility(Abilities.TARGET)) {
-                            getViewer().getPicker().pickTarget(selection,
-                                    getViewer().getGUIRoot().getDelegate().getCamera().getState(),
-                                    getViewer().getPeerHub().getPlayerInterface(), x, y, Action.DEFAULT);
+                        if (selection.size() > 0) {
+                            if (selection.containsAbility(Abilities.SAIL)) {
+                                getViewer().getPicker().pickSailingTarget(selection,
+                                        getViewer().getGUIRoot().getDelegate().getCamera().getState(),
+                                        getViewer().getPeerHub().getPlayerInterface(), x, y);
+                            } else if (selection.containsAbility(Abilities.TARGET)) {
+                                getViewer().getPicker().pickTarget(selection,
+                                        getViewer().getGUIRoot().getDelegate().getCamera().getState(),
+                                        getViewer().getPeerHub().getPlayerInterface(), x, y, Action.DEFAULT);
+                            }
                         }
                         break;
                     }

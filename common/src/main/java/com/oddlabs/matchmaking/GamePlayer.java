@@ -16,13 +16,13 @@ public class GamePlayer implements Serializable {
         if (_playerType != PlayerTypes.Human) {
             switch (_playerType) {
                 case AIEasy:
-                    _nick = "AI Easy";
+                    _nick = "Easy AI";
                     break;
                 case AINormal:
-                    _nick = "AI Normal";
+                    _nick = "Normal AI";
                     break;
                 case AIHard:
-                    _nick = "AI Hard";
+                    _nick = "Hard AI";
                     break;
                 default:
                     _nick = "Unknown player type";

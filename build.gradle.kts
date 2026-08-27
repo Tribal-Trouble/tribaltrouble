@@ -23,6 +23,7 @@ subprojects {
         java {
             target("src/**/*.java")
             eclipse().configFile(rootProject.file("intellij-java-style.xml"))
+            toggleOffOn()
             removeUnusedImports()
             trimTrailingWhitespace()
             endWithNewline()

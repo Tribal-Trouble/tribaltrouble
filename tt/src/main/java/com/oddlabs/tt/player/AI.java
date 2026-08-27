@@ -41,6 +41,7 @@ public abstract class AI implements Animated {
     private int INDEX_ARMORY;
     private int INDEX_QUARTERS;
     private int INDEX_TOWERS;
+    private int INDEX_SHIPS;
     private int INDEX_CONSTRUCTION_SITES;
     private int INDEX_PLACE_BUILDING_PEONS;
     private int INDEX_DEFENDING_UNITS;
@@ -49,6 +50,7 @@ public abstract class AI implements Animated {
     private boolean armory_under_construction = false;
     private boolean quarters_under_construction = false;
     private boolean tower_under_construction = false;
+    private boolean ship_under_construction = false;
     private float sleep_time;
 
     public AI(@NonNull Player owner, @Nullable UnitInfo unit_info) {
@@ -157,6 +159,10 @@ public abstract class AI implements Animated {
         return INDEX_TOWERS == -1 ? null : lists[INDEX_TOWERS];
     }
 
+    protected final @NonNull Selectable<?> @Nullable [] getShips() {
+        return INDEX_SHIPS == -1 ? null : lists[INDEX_SHIPS];
+    }
+
     protected final @NonNull Selectable<?> @Nullable [] getConstructionSites() {
         return INDEX_CONSTRUCTION_SITES == -1 ? null : lists[INDEX_CONSTRUCTION_SITES];
     }
@@ -180,6 +186,7 @@ public abstract class AI implements Animated {
         INDEX_ARMORY = -1;
         INDEX_QUARTERS = -1;
         INDEX_TOWERS = -1;
+        INDEX_SHIPS = -1;
         INDEX_CONSTRUCTION_SITES = -1;
         INDEX_PLACE_BUILDING_PEONS = -1;
         INDEX_DEFENDING_UNITS = -1;
@@ -217,6 +224,9 @@ public abstract class AI implements Animated {
                     quarters_under_construction = false;
                 } else if (s.getAbilities().hasAbilities(Abilities.ATTACK)) {
                     INDEX_TOWERS = i;
+                } else if (s.getAbilities().hasAbilities(Abilities.SAIL)) {
+                    INDEX_SHIPS = i;
+                    ship_under_construction = false;
                 } else {
                     INDEX_CONSTRUCTION_SITES = i;
                 }
@@ -230,6 +240,7 @@ public abstract class AI implements Animated {
             armory_under_construction = false;
             quarters_under_construction = false;
             tower_under_construction = false;
+            ship_under_construction = false;
         }
     }
 
@@ -255,6 +266,14 @@ public abstract class AI implements Animated {
 
     protected final void setTowerUnderConstruction(boolean tower_under_construction) {
         this.tower_under_construction = tower_under_construction;
+    }
+
+    protected final boolean shipUnderConstruction() {
+        return ship_under_construction;
+    }
+
+    protected final void setShipUnderConstruction(boolean ship_under_construction) {
+        this.ship_under_construction = ship_under_construction;
     }
 
     private void reset() {

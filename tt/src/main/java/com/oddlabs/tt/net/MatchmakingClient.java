@@ -139,6 +139,10 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
     @Override
     public void updateProfile(Profile profile) {
         active_profile = profile;
+        MatchmakingListener listener = Network.getMatchmakingListener();
+        if (listener != null) {
+            listener.profileUpdated();
+        }
     }
 
     public void setCreatingProfileListener(ProfileListener listener) {
@@ -500,6 +504,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
         matchmaking_login_interface.setLocalRemoteAddress(wrapped_connection.getLocalAddress());
         IO.println("wrapped_connection.getLocalAddress() = " + wrapped_connection.getLocalAddress());
         int revision = com.oddlabs.util.Compatibility.API_VERSION;
+        matchmaking_login_interface.setSimVersion(com.oddlabs.util.Compatibility.SIM_VERSION);
 
         if (steamLogin) {
             SteamManager steam = SteamManager.getInstance();

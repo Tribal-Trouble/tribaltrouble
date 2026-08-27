@@ -24,7 +24,7 @@ public abstract class Camera implements Animated {
      * The distance to project outwards from the screen corners when checking for landscape collisions.
      * This ensures the camera pulls up before the terrain goes off-screen.
      */
-    private static final float LANDSCAPE_OFFSET = 5f;
+    private static final float LANDSCAPE_OFFSET = 6f;
 
     /**
      * Controls the interpolation speed for camera movements. A higher value results in faster, more responsive
@@ -35,7 +35,7 @@ public abstract class Camera implements Animated {
      * Minimum vertical distance to maintain between the camera's center and the ground below it.
      * This prevents the camera from sinking into the terrain.
      */
-    private static final float GROUND_CLEARANCE = 1.0f;
+    private static final float GROUND_CLEARANCE = 2.2f;
 
     private final IntBuffer viewport = Objects.requireNonNull(BufferUtils.createIntBuffer(16));
     private final Matrix4f proj = new Matrix4f();

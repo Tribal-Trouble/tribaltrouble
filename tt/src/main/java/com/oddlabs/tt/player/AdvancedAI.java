@@ -1,5 +1,6 @@
 package com.oddlabs.tt.player;
 
+import com.oddlabs.matchmaking.Game;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Action;
@@ -7,7 +8,11 @@ import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.model.behaviour.Controller;
+import com.oddlabs.tt.model.behaviour.PlaceBuildingController;
+import com.oddlabs.tt.model.behaviour.RepairController;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.IronSpearWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
@@ -49,6 +54,13 @@ public final class AdvancedAI extends AI {
     private static final int[] UNITS_PER_TOWER1 = new int[]{1000, 1000, 90};
     private static final int[] UNITS_PER_TOWER2 = new int[]{1000, 1000, 120};
 
+    private static final int SHIP_PEONS = 26;
+    private static final int SHIP_WARRIORS = 26;
+    private static final int SHIP_BUILDERS = 20;
+    private static final float SHIP_MIN_HEALTH = 0.5f;
+    private static final int SHIP_HOME_RANGE = 50;
+    private static final int FLEET_SIZE = 3;
+
     private final int difficulty;
 
     private final int[] NUM_WARRIORS = new int[]{3, 7, 10};
@@ -78,6 +90,13 @@ public final class AdvancedAI extends AI {
             nodeGuardTowers(2);
         else if (getOwner().getUnitCountContainer().getNumSupplies() > UNITS_PER_TOWER1[difficulty])
             nodeGuardTowers(1);
+
+        if (isArchipelago()) {
+            reclassify();
+            if (baseBuildingsDone())
+                nodeBuildShipAndLoad();
+            nodeUseShip();
+        }
 
         reclassify();
         nodeAttackWithWarriorsAndChieftain(NUM_WARRIORS[difficulty],
@@ -263,6 +282,8 @@ public final class AdvancedAI extends AI {
             } else if (armoryUnderConstruction() && getConstructionSites() != null) {
                 getOwner().setTarget(getIdlePeons(), getConstructionSites()[0], Action.DEFAULT, false);
             } else if (towerUnderConstruction() && getConstructionSites() != null) {
+                getOwner().setTarget(getIdlePeons(), getConstructionSites()[0], Action.DEFAULT, false);
+            } else if (shipUnderConstruction() && getConstructionSites() != null) {
                 getOwner().setTarget(getIdlePeons(), getConstructionSites()[0], Action.DEFAULT, false);
             } else if (getQuarters() != null && !getQuarters()[0].isDead()) {
                 getOwner().setTarget(getIdlePeons(), getQuarters()[0], Action.DEFAULT, false);
@@ -459,6 +480,285 @@ public final class AdvancedAI extends AI {
                     builders[0].getGridY()));
             reclassify();
         }
+    }
+
+    private boolean isArchipelago() {
+        return getOwner().getWorld().getMapSize() == Game.SIZE_ARCHIPELAGO;
+    }
+
+    private boolean baseBuildingsDone() {
+        return getQuarters() != null && getArmory() != null
+                && !quartersUnderConstruction() && !armoryUnderConstruction() && !towerUnderConstruction();
+    }
+
+    private void nodeBuildShipAndLoad() {
+        List<Ship> ships = getOwnShips();
+
+        nodeBuildShip(ships.size());
+
+        for (Ship ship : ships) {
+            if (ship.isComplete() && !ship.isMoving() && shipAtHome(ship) && !shipFullyCrewed(ship)) {
+                nodeLoadShip(ship);
+                return;
+            }
+        }
+    }
+
+    private @NonNull List<Ship> getOwnShips() {
+        List<Ship> ships = new ArrayList<>();
+        for (Selectable<?> s : getOwner().getUnits().getSet()) {
+            if (s instanceof Ship ship && !ship.isDead())
+                ships.add(ship);
+        }
+        return ships;
+    }
+
+    private void nodeUseShip() {
+        List<Ship> ships = getOwnShips();
+        for (Ship ship : ships) {
+            useShip(ship);
+        }
+    }
+
+    private void useShip(@NonNull Ship ship) {
+        if (ship.isDead() || !ship.isComplete() || ship.isMoving())
+            return;
+
+        boolean at_home = shipAtHome(ship);
+        boolean should_escape = shipShouldEscape(ship);
+        boolean battle_ready = (shipBattleReady(ship) && at_home) || !should_escape;
+
+        if (battle_ready) {
+            Selectable<?> sea_enemy = getOwner().findNearestEnemyShip(ship.getGridX(), ship.getGridY());
+            if (sea_enemy != null && sea_enemy.isDead()) {
+                sea_enemy = null;
+            }
+            Selectable<?> beach_enemy = getOwner().findNearestEnemyOnBeach(ship.getGridX(), ship.getGridY());
+            if (beach_enemy != null && beach_enemy.isDead()) {
+                beach_enemy = null;
+            }
+            Selectable<?> enemy = null;
+            if (beach_enemy != null && sea_enemy != null) {
+                int sea_dx = sea_enemy.getGridX() - ship.getGridX();
+                int sea_dy = sea_enemy.getGridY() - ship.getGridY();
+                int sea_d2 = sea_dx * sea_dx + sea_dy * sea_dy;
+                int beach_dx = beach_enemy.getGridX() - ship.getGridX();
+                int beach_dy = beach_enemy.getGridY() - ship.getGridY();
+                int beach_d2 = beach_dx * beach_dx + beach_dy * beach_dy;
+                if (sea_d2 > beach_d2) {
+                    enemy = beach_enemy;
+                } else {
+                    enemy = sea_enemy;
+                }
+            } else if (beach_enemy != null) {
+                enemy = beach_enemy;
+            } else {
+                enemy = sea_enemy;
+            }
+
+            if (enemy != null) {
+                getOwner().setTarget(Selectable.newArray(ship), enemy, Action.MOVE, true);
+                return;
+            }
+        }
+
+        if (!at_home) {
+            Building origin = homeBuilding();
+            if (origin != null) {
+                getOwner().setTarget(Selectable.newArray(ship), origin, Action.MOVE, false);
+            }
+        }
+    }
+
+    private boolean shipBattleReady(@NonNull Ship ship) {
+        return shipFullyCrewed(ship) && !shipNeedsRepair(ship);
+    }
+
+    private boolean shipShouldEscape(@NonNull Ship ship) {
+        return shipTooDamaged(ship) || !shipCrewedEnough(ship);
+    }
+
+    private boolean shipTooDamaged(@NonNull Ship ship) {
+        return ship.getHitPoints() < SHIP_MIN_HEALTH * ship.getBuildingTemplate().getMaxHitPoints();
+    }
+
+    private boolean shipNeedsRepair(@NonNull Ship ship) {
+        return ship.getHitPoints() < ship.getBuildingTemplate().getMaxHitPoints();
+    }
+
+    private boolean shipFullyCrewed(@NonNull Ship ship) {
+        int peons = ship.getShipHR().countPeons();
+        int warriors = ship.getShipHR().countUnits() - peons;
+        return peons >= SHIP_PEONS && warriors >= SHIP_WARRIORS;
+    }
+
+    private boolean shipCrewedEnough(@NonNull Ship ship) {
+        int peons = ship.getShipHR().countPeons();
+        int warriors = ship.getShipHR().countUnits() - peons;
+        return peons >= SHIP_PEONS / 2 && warriors >= SHIP_WARRIORS / 3;
+    }
+
+    private @Nullable Building homeBuilding() {
+        if (getQuarters() != null)
+            return (Building) getQuarters()[0];
+        if (getArmory() != null)
+            return (Building) getArmory()[0];
+        return null;
+    }
+
+    private int homeIsland() {
+        Building home = homeBuilding();
+        return home != null ? home.getIslandId() : -1;
+    }
+
+    private boolean shipAtHome(@NonNull Ship ship) {
+        Building entrance = ship.getEntrance();
+        if (entrance == null) {
+            return false;
+        }
+        return closeToAny(entrance, getQuarters()) || closeToAny(entrance, getArmory());
+    }
+
+    private boolean closeToAny(@NonNull Target target, @NonNull Selectable<?> @Nullable [] buildings) {
+        if (buildings == null)
+            return false;
+
+        for (Selectable<?> building : buildings) {
+            if (building.isDead())
+                continue;
+            int dx = building.getGridX() - target.getGridX();
+            int dy = building.getGridY() - target.getGridY();
+            if (dx * dx + dy * dy <= SHIP_HOME_RANGE * SHIP_HOME_RANGE)
+                return true;
+        }
+        return false;
+    }
+
+    private boolean shipDockedAt(@NonNull Ship ship, int island) {
+        Building entrance = ship.getEntrance();
+        return entrance != ship && !entrance.isDead() && entrance.getIslandId() == island;
+    }
+
+    private void nodeBuildShip(int fleet_size) {
+        Ship ship = getIncompleteShip();
+        if (ship == null && fleet_size >= FLEET_SIZE)
+            return;
+
+        Selectable<?>[] idle = getIdlePeons();
+        int idle_count = idle != null ? idle.length : 0;
+
+        int missing = SHIP_BUILDERS - (ship != null ? countBuilders(ship.getEntrance()) : 0);
+
+        if (missing > idle_count && getQuarters() != null) {
+            Building quarters = (Building) getQuarters()[0];
+            deployPeonsFromQuarters(quarters, missing - idle_count, quarters);
+            Building armory = (Building) getArmory()[0];
+            deployPeonsFromQuarters(armory, missing - idle_count, armory);
+        }
+
+        if (idle_count == 0 || missing <= 0)
+            return;
+
+        if (ship != null) {
+            Action action = ship.isComplete() ? Action.GATHER_REPAIR : Action.DEFAULT;
+            getOwner().setTarget(lastN(idle, missing), ship, action, false);
+        } else {
+            Building origin = homeBuilding();
+            buildBuilding(Race.BUILDING_SHIP, firstN(idle, SHIP_BUILDERS), origin.getGridX(), origin.getGridY());
+        }
+    }
+
+    private boolean shipIncomplete(@NonNull Ship ship) {
+        return !ship.isComplete() || ship.isDamaged();
+    }
+
+    private @Nullable Ship getIncompleteShip() {
+        for (Selectable<?> s : getOwner().getUnits().getSet()) {
+            if (s instanceof Ship ship && !ship.isDead() && shipIncomplete(ship))
+                return ship;
+        }
+        Selectable<?>[] placing = getPlaceBuildingPeons();
+        if (placing != null) {
+            for (Selectable<?> s : placing) {
+                if (!s.isDead() && s.getPrimaryController() instanceof PlaceBuildingController controller
+                        && controller.getBuilding() instanceof Ship ship && !ship.isDead())
+                    return ship;
+            }
+        }
+        return null;
+    }
+
+    private int countBuilders(@NonNull Building b) {
+        int builders = 0;
+        for (Selectable<?> s : getOwner().getUnits().getSet()) {
+            if (s.isDead()) {
+                continue;
+            }
+            Controller controller = s.getPrimaryController();
+            if (controller instanceof RepairController repair && repair.getBuilding() == b) {
+                builders++;
+            } else if (controller instanceof PlaceBuildingController placing && placing.getBuilding() == b) {
+                builders++;
+            }
+        }
+        return builders;
+    }
+
+    private void nodeLoadShip(@NonNull Ship ship) {
+        int peons_aboard = ship.getShipHR().countPeons();
+        int warriors_aboard = ship.getShipHR().countUnits() - peons_aboard;
+
+        int peons_needed = SHIP_PEONS - peons_aboard;
+        if (peons_needed > 0) {
+            if (getIdlePeons() != null && getIdlePeons().length > 0) {
+                getOwner().setTarget(firstN(getIdlePeons(), peons_needed), ship, Action.DEFAULT, false);
+            } else {
+                nodeDeployPeonsFromQuarters(ship, peons_needed);
+            }
+        }
+
+        int warriors_needed = SHIP_WARRIORS - warriors_aboard;
+        if (warriors_needed > 0) {
+            if (getIdleWarriors() != null && getIdleWarriors().length > 0) {
+                getOwner().setTarget(firstN(getIdleWarriors(), warriors_needed), ship, Action.DEFAULT, false);
+            } else {
+                nodeDeployUnitsInArmory(warriors_needed);
+            }
+        }
+    }
+
+    private void nodeDeployPeonsFromQuarters(@NonNull Ship ship, int num_peons) {
+        if (getQuarters() == null)
+            return;
+        deployPeonsFromQuarters((Building) getQuarters()[0], num_peons, ship);
+    }
+
+    private int deployPeonsFromQuarters(@NonNull Building quarters, int num_peons, @NonNull Target rally) {
+        if (quarters.isDead())
+            return 0;
+
+        int available = quarters.getUnitContainer().getNumSupplies() - MIN_UNITS_REPRODUCING[difficulty];
+        if (available <= 0)
+            return 0;
+
+        int ordered = Math.min(num_peons, available);
+        quarters.setRallyPoint(rally);
+        getOwner().deployUnits(quarters, DeployType.PEON, ordered);
+        return ordered;
+    }
+
+    private @NonNull Selectable<?> @NonNull [] firstN(@NonNull Selectable<?> @NonNull [] list, int n) {
+        n = Math.min(n, list.length);
+        Selectable<?>[] result = Selectable.newArray(n);
+        System.arraycopy(list, 0, result, 0, n);
+        return result;
+    }
+
+    private @NonNull Selectable<?> @NonNull [] lastN(@NonNull Selectable<?> @NonNull [] list, int n) {
+        n = Math.min(n, list.length);
+        Selectable<?>[] result = Selectable.newArray(n);
+        System.arraycopy(list, list.length - n, result, 0, n);
+        return result;
     }
 
     private @NonNull Selectable<?> @NonNull [] getPeons(int min_num_peons) {

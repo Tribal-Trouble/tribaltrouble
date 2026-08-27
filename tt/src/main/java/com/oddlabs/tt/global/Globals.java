@@ -17,6 +17,8 @@ public final class Globals {
     public static final int[] LANDSCAPE_POLY_COUNT = new int[]{10000, 40000, 100000};
     public static final boolean[] INSERT_PLANTS = new boolean[]{true, true, true};
 
+    public static final boolean SHIPS_ENABLED = false;
+
     public static final String GAME_NAME = "TribalTrouble";
     private static final String SETTINGS_FILE_NAME = "settings";
 
@@ -113,7 +115,7 @@ public final class Globals {
     public static final int VIEW_BIT_DEPTH = 16;
     public static final float FOV = 45.0f;
     public static final float VIEW_MIN = 1.2f;
-    public static final float VIEW_MAX = 8000.0f;
+    public static final float VIEW_MAX = 9000.0f;
 
     public static final int NET_PORT = 21000;
 

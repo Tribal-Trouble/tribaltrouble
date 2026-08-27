@@ -9,7 +9,6 @@ import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.model.Abilities;
-import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.BuildingTemplate;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.BuildingSiteScanFilter;
@@ -58,8 +57,7 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
         UnitGrid unit_grid = getViewer().getWorld().getUnitGrid();
         int placing_grid_x = UnitGrid.toGridCoordinate(landscape_hit.x);
         int placing_grid_y = UnitGrid.toGridCoordinate(landscape_hit.y);
-        if (Building.isPlacingLegal(getViewer().getWorld().getUnitGrid(), getTemplate(), placing_grid_x,
-                placing_grid_y)) {
+        if (getTemplate().isPlacingLegal(getViewer().getWorld().getUnitGrid(), placing_grid_x, placing_grid_y)) {
             var peons = getViewer().getSelection().getCurrentSelection().filter(Abilities.BUILD);
             if (peons.length > 0) {
                 logger.info("placeObject: Placing building at " + placing_grid_x + "," + placing_grid_y);
@@ -137,7 +135,7 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
             spriteShader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, true);
             spriteShader.setUniform(SpriteShader.Uniforms.ALPHA_TEST_VALUE, 0.5f);
 
-            if (Building.isPlacingLegal(unit_grid, getTemplate(), placing_center_grid_x, placing_center_grid_y))
+            if (getTemplate().isPlacingLegal(unit_grid, placing_center_grid_x, placing_center_grid_y))
                 spriteShader.setUniform(SpriteShader.Uniforms.COLOR, 1f, 1f, 1f, .8f);
             else
                 spriteShader.setUniform(SpriteShader.Uniforms.COLOR, 1f, 0f, 0f, .8f);

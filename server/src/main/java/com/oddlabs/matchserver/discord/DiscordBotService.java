@@ -1,11 +1,15 @@
 package com.oddlabs.matchserver.discord;
 
+import com.oddlabs.matchserver.discord.commands.BanCommand;
+import com.oddlabs.matchserver.discord.commands.BannedWordsCommand;
 import com.oddlabs.matchserver.discord.commands.DiscordCommand;
+import com.oddlabs.matchserver.discord.commands.KickCommand;
 import com.oddlabs.matchserver.discord.commands.LeaderboardsCommand;
 import com.oddlabs.matchserver.discord.commands.MatchupCommand;
 import com.oddlabs.matchserver.discord.commands.OnlineCommand;
 import com.oddlabs.matchserver.discord.commands.RankCommand;
 import com.oddlabs.matchserver.discord.commands.RegisterProfileToDiscordUserCommand;
+import com.oddlabs.matchserver.discord.commands.UnbanCommand;
 import com.oddlabs.matchserver.discord.commands.WhoIsCommand;
 
 import discord4j.common.util.Snowflake;
@@ -67,6 +71,10 @@ public class DiscordBotService {
                     commands.add(new WhoIsCommand());
                     commands.add(new OnlineCommand());
                     commands.add(new RankCommand());
+                    commands.add(new KickCommand());
+                    commands.add(new BanCommand());
+                    commands.add(new UnbanCommand());
+                    commands.add(new BannedWordsCommand());
                     chatroomCoordinator = new DiscordChatroomCoordinator();
                     reactionRoleService = new ReactionRoleService(gateway, serverId);
                     registerCommands();

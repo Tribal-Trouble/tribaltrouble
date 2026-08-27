@@ -16,6 +16,7 @@ import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Army;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.ModelToolTip;
 import com.oddlabs.tt.model.SceneryModel;
 import com.oddlabs.tt.model.Selectable;
@@ -127,6 +128,27 @@ public final class Picker implements Updatable<TimerAnimation> {
         return gui_root.getGlobalScale();
     }
 
+    public final void pickSailingTarget(
+            Army selected_army,
+            CameraState camera,
+            PlayerInterface player_interface,
+            int x,
+            int y) {
+        setupPicking(camera, x, y, PICK_SIZE, PICK_SIZE);
+        pickObjects();
+        Target target = getNearestPick(element_pick_list, Target.class);
+        Selectable[] selection = selected_army.filter(Abilities.SAIL);
+        if (target instanceof Unit || target instanceof Building) {
+            player_interface.setSailingTarget(selection, target);
+        } else if (nearestLandscape(x, y)) {
+            UnitGrid grid = local_player.getWorld().getUnitGrid();
+            int grid_x = UnitGrid.toGridCoordinate(patch_hit_x);
+            int grid_y = UnitGrid.toGridCoordinate(patch_hit_y);
+            new LandscapeTargetRespond(local_player.getWorld(), patch_hit_x, patch_hit_y);
+            player_interface.setSailingTarget(selection, grid_x, grid_y);
+        }
+    }
+
     public void pickTarget(@NonNull Army selected_army, @NonNull CameraState camera,
             @NonNull PlayerInterface player_interface, int x, int y, @NonNull Action action) {
         float scale = getScale();
@@ -232,9 +254,9 @@ public final class Picker implements Updatable<TimerAnimation> {
         if (nearest != null) {
             if (clicks > 1) {
                 if (nearest.getAbilities().hasAbilities(Abilities.THROW)) {
-                    return pickAll(camera, Abilities.THROW);
+                    return pickAll(camera, Abilities.THROW, nearest.getIslandId());
                 } else if (nearest.getAbilities().hasAbilities(Abilities.HARVEST)) {
-                    return pickAll(camera, Abilities.HARVEST);
+                    return pickAll(camera, Abilities.HARVEST, nearest.getIslandId());
                 } else {
                     return Selectable.newArray(nearest);
                 }
@@ -253,10 +275,11 @@ public final class Picker implements Updatable<TimerAnimation> {
         return array;
     }
 
-    private @NonNull Selectable<?> @NonNull [] pickAll(@NonNull CameraState camera, int ability_filter) {
+    private @NonNull Selectable<?> @NonNull [] pickAll(@NonNull CameraState camera, int ability_filter, int island) {
         Selectable<?>[] complete_list = pickBoxed(camera, 0, 0, gui_root.getWidth() - 1, gui_root.getHeight() - 1, 2);
-        return Arrays.stream(complete_list).filter(s -> s.getAbilities().hasAbilities(ability_filter)).toArray(
-                Selectable::newArray);
+        return Arrays.stream(complete_list).filter(s -> s.getAbilities().hasAbilities(ability_filter)
+                && s.getIslandId() == island).toArray(
+                        Selectable::newArray);
     }
 
     public void pickRotate(@NonNull GameCamera camera) {
@@ -370,12 +393,7 @@ public final class Picker implements Updatable<TimerAnimation> {
             float t_min_z = z + t_min * dz;
             float t_min_height = getHeight(t_min_x, t_min_y);
             if (t_min_height >= 0.001f + t_min_z) {
-//				System.out.println(t_min_x + " " + t_min_y + " " + t_min_height + " " + t_min_z);
-                /*com.oddlabs.tt.landscape.LandscapeTileIndices.debug = true;
-                World.getHeightMap().getNearestHeight(t_min_x, t_min_y);
-                com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
-                assert false;
-//				return false;
+                return false;
             }
             boolean found_t_range = false;
             for (float t_scan = t_min; t_scan <= t_max; t_scan += PATCH_PICK_STEP) {
@@ -423,7 +441,8 @@ public final class Picker implements Updatable<TimerAnimation> {
     }
 
     private float getHeight(float x, float y) {
-        return local_player.getWorld().getHeightMap().getNearestHeight(x, y);
+        return Math.max(local_player.getWorld().getHeightMap().getNearestHeight(x, y),
+                local_player.getWorld().getHeightMap().getSeaLevelMeters());
     }
 
     public void pickMapGoto(int x, int y, @NonNull MapCamera camera) {

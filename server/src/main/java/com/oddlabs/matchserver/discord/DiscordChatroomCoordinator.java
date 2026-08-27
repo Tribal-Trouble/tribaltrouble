@@ -1,5 +1,6 @@
 package com.oddlabs.matchserver.discord;
 
+import com.oddlabs.matchserver.BannedWordFilter;
 import com.oddlabs.matchserver.ChatRoom;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
@@ -143,7 +144,7 @@ public class DiscordChatroomCoordinator {
                     String displayName = member.getDisplayName();
                     String author = "@" + displayName;
                     LogDebug("Processing Discord message from " + author + ": " + content);
-                    chatRoom.sendMessage(author, content);
+                    chatRoom.sendMessage(author, BannedWordFilter.censorChatMessage(content));
                 });
     }
 

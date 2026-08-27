@@ -32,6 +32,10 @@ public enum BoundingMode {
     /**
      * Show all debug visualizations
      */
+    SHIPS,
+    /**
+     * Show ship paths
+     */
     ALL;
 
     /**

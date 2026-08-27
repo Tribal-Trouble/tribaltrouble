@@ -2,6 +2,7 @@ package com.oddlabs.procedural;
 
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -20,6 +21,38 @@ public final class Channel {
     public int height;
     private final boolean powerof2;
 
+    public class ChannelVisitor {
+        private int x = 0;
+        private int y = 0;
+        private boolean done = false;
+        private float value;
+        private Channel channel;
+
+        private ChannelVisitor(Channel channel, float value) {
+            this.channel = channel;
+            this.value = value;
+        }
+
+        public int[] visitNext() {
+            while (!done) {
+                if (channel.getPixel(x, y) == value) {
+                    break;
+                }
+                x++;
+                if (x >= channel.width) {
+                    x = 0;
+                    y++;
+                    if (y >= channel.height) {
+                        done = true;
+                        x = -1;
+                        y = -1;
+                    }
+                }
+            }
+            return new int[]{x, y};
+        }
+    }
+
     /**
      * Constructs a new Channel with the specified dimensions.
      *
@@ -35,6 +68,10 @@ public final class Channel {
         this.width = width;
         this.height = height;
         this.powerof2 = Utils.isPowerOf2(width) && Utils.isPowerOf2(height);
+    }
+
+    public final ChannelVisitor visitor(float value) {
+        return new ChannelVisitor(this, value);
     }
 
     /**
@@ -1153,36 +1190,63 @@ public final class Channel {
         return this;
     }
 
-    public @NonNull Channel floodfill(int init_x, int init_y, float value) {
+    public @NonNull Channel floodfill(int init_x, int init_y, float value, float tol, int @Nullable [] countResult,
+            int @Nullable [] bounds) {
         assert init_x < width && init_x >= 0 : "x coordinate outside image";
         assert init_y < height && init_y >= 0 : "y coordinate outside image";
+        int min_x = init_x;
+        int min_y = init_y;
+        int max_x = init_x;
+        int max_y = init_y;
         float oldval = getPixel(init_x, init_y);
         boolean[][] marked = new boolean[width][height];
         marked[init_x][init_y] = true;
         List<int[]> list = new java.util.LinkedList<>();
         list.add(new int[]{init_x, init_y});
 
+        int count = 1;
         while (!list.isEmpty()) {
             int[] coords = list.removeFirst();
             int x = coords[0];
             int y = coords[1];
             putPixel(x, y, value);
-            if (x > 0 && getPixel(x - 1, y) == oldval && !marked[x - 1][y]) {
+            if (x < min_x)
+                min_x = x;
+            if (x > max_x)
+                max_x = x;
+            if (y < min_y)
+                min_y = y;
+            if (y > max_y)
+                max_y = y;
+            if (x > 0 && Math.abs(getPixel(x - 1, y) - oldval) < tol && !marked[x - 1][y]) {
                 marked[x - 1][y] = true;
                 list.add(new int[]{x - 1, y});
+                count++;
             }
-            if (x < width - 1 && getPixel(x + 1, y) == oldval && !marked[x + 1][y]) {
+            if (x < width - 1 && Math.abs(getPixel(x + 1, y) - oldval) < tol && !marked[x + 1][y]) {
                 marked[x + 1][y] = true;
                 list.add(new int[]{x + 1, y});
+                count++;
             }
-            if (y > 0 && getPixel(x, y - 1) == oldval && !marked[x][y - 1]) {
+            if (y > 0 && Math.abs(getPixel(x, y - 1) - oldval) < tol && !marked[x][y - 1]) {
                 marked[x][y - 1] = true;
                 list.add(new int[]{x, y - 1});
+                count++;
             }
-            if (y < height - 1 && getPixel(x, y + 1) == oldval && !marked[x][y + 1]) {
+            if (y < height - 1 && Math.abs(getPixel(x, y + 1) - oldval) < tol && !marked[x][y + 1]) {
                 marked[x][y + 1] = true;
                 list.add(new int[]{x, y + 1});
+                count++;
             }
+        }
+        if (bounds != null) {
+            bounds[0] = min_x;
+            bounds[1] = min_y;
+            bounds[2] = max_x;
+            bounds[3] = max_y;
+        }
+        if (countResult != null) {
+            countResult[0] = count;
         }
         return this;
     }

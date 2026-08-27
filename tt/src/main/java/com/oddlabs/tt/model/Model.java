@@ -66,7 +66,7 @@ public abstract class Model extends Element<Model> {
     }
 
     @Override
-    public final void setPosition(float x, float y) {
+    public void setPosition(float x, float y) {
         super.setPosition(x, y);
         reinsert();
     }
@@ -80,7 +80,13 @@ public abstract class Model extends Element<Model> {
 
     protected final void reinsert() {
         if (isRegistered()) {
-            setPositionZ(world.getHeightMap().getNearestHeight(getPositionX(), getPositionY()) + getOffsetZ());
+            Element ref = getReference();
+            if (ref == null) {
+                setPositionZ(Math.max(world.getHeightMap().getSeaLevelMeters(), world.getHeightMap().getNearestHeight(
+                        getPositionX(), getPositionY())) + getOffsetZ());
+            } else {
+                setPositionZ(ref.getPositionZ() + getOffsetZ());
+            }
             updateBounds();
             onReinsert();
             reregister();

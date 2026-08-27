@@ -15,7 +15,7 @@ jobs:
       - name: Set up JDK 26
         uses: actions/setup-java@v4
         with:
-          java-version: '26-ea'
+          java-version: '26'
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -84,7 +84,8 @@ jobs:
         name: Compute version string
         run: |
           BASE=$(grep 'version = "' build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
-          API=$(grep 'API_VERSION' common/src/main/java/com/oddlabs/util/Compatibility.java | sed 's/.*= \([0-9]*\);/\1/')
+          API=$(grep 'API_VERSION =' common/src/main/java/com/oddlabs/util/Compatibility.java | sed 's/.*= \([0-9]*\);/\1/')
+          SIM=$(grep 'SIM_VERSION =' common/src/main/java/com/oddlabs/util/Compatibility.java | sed 's/.*= \([0-9]*\);/\1/')
           # PATCH = commits since the bump commit that introduced the current MAJOR.MINOR.
           VERSION_PATTERN="version = .$(echo "$BASE" | sed 's/\./\\./g')."
           ANCHOR=$(git log --format=%H -G"$VERSION_PATTERN" -- build.gradle.kts | head -1)
@@ -93,8 +94,8 @@ jobs:
           else
             PATCH=$(git rev-list --count "${ANCHOR}..HEAD")
           fi
-          echo "full=v${BASE}.${PATCH}-${API}" >> $GITHUB_OUTPUT
-          echo "Resolved version: v${BASE}.${PATCH}-${API} (base=${BASE}, patch=${PATCH}, api=${API}, anchor=${ANCHOR:-none})"
+          echo "full=v${BASE}.${PATCH}-${API}.${SIM}" >> $GITHUB_OUTPUT
+          echo "Resolved version: v${BASE}.${PATCH}-${API}.${SIM} (base=${BASE}, patch=${PATCH}, api=${API}, sim=${SIM}, anchor=${ANCHOR:-none})"
 
   build-linux:
     needs: [version]
@@ -107,7 +108,7 @@ jobs:
       - name: Set up JDK 26
         uses: actions/setup-java@v4
         with:
-          java-version: '26-ea'
+          java-version: '26'
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -136,7 +137,7 @@ jobs:
       - name: Set up JDK 26
         uses: actions/setup-java@v4
         with:
-          java-version: '26-ea'
+          java-version: '26'
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -160,7 +161,7 @@ jobs:
       - name: Set up JDK 26
         uses: actions/setup-java@v4
         with:
-          java-version: '26-ea'
+          java-version: '26'
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -183,7 +184,7 @@ jobs:
       - name: Set up JDK 26
         uses: actions/setup-java@v4
         with:
-          java-version: '26-ea'
+          java-version: '26'
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -206,7 +207,7 @@ jobs:
       - name: Set up JDK 26
         uses: actions/setup-java@v4
         with:
-          java-version: '26-ea'
+          java-version: '26'
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -229,7 +230,7 @@ jobs:
       - name: Set up JDK 26
         uses: actions/setup-java@v4
         with:
-          java-version: '26-ea'
+          java-version: '26'
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -252,7 +253,7 @@ jobs:
       - name: Set up JDK 26
         uses: actions/setup-java@v4
         with:
-          java-version: '26-ea'
+          java-version: '26'
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4

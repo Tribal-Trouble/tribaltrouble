@@ -15,18 +15,14 @@ public final class PathFinder {
 
     public static Region findPathRegion(@NonNull UnitGrid unit_grid, @NonNull Region src_region,
             @NonNull Region dst_region) {
-        /*		Node src_region = unit_grid.getRegion(src_grid_x, src_grid_y);
-        		Node dst_region = unit_grid.getRegion(dst_grid_x, dst_grid_y);*/
-        assert src_region != null;// : "src_grid_x = " + src_grid_x + " | src_grid_y = " + src_grid_y;
-        assert dst_region != null;// : "dst_grid_x = " + dst_grid_x + " | dst_grid_y = " + dst_grid_y;
+        if (src_region == null || dst_region == null) return null;
         PathFinderAlgorithm finder = new RegionPathFinder(unit_grid, dst_region);
         return (Region) doFindPath(finder, src_region, unit_grid);
     }
 
     public static Region findPathRegion(@NonNull UnitGrid unit_grid, @NonNull PathFinderAlgorithm finder,
             @NonNull Region current_region) {
-//		Node current_region = UnitGrid.getGrid().getRegion(src_grid_x, src_grid_y);
-        assert current_region != null;// : "src_grid_x = " + src_grid_x + " | src_grid_y = " + src_grid_y + " | occupant " + UnitGrid.getGrid().getOccupant(src_grid_x, src_grid_y);
+        if (current_region == null) return null;
         return (Region) doFindPath(finder, current_region, unit_grid);
     }
 

@@ -1,10 +1,5 @@
 package com.oddlabs.matchserver;
 
-import com.oddlabs.matchmaking.GameSession;
-import com.oddlabs.matchmaking.MatchmakingServerInterface;
-import com.oddlabs.matchmaking.Participant;
-import com.oddlabs.matchserver.discord.DiscordEmbedCreator;
-
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,8 +7,17 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
+import com.oddlabs.matchmaking.GamePlayer;
+import com.oddlabs.matchmaking.GameSession;
+import com.oddlabs.matchmaking.MatchmakingServerInterface;
+import com.oddlabs.matchmaking.Participant;
+import com.oddlabs.matchmaking.PlayerTypes;
+import com.oddlabs.matchserver.discord.DiscordEmbedCreator;
 
 public final class TimestampedGameSession {
     private static final long JOIN_MAX_TIME = 3 * 60 * 1000;
@@ -360,12 +364,23 @@ public final class TimestampedGameSession {
         }
         long end_time = System.currentTimeMillis();
         if (winning_teams == 0) {
-            MatchmakingServer.getLogger().info("Game " + database_id + ". No winning teams " + getParticipantStates());
+            int aiOnlyTeamsMask = findAiOnlyTeams();
+            // No human team won. If there were some AI-only teams,
+            // they all tie for first place.
+            for (int team = 0; team < team_result.length; team++) {
+                if ((aiOnlyTeamsMask & (1 << team)) != 0) {
+                    team_result[team] = TEAM_WON;
+                }
+            }
+            updateOpenSkillRatings(server, team_result);
+
+            MatchmakingServer.getLogger().info(
+                    "Game " + database_id + ". No human team won; AI teams tie for first place. " + getParticipantStates());
             DBInterface.endGame(this, end_time, -1);
             DiscordEmbedCreator.SendHumansLoseToBotsDiscordEmbed(session, database_id);
             game_ended = true;
             closeSpectatorStreams();
-            return; // last players disconnected
+            return;
         }
 
         if (winning_teams > 1 || game_state == GAME_INVALID) {
@@ -400,22 +415,101 @@ public final class TimestampedGameSession {
             }
         }
 
-        if (teams_lost)
+        updateOpenSkillRatings(server, team_result);
+        if (teams_lost) {
             teamWon(server, team_result);
-        else {
-            MatchmakingServer.getLogger().warning(
-                    "Game " + database_id + ". No one lost. Playing agains AI " + getParticipantStates());
+            MatchmakingServer.getLogger().info(
+                    "Game " + database_id + ". Team " + (winning_team_index + 1) + " won (humans vs humans). " + getParticipantStates());
+            DBInterface.endGame(this, end_time, winning_team_index);
+            DiscordEmbedCreator.SendHumansWinAgainstOtherHumans(winning_team_index, session, database_id);
+        } else {
+            MatchmakingServer.getLogger().info(
+                    "Game " + database_id + ". Team " + (winning_team_index + 1) + " won (humans vs bots). " + getParticipantStates());
             DBInterface.endGame(this, end_time, -1);
             DiscordEmbedCreator.SendHumansWinAgainstBotsDiscordEmbed(winning_team_index, session, database_id);
-            game_ended = true;
-            closeSpectatorStreams();
+        }
+        game_ended = true;
+        closeSpectatorStreams();
+    }
+
+    /**
+     * Finds the teams that consist solely of AI players (no human participants). Such teams
+     * never report results to the server, so when no human team won, they are considered the
+     * winners.
+     *
+     * @return a bitmask where bit {@code 1 << teamIndex} is set for each AI-only team
+     */
+    private int findAiOnlyTeams() {
+        int humanTeamsMask = 0;
+        int aiTeamsMask = 0;
+        for (GamePlayer player : session.getPlayerInfo()) {
+            int bit = 1 << player.getTeam();
+            if (player.getPlayerType() == PlayerTypes.Human) {
+                humanTeamsMask |= bit;
+            } else {
+                aiTeamsMask |= bit;
+            }
+        }
+        return aiTeamsMask & ~humanTeamsMask;
+    }
+
+    @NullMarked
+    private void updateOpenSkillRatings(MatchmakingServer server, int[] team_result) {
+        var rateGameInput = transformTeamResultToRateGameFormat(team_result);
+        if (rateGameInput == null) {
             return;
         }
 
-        DiscordEmbedCreator.SendHumansWinAgainstOtherHumans(winning_team_index, session, database_id);
-        DBInterface.endGame(this, end_time, winning_team_index);
-        game_ended = true;
-        closeSpectatorStreams();
+        OpenSkillRatingSystem.rateGame(rateGameInput.teams(), rateGameInput.ranks());
+
+        // Refresh the profiles of all human participants still connected.
+        Participant[] participants = session.getParticipants();
+        for (Participant participant : participants) {
+            Client client = server.getClientFromID(participant.getMatchID());
+            if (client != null) {
+                client.updateProfile();
+            }
+        }
+    }
+
+    private record TransformTeamResultToRateGameFormatResult(
+                                                             List<List<String>> teams,
+                                                             int[] ranks
+    ) {
+    }
+
+    @NullMarked
+    private @Nullable TransformTeamResultToRateGameFormatResult transformTeamResultToRateGameFormat(int[] team_result) {
+        Map<Integer, List<String>> teamsByIndex = new LinkedHashMap<>();
+        GamePlayer[] playerInfo = session.getPlayerInfo();
+        for (GamePlayer player : playerInfo) {
+            teamsByIndex.computeIfAbsent(
+                    player.getTeam(),
+                    k -> new ArrayList<>()
+            ).add(player.getNick());
+        }
+
+        List<List<String>> teams = new ArrayList<>();
+        int[] ranks = new int[teamsByIndex.size()];
+        Arrays.fill(ranks, 1);
+        int i = 0;
+        for (Map.Entry<Integer, List<String>> entry : teamsByIndex.entrySet()) {
+            teams.add(entry.getValue());
+            if (team_result[entry.getKey()] != TEAM_WON) {
+                ranks[i] = 2;
+            }
+            i++;
+        }
+
+        if (teams.size() < 2) {
+            // Would like to `throw` instead but apparently a rogue client could theoretically
+            // cause this code path to activate.
+            MatchmakingServer.getLogger().info(
+                    "Game " + database_id + ": fewer than 2 non-empty teams, skipping OpenSkill rating");
+            return null;
+        }
+
+        return new TransformTeamResultToRateGameFormatResult(teams, ranks);
     }
 
     private void closeSpectatorStreams() {

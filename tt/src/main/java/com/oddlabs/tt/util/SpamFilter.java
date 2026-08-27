@@ -4,11 +4,8 @@ import org.jspecify.annotations.NonNull;
 
 public final class SpamFilter {
     public static @NonNull String scan(String string) {
-        string = string.replaceAll("\\s+", " ");
-        string = string.replaceAll("\\.{3,}", "…");
-        string = string.replaceAll("\\?+", "?");
-        string = string.replaceAll("\\!+", "!");
-        return string;
+        // Chat renders single line and Discord relayed messages can contain line breaks
+        return string.replaceAll("[\\t\\r\\n\\f]+", " ");
     }
 
     private SpamFilter() {

@@ -13,4 +13,6 @@ public interface MatchmakingServerLoginInterface {
     void loginWithSteam(long steamAccountId, String personaName, byte[] authTicket, int appId, int revision);
 
     void createUser(Login login, LoginDetails login_details, SignedObject reg_key, int revision);
+
+    void setSimVersion(int sim_version);
 }
