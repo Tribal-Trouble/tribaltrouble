@@ -10,7 +10,7 @@ import java.util.*;
 
 public final class RegionBuilder {
     public static final int MAX_EXAMINED_NODES_PER_PATH = 600;
-    public static final int REGION_PATH_MAX_COST = 200;
+    public static final int REGION_PATH_MAX_COST = 70;
     public static final int MAX_PATH_COST = 2048;
     public static final int GRID_SIZE = 128;
 
