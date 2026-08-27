@@ -139,6 +139,10 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
     @Override
     public void updateProfile(Profile profile) {
         active_profile = profile;
+        MatchmakingListener listener = Network.getMatchmakingListener();
+        if (listener != null) {
+            listener.profileUpdated();
+        }
     }
 
     public void setCreatingProfileListener(ProfileListener listener) {

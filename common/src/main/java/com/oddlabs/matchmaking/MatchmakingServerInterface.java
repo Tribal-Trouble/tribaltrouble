@@ -8,6 +8,8 @@ public interface MatchmakingServerInterface {
     int TYPE_GAME = 1;
     int TYPE_CHAT_ROOM_LIST = 2;
     int TYPE_RANKING_LIST = 3;
+    int TYPE_OPENSKILL_RANKING_LIST = 4;
+    int TYPE_OPENSKILL_PERSONAL_RANKING = 5;
 
     int MATCHMAKING_SERVER_PORT = 33214;
 

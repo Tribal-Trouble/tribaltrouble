@@ -37,7 +37,13 @@ public final class Landscape {
 
     private static final int NUM_PLANT_TYPES = 4;
 
-    public static final Vector4fc NATIVE_SEA_BOTTOM_COLOR = Color.argb4v(0xFF_73_40_99);
+    /** Depth (in meters below sea level) where the sea bottom color starts blending in. */
+    private static final float SEABOTTOM_DEPTH_OFFSET_METERS = 3f;
+
+    /** Fraction of baked sun shading kept on terrain below the waterline. */
+    private static final float UNDERWATER_SHADING = 0.3f;
+
+    public static final Vector4fc NATIVE_SEA_BOTTOM_COLOR = Color.argb4v(0xFF_37_42_78);  // (Deep Navy Blue)
     public static final Vector4fc VIKING_SEA_BOTTOM_COLOR = Color.argb4v(0xFF_1A_33_3D);  // (Dark Blue-Green)
 
     private static final Vector4fc NATIVE_FOG_COLOR = Color.argb4v(0xFF_A5_BF_FF);
@@ -842,7 +848,7 @@ public final class Landscape {
             }
         };
 
-        Channel seabottom_alpha = Landscape.generateSeabottomAlpha(terrain, height);
+        Channel seabottom_alpha = Landscape.generateSeabottomAlpha(terrain, height, height_scale);
         if (DEBUG) seabottom_alpha.toLayer().saveAsPNG("alpha_seabottom");
 
         // generate shadow and highlight alpha
@@ -893,6 +899,20 @@ public final class Landscape {
             peak = 0;
         }
         shadow.channelBrightest(shadowcast.smooth(1).brightness(0.67f));
+
+        // Submerged terrain lit like dry land reads as shadowed cliffs through clear water; fade the bake out
+        float shading_band = SEABOTTOM_DEPTH_OFFSET_METERS / height_scale;
+        for (int y = 0; y < unit_grids_per_world; y++) {
+            for (int x = 0; x < unit_grids_per_world; x++) {
+                float h = height.getPixel(x, y);
+                if (h < Globals.SEA_LEVEL) {
+                    float fade = Math.clamp((h - (Globals.SEA_LEVEL - shading_band)) / shading_band, 0f, 1f);
+                    float factor = UNDERWATER_SHADING + (1f - UNDERWATER_SHADING) * fade;
+                    shadow.putPixel(x, y, shadow.getPixel(x, y) * factor);
+                    highlight.putPixel(x, y, highlight.getPixel(x, y) * factor);
+                }
+            }
+        }
         if (DEBUG) shadow.toLayer().saveAsPNG("alpha_shadow");
         ProgressForm.progress(1 / 14f);
 
@@ -958,10 +978,14 @@ public final class Landscape {
     }
 
     // generate seabottom alpha
-    private static @NonNull Channel generateSeabottomAlpha(@NonNull TerrainType terrain, @NonNull Channel height) {
-        Channel seabottom_alpha = height.copy().invert().dynamicRange(1f - Globals.SEA_LEVEL, 1f, 0f, 1f);
+    private static @NonNull Channel generateSeabottomAlpha(@NonNull TerrainType terrain, @NonNull Channel height,
+            int height_scale) {
+        // Start the tint below the waterline so shallow water seen through transparent water stays sand colored
+        float depth_offset = SEABOTTOM_DEPTH_OFFSET_METERS / height_scale;
+        Channel seabottom_alpha = height.copy().invert().dynamicRange(1f - Globals.SEA_LEVEL + depth_offset, 1f, 0f,
+                1f);
         return switch (terrain) {
-            case NATIVE -> seabottom_alpha.grow(0f, 1).gamma(0.5f);
+            case NATIVE -> seabottom_alpha.gamma(0.5f);
             case VIKING -> seabottom_alpha.gamma(0.5f);
 
         };

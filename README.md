@@ -31,6 +31,7 @@ See what we're working on right now on the **[current roadmap](https://github.co
   - [Code Formatting](#code-formatting)
 - [🚀 Releasing](#-releasing)
 - [🤝 Contributing](#-contributing)
+- [🌍 Translating](#-translating)
 - [🙏 About this fork](#-about-this-fork)
 
 ## 🎮 How to play?
@@ -177,6 +178,14 @@ There are ways to contribute besides developing. If you have screenshots of the 
 > For example a screenshot of the old the leaderboards.
 
 Being an active member in the [discord](https://discord.gg/tribaltrouble) and playing games also will help keep the game going!
+
+## 🌍 Translating
+
+No coding needed: game text is translated in a shared Google Sheet, and a workflow
+turns sheet edits into reviewed pull requests automatically. To become a translator,
+ask for edit access in the [discord](https://discord.gg/tribaltrouble) or open an
+issue, and say which language you want to work on. See
+[docs/translations/README.md](./docs/translations/README.md) for how it all works.
 
 ## 🙏 About this fork
 

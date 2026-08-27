@@ -14,6 +14,8 @@ public interface MatchmakingListener extends ErrorListener {
 
     void receivedProfiles(Profile[] profiles, String last_nick);
 
+    void profileUpdated();
+
     void joinedChat(ChatRoomInfo info);
 
     void updateChatRoom(ChatRoomInfo info);

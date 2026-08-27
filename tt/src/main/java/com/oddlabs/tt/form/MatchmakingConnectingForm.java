@@ -96,6 +96,11 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
     }
 
     @Override
+    public void profileUpdated() {
+        assert false;
+    }
+
+    @Override
     public void doRemove() {
         super.doRemove();
         Network.setMatchmakingListener(null);

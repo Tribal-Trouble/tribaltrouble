@@ -242,7 +242,10 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
         if (Globals.draw_sky) {
             sky.render(context, frustum_state, modelViewStack, projectionStack);
-            sky.renderSeaBottom(context, frustum_state, modelViewStack, projectionStack);
+            // The underwater backdrop must not appear in the water reflection pass
+            if (!aboveSea) {
+                sky.renderSeaBottom(context, frustum_state, modelViewStack, projectionStack);
+            }
         }
 
         if (Globals.process_landscape) {
