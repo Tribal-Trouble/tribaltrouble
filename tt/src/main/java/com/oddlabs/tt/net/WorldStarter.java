@@ -15,6 +15,7 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.UnitInfo;
 import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.resource.WorldGenerator;
+import com.oddlabs.tt.p2p.P2P;
 import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
@@ -80,6 +81,7 @@ final class WorldStarter implements LoadCallback {
             SteamManager.setMultiplayerInGameRichPresence();
         }
         SteamManager.setInActiveWorld(true);
+        P2P.get().gameStarted();
         IO.println("PeerHub created (session_id = " + session_id + ") Player list:");
         return viewer.getRenderer();
     }

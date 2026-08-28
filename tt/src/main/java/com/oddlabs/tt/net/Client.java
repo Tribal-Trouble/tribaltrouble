@@ -17,6 +17,8 @@ import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.UnitInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
+import com.oddlabs.tt.p2p.P2P;
+import com.oddlabs.tt.p2p.P2PProvider;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -26,6 +28,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public final class Client implements ARMIEventBroker, GameClientInterface, ConnectionInterface {
+    /** host_id sentinel: connect to the Steam lobby session's host over Steam P2P. */
+    public static final int P2P_HOST_ID = -2;
+
     private static final int CONNECTING = 1;
     private static final int NEGOTIATING = 2;
     private static final int CLOSED = 5;
@@ -60,7 +65,9 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
         this.ingame_info = ingame_info;
         this.world_params = world_params;
         this.initial_action = initial_action;
-        if (host_id != -1)
+        if (host_id == P2P_HOST_ID)
+            this.connection = P2P.get().connectToHost(P2PProvider.CHANNEL_LOBBY, this);
+        else if (host_id != -1)
             this.connection = new TunnelledConnection(host_id, this);
         else
             this.connection = new Connection(network, new InetSocketAddress(Utils.getLoopbackAddress(),

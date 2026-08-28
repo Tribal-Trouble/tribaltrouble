@@ -125,6 +125,8 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
     }
 
     public static void shutdown() {
+        SteamLobbySession.leave();
+        SteamP2P.shutdown();
         if (instance != null) {
             instance.cancelAuthTicket();
             instance.steamUserStats.dispose();
@@ -144,6 +146,18 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
 
     public long getAccountID() {
         return steamUser.getSteamID().getAccountID();
+    }
+
+    public SteamID getSteamID() {
+        return steamUser.getSteamID();
+    }
+
+    public String getFriendPersonaName(SteamID steamID) {
+        return steamFriends.getFriendPersonaName(steamID);
+    }
+
+    public void activateInviteDialog(SteamID lobbyID) {
+        steamFriends.activateGameOverlayInviteDialog(lobbyID);
     }
 
     public int getAppID() {
@@ -262,6 +276,11 @@ public final class SteamManager implements SteamUserCallback, SteamFriendsCallba
 
     @Override
     public void onGameLobbyJoinRequested(SteamID steamIDLobby, SteamID steamIDFriend) {
+        if (inActiveWorld) {
+            logger.info("Ignoring Steam lobby join request while in an active world");
+            return;
+        }
+        SteamLobbySession.joinRequested(steamIDLobby);
     }
 
     @Override

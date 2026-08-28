@@ -11,7 +11,12 @@ public final class TerrainMenuForm extends Form implements TerrainMenuListener {
     private final @NonNull TerrainMenu terrain;
 
     public TerrainMenuForm(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, Menu main_menu) {
-        terrain = new TerrainMenu(network, gui_root, main_menu, false, this);
+        this(network, gui_root, main_menu, false);
+    }
+
+    public TerrainMenuForm(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, Menu main_menu,
+            boolean p2p) {
+        terrain = new TerrainMenu(network, gui_root, main_menu, false, p2p, this);
         addChild(terrain);
         terrain.place();
         compileCanvas();
@@ -33,6 +38,6 @@ public final class TerrainMenuForm extends Form implements TerrainMenuListener {
 
     @Override
     public void terrainMenuOK() {
-
+        remove();
     }
 }

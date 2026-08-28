@@ -16,6 +16,9 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
+import com.oddlabs.tt.p2p.P2P;
+import com.oddlabs.tt.p2p.P2PIdentifier;
+import com.oddlabs.tt.p2p.P2PProvider;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -305,7 +308,18 @@ public final class Server implements ConnectionListenerInterface {
         int rating = 0;
         String name;
         TunnelAddress address;
-        if (remote_address instanceof InetAddress) {
+        if (remote_address instanceof InetAddress && P2P.get().isHost()) {
+            // Serverless P2P match: the host's own client connects over loopback; remote joiners
+            // arrive over the P2P transport instead of a matchmaking tunnel.
+            address = null;
+            if (register_server)
+                tunnelled_listener = P2P.get().listen(P2PProvider.CHANNEL_LOBBY, this);
+            name = P2P.get().isAvailable() ? P2P.get().getLocalName() : Utils.getBundleString(
+                    ResourceBundle.getBundle(MatchmakingClient.class.getName()), "player");
+        } else if (remote_address instanceof P2PIdentifier identifier) {
+            address = null;
+            name = identifier.name();
+        } else if (remote_address instanceof InetAddress) {
             address = Network.getMatchmakingClient().getLocalAddress();
             if (register_server) {
                 tunnelled_listener = new TunnelledConnectionListener(this);
