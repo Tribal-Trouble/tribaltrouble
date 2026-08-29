@@ -257,11 +257,7 @@ public final class Landscape {
             int[] bounds = new int[4];
             island_ids.floodfill(pos[0], pos[1], (float) last_id, 0.01f, count, bounds);
             int area = count[0];
-            if (count[0] < MIN_ISLAND_AREA) {
-                // If not big enough, put it back
-                island_ids.floodfill(pos[0], pos[1], 0.0f, 0.01f, null, null);
-            }
-            IslandInfo info = new IslandInfo(last_id, area, bounds[0], bounds[1], bounds[2], bounds[3], pos[0], pos[1]);
+            IslandInfo info = new IslandInfo(last_id, area, bounds[0], bounds[1], bounds[2], bounds[3], pos[0], pos[1], dock, island_ids);
             island_info.put(last_id, info);
             last_id++;
         }
@@ -1331,7 +1327,7 @@ public final class Landscape {
         Channel beach = height.copy().threshold(
                 Globals.SEA_LEVEL - 0.1f / height_scale,
                 Globals.SEA_LEVEL + 0.1f / height_scale);
-        dock_map = water_map.copy().smooth(6).threshold(0.0f, 0.99f).channelMultiply(beach).channelMultiply(shore_line);
+        dock_map = water_map.copy().smooth(6).threshold(0.0f, 0.99f).channelMultiply(shore_line);
         Channel near_beach = dock_map.copy().smooth(8);
         deep_water_map = water_map.copy().smooth(4).threshold(0.99f, 1.0f);
         if (DEBUG) deep_water_map.toLayer().saveAsPNG("deep_water");
@@ -1342,9 +1338,8 @@ public final class Landscape {
                 byte water_val = 0;
                 water_val += water_map.getPixel(x, y) > 0.5f ? 1 : 0;
                 water_val += deep_water_map.getPixel(x, y) > 0.5f ? 1 : 0;
-                var dockf = dock_map.getPixel(x, y);
                 byte dock_val = 0;
-                if (dockf > 0.5f) {
+                if (dock_map.getPixel(x, y) > 0.5f) {
                     dock_val = 1;
                 } else if (water_val == 0 && near_beach.getPixel(x, y) > 0.0f) {
                     dock_val = 2;

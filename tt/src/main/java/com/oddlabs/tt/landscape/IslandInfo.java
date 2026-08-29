@@ -1,5 +1,10 @@
 package com.oddlabs.tt.landscape;
 
+import com.oddlabs.procedural.Channel;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class IslandInfo {
     private int id;
     private int area;
@@ -12,8 +17,10 @@ public class IslandInfo {
     private int max_y;
     private int start_x;
     private int start_y;
+    private List<int[]> contour_points = new ArrayList<>();
 
-    public IslandInfo(int id, int area, int min_x, int min_y, int max_x, int max_y, int start_x, int start_y) {
+    public IslandInfo(int id, int area, int min_x, int min_y, int max_x, int max_y, int start_x, int start_y,
+            byte[][] dock_grid, Channel island_ids) {
         this.id = id;
         this.area = area;
         this.min_x = min_x;
@@ -25,6 +32,21 @@ public class IslandInfo {
         this.rocks = 0;
         this.iron = 0;
         this.trees = 0;
+        generateContourPoints(dock_grid, island_ids);
+    }
+
+    private void generateContourPoints(byte[][] dock_grid, Channel island_ids) {
+        for (int y = min_y; y <= max_y; y++) {
+            for (int x = min_x; x <= max_x; x++) {
+                if (dock_grid[y][x] == 1 && StrictMath.round(island_ids.getPixel(x, y)) == id) {
+                    contour_points.add(new int[]{x, y});
+                }
+            }
+        }
+    }
+
+    public List<int[]> contourPoints() {
+        return contour_points;
     }
 
     public void setTrees(int trees) {
