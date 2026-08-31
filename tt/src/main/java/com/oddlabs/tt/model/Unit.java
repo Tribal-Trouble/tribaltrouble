@@ -500,11 +500,13 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         } else if (!isDead()) {
             hit_points = Math.clamp(hit_points - damage, 0, getTemplate().getMaxHitPoints());
             if (hit_points == 0) {
+                owner.unitKilled();
                 if (mounted_building instanceof Ship ship) {
                     ship.getShipHR().removeUnit(this);
                     drown();
                 } else {
                     startDying();
+                    setDirection(-direction_x, -direction_y);
                 }
             }
         }
