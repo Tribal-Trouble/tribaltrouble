@@ -11,13 +11,13 @@ solves each pose bone's basis from the file matrices; export samples pose_bone.m
 frame. tools/blender/validate_roundtrip.py is the numeric gate for that path.
 
 Static props (plants, rocks, a torch) have no skeleton: every vertex is skinned
-to "dummy_bone" with weight 1, which is what the exporter writes by default.
-Attachments (hats, held items) are the same thing skinned to one unit bone
-instead: pick an attachment point in the export dialog, or set a tt_bone
-property on the object. Model attachments in the unit's bind pose. Skinned unit
-meshes import fine for viewing/editing; bone weights are preserved as vertex
-groups but the exporter still writes a single bone per object, so do not
-re-export animated units yet.
+to "dummy_bone" with weight 1, which is what the exporter writes when an object
+has no bone-named vertex groups. Attachments (hats, held items) are the same
+thing skinned to one unit bone instead: pick an attachment point in the export
+dialog, or set a tt_bone property on the object. Model attachments in the unit's
+bind pose. Skinned units keep their weights as vertex groups and export from
+them, always in the rest pose; Split Mesh by Bone separates a baked-in held
+item into its own object.
 
 The game is Z-up like Blender, so no axis conversion is needed. If the texture
 looks vertically flipped on an imported model, re-import with "Flip V" checked
@@ -36,7 +36,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 5, 0),
+    "version": (1, 6, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",

@@ -2,7 +2,9 @@
 
 Feature list for bone-attached items (hats, held items, back items) across the game and the Blender plugin. Written 2026-09-06.
 
-Status: steps 1 to 3 of the suggested order are implemented. Plugin items 1, 4, 5, 6, 7, 8 and 10 are on branch `blender-plugin` (addon 1.5.0); game items 1, 2 and 3 (local toggle only) are on branch `unit-attachments` with a placeholder viking peon hat. Remaining: plugin items 2, 3 and 9, the content splits, and game items 3 (wire) to 7.
+Status: every plugin item (1 to 10) is on branch `blender-plugin` (addon 1.6.0). Game items 1, 2 and 3 (local toggle only) are on branch `unit-attachments` with a placeholder viking peon hat, plus the viking warrior axe split pilot. Remaining: the other content splits, and game items 3 (wire) to 7.
+
+Two source-file quirks the tools now handle, worth knowing when reading the XML by hand: corner normals are not unit length (the game normalises at load), and a vertex can list the same bone twice (the game sums the entries).
 
 ## What the game does today
 
