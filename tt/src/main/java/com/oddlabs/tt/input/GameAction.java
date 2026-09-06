@@ -62,6 +62,7 @@ public enum GameAction {
     UNIT_BEACON,
     UNIT_NEXT_IDLE,
     UNIT_SET_RALLY,
+    UNIT_TOGGLE_HAT,
     GAMEPLAY_BACK,
 
     // Army Shortcuts

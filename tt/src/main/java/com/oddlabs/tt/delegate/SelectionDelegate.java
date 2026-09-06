@@ -263,6 +263,15 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                     return;
                 }
 
+                if (event.consumeAction(GameAction.UNIT_TOGGLE_HAT)) {
+                    for (Selectable<?> selectable : getViewer().getSelection().getCurrentSelection().getSet()) {
+                        if (selectable instanceof Unit unit)
+                            unit.toggleAttachment("hat");
+                    }
+                    event.consume();
+                    return;
+                }
+
                 if (event.consumeAction(GameAction.UNIT_NEXT_IDLE)) {
                     nextIdlePeon();
                     event.consume();
