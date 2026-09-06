@@ -29,16 +29,15 @@ import xml.etree.ElementTree as ET
 from xml.sax.saxutils import quoteattr
 
 import bpy
-import bmesh
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from bpy.props import StringProperty, BoolProperty, CollectionProperty, EnumProperty, PointerProperty
-from mathutils import Matrix
+from mathutils import Matrix, Vector
 
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
     "version": (1, 5, 0),
-    "blender": (4, 0, 0),
+    "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
     "category": "Import-Export",
@@ -194,6 +193,172 @@ def get_atlas_material(texture, image_path):
     return mat
 
 
+class MeshRecord:
+    """Triangle mesh in game terms: shared vertex positions plus per-corner UV, colour and normal, per-vertex skins."""
+
+    def __init__(self):
+        self.verts = []        # (x, y, z)
+        self.skins = []        # per vertex: [(bone, weight)]
+        self.faces = []        # (i, j, k) into verts
+        self.loop_uvs = []     # per corner (3 per face)
+        self.loop_uv2s = None  # per corner or None when the file has no second UV set
+        self.loop_cols = []    # per corner (r, g, b, a)
+        self.loop_normals = []  # per corner (nx, ny, nz)
+
+
+def mesh_record_from_xml(root, flip_v):
+    record = MeshRecord()
+    vert_index = {}
+    seen_faces = set()
+    has_uv2 = False
+    uv2s = []
+
+    def add_vertex(vertex, pos, dedup):
+        skin = [(s.get("bone"), float(s.get("weight"))) for s in vertex]
+        key = (pos, tuple(skin))  # same position with different weights stays a separate vertex
+        idx = vert_index.get(key) if dedup else None
+        if idx is None:
+            idx = len(record.verts)
+            if dedup:
+                vert_index[key] = idx
+            record.verts.append(pos)
+            record.skins.append(skin)
+        return idx
+
+    for polygon in root.find("polygons"):
+        vertices = list(polygon)
+        positions = [(float(v.get("x")), float(v.get("y")), float(v.get("z"))) for v in vertices]
+        face = [add_vertex(v, p, True) for v, p in zip(vertices, positions)]
+        # Merging by position would make this face degenerate or a duplicate (double-sided cards),
+        # and Blender's validate() would drop it; give it its own vertices instead.
+        key = frozenset(face)
+        if len(key) < len(face) or key in seen_faces:
+            face = [add_vertex(v, p, False) for v, p in zip(vertices, positions)]
+            key = frozenset(face)
+        seen_faces.add(key)
+        for vertex in vertices:
+            v = float(vertex.get("v"))
+            record.loop_uvs.append((float(vertex.get("u")), 1.0 - v if flip_v else v))
+            if vertex.get("u2") is not None:
+                has_uv2 = True
+                v2 = float(vertex.get("v2"))
+                uv2s.append((float(vertex.get("u2")), 1.0 - v2 if flip_v else v2))
+            else:
+                uv2s.append((0.0, 0.0))
+            record.loop_cols.append((float(vertex.get("r")), float(vertex.get("g")),
+                                     float(vertex.get("b")), float(vertex.get("a"))))
+            # Source files carry normals of any length; the game normalises at load, Blender wants unit vectors.
+            n = Vector((float(vertex.get("nx")), float(vertex.get("ny")), float(vertex.get("nz"))))
+            n.normalize()
+            record.loop_normals.append(tuple(n))
+        record.faces.append(tuple(face))
+    if has_uv2:
+        record.loop_uv2s = uv2s
+    return record
+
+
+def build_mesh(name, record):
+    """Mesh data block from a record; the file's corner normals become custom split normals."""
+    mesh = bpy.data.meshes.new(name)
+    mesh.from_pydata(record.verts, [], record.faces)
+    mesh.validate()
+    if len(mesh.loops) != len(record.loop_uvs):
+        return mesh
+    uv_layer = mesh.uv_layers.new(name="UVMap")
+    for i, uv in enumerate(record.loop_uvs):
+        uv_layer.data[i].uv = uv
+    if record.loop_uv2s is not None:
+        uv2_layer = mesh.uv_layers.new(name="UVMap2")
+        for i, uv in enumerate(record.loop_uv2s):
+            uv2_layer.data[i].uv = uv
+    col_layer = mesh.color_attributes.new(name="Col", type="FLOAT_COLOR", domain="CORNER")
+    for i, col in enumerate(record.loop_cols):
+        col_layer.data[i].color = col
+    for poly in mesh.polygons:
+        poly.use_smooth = True
+    if record.loop_normals:
+        mark_normal_seams(mesh, record.loop_normals)
+        mesh.normals_split_custom_set(record.loop_normals)
+    return mesh
+
+
+def mark_normal_seams(mesh, loop_normals):
+    """Blender shares one custom normal per vertex across a smooth fan, so edges where the file's corner normals
+    disagree must be sharp for the normals to survive a round trip."""
+    per_edge = {}
+    for poly in mesh.polygons:
+        loops = list(poly.loop_indices)
+        for i, li in enumerate(loops):
+            loop = mesh.loops[li]
+            next_loop = mesh.loops[loops[(i + 1) % len(loops)]]
+            per_edge.setdefault(loop.edge_index, []).append(
+                {loop.vertex_index: loop_normals[li], next_loop.vertex_index: loop_normals[next_loop.index]})
+    for edge_index, faces in per_edge.items():
+        if len(faces) < 2:
+            continue
+        first = faces[0]
+        for other in faces[1:]:
+            if any(sum(a * b for a, b in zip(first[v], other[v])) < 0.999999 for v in first if v in other):
+                mesh.edges[edge_index].use_edge_sharp = True
+                break
+
+
+def set_vertex_groups(obj, skins):
+    obj.vertex_groups.clear()
+    bones = sorted({bone for skin in skins for bone, _ in skin})
+    groups = {bone: obj.vertex_groups.new(name=bone) for bone in bones}
+    for idx, skin in enumerate(skins):
+        for bone, weight in skin:
+            # Source files can list a bone twice for one vertex; the game sums them, so add rather than replace.
+            groups[bone].add([idx], weight, "ADD")
+
+
+def mesh_record_from_mesh(me, obj, matrix, flip_v, rigid_bone, use_groups):
+    """Triangulated record of a Mesh in the space given by matrix.
+
+    rigid_bone skins every vertex to that bone with weight 1. Otherwise vertex groups named after bones are used
+    (normalised) when use_groups is set; vertices without any fall back to dummy_bone.
+    """
+    me.calc_loop_triangles()
+    normal_matrix = matrix.to_3x3().inverted().transposed()
+    uv_layers = list(me.uv_layers)
+    uv_layer = uv_layers[0] if uv_layers else None
+    uv2_layer = uv_layers[1] if len(uv_layers) > 1 else None
+    col_layer = me.color_attributes.active_color if len(me.color_attributes) else None
+    group_names = [g.name for g in obj.vertex_groups]
+
+    record = MeshRecord()
+    record.verts = [tuple(matrix @ v.co) for v in me.vertices]
+    for v in me.vertices:
+        if rigid_bone is not None:
+            record.skins.append([(rigid_bone, 1.0)])
+            continue
+        # Raw group weights, as the source files store them; the game sums them as given.
+        weights = [(group_names[g.group], g.weight) for g in v.groups if use_groups and g.weight > 0.0]
+        record.skins.append(weights if weights else [(STATIC_BONE, 1.0)])
+    if uv2_layer is not None:
+        record.loop_uv2s = []
+    for tri in me.loop_triangles:
+        record.faces.append(tuple(tri.vertices))
+        for li, vi in zip(tri.loops, tri.vertices):
+            if uv_layer is not None:
+                u, v = uv_layer.data[li].uv
+            else:
+                u, v = 0.0, 0.0
+            record.loop_uvs.append((u, 1.0 - v if flip_v else v))
+            if uv2_layer is not None:
+                u2, v2 = uv2_layer.data[li].uv
+                record.loop_uv2s.append((u2, 1.0 - v2 if flip_v else v2))
+            if col_layer is None:
+                record.loop_cols.append((1.0, 1.0, 1.0, 1.0))
+            else:
+                record.loop_cols.append(tuple(col_layer.data[li if col_layer.domain == "CORNER" else vi].color))
+            n = normal_matrix @ me.corner_normals[li].vector
+            n.normalize()
+            record.loop_normals.append(tuple(n))
+    return record
+
+
 class ImportTTMesh(bpy.types.Operator, ImportHelper):
     bl_idname = "import_mesh.tt_xml"
     bl_label = "Import Tribal Trouble Mesh"
@@ -232,79 +397,15 @@ class ImportTTMesh(bpy.types.Operator, ImportHelper):
             return False
 
         name = os.path.splitext(os.path.basename(filepath))[0]
-        verts = []           # deduped positions
-        vert_index = {}      # (x, y, z) -> index
-        faces = []
-        loop_uvs = []
-        loop_uv2s = []
-        loop_cols = []
-        skins = []           # per deduped vertex: list of (bone, weight)
-        seen_faces = set()
-        has_uv2 = False
-
-        def add_vertex(vertex, pos, dedup):
-            idx = vert_index.get(pos) if dedup else None
-            if idx is None:
-                idx = len(verts)
-                if dedup:
-                    vert_index[pos] = idx
-                verts.append(pos)
-                skins.append([(s.get("bone"), float(s.get("weight"))) for s in vertex])
-            return idx
-
-        for polygon in root.find("polygons"):
-            vertices = list(polygon)
-            positions = [(float(v.get("x")), float(v.get("y")), float(v.get("z"))) for v in vertices]
-            face = [add_vertex(v, p, True) for v, p in zip(vertices, positions)]
-            # Merging by position would make this face degenerate or a duplicate (double-sided cards),
-            # and Blender's validate() would drop it; give it its own vertices instead.
-            key = frozenset(face)
-            if len(key) < len(face) or key in seen_faces:
-                face = [add_vertex(v, p, False) for v, p in zip(vertices, positions)]
-                key = frozenset(face)
-            seen_faces.add(key)
-            for vertex in vertices:
-                v = float(vertex.get("v"))
-                loop_uvs.append((float(vertex.get("u")), 1.0 - v if self.flip_v else v))
-                if vertex.get("u2") is not None:
-                    has_uv2 = True
-                    v2 = float(vertex.get("v2"))
-                    loop_uv2s.append((float(vertex.get("u2")), 1.0 - v2 if self.flip_v else v2))
-                else:
-                    loop_uv2s.append((0.0, 0.0))
-                loop_cols.append((float(vertex.get("r")), float(vertex.get("g")),
-                                  float(vertex.get("b")), float(vertex.get("a"))))
-            faces.append(face)
-
-        mesh = bpy.data.meshes.new(name)
-        mesh.from_pydata(verts, [], faces)
-        mesh.validate()
-        if len(mesh.loops) != len(loop_uvs):
+        record = mesh_record_from_xml(root, self.flip_v)
+        mesh = build_mesh(name, record)
+        if len(mesh.loops) != len(record.loop_uvs):
             self.report({"WARNING"}, f"{os.path.basename(filepath)}: Blender dropped "
-                                     f"{len(faces) - len(mesh.polygons)} invalid faces; UVs and colours skipped")
-            loop_uvs = loop_uv2s = loop_cols = []
-
-        uv_layer = mesh.uv_layers.new(name="UVMap")
-        for i, uv in enumerate(loop_uvs):
-            uv_layer.data[i].uv = uv
-        if has_uv2:
-            uv2_layer = mesh.uv_layers.new(name="UVMap2")
-            for i, uv in enumerate(loop_uv2s):
-                uv2_layer.data[i].uv = uv
-        col_layer = mesh.color_attributes.new(name="Col", type="FLOAT_COLOR", domain="CORNER")
-        for i, col in enumerate(loop_cols):
-            col_layer.data[i].color = col
-
+                                     f"{len(record.faces) - len(mesh.polygons)} invalid faces; loop data skipped")
         obj = bpy.data.objects.new(name, mesh)
         obj["tt_texture"] = root.get("texture") or find_registry_texture(filepath) or ""
         context.collection.objects.link(obj)
-
-        # Preserve skinning as vertex groups for reference
-        bones = sorted({bone for skin in skins for bone, _ in skin})
-        groups = {bone: obj.vertex_groups.new(name=bone) for bone in bones}
-        for idx, skin in enumerate(skins):
-            for bone, weight in skin:
-                groups[bone].add([idx], weight, "REPLACE")
+        set_vertex_groups(obj, record.skins)
 
         if self.load_textures:
             # Units can declare a comma-separated atlas list (one per weapon tier); preview with the first.
@@ -315,7 +416,8 @@ class ImportTTMesh(bpy.types.Operator, ImportHelper):
 
         context.view_layer.objects.active = obj
         obj.select_set(True)
-        self.report({"INFO"}, f"Imported {len(verts)} verts, {len(faces)} tris, texture '{obj['tt_texture']}'")
+        self.report({"INFO"}, f"Imported {len(record.verts)} verts, {len(record.faces)} tris, "
+                              f"texture '{obj['tt_texture']}'")
         return True
 
 
@@ -332,63 +434,61 @@ def material_image_name(objs):
     return ""
 
 
-def write_mesh_xml(objs, bones, filepath, texture, flip_v, depsgraph):
-    """Merge objs in world space into one triangulated mesh and write it as game XML.
+def append_record_polygons(lines, record):
+    li = 0
+    for face in record.faces:
+        lines.append("        <polygon>")
+        for vi in face:
+            x, y, z = record.verts[vi]
+            r, g, b, a = record.loop_cols[li]
+            nx, ny, nz = record.loop_normals[li]
+            u, v = record.loop_uvs[li]
+            extra = ""
+            if record.loop_uv2s is not None:
+                u2, v2 = record.loop_uv2s[li]
+                extra = f' u2="{u2:.6g}" v2="{v2:.6g}"'
+            lines.append(
+                f'            <vertex x="{x:.6g}" y="{y:.6g}" z="{z:.6g}" '
+                f'r="{r:.4g}" g="{g:.4g}" b="{b:.4g}" a="{a:.4g}" '
+                f'nx="{nx:.6g}" ny="{ny:.6g}" nz="{nz:.6g}" '
+                f'u="{u:.6g}" v="{v:.6g}"{extra}>')
+            for bone, weight in record.skins[vi]:
+                lines.append(f"                <skin bone={quoteattr(bone)} weight=\"{weight:.6g}\"/>")
+            lines.append("            </vertex>")
+            li += 1
+        lines.append("        </polygon>")
 
-    bones[i] is the bone every vertex of objs[i] is skinned to with weight 1.
+
+def write_mesh_xml(objs, bones, filepath, texture, flip_v, depsgraph, use_groups=True):
+    """Write objs, evaluated and in world space, as one game mesh file.
+
+    bones[i] is a bone name to skin every vertex of objs[i] to rigidly, or None to use its vertex groups.
     """
-    bm = bmesh.new()
-    bone_layer = bm.verts.layers.int.new("tt_bone")
-    for i, o in enumerate(objs):
-        eval_obj = o.evaluated_get(depsgraph)
-        me = eval_obj.to_mesh()
-        me.transform(export_matrix(o))
-        start = len(bm.verts)
-        bm.from_mesh(me)
-        eval_obj.to_mesh_clear()
-        bm.verts.ensure_lookup_table()
-        for v in bm.verts[start:]:
-            v[bone_layer] = i
-    bmesh.ops.triangulate(bm, faces=bm.faces)
-    bm.normal_update()
-    skin_lines = [f"                <skin bone={quoteattr(b)} weight=\"1\"/>" for b in bones]
-
-    uv_layer = bm.loops.layers.uv.active
-    # Import creates a float colour layer; older files may carry a byte colour layer.
-    col_layer = bm.loops.layers.float_color.active or bm.loops.layers.color.active
-    lines = ['<?xml version="1.0" encoding="UTF-8" standalone="yes"?>', "", DOCTYPE, ""]
+    lines = [XML_HEADER, "", DOCTYPE, ""]
     lines.append(f'<mesh texture="{texture}">' if texture else "<mesh>")
     lines.append("    <polygons>")
-    for face in bm.faces:
-        lines.append("        <polygon>")
-        for loop in face.loops:
-            co = loop.vert.co
-            # Smooth-shaded vertex normal; matches how the game lights static props
-            n = loop.vert.normal if face.smooth else face.normal
-            if uv_layer is not None:
-                u, v = loop[uv_layer].uv
-            else:
-                u, v = 0.0, 0.0
-            if flip_v:
-                v = 1.0 - v
-            if col_layer is not None:
-                r, g, b, a = loop[col_layer]
-            else:
-                r, g, b, a = 1.0, 1.0, 1.0, 1.0
-            lines.append(
-                f'            <vertex x="{co.x:.6g}" y="{co.y:.6g}" z="{co.z:.6g}" '
-                f'r="{r:.4g}" g="{g:.4g}" b="{b:.4g}" a="{a:.4g}" '
-                f'nx="{n.x:.6g}" ny="{n.y:.6g}" nz="{n.z:.6g}" '
-                f'u="{u:.6g}" v="{v:.6g}">')
-            lines.append(skin_lines[loop.vert[bone_layer]])
-            lines.append("            </vertex>")
-        lines.append("        </polygon>")
+    for o, bone in zip(objs, bones):
+        eval_obj = o.evaluated_get(depsgraph)
+        me = eval_obj.to_mesh()
+        try:
+            append_record_polygons(lines, mesh_record_from_mesh(me, o, export_matrix(o), flip_v, bone, use_groups))
+        finally:
+            eval_obj.to_mesh_clear()
     lines.append("    </polygons>")
     lines.append("</mesh>")
-    bm.free()
+    write_lines(filepath, lines)
 
-    with open(filepath, "w", encoding="utf-8", newline="\n") as f:
-        f.write("\n".join(lines) + "\n")
+
+def rest_pose_armatures(objs):
+    """Armatures that deform or carry these objects; their pose must be at rest while exporting."""
+    arms = []
+    for o in objs:
+        if o.parent is not None and o.parent.type == "ARMATURE":
+            arms.append(o.parent)
+        for modifier in o.modifiers:
+            if modifier.type == "ARMATURE" and modifier.object is not None:
+                arms.append(modifier.object)
+    return list(dict.fromkeys(arms))
 
 
 class ExportTTMesh(bpy.types.Operator, ExportHelper):
@@ -410,6 +510,10 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
                            description="Unit skeleton the attachment point is resolved against")
     custom_bone: StringProperty(name="Bone", default="",
                                 description="Exact bone name from the unit's skeleton file")
+    use_vertex_groups: BoolProperty(name="Skin From Vertex Groups", default=True,
+                                    description="With Attach To set to Static, skin vertices by their bone-named "
+                                                "vertex groups (imported units keep their weights); vertices "
+                                                "without groups get dummy_bone")
 
     def draw(self, context):
         layout = self.layout
@@ -421,6 +525,8 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
             layout.prop(self, "custom_bone")
         elif self.attach_point != "NONE":
             layout.prop(self, "skeleton")
+        else:
+            layout.prop(self, "use_vertex_groups")
 
     def invoke(self, context, event):
         objs = [o for o in context.selected_objects if o.type == "MESH"]
@@ -429,11 +535,12 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
         return super().invoke(context, event)
 
     def resolve_bone(self, obj):
+        """Bone to skin the whole object to, or None to use its vertex groups."""
         bone = obj.get("tt_bone")
         if bone:
             return bone
         if self.attach_point == "NONE":
-            return STATIC_BONE
+            return None if self.use_vertex_groups else STATIC_BONE
         if self.attach_point == "CUSTOM":
             return self.custom_bone.strip() or STATIC_BONE
         bone = ATTACHMENT_POINTS[self.attach_point].get(self.skeleton)
@@ -451,6 +558,22 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
             self.report({"ERROR"}, "Select at least one mesh object to export")
             return {"CANCELLED"}
 
+        # Files hold the bind pose: evaluate deforming and carrying armatures at rest, whatever frame is showing.
+        arms = rest_pose_armatures(objs)
+        previous = {arm: arm.data.pose_position for arm in arms}
+        for arm in arms:
+            arm.data.pose_position = "REST"
+        if arms:
+            context.view_layer.update()
+        try:
+            return self.write(context, objs)
+        finally:
+            for arm, position in previous.items():
+                arm.data.pose_position = position
+            if arms:
+                context.view_layer.update()
+
+    def write(self, context, objs):
         depsgraph = context.evaluated_depsgraph_get()
         bones = [self.resolve_bone(o) for o in objs]
 
