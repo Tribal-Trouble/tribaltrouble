@@ -470,23 +470,239 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
         return {"FINISHED"}
 
 
-def read_skeleton(path):
-    """Return (parents, rest): bone name -> parent name, and bone name -> model-space rest Matrix.
+XML_HEADER = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
 
-    The XML stores each 4x4 as m<column><row>, translation in m30..m32.
-    """
+MATRIX_ATTLIST = "".join(f"        <!ATTLIST transform m{c}{r} CDATA #REQUIRED>\n" for c in range(4) for r in range(4))
+
+SKELETON_DOCTYPE = """<!DOCTYPE skeleton [
+        <!ELEMENT skeleton   (bones, init_pose)>
+        <!ELEMENT bones      (bone+)>
+        <!ELEMENT init_pose  (transform+)>
+        <!ELEMENT bone        EMPTY>
+        <!ELEMENT transform   EMPTY>
+        <!ATTLIST transform name CDATA #REQUIRED>
+""" + MATRIX_ATTLIST + """        <!ATTLIST bone name CDATA #REQUIRED>
+        <!ATTLIST bone parent CDATA #REQUIRED>
+        ]>"""
+
+ANIMATION_DOCTYPE = """<!DOCTYPE animation [
+        <!ELEMENT animation  (frame+)>
+        <!ELEMENT frame      (transform+)>
+        <!ELEMENT transform   EMPTY>
+        <!ATTLIST frame index CDATA #REQUIRED>
+        <!ATTLIST transform name CDATA #REQUIRED>
+""" + MATRIX_ATTLIST + """        ]>"""
+
+
+def matrix_from_element(t):
+    """The XML stores each 4x4 as m<column><row>, translation in m30..m32; bones are absolute in model space."""
+    m = Matrix.Identity(4)
+    for c in range(4):
+        for r in range(4):
+            m[r][c] = float(t.get(f"m{c}{r}"))
+    return m
+
+
+def matrix_attrs(m):
+    parts = []
+    for c in range(4):
+        for r in range(4):
+            v = m[r][c]
+            parts.append(f'm{c}{r}="{(0.0 if v == 0 else v):.6g}"')
+    return " ".join(parts)
+
+
+def write_lines(filepath, lines):
+    with open(filepath, "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(lines) + "\n")
+
+
+def read_skeleton(path):
+    """Return (parents, rest): bone name -> parent name ("" for roots), and bone name -> model-space rest Matrix."""
     root = ET.parse(path).getroot()
     if root.tag != "skeleton":
         raise ValueError("not a Tribal Trouble skeleton file (no <skeleton> root)")
     parents = {b.get("name"): b.get("parent") for b in root.find("bones")}
-    rest = {}
-    for t in root.find("init_pose"):
-        m = Matrix.Identity(4)
-        for c in range(4):
-            for r in range(4):
-                m[r][c] = float(t.get(f"m{c}{r}"))
-        rest[t.get("name")] = m
+    rest = {t.get("name"): matrix_from_element(t) for t in root.find("init_pose")}
     return parents, rest
+
+
+def read_animation(path):
+    """Return frames in index order, each bone name -> model-space Matrix."""
+    root = ET.parse(path).getroot()
+    if root.tag != "animation":
+        raise ValueError("not a Tribal Trouble animation file (no <animation> root)")
+    frames = {}
+    for frame in root.iter("frame"):
+        frames[int(frame.get("index"))] = {t.get("name"): matrix_from_element(t) for t in frame.iter("transform")}
+    return [frames[i] for i in sorted(frames)]
+
+
+def normalized_rest(m):
+    r = m.to_3x3()
+    r.normalize()
+    out = r.to_4x4()
+    out.translation = m.to_translation()
+    return out
+
+
+def build_armature(context, name, parents, rest):
+    """Armature whose bones' rest matrices equal the skeleton file's (bone Y axis follows the file's Y column)."""
+    arm_data = bpy.data.armatures.new(name)
+    arm_data.display_type = "STICK"
+    arm = bpy.data.objects.new(name, arm_data)
+    context.collection.objects.link(arm)
+    for o in context.selected_objects:
+        o.select_set(False)
+    context.view_layer.objects.active = arm
+    arm.select_set(True)
+    bpy.ops.object.mode_set(mode="EDIT")
+    children = {}
+    for bone, parent in parents.items():
+        children.setdefault(parent, []).append(bone)
+    edit_bones = {}
+    for bone, m in rest.items():
+        eb = arm_data.edit_bones.new(bone)
+        head = m.to_translation()
+        length = min(((rest[k].to_translation() - head).length for k in children.get(bone, []) if k in rest),
+                     default=0.1)
+        eb.head = (0.0, 0.0, 0.0)
+        eb.tail = (0.0, max(length, 0.02), 0.0)
+        eb.matrix = normalized_rest(m)
+        edit_bones[bone] = eb
+    for bone, eb in edit_bones.items():
+        eb.parent = edit_bones.get(parents.get(bone))
+    bpy.ops.object.mode_set(mode="OBJECT")
+    return arm
+
+
+def assign_action(arm, action):
+    anim = arm.animation_data or arm.animation_data_create()
+    anim.action = action
+    if hasattr(action, "slots") and getattr(anim, "action_slot", None) is None:
+        # Blender 4.4+ slotted actions: bind the first slot, creating one for a fresh action.
+        slot = action.slots[0] if len(action.slots) else action.slots.new(id_type="OBJECT", name=arm.name)
+        anim.action_slot = slot
+    return anim
+
+
+def apply_clip(context, arm, name, frames):
+    """One action keyed at frames 1..n. Pose = parent_pose @ parent_rest^-1 @ rest @ basis, so basis is solved
+    per bone from the file's absolute matrices without touching the depsgraph."""
+    action = bpy.data.actions.new(name)
+    action.use_fake_user = True
+    action["tt_armature"] = arm.name
+    assign_action(arm, action)
+    rest = {b.name: b.matrix_local for b in arm.data.bones}
+    for pb in arm.pose.bones:
+        pb.rotation_mode = "QUATERNION"
+    for f, frame in enumerate(frames, start=1):
+        for pb in arm.pose.bones:
+            m = frame.get(pb.name)
+            if m is None:
+                continue
+            parent = pb.parent
+            if parent is not None and parent.name in frame:
+                local_rest = rest[parent.name].inverted() @ rest[pb.name]
+                basis = (frame[parent.name] @ local_rest).inverted() @ m
+            else:
+                basis = rest[pb.name].inverted() @ m
+            loc, rot, scale = basis.decompose()
+            pb.location = loc
+            pb.rotation_quaternion = rot
+            pb.scale = scale
+            pb.keyframe_insert("location", frame=f, group=pb.name)
+            pb.keyframe_insert("rotation_quaternion", frame=f, group=pb.name)
+            pb.keyframe_insert("scale", frame=f, group=pb.name)
+    context.scene.frame_start = 1
+    context.scene.frame_end = max(context.scene.frame_end, len(frames))
+    return action
+
+
+def bind_meshes(arm, meshes):
+    """Armature modifier plus parenting for meshes whose vertex groups name this armature's bones."""
+    bone_names = {b.name for b in arm.data.bones}
+    bound = 0
+    for o in meshes:
+        if not any(vg.name in bone_names for vg in o.vertex_groups):
+            continue
+        modifier = o.modifiers.new("Armature", "ARMATURE")
+        modifier.object = arm
+        o.parent = arm
+        o.matrix_parent_inverse = arm.matrix_world.inverted()
+        bound += 1
+    return bound
+
+
+def active_armature(context):
+    o = context.active_object
+    if o is None:
+        return None
+    if o.type == "ARMATURE":
+        return o
+    if o.parent is not None and o.parent.type == "ARMATURE":
+        return o.parent
+    return None
+
+
+class ImportTTSkeleton(bpy.types.Operator, ImportHelper):
+    """Import a *_skeleton.xml as an armature and/or clip files (peon_run.xml ...) as actions on the active armature"""
+    bl_idname = "import_scene.tt_skeleton"
+    bl_label = "Import Tribal Trouble Skeleton / Animation"
+    bl_options = {"REGISTER", "UNDO"}
+    filename_ext = ".xml"
+    filter_glob: StringProperty(default="*.xml", options={"HIDDEN"})
+    files: CollectionProperty(type=bpy.types.OperatorFileListElement, options={"HIDDEN", "SKIP_SAVE"})
+    directory: StringProperty(subtype="DIR_PATH", options={"HIDDEN", "SKIP_SAVE"})
+    bind_selected: BoolProperty(name="Bind Selected Meshes", default=True,
+                                description="Parent selected meshes whose vertex groups match the bones to the "
+                                            "new armature, with an Armature modifier")
+
+    def execute(self, context):
+        paths = [os.path.join(self.directory, f.name) for f in self.files if f.name] or [self.filepath]
+        skeletons, clips = [], []
+        for path in paths:
+            try:
+                tag = ET.parse(path).getroot().tag
+            except ET.ParseError as e:
+                self.report({"WARNING"}, f"{os.path.basename(path)}: XML parse error: {e}")
+                continue
+            if tag == "skeleton":
+                skeletons.append(path)
+            elif tag == "animation":
+                clips.append(path)
+            else:
+                self.report({"WARNING"}, f"{os.path.basename(path)}: not a skeleton or animation file")
+
+        meshes = [o for o in context.selected_objects if o.type == "MESH"]
+        bound = 0
+        if skeletons:
+            if len(skeletons) > 1:
+                self.report({"WARNING"}, f"Several skeleton files selected; using {os.path.basename(skeletons[0])}")
+            path = skeletons[0]
+            parents, rest = read_skeleton(path)
+            name = os.path.splitext(os.path.basename(path))[0]
+            if name.endswith("_skeleton"):
+                name = name[:-len("_skeleton")]
+            arm = build_armature(context, name, parents, rest)
+            arm["tt_skeleton"] = path
+            if self.bind_selected:
+                bound = bind_meshes(arm, meshes)
+        else:
+            arm = active_armature(context)
+            if arm is None:
+                self.report({"ERROR"}, "Select an armature to receive the clips, or include a *_skeleton.xml file")
+                return {"CANCELLED"}
+
+        for path in clips:
+            name = os.path.splitext(os.path.basename(path))[0]
+            action = apply_clip(context, arm, name, read_animation(path))
+            action["tt_clip"] = os.path.basename(path)
+
+        context.view_layer.objects.active = arm
+        arm.select_set(True)
+        self.report({"INFO"}, f"{arm.name}: {len(arm.data.bones)} bones, {len(clips)} clip(s), {bound} mesh(es) bound")
+        return {"FINISHED"}
 
 
 def skeleton_bone_search(self, context, edit_text):
@@ -546,6 +762,7 @@ class SnapToBone(bpy.types.Operator, ImportHelper):
 
 def menu_import(self, context):
     self.layout.operator(ImportTTMesh.bl_idname, text="Tribal Trouble Mesh (.xml)")
+    self.layout.operator(ImportTTSkeleton.bl_idname, text="Tribal Trouble Skeleton / Animation (.xml)")
 
 
 def menu_export(self, context):
@@ -557,7 +774,7 @@ def menu_object(self, context):
     self.layout.operator(SnapToBone.bl_idname)
 
 
-classes = (ImportTTMesh, ExportTTMesh, SnapToBone)
+classes = (ImportTTMesh, ExportTTMesh, SnapToBone, ImportTTSkeleton)
 
 
 def register():
