@@ -45,6 +45,20 @@
             <animation name="die" wpc="1" type="plain">vikings/warrior/warrior_die.xml</animation>
             <animation name="sit" wpc="1" type="loop">vikings/warrior/warrior_sitting.xml</animation>
         </sprite>
+        <sprite name="warrior_axe_held" base="warrior">
+            <model r="90" g="60" b="30">
+                vikings/warrior/warrior_axe_held.xml
+                <texture name="viking_warrior_rock" team="viking_warrior_rock_team"/>
+                <texture name="viking_warrior_iron" team="viking_warrior_iron_team"/>
+                <texture name="viking_warrior_rubber" team="viking_warrior_rubber_team"/>
+            </model>
+            <model r="90" g="60" b="30">
+                vikings/warrior/warrior_axe_held_lo.xml
+                <texture name="viking_warrior_rock" team="viking_warrior_rock_team"/>
+                <texture name="viking_warrior_iron" team="viking_warrior_iron_team"/>
+                <texture name="viking_warrior_rubber" team="viking_warrior_rubber_team"/>
+            </model>
+        </sprite>
         <sprite name="chieftain">
             <skeleton>vikings/chieftain/viking_chieftain_skeleton.xml</skeleton>
             <model r="90" g="60" b="30">

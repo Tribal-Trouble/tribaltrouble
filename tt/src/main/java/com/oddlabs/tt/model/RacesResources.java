@@ -41,6 +41,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.function.Supplier;
@@ -558,6 +559,9 @@ public final class RacesResources {
         SpriteFile sprite_list_warrior = new SpriteFile("/geometry/vikings/warrior.binsprite",
                 Globals.NO_MIPMAP_CUTOFF,
                 true, true, true, false);
+        SpriteFile sprite_list_warrior_axe = new SpriteFile("/geometry/vikings/warrior_axe_held.binsprite",
+                Globals.NO_MIPMAP_CUTOFF,
+                true, true, true, false);
         ProgressForm.progress(1f / num_progress);
 
         SpriteFile sprite_list_chieftain = new SpriteFile("/geometry/vikings/chieftain.binsprite",
@@ -654,7 +658,9 @@ public final class RacesResources {
                 i18n("rock_warrior"),
                 1,
                 0f, 0f, 2f,
-                3);
+                3,
+                Map.of("weapon", queues.register(sprite_list_warrior_axe, Race.UNIT_WARRIOR_ROCK)),
+                Set.of("weapon"));
         UnitTemplate viking_warrior_iron_template = new UnitTemplate(.4f,
                 1.2f,
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
@@ -672,7 +678,9 @@ public final class RacesResources {
                 i18n("iron_warrior"),
                 1,
                 0f, 0f, 2f,
-                5);
+                5,
+                Map.of("weapon", queues.register(sprite_list_warrior_axe, Race.UNIT_WARRIOR_IRON)),
+                Set.of("weapon"));
         UnitTemplate viking_warrior_rubber_template = new UnitTemplate(.4f,
                 1.2f,
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
@@ -690,7 +698,9 @@ public final class RacesResources {
                 i18n("chicken_warrior"),
                 1,
                 0f, 0f, 2f,
-                10);
+                10,
+                Map.of("weapon", queues.register(sprite_list_warrior_axe, Race.UNIT_WARRIOR_RUBBER)),
+                Set.of("weapon"));
         UnitTemplate native_warrior_rock_template = new UnitTemplate(.4f,
                 1.2f,
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
