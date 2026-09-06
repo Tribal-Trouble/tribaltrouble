@@ -5,10 +5,13 @@ Import: File > Import > Tribal Trouble Mesh (.xml)
 Export: File > Export > Tribal Trouble Mesh (.xml)  (exports the active object)
 
 Static props (plants, rocks, a torch) have no skeleton: every vertex is skinned
-to "dummy_bone" with weight 1, which is what the exporter writes. Skinned unit
+to "dummy_bone" with weight 1, which is what the exporter writes by default.
+Attachments (hats, held items) are the same thing skinned to one unit bone
+instead: pick an attachment point in the export dialog, or set a tt_bone
+property on the object. Model attachments in the unit's bind pose. Skinned unit
 meshes import fine for viewing/editing; bone weights are preserved as vertex
-groups but the exporter currently re-skins everything to dummy_bone, so use it
-for static props, not for re-exporting animated units.
+groups but the exporter still writes a single bone per object, so do not
+re-export animated units yet.
 
 The game is Z-up like Blender, so no axis conversion is needed. If the texture
 looks vertically flipped on an imported model, re-import with "Flip V" checked
@@ -17,11 +20,12 @@ and also check it on export.
 
 import os
 import xml.etree.ElementTree as ET
+from xml.sax.saxutils import quoteattr
 
 import bpy
 import bmesh
 from bpy_extras.io_utils import ImportHelper, ExportHelper
-from bpy.props import StringProperty, BoolProperty, CollectionProperty
+from bpy.props import StringProperty, BoolProperty, CollectionProperty, EnumProperty
 
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
@@ -79,6 +83,47 @@ DOCTYPE = """<!DOCTYPE mesh [
         <!ATTLIST transform m32 CDATA #REQUIRED>
         <!ATTLIST transform m33 CDATA #REQUIRED>
         ]>"""
+
+STATIC_BONE = "dummy_bone"
+
+SKELETONS = (
+    ("PEON", "Peon (both races)", "vikings/peon and natives/peon skeletons share bone names"),
+    ("VIKING_WARRIOR", "Viking warrior", ""),
+    ("NATIVE_WARRIOR", "Native warrior", ""),
+    ("VIKING_CHIEFTAIN", "Viking chieftain", ""),
+    ("NATIVE_CHIEFTAIN", "Native chieftain", ""),
+)
+
+# Bone names must match the skeleton file exactly (note the double space in "warrior  Head").
+ATTACHMENT_POINTS = {
+    "HEAD": {"PEON": "peon Head", "VIKING_WARRIOR": "warrior  Head", "NATIVE_WARRIOR": "Head",
+             "VIKING_CHIEFTAIN": "Head", "NATIVE_CHIEFTAIN": "Head"},
+    "BACK": {"PEON": "peon Spine2", "VIKING_WARRIOR": "warrior  Spine1", "NATIVE_WARRIOR": "Spine2",
+             "VIKING_CHIEFTAIN": "Spine1", "NATIVE_CHIEFTAIN": "Spine2"},
+    "HAND_R": {"PEON": "peon R Hand", "VIKING_WARRIOR": "warrior  R Hand", "NATIVE_WARRIOR": "R Hand",
+               "VIKING_CHIEFTAIN": "R Hand", "NATIVE_CHIEFTAIN": "R Hand"},
+    "HAND_L": {"PEON": "peon L Hand", "VIKING_WARRIOR": "warrior  L Hand", "NATIVE_WARRIOR": "L Hand",
+               "VIKING_CHIEFTAIN": "L Hand", "NATIVE_CHIEFTAIN": "L Hand"},
+    "PROP1": {"PEON": "peon Prop1", "VIKING_WARRIOR": "warrior  Prop1", "NATIVE_WARRIOR": "Prop1",
+              "VIKING_CHIEFTAIN": "Prop1", "NATIVE_CHIEFTAIN": "Prop1"},
+    "PROP2": {"VIKING_CHIEFTAIN": "Prop2", "NATIVE_CHIEFTAIN": "Prop2"},
+    "PROP3": {"NATIVE_WARRIOR": "Prop3", "VIKING_CHIEFTAIN": "Prop3", "NATIVE_CHIEFTAIN": "Prop3"},
+    "BELT": {"PEON": "peon Pelvis", "VIKING_WARRIOR": "warrior  Pelvis", "NATIVE_WARRIOR": "Pelvis",
+             "VIKING_CHIEFTAIN": "Pelvis", "NATIVE_CHIEFTAIN": "Pelvis"},
+}
+
+ATTACHMENT_POINT_ITEMS = (
+    ("NONE", "Static (dummy_bone)", "Static prop: every vertex skinned to dummy_bone"),
+    ("HEAD", "Head", "Hats, masks, horns"),
+    ("BACK", "Back", "Packs, capes, carried bundles"),
+    ("HAND_R", "Right hand", "Held items"),
+    ("HAND_L", "Left hand", "Shields, torches"),
+    ("PROP1", "Prop 1", "Primary held item bone"),
+    ("PROP2", "Prop 2", "Secondary held item bone (chieftains only)"),
+    ("PROP3", "Prop 3", "Tertiary held item bone (chieftains and native warrior)"),
+    ("BELT", "Belt", "Pouches, hanging items"),
+    ("CUSTOM", "Custom bone", "Type the exact bone name"),
+)
 
 
 def find_up(start_path, relative):
@@ -280,17 +325,26 @@ def material_image_name(objs):
     return ""
 
 
-def write_mesh_xml(objs, filepath, texture, flip_v, depsgraph):
-    """Merge objs in world space into one triangulated mesh and write it as game XML."""
+def write_mesh_xml(objs, bones, filepath, texture, flip_v, depsgraph):
+    """Merge objs in world space into one triangulated mesh and write it as game XML.
+
+    bones[i] is the bone every vertex of objs[i] is skinned to with weight 1.
+    """
     bm = bmesh.new()
-    for o in objs:
+    bone_layer = bm.verts.layers.int.new("tt_bone")
+    for i, o in enumerate(objs):
         eval_obj = o.evaluated_get(depsgraph)
         me = eval_obj.to_mesh()
         me.transform(o.matrix_world)
+        start = len(bm.verts)
         bm.from_mesh(me)
         eval_obj.to_mesh_clear()
+        bm.verts.ensure_lookup_table()
+        for v in bm.verts[start:]:
+            v[bone_layer] = i
     bmesh.ops.triangulate(bm, faces=bm.faces)
     bm.normal_update()
+    skin_lines = [f"                <skin bone={quoteattr(b)} weight=\"1\"/>" for b in bones]
 
     uv_layer = bm.loops.layers.uv.active
     # Import creates a float colour layer; older files may carry a byte colour layer.
@@ -319,7 +373,7 @@ def write_mesh_xml(objs, filepath, texture, flip_v, depsgraph):
                 f'r="{r:.4g}" g="{g:.4g}" b="{b:.4g}" a="{a:.4g}" '
                 f'nx="{n.x:.6g}" ny="{n.y:.6g}" nz="{n.z:.6g}" '
                 f'u="{u:.6g}" v="{v:.6g}">')
-            lines.append('                <skin bone="dummy_bone" weight="1"/>')
+            lines.append(skin_lines[loop.vert[bone_layer]])
             lines.append("            </vertex>")
         lines.append("        </polygon>")
     lines.append("    </polygons>")
@@ -342,12 +396,45 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
     batch_per_object: BoolProperty(name="One File Per Object", default=False,
                                    description="Export each selected object to its own <object name>.xml "
                                                "in the chosen folder instead of merging them into one file")
+    attach_point: EnumProperty(name="Attach To", items=ATTACHMENT_POINT_ITEMS, default="NONE",
+                               description="Skin every vertex to this attachment point's bone so the item "
+                                           "follows it in game. An object's tt_bone property overrides this")
+    skeleton: EnumProperty(name="Skeleton", items=SKELETONS, default="PEON",
+                           description="Unit skeleton the attachment point is resolved against")
+    custom_bone: StringProperty(name="Bone", default="",
+                                description="Exact bone name from the unit's skeleton file")
+
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "texture")
+        layout.prop(self, "flip_v")
+        layout.prop(self, "batch_per_object")
+        layout.prop(self, "attach_point")
+        if self.attach_point == "CUSTOM":
+            layout.prop(self, "custom_bone")
+        elif self.attach_point != "NONE":
+            layout.prop(self, "skeleton")
 
     def invoke(self, context, event):
         objs = [o for o in context.selected_objects if o.type == "MESH"]
         if len(objs) == 1:
             self.filepath = objs[0].name + ".xml"
         return super().invoke(context, event)
+
+    def resolve_bone(self, obj):
+        bone = obj.get("tt_bone")
+        if bone:
+            return bone
+        if self.attach_point == "NONE":
+            return STATIC_BONE
+        if self.attach_point == "CUSTOM":
+            return self.custom_bone.strip() or STATIC_BONE
+        bone = ATTACHMENT_POINTS[self.attach_point].get(self.skeleton)
+        if bone is None:
+            self.report({"WARNING"}, f"{self.attach_point} does not exist on the {self.skeleton} skeleton; "
+                                     f"{obj.name} skinned to {STATIC_BONE}")
+            return STATIC_BONE
+        return bone
 
     def execute(self, context):
         objs = [o for o in context.selected_objects if o.type == "MESH"]
@@ -358,12 +445,14 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
             return {"CANCELLED"}
 
         depsgraph = context.evaluated_depsgraph_get()
+        bones = [self.resolve_bone(o) for o in objs]
 
         if self.batch_per_object and len(objs) > 1:
             out_dir = os.path.dirname(self.filepath)
-            for o in objs:
+            for o, bone in zip(objs, bones):
                 texture = self.texture or o.get("tt_texture", "")
-                write_mesh_xml([o], os.path.join(out_dir, o.name + ".xml"), texture, self.flip_v, depsgraph)
+                write_mesh_xml([o], [bone], os.path.join(out_dir, o.name + ".xml"), texture, self.flip_v,
+                               depsgraph)
             self.report({"INFO"}, f"Exported {len(objs)} files into {out_dir}")
             return {"FINISHED"}
 
@@ -375,7 +464,7 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
                     break
         if not texture:
             texture = material_image_name(objs)
-        write_mesh_xml(objs, self.filepath, texture, self.flip_v, depsgraph)
+        write_mesh_xml(objs, bones, self.filepath, texture, self.flip_v, depsgraph)
         self.report({"INFO"}, f"Exported {len(objs)} object(s) merged into {os.path.basename(self.filepath)}")
         return {"FINISHED"}
 
