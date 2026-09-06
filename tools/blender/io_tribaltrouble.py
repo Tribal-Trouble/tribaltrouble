@@ -26,6 +26,7 @@ import bpy
 import bmesh
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from bpy.props import StringProperty, BoolProperty, CollectionProperty, EnumProperty
+from mathutils import Matrix
 
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
@@ -469,6 +470,80 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
         return {"FINISHED"}
 
 
+def read_skeleton(path):
+    """Return (parents, rest): bone name -> parent name, and bone name -> model-space rest Matrix.
+
+    The XML stores each 4x4 as m<column><row>, translation in m30..m32.
+    """
+    root = ET.parse(path).getroot()
+    if root.tag != "skeleton":
+        raise ValueError("not a Tribal Trouble skeleton file (no <skeleton> root)")
+    parents = {b.get("name"): b.get("parent") for b in root.find("bones")}
+    rest = {}
+    for t in root.find("init_pose"):
+        m = Matrix.Identity(4)
+        for c in range(4):
+            for r in range(4):
+                m[r][c] = float(t.get(f"m{c}{r}"))
+        rest[t.get("name")] = m
+    return parents, rest
+
+
+def skeleton_bone_search(self, context, edit_text):
+    path = self.filepath
+    if not path.lower().endswith(".xml") or not os.path.isfile(path):
+        return []
+    try:
+        return sorted(read_skeleton(path)[1])
+    except (ET.ParseError, ValueError, AttributeError):
+        return []
+
+
+class SnapToBone(bpy.types.Operator, ImportHelper):
+    """Move the selected objects to a bone's rest position from a skeleton file, for authoring attachments in bind pose"""
+    bl_idname = "object.tt_snap_to_bone"
+    bl_label = "Snap to Tribal Trouble Bone"
+    bl_options = {"REGISTER", "UNDO"}
+    filename_ext = ".xml"
+    filter_glob: StringProperty(default="*_skeleton.xml", options={"HIDDEN"})
+    bone: StringProperty(name="Bone", default="", search=skeleton_bone_search,
+                         description="Bone from the chosen skeleton file")
+    align_rotation: BoolProperty(name="Align Rotation", default=False,
+                                 description="Also rotate to the bone's rest orientation. Biped bones point X "
+                                             "along the bone, so an upright item usually wants this off")
+    set_bone: BoolProperty(name="Set tt_bone", default=True,
+                           description="Store the bone on the object so export skins to it")
+
+    def execute(self, context):
+        objs = list(context.selected_objects)
+        if not objs and context.active_object is not None:
+            objs = [context.active_object]
+        if not objs:
+            self.report({"ERROR"}, "Select at least one object to snap")
+            return {"CANCELLED"}
+        try:
+            _, rest = read_skeleton(self.filepath)
+        except (ET.ParseError, ValueError, AttributeError, OSError) as e:
+            self.report({"ERROR"}, f"{os.path.basename(self.filepath)}: {e}")
+            return {"CANCELLED"}
+        m = rest.get(self.bone)
+        if m is None:
+            self.report({"ERROR"}, f"No bone '{self.bone}' in {os.path.basename(self.filepath)}")
+            return {"CANCELLED"}
+
+        for o in objs:
+            world = o.matrix_world.copy()
+            if self.align_rotation:
+                scale = Matrix.Diagonal(world.to_scale()).to_4x4()
+                world = m.to_3x3().to_4x4() @ scale
+            world.translation = m.to_translation()
+            o.matrix_world = world
+            if self.set_bone:
+                o["tt_bone"] = self.bone
+        self.report({"INFO"}, f"Snapped {len(objs)} object(s) to '{self.bone}'")
+        return {"FINISHED"}
+
+
 def menu_import(self, context):
     self.layout.operator(ImportTTMesh.bl_idname, text="Tribal Trouble Mesh (.xml)")
 
@@ -477,7 +552,12 @@ def menu_export(self, context):
     self.layout.operator(ExportTTMesh.bl_idname, text="Tribal Trouble Mesh (.xml)")
 
 
-classes = (ImportTTMesh, ExportTTMesh)
+def menu_object(self, context):
+    self.layout.separator()
+    self.layout.operator(SnapToBone.bl_idname)
+
+
+classes = (ImportTTMesh, ExportTTMesh, SnapToBone)
 
 
 def register():
@@ -485,9 +565,11 @@ def register():
         bpy.utils.register_class(cls)
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_export)
+    bpy.types.VIEW3D_MT_object.append(menu_object)
 
 
 def unregister():
+    bpy.types.VIEW3D_MT_object.remove(menu_object)
     bpy.types.TOPBAR_MT_file_import.remove(menu_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_export)
     for cls in classes:
