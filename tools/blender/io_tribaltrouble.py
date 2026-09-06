@@ -30,7 +30,7 @@ from xml.sax.saxutils import quoteattr
 
 import bpy
 from bpy_extras.io_utils import ImportHelper, ExportHelper
-from bpy.props import StringProperty, BoolProperty, CollectionProperty, EnumProperty, PointerProperty
+from bpy.props import StringProperty, BoolProperty, CollectionProperty, EnumProperty, PointerProperty, FloatProperty
 from mathutils import Matrix, Vector
 
 bl_info = {
@@ -1192,6 +1192,109 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
         col.operator(CopyRegistrySnippet.bl_idname)
 
 
+def subset_record(record, face_indices):
+    """New record holding only these triangles, with vertices compacted and sharing kept."""
+    out = MeshRecord()
+    out.loop_uv2s = [] if record.loop_uv2s is not None else None
+    remap = {}
+    for fi in face_indices:
+        new_face = []
+        for vi in record.faces[fi]:
+            ni = remap.get(vi)
+            if ni is None:
+                ni = remap[vi] = len(out.verts)
+                out.verts.append(record.verts[vi])
+                out.skins.append(list(record.skins[vi]))
+            new_face.append(ni)
+        out.faces.append(tuple(new_face))
+        for li in range(fi * 3, fi * 3 + 3):
+            out.loop_uvs.append(record.loop_uvs[li])
+            out.loop_cols.append(record.loop_cols[li])
+            out.loop_normals.append(record.loop_normals[li])
+            if out.loop_uv2s is not None:
+                out.loop_uv2s.append(record.loop_uv2s[li])
+    return out
+
+
+def replace_mesh_data(obj, record, name):
+    materials = list(obj.data.materials)
+    old = obj.data
+    obj.data = build_mesh(name, record)
+    for m in materials:
+        obj.data.materials.append(m)
+    set_vertex_groups(obj, record.skins)
+    if old.users == 0:
+        bpy.data.meshes.remove(old)
+
+
+def vertex_group_search(self, context, edit_text):
+    o = context.active_object
+    return [g.name for g in o.vertex_groups] if o is not None and o.type == "MESH" else []
+
+
+class SplitByBone(bpy.types.Operator):
+    """Move the faces weighted to one bone into a new object, turning a baked-in held item into an attachment"""
+    bl_idname = "object.tt_split_by_bone"
+    bl_label = "Split Mesh by Bone"
+    bl_options = {"REGISTER", "UNDO"}
+    bone: StringProperty(name="Bone", default="", search=vertex_group_search,
+                         description="Vertex group (bone) whose faces move to the new object")
+    threshold: FloatProperty(name="Min Weight", default=0.5, min=0.0, max=1.0,
+                             description="A face moves when every corner carries at least this weight on the bone")
+
+    @classmethod
+    def poll(cls, context):
+        o = context.active_object
+        return o is not None and o.type == "MESH" and len(o.vertex_groups) > 0
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+    def execute(self, context):
+        o = context.active_object
+        group = o.vertex_groups.get(self.bone)
+        if group is None:
+            self.report({"ERROR"}, f"{o.name} has no vertex group '{self.bone}'")
+            return {"CANCELLED"}
+        record = mesh_record_from_mesh(o.data, o, Matrix.Identity(4), False, None, True)
+        weight = [next((g.weight for g in v.groups if g.group == group.index), 0.0) for v in o.data.vertices]
+        part_faces = [i for i, face in enumerate(record.faces) if all(weight[vi] >= self.threshold for vi in face)]
+        if not part_faces:
+            self.report({"WARNING"}, f"No face has every corner weighted {self.threshold:g} or more to '{self.bone}'")
+            return {"CANCELLED"}
+        moving = set(part_faces)
+        rest_faces = [i for i in range(len(record.faces)) if i not in moving]
+
+        part_name = f"{o.name}_{self.bone.split()[-1]}"
+        part_record = subset_record(record, part_faces)
+        part = bpy.data.objects.new(part_name, build_mesh(part_name, part_record))
+        for m in o.data.materials:
+            part.data.materials.append(m)
+        context.collection.objects.link(part)
+        part.matrix_world = o.matrix_world.copy()
+        if o.parent is not None:
+            part.parent = o.parent
+            part.parent_type = o.parent_type
+            part.parent_bone = o.parent_bone
+            part.matrix_parent_inverse = o.matrix_parent_inverse.copy()
+        for modifier in o.modifiers:
+            if modifier.type == "ARMATURE":
+                part.modifiers.new(modifier.name, "ARMATURE").object = modifier.object
+        for key in ("tt_texture",):
+            if key in o:
+                part[key] = o[key]
+        set_vertex_groups(part, part_record.skins)
+
+        replace_mesh_data(o, subset_record(record, rest_faces), o.data.name)
+
+        for other in context.selected_objects:
+            other.select_set(False)
+        part.select_set(True)
+        context.view_layer.objects.active = part
+        self.report({"INFO"}, f"Moved {len(part_faces)} of {len(record.faces)} faces to {part.name}")
+        return {"FINISHED"}
+
+
 def menu_import(self, context):
     self.layout.operator(ImportTTMesh.bl_idname, text="Tribal Trouble Mesh (.xml)")
     self.layout.operator(ImportTTSkeleton.bl_idname, text="Tribal Trouble Skeleton / Animation (.xml)")
@@ -1205,9 +1308,10 @@ def menu_export(self, context):
 def menu_object(self, context):
     self.layout.separator()
     self.layout.operator(SnapToBone.bl_idname)
+    self.layout.operator(SplitByBone.bl_idname)
 
 
-classes = (ImportTTMesh, ExportTTMesh, SnapToBone, ImportTTSkeleton, ExportTTSkeleton, TTAttachmentSlot,
+classes = (ImportTTMesh, ExportTTMesh, SnapToBone, SplitByBone, ImportTTSkeleton, ExportTTSkeleton, TTAttachmentSlot,
            SetupAttachments, ExportAttachments, CopyRegistrySnippet, VIEW3D_PT_tt_attachments)
 
 
