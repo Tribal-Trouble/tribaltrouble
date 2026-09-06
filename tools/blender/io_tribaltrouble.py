@@ -760,6 +760,89 @@ class SnapToBone(bpy.types.Operator, ImportHelper):
         return {"FINISHED"}
 
 
+def write_skeleton_xml(arm, filepath):
+    bones = sorted(arm.data.bones, key=lambda b: b.name)
+    lines = [XML_HEADER, "", SKELETON_DOCTYPE, "", "<skeleton>", "    <bones>"]
+    for b in bones:
+        parent = b.parent.name if b.parent is not None else ""
+        lines.append(f"        <bone name={quoteattr(b.name)} parent={quoteattr(parent)}/>")
+    lines += ["    </bones>", "    <init_pose>"]
+    for b in bones:
+        lines.append(f"        <transform name={quoteattr(b.name)} {matrix_attrs(b.matrix_local)}/>")
+    lines += ["    </init_pose>", "</skeleton>"]
+    write_lines(filepath, lines)
+
+
+def write_animation_xml(context, arm, action, filepath):
+    """Sample the action at every whole frame of its range; bone matrices are armature space, as the game wants."""
+    anim = arm.animation_data
+    previous = anim.action if anim is not None else None
+    previous_frame = context.scene.frame_current
+    assign_action(arm, action)
+    start, end = action.frame_range
+    bones = sorted(arm.pose.bones, key=lambda b: b.name)
+    lines = [XML_HEADER, "", ANIMATION_DOCTYPE, "", "<animation>"]
+    for index, frame in enumerate(range(int(round(start)), int(round(end)) + 1)):
+        context.scene.frame_set(frame)
+        lines.append(f'    <frame index="{index}">')
+        for pb in bones:
+            lines.append(f"        <transform name={quoteattr(pb.name)} {matrix_attrs(pb.matrix)}/>")
+        lines.append("    </frame>")
+    lines.append("</animation>")
+    write_lines(filepath, lines)
+    if previous is not None:
+        assign_action(arm, previous)
+    context.scene.frame_set(previous_frame)
+
+
+def armature_actions(arm):
+    """Actions imported for this armature, or failing that the one currently assigned."""
+    actions = [a for a in bpy.data.actions if a.get("tt_armature") == arm.name]
+    if not actions and arm.animation_data is not None and arm.animation_data.action is not None:
+        actions = [arm.animation_data.action]
+    return actions
+
+
+class ExportTTSkeleton(bpy.types.Operator, ExportHelper):
+    """Export the active armature's rest pose as a skeleton file and its clips as animation files beside it"""
+    bl_idname = "export_scene.tt_skeleton"
+    bl_label = "Export Tribal Trouble Skeleton / Animation"
+    filename_ext = ".xml"
+    filter_glob: StringProperty(default="*.xml", options={"HIDDEN"})
+    export_skeleton: BoolProperty(name="Skeleton", default=True,
+                                  description="Write the rest pose and bone hierarchy to the chosen file")
+    export_clips: BoolProperty(name="Animation Clips", default=True,
+                               description="Write each of the armature's actions as <action name>.xml in the same "
+                                           "folder, sampled at every frame of its range")
+
+    def invoke(self, context, event):
+        arm = active_armature(context)
+        if arm is not None:
+            self.filepath = arm.name + "_skeleton.xml"
+        return super().invoke(context, event)
+
+    def execute(self, context):
+        arm = active_armature(context)
+        if arm is None:
+            self.report({"ERROR"}, "Select an armature (or a mesh parented to one)")
+            return {"CANCELLED"}
+        written = []
+        if self.export_skeleton:
+            write_skeleton_xml(arm, self.filepath)
+            written.append(os.path.basename(self.filepath))
+        if self.export_clips:
+            out_dir = os.path.dirname(self.filepath)
+            for action in armature_actions(arm):
+                path = os.path.join(out_dir, action.name + ".xml")
+                write_animation_xml(context, arm, action, path)
+                written.append(action.name + ".xml")
+        if not written:
+            self.report({"WARNING"}, "Nothing selected to export")
+            return {"CANCELLED"}
+        self.report({"INFO"}, "Exported " + ", ".join(written))
+        return {"FINISHED"}
+
+
 def menu_import(self, context):
     self.layout.operator(ImportTTMesh.bl_idname, text="Tribal Trouble Mesh (.xml)")
     self.layout.operator(ImportTTSkeleton.bl_idname, text="Tribal Trouble Skeleton / Animation (.xml)")
@@ -767,6 +850,7 @@ def menu_import(self, context):
 
 def menu_export(self, context):
     self.layout.operator(ExportTTMesh.bl_idname, text="Tribal Trouble Mesh (.xml)")
+    self.layout.operator(ExportTTSkeleton.bl_idname, text="Tribal Trouble Skeleton / Animation (.xml)")
 
 
 def menu_object(self, context):
@@ -774,7 +858,7 @@ def menu_object(self, context):
     self.layout.operator(SnapToBone.bl_idname)
 
 
-classes = (ImportTTMesh, ExportTTMesh, SnapToBone, ImportTTSkeleton)
+classes = (ImportTTMesh, ExportTTMesh, SnapToBone, ImportTTSkeleton, ExportTTSkeleton)
 
 
 def register():
