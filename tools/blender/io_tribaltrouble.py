@@ -187,19 +187,31 @@ class ImportTTMesh(bpy.types.Operator, ImportHelper):
         loop_uv2s = []
         loop_cols = []
         skins = []           # per deduped vertex: list of (bone, weight)
+        seen_faces = set()
         has_uv2 = False
 
-        for polygon in root.find("polygons"):
-            face = []
-            for vertex in polygon:
-                pos = (float(vertex.get("x")), float(vertex.get("y")), float(vertex.get("z")))
-                idx = vert_index.get(pos)
-                if idx is None:
-                    idx = len(verts)
+        def add_vertex(vertex, pos, dedup):
+            idx = vert_index.get(pos) if dedup else None
+            if idx is None:
+                idx = len(verts)
+                if dedup:
                     vert_index[pos] = idx
-                    verts.append(pos)
-                    skins.append([(s.get("bone"), float(s.get("weight"))) for s in vertex])
-                face.append(idx)
+                verts.append(pos)
+                skins.append([(s.get("bone"), float(s.get("weight"))) for s in vertex])
+            return idx
+
+        for polygon in root.find("polygons"):
+            vertices = list(polygon)
+            positions = [(float(v.get("x")), float(v.get("y")), float(v.get("z"))) for v in vertices]
+            face = [add_vertex(v, p, True) for v, p in zip(vertices, positions)]
+            # Merging by position would make this face degenerate or a duplicate (double-sided cards),
+            # and Blender's validate() would drop it; give it its own vertices instead.
+            key = frozenset(face)
+            if len(key) < len(face) or key in seen_faces:
+                face = [add_vertex(v, p, False) for v, p in zip(vertices, positions)]
+                key = frozenset(face)
+            seen_faces.add(key)
+            for vertex in vertices:
                 v = float(vertex.get("v"))
                 loop_uvs.append((float(vertex.get("u")), 1.0 - v if self.flip_v else v))
                 if vertex.get("u2") is not None:
@@ -215,6 +227,10 @@ class ImportTTMesh(bpy.types.Operator, ImportHelper):
         mesh = bpy.data.meshes.new(name)
         mesh.from_pydata(verts, [], faces)
         mesh.validate()
+        if len(mesh.loops) != len(loop_uvs):
+            self.report({"WARNING"}, f"{os.path.basename(filepath)}: Blender dropped "
+                                     f"{len(faces) - len(mesh.polygons)} invalid faces; UVs and colours skipped")
+            loop_uvs = loop_uv2s = loop_cols = []
 
         uv_layer = mesh.uv_layers.new(name="UVMap")
         for i, uv in enumerate(loop_uvs):
