@@ -18,16 +18,18 @@ Bone naming is inconsistent per skeleton and attachments must use the exact stri
 
 Proposed logical names, mapped per skeleton. The plugin and the registry should speak the logical name; the mapping table resolves the bone string.
 
-| Logical point | Peon (both races) | Warrior | Viking chieftain | Native chieftain | Typical use |
-|---|---|---|---|---|---|
-| head | `peon Head` | `warrior  Head` | `Head` | `Head` | hats, masks, horns |
-| back | `peon Spine2` | `warrior  Spine1` | `Spine1` | `Spine2` | packs, capes, carried bundles (existing) |
-| hand_r | `peon R Hand` | `warrior  R Hand` | `R Hand` | `R Hand` | paddles (existing), tools |
-| hand_l | `peon L Hand` | `warrior  L Hand` | `L Hand` | `L Hand` | shields, torches |
-| prop1 | `peon Prop1` | `warrior  Prop1` | `Prop1` | `Prop1` | primary held item (weapon, staff) |
-| prop2 | none | none | `Prop2` | `Prop2` | secondary held item |
-| prop3 | none | none | `Prop3` | `Prop3` | tertiary held item |
-| belt | `peon Pelvis` | `warrior  Pelvis` | `Pelvis` | `Pelvis` | pouches, hanging items |
+| Logical point | Peon (both races) | Viking warrior | Native warrior | Viking chieftain | Native chieftain | Typical use |
+|---|---|---|---|---|---|---|
+| head | `peon Head` | `warrior  Head` | `Head` | `Head` | `Head` | hats, masks, horns |
+| back | `peon Spine2` | `warrior  Spine1` | `Spine2` | `Spine1` | `Spine2` | packs, capes, carried bundles (existing) |
+| hand_r | `peon R Hand` | `warrior  R Hand` | `R Hand` | `R Hand` | `R Hand` | paddles (existing), tools |
+| hand_l | `peon L Hand` | `warrior  L Hand` | `L Hand` | `L Hand` | `L Hand` | shields, torches |
+| prop1 | `peon Prop1` | `warrior  Prop1` | `Prop1` | `Prop1` | `Prop1` | primary held item (weapon, staff) |
+| prop2 | none | none | none | `Prop2` | `Prop2` | secondary held item |
+| prop3 | none | none | `Prop3` | `Prop3` | `Prop3` | tertiary held item |
+| belt | `peon Pelvis` | `warrior  Pelvis` | `Pelvis` | `Pelvis` | `Pelvis` | pouches, hanging items |
+
+The viking warrior has no `Spine2`, so its back point is `Spine1`. The native warrior's bones carry no prefix, unlike the viking warrior's. The plugin implements this table as `ATTACHMENT_POINTS` (done in step 1); the game-side registry should share that source once it exists.
 
 Custom points beyond this table need a bone. Options, in order of preference: reuse an existing bone with an authored offset baked into the attachment mesh (no format change), or add a bone to the skeleton file and every clip file (all 16 frames, every clip; the plugin's skeleton export would make this practical).
 
