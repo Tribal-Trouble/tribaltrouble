@@ -128,6 +128,9 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         this.path_tracker = new PathTracker(getUnitGrid(), this);
         UnitSupplyContainerFactory factory = unit_template.getUnitSupplyContainerFactory();
         supply_container = factory != null ? (UnitSupplyContainer) factory.createContainer(this) : null;
+        for (String attachment : unit_template.getDefaultAttachments()) {
+            attachments.add(unit_template.getAttachments().get(attachment));
+        }
 
         if (!imaginary) {
             findInitialPosition(x, y, grid_targets_only, -1);
