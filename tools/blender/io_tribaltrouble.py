@@ -1,8 +1,14 @@
 """Blender import/export addon for Tribal Trouble mesh XML files.
 
 Install: Edit > Preferences > Add-ons > Install... > pick this file, enable it.
-Import: File > Import > Tribal Trouble Mesh (.xml)
-Export: File > Export > Tribal Trouble Mesh (.xml)  (exports the active object)
+Import: File > Import > Tribal Trouble Mesh (.xml), or Skeleton / Animation (.xml)
+Export: File > Export > Tribal Trouble Mesh (.xml), or Skeleton / Animation (.xml)
+Attachments: 3D view sidebar, "Tribal Trouble" tab, with an armature active.
+
+Skeleton and clip files hold absolute model-space 4x4 matrices per bone (m<column><row>,
+translation in m30..m32). Import builds an armature whose rest pose equals the file's and
+solves each pose bone's basis from the file matrices; export samples pose_bone.matrix per
+frame. tools/blender/validate_roundtrip.py is the numeric gate for that path.
 
 Static props (plants, rocks, a torch) have no skeleton: every vertex is skinned
 to "dummy_bone" with weight 1, which is what the exporter writes by default.
@@ -31,7 +37,7 @@ from mathutils import Matrix
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 4, 0),
+    "version": (1, 5, 0),
     "blender": (4, 0, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
