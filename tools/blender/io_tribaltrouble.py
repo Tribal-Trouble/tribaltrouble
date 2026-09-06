@@ -293,7 +293,8 @@ def write_mesh_xml(objs, filepath, texture, flip_v, depsgraph):
     bm.normal_update()
 
     uv_layer = bm.loops.layers.uv.active
-    col_layer = bm.loops.layers.color.active
+    # Import creates a float colour layer; older files may carry a byte colour layer.
+    col_layer = bm.loops.layers.float_color.active or bm.loops.layers.color.active
     lines = ['<?xml version="1.0" encoding="UTF-8" standalone="yes"?>', "", DOCTYPE, ""]
     lines.append(f'<mesh texture="{texture}">' if texture else "<mesh>")
     lines.append("    <polygons>")
