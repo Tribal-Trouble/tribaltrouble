@@ -121,14 +121,19 @@ final class RenderState implements ElementVisitor {
         public void markDetailPolygon(@NonNull ElementRenderState<Unit> render_state, @NonNull PolyDetail detail) {
             Unit unit = render_state.model;
             super.markDetailPolygon(render_state, detail);
+            if (render_state.render_state.isPicking())
+                return;
             UnitSupplyContainer supply_container = unit.getSupplyContainer();
-            if (!render_state.render_state.isPicking() && unit.getAbilities().hasAbilities(Abilities.BUILD)
-                    && supply_container.getSupplyType() != null) {
+            if (unit.getAbilities().hasAbilities(Abilities.BUILD) && supply_container.getSupplyType() != null) {
                 if (supply_container.getNumSupplies() > 0) {
                     SpriteRenderer supply_sprite = render_state.getRenderer(supply_container.getSupplySpriteRenderer(
                             supply_container.getSupplyType()));
                     supply_sprite.addToRenderList(detail, render_state, false);
                 }
+            }
+            // Attachments share the unit's skeleton and clips, so the same state drives them in lockstep.
+            for (SpriteKey attachment : unit.getAttachments()) {
+                render_state.getRenderer(attachment).addToRenderList(detail, render_state, false);
             }
         }
     };

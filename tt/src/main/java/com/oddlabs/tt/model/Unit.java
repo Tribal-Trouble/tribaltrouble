@@ -73,6 +73,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     public static final int SPEAR_RELEASE_FRAME = 29;
 
     private final @Nullable UnitSupplyContainer supply_container;
+    private final @NonNull List<SpriteKey> attachments = new ArrayList<>(1); // render-only, never part of the sim
     private final @Nullable String name;
     private final @NonNull PathTracker path_tracker;
     private final float[] magic_energy = new float[2];
@@ -186,6 +187,24 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
 
     public final @Nullable UnitSupplyContainer getSupplyContainer() {
         return supply_container;
+    }
+
+    public final @NonNull List<SpriteKey> getAttachments() {
+        return attachments;
+    }
+
+    /**
+     * Show or hide one of the template's attachments on this unit. Render-only.
+     *
+     * @return false if the template has no attachment by that name
+     */
+    public final boolean toggleAttachment(@NonNull String name) {
+        SpriteKey key = getTemplate().getAttachments().get(name);
+        if (key == null)
+            return false;
+        if (!attachments.remove(key))
+            attachments.add(key);
+        return true;
     }
 
     @Override

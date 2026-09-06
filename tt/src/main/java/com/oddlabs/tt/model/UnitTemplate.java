@@ -6,10 +6,13 @@ import com.oddlabs.tt.render.ShadowListKey;
 import com.oddlabs.tt.render.SpriteKey;
 import org.jspecify.annotations.NonNull;
 
+import java.util.Map;
+
 public final class UnitTemplate extends Template {
     private final float meters_per_second;
     private final @NonNull WeaponFactory weapon_factory;
     private final @NonNull SpriteKey sprite_renderer;
+    private final @NonNull Map<String, SpriteKey> attachments;
     private final UnitSupplyContainerFactory supply_container_factory;
     private final @NonNull Audio death_sound;
     private final float death_pitch;
@@ -41,7 +44,32 @@ public final class UnitTemplate extends Template {
             float stun_y,
             float stun_z,
             int status_value) {
+        this(selection_radius, selection_height, abilities, meters_per_second, weapon_factory, sprite_renderer, shadow_diameter, shadow_renderer, supply_container_factory, death_sound, death_pitch, hit_offset_z, no_detail_size, defense_chance, name, max_hit_points, stun_x, stun_y, stun_z, status_value, Map.of());
+    }
+
+    public UnitTemplate(float selection_radius,
+            float selection_height,
+            @NonNull Abilities abilities,
+            float meters_per_second,
+            @NonNull WeaponFactory weapon_factory,
+            @NonNull SpriteKey sprite_renderer,
+            float shadow_diameter,
+            @NonNull ShadowListKey shadow_renderer,
+            UnitSupplyContainerFactory supply_container_factory,
+            @NonNull Audio death_sound,
+            float death_pitch,
+            float @NonNull [] hit_offset_z,
+            float no_detail_size,
+            float defense_chance,
+            @NonNull String name,
+            int max_hit_points,
+            float stun_x,
+            float stun_y,
+            float stun_z,
+            int status_value,
+            @NonNull Map<String, SpriteKey> attachments) {
         super(abilities, shadow_diameter, shadow_renderer, hit_offset_z, no_detail_size, defense_chance, name);
+        this.attachments = attachments;
         this.selection_radius = selection_radius;
         this.selection_height = selection_height;
         this.meters_per_second = meters_per_second;
@@ -75,6 +103,13 @@ public final class UnitTemplate extends Template {
 
     public @NonNull SpriteKey getSpriteRenderer() {
         return sprite_renderer;
+    }
+
+    /**
+     * Optional render-only sprites that share this unit's skeleton and clips, keyed by attachment name.
+     */
+    public @NonNull Map<String, SpriteKey> getAttachments() {
+        return attachments;
     }
 
     public UnitSupplyContainerFactory getUnitSupplyContainerFactory() {
