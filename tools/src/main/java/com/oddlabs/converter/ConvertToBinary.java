@@ -16,6 +16,7 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -57,13 +58,14 @@ public final class ConvertToBinary {
         if (n.hasChildNodes()) {
             Path new_build_dir = build_dir.resolve(getName(n));
             NodeList nl = n.getChildNodes();
+            Map<String, Node> sprites = new HashMap<>();
             for (int i = 0; i < nl.getLength(); i++) {
                 Node child = nl.item(i);
-                if (child.getNodeType() == Node.ELEMENT_NODE) {
-                    String name = child.getNodeName();
-                    if (name.equals("sprite"))
-                        parseSprite(child, src_dir, new_build_dir);
-                }
+                if (child.getNodeType() == Node.ELEMENT_NODE && child.getNodeName().equals("sprite"))
+                    sprites.put(getName(child), child);
+            }
+            for (Node sprite : sprites.values()) {
+                parseSprite(sprite, sprites, src_dir, new_build_dir);
             }
         }
     }
@@ -132,9 +134,23 @@ public final class ConvertToBinary {
         return object_infos.toArray(infos);
     }
 
-    private static void parseSprite(@NonNull Node n, @NonNull Path src_dir, @NonNull Path build_dir) {
+    private static void parseSprite(@NonNull Node n, @NonNull Map<String, Node> group_sprites, @NonNull Path src_dir,
+            @NonNull Path build_dir) {
         String name = getName(n);
+        // base="peon" makes an attachment share the unit's skeleton and clip list without repeating them.
+        Node base_attr = n.getAttributes().getNamedItem("base");
+        Node base = n;
+        if (base_attr != null) {
+            base = group_sprites.get(base_attr.getNodeValue());
+            if (base == null)
+                throw new RuntimeException("Sprite " + name + " has unknown base " + base_attr.getNodeValue());
+        }
+        ObjectInfo skeleton_info = getSkeletonObjectInfo(n, src_dir);
+        if (skeleton_info == null)
+            skeleton_info = getSkeletonObjectInfo(base, src_dir);
         AnimObjectInfo[] anim_object_infos = getAnimObjectInfos(n, src_dir);
+        if (anim_object_infos.length == 0)
+            anim_object_infos = getAnimObjectInfos(base, src_dir);
         ModelObjectInfo[] model_object_infos = getModelObjectInfos(n, src_dir);
         Path build_file = build_dir.resolve(name + ".binsprite");
 
@@ -158,11 +174,10 @@ public final class ConvertToBinary {
                 scale = Float.parseFloat(scale_node.getNodeValue());
             else
                 scale = 1f;
-            ObjectInfo skeleton_info = getSkeletonObjectInfo(n, src_dir);
             AnimationInfo[] animations;
             Map<String, Bone> name_to_bone_map;
             if (skeleton_info != null) {
-                Skeleton skeleton = SkeletonLoader.loadSkeleton(getSkeletonObjectInfo(n, src_dir).getFile());
+                Skeleton skeleton = SkeletonLoader.loadSkeleton(skeleton_info.getFile());
                 name_to_bone_map = skeleton.getNameToBoneMap();
                 animations = new AnimationInfo[anim_object_infos.length];
                 for (int i = 0; i < anim_object_infos.length; i++) {

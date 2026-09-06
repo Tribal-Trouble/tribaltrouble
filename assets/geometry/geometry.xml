@@ -11,6 +11,7 @@
 
         <!ATTLIST sprite name CDATA #REQUIRED>
         <!ATTLIST sprite scale CDATA #IMPLIED>
+        <!ATTLIST sprite base CDATA #IMPLIED>
         <!ATTLIST group name CDATA #REQUIRED>
         <!ATTLIST model r CDATA #REQUIRED>
         <!ATTLIST model g CDATA #REQUIRED>
