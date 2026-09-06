@@ -25,7 +25,7 @@ from xml.sax.saxutils import quoteattr
 import bpy
 import bmesh
 from bpy_extras.io_utils import ImportHelper, ExportHelper
-from bpy.props import StringProperty, BoolProperty, CollectionProperty, EnumProperty
+from bpy.props import StringProperty, BoolProperty, CollectionProperty, EnumProperty, PointerProperty
 from mathutils import Matrix
 
 bl_info = {
@@ -336,7 +336,7 @@ def write_mesh_xml(objs, bones, filepath, texture, flip_v, depsgraph):
     for i, o in enumerate(objs):
         eval_obj = o.evaluated_get(depsgraph)
         me = eval_obj.to_mesh()
-        me.transform(o.matrix_world)
+        me.transform(export_matrix(o))
         start = len(bm.verts)
         bm.from_mesh(me)
         eval_obj.to_mesh_clear()
@@ -686,6 +686,7 @@ class ImportTTSkeleton(bpy.types.Operator, ImportHelper):
                 name = name[:-len("_skeleton")]
             arm = build_armature(context, name, parents, rest)
             arm["tt_skeleton"] = path
+            setup_attachment_slots(arm)
             if self.bind_selected:
                 bound = bind_meshes(arm, meshes)
         else:
@@ -843,6 +844,225 @@ class ExportTTSkeleton(bpy.types.Operator, ExportHelper):
         return {"FINISHED"}
 
 
+POINT_LABELS = {identifier: label for identifier, label, _ in ATTACHMENT_POINT_ITEMS}
+
+
+def resolve_attachment_bones(arm):
+    """(point, bone) for every attachment point whose bone exists on this armature."""
+    names = {b.name for b in arm.data.bones}
+    found = []
+    for point, _, _ in ATTACHMENT_POINT_ITEMS:
+        bone = next((b for b in ATTACHMENT_POINTS.get(point, {}).values() if b in names), None)
+        if bone is not None:
+            found.append((point, bone))
+    return found
+
+
+def setup_attachment_slots(arm):
+    existing = {slot.point for slot in arm.tt_attachments}
+    added = 0
+    for point, bone in resolve_attachment_bones(arm):
+        if point in existing:
+            continue
+        slot = arm.tt_attachments.add()
+        slot.point = point
+        slot.bone = bone
+        added += 1
+    return added
+
+
+def bone_tail_matrices(arm, bone_name):
+    """(rest, posed) world matrices of the bone tail, which is what Blender parents bone children to."""
+    bone = arm.data.bones[bone_name]
+    tail = Matrix.Translation((0.0, bone.length, 0.0))
+    return arm.matrix_world @ bone.matrix_local @ tail, arm.matrix_world @ arm.pose.bones[bone_name].matrix @ tail
+
+
+def attach_object(arm, obj, bone_name, visible):
+    """Bone-parent obj keeping its placement relative to the bone as posed right now, expressed against the rest
+    pose so the bind pose is well defined whatever frame the user was scrubbing."""
+    rest_tail, posed_tail = bone_tail_matrices(arm, bone_name)
+    local = posed_tail.inverted() @ obj.matrix_world
+    obj.parent = arm
+    obj.parent_type = "BONE"
+    obj.parent_bone = bone_name
+    obj.matrix_parent_inverse = rest_tail.inverted()
+    obj.matrix_basis = rest_tail @ local
+    obj["tt_bone"] = bone_name
+    obj.hide_set(not visible)
+    obj.hide_render = not visible
+
+
+def export_matrix(o):
+    """World matrix with the armature at rest for bone-parented attachments, so scrubbing never leaks into a file."""
+    parent = o.parent
+    if parent is not None and parent.type == "ARMATURE" and o.parent_type == "BONE" \
+            and o.parent_bone in parent.data.bones:
+        rest_tail, _ = bone_tail_matrices(parent, o.parent_bone)
+        return rest_tail @ o.matrix_parent_inverse @ o.matrix_basis
+    return o.matrix_world
+
+
+def detach_object(obj):
+    world = obj.matrix_world.copy()
+    obj.parent = None
+    obj.matrix_world = world
+    obj.hide_set(False)
+    obj.hide_render = False
+
+
+def attachment_obj_poll(self, obj):
+    return obj.type == "MESH" and obj != self.id_data
+
+
+def slot_obj_update(self, context):
+    arm = self.id_data
+    previous = bpy.data.objects.get(self.prev_name) if self.prev_name else None
+    if previous is not None and previous != self.obj and previous.parent == arm:
+        detach_object(previous)
+    if self.obj is not None:
+        attach_object(arm, self.obj, self.bone, self.visible)
+    self.prev_name = self.obj.name if self.obj is not None else ""
+
+
+def slot_visible_update(self, context):
+    if self.obj is not None:
+        self.obj.hide_set(not self.visible)
+        self.obj.hide_render = not self.visible
+
+
+class TTAttachmentSlot(bpy.types.PropertyGroup):
+    point: StringProperty()
+    bone: StringProperty()
+    prev_name: StringProperty()
+    obj: PointerProperty(type=bpy.types.Object, name="Object", poll=attachment_obj_poll, update=slot_obj_update,
+                         description="Mesh to hang off this attachment point")
+    visible: BoolProperty(name="Visible", default=True, update=slot_visible_update,
+                          description="Show or hide this attachment; only visible ones are exported")
+
+
+def visible_attachments(arm):
+    return [slot.obj for slot in arm.tt_attachments if slot.obj is not None and slot.visible]
+
+
+class SetupAttachments(bpy.types.Operator):
+    """Create a slot for every attachment point this armature has bones for"""
+    bl_idname = "object.tt_setup_attachments"
+    bl_label = "Set Up Attachment Points"
+    bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        return active_armature(context) is not None
+
+    def execute(self, context):
+        arm = active_armature(context)
+        added = setup_attachment_slots(arm)
+        self.report({"INFO"}, f"{arm.name}: {len(arm.tt_attachments)} attachment points ({added} new)")
+        return {"FINISHED"}
+
+
+class ExportAttachments(bpy.types.Operator):
+    """Export every visible attachment as its own mesh file skinned to its bone"""
+    bl_idname = "export_mesh.tt_attachments"
+    bl_label = "Export Visible Attachments"
+
+    @classmethod
+    def poll(cls, context):
+        arm = active_armature(context)
+        return arm is not None and bool(visible_attachments(arm))
+
+    def execute(self, context):
+        objs = visible_attachments(active_armature(context))
+        for o in context.selected_objects:
+            o.select_set(False)
+        for o in objs:
+            o.select_set(True)
+        context.view_layer.objects.active = objs[0]
+        return bpy.ops.export_mesh.tt_xml("INVOKE_DEFAULT", batch_per_object=True)
+
+
+def find_base_sprite(skeleton_path):
+    """(group, sprite name) of the registry entry that owns this skeleton and carries the clips."""
+    registry = find_up(skeleton_path, "geometry.xml") if skeleton_path else None
+    if registry is None:
+        return None, None
+    try:
+        root = ET.parse(registry).getroot()
+    except ET.ParseError:
+        return None, None
+    skeleton_norm = os.path.abspath(skeleton_path).replace("\\", "/").lower()
+    for group in root.iter("group"):
+        for sprite in group.iter("sprite"):
+            skeleton = sprite.find("skeleton")
+            if skeleton is None or not skeleton.text or sprite.find("animation") is None:
+                continue
+            if skeleton_norm.endswith(skeleton.text.strip().replace("\\", "/").lower()):
+                return group.get("name"), sprite.get("name")
+    return None, None
+
+
+class CopyRegistrySnippet(bpy.types.Operator):
+    """Copy geometry.xml sprite entries for the visible attachments to the clipboard"""
+    bl_idname = "object.tt_registry_snippet"
+    bl_label = "Copy Registry Snippet"
+
+    @classmethod
+    def poll(cls, context):
+        arm = active_armature(context)
+        return arm is not None and bool(visible_attachments(arm))
+
+    def execute(self, context):
+        arm = active_armature(context)
+        group, base = find_base_sprite(arm.get("tt_skeleton", ""))
+        if base is None:
+            base = "BASE_SPRITE"
+            self.report({"WARNING"}, "Could not find the unit's sprite in geometry.xml; fill in base by hand")
+        entries = []
+        for obj in visible_attachments(arm):
+            texture = obj.get("tt_texture") or material_image_name([obj]) or "TEXTURE"
+            entries.append("\n".join([
+                f'        <sprite name="{base}_{obj.name}" base="{base}">',
+                '            <model r="90" g="60" b="30">',
+                f"                misc/{obj.name}.xml",
+                f'                <texture name="{texture}" team="{texture}_team"/>',
+                "            </model>",
+                "        </sprite>",
+            ]))
+        context.window_manager.clipboard = "\n".join(entries) + "\n"
+        where = f"group {group}" if group else "the unit's group"
+        self.report({"INFO"}, f"Copied {len(entries)} sprite entr{'y' if len(entries) == 1 else 'ies'} for {where}")
+        return {"FINISHED"}
+
+
+class VIEW3D_PT_tt_attachments(bpy.types.Panel):
+    bl_label = "Attachments"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Tribal Trouble"
+
+    @classmethod
+    def poll(cls, context):
+        return active_armature(context) is not None
+
+    def draw(self, context):
+        arm = active_armature(context)
+        layout = self.layout
+        layout.label(text=arm.name, icon="ARMATURE_DATA")
+        if not arm.tt_attachments:
+            layout.operator(SetupAttachments.bl_idname)
+            return
+        for slot in arm.tt_attachments:
+            row = layout.row(align=True)
+            row.label(text=POINT_LABELS.get(slot.point, slot.point))
+            row.prop(slot, "obj", text="")
+            row.prop(slot, "visible", text="", icon="HIDE_OFF" if slot.visible else "HIDE_ON")
+        col = layout.column(align=True)
+        col.operator(SetupAttachments.bl_idname, text="Refresh Points")
+        col.operator(ExportAttachments.bl_idname)
+        col.operator(CopyRegistrySnippet.bl_idname)
+
+
 def menu_import(self, context):
     self.layout.operator(ImportTTMesh.bl_idname, text="Tribal Trouble Mesh (.xml)")
     self.layout.operator(ImportTTSkeleton.bl_idname, text="Tribal Trouble Skeleton / Animation (.xml)")
@@ -858,12 +1078,14 @@ def menu_object(self, context):
     self.layout.operator(SnapToBone.bl_idname)
 
 
-classes = (ImportTTMesh, ExportTTMesh, SnapToBone, ImportTTSkeleton, ExportTTSkeleton)
+classes = (ImportTTMesh, ExportTTMesh, SnapToBone, ImportTTSkeleton, ExportTTSkeleton, TTAttachmentSlot,
+           SetupAttachments, ExportAttachments, CopyRegistrySnippet, VIEW3D_PT_tt_attachments)
 
 
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
+    bpy.types.Object.tt_attachments = CollectionProperty(type=TTAttachmentSlot)
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_export)
     bpy.types.VIEW3D_MT_object.append(menu_object)
@@ -873,6 +1095,7 @@ def unregister():
     bpy.types.VIEW3D_MT_object.remove(menu_object)
     bpy.types.TOPBAR_MT_file_import.remove(menu_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_export)
+    del bpy.types.Object.tt_attachments
     for cls in classes:
         bpy.utils.unregister_class(cls)
 
