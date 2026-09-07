@@ -461,7 +461,7 @@ public final class Player implements PlayerInterface {
 
             for (Selectable<?> s : units.getSet()) {
                 if (s instanceof Unit unit && s.getPrimaryController() instanceof GatherController<?> gather) {
-                    if (gather.getSupplyType() == supply_type) {
+                    if (gather.getSupplyType() == supply_type && gather.getAssignedBuilding() == building) {
                         float dx = s.getPositionX() - bx;
                         float dy = s.getPositionY() - by;
                         float dist_sq = dx * dx + dy * dy;
