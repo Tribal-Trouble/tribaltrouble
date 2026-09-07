@@ -17,6 +17,7 @@ public final class ARMIEvent implements Serializable {
 
     private static final ByteBufferOutputStream static_byte_stream = new ByteBufferOutputStream(false);
     private static final short HEADER_SIZE = 1;
+    public static final int MAX_COMMAND_STREAM_SIZE = Short.MAX_VALUE - HEADER_SIZE;
     private static final ARMIArgumentWriter default_writer = new DefaultARMIArgumentWriter();
     private static final ARMIArgumentReader default_reader = new DefaultARMIArgumentReader();
 
@@ -81,6 +82,8 @@ public final class ARMIEvent implements Serializable {
     }
 
     private ARMIEvent(byte method_id, byte[] command_stream) {
+        if (command_stream != null && command_stream.length > MAX_COMMAND_STREAM_SIZE)
+            throw new IllegalArgumentException("ARMI event too large: " + command_stream.length + " bytes");
         this.method_id = method_id;
         this.command_stream = command_stream;
     }
