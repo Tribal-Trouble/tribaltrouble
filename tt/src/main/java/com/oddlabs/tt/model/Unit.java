@@ -30,7 +30,10 @@ import com.oddlabs.tt.particle.BalancedParametricEmitter;
 import com.oddlabs.tt.particle.StunFunction;
 import com.oddlabs.tt.pathfinder.Movable;
 import com.oddlabs.tt.pathfinder.Occupant;
+import com.oddlabs.tt.pathfinder.PathFinder;
 import com.oddlabs.tt.pathfinder.PathTracker;
+import com.oddlabs.tt.pathfinder.Region;
+import com.oddlabs.tt.pathfinder.TargetRegionFinder;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
@@ -592,6 +595,15 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         return target instanceof Supply && getAbilities().hasAbilities(Abilities.BUILD);
     }
 
+    private @Nullable Building nearestSupplyBuilding(@NonNull Supply supply) {
+        UnitGrid grid = getUnitGrid();
+        BuildingFinder finder = new BuildingFinder(getOwner(), Abilities.SUPPLY_CONTAINER);
+        Region region = PathFinder.findPathRegion(grid, new TargetRegionFinder(grid, finder),
+                grid.getRegion(supply.getGridX(), supply.getGridY()));
+        Building building = region != null ? finder.getOccupantFromRegion(region, true) : null;
+        return building != null ? building.getBase() : null;
+    }
+
     private boolean canRepair(@NonNull Target target, boolean action_repair) {
         return target instanceof Building building &&
                 getAbilities().hasAbilities(Abilities.BUILD) &&
@@ -633,7 +645,8 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
                 if (canBuild(target)) {
                     pushController(new PlaceBuildingController(this, (Building) target));
                 } else if (canGather(target)) {
-                    pushController(new GatherController(this, (Supply) target, ((Supply) target).getClass()));
+                    pushController(new GatherController(this, (Supply) target, ((Supply) target).getClass(),
+                            nearestSupplyBuilding((Supply) target)));
                 } else if (canRepair(target, false)) {
                     pushController(new RepairController(this, (Building) target));
                 } else if (canEnter(target)) {
@@ -660,7 +673,8 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
                 break;
             case GATHER_REPAIR:
                 if (canGather(target)) {
-                    pushController(new GatherController(this, (Supply) target, ((Supply) target).getClass()));
+                    pushController(new GatherController(this, (Supply) target, ((Supply) target).getClass(),
+                            nearestSupplyBuilding((Supply) target)));
                 } else if (canRepair(target, true)) {
                     pushController(new RepairController(this, (Building) target));
                 }
