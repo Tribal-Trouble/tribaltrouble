@@ -54,6 +54,8 @@ public final class PeerHub implements Animated, RouterHandler {
     private static final float FREE_QUIT_TIME = 120f;
     private static final int TICKS_PER_STATUS_UPDATE = (int) (20 / AnimationManager.ANIMATION_SECONDS_PER_TICK);
     private static final int TICKS_PER_SPECTATOR_UPDATE = 5;
+    private static final int SPECTATOR_KEY_TREES = -20000;
+    private static final int MAX_SPECTATOR_INFO_CHARS = 30000;
     private static final int TICKS_PER_CHECKSUM = (int) (10 / AnimationManager.ANIMATION_SECONDS_PER_TICK);
     // Spectator controller is non-null only for spectator instances
 
@@ -417,7 +419,7 @@ public final class PeerHub implements Animated, RouterHandler {
             info.append(pos[0]).append(' ').append(pos[1]).append(' ');
         }
         info.append('\n');
-        Network.getMatchmakingClient().getInterface().updateSpectatorInfo(-10000, info.toString());
+        sendSpectatorChunks(SPECTATOR_KEY_TREES, -1, info.toString());
         sentTrees = true;
     }
 
@@ -437,7 +439,17 @@ public final class PeerHub implements Animated, RouterHandler {
             }
         }
         info.append('\n');
-        Network.getMatchmakingClient().getInterface().updateSpectatorInfo(tick, info.toString());
+        sendSpectatorChunks(tick, 1, info.toString());
+    }
+
+    private void sendSpectatorChunks(int first_key, int key_step, @NonNull String info) {
+        var server = Network.getMatchmakingClient().getInterface();
+        int key = first_key;
+        for (int start = 0; start < info.length(); start += MAX_SPECTATOR_INFO_CHARS) {
+            server.updateSpectatorInfo(key, info.substring(start, Math.min(info.length(),
+                    start + MAX_SPECTATOR_INFO_CHARS)));
+            key += key_step;
+        }
     }
 
     public void setPaused(boolean p) {
