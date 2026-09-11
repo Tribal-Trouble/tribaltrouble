@@ -20,6 +20,7 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
         String DESATURATE = "u_desaturate";
         String ALPHA_TEST_VALUE = "u_alphaTestValue";
         String CLASSIC_LIGHTING = "u_classicLighting";
+        String SEA_LEVEL = "u_seaLevel";
     }
 
     public interface Attributes {
@@ -65,6 +66,7 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
                 out vec3 v_viewPosition;
                 out vec3 v_viewNormal;
                 out vec3 v_lightIntensity;
+                out float v_worldZ;
 
                 void main() {
                     // Fetch vertex data for both frames
@@ -89,6 +91,7 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
                     vec4 viewPosition = u_viewMatrix * worldPosition;
                     gl_Position = u_projectionMatrix * viewPosition;
 
+                    v_worldZ = worldPosition.z;
                     v_texCoord0 = in_TexCoord;
                     v_color = in_InstanceColor;
                     v_decalColor = in_InstanceDecalColor;
@@ -121,6 +124,7 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
             uniform bool u_classicLighting;
             uniform float u_desaturate;
             uniform float u_alphaTestValue;
+            uniform float u_seaLevel;
 
             in vec2 v_texCoord0;
             in vec4 v_color;
@@ -129,11 +133,16 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
             in vec3 v_viewPosition;
             in vec3 v_viewNormal;
             in vec3 v_lightIntensity;
+            in float v_worldZ;
 
             layout(location = 0) out vec4 out_FragColor;
             layout(location = 1) out vec4 out_MaskColor;
 
             void main() {
+                if (v_worldZ < u_seaLevel) {
+                    discard;
+                }
+
                 vec4 base = texture(u_texture0, v_texCoord0);
                 out_MaskColor = vec4(0.0);
 

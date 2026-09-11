@@ -198,7 +198,7 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
                 vec3 reflectionColor = u_fogColor.rgb;
                 vec2 reflectionOffset = vec2(0.0, 0.0);
                 if (u_enableDetail) {
-                    reflectionOffset = texture(u_texture1, v_texCoord0 * 2.0 + 0.01 * vec2(sin(u_globalTime * 4.0), cos(u_globalTime * 0.23))).xy * 0.1;
+                    reflectionOffset = texture(u_texture1, v_texCoord0 * 2.0 + 0.01 * vec2(sin(u_globalTime * 4.0), cos(u_globalTime * 0.23))).xy * 0.01;
                 }
                 if (u_hasReflection && v_reflectionClipPos.w > 0.0) {
                     vec2 reflUV = v_reflectionClipPos.xy / v_reflectionClipPos.w * 0.5 + 0.5;

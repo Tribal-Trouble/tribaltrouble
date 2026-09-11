@@ -237,6 +237,10 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
         }
 
+        float seaLevel = aboveSea ? world.getHeightMap().getSeaLevelMeters() : -100.0f;
+        render_queues.getInstancedRenderer().setSeaLevel(seaLevel);
+        treeSpriteRenderer.setSeaLevel(seaLevel);
+
         // Sky & Landscape don't write to mask -> Disable Mask Buffer
         setDrawBuffers(false);
 

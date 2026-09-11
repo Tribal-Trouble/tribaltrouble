@@ -275,6 +275,19 @@ public final class HeightMap {
         return false;
     }
 
+    public boolean isAboveSeaLevel(int patch_x, int patch_y) {
+        int offset_x = patch_x * getGridUnitsPerPatch();
+        int offset_y = patch_y * getGridUnitsPerPatch();
+        for (int y = 0; y < getGridUnitsPerPatch(); y++) {
+            for (int x = 0; x < getGridUnitsPerPatch(); x++) {
+                float height = getWrappedHeight(offset_x + x, offset_y + y);
+                if (height > getSeaLevelMeters())
+                    return true;
+            }
+        }
+        return false;
+    }
+
     public LandscapeLeaf getLeafFromCoordinates(float x_f, float y_f) {
         int patch_x = coordinateToPatch(x_f);
         int patch_y = coordinateToPatch(y_f);

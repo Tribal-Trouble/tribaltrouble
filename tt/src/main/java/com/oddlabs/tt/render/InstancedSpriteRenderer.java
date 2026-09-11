@@ -35,12 +35,17 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
     private final InstancedSpriteShader shader = new InstancedSpriteShader();
     private final Map<@NonNull BatchKey, @NonNull RenderBatch> batches = new HashMap<>();
     private final @NonNull Texture whiteTexture;
+    private float seaLevel = -100.0f;
 
     public InstancedSpriteRenderer() {
         GLImage whiteImage = new GLIntImage(1, 1, GL11.GL_RGBA);
         whiteImage.putPixel(0, 0, Color.WHITE_INT);
         whiteTexture = new Texture(new GLImage[]{whiteImage}, GL11.GL_RGBA8, GL11.GL_NEAREST, GL11.GL_NEAREST,
                 GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
+    }
+
+    public void setSeaLevel(float seaLevel) {
+        this.seaLevel = seaLevel;
     }
 
     public void add(@NonNull SpriteList spriteList, int spriteIndex, int animation, float animTicks, int texIndex,
@@ -62,6 +67,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
         try (var _ = shader.use()) {
             // Set TBO texture unit
             shader.setUniform(InstancedSpriteShader.Uniforms.VERT_BUFFER, 5);
+            shader.setUniform(InstancedSpriteShader.Uniforms.SEA_LEVEL, seaLevel);
 
             RenderState state = new RenderState();
             for (RenderBatch batch : batches.values()) {

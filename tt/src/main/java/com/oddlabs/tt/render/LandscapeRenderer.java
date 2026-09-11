@@ -225,7 +225,7 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
         public void visitLeaf(@NonNull LandscapeLeaf leaf) {
             if (visible_override || RenderTools.inFrustum(leaf,
                     camera.getFrustum()) != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
-                if (!aboveSea || !heightMap.isBelowSeaLevel(leaf.getPatchX(), leaf.getPatchY())) {
+                if (!aboveSea || heightMap.isAboveSeaLevel(leaf.getPatchX(), leaf.getPatchY())) {
                     result.add(leaf);
                 }
             }
