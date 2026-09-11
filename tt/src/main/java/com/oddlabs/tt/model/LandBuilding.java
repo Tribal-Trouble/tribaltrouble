@@ -34,6 +34,8 @@ import org.lwjgl.opengl.GL11;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class LandBuilding extends Building {
     private static final float REMOVE_DELAY = 1f / 10f;
@@ -501,14 +503,19 @@ public final class LandBuilding extends Building {
         if (!unit_grid.getHeightMap().canBuild(grid_x, grid_y, size))
             return false;
 
+        int gsize = unit_grid.getGridSize();
+
         for (int y = 0; y < size * 2 - 1; y++) {
             for (int x = 0; x < size * 2 - 1; x++) {
-                int current_grid_x = grid_x + x - (size - 1);
-                int current_grid_y = grid_y + y - (size - 1);
-                if (current_grid_x >= unit_grid.getGridSize() || current_grid_y >= unit_grid.getGridSize() ||
-                        current_grid_x < 0 || current_grid_y < 0 || unit_grid.isGridOccupied(current_grid_x,
-                                current_grid_y))
+                int cx = grid_x + x - (size - 1);
+                int cy = grid_y + y - (size - 1);
+                if (cx >= gsize || cy >= gsize || cx < 0 || cy < 0) {
                     return false;
+                }
+                var occ = unit_grid.getOccupant(cx, cy);
+                if (occ != null && !(occ instanceof Unit)) {
+                    return false;
+                }
             }
         }
         return true;
@@ -676,10 +683,21 @@ public final class LandBuilding extends Building {
         UnitGrid grid = getUnitGrid();
         grid.getRegion(getGridX(), getGridY()).registerObject(Building.class, this);
         int size = getTemplate().getPlacingSize() * 2 - 1;
+        Set<Unit> trappedUnits = new HashSet<Unit>();
         for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
-                grid.occupyGrid(getGridX() - size / 2 + x, getGridY() - size / 2 + y, this);
+                int cx = getGridX() - size / 2 + x;
+                int cy = getGridY() - size / 2 + y;
+                var occ = grid.getOccupant(cx, cy);
+                if (occ instanceof Unit unit) {
+                    trappedUnits.add(unit);
+                    unit.free();
+                }
+                grid.occupyGrid(cx, cy, this);
             }
+        }
+        for (Unit unit : trappedUnits) {
+            unit.reposition();
         }
     }
 
