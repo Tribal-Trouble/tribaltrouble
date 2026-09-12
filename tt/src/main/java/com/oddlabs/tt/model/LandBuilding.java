@@ -513,8 +513,14 @@ public final class LandBuilding extends Building {
                     return false;
                 }
                 var occ = unit_grid.getOccupant(cx, cy);
-                if (occ != null && !(occ instanceof Unit)) {
-                    return false;
+                if (occ != null) {
+                    if (occ instanceof Unit unit) {
+                        if (unit.isMoving()) {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
                 }
             }
         }

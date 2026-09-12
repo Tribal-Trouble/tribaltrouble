@@ -254,6 +254,9 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     public final void drown() {
+        if (isDead()) {
+            return;
+        }
         clearControllerStack();
         setReference(null);
         mounted = false;
