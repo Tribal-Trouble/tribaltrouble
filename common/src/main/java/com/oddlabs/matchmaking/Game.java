@@ -29,6 +29,10 @@ public final class Game implements Serializable {
     public static final int MIN_LENGTH = 2;
     public static final int MAX_LENGTH = 30;
 
+    public static final int DEFAULT_INITIAL_UNIT_COUNT = 20;
+    public static final int DEFAULT_MAX_UNIT_COUNT = 250;
+    public static final int DEFAULT_MAX_BUILDING_COUNT = 20;
+
     private final @NonNull String game_name;
     private final byte size;
     private final byte terrain;
@@ -40,6 +44,9 @@ public final class Game implements Serializable {
     private final String mapcode;
     private final float random_start_pos;
     private final int max_unit_count;
+    private final int initial_unit_count;
+    private final int max_building_count;
+    private final boolean ships;
 
     private int database_id;
 
@@ -55,6 +62,9 @@ public final class Game implements Serializable {
         this.mapcode = b.mapcode;
         this.random_start_pos = b.random_start_pos;
         this.max_unit_count = b.max_unit_count;
+        this.initial_unit_count = b.initial_unit_count;
+        this.max_building_count = b.max_building_count;
+        this.ships = b.ships;
         assert isValid() : game_name.length();
     }
 
@@ -114,6 +124,18 @@ public final class Game implements Serializable {
         return max_unit_count;
     }
 
+    public int getInitialUnitCount() {
+        return initial_unit_count;
+    }
+
+    public int getMaxBuildingCount() {
+        return max_building_count;
+    }
+
+    public boolean isShips() {
+        return ships;
+    }
+
     public void setDatabaseID(int database_id) {
         this.database_id = database_id;
     }
@@ -133,7 +155,10 @@ public final class Game implements Serializable {
         private byte gamespeed;
         private String mapcode;
         private float random_start_pos;
-        private int max_unit_count;
+        private int max_unit_count = DEFAULT_MAX_UNIT_COUNT;
+        private int initial_unit_count = DEFAULT_INITIAL_UNIT_COUNT;
+        private int max_building_count = DEFAULT_MAX_BUILDING_COUNT;
+        private boolean ships;
 
         private Builder() {
         }
@@ -190,6 +215,21 @@ public final class Game implements Serializable {
 
         public @NonNull Builder maxUnitCount(int max_unit_count) {
             this.max_unit_count = max_unit_count;
+            return this;
+        }
+
+        public @NonNull Builder initialUnitCount(int initial_unit_count) {
+            this.initial_unit_count = initial_unit_count;
+            return this;
+        }
+
+        public @NonNull Builder maxBuildingCount(int max_building_count) {
+            this.max_building_count = max_building_count;
+            return this;
+        }
+
+        public @NonNull Builder ships(boolean ships) {
+            this.ships = ships;
             return this;
         }
 
