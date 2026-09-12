@@ -24,7 +24,6 @@ import com.oddlabs.tt.net.Client;
 import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.Server;
 import com.oddlabs.tt.net.WorldInitAction;
-import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.resource.IslandGenerator;
@@ -302,14 +301,15 @@ public abstract class Menu extends CameraDelegate<Camera> {
         }
     }
 
-    public final @NonNull GameNetwork joinGame(@NonNull NetworkSelector network, GUI gui, int host_id, boolean rated,
-            int gamespeed, @NonNull String map_code, SelectGameMenu owner, float random_start_pos, int max_unit_count,
-            int map_size) {
+    public final @NonNull GameNetwork joinGame(@NonNull NetworkSelector network, GUI gui, int host_id,
+            @NonNull Game game, SelectGameMenu owner) {
         GUIRoot gui_root = getGUIRoot();
-        Client client = new Client(null, network, gui, host_id, new WorldParameters(gamespeed, map_code,
-                Player.INITIAL_UNIT_COUNT,
-                max_unit_count, map_size),
-                new MultiplayerInGameInfo(random_start_pos, rated),
+        Client client = new Client(null, network, gui, host_id, WorldParameters.builder().initialGameSpeed(
+                game.getGamespeed()).mapcode(game.getMapcode()).initialUnitCount(
+                        game.getInitialUnitCount()).maxUnitCount(game.getMaxUnitCount()).mapSize(
+                                game.getSize()).maxBuildingCount(game.getMaxBuildingCount()).ships(
+                                        game.isShips()).build(),
+                new MultiplayerInGameInfo(game.getRandomStartPos(), game.isRated()),
                 new DefaultWorldInitAction());
         GameNetwork game_network = new GameNetwork(null, client);
         ConnectingForm connecting_form = new ConnectingForm(game_network, getGUIRoot(), owner, true);

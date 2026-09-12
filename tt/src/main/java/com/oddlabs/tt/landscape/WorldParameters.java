@@ -1,6 +1,7 @@
 package com.oddlabs.tt.landscape;
 
 import com.oddlabs.matchmaking.Game;
+import com.oddlabs.tt.global.Globals;
 import org.jspecify.annotations.NonNull;
 
 import java.io.Serial;
@@ -14,6 +15,8 @@ public final class WorldParameters implements Serializable {
     private final int max_unit_count;
     private final int initial_game_speed;
     private final int map_size;
+    private final int max_building_count;
+    private final boolean ships;
 
     public WorldParameters(int initial_game_speed, @NonNull String map_code, int initial_unit_count,
             int max_unit_count) {
@@ -32,6 +35,8 @@ public final class WorldParameters implements Serializable {
         this.max_unit_count = b.max_unit_count;
         this.initial_game_speed = b.initial_game_speed;
         this.map_size = b.map_size;
+        this.max_building_count = b.max_building_count;
+        this.ships = b.ships;
     }
 
     public static @NonNull Builder builder() {
@@ -58,12 +63,22 @@ public final class WorldParameters implements Serializable {
         return map_size;
     }
 
+    public int getMaxBuildingCount() {
+        return max_building_count;
+    }
+
+    public boolean isShipsEnabled() {
+        return ships;
+    }
+
     public static final class Builder {
         private @NonNull String mapcode = "";
         private int initial_unit_count;
         private int max_unit_count;
         private int initial_game_speed;
         private int map_size = Game.SIZE_NONE;
+        private int max_building_count = Game.DEFAULT_MAX_BUILDING_COUNT;
+        private boolean ships = Globals.SHIPS_ENABLED;
 
         private Builder() {
         }
@@ -90,6 +105,16 @@ public final class WorldParameters implements Serializable {
 
         public @NonNull Builder mapSize(int v) {
             this.map_size = v;
+            return this;
+        }
+
+        public @NonNull Builder maxBuildingCount(int v) {
+            this.max_building_count = v;
+            return this;
+        }
+
+        public @NonNull Builder ships(boolean v) {
+            this.ships = v;
             return this;
         }
 
