@@ -196,8 +196,8 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
             return super.toString();
     }
 
-    public void reposition(float x, float y) {
-        findInitialPosition(x, y, true);
+    public void reposition() {
+        findInitialPosition(getPositionX(), getPositionY(), true);
     }
 
     private void findInitialPosition(float x, float y, boolean grid_targets_only) {
