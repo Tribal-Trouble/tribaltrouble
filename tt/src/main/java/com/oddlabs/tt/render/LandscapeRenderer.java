@@ -45,6 +45,7 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
     private final Vector4f lightDir = new Vector4f();
     private FloatVBO instanceVBO;
     private FloatBuffer instanceBuffer;
+    private boolean aboveSea = false;
 
     public @NonNull LandscapeShader getShader() {
         return shader;
@@ -80,6 +81,7 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
 
     public void prepareAll(@NonNull CameraState camera, boolean visible_override, boolean aboveSea) {
         render_list.clear();
+        this.aboveSea = aboveSea;
         doPrepareAll(camera, visible_override, aboveSea, render_list);
     }
 
@@ -99,6 +101,8 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
             // Set VTF Uniforms
             shader.setUniform(LandscapeShader.Uniforms.WORLD_SIZE, (float) world.getHeightMap().getMetersPerWorld());
             shader.setUniform(LandscapeShader.Uniforms.DETAIL_SCALE, Globals.LANDSCAPE_DETAIL_REPEAT_RATE);
+            float seaLevel = aboveSea ? world.getHeightMap().getSeaLevelMeters() : -100.0f;
+            shader.setUniform(LandscapeShader.Uniforms.SEA_LEVEL, seaLevel);
 
             context.setTexture(0, diffuseMap);
             shader.setUniform(LandscapeShader.Uniforms.DIFFUSE_MAP, 0);

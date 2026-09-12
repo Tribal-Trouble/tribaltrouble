@@ -11,6 +11,7 @@ public final class LandscapeShader extends ShaderProgram implements FogShader, L
         String DETAIL_MAP = "u_DetailMap";
         String WORLD_SIZE = "u_WorldSize";
         String DETAIL_SCALE = "u_DetailScale";
+        String SEA_LEVEL = "u_SeaLevel";
         String LIGHT_DIRECTION = LitShader.Uniforms.LIGHT_DIR;
         String GLOBAL_AMBIENT = LitShader.Uniforms.GLOBAL_AMBIENT;
     }
@@ -35,6 +36,7 @@ public final class LandscapeShader extends ShaderProgram implements FogShader, L
             out float v_fogDist;
             out vec3 v_viewPosition;
             out vec3 v_viewNormal;
+            out float v_worldZ;
 
             void main() {
                 vec2 worldPos = in_InstancePatchOffset + in_Position;
@@ -55,6 +57,7 @@ public final class LandscapeShader extends ShaderProgram implements FogShader, L
                 vec4 viewPosition = u_viewMatrix * worldPosition4;
                 gl_Position = u_projectionMatrix * viewPosition;
 
+                v_worldZ = worldPosition4.z;
                 v_texCoord0 = uv;
                 v_texCoord1 = worldPos * u_DetailScale;
                 v_fogDist = length(viewPosition.xyz);
@@ -69,16 +72,22 @@ public final class LandscapeShader extends ShaderProgram implements FogShader, L
             uniform sampler2D u_DiffuseMap;
             uniform sampler2D u_NormalMap;
             uniform sampler2D u_DetailMap;
+            uniform float u_SeaLevel;
 
             in vec2 v_texCoord0;
             in vec2 v_texCoord1;
             in float v_fogDist;
             in vec3 v_viewPosition;
             in vec3 v_viewNormal;
+            in float v_worldZ;
 
             layout(location = 0) out vec4 out_FragColor;
 
             void main() {
+                if (v_worldZ < u_SeaLevel) {
+                    discard;
+                }
+
                 vec4 diffuseColor = texture(u_DiffuseMap, v_texCoord0);
                 vec4 detailColor = texture(u_DetailMap, v_texCoord1);
 
