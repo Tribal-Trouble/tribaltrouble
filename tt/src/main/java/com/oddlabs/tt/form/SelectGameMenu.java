@@ -55,6 +55,7 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
+import com.oddlabs.util.Compatibility;
 
 public final class SelectGameMenu extends Form implements MatchmakingListener, TerrainMenuListener {
     private static final int BUTTON_WIDTH_SHORT = 60;
@@ -117,9 +118,10 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         Label label_headline = new Label(i18n("multiplayer_caption"), Skin.getSkin().getHeadlineFont());
         game_list_panel.addChild(label_headline);
         game_list_panel.addFocusListener(new GameListPanelListener());
-        game_name_size = 340;
+        game_name_size = 260;
         ColumnInfo[] infos = new ColumnInfo[]{new ColumnInfo(i18n("game_name"), game_name_size), new ColumnInfo(i18n(
-                "rated"), 120), new ColumnInfo(i18n("speed"), 120), new ColumnInfo(i18n("map_size"), 120)};
+                "rated"), 120), new ColumnInfo(i18n("speed"), 120), new ColumnInfo(i18n("map_size"),
+                        120), new ColumnInfo(i18n("version"), 80)};
         game_list_box = new MultiColumnComboBox<>(gui_root, infos, 350);
         game_list_box.addRowListener(new GameDoubleClickedListener());
         game_list_panel.addChild(game_list_box);
@@ -470,7 +472,8 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
                     new Label(game_host.getGame().getName(), combofont, game_name_size),
                     new Label(rated, combofont),
                     new Label(ServerMessageBundler.getGamespeedString(game_host.getGame().getGamespeed()), combofont),
-                    new Label(size, combofont)),
+                    new Label(size, combofont),
+                    new IntegerLabel(game_host.getSimVersion(), combofont)),
                     game_host);
             game_list_box.addRow(row);
         }
@@ -509,15 +512,21 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         if (Network.getMatchmakingClient().getProfile() != null) {
             if (selected_game != null) {
                 boolean rated = selected_game.getGame().isRated();
-                if (rated && Network.getMatchmakingClient().getProfile().getWins() < GameSession.MIN_WINS_FOR_RANKING) {
-                    String min_wins = i18n("min_wins", GameSession.MIN_WINS_FOR_RANKING);
-                    gui_root.addModalForm(new MessageForm(min_wins));
-                } else {
-                    Game game = selected_game.getGame();
-                    main_menu.joinGame(network, gui_root.getGUI(), selected_game.getHostID(), game.isRated(),
-                            game.getGamespeed(), game.getMapcode(), this, game.getRandomStartPos(),
-                            game.getMaxUnitCount(), game.getSize());
-                }
+                if (selected_game.getSimVersion() != Compatibility.SIM_VERSION) {
+                    String key = selected_game.getSimVersion() > Compatibility.SIM_VERSION ? "game_version_newer" : "game_version_older";
+                    gui_root.addModalForm(new MessageForm(i18n(key,
+                            Integer.toString(selected_game.getSimVersion()),
+                            Integer.toString(Compatibility.SIM_VERSION))));
+                } else if (rated
+                        && Network.getMatchmakingClient().getProfile().getWins() < GameSession.MIN_WINS_FOR_RANKING) {
+                            String min_wins = i18n("min_wins", GameSession.MIN_WINS_FOR_RANKING);
+                            gui_root.addModalForm(new MessageForm(min_wins));
+                        } else {
+                            Game game = selected_game.getGame();
+                            main_menu.joinGame(network, gui_root.getGUI(), selected_game.getHostID(), game.isRated(),
+                                    game.getGamespeed(), game.getMapcode(), this, game.getRandomStartPos(),
+                                    game.getMaxUnitCount(), game.getSize());
+                        }
             }
         }
     }
