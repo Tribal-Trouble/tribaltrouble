@@ -309,9 +309,27 @@ that every other assertion in the test would miss. Change a stored checksum only
 bumps `SIM_VERSION`; the failure message says so. Verified: changing the starting unit count by one
 fails the checksum test and nothing else.
 
-What is not headless yet: the game loop with networking and AI. `HeadlessWorld.tick` drives the
-world directly, so orders are applied immediately rather than through the peer hub. Multiplayer
-sync tests need a headless peer hub, which is the next step.
+### Multiplayer without a window
+
+`HeadlessPeers` builds several worlds in one JVM, each with its own `PeerHub`, all joined to one
+in-process `Router` over loopback. The hubs and the router read a fake clock that the test
+advances one tick per pump, so a game minute takes a couple of seconds of wall time and nothing
+waits on real time. Orders go through `peer.orders()`, which is the hub's `PlayerInterface`: the
+same lockstep path a real match uses, including the checksum exchange between peers.
+
+`HeadlessPeersTest` is the pattern:
+
+1. `new HeadlessPeers(seed, players, params)` in a try-with-resources.
+2. `peers.runUntilTick(tick, max_pumps)` to bring every world to a tick.
+3. `peers.peer(0).orders().placeBuilding(...)` on one peer, then run again.
+4. Assert on each peer's copy of the world, then assert the two checksums are equal.
+
+The hub joins the router by port through a constructor that takes no GUI and no notification
+manager. The Steam peer-to-peer branch swaps the transport under the same seam, so a headless
+Steam test would plug in the same way.
+
+What is not headless yet: AI players and the `Client` and `Server` layers above the hub, so a
+headless match starts with the worlds already built and the slots already filled.
 
 ## Cleanup
 
