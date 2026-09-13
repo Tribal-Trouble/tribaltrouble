@@ -86,6 +86,8 @@ public final class Renderer implements AutoCloseable {
     private static int num_triangles_rendered;
 
     private static boolean grab_frames = false;
+    private static boolean replay_check = false;
+    private static volatile int exit_status = 0;
 
     private final Locale default_locale = Locale.of(Locale.getDefault().getLanguage(), Locale.getDefault().getCountry(),
             "default");
@@ -213,6 +215,24 @@ public final class Renderer implements AutoCloseable {
 
     public static void shutdown() {
         finished = true;
+    }
+
+    /** True when the game is replaying an event log as a pass/fail check rather than for viewing. */
+    public static boolean isReplayCheck() {
+        return replay_check;
+    }
+
+    /** Ends a replay check with a non-zero exit status. A no-op outside replay checks. */
+    public static void failReplay(@NonNull String reason) {
+        if (replay_check) {
+            logger.severe("Replay check failed: " + reason);
+            exit_status = 2;
+            shutdown();
+        }
+    }
+
+    public static int getExitStatus() {
+        return exit_status;
     }
 
     public static boolean isFinished() {
@@ -544,6 +564,7 @@ public final class Renderer implements AutoCloseable {
         for (int i = 0; i < args.length; i++)
             switch (args[i]) {
             case "--grabframes" -> grab_frames = true;
+            case "--replay-check" -> replay_check = true;
             case "--eventload" -> {
                 eventload = true;
                 i++;

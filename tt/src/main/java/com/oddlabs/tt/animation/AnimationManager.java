@@ -131,6 +131,9 @@ public final class AnimationManager {
             unfreezeTime();
         if (grab_frames) {
             current_time += Settings.getSettings().frame_grab_milliseconds_per_frame;
+        } else if (Renderer.isReplayCheck()) {
+            // A replay check is a test, not a viewing: run the largest step the loop accepts per frame.
+            current_time += MAX_STEP_MILLIS;
         } else {
             current_time = getSystemTime();
         }
@@ -189,6 +192,8 @@ public final class AnimationManager {
                         logger.severe(
                                 "********** ERROR: Checksum mismatch at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " | checksum = " + checksum + " | logged_checksum = " + logged_checksum + " **********");
                         checksum_complain = false;
+                        Renderer.failReplay(
+                                "checksum mismatch at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
                     }
                 }
                 if (!Globals.frustum_freeze) {
