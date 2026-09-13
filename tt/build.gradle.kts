@@ -70,6 +70,28 @@ tasks.run.configure {
     classpath = files(layout.buildDirectory) + sourceSets.main.get().runtimeClasspath
 }
 
+// --- Replay goldens ---
+// Each directory under src/test/replay holds an event.log recorded through the scripted input driver.
+// replayCheck replays every one with --replay-check and fails on simulation divergence. Needs a display.
+val replayGoldens = fileTree("src/test/replay") { include("*/event.log") }.files.sortedBy { it.parentFile.name }
+val replayTasks = replayGoldens.map { golden ->
+    tasks.register<JavaExec>("replayCheck_" + golden.parentFile.name) {
+        group = "verification"
+        description = "Replay the " + golden.parentFile.name + " golden as a pass/fail check"
+        classpath = files(layout.buildDirectory) + sourceSets.main.get().runtimeClasspath
+        mainClass.set("com.oddlabs.tt.Main")
+        jvmArgs("-ea", "-esa", "--enable-native-access=ALL-UNNAMED", "-Dcom.oddlabs.tt.developer=true",
+            "-Djdk.crypto.KeyAgreement.legacyKDF=true", "-Xmx512m")
+        args("--eventload", "normal", golden.absolutePath, "--replay-check", "--silent")
+        inputs.file(golden)
+    }
+}
+tasks.register("replayCheck") {
+    group = "verification"
+    description = "Replay every golden under src/test/replay and fail on simulation divergence"
+    dependsOn(replayTasks)
+}
+
 // --- Distribution & Packaging ---
 
 val dist = layout.buildDirectory.dir("dist")
