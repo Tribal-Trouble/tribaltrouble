@@ -71,8 +71,15 @@ public final class IslandGenerator implements WorldGenerator {
         return Landscape.getFogInfo(terrain, meters_per_world);
     }
 
+    private static int detailBaseLevel() {
+        int base_level = Globals.LANDSCAPE_DETAIL_FADEOUT_BASE_LEVEL;
+        int detail_mip_level = IDEAL_TEXELS_PER_DETAIL / Globals.DETAIL_SIZE - 1;
+        base_level -= detail_mip_level;
+        return Math.min(base_level, 1);
+    }
+
     @Override
-    public @NonNull WorldInfo generate(int num_players, int initial_unit_count, float random_start_pos) {
+    public @NonNull WorldInfo generateTerrain(int num_players, int initial_unit_count, float random_start_pos) {
         int colormap_size = grid_units * getTexelsPerGridUnit();
         int chunks_per_colormap = colormap_size / TEXELS_PER_CHUNK;
 
@@ -83,32 +90,37 @@ public final class IslandGenerator implements WorldGenerator {
         int detail_prefade_level = Math.max(detail_mip_level - base_level, 0);
         float detail_prefade = IDEAL_DETAIL_ALPHA * (float) Math.pow(Globals.LANDSCAPE_DETAIL_FADEOUT_FACTOR,
                 detail_prefade_level);
-        base_level -= detail_mip_level;
-        base_level = Math.min(base_level, 1);
         Landscape landscape = new Landscape(num_players, meters_per_world, terrain, detail_prefade, hills,
                 vegetation_amount, supplies_amount, seed, initial_unit_count, random_start_pos, archipelago);
         Instant time_after = Instant.now();
         IO.println("Landscape created in " + Duration.between(time_before, time_after));
-        BlendInfo[] blend_infos = landscape.getBlendInfos();
-        Texture detail = createDetail(landscape.getDetail(), base_level);
-        // int alpha_size = grid_units;
-        // Texture[][] chunk_maps = blendTextures(chunks_per_colormap, blend_infos, alpha_size, Globals.STRUCTURE_SIZE, colormap_size/alpha_size);
-
-        com.oddlabs.tt.landscape.LandscapeBaker baker = new com.oddlabs.tt.landscape.LandscapeBaker();
-        // Original tiled structure textures at colormap_size/STRUCTURE_SIZE repeats.
-        float textureScale = (float) colormap_size / Globals.STRUCTURE_SIZE;
-        WorldInfo.Maps maps = baker.bake(colormap_size, textureScale, blend_infos).withShadows(
-                landscape.getTerrainShadows(), landscape.getSupplyShadows());
-
-        ProgressForm.progress();
         return new WorldInfo(meters_per_world, landscape.getSeaLevelMeters(),
-                colormap_size, chunks_per_colormap, null, maps, detail,
+                colormap_size, chunks_per_colormap, null, null, null, landscape.getDetail(),
                 landscape.getHeight(),
                 landscape.getTrees(), landscape.getPalmtrees(), landscape.getRock(), landscape.getIron(),
                 landscape.getPlants(),
                 landscape.getAccessGrid(), landscape.getDockGrid(), landscape.getWaterGrid(),
                 landscape.getBuildGrid(), landscape.getIslandIds(), landscape.getIslandInfos(),
                 landscape.getStartingLocations(),
-                blend_infos, landscape.getGround(), seed);
+                landscape.getBlendInfos(), landscape.getGround(), seed, landscape.getTerrainShadows(),
+                landscape.getSupplyShadows());
+    }
+
+    @Override
+    public @NonNull WorldInfo bakeTextures(@NonNull WorldInfo terrain) {
+        Texture detail = createDetail(terrain.detail_image(), detailBaseLevel());
+        com.oddlabs.tt.landscape.LandscapeBaker baker = new com.oddlabs.tt.landscape.LandscapeBaker();
+        // Original tiled structure textures at colormap_size/STRUCTURE_SIZE repeats.
+        float textureScale = (float) terrain.texels_per_colormap() / Globals.STRUCTURE_SIZE;
+        WorldInfo.Maps maps = baker.bake(terrain.texels_per_colormap(), textureScale,
+                terrain.blend_infos()).withShadows(terrain.terrain_shadows(), terrain.supply_shadows());
+        return terrain.withTextures(maps, detail);
+    }
+
+    @Override
+    public @NonNull WorldInfo generate(int num_players, int initial_unit_count, float random_start_pos) {
+        WorldInfo world_info = WorldGenerator.super.generate(num_players, initial_unit_count, random_start_pos);
+        ProgressForm.progress();
+        return world_info;
     }
 }
