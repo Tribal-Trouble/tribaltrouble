@@ -1,5 +1,7 @@
 package com.oddlabs.tt.net;
 
+import org.jspecify.annotations.NonNull;
+
 import com.oddlabs.matchmaking.TunnelAddress;
 import com.oddlabs.tt.player.PlayerInfo;
 
@@ -36,6 +38,15 @@ public final class PlayerSlot implements Serializable {
 
     PlayerSlot(int slot) {
         this.slot = slot;
+    }
+
+    /** A ready human slot for {@code player_info}, for headless runs that build a lobby without a server. */
+    public static @NonNull PlayerSlot human(int slot, @NonNull PlayerInfo player_info) {
+        PlayerSlot player_slot = new PlayerSlot(slot);
+        player_slot.setType(HUMAN);
+        player_slot.setInfo(player_info);
+        player_slot.setReady(true);
+        return player_slot;
     }
 
     static boolean isValidType(int type) {

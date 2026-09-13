@@ -43,6 +43,13 @@ public final class HeadlessWorld {
 
     /** A world with each player's starting peons placed at the generated start positions. */
     public static @NonNull World create(int seed, int num_players, @NonNull WorldParameters params) {
+        return create(seed, num_players, params, new NotificationListener() {
+        });
+    }
+
+    /** As {@link #create(int, int, WorldParameters)} with a listener, for callers that track targets. */
+    public static @NonNull World create(int seed, int num_players, @NonNull WorldParameters params,
+            @NonNull NotificationListener listener) {
         if (Settings.getSettings() == null) {
             Settings.setSettings(new Settings());
         }
@@ -56,8 +63,8 @@ public final class HeadlessWorld {
         for (int i = 0; i < num_players; i++) {
             infos[i] = new PlayerInfo(i, i % 2, "Player " + (i + 1));
         }
-        World world = World.newWorld(silentAudio(), landscape_resources, races_resources, new NotificationListener() {
-        }, params, terrain, generator.getTerrainType(), infos, generator.getFogInfo());
+        World world = World.newWorld(silentAudio(), landscape_resources, races_resources, listener, params, terrain,
+                generator.getTerrainType(), infos, generator.getFogInfo());
         Player[] players = world.getPlayers();
         for (int i = 0; i < players.length; i++) {
             float[] start = terrain.starting_locations()[i];
