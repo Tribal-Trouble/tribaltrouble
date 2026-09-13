@@ -87,6 +87,7 @@ public final class Renderer implements AutoCloseable {
 
     private static boolean grab_frames = false;
     private static boolean replay_check = false;
+    private static volatile boolean loaded = false;
     private static volatile int exit_status = 0;
 
     private final Locale default_locale = Locale.of(Locale.getDefault().getLanguage(), Locale.getDefault().getCountry(),
@@ -220,6 +221,11 @@ public final class Renderer implements AutoCloseable {
     /** True when the game is replaying an event log as a pass/fail check rather than for viewing. */
     public static boolean isReplayCheck() {
         return replay_check;
+    }
+
+    /** True once the first frame has rendered and the startup load task has run. */
+    public static boolean isLoaded() {
+        return loaded;
     }
 
     /** Ends a replay check with a non-zero exit status. A no-op outside replay checks. */
@@ -699,6 +705,7 @@ public final class Renderer implements AutoCloseable {
                         Duration startup_time = Duration.between(start_time, Instant.now());
                         logger.info("First frame rendered after " + startup_time);
                         first_frame = false;
+                        loaded = true;
                         if (load_task != null) {
                             window.update();
                             LocalEventQueue.getQueue().getDeterministic().setEnabled(true);

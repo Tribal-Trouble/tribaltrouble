@@ -263,3 +263,6 @@ server/logs/
 /.gradle_local/
 **/steam_appid.txt
 __pycache__/
+
+# One-off replay recordings for the simulation split; re-record through the driver, never commit
+tt/src/test/replay/

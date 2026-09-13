@@ -131,8 +131,9 @@ public final class AnimationManager {
             unfreezeTime();
         if (grab_frames) {
             current_time += Settings.getSettings().frame_grab_milliseconds_per_frame;
-        } else if (Renderer.isReplayCheck()) {
-            // A replay check is a test, not a viewing: run the largest step the loop accepts per frame.
+        } else if (Renderer.isReplayCheck() && Renderer.isLoaded()) {
+            // A replay check is a test, not a viewing: once loading is done, run the largest step the loop
+            // accepts per frame. Before that the recording ran no ticks either.
             current_time += MAX_STEP_MILLIS;
         } else {
             current_time = getSystemTime();

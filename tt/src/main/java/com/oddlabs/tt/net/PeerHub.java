@@ -14,6 +14,7 @@ import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.HeightMap;
@@ -419,7 +420,13 @@ public final class PeerHub implements Animated, RouterHandler {
         checksum.update(local_player.getWorld().getChecksum());
         local_player.getWorld().getAnimationManagerGameTime().updateChecksum(checksum);
         local_player.getWorld().getAnimationManagerRealTime().updateChecksum(checksum);
-        router_client.getInterface().checksum(checksum.getValue());
+        int value = checksum.getValue();
+        // Logged so a replay compares the world checksum, not only the animation one, against the recording.
+        int logged = LocalEventQueue.getQueue().getDeterministic().log(value);
+        if (logged != value) {
+            Renderer.failReplay("world checksum mismatch at tick " + getTick());
+        }
+        router_client.getInterface().checksum(value);
     }
 
     private void sendMap() {
