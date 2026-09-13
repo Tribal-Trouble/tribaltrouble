@@ -3,6 +3,7 @@ package com.oddlabs.tt.landscape;
 import com.oddlabs.tt.global.Globals;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -40,7 +41,8 @@ public final class HeightMap {
     private final float meters_per_chunk_border;
     private final float chunk_tex_scale;
     private final World world_instance;
-    private final com.oddlabs.tt.render.@NonNull Texture heightTexture;
+    // Created by the renderer on first request so the map itself never needs a GL context.
+    private com.oddlabs.tt.render.@Nullable Texture heightTexture;
 
     public HeightMap(
             World world_instance,
@@ -85,8 +87,9 @@ public final class HeightMap {
         chunk_tex_scale = 1f / (meters_per_chunk + 2f * meters_per_chunk_border);
 
         landscape_leaves = new LandscapeLeaf[getPatchesPerWorld()][getPatchesPerWorld()];
+    }
 
-        // Create Height Texture
+    private com.oddlabs.tt.render.@NonNull Texture createHeightTexture() {
         java.nio.FloatBuffer buffer = org.lwjgl.BufferUtils.createFloatBuffer(
                 grid_units_per_world * grid_units_per_world);
         for (int y = 0; y < grid_units_per_world; y++) {
@@ -95,19 +98,24 @@ public final class HeightMap {
             }
         }
         buffer.flip();
-        heightTexture = new com.oddlabs.tt.render.Texture(grid_units_per_world, grid_units_per_world,
-                org.lwjgl.opengl.GL30.GL_R32F, org.lwjgl.opengl.GL11.GL_LINEAR, org.lwjgl.opengl.GL11.GL_LINEAR,
-                org.lwjgl.opengl.GL11.GL_REPEAT);
-        GL11.glBindTexture(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, heightTexture.getHandle());
+        com.oddlabs.tt.render.Texture texture = new com.oddlabs.tt.render.Texture(grid_units_per_world,
+                grid_units_per_world, org.lwjgl.opengl.GL30.GL_R32F, org.lwjgl.opengl.GL11.GL_LINEAR,
+                org.lwjgl.opengl.GL11.GL_LINEAR, org.lwjgl.opengl.GL11.GL_REPEAT);
+        GL11.glBindTexture(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, texture.getHandle());
         GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_ROW_LENGTH, 0);
         GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_SKIP_PIXELS, 0);
         GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_SKIP_ROWS, 0);
         GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_ALIGNMENT, 1);
         GL11.glTexSubImage2D(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, 0, 0, 0, grid_units_per_world, grid_units_per_world,
                 GL11.GL_RED, GL11.GL_FLOAT, buffer);
+        return texture;
     }
 
+    /** The heights as a GL texture, uploaded on first request. Only the renderer should call this. */
     public com.oddlabs.tt.render.@NonNull Texture getHeightTexture() {
+        if (heightTexture == null) {
+            heightTexture = createHeightTexture();
+        }
         return heightTexture;
     }
 
@@ -373,14 +381,16 @@ public final class HeightMap {
         grid_y = wrapGridCoord(grid_y);
         world[grid_y][grid_x] = height;
 
-        java.nio.FloatBuffer buf = org.lwjgl.BufferUtils.createFloatBuffer(1);
-        buf.put(height).flip();
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, heightTexture.getHandle());
-        GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
-        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
-        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, 0);
-        GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
-        GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, grid_x, grid_y, 1, 1, GL11.GL_RED, GL11.GL_FLOAT, buf);
+        if (heightTexture != null) {
+            java.nio.FloatBuffer buf = org.lwjgl.BufferUtils.createFloatBuffer(1);
+            buf.put(height).flip();
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, heightTexture.getHandle());
+            GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
+            GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
+            GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, 0);
+            GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
+            GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, grid_x, grid_y, 1, 1, GL11.GL_RED, GL11.GL_FLOAT, buf);
+        }
 
         int patch_x1 = grid_x / GRID_UNITS_PER_PATCH;
         int patch_y1 = grid_y / GRID_UNITS_PER_PATCH;
