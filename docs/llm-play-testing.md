@@ -285,6 +285,34 @@ Loopback networking already runs in-process for single player, so a headless tes
 than rewritten, and one to two weeks including the replay verification after each step. The risk
 sits in steps 1 and 2, which is exactly what the replay checksums guard.
 
+## Headless simulation tests
+
+The simulation also runs as a library, with no window, GL context or audio device. `HeadlessWorld`
+in `com.oddlabs.tt.headless` builds a world from a seed, places each player's starting peons, and
+ticks it; orders go straight to `Player`, which is the same interface the network hands them to.
+
+```
+./gradlew :tt:test
+```
+
+`HeadlessWorldTest` is the pattern for a scenario:
+
+1. `HeadlessWorld.create(seed, players, params)` for a world with peons at the start positions.
+2. `HeadlessWorld.builders(player)` for the units that can build, `nearestSite(...)` for a legal
+   cell, then `player.placeBuilding(...)`, `unit.setTarget(...)` and so on, exactly as the game does.
+3. `HeadlessWorld.tick(world, ticks)`: 3000 ticks is one minute of game time and takes well under
+   a second.
+4. Assert on counters and positions, then assert `world.getChecksum()` against a stored value.
+
+The stored checksum is the gate. Any change to simulation behaviour flips it, including a change
+that every other assertion in the test would miss. Change a stored checksum only in a commit that
+bumps `SIM_VERSION`; the failure message says so. Verified: changing the starting unit count by one
+fails the checksum test and nothing else.
+
+What is not headless yet: the game loop with networking and AI. `HeadlessWorld.tick` drives the
+world directly, so orders are applied immediately rather than through the peer hub. Multiplayer
+sync tests need a headless peer hub, which is the next step.
+
 ## Cleanup
 
 Kill the client processes, then the servers, then `mysqld`. Portable clients leave nothing behind
