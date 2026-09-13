@@ -36,6 +36,9 @@ application {
 
 dependencies {
     implementation(project(":common"))
+    testImplementation(platform("org.junit:junit-bom:6.0.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation(project(":assets"))
     implementation("com.code-disaster.steamworks4j:steamworks4j:1.10.0")
 }
@@ -68,6 +71,14 @@ tasks.processResources {
 
 tasks.run.configure {
     classpath = files(layout.buildDirectory) + sourceSets.main.get().runtimeClasspath
+}
+
+// Headless simulation tests: no window, no GL, no audio. Same JVM flags as the game so behaviour matches.
+tasks.test {
+    useJUnitPlatform()
+    jvmArgs("-ea", "-esa", "--enable-native-access=ALL-UNNAMED", "-Dcom.oddlabs.tt.developer=true",
+        "-Djdk.crypto.KeyAgreement.legacyKDF=true", "-Xmx512m")
+    workingDir = projectDir
 }
 
 // --- Replay goldens ---
