@@ -71,6 +71,8 @@ public final class AdvancedAI extends AI {
     private @Nullable LandscapeTarget defense_target = null;
 
     private @Nullable IslandInfo init_island = null;
+    private int init_island_contact_x = -1;
+    private int init_island_contact_y = -1;
 
     public AdvancedAI(@NonNull Player owner, UnitInfo unit_info, int difficulty) {
         super(owner, unit_info);
@@ -544,13 +546,17 @@ public final class AdvancedAI extends AI {
                 }
             }
             if (best != null) {
-                getOwner().setSailingTarget(Selectable.newArray(ship), contact_x, contact_y);
+                init_island_contact_x = contact_x;
+                init_island_contact_y = contact_y;
                 init_island = best;
             }
             return;
         }
 
-        if (ship.getEntrance() != ship && ship.getEntrance().getIslandId() != init_island.id()) {
+        if (ship.getEntrance() == ship || ship.getEntrance().getIslandId() != init_island.id()) {
+            if (!ship.isMoving()) {
+                getOwner().setSailingTarget(Selectable.newArray(ship), init_island_contact_x, init_island_contact_y);
+            }
             return;
         }
 

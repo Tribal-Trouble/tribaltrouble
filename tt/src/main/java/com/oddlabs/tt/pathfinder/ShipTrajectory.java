@@ -35,9 +35,13 @@ public final class ShipTrajectory {
         boolean simple = !checkLandCollision(grid, p0, p1);
         if (simple) {
             var path = new ArrayList<ShipTrajectoryPoint>();
-            path.add(p0);
-            path.add(p1);
-            trajectory = createTrajectory(path);
+            if (p0.gridX == p1.gridX && p0.gridY == p1.gridY) {
+                trajectory = null;
+            } else {
+                path.add(p0);
+                path.add(p1);
+                trajectory = createTrajectory(path);
+            }
         } else {
             var regionPath = findRegionPath(p0, p1);
             if (regionPath != null) {
