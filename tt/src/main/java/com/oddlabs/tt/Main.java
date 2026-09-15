@@ -1,7 +1,9 @@
 package com.oddlabs.tt;
 
+import com.oddlabs.tt.p2p.P2P;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.steam.SteamManager;
+import com.oddlabs.tt.steam.SteamP2PProvider;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
@@ -48,7 +50,9 @@ public final class Main {
     static void main(@NonNull String @NonNull... args) {
         int status = 1;
         try {
-            SteamManager.init();
+            if (SteamManager.init())
+                P2P.install(new SteamP2PProvider());
+            P2P.get().handleLaunchArguments(args);
             logger.info("Starting game....");
             Renderer.getRenderer().run(args);
             status = 0;

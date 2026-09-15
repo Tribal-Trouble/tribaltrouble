@@ -205,6 +205,17 @@ public final class WorldViewer implements Animated, AutoCloseable {
         return peerhub.isPaused();
     }
 
+    private boolean game_concluded;
+
+    /** The local player's game has ended (won, lost or draw) and the result screen is showing. */
+    public void setGameConcluded() {
+        game_concluded = true;
+    }
+
+    public boolean isGameConcluded() {
+        return game_concluded;
+    }
+
     public @NonNull Player getLocalPlayer() {
         return local_player;
     }

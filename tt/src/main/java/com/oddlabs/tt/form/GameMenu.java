@@ -40,6 +40,7 @@ import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
+import com.oddlabs.tt.p2p.P2P;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -87,7 +88,8 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
     private final Diode @NonNull [] ready_marks;
     private final @NonNull HorizButton ready_button;
     private final @NonNull HorizButton start_button;
-    private final SelectGameMenu owner;
+    private final @Nullable SelectGameMenu owner;
+    private @Nullable Runnable close_action;
     private final GUIRoot gui_root;
     private final int local_player_slot;
     private final boolean rated;
@@ -153,6 +155,8 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
             start_button.addMouseClickListener(new StartListener());
         }
         int height = compare_height - pdata.getTopOffset() - pdata.getBottomOffset() - chat_info.getHeight() - chat_line.getHeight() - game_name_label.getHeight() - player_group.getHeight() - start_button.getHeight() - 5 * fdata.objectSpacing();
+        if (owner == null)
+            height -= start_button.getHeight() + fdata.objectSpacing();
         chat_box = new TextBox(width, height, Skin.getSkin().getEditFont(), Integer.MAX_VALUE);
         addChild(chat_box);
         ready_button = new HorizButton(i18n("ready"), button_width);
@@ -171,10 +175,22 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
         chat_box.place(chat_info, BOTTOM_LEFT);
         chat_line_group.place(chat_box, BOTTOM_LEFT);
         cancel_button.place(chat_line_group, BOTTOM_RIGHT);
-        info_button.place(chat_line_group, BOTTOM_LEFT);
         ready_button.place(cancel_button, LEFT_MID);
         if (local_player_slot == 0)
             start_button.place(ready_button, LEFT_MID);
+        if (owner == null) {
+            // The P2P lobby's wider buttons do not fit four to a row, so the second row lines up
+            // under the first: Game info below Ready, Invite friends below Cancel (host only).
+            info_button.place(ready_button, BOTTOM_MID);
+            if (P2P.get().isHost()) {
+                HorizButton invite_button = new HorizButton(i18n("invite_friends"), button_width);
+                addChild(invite_button);
+                invite_button.addMouseClickListener((_, _, _, _) -> P2P.get().openInviteDialog());
+                invite_button.place(cancel_button, BOTTOM_MID);
+            }
+        } else {
+            info_button.place(chat_line_group, BOTTOM_LEFT);
+        }
         Font font = Skin.getSkin().getEditFont();
         if (rated) {
             Label rating = new Label(i18n("rating"), font, RATING_WIDTH, Origin.AT_END);
@@ -487,10 +503,22 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
         Network.getChatHub().removeListener(this);
     }
 
+    /** Used when the menu has no SelectGameMenu owner (serverless Steam lobby). */
+    public void setCloseAction(@Nullable Runnable close_action) {
+        this.close_action = close_action;
+    }
+
+    private void closeOwner() {
+        if (owner != null)
+            owner.removeGameMenu();
+        else if (close_action != null)
+            close_action.run();
+    }
+
     @Override
     public void connectionLost() {
         remove();
-        owner.removeGameMenu();
+        closeOwner();
         gui_root.addModalForm(new MessageForm(i18n("connection_lost")));
     }
 
@@ -552,7 +580,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 
     void cancel() {
         game_network.close();
-        owner.removeGameMenu();
+        closeOwner();
     }
 
     private final class InfoButtonListener implements MouseClickListener {

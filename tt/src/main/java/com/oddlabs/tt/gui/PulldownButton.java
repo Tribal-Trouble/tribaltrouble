@@ -1,5 +1,6 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.delegate.ModalDelegate;
 import com.oddlabs.tt.render.GUIRenderer;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
@@ -81,7 +82,13 @@ public final class PulldownButton<T> extends GUIObject {
             menu_x = (int) getRootX();
         }
         menu.setPos(menu_x, (int) (getRootY() - menu.getHeight()));
-        gui_root.getDelegate().addChild(menu);
+        // A modal delegate swallows input to everything beneath it, so a pulldown inside a modal
+        // form must attach its popup to the modal layer, not the camera delegate below.
+        ModalDelegate modal = gui_root.getModalDelegate();
+        if (modal != null)
+            modal.addChild(menu);
+        else
+            gui_root.getDelegate().addChild(menu);
     }
 
     private void deactivateMenu() {

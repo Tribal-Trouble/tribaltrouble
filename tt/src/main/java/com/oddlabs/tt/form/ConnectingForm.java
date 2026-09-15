@@ -1,6 +1,7 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.Game;
+import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.Form;
@@ -14,8 +15,10 @@ import com.oddlabs.tt.net.ConfigurationListener;
 import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.resource.WorldGenerator;
+import com.oddlabs.tt.p2p.P2P;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Random;
 import java.util.ResourceBundle;
@@ -30,14 +33,18 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
     }
 
     private final SelectGameMenu owner;
+    /** Hosts the P2P lobby form on the menu stack when there is no SelectGameMenu owner. */
+    private final @Nullable Menu menu;
     private final boolean multiplayer;
     private final GUIRoot gui_root;
     private final GameNetwork game_network;
 
-    public ConnectingForm(GameNetwork game_network, GUIRoot gui_root, SelectGameMenu owner, boolean multiplayer) {
+    public ConnectingForm(GameNetwork game_network, GUIRoot gui_root, SelectGameMenu owner, @Nullable Menu menu,
+            boolean multiplayer) {
         this.game_network = game_network;
         this.gui_root = gui_root;
         this.owner = owner;
+        this.menu = menu;
         this.multiplayer = multiplayer;
 
         Label info_label = new Label(i18n(multiplayer ? "connecting" : "starting"), Skin.getSkin().getHeadlineFont());
@@ -68,7 +75,18 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
             client.getServerInterface().setPlayerSlot(player_slot, PlayerSlot.HUMAN, race, team, false,
                     PlayerSlot.AI_NONE);
             remove();
-            owner.createGameMenu(game_network, game, generator, player_slot, player_count);
+            if (owner != null) {
+                owner.createGameMenu(game_network, game, generator, player_slot, player_count);
+            } else {
+                // The P2P lobby lives on the menu stack like every other lobby, so it gets the
+                // normal menu background and Esc/back semantics instead of floating as a modal.
+                P2PGameForm form = new P2PGameForm(game_network, gui_root, game, generator, player_slot,
+                        player_count);
+                if (menu != null)
+                    menu.setMenu(form);
+                else
+                    gui_root.addModalForm(form);
+            }
 //			GameMenu panel = new GameMenu(owner, game, generator, player_slot);
 //			owner.setGameMenu(panel);
 //			Network.setConfigurationListener(panel);
@@ -88,6 +106,8 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
     @Override
     public void connectionLost() {
         remove();
+        if (owner == null && multiplayer)
+            P2P.get().leave();
         gui_root.addModalForm(new MessageForm(i18n("connection_lost")));
     }
 
@@ -101,5 +121,7 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
     @Override
     protected void doCancel() {
         game_network.close();
+        if (owner == null && multiplayer)
+            P2P.get().leave();
     }
 }
