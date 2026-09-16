@@ -48,6 +48,7 @@ import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
@@ -79,7 +80,8 @@ public final class WorldViewer implements Animated, AutoCloseable {
 
     public WorldViewer(@NonNull NetworkSelector network, final @NonNull GUIRoot gui_root,
             @NonNull WorldParameters world_params, @NonNull InGameInfo ingame_info, @NonNull WorldGenerator generator,
-            PlayerSlot @NonNull [] player_slots, UnitInfo[] unit_infos, short player_slot, SessionID session_id) {
+            PlayerSlot @NonNull [] player_slots, UnitInfo[] unit_infos, short player_slot, SessionID session_id,
+            @NonNull Vector4fc @NonNull [] colors) {
         this.world_params = world_params;
         this.ingame_info = ingame_info;
         this.network = network;
@@ -145,7 +147,7 @@ public final class WorldViewer implements Animated, AutoCloseable {
         WorldInfo world_info = generator.generate(player_infos.length, world_params.getInitialUnitCount(),
                 ingame_info.getRandomStartPosition());
         this.world = World.newWorld(audio_impl, landscape_resources, races_resources, listener, world_params,
-                world_info, generator.getTerrainType(), player_infos, worldFog);
+                world_info, generator.getTerrainType(), player_infos, worldFog, colors);
         this.local_player = world.getPlayers()[player_slot];
         this.selection = new Selection(local_player);
         landscape_renderer = new LandscapeRenderer(world, world_info, animation_manager_local);
