@@ -1,5 +1,6 @@
 package com.oddlabs.tt.viewer;
 
+import com.oddlabs.matchmaking.RosterTemplate;
 import com.oddlabs.tt.delegate.GameStatsDelegate;
 import com.oddlabs.tt.delegate.InGameMainMenu;
 import com.oddlabs.tt.delegate.Menu;
@@ -18,6 +19,7 @@ import com.oddlabs.tt.util.Utils;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ResourceBundle;
 
@@ -27,7 +29,16 @@ import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 
 public class DefaultInGameInfo implements InGameInfo {
     private static final ResourceBundle terrain_menu_bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
+    private final @Nullable RosterTemplate roster;
     private boolean replay_island_flag;
+
+    public DefaultInGameInfo() {
+        this(null);
+    }
+
+    public DefaultInGameInfo(@Nullable RosterTemplate roster) {
+        this.roster = roster;
+    }
 
     private void addAbortButton(@NonNull InGameMainMenu menu) {
         String abort_text = Menu.i18n("end_game");
@@ -142,6 +153,8 @@ public class DefaultInGameInfo implements InGameInfo {
         if (replay_island_flag) {
             TerrainMenu menu = new TerrainMenu(viewer.getNetwork(), viewer.getGUIRoot(), null, false, null);
             menu.parseMapcode(viewer.getParameters().getMapcode());
+            if (roster != null)
+                menu.applyRoster(roster);
             menu.startGame();
         } else
             Renderer.startMenu(viewer.getNetwork(), viewer.getGUIRoot().getGUI());
