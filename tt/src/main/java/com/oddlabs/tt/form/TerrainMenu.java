@@ -810,7 +810,7 @@ public final class TerrainMenu extends Group {
             ai_names[i] = ai_string + i;
         }
         InGameInfo ingame_info = multiplayer ? new MultiplayerInGameInfo(game.getRandomStartPos(),
-                game.isRated()) : new DefaultInGameInfo();
+                game.isRated()) : new DefaultInGameInfo(snapshotRoster());
         GameNetwork game_network = Menu.startNewGame(network, gui_root,
                 menu,
                 new WorldParameters(multiplayer ? game.getGamespeed() : Globals.gamespeed,
@@ -1061,12 +1061,12 @@ public final class TerrainMenu extends Group {
         return new RosterTemplate(slots);
     }
 
-    // MP slot menu order: Open 0, Closed 1, Easy 2, Normal 3, Hard 4. Only used on the MP preset path.
-    private static RosterTemplate.@NonNull Fill difficultyIndexToFill(int slot_index, int difficulty_index) {
+    // MP slot menu order: Open 0, Closed 1, Easy 2, Normal 3, Hard 4. SP omits Open, so its indices are one lower.
+    private RosterTemplate.@NonNull Fill difficultyIndexToFill(int slot_index, int difficulty_index) {
         if (slot_index == 0) {
             return RosterTemplate.Fill.HOST;
         }
-        return switch (difficulty_index) {
+        return switch (multiplayer ? difficulty_index : difficulty_index + 1) {
             case 1 -> RosterTemplate.Fill.CLOSED;
             case 2 -> RosterTemplate.Fill.EASY_AI;
             case 3 -> RosterTemplate.Fill.NORMAL_AI;
@@ -1077,15 +1077,17 @@ public final class TerrainMenu extends Group {
 
     private void applyPreset(@NonNull Preset preset) {
         applyWorldConfig(preset.getWorld());
+        applyRoster(preset.getRoster());
+        if (preset.getModeOptions() instanceof StandardOptions opts) {
+            cb_rated.setMarked(opts.isRated());
+        }
+    }
 
-        RosterTemplate.Slot[] slots = preset.getRoster().getSlots();
+    public void applyRoster(@NonNull RosterTemplate roster) {
+        RosterTemplate.Slot[] slots = roster.getSlots();
         int target_count = Math.min(slots.length, MatchmakingServerInterface.MAX_PLAYERS);
         if (target_count >= DEFAULT_PLAYER_COUNT && target_count != player_count) {
             pulldown_menu_slots.chooseItem(target_count - DEFAULT_PLAYER_COUNT);
-        }
-
-        if (preset.getModeOptions() instanceof StandardOptions opts) {
-            cb_rated.setMarked(opts.isRated());
         }
 
         for (int i = 0; i < Math.min(slots.length, player_count); i++) {
@@ -1100,18 +1102,18 @@ public final class TerrainMenu extends Group {
         }
     }
 
-    // MP slot menu order: Open 0, Closed 1, Easy 2, Normal 3, Hard 4. Only used on the MP preset path.
-    private static int fillToDifficultyIndex(RosterTemplate.@NonNull Fill fill, int slot_index) {
+    private int fillToDifficultyIndex(RosterTemplate.@NonNull Fill fill, int slot_index) {
         if (slot_index == 0) {
             return 0;
         }
-        return switch (fill) {
+        int index = switch (fill) {
             case HOST, OPEN -> 0;
             case CLOSED -> 1;
             case EASY_AI -> 2;
             case NORMAL_AI -> 3;
             case HARD_AI -> 4;
         };
+        return multiplayer ? index : Math.max(0, index - 1);
     }
 
     private final class PulldownUpdatePlayersChangedListener implements ItemChosenListener<Void> {

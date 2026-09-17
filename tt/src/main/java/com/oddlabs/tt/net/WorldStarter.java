@@ -9,6 +9,7 @@ import com.oddlabs.router.SessionID;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.form.LoadCallback;
 import com.oddlabs.tt.gamemode.GameModeRegistry;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.player.Player;
@@ -18,6 +19,7 @@ import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -54,6 +56,7 @@ final class WorldStarter implements LoadCallback {
         AnimationManager.freezeTime();
         List<PlayerSlot> player_slot_list = new ArrayList<>();
         List<UnitInfo> unit_info_list = new ArrayList<>();
+        List<Vector4fc> color_list = new ArrayList<>();
         short corrected_player_slot = -1;
         for (short i = 0; i < player_slots.length; i++) {
             if (player_slots[i].getInfo() != null) {
@@ -61,13 +64,15 @@ final class WorldStarter implements LoadCallback {
                     corrected_player_slot = (short) player_slot_list.size();
                 player_slot_list.add(player_slots[i]);
                 unit_info_list.add(unit_infos[i]);
+                color_list.add(Settings.getSettings().team_colours[i]);
             }
         }
         assert corrected_player_slot != -1;
         PlayerSlot[] player_slots = player_slot_list.toArray(new PlayerSlot[0]);
         UnitInfo[] corrected_unit_infos = unit_info_list.toArray(new UnitInfo[0]);
+        Vector4fc[] colors = color_list.toArray(new Vector4fc[0]);
         WorldViewer viewer = new WorldViewer(network, gui_root, world_params, ingame_info, generator, player_slots,
-                corrected_unit_infos, corrected_player_slot, new SessionID(session_id));
+                corrected_unit_infos, corrected_player_slot, new SessionID(session_id), colors);
         GameModeRegistry.get(viewer.getWorld().getGameMode()).onGameStart(viewer);
         if (initial_action != null)
             initial_action.run(viewer);

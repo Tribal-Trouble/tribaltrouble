@@ -75,9 +75,20 @@ public final class World {
             @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params,
             @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain,
             @NonNull PlayerInfo @NonNull [] player_infos, @NonNull FogInfo fog) {
+        Vector4fc[] colors = Arrays.copyOf(Settings.getSettings().team_colours, player_infos.length);
+        return newWorld(audio_implementation, landscape_resources, races_resources, notification_listener,
+                world_params, world_info, terrain, player_infos, fog, colors);
+    }
+
+    public static @NonNull World newWorld(@NonNull AudioImplementation audio_implementation,
+            @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources,
+            @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params,
+            @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain,
+            @NonNull PlayerInfo @NonNull [] player_infos, @NonNull FogInfo fog,
+            @NonNull Vector4fc @NonNull [] colors) {
         ProgressForm.progress();
         World world = new World(audio_implementation, landscape_resources, races_resources, notification_listener,
-                world_params, world_info, terrain, player_infos, fog);
+                world_params, world_info, terrain, player_infos, fog, colors);
         ProgressForm.progress();
         ProgressForm.progress(1 / 5f);
         ProgressForm.progress();
@@ -168,7 +179,7 @@ public final class World {
             @Nullable RacesResources races_resources, @NonNull NotificationListener notification_listener,
             @NonNull WorldParameters world_params, @NonNull WorldInfo world_info,
             Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos,
-            @NonNull FogInfo fog) {
+            @NonNull FogInfo fog, @NonNull Vector4fc @NonNull [] colors) {
         IO.println(
                 "****************** Generating landscape at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " ********************");
         this.fog = fog;
@@ -194,7 +205,7 @@ public final class World {
         animation_manager_real_time = new AnimationManager();
         random = new Random(42);
 
-        Iterator<Vector4fc> eachColor = Arrays.asList((Vector4fc[]) Settings.getSettings().team_colours).iterator();
+        Iterator<Vector4fc> eachColor = Arrays.asList(colors).iterator();
         players = Arrays.stream(player_infos).map(info -> new Player(this, info, eachColor.next())).toArray(
                 Player[]::new);
 
