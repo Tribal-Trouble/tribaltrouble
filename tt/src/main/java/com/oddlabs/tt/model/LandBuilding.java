@@ -34,7 +34,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public final class LandBuilding extends Building {
@@ -689,7 +689,7 @@ public final class LandBuilding extends Building {
         UnitGrid grid = getUnitGrid();
         grid.getRegion(getGridX(), getGridY()).registerObject(Building.class, this);
         int size = getTemplate().getPlacingSize() * 2 - 1;
-        Set<Unit> trappedUnits = new HashSet<Unit>();
+        Set<Unit> trappedUnits = new LinkedHashSet<>();
         for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
                 int cx = getGridX() - size / 2 + x;
