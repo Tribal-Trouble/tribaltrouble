@@ -55,7 +55,7 @@ public final class AdvancedAI extends AI {
     private static final int[] UNITS_PER_TOWER2 = new int[]{1000, 1000, 120};
 
     private static final int SHIP_PEONS = 26;
-    private static final int SHIP_WARRIORS = 26;
+    private static final int SHIP_WARRIORS = 50;
     private static final int SHIP_BUILDERS = 20;
     private static final float SHIP_MIN_HEALTH = 0.5f;
     private static final int SHIP_HOME_RANGE = 50;
@@ -73,6 +73,8 @@ public final class AdvancedAI extends AI {
     private @Nullable IslandInfo init_island = null;
     private int init_island_contact_x = -1;
     private int init_island_contact_y = -1;
+
+    private boolean home_is_safe = false;
 
     public AdvancedAI(@NonNull Player owner, UnitInfo unit_info, int difficulty) {
         super(owner, unit_info);
@@ -97,6 +99,7 @@ public final class AdvancedAI extends AI {
 
         if (isArchipelago()) {
             if (hasFoundIsland()) {
+                home_is_safe = !islandHasEnemies(init_island);
                 reclassify();
                 if (baseBuildingsDone())
                     nodeBuildShipAndLoad();
@@ -550,13 +553,13 @@ public final class AdvancedAI extends AI {
                 init_island_contact_y = contact_y;
                 init_island = best;
             }
-            return;
         }
 
         if (ship.getEntrance() == ship || ship.getEntrance().getIslandId() != init_island.id()) {
             if (!ship.isMoving()) {
                 getOwner().setSailingTarget(Selectable.newArray(ship), init_island_contact_x, init_island_contact_y);
             }
+            deployWholeShip(ship);
             return;
         }
 
@@ -574,54 +577,74 @@ public final class AdvancedAI extends AI {
         }
     }
 
+    private boolean islandHasEnemies(IslandInfo island) {
+        Selectable<?> enemy = getOwner().findNearestEnemy(island.centerX(), island.centerY(),
+                s -> s.getIslandId() == island.id());
+        return enemy != null;
+    }
+
     private void useShip(@NonNull Ship ship) {
         if (ship.isDead() || !ship.isComplete() || ship.isMoving())
             return;
 
         boolean at_home = shipAtHome(ship);
         boolean should_escape = shipShouldEscape(ship);
-        boolean battle_ready = (shipBattleReady(ship) && at_home) || !should_escape;
+        boolean battle_ready = shipBattleReady(ship);
 
-        if (battle_ready) {
-            Selectable<?> sea_enemy = getOwner().findNearestEnemy(ship.getGridX(), ship.getGridY(),
-                    s -> s instanceof Ship);
-            if (sea_enemy != null && sea_enemy.isDead()) {
-                sea_enemy = null;
+        if (should_escape) {
+            Building home = homeBuilding();
+            if (home != null && ship.getEntrance().getIslandId() != home.getIslandId()) {
+                getOwner().setSailingTarget(Selectable.newArray(ship), home);
             }
-            Selectable<?> beach_enemy = getOwner().findNearestEnemy(ship.getGridX(), ship.getGridY(),
-                    s -> objectOnBeach(s));
-            if (beach_enemy != null && beach_enemy.isDead()) {
-                beach_enemy = null;
-            }
-            Selectable<?> enemy = null;
-            if (beach_enemy != null && sea_enemy != null) {
-                int sea_dx = sea_enemy.getGridX() - ship.getGridX();
-                int sea_dy = sea_enemy.getGridY() - ship.getGridY();
-                int sea_d2 = sea_dx * sea_dx + sea_dy * sea_dy;
-                int beach_dx = beach_enemy.getGridX() - ship.getGridX();
-                int beach_dy = beach_enemy.getGridY() - ship.getGridY();
-                int beach_d2 = beach_dx * beach_dx + beach_dy * beach_dy;
-                if (sea_d2 > beach_d2) {
-                    enemy = beach_enemy;
-                } else {
-                    enemy = sea_enemy;
-                }
-            } else if (beach_enemy != null) {
-                enemy = beach_enemy;
-            } else {
-                enemy = sea_enemy;
-            }
-
-            if (enemy != null) {
-                getOwner().setSailingTarget(Selectable.newArray(ship), enemy);
-                return;
-            }
+            return;
         }
 
-        if (!at_home) {
-            Building home = homeBuilding();
-            if (home != null) {
-                getOwner().setSailingTarget(Selectable.newArray(ship), home);
+        if (!home_is_safe) {
+            Selectable<?> enemy = getOwner().findNearestEnemy(ship.getGridX(), ship.getGridY(), s -> s instanceof Ship
+                    || objectOnBeach(s));
+            if (battle_ready) {
+                if (enemy != null) {
+                    getOwner().setSailingTarget(Selectable.newArray(ship), enemy);
+                    return;
+                }
+            }
+
+            if (!at_home && enemy == null) {
+                Building home = homeBuilding();
+                if (home != null) {
+                    getOwner().setSailingTarget(Selectable.newArray(ship), home);
+                }
+            }
+        } else {
+            if (battle_ready) {
+                Selectable<?> enemy = getOwner().findNearestEnemy(ship.getGridX(), ship.getGridY(),
+                        s -> !(s instanceof Ship));
+                if (enemy != null) {
+                    if (ship.getEntrance().getIslandId() != enemy.getIslandId()) {
+                        getOwner().setSailingTarget(Selectable.newArray(ship), enemy);
+                        return;
+                    }
+
+                    // Deploy warriors too early so they start getting off-board upon arrival
+                    if (ship.getEntrance() == ship) {
+                        deployShipWarriors(ship);
+                        return;
+                    }
+
+                    if (ship.getEntrance().getIslandId() == enemy.getIslandId()) {
+                        if (shipHasWarriors(ship)) {
+                            deployShipWarriors(ship);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            if (!shipHasWarriors(ship) && !at_home) {
+                Building home = homeBuilding();
+                if (home != null) {
+                    getOwner().setSailingTarget(Selectable.newArray(ship), home);
+                }
             }
         }
     }
@@ -652,7 +675,7 @@ public final class AdvancedAI extends AI {
     }
 
     private boolean shipShouldEscape(@NonNull Ship ship) {
-        return shipTooDamaged(ship) || !shipCrewedEnough(ship);
+        return shipTooDamaged(ship);
     }
 
     private boolean shipTooDamaged(@NonNull Ship ship) {
@@ -666,13 +689,13 @@ public final class AdvancedAI extends AI {
     private boolean shipFullyCrewed(@NonNull Ship ship) {
         int peons = ship.getShipHR().countPeons();
         int warriors = ship.getShipHR().countUnits() - peons;
-        return peons >= SHIP_PEONS && warriors >= SHIP_WARRIORS;
+        return peons >= SHIP_PEONS && warriors >= getMinWarriorsOnShip();
     }
 
     private boolean shipCrewedEnough(@NonNull Ship ship) {
         int peons = ship.getShipHR().countPeons();
         int warriors = ship.getShipHR().countUnits() - peons;
-        return peons >= SHIP_PEONS / 2 && warriors >= SHIP_WARRIORS / 3;
+        return peons >= SHIP_PEONS / 2 && warriors >= getMinWarriorsOnShip() / 3;
     }
 
     private @Nullable Building homeBuilding() {
@@ -730,14 +753,31 @@ public final class AdvancedAI extends AI {
 
     private void deployWholeShip(Ship ship) {
         int peons = ship.getShipHR().countPeons();
+        deployShipWarriors(ship);
+        if (peons > 0) {
+            getOwner().deployUnits(ship, DeployType.PEON, peons);
+        }
+    }
+
+    private int getMaxFleetSize() {
+        return home_is_safe ? FLEET_SIZE : 1;
+    }
+
+    private int getMinWarriorsOnShip() {
+        return home_is_safe ? SHIP_WARRIORS : 15;
+    }
+
+    private boolean shipHasWarriors(Ship ship) {
+        return ship.getShipHR().countPeons() < ship.getShipHR().countUnits();
+    }
+
+    private void deployShipWarriors(Ship ship) {
+        int peons = ship.getShipHR().countPeons();
         int warriors = ship.getShipHR().countUnits() - peons;
         if (warriors > 0) {
             getOwner().deployUnits(ship, DeployType.RUBBER_WARRIOR, warriors);
             getOwner().deployUnits(ship, DeployType.IRON_WARRIOR, warriors);
             getOwner().deployUnits(ship, DeployType.ROCK_WARRIOR, warriors);
-        }
-        if (peons > 0) {
-            getOwner().deployUnits(ship, DeployType.PEON, peons);
         }
     }
 
@@ -771,7 +811,7 @@ public final class AdvancedAI extends AI {
 
     private void nodeBuildShip(int fleet_size) {
         Ship ship = getIncompleteShip();
-        if (ship == null && fleet_size >= FLEET_SIZE)
+        if (ship == null && fleet_size >= getMaxFleetSize())
             return;
 
         Selectable<?>[] idle = getIdlePeons();
@@ -855,7 +895,7 @@ public final class AdvancedAI extends AI {
             }
         }
 
-        int warriors_needed = SHIP_WARRIORS - warriors_aboard;
+        int warriors_needed = getMinWarriorsOnShip() - warriors_aboard;
         if (warriors_needed > 0) {
             if (getIdleWarriors() != null && getIdleWarriors().length > 0) {
                 getOwner().setTarget(firstN(getIdleWarriors(), warriors_needed), ship, Action.DEFAULT, false);

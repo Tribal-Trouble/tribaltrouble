@@ -39,8 +39,8 @@ public class Ship extends Building implements Movable {
     private static final float REMOVE_DELAY = 1f / 10f;
 
     private static final int MAX_SUPPLY_COUNT = 200;
-    private static final int OCCUPY_LENGTH_CELLS = 13;
-    private static final int OCCUPY_WIDTH_CELLS = 4;
+    private static final int OCCUPY_LENGTH_CELLS = 14;
+    private static final int OCCUPY_WIDTH_CELLS = 6;
 
     public static final Cost COST_ROCK_WEAPON = new Cost(new Class[]{TreeSupply.class, RockSupply.class},
             new int[]{2, 1});
