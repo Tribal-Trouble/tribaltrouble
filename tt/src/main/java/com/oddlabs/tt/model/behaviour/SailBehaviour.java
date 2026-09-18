@@ -29,7 +29,10 @@ public final class SailBehaviour implements Behaviour {
     }
 
     public void replanIfNeeded() {
-        if (prev_target_x != target.getGridX() || prev_target_y != target.getGridY()) {
+        boolean no_traj = (trajectory == null || !trajectory.exists());
+        boolean ship_moved = (target instanceof Ship) && (prev_target_x != target.getGridX()
+                || prev_target_y != target.getGridY());
+        if (no_traj || ship_moved) {
             this.trajectory = new ShipTrajectory(ship, target);
             this.prev_target_x = target.getGridX();
             this.prev_target_y = target.getGridY();
@@ -67,7 +70,7 @@ public final class SailBehaviour implements Behaviour {
 
         ship.setLayer(UnitGrid.SEA);
 
-        if (!trajectory.exists()) {
+        if (trajectory == null || !trajectory.exists()) {
             ship.endTrip();
             return State.INTERRUPTIBLE;
         }
