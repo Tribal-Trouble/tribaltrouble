@@ -12,6 +12,7 @@ import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
+import com.oddlabs.util.Compatibility;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
@@ -29,6 +30,10 @@ public final class GameInfoForm extends Form {
     private final @NonNull HorizButton ok_button;
 
     public GameInfoForm(@NonNull Game game) {
+        this(game, Compatibility.SIM_VERSION);
+    }
+
+    public GameInfoForm(@NonNull Game game, int sim_version) {
         Label label_headline = new Label(i18n("game_info"), Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
 
@@ -87,6 +92,13 @@ public final class GameInfoForm extends Form {
         types.addChild(label_mapcode);
         values.addChild(label_mapcode_value);
 
+        Label label_version = new Label(i18n("version"), Skin.getSkin().getEditFont());
+        String version = sim_version == Compatibility.SIM_VERSION ? Integer.toString(sim_version) : i18n(
+                "version_other", Integer.toString(sim_version), Integer.toString(Compatibility.SIM_VERSION));
+        Label label_version_value = new Label(version, Skin.getSkin().getEditFont());
+        types.addChild(label_version);
+        values.addChild(label_version_value);
+
         label_name.place();
         label_rated.place(label_name, BOTTOM_LEFT);
         label_gamespeed.place(label_rated, BOTTOM_LEFT);
@@ -96,6 +108,7 @@ public final class GameInfoForm extends Form {
         label_trees.place(label_hills, BOTTOM_LEFT);
         label_supplies.place(label_trees, BOTTOM_LEFT);
         label_mapcode.place(label_supplies, BOTTOM_LEFT);
+        label_version.place(label_mapcode, BOTTOM_LEFT);
         types.compileCanvas();
         addChild(types);
 
@@ -108,6 +121,7 @@ public final class GameInfoForm extends Form {
         label_trees_value.place(label_hills_value, BOTTOM_LEFT);
         label_supplies_value.place(label_trees_value, BOTTOM_LEFT);
         label_mapcode_value.place(label_supplies_value, BOTTOM_LEFT);
+        label_version_value.place(label_mapcode_value, BOTTOM_LEFT);
         values.compileCanvas();
         addChild(values);
 
