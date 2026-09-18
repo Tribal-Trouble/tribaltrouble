@@ -26,9 +26,7 @@ public class ChatPanel extends Panel implements ChatListener {
     private static final int PULLDOWN_INDEX_INFO = 1;
     private static final int PULLDOWN_INDEX_IGNORE = 2;
 
-    // Spectate is hidden for now while the feature is being stabilized.
-    // Flip this back to true to restore the menu entry; all spectate code paths are left intact.
-    private static final boolean SPECTATE_ENABLED = false;
+    private static final boolean SPECTATE_ENABLED = true;
 
     // Playing list optionally has spectate between info and ignore
     private static final int PULLDOWN_INDEX_PLAYING_SPECTATE = SPECTATE_ENABLED ? 2 : -1;
