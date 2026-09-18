@@ -92,6 +92,7 @@ public final class PeerHub implements Animated, RouterHandler {
     private boolean sentMap;
     private boolean sentInitInfo;
     private boolean sentTrees;
+    private boolean spectator_upload_failed;
     private int mapRowsSent;
 
     public boolean isSynchronized() {
@@ -347,11 +348,17 @@ public final class PeerHub implements Animated, RouterHandler {
             if (getTick() % TICKS_PER_STATUS_UPDATE == 0 && Network.getMatchmakingClient().isConnected())
                 sendStatusUpdate();
 
-            if (is_multiplayer && Network.getMatchmakingClient().isConnected()) {
-                if (!sentMap) sendMap();
-                if (!sentInitInfo) sendInitInfo();
-                if (!sentTrees) sendTrees();
-                if (getTick() % TICKS_PER_SPECTATOR_UPDATE == 0) sendSpectatorInfo();
+            if (is_multiplayer && !spectator_upload_failed && Network.getMatchmakingClient().isConnected()) {
+                // The web spectator feed is not worth the game: on any failure stop feeding it and play on.
+                try {
+                    if (!sentMap) sendMap();
+                    if (!sentInitInfo) sendInitInfo();
+                    if (!sentTrees) sendTrees();
+                    if (getTick() % TICKS_PER_SPECTATOR_UPDATE == 0) sendSpectatorInfo();
+                } catch (RuntimeException e) {
+                    spectator_upload_failed = true;
+                    IO.println("Web spectator feed stopped: " + e);
+                }
             }
         }
 
