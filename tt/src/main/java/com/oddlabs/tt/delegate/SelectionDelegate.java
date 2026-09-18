@@ -11,6 +11,8 @@ import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.player.Player;
+import com.oddlabs.tt.viewer.ObserverView;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.model.Abilities;
@@ -48,6 +50,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     };
     private final @NonNull InGameChatForm chat_form;
     private final @NonNull Label observer_label;
+    private static final int OBSERVER_LABEL_WIDTH = 1000;
     private final @NonNull GameCamera game_camera;
 
     private boolean close_chat_override = false;
@@ -64,8 +67,9 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     public SelectionDelegate(@NonNull WorldViewer viewer, @NonNull GameCamera camera) {
         super(viewer, camera);
-        String observer_mode = Utils.getBundleString(bundle, "observer_mode");
-        this.observer_label = new Label(observer_mode, Skin.getSkin().getHeadlineFont());
+        String observer_mode = Utils.getBundleString(ResourceBundle.getBundle(SelectionDelegate.class.getName()),
+                "observer_mode");
+        this.observer_label = new Label(observer_mode, Skin.getSkin().getHeadlineFont(), OBSERVER_LABEL_WIDTH);
         this.game_camera = (GameCamera) getCamera();
         displayChangedNotify(getGUIRoot().getWidth(), getGUIRoot().getHeight());
         addChild(getViewer().getPanel());
@@ -93,6 +97,26 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         getViewer().getSelection().clearSelection();
         if (!map_mode && Globals.draw_hud)
             addChild(observer_label);
+        ObserverView view = getViewer().getObserverView();
+        if (view != null) {
+            view.setListener(this::refreshObserver);
+            refreshObserver();
+        }
+    }
+
+    private static @NonNull String observerText(@NonNull String key, @NonNull Object @NonNull... args) {
+        return Utils.getBundleString(ResourceBundle.getBundle(SelectionDelegate.class.getName()), key, args);
+    }
+
+    // Status line at the top plus the last few orders under it, one label per line in the player's color.
+    private void refreshObserver() {
+        ObserverView view = getViewer().getObserverView();
+        if (view == null)
+            return;
+        Player followed = view.getFollowedPlayer();
+        observer_label.set(followed == null ? observerText("observer_free") : observerText("observer_following",
+                followed.getPlayerInfo().getName()));
+        displayChangedNotify(getGUIRoot().getWidth(), getGUIRoot().getHeight());
     }
 
     @Override
@@ -114,6 +138,24 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         if (event.isConsumed()) return;
 
         if (event.getPhase() == InputPhase.PRESSED) {
+            ObserverView view = observer ? getViewer().getObserverView() : null;
+            if (view != null) {
+                if (event.consumeAction(GameAction.OBSERVER_NEXT_PLAYER)) {
+                    view.next();
+                    event.consume();
+                    return;
+                }
+                if (event.consumeAction(GameAction.OBSERVER_PREV_PLAYER)) {
+                    view.previous();
+                    event.consume();
+                    return;
+                }
+                if (event.consumeAction(GameAction.OBSERVER_FREE_CAMERA)) {
+                    view.freeCamera();
+                    event.consume();
+                    return;
+                }
+            }
             if (event.hasActions()) {
                 if (event.consumeAction(GameAction.CAMERA_MAP_MODE)) {
                     if (!map_mode) {
@@ -386,12 +428,11 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         game_camera.getState().snapToTarget();
         setCamera(game_camera);
         getCamera().enable();
-        if (Globals.draw_hud) {
-            if (observer)
-                addChild(observer_label);
-            else
-                addChild(getActionButtonPanel());
-        }
+        if (observer) {
+            addChild(observer_label);
+            refreshObserver();
+        } else
+            addChild(getActionButtonPanel());
 
         if (chat_visible) {
             chat_form.remove();
