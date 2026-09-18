@@ -155,6 +155,12 @@ final class Session {
         }
     }
 
+    void visitSpectators(@NonNull SessionVisitor visitor) {
+        for (RouterClient client : spectators) {
+            visitor.visit(client);
+        }
+    }
+
     int getNumPlayers() {
         return players.size();
     }

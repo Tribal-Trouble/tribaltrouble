@@ -6,7 +6,8 @@ public final class InGameChatHistory extends ChatHistory {
     @Override
     public void chat(@NonNull ChatMessage message) {
         if (message.type() == ChatMessage.Type.PRIVATE || message.type() == ChatMessage.Type.NORMAL
-                || message.type() == ChatMessage.Type.TEAM) {
+                || message.type() == ChatMessage.Type.TEAM
+                || message.type() == ChatMessage.Type.OBSERVER_CHAT) {
             addMessage(message.formatLong());
         }
     }
