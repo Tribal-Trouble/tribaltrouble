@@ -210,6 +210,11 @@ public final class InputManager {
         def(GameAction.CHEAT_8, Key.F8);
         def(GameAction.CHEAT_9, Key.F9);
 
+        // Observer mode
+        def(GameAction.OBSERVER_NEXT_PLAYER, Key.RBRACKET);
+        def(GameAction.OBSERVER_PREV_PLAYER, Key.LBRACKET);
+        def(GameAction.OBSERVER_FREE_CAMERA, Key.BACKSLASH);
+
         // Debug
         def(GameAction.DEBUG_PRINT_INFO, Key.I, Modifier.CONTROL);
         def(GameAction.DEBUG_KILL_SELECTED, Key.K, Modifier.CONTROL);

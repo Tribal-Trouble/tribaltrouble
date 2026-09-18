@@ -142,6 +142,11 @@ public enum GameAction {
     CHEAT_8,
     CHEAT_9,
 
+    // Observer mode
+    OBSERVER_NEXT_PLAYER,
+    OBSERVER_PREV_PLAYER,
+    OBSERVER_FREE_CAMERA,
+
     DEBUG_PRINT_INFO,
     DEBUG_KILL_SELECTED,
     DEBUG_TOGGLE_LIGHT,
