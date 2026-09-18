@@ -8,7 +8,7 @@ public final class Compatibility {
      * incompatibly. A bump requires the server to be rebuilt and deployed from
      * the bumped ref, and locks out all older clients.
      */
-    public static final int API_VERSION = 104;
+    public static final int API_VERSION = 103;
 
     /**
      * Client-client gameplay determinism version. Reported to the server after
@@ -18,7 +18,7 @@ public final class Compatibility {
      * behavior (model, pathfinding, landscape generation, behaviours). Needs no
      * server deploy and locks nobody out.
      */
-    public static final int SIM_VERSION = 2002;
+    public static final int SIM_VERSION = 2003;
 
     /** Sim version assumed for clients that predate sim version reporting. */
     public static final int SIM_LEGACY = 0;
