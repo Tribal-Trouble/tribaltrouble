@@ -18,6 +18,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.landscape.AudioImplementation;
 import com.oddlabs.tt.landscape.LandscapeResources;
+import com.oddlabs.tt.landscape.LandscapeTargetRespond;
 import com.oddlabs.tt.landscape.NotificationListener;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.landscape.WorldParameters;
@@ -162,6 +163,13 @@ public final class WorldViewer implements Animated, AutoCloseable {
             public void playerSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
                 if (spectator_view != null)
                     spectator_view.receiveSelection(player, selection);
+            }
+
+            @Override
+            public void playerOrder(@NonNull Player player, float x, float y) {
+                if (spectator_view != null && spectator_view.getFollowedPlayer() == player && peerhub.isSynchronized()
+                        && Globals.draw_hud)
+                    new LandscapeTargetRespond(world, x, y);
             }
         };
         PlayerInfo[] player_infos = Arrays.stream(player_slots).map(PlayerSlot::getInfo).toArray(PlayerInfo[]::new);

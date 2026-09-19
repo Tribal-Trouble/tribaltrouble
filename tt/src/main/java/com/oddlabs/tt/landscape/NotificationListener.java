@@ -35,4 +35,7 @@ public interface NotificationListener {
 
     default void playerSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
     }
+
+    default void playerOrder(@NonNull Player player, float x, float y) {
+    }
 }

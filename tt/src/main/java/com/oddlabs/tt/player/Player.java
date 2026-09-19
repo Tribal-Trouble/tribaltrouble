@@ -124,6 +124,10 @@ public final class Player implements PlayerInterface {
         return World.isValidGamespeed(preferred_speed) ? preferred_speed : world.getGamespeed();
     }
 
+    private void notifyOrder(@NonNull Target target) {
+        world.getNotificationListener().playerOrder(this, target.getPositionX(), target.getPositionY());
+    }
+
     @Override
     public void viewCamera(float target_x, float target_y, float target_z, float horiz_angle, float vert_angle) {
         world.getNotificationListener().playerCamera(this, target_x, target_y, target_z, horiz_angle, vert_angle);
@@ -542,6 +546,7 @@ public final class Player implements PlayerInterface {
     public void placeBuilding(Selectable<?> @NonNull [] selection, int template_id, int placing_grid_x,
             int placing_grid_y) {
         Building building = getRace().getBuildingTemplate(template_id).create(this, placing_grid_x, placing_grid_y);
+        notifyOrder(building);
 
         for (var selection1 : selection) {
             if (isValid(selection1)) {
@@ -552,8 +557,10 @@ public final class Player implements PlayerInterface {
 
     @Override
     public void setRallyPoint(@NonNull Building building, @Nullable Target target) {
-        if (isValid(building) && target != null)
+        if (isValid(building) && target != null) {
             building.setRallyPoint(target);
+            notifyOrder(target);
+        }
     }
 
     @Override
@@ -564,6 +571,8 @@ public final class Player implements PlayerInterface {
     @Override
     public void setTarget(Selectable<?> @NonNull [] selection, @NonNull Target target, @NonNull Action action,
             boolean aggressive) {
+        if (selection.length == 0) return;
+        notifyOrder(target);
         for (Selectable<?> selection1 : selection) {
             if (isValid(selection1)) {
                 selection1.initTarget(target, action, aggressive);
@@ -582,6 +591,7 @@ public final class Player implements PlayerInterface {
     @Override
     public final void setSailingTarget(Selectable<?> @NonNull [] selection, @NonNull Target target) {
         if (selection.length == 0) return;
+        notifyOrder(target);
         for (int i = 0; i < selection.length; i++) {
             if (isValid(selection[i]))
                 selection[i].initTarget(target, Action.MOVE, false);
@@ -594,6 +604,7 @@ public final class Player implements PlayerInterface {
         int grid_size = world.getUnitGrid().getGridSize();
         if (grid_x < 0 || grid_x >= grid_size || grid_y < 0 || grid_y >= grid_size) return;
         Target target = new LandscapeTarget(grid_x, grid_y);
+        notifyOrder(target);
         for (int i = 0; i < selection.length; i++) {
             if (isValid(selection[i]))
                 selection[i].initTarget(target, Action.MOVE, false);
@@ -608,6 +619,7 @@ public final class Player implements PlayerInterface {
         int grid_size = world.getUnitGrid().getGridSize();
         if (grid_x < 0 || grid_x >= grid_size || grid_y < 0 || grid_y >= grid_size)
             return;
+        notifyOrder(new LandscapeTarget(grid_x, grid_y));
         Target[] targets = world.getUnitGrid().findGridTargets(grid_x, grid_y, selection.length, selection.length != 1);
         for (int i = 0; i < selection.length; i++) {
             if (isValid(selection[i]))
