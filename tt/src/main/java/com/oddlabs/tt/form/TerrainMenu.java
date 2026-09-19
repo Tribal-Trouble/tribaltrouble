@@ -43,7 +43,6 @@ import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.net.PlayerSlot;
-import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.ServerMessageBundler;
@@ -66,6 +65,7 @@ import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 import static com.oddlabs.tt.gui.Placement.TOP_LEFT;
 import static com.oddlabs.tt.gui.Placement.TOP_MID;
+import static com.oddlabs.tt.gui.Placement.TOP_RIGHT;
 
 public final class TerrainMenu extends Group {
     private static final int[] SIZES = new int[]{256, 512, 1024, 2048, 2048};
@@ -104,6 +104,7 @@ public final class TerrainMenu extends Group {
     private final @NonNull Slider slider_supplies;
     private final @NonNull Label label_mapcode;
     private final @NonNull HorizButton button_ok;
+    private final @NonNull HorizButton button_advanced;
     private final @NonNull PulldownMenu<Void> @NonNull [] difficulty_pulldown_menus;
     private final @NonNull PulldownMenu<Void> @NonNull [] race_pulldown_menus;
     private final @NonNull PulldownMenu<Void> @NonNull [] team_pulldown_menus;
@@ -123,6 +124,7 @@ public final class TerrainMenu extends Group {
     private static final int DEFAULT_PLAYER_COUNT = 6;
     private int player_count = DEFAULT_PLAYER_COUNT;
     private int seed;
+    private AdvancedSettingsForm.@NonNull Values advanced_settings = AdvancedSettingsForm.Values.defaults();
     private @Nullable Preset current_preset;
     private boolean modified;
     private boolean apply_in_progress;
@@ -366,6 +368,11 @@ public final class TerrainMenu extends Group {
         button_cancel.addMouseClickListener(new CancelButtonListener());
         HorizButton button_mapcode = new HorizButton(i18n("enter_map_code"), 170);
         button_mapcode.addMouseClickListener(new MapcodeListener());
+        button_advanced = new HorizButton(i18n("advanced"), 130);
+        button_advanced.addMouseClickListener((_, _, _, _) -> gui_root.addModalForm(new AdvancedSettingsForm(
+                advanced_settings, Globals.SHIPS_ENABLED, this::applyAdvancedSettings)));
+
+        addChild(button_advanced);
 
         group_buttons.addChild(button_mapcode);
         group_buttons.addChild(button_ok);
@@ -420,6 +427,7 @@ public final class TerrainMenu extends Group {
         // Place objects
         label_headline.place();
         panel_group.place(label_headline, BOTTOM_LEFT);
+        button_advanced.place(panel_group, TOP_RIGHT);
 
         // buttons
         group_buttons.place(Origin.AT_END);
@@ -445,8 +453,19 @@ public final class TerrainMenu extends Group {
         if (!Renderer.isRegistered())
             pm_terrain_type.chooseItem(0);
 
-        cb_rated.addCheckBoxListener(_ -> markModified());
+        cb_rated.addCheckBoxListener(marked -> {
+            // Rated games play with the default limits so ratings stay comparable.
+            button_advanced.setDisabled(marked);
+            markModified();
+        });
         initialized = true;
+    }
+
+    private void applyAdvancedSettings(AdvancedSettingsForm.@NonNull Values values) {
+        if (!values.equals(advanced_settings)) {
+            advanced_settings = values;
+            markModified();
+        }
     }
 
     private void markModified() {
@@ -766,6 +785,10 @@ public final class TerrainMenu extends Group {
         boolean rated = cb_rated.isMarked();
         if (rated)
             team_pulldown_menus[0].chooseItem(team_pulldown_menus[0].getChosenItemIndex() % 2);
+        AdvancedSettingsForm.Values settings = rated ? AdvancedSettingsForm.Values.defaults() : advanced_settings;
+        int size = pulldown_size.getChosenItemIndex();
+        // Archipelago islands are only reachable by ship, so it always plays with boats.
+        boolean ships = Globals.SHIPS_ENABLED && (settings.ships() || ARCHIPELAGO[size]);
         if (multiplayer) {
             String game_name = editline_name.getContents();
             if (game_name.length() < Game.MIN_LENGTH) {
@@ -774,12 +797,24 @@ public final class TerrainMenu extends Group {
                 return false;
             }
             float random_start_pos = LocalEventQueue.getQueue().getTime() % 1f;
-            game = Game.builder().name(game_name).size((byte) pulldown_size.getChosenItemIndex()).terrain(
-                    (byte) terrain_type.ordinal()).hills((byte) hills).trees((byte) vegetation_amount).supplies(
-                            (byte) supplies_amount).rated(rated).gamespeed(
-                                    (byte) (pm_gamespeed.getChosenItemIndex() + 1)).mapcode(
-                                            label_mapcode.getContents()).randomStartPos(random_start_pos).maxUnitCount(
-                                                    Player.DEFAULT_MAX_UNIT_COUNT).build();
+            // spotless:off
+            game = Game.builder()
+                    .name(game_name)
+                    .size((byte) size)
+                    .terrain((byte) terrain_type.ordinal())
+                    .hills((byte) hills)
+                    .trees((byte) vegetation_amount)
+                    .supplies((byte) supplies_amount)
+                    .rated(rated)
+                    .gamespeed((byte) (pm_gamespeed.getChosenItemIndex() + 1))
+                    .mapcode(label_mapcode.getContents())
+                    .randomStartPos(random_start_pos)
+                    .maxUnitCount(settings.maxUnits())
+                    .initialUnitCount(settings.startingUnits())
+                    .maxBuildingCount(settings.maxBuildings())
+                    .ships(ships)
+                    .build();
+            // spotless:on
         } else {
             boolean has_enemy = false;
             for (int i = 1; i < player_count; i++) {
@@ -811,22 +846,30 @@ public final class TerrainMenu extends Group {
         }
         InGameInfo ingame_info = multiplayer ? new MultiplayerInGameInfo(game.getRandomStartPos(),
                 game.isRated()) : new DefaultInGameInfo(snapshotRoster());
+        // spotless:off
+        WorldParameters world_params = WorldParameters.builder()
+                .initialGameSpeed(multiplayer ? game.getGamespeed() : Globals.gamespeed)
+                .mapcode(label_mapcode.getContents())
+                .initialUnitCount(settings.startingUnits())
+                .maxUnitCount(settings.maxUnits())
+                .mapSize(size)
+                .maxBuildingCount(settings.maxBuildings())
+                .ships(ships)
+                .build();
+        // spotless:on
         GameNetwork game_network = Menu.startNewGame(network, gui_root,
                 menu,
-                new WorldParameters(multiplayer ? game.getGamespeed() : Globals.gamespeed,
-                        label_mapcode.getContents(), Player.INITIAL_UNIT_COUNT,
-                        multiplayer ? game.getMaxUnitCount() : Player.DEFAULT_MAX_UNIT_COUNT,
-                        pulldown_size.getChosenItemIndex()),
+                world_params,
                 ingame_info,
                 new Menu.DefaultWorldInitAction(),
                 game,
-                SIZES[pulldown_size.getChosenItemIndex()],
+                SIZES[size],
                 terrain_type,
                 hills / (float) SLIDER_MAX_VALUE,
                 vegetation_amount / (float) SLIDER_MAX_VALUE,
                 supplies_amount / (float) SLIDER_MAX_VALUE,
                 seed * seed,
-                ARCHIPELAGO[pulldown_size.getChosenItemIndex()] && Globals.SHIPS_ENABLED,
+                ARCHIPELAGO[size] && Globals.SHIPS_ENABLED,
                 ai_names,
                 player_count);
         game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN,
@@ -1023,10 +1066,20 @@ public final class TerrainMenu extends Group {
     }
 
     private @NonNull WorldConfig snapshotWorldConfig() {
-        return WorldConfig.builder().gamespeed(pm_gamespeed.getChosenItemIndex()).islandSize(
-                pulldown_size.getChosenItemIndex()).terrainType(pm_terrain_type.getChosenItemIndex()).hills(
-                        slider_hills.getValue()).vegetation(slider_vegetation.getValue()).supplies(
-                                slider_supplies.getValue()).build();
+        // spotless:off
+        return WorldConfig.builder()
+                .gamespeed(pm_gamespeed.getChosenItemIndex())
+                .islandSize(pulldown_size.getChosenItemIndex())
+                .terrainType(pm_terrain_type.getChosenItemIndex())
+                .hills(slider_hills.getValue())
+                .vegetation(slider_vegetation.getValue())
+                .supplies(slider_supplies.getValue())
+                .maxUnits(advanced_settings.maxUnits())
+                .startingUnits(advanced_settings.startingUnits())
+                .maxBuildings(advanced_settings.maxBuildings())
+                .ships(advanced_settings.ships())
+                .build();
+        // spotless:on
     }
 
     private void applyWorldConfig(@NonNull WorldConfig world) {
@@ -1039,6 +1092,8 @@ public final class TerrainMenu extends Group {
         slider_hills.setValue(world.getHills());
         slider_vegetation.setValue(world.getVegetation());
         slider_supplies.setValue(world.getSupplies());
+        advanced_settings = new AdvancedSettingsForm.Values(world.getMaxUnits(), world.getStartingUnits(),
+                world.getMaxBuildings(), world.isShips());
         setMapcode();
     }
 

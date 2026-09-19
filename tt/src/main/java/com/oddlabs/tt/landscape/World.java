@@ -42,6 +42,8 @@ public final class World {
     private final @NonNull AudioImplementation audio_impl;
 
     private final int max_unit_count;
+    private final int max_building_count;
+    private final boolean ships;
     private final @NonNull NotificationListener notification_listener;
 
     private final @NonNull Player @NonNull [] players;
@@ -187,6 +189,8 @@ public final class World {
         this.races_resources = races_resources;
         this.audio_impl = audio_implementation;
         this.max_unit_count = world_params.getMaxUnitCount();
+        this.max_building_count = world_params.getMaxBuildingCount();
+        this.ships = world_params.isShipsEnabled();
         this.notification_listener = notification_listener;
         this.gamespeed = world_params.getInitialGameSpeed();
         this.map_size = world_params.getMapSize();
@@ -258,6 +262,14 @@ public final class World {
 
     public int getMaxUnitCount() {
         return max_unit_count;
+    }
+
+    public int getMaxBuildingCount() {
+        return max_building_count;
+    }
+
+    public boolean isShipsEnabled() {
+        return ships;
     }
 
     public @NonNull NotificationListener getNotificationListener() {
