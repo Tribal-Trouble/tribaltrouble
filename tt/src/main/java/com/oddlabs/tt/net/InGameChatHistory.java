@@ -7,7 +7,7 @@ public final class InGameChatHistory extends ChatHistory {
     public void chat(@NonNull ChatMessage message) {
         if (message.type() == ChatMessage.Type.PRIVATE || message.type() == ChatMessage.Type.NORMAL
                 || message.type() == ChatMessage.Type.TEAM
-                || message.type() == ChatMessage.Type.OBSERVER_CHAT) {
+                || message.type() == ChatMessage.Type.SPECTATOR_CHAT) {
             addMessage(message.formatLong());
         }
     }

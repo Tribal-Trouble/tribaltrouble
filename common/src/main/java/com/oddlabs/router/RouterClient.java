@@ -130,12 +130,12 @@ final class RouterClient implements ConnectionInterface {
             public void relayGameStateEvent(ARMIEvent event) {
             }
 
-            // Observers only ever reach the other observers of their session, never the players.
+            // Spectators only ever reach the other spectators of their session, never the players.
             @Override
             public void relayEvent(ARMIEvent event) {
                 session.visitSpectators((RouterClient client) -> {
                     if (client != RouterClient.this)
-                        client.client_interface.receiveEvent(GameInterface.OBSERVER_CLIENT_ID, event);
+                        client.client_interface.receiveEvent(GameInterface.SPECTATOR_CLIENT_ID, event);
                 });
             }
         });

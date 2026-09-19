@@ -82,7 +82,7 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
             case PRIVATE:
                 print(text, PRIVATE_COLOR);
                 break;
-            case OBSERVER_CHAT:
+            case SPECTATOR_CHAT:
                 print(text, TEAM_COLOR);
                 break;
             default:

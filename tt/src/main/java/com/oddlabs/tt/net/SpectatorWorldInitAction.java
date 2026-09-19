@@ -14,7 +14,7 @@ public final class SpectatorWorldInitAction implements WorldInitAction {
     public void run(WorldViewer viewer) {
         Menu.completeGameSetupHack(viewer);
         viewer.getDelegate().setObserverMode();
-        if (viewer.getObserverView() != null)
-            viewer.getObserverView().follow(followed_slot);
+        if (viewer.getSpectatorView() != null)
+            viewer.getSpectatorView().follow(followed_slot);
     }
 }

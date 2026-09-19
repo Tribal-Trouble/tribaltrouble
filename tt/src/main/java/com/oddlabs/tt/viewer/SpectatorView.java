@@ -5,15 +5,15 @@ import com.oddlabs.tt.player.Player;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/** What an observer is looking at: the player being followed, or a free camera. */
-public final class ObserverView {
+/** What a spectator is looking at: the player being followed, or a free camera. */
+public final class SpectatorView {
     public static final int FREE_CAMERA = -1;
 
     private final @NonNull WorldViewer viewer;
     private int followed = FREE_CAMERA;
     private @Nullable Runnable listener;
 
-    ObserverView(@NonNull WorldViewer viewer) {
+    SpectatorView(@NonNull WorldViewer viewer) {
         this.viewer = viewer;
     }
 

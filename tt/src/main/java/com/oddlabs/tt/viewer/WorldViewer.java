@@ -78,7 +78,7 @@ public final class WorldViewer implements Animated, AutoCloseable {
     private final @NonNull WorldParameters world_params;
     private final @NonNull AnimationManager animation_manager_local;
     private final @NonNull Cheat cheat;
-    private final @Nullable ObserverView observer_view;
+    private final @Nullable SpectatorView spectator_view;
 
     public WorldViewer(@NonNull NetworkSelector network, final @NonNull GUIRoot gui_root,
             @NonNull WorldParameters world_params, @NonNull InGameInfo ingame_info, @NonNull WorldGenerator generator,
@@ -162,7 +162,7 @@ public final class WorldViewer implements Animated, AutoCloseable {
         this.peerhub = new PeerHub(animation_manager_local, ingame_info.isMultiplayer(), ingame_info.isRated(),
                 spectator, local_player, player_slots, network, gui_root, notification_manager, distributable_table,
                 session_id, new ViewerStallHandler(this));
-        this.observer_view = spectator ? new ObserverView(this) : null;
+        this.spectator_view = spectator ? new SpectatorView(this) : null;
         this.camera = new GameCamera(this, camera_state);
         this.panel = new ActionButtonPanel(this, camera);
         this.delegate = new SelectionDelegate(this, camera);
@@ -172,8 +172,8 @@ public final class WorldViewer implements Animated, AutoCloseable {
         LocalEventQueue.getQueue().getManager().registerAnimation(this);
     }
 
-    public @Nullable ObserverView getObserverView() {
-        return observer_view;
+    public @Nullable SpectatorView getSpectatorView() {
+        return spectator_view;
     }
 
     public @NonNull AnimationManager getAnimationManagerLocal() {
