@@ -67,6 +67,14 @@ delegate/TutorialOverDelegate,tutorial_completed,Tutorial {0} is now completed,K
 delegate/TutorialOverDelegate,next_tutorial,Next tutorial,Næste kursus,Nächstes Tutorial,Próximo tutorial,Prossimo tutorial,Próximo tutorial
 delegate/TutorialOverDelegate,restart_tutorial,Restart tutorial,Genstart kursus,Tutorial erneut starten,Repetir el tutorial,Ricomincia tutorial,Recomeçar tutorial
 delegate/TutorialOverDelegate,main_menu,Main menu,Hovedmenu,Hauptmenü,Menú principal,Menu principale,Menu principal
+form/AdvancedSettingsForm,caption,Advanced settings,,,,,
+form/AdvancedSettingsForm,max_units,Max units:,,,,,
+form/AdvancedSettingsForm,starting_units,Starting units:,,,,,
+form/AdvancedSettingsForm,max_buildings,Max buildings:,,,,,
+form/AdvancedSettingsForm,ships,Boats,,,,,
+form/AdvancedSettingsForm,ships_tip,Allow harbours and ships in this game (always on for Archipelago),,,,,
+form/AdvancedSettingsForm,reset_defaults,Reset to defaults,,,,,
+form/AdvancedSettingsForm,performance_warning,Values above the defaults can degrade performance.,,,,,
 form/BugReportConfirmForm,confirm_report,"The game will quit now, and the next time you start it, you will be prompted to fill out a bug report form. Continue?","Spillet afsluttes nu, og næste gang du starter, vil du blive bedt om at udfylde en fejlrapport. Fortsæt?","Das Spiel wird nun beendet. Beim nächsten Start werden Sie aufgefordert, einen Fehlerbericht auszufüllen. Möchten Sie fortfahren?","El juego terminará ahora, y la próxima vez que lo arranques se te pedirá que rellenes un informe de error. ¿Continuar?","Il gioco terminerà ora, e al prossimo avvio, ti verrà richiesto di compilare un rapporto di errore. Continuare?","O jogo vai fechar agora, da próxima vez que você rodar o jogo, será pedido para você preencher um formulário de relatório de bug. Continuar?"
 form/CampaignForm,delete,Delete,Slet,Löschen,Borrar,Cancella,Apagar
 form/CampaignForm,campaign,Campaign,Felttog,Feldzug,Campaña,Campagna,Campanha
@@ -151,6 +159,14 @@ form/GameInfoForm,supplies,Resources:,Ressourcer:,Ressourcen:,Recursos:,Risorse:
 form/GameInfoForm,rated,Rated:,Ligaspil,Gewertet:,Puntuado,Voto:,Ranqueada:
 form/GameInfoForm,gamespeed,Gamespeed:,Hastighed:,Tempo:,Velocidad del Juego:,Velocità:,Velocidade do jogo:
 form/GameInfoForm,mapcode,Mapcode:,Ø-kode:,Kartencode:,Código de mapa:,Codice Mappa:,Código do mapa:
+form/GameInfoForm,max_units,Max units:,,,,,
+form/GameInfoForm,starting_units,Starting units:,,,,,
+form/GameInfoForm,max_buildings,Max buildings:,,,,,
+form/GameInfoForm,ships,Boats:,,,,,
+form/GameInfoForm,yes,Yes,,,,,
+form/GameInfoForm,no,No,,,,,
+form/GameInfoForm,version,Game version:,Spilversion:,Spielversion:,Versión del juego:,Versione del gioco:,Versão do jogo:
+form/GameInfoForm,version_other,{0} (yours is {1}),{0} (din er {1}),{0} (deine ist {1}),{0} (el tuyo es {1}),{0} (il tuo è {1}),{0} (o seu é {1})
 form/GameMenu,game_caption,Game,Spil,Spiel,Partida,Gioco,Partida
 form/GameMenu,rated,[Rated],[Ligaspil],[Gewertet],[Puntuado],[Voto],[Ranqueada]
 form/GameMenu,game,Game:,Spil:,Spiel:,Partida:,Gioco:,Partida:
@@ -573,6 +589,8 @@ form/SelectGameMenu,connection_lost,Connection lost,Mistede forbindelsen,Die Ver
 form/SelectGameMenu,game,Game,Spil,Spiel,Partida,Partita,Partida
 form/SelectGameMenu,update_notice,You need to update your version of Tribal Trouble to join this game. Please select Update from the main menu.,Du skal opdatere din udgave af Tribal Trouble for at tilslutte dig dette spil. Vælg Opdater fra hovedmenuen.,"Diese Version von Tribal Trouble muss aktualisiert werden, damit Sie mitspielen können. Bitte wählen Sie die Option ''Aktualisieren'' im Hauptmenü.","Necesitas actualizar tu versión de Tribal Trouble para unirte a esta partida. Por favor, selecciona Actualizar desde el menú principal.",Devi aggiornare la tua versione di Tribal Trouble per unirti a questa partita. Seleziona Aggiorna dal menu principale.,"Você precisa atualizar a sua versão de Tribal Trouble para se juntar à essa partida. Por favor, selecione Atualizar no menu principal."
 form/SelectGameMenu,old_game,This game was created on an older version of Tribal Trouble than yours.,"Dette spil blev oprettet i en udgave af Tribal Trouble, der er ældre end din.",Dieses Spiel wurde mit einer älteren als der von Ihnen verwendeten Version von Tribal Trouble erstellt.,Este juego fue creado con una versión de Tribal Trouble anterior a la tuya.,Questa partita è stata creata con una vecchia versione di Tribal Trouble.,Essa partida foi criada numa versão mais antiga de tribal trouble que a sua.
+form/SelectGameMenu,game_version_newer,"This game is on a newer game version than yours (theirs: {0}, yours: {1}). Update Tribal Trouble to join this game.","Dette spil er på en nyere spilversion end din (deres: {0}, din: {1}). Opdater Tribal Trouble for at deltage i dette spil.","Dieses Spiel verwendet eine neuere Version als du (deren Version: {0}, deine: {1}). Aktualisiere Tribal Trouble, um diesem Spiel beizutreten.","Este juego está en una versión más reciente que la tuya (la suya: {0}, la tuya: {1}). Actualiza Tribal Trouble para unirte a este juego.","Questa partita si svolge su una versione del gioco più recente della tua (la loro: {0}, la tua: {1}). Aggiorna Tribal Trouble per unirti a questa partita.","Este jogo está em uma versão mais recente que a sua (deles: {0}, sua: {1}). Atualize Tribal Trouble para entrar neste jogo."
+form/SelectGameMenu,game_version_older,"This game is on an older game version than yours (theirs: {0}, yours: {1}). The host needs to update Tribal Trouble before you can join.","Dette spil er på en ældre spilversion end din (deres: {0}, din: {1}). Værten skal opdatere Tribal Trouble, før du kan deltage.","Dieses Spiel verwendet eine ältere Version als deine (deren: {0}, deine: {1}). Der Spielleiter muss Tribal Trouble aktualisieren, bevor du beitreten kannst.","Esta partida tiene una versión anterior a la tuya (la suya: {0}, la tuya: {1}). El anfitrión debe actualizar Tribal Trouble antes de que puedas unirte.","Questa partita si svolge su una versione del gioco precedente alla tua (la loro: {0}, la tua: {1}). L'host deve aggiornare Tribal Trouble prima che tu possa unirti.","Este jogo está em uma versão mais antiga que a sua (deles: {0}, sua: {1}). O anfitrião precisa atualizar o Tribal Trouble antes que você possa entrar."
 form/SelectGameMenu,min_wins,You have to win {0} normal games before you can play rated games.,"Du skal vinde {0} normale spil, før du kan spille ligaspil.","Sie müssen {0} normale Spiele gewinnen, bevor Sie gewertete Spiele spielen können.",Tienes que ganar al menos {0} partidas normales antes de poder entrar en partidas puntuadas.,Devi vincere {0} partite normali prima di entrare nei giochi a punteggio.,Você precisa vencer {0} partidas normais antes de jogar em partidas ranqueadas.
 form/SelectGameMenu,users_and_max,{0}/{1},{0}/{1},{0}/{1},{0}/{1},{0}/{1},{0}/{1}
 form/ShowChangesForm,update_complete,Update complete,Færdig med opdateringen,Aktualisierung abgeschlossen,Se ha completado la actualización,Aggiornamento completato,Atualização concluída
@@ -629,6 +647,7 @@ form/TerrainMenu,hard_unavailable,Hard AI players are unavailable in this demo v
 form/TerrainMenu,ai,AI,Computer,KI,IA,AI,IA
 form/TerrainMenu,confirm_delete_preset,"Delete preset ""{0}""?","Slet forudindstillingen ""{0}""?","Voreinstellung ""{0}"" löschen?","¿Eliminar el preajuste ""{0}""?","Eliminare il preset ""{0}""?","Apagar predefinição ""{0}""?"
 form/TerrainMenu,confirm_discard_changes,Discard your unsaved changes and load this preset?,Vil du kassere dine ikke-gemte ændringer og indlæse denne forudindstilling?,Nicht gespeicherte Änderungen verwerfen und diese Voreinstellung laden?,¿Descartar los cambios no guardados y cargar este preajuste?,Annullare le modifiche non salvate e caricare questo preset?,Descartar as mudanças não salvas e carregar essa predefinição?
+form/TerrainMenu,advanced,Advanced...,,,,,
 form/TutorialForm,tutorial_caption,Tutorial,Grundkursus,Tutorial,Tutorial,Tutorial,Tutorial
 form/TutorialForm,tutorial,Tutorial {0},Kursus {0},Tutorial {0},Tutorial {0},Tutorial {0},Tutorial {0}
 form/TutorialForm,tutorial1_tip,Getting around,Manøvrering,Navigation,Dando una vuelta,Muoversi nell''ambiente,Se Movimentando
