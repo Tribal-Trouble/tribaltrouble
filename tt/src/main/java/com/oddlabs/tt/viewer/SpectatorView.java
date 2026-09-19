@@ -49,6 +49,10 @@ public final class SpectatorView {
         getView(player).setCamera(x, y, z, horiz_angle, vert_angle);
     }
 
+    void receiveCursor(@NonNull Player player, float x, float y, boolean on_map) {
+        getView(player).setCursor(x, y, on_map);
+    }
+
     void receiveSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
         getView(player).setSelection(selection);
     }

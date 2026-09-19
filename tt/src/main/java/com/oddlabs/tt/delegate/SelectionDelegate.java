@@ -10,6 +10,7 @@ import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.gui.SpectatorCursor;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputManager;
 import com.oddlabs.tt.player.Player;
@@ -97,6 +98,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         if (view != null) {
             view.setListener(this::refreshSpectator);
             refreshSpectator();
+            addChild(new SpectatorCursor(getViewer(), getGUIRoot(), () -> !map_mode && Globals.draw_hud));
         }
     }
 

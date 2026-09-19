@@ -8,6 +8,9 @@ import java.util.Set;
 
 public final class PlayerView {
     private final @NonNull Set<Selectable<?>> selection = new HashSet<>();
+    private boolean cursor_on_map;
+    private float cursor_x;
+    private float cursor_y;
     private boolean has_camera;
     private float camera_x;
     private float camera_y;
@@ -46,6 +49,24 @@ public final class PlayerView {
 
     public float getCameraVertAngle() {
         return camera_vert_angle;
+    }
+
+    void setCursor(float x, float y, boolean on_map) {
+        cursor_on_map = on_map;
+        cursor_x = x;
+        cursor_y = y;
+    }
+
+    public boolean isCursorOnMap() {
+        return cursor_on_map;
+    }
+
+    public float getCursorX() {
+        return cursor_x;
+    }
+
+    public float getCursorY() {
+        return cursor_y;
     }
 
     void setSelection(Selectable<?> @NonNull [] selected) {
