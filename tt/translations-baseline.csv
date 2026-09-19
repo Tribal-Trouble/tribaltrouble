@@ -67,14 +67,14 @@ delegate/TutorialOverDelegate,tutorial_completed,Tutorial {0} is now completed,K
 delegate/TutorialOverDelegate,next_tutorial,Next tutorial,Næste kursus,Nächstes Tutorial,Próximo tutorial,Prossimo tutorial,Próximo tutorial
 delegate/TutorialOverDelegate,restart_tutorial,Restart tutorial,Genstart kursus,Tutorial erneut starten,Repetir el tutorial,Ricomincia tutorial,Recomeçar tutorial
 delegate/TutorialOverDelegate,main_menu,Main menu,Hovedmenu,Hauptmenü,Menú principal,Menu principale,Menu principal
-form/AdvancedSettingsForm,caption,Advanced settings,,,,,
-form/AdvancedSettingsForm,max_units,Max units:,,,,,
-form/AdvancedSettingsForm,starting_units,Starting units:,,,,,
-form/AdvancedSettingsForm,max_buildings,Max buildings:,,,,,
-form/AdvancedSettingsForm,ships,Boats,,,,,
-form/AdvancedSettingsForm,ships_tip,Allow harbours and ships in this game (always on for Archipelago),,,,,
-form/AdvancedSettingsForm,reset_defaults,Reset to defaults,,,,,
-form/AdvancedSettingsForm,performance_warning,Values above the defaults can degrade performance.,,,,,
+form/AdvancedSettingsForm,caption,Advanced settings,Avancerede indstillinger,Erweiterte Einstellungen,Configuración avanzada,Impostazioni avanzate,Configurações avançadas
+form/AdvancedSettingsForm,max_units,Max units:,Maks. enheder:,Maximale Einheiten:,Unidades máximas:,Unità massime:,Unidades máximas:
+form/AdvancedSettingsForm,starting_units,Starting units:,Startenheder:,Ausgangseinheiten:,Unidades iniciales:,Unità di avviamento:,Unidades iniciais:
+form/AdvancedSettingsForm,max_buildings,Max buildings:,Maks. bygninger:,Max-Gebäude:,Edificios máximos:,Edifici massimi:,Número máximo de edifícios:
+form/AdvancedSettingsForm,ships,Boats,Både,Boote,barcos,Barche,Barcos
+form/AdvancedSettingsForm,ships_tip,Allow harbours and ships in this game (always on for Archipelago),Tillad havne og skibe i dette spil (altid aktivt for Øgruppen),Häfen und Schiffe in diesem Spiel zulassen (für Archipel immer aktiviert),Permitir puertos y barcos en este juego (siempre activado para Archipiélago),Consenti la presenza di porti e navi in ​​questo gioco (sempre attivo per Archipelago),Permitir portos e navios neste jogo (sempre ativado para Archipelago)
+form/AdvancedSettingsForm,reset_defaults,Reset to defaults,Nulstil til standardindstillinger,Auf Standardeinstellungen zurücksetzen,Restablecer valores predeterminados,Ripristina le impostazioni predefinite,Restaurar padrões de fábrica
+form/AdvancedSettingsForm,performance_warning,Values above the defaults can degrade performance.,Værdier over standardværdierne kan forringe ydeevnen.,Werte oberhalb der Standardeinstellungen können die Leistung beeinträchtigen.,Los valores superiores a los predeterminados pueden degradar el rendimiento.,Valori superiori a quelli predefiniti possono compromettere le prestazioni.,Valores acima dos padrões podem degradar o desempenho.
 form/BugReportConfirmForm,confirm_report,"The game will quit now, and the next time you start it, you will be prompted to fill out a bug report form. Continue?","Spillet afsluttes nu, og næste gang du starter, vil du blive bedt om at udfylde en fejlrapport. Fortsæt?","Das Spiel wird nun beendet. Beim nächsten Start werden Sie aufgefordert, einen Fehlerbericht auszufüllen. Möchten Sie fortfahren?","El juego terminará ahora, y la próxima vez que lo arranques se te pedirá que rellenes un informe de error. ¿Continuar?","Il gioco terminerà ora, e al prossimo avvio, ti verrà richiesto di compilare un rapporto di errore. Continuare?","O jogo vai fechar agora, da próxima vez que você rodar o jogo, será pedido para você preencher um formulário de relatório de bug. Continuar?"
 form/CampaignForm,delete,Delete,Slet,Löschen,Borrar,Cancella,Apagar
 form/CampaignForm,campaign,Campaign,Felttog,Feldzug,Campaña,Campagna,Campanha
@@ -159,12 +159,12 @@ form/GameInfoForm,supplies,Resources:,Ressourcer:,Ressourcen:,Recursos:,Risorse:
 form/GameInfoForm,rated,Rated:,Ligaspil,Gewertet:,Puntuado,Voto:,Ranqueada:
 form/GameInfoForm,gamespeed,Gamespeed:,Hastighed:,Tempo:,Velocidad del Juego:,Velocità:,Velocidade do jogo:
 form/GameInfoForm,mapcode,Mapcode:,Ø-kode:,Kartencode:,Código de mapa:,Codice Mappa:,Código do mapa:
-form/GameInfoForm,max_units,Max units:,,,,,
-form/GameInfoForm,starting_units,Starting units:,,,,,
-form/GameInfoForm,max_buildings,Max buildings:,,,,,
-form/GameInfoForm,ships,Boats:,,,,,
-form/GameInfoForm,yes,Yes,,,,,
-form/GameInfoForm,no,No,,,,,
+form/GameInfoForm,max_units,Max units:,Maks. enheder:,Maximale Einheiten:,Unidades máximas:,Unità massime:,Unidades máximas:
+form/GameInfoForm,starting_units,Starting units:,Startenheder:,Ausgangseinheiten:,Unidades iniciales:,Unità di avviamento:,Unidades iniciais:
+form/GameInfoForm,max_buildings,Max buildings:,Maks. bygninger:,Max-Gebäude:,Edificios máximos:,Edifici massimi:,Número máximo de edifícios:
+form/GameInfoForm,ships,Boats:,Både:,Boote:,Barcos:,Barche:,Barcos:
+form/GameInfoForm,yes,Yes,Ja,Ja,Sí,SÌ,Sim
+form/GameInfoForm,no,No,Ingen,NEIN,No,NO,Não
 form/GameInfoForm,version,Game version:,Spilversion:,Spielversion:,Versión del juego:,Versione del gioco:,Versão do jogo:
 form/GameInfoForm,version_other,{0} (yours is {1}),{0} (din er {1}),{0} (deine ist {1}),{0} (el tuyo es {1}),{0} (il tuo è {1}),{0} (o seu é {1})
 form/GameMenu,game_caption,Game,Spil,Spiel,Partida,Gioco,Partida
@@ -647,7 +647,7 @@ form/TerrainMenu,hard_unavailable,Hard AI players are unavailable in this demo v
 form/TerrainMenu,ai,AI,Computer,KI,IA,AI,IA
 form/TerrainMenu,confirm_delete_preset,"Delete preset ""{0}""?","Slet forudindstillingen ""{0}""?","Voreinstellung ""{0}"" löschen?","¿Eliminar el preajuste ""{0}""?","Eliminare il preset ""{0}""?","Apagar predefinição ""{0}""?"
 form/TerrainMenu,confirm_discard_changes,Discard your unsaved changes and load this preset?,Vil du kassere dine ikke-gemte ændringer og indlæse denne forudindstilling?,Nicht gespeicherte Änderungen verwerfen und diese Voreinstellung laden?,¿Descartar los cambios no guardados y cargar este preajuste?,Annullare le modifiche non salvate e caricare questo preset?,Descartar as mudanças não salvas e carregar essa predefinição?
-form/TerrainMenu,advanced,Advanced...,,,,,
+form/TerrainMenu,advanced,Advanced...,Fremskreden...,Fortschrittlich...,Avanzado...,Avanzato...,Avançado...
 form/TutorialForm,tutorial_caption,Tutorial,Grundkursus,Tutorial,Tutorial,Tutorial,Tutorial
 form/TutorialForm,tutorial,Tutorial {0},Kursus {0},Tutorial {0},Tutorial {0},Tutorial {0},Tutorial {0}
 form/TutorialForm,tutorial1_tip,Getting around,Manøvrering,Navigation,Dando una vuelta,Muoversi nell''ambiente,Se Movimentando
