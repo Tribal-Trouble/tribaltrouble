@@ -59,6 +59,9 @@ public final class PeerHub implements Animated, RouterHandler {
     private static final int SPECTATOR_KEY_TREES = -20000;
     private static final int MAX_SPECTATOR_INFO_CHARS = 30000;
     private static final char OBSERVER_CHAT_SEPARATOR = '\u001f';
+    // One relayed event reaches the whole session: for a player every player and observer, for an observer the
+    // other observers only.
+    private final @NonNull PeerHubInterface everyone;
     private static final int TICKS_PER_CHECKSUM = (int) (10 / AnimationManager.ANIMATION_SECONDS_PER_TICK);
     // Spectator controller is non-null only for spectator instances
 
@@ -139,6 +142,8 @@ public final class PeerHub implements Animated, RouterHandler {
             this.router = null;
             this.router_client = new RouterClient(network, Settings.getSettings().getRouterAddress(), this);
         }
+        this.everyone = (PeerHubInterface) ARMIEvent.createProxy(
+                (ARMIEvent event) -> router_client.getInterface().relayEvent(event), PeerHubInterface.class);
         for (short i = 0; i < players.length; i++) {
             Player player = players[i];
             if (player_slots[i].getType() != PlayerSlot.HUMAN) {
@@ -538,9 +543,11 @@ public final class PeerHub implements Animated, RouterHandler {
             // Observers talk only to each other: the router relays this to the session's other observers.
             String nick = observerNick();
             Network.getChatHub().chat(new ChatMessage(nick, text, ChatMessage.Type.OBSERVER_CHAT));
-            PeerHubInterface observers = (PeerHubInterface) ARMIEvent.createProxy(
-                    (ARMIEvent event) -> router_client.getInterface().relayEvent(event), PeerHubInterface.class);
-            observers.chat(nick + OBSERVER_CHAT_SEPARATOR + text, false);
+            everyone.chat(nick + OBSERVER_CHAT_SEPARATOR + text, false);
+            return;
+        }
+        if (!team_only) {
+            everyone.chat(text, false);
             return;
         }
         Iterator<Peer> it = getPeerIterator();
