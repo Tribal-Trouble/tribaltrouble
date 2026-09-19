@@ -797,13 +797,24 @@ public final class TerrainMenu extends Group {
                 return false;
             }
             float random_start_pos = LocalEventQueue.getQueue().getTime() % 1f;
-            game = Game.builder().name(game_name).size((byte) size).terrain((byte) terrain_type.ordinal()).hills(
-                    (byte) hills).trees((byte) vegetation_amount).supplies((byte) supplies_amount).rated(
-                            rated).gamespeed((byte) (pm_gamespeed.getChosenItemIndex() + 1)).mapcode(
-                                    label_mapcode.getContents()).randomStartPos(random_start_pos).maxUnitCount(
-                                            settings.maxUnits()).initialUnitCount(
-                                                    settings.startingUnits()).maxBuildingCount(
-                                                            settings.maxBuildings()).ships(ships).build();
+            // spotless:off
+            game = Game.builder()
+                    .name(game_name)
+                    .size((byte) size)
+                    .terrain((byte) terrain_type.ordinal())
+                    .hills((byte) hills)
+                    .trees((byte) vegetation_amount)
+                    .supplies((byte) supplies_amount)
+                    .rated(rated)
+                    .gamespeed((byte) (pm_gamespeed.getChosenItemIndex() + 1))
+                    .mapcode(label_mapcode.getContents())
+                    .randomStartPos(random_start_pos)
+                    .maxUnitCount(settings.maxUnits())
+                    .initialUnitCount(settings.startingUnits())
+                    .maxBuildingCount(settings.maxBuildings())
+                    .ships(ships)
+                    .build();
+            // spotless:on
         } else {
             boolean has_enemy = false;
             for (int i = 1; i < player_count; i++) {
@@ -835,13 +846,20 @@ public final class TerrainMenu extends Group {
         }
         InGameInfo ingame_info = multiplayer ? new MultiplayerInGameInfo(game.getRandomStartPos(),
                 game.isRated()) : new DefaultInGameInfo(snapshotRoster());
+        // spotless:off
+        WorldParameters world_params = WorldParameters.builder()
+                .initialGameSpeed(multiplayer ? game.getGamespeed() : Globals.gamespeed)
+                .mapcode(label_mapcode.getContents())
+                .initialUnitCount(settings.startingUnits())
+                .maxUnitCount(settings.maxUnits())
+                .mapSize(size)
+                .maxBuildingCount(settings.maxBuildings())
+                .ships(ships)
+                .build();
+        // spotless:on
         GameNetwork game_network = Menu.startNewGame(network, gui_root,
                 menu,
-                WorldParameters.builder().initialGameSpeed(
-                        multiplayer ? game.getGamespeed() : Globals.gamespeed).mapcode(
-                                label_mapcode.getContents()).initialUnitCount(settings.startingUnits()).maxUnitCount(
-                                        settings.maxUnits()).mapSize(size).maxBuildingCount(
-                                                settings.maxBuildings()).ships(ships).build(),
+                world_params,
                 ingame_info,
                 new Menu.DefaultWorldInitAction(),
                 game,
@@ -1048,13 +1066,20 @@ public final class TerrainMenu extends Group {
     }
 
     private @NonNull WorldConfig snapshotWorldConfig() {
-        return WorldConfig.builder().gamespeed(pm_gamespeed.getChosenItemIndex()).islandSize(
-                pulldown_size.getChosenItemIndex()).terrainType(pm_terrain_type.getChosenItemIndex()).hills(
-                        slider_hills.getValue()).vegetation(slider_vegetation.getValue()).supplies(
-                                slider_supplies.getValue()).maxUnits(advanced_settings.maxUnits()).startingUnits(
-                                        advanced_settings.startingUnits()).maxBuildings(
-                                                advanced_settings.maxBuildings()).ships(
-                                                        advanced_settings.ships()).build();
+        // spotless:off
+        return WorldConfig.builder()
+                .gamespeed(pm_gamespeed.getChosenItemIndex())
+                .islandSize(pulldown_size.getChosenItemIndex())
+                .terrainType(pm_terrain_type.getChosenItemIndex())
+                .hills(slider_hills.getValue())
+                .vegetation(slider_vegetation.getValue())
+                .supplies(slider_supplies.getValue())
+                .maxUnits(advanced_settings.maxUnits())
+                .startingUnits(advanced_settings.startingUnits())
+                .maxBuildings(advanced_settings.maxBuildings())
+                .ships(advanced_settings.ships())
+                .build();
+        // spotless:on
     }
 
     private void applyWorldConfig(@NonNull WorldConfig world) {

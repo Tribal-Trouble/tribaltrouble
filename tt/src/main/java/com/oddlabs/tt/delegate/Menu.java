@@ -304,11 +304,18 @@ public abstract class Menu extends CameraDelegate<Camera> {
     public final @NonNull GameNetwork joinGame(@NonNull NetworkSelector network, GUI gui, int host_id,
             @NonNull Game game, SelectGameMenu owner) {
         GUIRoot gui_root = getGUIRoot();
-        Client client = new Client(null, network, gui, host_id, WorldParameters.builder().initialGameSpeed(
-                game.getGamespeed()).mapcode(game.getMapcode()).initialUnitCount(
-                        game.getInitialUnitCount()).maxUnitCount(game.getMaxUnitCount()).mapSize(
-                                game.getSize()).maxBuildingCount(game.getMaxBuildingCount()).ships(
-                                        game.isShips()).build(),
+        // spotless:off
+        WorldParameters world_params = WorldParameters.builder()
+                .initialGameSpeed(game.getGamespeed())
+                .mapcode(game.getMapcode())
+                .initialUnitCount(game.getInitialUnitCount())
+                .maxUnitCount(game.getMaxUnitCount())
+                .mapSize(game.getSize())
+                .maxBuildingCount(game.getMaxBuildingCount())
+                .ships(game.isShips())
+                .build();
+        // spotless:on
+        Client client = new Client(null, network, gui, host_id, world_params,
                 new MultiplayerInGameInfo(game.getRandomStartPos(), game.isRated()),
                 new DefaultWorldInitAction());
         GameNetwork game_network = new GameNetwork(null, client);
