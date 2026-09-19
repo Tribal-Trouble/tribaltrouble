@@ -113,7 +113,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         for (Label label : spectator_labels)
             label.remove();
         spectator_labels.clear();
-        if (map_mode)
+        if (map_mode || !Globals.draw_hud)
             return;
         Player followed = view.getFollowedPlayer();
         Font headline = Skin.getSkin().getHeadlineFont();
@@ -651,11 +651,14 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         Renderer.getLocalInput().getPointerInput().setActiveCursor(getCursorType());
         if (map_mode)
             return;
-        GUIObject hud = observer ? observer_label : getActionButtonPanel();
+        if (observer) {
+            refreshSpectator();
+            return;
+        }
         if (visible)
-            addChild(hud);
+            addChild(getActionButtonPanel());
         else
-            hud.remove();
+            getActionButtonPanel().remove();
     }
 
     @Override
