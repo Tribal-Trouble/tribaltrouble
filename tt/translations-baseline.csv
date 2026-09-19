@@ -63,8 +63,8 @@ delegate/QuitScreen,incentive4,- Your own online player profiles,- Din egen onli
 delegate/QuitScreen,incentive5,- Four times larger islands,- Fire gange større øer,- Vier mal größere Inseln,- Islas cuatro veces más grandes,- Isole quattro volte più grandi,- Ilhas quatro vezes maiores
 delegate/QuitScreen,incentive6,- Harder computer opponents,- Sværere computermodstandere,- Schwierigere Computergegner,- Oponentes con mayor dificultad,- Avversari più forti,- Oponentes mais difíceis
 delegate/SelectionDelegate,observer_mode,Observer Mode - Press escape to exit,Tilskuer - Tryk escape for at afslutte,Beobachtermodus - Drücken Sie zum Beenden die ESC-TASTE.,Modo de observación - Pulsa Esc para salir,Modalità osservatore - Premi esc per uscire,Modo Observador - Pressione esc para sair
-delegate/SelectionDelegate,cinematic_on,Cinematic camera on,,,,,
-delegate/SelectionDelegate,cinematic_off,Cinematic camera off,,,,,
+delegate/SelectionDelegate,cinematic_on,Cinematic camera on,Filmkamera tændt,Kinokamera an,Cámara cinematográfica en,Telecamera cinematografica accesa,Câmera cinematográfica em
+delegate/SelectionDelegate,cinematic_off,Cinematic camera off,Filmisk kamera slukket,Filmkamera aus,Cámara cinematográfica apagada,Telecamera cinematografica disattivata,Câmera cinematográfica desligada
 delegate/TutorialOverDelegate,tutorial_completed,Tutorial {0} is now completed,Kursus {0} er gennemført,Das Tutorial {0} ist abgeschlossen.,El tutorial {0} ha terminado,Il tutorial {0} è completato,O tutorial {0} foi concluído
 delegate/TutorialOverDelegate,next_tutorial,Next tutorial,Næste kursus,Nächstes Tutorial,Próximo tutorial,Prossimo tutorial,Próximo tutorial
 delegate/TutorialOverDelegate,restart_tutorial,Restart tutorial,Genstart kursus,Tutorial erneut starten,Repetir el tutorial,Ricomincia tutorial,Recomeçar tutorial
@@ -289,17 +289,17 @@ form/OptionsMenu,aggressive_units,Aggressive units,Aggressive enheder,Agressive 
 form/OptionsMenu,aggressive_units_tip,Units attack on sight when moving ({0}),Enheder i bevægelse angriber fjender i nærheden ({0}),Einheiten greifen bei Bewegung alles in Sichtweite an ({0}),Las unidades atacan al avistar mientras se mueven ({0}),Le unità attaccano a vista quando si muovono ({0}),Unidades atacam ao avistarem unidades inimigas enquanto se movem ({0})
 form/OptionsMenu,show_compass,Show compass,Vis kompas,Kompass anzeigen,Mostrar brújula,Mostra bussola,Mostrar bússula
 form/OptionsMenu,show_compass_tip,Display the compass indicator in the bottom-right corner,Vis kompasindikator i nederste højre hjørne,Zeige den Kompassanzeiger in der unteren rechten Ecke an,Mostrar el indicador de brújula en la esquina inferior derecha,Mostra l'indicatore della bussola nell'angolo in basso a destra,Mostrar o indicador de bússula no canto inferior direito
-form/OptionsMenu,camera_caption,Camera,,,,,
-form/OptionsMenu,camera_pan_speed,Pan speed:,,,,,
-form/OptionsMenu,camera_pan_acceleration,Ramp up pan speed,,,,,
-form/OptionsMenu,camera_pan_acceleration_tip,Panning accelerates smoothly to full speed; uncheck to pan at full speed immediately,,,,,
-form/OptionsMenu,camera_rotate_speed,Rotate speed:,,,,,
-form/OptionsMenu,camera_zoom_speed,Zoom speed:,,,,,
-form/OptionsMenu,cinematic_camera_speed,Cinematic camera speed:,,,,,
-form/OptionsMenu,speed_slow,Slow,,,,,
-form/OptionsMenu,speed_fast,Fast,,,,,
-form/OptionsMenu,cinematic_unlock_limits,Unlock camera limits in cinematic mode,,,,,
-form/OptionsMenu,cinematic_unlock_limits_tip,Let the camera fly higher and tilt above the horizon while cinematic mode is on,,,,,
+form/OptionsMenu,camera_caption,Camera,Kamera,Kamera,Cámara,Telecamera,Câmera
+form/OptionsMenu,camera_pan_speed,Pan speed:,Pan-hastighed:,Schwenkgeschwindigkeit:,Velocidad de desplazamiento:,Velocità di panoramica:,Velocidade de panorâmica:
+form/OptionsMenu,camera_pan_acceleration,Ramp up pan speed,Øg panoreringshastigheden,Pfannengeschwindigkeit erhöhen,Aumentar la velocidad de la bandeja,Aumenta gradualmente la velocità di panoramica,Aumente a velocidade de panorâmica
+form/OptionsMenu,camera_pan_acceleration_tip,Panning accelerates smoothly to full speed; uncheck to pan at full speed immediately,Panorering accelererer jævnt til fuld hastighed; fjern markeringen for at panorere med fuld hastighed med det samme,"Die Schwenkbewegung beschleunigt sanft auf Höchstgeschwindigkeit; deaktivieren Sie die Option, um sofort mit Höchstgeschwindigkeit zu schwenken.",El paneo acelera suavemente hasta la velocidad máxima; desactive esta opción para realizar el paneo a máxima velocidad inmediatamente.,La panoramica accelera gradualmente fino alla velocità massima; deselezionare la casella per avviare immediatamente la panoramica alla massima velocità.,A panorâmica acelera suavemente até a velocidade máxima; desmarque para que a panorâmica atinja a velocidade máxima imediatamente.
+form/OptionsMenu,camera_rotate_speed,Rotate speed:,Rotationshastighed:,Drehzahl:,Velocidad de rotación:,Velocità di rotazione:,Velocidade de rotação:
+form/OptionsMenu,camera_zoom_speed,Zoom speed:,Zoomhastighed:,Zoomgeschwindigkeit:,Velocidad de zoom:,Velocità dello zoom:,Velocidade do zoom:
+form/OptionsMenu,cinematic_camera_speed,Cinematic camera speed:,Filmisk kamerahastighed:,Filmische Kamerageschwindigkeit:,Velocidad de cámara cinematográfica:,Velocità della telecamera cinematografica:,Velocidade de câmera cinematográfica:
+form/OptionsMenu,speed_slow,Slow,Langsom,Langsam,Lento,Lento,Lento
+form/OptionsMenu,speed_fast,Fast,Hurtig,Schnell,Rápido,Veloce,Rápido
+form/OptionsMenu,cinematic_unlock_limits,Unlock camera limits in cinematic mode,Lås op for kameraets begrænsninger i filmisk tilstand,Entfesseln Sie die Kamerabeschränkungen im Kinomodus,Desbloquea los límites de la cámara en el modo cinematográfico.,Sblocca i limiti della fotocamera in modalità cinematografica,Desbloqueie os limites da câmera no modo cinematográfico.
+form/OptionsMenu,cinematic_unlock_limits_tip,Let the camera fly higher and tilt above the horizon while cinematic mode is on,"Lad kameraet flyve højere og vippe over horisonten, mens filmtilstand er aktiveret","Lassen Sie die Kamera höher fliegen und über den Horizont neigen, während der Kinomodus aktiviert ist.",Deja que la cámara vuele más alto e inclínate sobre el horizonte mientras el modo cinematográfico esté activado.,Fai volare la telecamera più in alto e inclinala sopra l'orizzonte mentre la modalità cinematografica è attiva,"Com o modo cinematográfico ativado, faça a câmera subir e inclinar acima da linha do horizonte."
 form/OptionsMenu,multiplayer_domain,Multiplayer Domain,Multiplayer-domæne,Mehrspieler-Domäne,Dominio multijugador,Dominio multigiocatore,Domínio Multijogador
 form/OptionsMenu,domain_update,Update,Opdatering,Aktualisieren,Actualizar,Aggiornamento,Atualizar
 form/OptionsMenu,domain_reset,Reset,Nulstil,Zurücksetzen,Reiniciar,Reset,Resetar
@@ -342,7 +342,7 @@ form/OptionsMenu,action.GLOBAL_CHAT,Open Chat,Åbn Chat,Chat Öffnen,Abrir Chat,
 form/OptionsMenu,action.GLOBAL_CHAT_TEAM,Open Team Chat,Åbn teamchat,Team-Chat öffnen,Abrir chat de equipo,Chat di gruppo aperta,Abrir Chat de Equipe
 form/OptionsMenu,action.GLOBAL_MENU,Main Menu,Hovedmenu,Hauptmenü,Menú Principal,Menu Principale,Menu Principal
 form/OptionsMenu,action.GLOBAL_TOGGLE_STATUS,Toggle Status Display,Skift Statusvisning,Statusanzeige Umschalten,Mostrar Estado,Attiva/Disattiva Stato,Habilitar Exibição de Status
-form/OptionsMenu,action.GLOBAL_TOGGLE_HUD,Toggle HUD,,,,,
+form/OptionsMenu,action.GLOBAL_TOGGLE_HUD,Toggle HUD,Slå HUD til/fra,HUD umschalten,Alternar HUD,Attiva/disattiva HUD,Alternar HUD
 form/OptionsMenu,action.GLOBAL_AGGRESSIVE_UNITS,Toggle Aggressive Units,Skift Aggressive Enheder,Aggressive Einheiten Umschalten,Unidades Agresivas,Attiva/Disattiva Unità Aggressive,Habilitar Unidades Agressivas
 form/OptionsMenu,action.CAMERA_PAN_LEFT,Pan Left,Panorer Venstre,Kamera Links,Panorámica Izquierda,Panoramica Sinistra,Panorâmica Esquerda
 form/OptionsMenu,action.CAMERA_PAN_RIGHT,Pan Right,Panorer Højre,Kamera Rechts,Panorámica Derecha,Panoramica Destra,Panorâmica Direita
@@ -357,11 +357,11 @@ form/OptionsMenu,action.CAMERA_ZOOM_OUT,Zoom Out,Zoom Ud,Zoom Raus,Alejar,Zoom I
 form/OptionsMenu,action.CAMERA_MAP_MODE,Map Mode,Korttilstand,Kartenmodus,Modo Mapa,Modalità Mappa,Modo Mapa
 form/OptionsMenu,action.CAMERA_FIRST_PERSON,First Person View,First Person View,Ego-Perspektive,Vista Primera Persona,Vista Prima Persona,Visão em Primeira Pessoa
 form/OptionsMenu,action.CAMERA_ZOOM_MODE,Zoom Mode,Zoomtilstand,Zoom-Modus,Modo Zoom,Modalità Zoom,Modo Zoom
-form/OptionsMenu,action.CAMERA_CINEMATIC,Toggle Cinematic Camera,,,,,
-form/OptionsMenu,action.CAMERA_ORBIT_LEFT,Auto-Orbit Left,,,,,
-form/OptionsMenu,action.CAMERA_ORBIT_RIGHT,Auto-Orbit Right,,,,,
-form/OptionsMenu,action.CAMERA_AUTO_PAN_FORWARD,Auto-Pan Forward,,,,,
-form/OptionsMenu,action.CAMERA_AUTO_PAN_BACKWARD,Auto-Pan Backward,,,,,
+form/OptionsMenu,action.CAMERA_CINEMATIC,Toggle Cinematic Camera,Skift filmkamera,Filmische Kamera umschalten,Alternar cámara cinematográfica,Attiva/disattiva la modalità telecamera cinematografica,Alternar câmera cinematográfica
+form/OptionsMenu,action.CAMERA_ORBIT_LEFT,Auto-Orbit Left,Automatisk kredsløb til venstre,Auto-Orbit links,Órbita automática izquierda,Auto-Orbit Sinistra,Órbita automática à esquerda
+form/OptionsMenu,action.CAMERA_ORBIT_RIGHT,Auto-Orbit Right,Automatisk kredsløb til højre,Auto-Orbit Rechts,Órbita automática derecha,Auto-Orbit Right,Órbita automática à direita
+form/OptionsMenu,action.CAMERA_AUTO_PAN_FORWARD,Auto-Pan Forward,Automatisk panorering fremad,Automatisches Schwenken nach vorne,Panorámica automática hacia adelante,Panoramica automatica in avanti,Panorâmica automática para frente
+form/OptionsMenu,action.CAMERA_AUTO_PAN_BACKWARD,Auto-Pan Backward,Automatisk panorering baglæns,Automatisches Rückwärtsschwenken,Desplazamiento automático hacia atrás,Panoramica automatica all'indietro,Panorâmica automática para trás
 form/OptionsMenu,action.UI_ACTIVATE,Activate,Aktiver,Aktivieren,Activar,Attiva,Ativar
 form/OptionsMenu,action.UI_CANCEL,Cancel,Annuller,Abbrechen,Cancelar,Annulla,Cancelar
 form/OptionsMenu,action.UI_FOCUS_NEXT,Focus Next,Fokusér Næste,Nächster Fokus,Foco Siguiente,Fuoco Successivo,Foco no Próximo
