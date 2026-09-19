@@ -58,9 +58,9 @@ public final class PeerHub implements Animated, RouterHandler {
     private static final int TICKS_PER_SPECTATOR_UPDATE = 5;
     private static final int SPECTATOR_KEY_TREES = -20000;
     private static final int MAX_SPECTATOR_INFO_CHARS = 30000;
-    private static final char OBSERVER_CHAT_SEPARATOR = '\u001f';
-    // One relayed event reaches the whole session: for a player every player and observer, for an observer the
-    // other observers only.
+    private static final char SPECTATOR_CHAT_SEPARATOR = '\u001f';
+    // One relayed event reaches the whole session: for a player every player and spectator, for a spectator the
+    // other spectators only.
     private final @NonNull PeerHubInterface everyone;
     private static final int TICKS_PER_CHECKSUM = (int) (10 / AnimationManager.ANIMATION_SECONDS_PER_TICK);
     // Spectator controller is non-null only for spectator instances
@@ -206,12 +206,12 @@ public final class PeerHub implements Animated, RouterHandler {
 
     @Override
     public void receiveEvent(int client_id, @NonNull ARMIEvent event) {
-        if (client_id == GameInterface.OBSERVER_CLIENT_ID) {
+        if (client_id == GameInterface.SPECTATOR_CLIENT_ID) {
             if (is_spectator) {
                 try {
-                    event.execute(interface_methods, observer_chat);
+                    event.execute(interface_methods, spectator_chat);
                 } catch (IllegalARMIEventException e) {
-                    IO.println("Ignoring bad observer chat event: " + e.getMessage());
+                    IO.println("Ignoring bad spectator chat event: " + e.getMessage());
                 }
             }
             return;
@@ -540,10 +540,10 @@ public final class PeerHub implements Animated, RouterHandler {
 
     public void sendChat(String text, boolean team_only) {
         if (is_spectator) {
-            // Observers talk only to each other: the router relays this to the session's other observers.
-            String nick = observerNick();
-            Network.getChatHub().chat(new ChatMessage(nick, text, ChatMessage.Type.OBSERVER_CHAT));
-            everyone.chat(nick + OBSERVER_CHAT_SEPARATOR + text, false);
+            // Spectators talk only to each other: the router relays this to the session's other spectators.
+            String nick = spectatorNick();
+            Network.getChatHub().chat(new ChatMessage(nick, text, ChatMessage.Type.SPECTATOR_CHAT));
+            everyone.chat(nick + SPECTATOR_CHAT_SEPARATOR + text, false);
             return;
         }
         if (!team_only) {
@@ -571,19 +571,19 @@ public final class PeerHub implements Animated, RouterHandler {
         }
     }
 
-    private static @NonNull String observerNick() {
+    private static @NonNull String spectatorNick() {
         Profile profile = Network.getMatchmakingClient().getProfile();
-        return profile != null ? profile.getNick() : "Observer";
+        return profile != null ? profile.getNick() : "Spectator";
     }
 
-    // Chat relayed from another observer; the sender's nick travels in the text since observers have no slot.
-    private final @NonNull PeerHubInterface observer_chat = new PeerHubInterface() {
+    // Chat relayed from another spectator; the sender's nick travels in the text since spectators have no slot.
+    private final @NonNull PeerHubInterface spectator_chat = new PeerHubInterface() {
         @Override
         public void chat(String text, boolean team) {
-            int split = text.indexOf(OBSERVER_CHAT_SEPARATOR);
-            String nick = split > 0 ? text.substring(0, split) : "Observer";
+            int split = text.indexOf(SPECTATOR_CHAT_SEPARATOR);
+            String nick = split > 0 ? text.substring(0, split) : "Spectator";
             String message = split > 0 ? text.substring(split + 1) : text;
-            Network.getChatHub().chat(new ChatMessage(nick, message, ChatMessage.Type.OBSERVER_CHAT));
+            Network.getChatHub().chat(new ChatMessage(nick, message, ChatMessage.Type.SPECTATOR_CHAT));
         }
 
         @Override

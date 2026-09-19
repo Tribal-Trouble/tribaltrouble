@@ -13,7 +13,7 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputManager;
 import com.oddlabs.tt.player.Player;
-import com.oddlabs.tt.viewer.ObserverView;
+import com.oddlabs.tt.viewer.SpectatorView;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.model.Abilities;
@@ -50,8 +50,8 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     private static final GameAction[] ARMY_SELECTS = new GameAction[]{GameAction.ARMY_SELECT_0, GameAction.ARMY_SELECT_1, GameAction.ARMY_SELECT_2, GameAction.ARMY_SELECT_3, GameAction.ARMY_SELECT_4, GameAction.ARMY_SELECT_5, GameAction.ARMY_SELECT_6, GameAction.ARMY_SELECT_7, GameAction.ARMY_SELECT_8, GameAction.ARMY_SELECT_9
     };
     private final @NonNull InGameChatForm chat_form;
-    private static final int OBSERVER_MARGIN = 10;
-    private final List<Label> observer_labels = new ArrayList<>();
+    private static final int SPECTATOR_MARGIN = 10;
+    private final List<Label> spectator_labels = new ArrayList<>();
     private final @NonNull GameCamera game_camera;
 
     private boolean close_chat_override = false;
@@ -93,57 +93,57 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     public void setObserverMode() {
         observer = true;
         getViewer().getSelection().clearSelection();
-        ObserverView view = getViewer().getObserverView();
+        SpectatorView view = getViewer().getSpectatorView();
         if (view != null) {
-            view.setListener(this::refreshObserver);
-            refreshObserver();
+            view.setListener(this::refreshSpectator);
+            refreshSpectator();
         }
     }
 
-    private static @NonNull String observerText(@NonNull String key, @NonNull Object @NonNull... args) {
+    private static @NonNull String spectatorText(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(ResourceBundle.getBundle(SelectionDelegate.class.getName()), key, args);
     }
 
     // Who is being observed, centered at the top with the name in the player's color; the keys stacked in the top
     // right corner, one per line.
-    private void refreshObserver() {
-        ObserverView view = getViewer().getObserverView();
+    private void refreshSpectator() {
+        SpectatorView view = getViewer().getSpectatorView();
         if (view == null)
             return;
-        for (Label label : observer_labels)
+        for (Label label : spectator_labels)
             label.remove();
-        observer_labels.clear();
+        spectator_labels.clear();
         if (map_mode)
             return;
         Player followed = view.getFollowedPlayer();
         Font headline = Skin.getSkin().getHeadlineFont();
         int width = getGUIRoot().getWidth();
-        int top = getGUIRoot().getHeight() - OBSERVER_MARGIN;
-        Label title = new Label(observerText(followed == null ? "observer_free" : "observer_following"), headline);
+        int top = getGUIRoot().getHeight() - SPECTATOR_MARGIN;
+        Label title = new Label(spectatorText(followed == null ? "spectator_free" : "spectator_following"), headline);
         Label name = followed == null ? null : new Label(followed.getPlayerInfo().getName(), headline).setColor(
                 followed.getColor());
         int x = (width - title.getWidth() - (name == null ? 0 : name.getWidth())) / 2;
         int y = top - title.getHeight();
-        showObserverLabel(title, x, y);
+        showSpectatorLabel(title, x, y);
         if (name != null)
-            showObserverLabel(name, x + title.getWidth(), y);
+            showSpectatorLabel(name, x + title.getWidth(), y);
         InputManager input = Renderer.getLocalInput().getInputManager();
-        String[] lines = {observerText("observer_next", input.getBindingString(
-                GameAction.OBSERVER_NEXT_PLAYER)), observerText("observer_previous", input.getBindingString(
-                        GameAction.OBSERVER_PREV_PLAYER)), observerText("observer_free_cam", input.getBindingString(
-                                GameAction.OBSERVER_FREE_CAMERA)), observerText("observer_exit")};
+        String[] lines = {spectatorText("spectator_next", input.getBindingString(
+                GameAction.SPECTATOR_NEXT_PLAYER)), spectatorText("spectator_previous", input.getBindingString(
+                        GameAction.SPECTATOR_PREV_PLAYER)), spectatorText("spectator_free_cam", input.getBindingString(
+                                GameAction.SPECTATOR_FREE_CAMERA)), spectatorText("spectator_exit")};
         y = top;
         for (String text : lines) {
             Label line = new Label(text, Skin.getSkin().getEditFont());
             y -= line.getHeight();
-            showObserverLabel(line, width - OBSERVER_MARGIN - line.getWidth(), y);
+            showSpectatorLabel(line, width - SPECTATOR_MARGIN - line.getWidth(), y);
         }
     }
 
-    private void showObserverLabel(@NonNull Label label, int x, int y) {
+    private void showSpectatorLabel(@NonNull Label label, int x, int y) {
         label.setPos(x, y);
         addChild(label);
-        observer_labels.add(label);
+        spectator_labels.add(label);
     }
 
     @Override
@@ -165,19 +165,19 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         if (event.isConsumed()) return;
 
         if (event.getPhase() == InputPhase.PRESSED) {
-            ObserverView view = observer ? getViewer().getObserverView() : null;
+            SpectatorView view = observer ? getViewer().getSpectatorView() : null;
             if (view != null) {
-                if (event.consumeAction(GameAction.OBSERVER_NEXT_PLAYER)) {
+                if (event.consumeAction(GameAction.SPECTATOR_NEXT_PLAYER)) {
                     view.next();
                     event.consume();
                     return;
                 }
-                if (event.consumeAction(GameAction.OBSERVER_PREV_PLAYER)) {
+                if (event.consumeAction(GameAction.SPECTATOR_PREV_PLAYER)) {
                     view.previous();
                     event.consume();
                     return;
                 }
-                if (event.consumeAction(GameAction.OBSERVER_FREE_CAMERA)) {
+                if (event.consumeAction(GameAction.SPECTATOR_FREE_CAMERA)) {
                     view.freeCamera();
                     event.consume();
                     return;
@@ -190,7 +190,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                         getViewer().getPicker().pickRotate((GameCamera) getCamera());
                         map_mode = true;
                         if (observer)
-                            refreshObserver();
+                            refreshSpectator();
                         else
                             getActionButtonPanel().remove();
                         getCamera().disable();
@@ -456,7 +456,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         setCamera(game_camera);
         getCamera().enable();
         if (observer)
-            refreshObserver();
+            refreshSpectator();
         else
             addChild(getActionButtonPanel());
 
@@ -698,6 +698,6 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     public void displayChangedNotify(int width, int height) {
         super.displayChangedNotify(width, height);
         if (observer)
-            refreshObserver();
+            refreshSpectator();
     }
 }
