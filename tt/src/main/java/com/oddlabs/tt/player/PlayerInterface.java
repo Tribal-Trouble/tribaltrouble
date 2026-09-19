@@ -51,4 +51,10 @@ public interface PlayerInterface {
     void setPreferredGamespeed(int speed);
 
     void changePreferredGamespeed(int delta);
+
+    void viewCamera(float target_x, float target_y, float target_z, float horiz_angle, float vert_angle);
+
+    void viewCursor(float x, float y, boolean on_map);
+
+    void viewSelection(Selectable<?> @NonNull [] selection);
 }

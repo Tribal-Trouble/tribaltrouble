@@ -124,6 +124,21 @@ public final class Player implements PlayerInterface {
         return World.isValidGamespeed(preferred_speed) ? preferred_speed : world.getGamespeed();
     }
 
+    @Override
+    public void viewCamera(float target_x, float target_y, float target_z, float horiz_angle, float vert_angle) {
+        world.getNotificationListener().playerCamera(this, target_x, target_y, target_z, horiz_angle, vert_angle);
+    }
+
+    @Override
+    public void viewCursor(float x, float y, boolean on_map) {
+        world.getNotificationListener().playerCursor(this, x, y, on_map);
+    }
+
+    @Override
+    public void viewSelection(Selectable<?> @NonNull [] selection) {
+        world.getNotificationListener().playerSelection(this, selection);
+    }
+
     public int getPreferredGamespeed() {
         return preferred_speed;
     }

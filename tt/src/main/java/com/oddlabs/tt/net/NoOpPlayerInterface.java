@@ -88,4 +88,16 @@ public final class NoOpPlayerInterface implements PlayerInterface {
     @Override
     public void changePreferredGamespeed(int delta) {
     }
+
+    @Override
+    public void viewCamera(float target_x, float target_y, float target_z, float horiz_angle, float vert_angle) {
+    }
+
+    @Override
+    public void viewCursor(float x, float y, boolean on_map) {
+    }
+
+    @Override
+    public void viewSelection(Selectable<?> @NonNull [] selection) {
+    }
 }

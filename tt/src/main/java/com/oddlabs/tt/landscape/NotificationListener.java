@@ -1,6 +1,7 @@
 package com.oddlabs.tt.landscape;
 
 import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
 
@@ -24,5 +25,14 @@ public interface NotificationListener {
     }
 
     default void playerGamespeedChanged() {
+    }
+
+    default void playerCamera(@NonNull Player player, float x, float y, float z, float horiz_angle, float vert_angle) {
+    }
+
+    default void playerCursor(@NonNull Player player, float x, float y, boolean on_map) {
+    }
+
+    default void playerSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
     }
 }
