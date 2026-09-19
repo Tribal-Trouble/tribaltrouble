@@ -27,7 +27,7 @@ public final class BuildingFinder implements FinderFilter<Building> {
     }
 
     private boolean accept(@NonNull Building building) {
-        return building.getOwner() == owner && building.getAbilities().hasAbilities(abilities);
+        return building instanceof LandBuilding && building.getOwner() == owner && building.getAbilities().hasAbilities(abilities);
     }
 
     @Override

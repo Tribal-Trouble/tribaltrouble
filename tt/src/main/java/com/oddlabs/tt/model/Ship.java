@@ -899,6 +899,7 @@ public class Ship extends Building implements Movable {
     }
 
     public final void hit(int damage, float dir_x, float dir_y, @NonNull Player owner) {
+        damage = damage >> 1;
         super.hit(damage, dir_x, dir_y, owner);
         if (!isDead()) {
             setHitPoints(hit_points - damage);

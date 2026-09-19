@@ -595,7 +595,7 @@ public final class ShipHR {
     }
 
     public Unit pickVictim(float random) {
-        int index = StrictMath.round(random * 120);
+        int index = StrictMath.round(random * 200);
         if (index >= unit2row.size()) {
             return null;
         }
