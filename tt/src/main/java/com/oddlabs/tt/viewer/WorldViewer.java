@@ -184,6 +184,7 @@ public final class WorldViewer implements Animated, AutoCloseable {
         peerhub.close();
         ingame_info.close(this);
         Renderer.getRenderer().setCheat(null);
+        Globals.draw_hud = true;
     }
 
     public @NonNull WorldParameters getParameters() {

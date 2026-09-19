@@ -31,21 +31,6 @@ public class GeneralPanel extends Panel {
     public GeneralPanel(@NonNull GUIRoot gui_root, @NonNull IntConsumer onGamespeedChange) {
         super(AbstractOptionsMenu.i18n("general_settings_caption"));
 
-        // Invert camera
-        Group group_invert_camera = new Group();
-        addChild(group_invert_camera);
-        CheckBox cb_invert_camera = new CheckBox(Settings.getSettings().invert_camera_pitch, AbstractOptionsMenu.i18n(
-                "invert_camera_pitch"), AbstractOptionsMenu.i18n("invert_camera_pitch_tip"));
-        cb_invert_camera.addCheckBoxListener(marked -> Settings.getSettings().invert_camera_pitch = marked);
-        group_invert_camera.addChild(cb_invert_camera);
-        CheckBox cb_invert_camera_yaw = new CheckBox(Settings.getSettings().invert_camera_yaw, AbstractOptionsMenu.i18n(
-                "invert_camera_yaw"), AbstractOptionsMenu.i18n("invert_camera_yaw_tip"));
-        cb_invert_camera_yaw.addCheckBoxListener(marked -> Settings.getSettings().invert_camera_yaw = marked);
-        group_invert_camera.addChild(cb_invert_camera_yaw);
-        cb_invert_camera.place();
-        cb_invert_camera_yaw.place(cb_invert_camera, BOTTOM_LEFT);
-        group_invert_camera.compileCanvas();
-
         // Aggressive units
         Group group_aggressive_units = new Group();
         addChild(group_aggressive_units);
@@ -165,8 +150,7 @@ public class GeneralPanel extends Panel {
         group_gamespeed.place();
         group_mapmode.place(group_gamespeed, BOTTOM_LEFT);
         group_tooltip.place(group_mapmode, BOTTOM_LEFT);
-        group_invert_camera.place(group_tooltip, BOTTOM_LEFT);
-        group_aggressive_units.place(group_invert_camera, BOTTOM_LEFT);
+        group_aggressive_units.place(group_tooltip, BOTTOM_LEFT);
         group_show_compass.place(group_aggressive_units, BOTTOM_LEFT);
         group_domain.place(group_show_compass, BOTTOM_LEFT);
         compileCanvas();

@@ -78,7 +78,7 @@ public final class FirstPersonCamera extends Camera {
         }
 
         InputManager inputManager = localInput.getInputManager();
-        float amount = dt * KEY_LOOK_SPEED;
+        float amount = dt * KEY_LOOK_SPEED * GameCamera.rotateSpeedFactor();
         yaw(amount * axis(inputManager, GameAction.CAMERA_ROTATE_LEFT, GameAction.CAMERA_ROTATE_RIGHT));
         pitch(amount * axis(inputManager, GameAction.CAMERA_PITCH_UP, GameAction.CAMERA_PITCH_DOWN));
     }
@@ -101,7 +101,7 @@ public final class FirstPersonCamera extends Camera {
         float forwardY = (float) Math.sin(heading);
         float rightX = forwardY;
         float rightY = -forwardX;
-        float distance = getState().getTargetZ() * dt;
+        float distance = getState().getTargetZ() * dt * GameCamera.panSpeedFactor();
         getState().setTargetX(getState().getTargetX() + (moveForward * forwardX + moveRight * rightX) * distance);
         getState().setTargetY(getState().getTargetY() + (moveForward * forwardY + moveRight * rightY) * distance);
 

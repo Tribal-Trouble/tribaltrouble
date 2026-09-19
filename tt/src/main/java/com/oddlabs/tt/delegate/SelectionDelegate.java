@@ -3,8 +3,10 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.camera.MapCamera;
 import com.oddlabs.tt.form.InGameChatForm;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.ActionButtonPanel;
 import com.oddlabs.tt.gui.CursorType;
+import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
@@ -38,6 +40,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public final class SelectionDelegate extends ControllableCameraDelegate {
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(SelectionDelegate.class.getName());
     private static final Vector4fc SELECTION_COLOR = Color.argb4v(0xFF_4C_FF_00);
     private static final GameAction[] ARMY_CREATES = new GameAction[]{GameAction.ARMY_CREATE_0, GameAction.ARMY_CREATE_1, GameAction.ARMY_CREATE_2, GameAction.ARMY_CREATE_3, GameAction.ARMY_CREATE_4, GameAction.ARMY_CREATE_5, GameAction.ARMY_CREATE_6, GameAction.ARMY_CREATE_7, GameAction.ARMY_CREATE_8, GameAction.ARMY_CREATE_9,
     };
@@ -61,8 +64,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     public SelectionDelegate(@NonNull WorldViewer viewer, @NonNull GameCamera camera) {
         super(viewer, camera);
-        String observer_mode = Utils.getBundleString(ResourceBundle.getBundle(SelectionDelegate.class.getName()),
-                "observer_mode");
+        String observer_mode = Utils.getBundleString(bundle, "observer_mode");
         this.observer_label = new Label(observer_mode, Skin.getSkin().getHeadlineFont());
         this.game_camera = (GameCamera) getCamera();
         displayChangedNotify(getGUIRoot().getWidth(), getGUIRoot().getHeight());
@@ -89,7 +91,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     public void setObserverMode() {
         observer = true;
         getViewer().getSelection().clearSelection();
-        if (!map_mode)
+        if (!map_mode && Globals.draw_hud)
             addChild(observer_label);
     }
 
@@ -209,6 +211,48 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                     return;
                 }
 
+                if (event.consumeAction(GameAction.GLOBAL_TOGGLE_HUD)) {
+                    setHUDVisible(!Globals.draw_hud);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.CAMERA_CINEMATIC)) {
+                    Globals.cinematic_camera = !Globals.cinematic_camera;
+                    getGUIRoot().getInfoPrinter().print(Utils.getBundleString(bundle,
+                            Globals.cinematic_camera ? "cinematic_on" : "cinematic_off"));
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.CAMERA_ORBIT_LEFT)) {
+                    if (!map_mode)
+                        game_camera.toggleOrbit(1);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.CAMERA_ORBIT_RIGHT)) {
+                    if (!map_mode)
+                        game_camera.toggleOrbit(-1);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.CAMERA_AUTO_PAN_FORWARD)) {
+                    if (!map_mode)
+                        game_camera.toggleAutoPan(1);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.CAMERA_AUTO_PAN_BACKWARD)) {
+                    if (!map_mode)
+                        game_camera.toggleAutoPan(-1);
+                    event.consume();
+                    return;
+                }
+
                 if (event.hasAction(GameAction.CAMERA_FIRST_PERSON) || event.hasAction(GameAction.CAMERA_ZOOM_MODE)) {
                     if (map_mode) {
                         event.consume(); // Consume in map mode
@@ -324,7 +368,14 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     @Override
     protected @NonNull CursorType getCursorType() {
+        if (!Globals.draw_hud)
+            return CursorType.HIDDEN;
         return map_mode ? CursorType.TARGET : CursorType.NORMAL;
+    }
+
+    @Override
+    public boolean renderCursor() {
+        return Globals.draw_hud;
     }
 
     public void exitMapMode() {
@@ -335,10 +386,12 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         game_camera.getState().snapToTarget();
         setCamera(game_camera);
         getCamera().enable();
-        if (observer)
-            addChild(observer_label);
-        else
-            addChild(getActionButtonPanel());
+        if (Globals.draw_hud) {
+            if (observer)
+                addChild(observer_label);
+            else
+                addChild(getActionButtonPanel());
+        }
 
         if (chat_visible) {
             chat_form.remove();
@@ -526,6 +579,18 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         return selection;
     }
 
+    private void setHUDVisible(boolean visible) {
+        Globals.draw_hud = visible;
+        Renderer.getLocalInput().getPointerInput().setActiveCursor(getCursorType());
+        if (map_mode)
+            return;
+        GUIObject hud = observer ? observer_label : getActionButtonPanel();
+        if (visible)
+            addChild(hud);
+        else
+            hud.remove();
+    }
+
     @Override
     public boolean keyboardBlocked() {
         return chat_visible && chat_form.isActive();
@@ -533,6 +598,8 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     @Override
     public void render2D(@NonNull GUIRenderer renderer) {
+        if (!Globals.draw_hud)
+            return;
         if (com.oddlabs.tt.global.Settings.getSettings().show_compass && getCamera() != null) {
             float horizAngle = getCamera().getState().getHorizAngle();
             CompassRenderer.render(renderer, Skin.getSkin().getEditFont(),
