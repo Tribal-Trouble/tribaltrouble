@@ -9,6 +9,8 @@ import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Target;
+import com.oddlabs.tt.viewer.PlayerView;
+import com.oddlabs.tt.viewer.SpectatorView;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -128,6 +130,7 @@ public final class GameCamera extends Camera {
     }
 
     public void toggleOrbit(int direction) {
+        stopFollowing();
         auto_pan_direction = 0;
         if (orbit_direction == direction) {
             orbit_direction = 0;
@@ -147,6 +150,7 @@ public final class GameCamera extends Camera {
     }
 
     public void toggleAutoPan(int direction) {
+        stopFollowing();
         orbit_direction = 0;
         auto_pan_direction = auto_pan_direction == direction ? 0 : direction;
     }
@@ -154,6 +158,35 @@ public final class GameCamera extends Camera {
     public void stopAutoMotion() {
         orbit_direction = 0;
         auto_pan_direction = 0;
+    }
+
+    /** Manual camera control by a spectator releases the followed view. */
+    public void stopFollowing() {
+        SpectatorView view = viewer.getSpectatorView();
+        if (view != null)
+            view.freeCamera();
+    }
+
+    private boolean followView() {
+        SpectatorView view = viewer.getSpectatorView();
+        PlayerView followed = view != null ? view.getFollowedView() : null;
+        if (followed == null)
+            return false;
+        CameraState state = getState();
+        state.setMaxVertAngle(CameraState.MAX_ANGLE_UNLOCKED);
+        state.setTargetX(followed.getCameraX());
+        state.setTargetY(followed.getCameraY());
+        state.setTargetZ(followed.getCameraZ());
+        state.setTargetHorizAngle(nearestAngle(followed.getCameraHorizAngle(), state.getHorizAngle()));
+        state.setTargetVertAngle(followed.getCameraVertAngle());
+        if (view.consumeSnap())
+            state.snapToTarget();
+        return true;
+    }
+
+    private static float nearestAngle(float angle, float reference) {
+        double turns = Math.rint((angle - reference) / (2 * Math.PI));
+        return (float) (angle - turns * 2 * Math.PI);
     }
 
     private void doOrbit(float time_delta) {
@@ -355,13 +388,15 @@ public final class GameCamera extends Camera {
     @Override
     public void doAnimate(float t) {
         setSmoothnessFactor(Globals.cinematic_camera ? CINEMATIC_SMOOTHNESS_FACTOR : SMOOTHNESS_FACTOR);
-        getState().setMaxVertAngle(limitsUnlocked() ? CameraState.MAX_ANGLE_UNLOCKED : CameraState.MAX_ANGLE);
-        doOrbit(t);
-        doAutoPan(t);
-        doZoom(t);
-        doScroll(t);
-        doPitch(t);
-        doRotate(t);
+        if (!followView()) {
+            getState().setMaxVertAngle(limitsUnlocked() ? CameraState.MAX_ANGLE_UNLOCKED : CameraState.MAX_ANGLE);
+            doOrbit(t);
+            doAutoPan(t);
+            doZoom(t);
+            doScroll(t);
+            doPitch(t);
+            doRotate(t);
+        }
         updateDirection();
         getState().setFog(viewer.getWorld().getFog());
         // Enabling the fog here because it'll be disabled in other situations
@@ -370,6 +405,7 @@ public final class GameCamera extends Camera {
 
     @Override
     public void mouseScrolled(int amount) {
+        stopFollowing();
         zoom_time = Math.clamp(zoom_time + amount * .05f, -.15f, .15f);
     }
 
@@ -402,6 +438,8 @@ public final class GameCamera extends Camera {
                     setScrollSpeed();
                 }
             }
+            if (Renderer.getLocalInput().getInputProvider().isCursorInWindow())
+                stopFollowing();
             scroll_x = (x - view_width / 2f);
             scroll_y = (y - view_height / 2f);
             float inv_length = 1f / (float) Math.sqrt(scroll_x * scroll_x + scroll_y * scroll_y);
@@ -500,6 +538,7 @@ public final class GameCamera extends Camera {
             }
 
             if (handled) {
+                stopFollowing();
                 event.consume();
             }
         }

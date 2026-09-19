@@ -144,6 +144,13 @@ public final class WorldViewer implements Animated, AutoCloseable {
                 if (target instanceof Selectable<?> selectable)
                     getSelection().removeFromArmies(selectable);
             }
+
+            @Override
+            public void playerCamera(@NonNull Player player, float x, float y, float z, float horiz_angle,
+                    float vert_angle) {
+                if (spectator_view != null)
+                    spectator_view.receiveCamera(player, x, y, z, horiz_angle, vert_angle);
+            }
         };
         PlayerInfo[] player_infos = Arrays.stream(player_slots).map(PlayerSlot::getInfo).toArray(PlayerInfo[]::new);
         WorldInfo world_info = generator.generate(player_infos.length, world_params.getInitialUnitCount(),
