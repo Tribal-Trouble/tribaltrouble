@@ -27,7 +27,7 @@ import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
  * {@link Listener} on OK; the form never touches the create-game dialog directly.
  */
 public final class AdvancedSettingsForm extends Form {
-    public static final int MIN_MAX_UNITS = 50;
+    public static final int MIN_MAX_UNITS = 20;
     public static final int MAX_MAX_UNITS = 1000;
     public static final int MAX_UNITS_STEP = 10;
     public static final int MIN_STARTING_UNITS = 1;
