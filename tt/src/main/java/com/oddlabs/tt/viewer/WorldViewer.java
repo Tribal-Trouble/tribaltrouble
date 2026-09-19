@@ -151,6 +151,12 @@ public final class WorldViewer implements Animated, AutoCloseable {
                 if (spectator_view != null)
                     spectator_view.receiveCamera(player, x, y, z, horiz_angle, vert_angle);
             }
+
+            @Override
+            public void playerSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
+                if (spectator_view != null)
+                    spectator_view.receiveSelection(player, selection);
+            }
         };
         PlayerInfo[] player_infos = Arrays.stream(player_slots).map(PlayerSlot::getInfo).toArray(PlayerInfo[]::new);
         WorldInfo world_info = generator.generate(player_infos.length, world_params.getInitialUnitCount(),
@@ -159,17 +165,17 @@ public final class WorldViewer implements Animated, AutoCloseable {
                 world_info, generator.getTerrainType(), player_infos, worldFog, colors);
         this.local_player = world.getPlayers()[player_slot];
         this.selection = new Selection(local_player);
+        boolean spectator = ingame_info instanceof SpectatorInGameInfo;
+        this.spectator_view = spectator ? new SpectatorView(this) : null;
         landscape_renderer = new LandscapeRenderer(world, world_info, animation_manager_local);
         this.picker = new Picker(animation_manager_local, local_player, gui_root, render_queues, landscape_renderer,
                 selection);
         this.renderer = new DefaultRenderer(cheat, local_player, render_queues, world_info, landscape_renderer, picker,
-                selection, generator, modelViewStack, projectionStack);
+                selection, generator, modelViewStack, projectionStack, spectator_view);
         this.gui_root = gui_root;
-        boolean spectator = ingame_info instanceof SpectatorInGameInfo;
         this.peerhub = new PeerHub(animation_manager_local, ingame_info.isMultiplayer(), ingame_info.isRated(),
                 spectator, local_player, player_slots, network, gui_root, notification_manager, distributable_table,
                 session_id, new ViewerStallHandler(this));
-        this.spectator_view = spectator ? new SpectatorView(this) : null;
         this.camera = new GameCamera(this, camera_state);
         this.panel = new ActionButtonPanel(this, camera);
         this.delegate = new SelectionDelegate(this, camera);

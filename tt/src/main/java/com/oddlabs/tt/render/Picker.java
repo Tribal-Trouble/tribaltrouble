@@ -98,7 +98,7 @@ public final class Picker implements Updatable<TimerAnimation> {
         this.sprite_sorter = new SpriteSorter();
         this.respond_manager = new RespondManager(manager);
         this.element_renderer = new ElementRenderer<>(local_player, render_queues, this, true, sprite_sorter,
-                selection);
+                selection, null);
         this.tree_renderer = new TreePicker(sprite_sorter, respond_manager);
         this.landscape_renderer = landscape_renderer;
     }

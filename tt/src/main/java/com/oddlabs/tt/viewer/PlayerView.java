@@ -1,6 +1,13 @@
 package com.oddlabs.tt.viewer;
 
+import com.oddlabs.tt.model.Selectable;
+import org.jspecify.annotations.NonNull;
+
+import java.util.HashSet;
+import java.util.Set;
+
 public final class PlayerView {
+    private final @NonNull Set<Selectable<?>> selection = new HashSet<>();
     private boolean has_camera;
     private float camera_x;
     private float camera_y;
@@ -39,5 +46,17 @@ public final class PlayerView {
 
     public float getCameraVertAngle() {
         return camera_vert_angle;
+    }
+
+    void setSelection(Selectable<?> @NonNull [] selected) {
+        selection.clear();
+        for (Selectable<?> s : selected) {
+            if (s != null)
+                selection.add(s);
+        }
+    }
+
+    public boolean isSelected(@NonNull Selectable<?> selectable) {
+        return selection.contains(selectable);
     }
 }

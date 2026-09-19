@@ -40,6 +40,7 @@ import com.oddlabs.tt.gui.ToolTip;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
+import com.oddlabs.tt.viewer.SpectatorView;
 
 public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
@@ -89,14 +90,14 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     public DefaultRenderer(@Nullable Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues,
             @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker,
             @NonNull Selection selection, @NonNull WorldGenerator generator, @NonNull MatrixStack modelViewStack,
-            @NonNull MatrixStack projectionStack) {
+            @NonNull MatrixStack projectionStack, @Nullable SpectatorView spectator_view) {
         this.world = local_player.getWorld();
         this.cheat = cheat;
         this.render_queues = render_queues;
         this.picker = picker;
         this.selection = selection;
         this.element_renderer = new ElementRenderer<>(local_player, render_queues, picker, false, sprite_sorter,
-                selection);
+                selection, spectator_view);
         this.tree_renderer = new TreeRenderer(cheat, sprite_sorter, picker.getRespondManager(), treeSpriteRenderer);
         this.landscape_renderer = landscape_renderer;
         this.sky = new Sky(landscape_renderer, generator.getTerrainType(), world_info.detail());

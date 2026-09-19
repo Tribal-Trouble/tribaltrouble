@@ -1,5 +1,6 @@
 package com.oddlabs.tt.viewer;
 
+import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import org.jspecify.annotations.NonNull;
@@ -46,6 +47,14 @@ public final class SpectatorView {
 
     void receiveCamera(@NonNull Player player, float x, float y, float z, float horiz_angle, float vert_angle) {
         getView(player).setCamera(x, y, z, horiz_angle, vert_angle);
+    }
+
+    void receiveSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
+        getView(player).setSelection(selection);
+    }
+
+    public boolean isSelectedByFollowed(@NonNull Selectable<?> selectable) {
+        return followed != FREE_CAMERA && views[followed].isSelected(selectable);
     }
 
     public void setListener(@Nullable Runnable listener) {

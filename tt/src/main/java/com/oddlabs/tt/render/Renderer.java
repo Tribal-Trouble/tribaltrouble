@@ -730,7 +730,7 @@ public final class Renderer implements AutoCloseable {
         Selection selection = new Selection(local_player);
         UIRenderer renderer = new DefaultRenderer(getRenderer().cheat, local_player, render_queues, world_info,
                 landscape_renderer, new Picker(manager, local_player, gui_root, render_queues, landscape_renderer,
-                        selection), selection, generator, modelViewStack, projectionStack);
+                        selection), selection, generator, modelViewStack, projectionStack, null);
         Renderer.getRenderer().setMusicPath("/music/menu.ogg", 0f);
         MainMenu main_menu = new MainMenu(network, gui_root, new MenuCamera(world, manager));
         gui_root.pushDelegate(main_menu);

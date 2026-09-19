@@ -36,6 +36,8 @@ class SelectableVisitor<S extends Selectable<?>> extends ModelVisitor<S> {
     public final @NonNull Vector4fc getSelectionColor(@NonNull ElementRenderState<S> render_state) {
         Player local_player = render_state.render_state.getLocalPlayer();
         S model = render_state.getModel();
+        if (render_state.render_state.isSelectedByFollowed(model))
+            return model.getOwner().getColor();
         return render_state.render_state.isSelected(
                 model) ? model.getOwner() == local_player ? COLOR_GREEN : local_player.isEnemy(
                         model.getOwner()) ? COLOR_RED : COLOR_BLUE : render_state.render_state.isHovered(
