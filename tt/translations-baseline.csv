@@ -62,9 +62,14 @@ delegate/QuitScreen,incentive3,- Two complete campaigns,- Begge felttog,- Den ge
 delegate/QuitScreen,incentive4,- Your own online player profiles,- Din egen online profil,- Ihre eigenen Onlinespielerprofile,- Tus propios perfiles de juego online,- Il tuo profilo online,- Seu próprio perfil online
 delegate/QuitScreen,incentive5,- Four times larger islands,- Fire gange større øer,- Vier mal größere Inseln,- Islas cuatro veces más grandes,- Isole quattro volte più grandi,- Ilhas quatro vezes maiores
 delegate/QuitScreen,incentive6,- Harder computer opponents,- Sværere computermodstandere,- Schwierigere Computergegner,- Oponentes con mayor dificultad,- Avversari più forti,- Oponentes mais difíceis
-delegate/SelectionDelegate,observer_mode,Observer Mode - Press escape to exit,Tilskuer - Tryk escape for at afslutte,Beobachtermodus - Drücken Sie zum Beenden die ESC-TASTE.,Modo de observación - Pulsa Esc para salir,Modalità osservatore - Premi esc per uscire,Modo Observador - Pressione esc para sair
 delegate/SelectionDelegate,cinematic_on,Cinematic camera on,Filmkamera tændt,Kinokamera an,Cámara cinematográfica en,Telecamera cinematografica accesa,Câmera cinematográfica em
 delegate/SelectionDelegate,cinematic_off,Cinematic camera off,Filmisk kamera slukket,Filmkamera aus,Cámara cinematográfica apagada,Telecamera cinematografica disattivata,Câmera cinematográfica desligada
+delegate/SelectionDelegate,spectator_following,Spectating - ,,,,,
+delegate/SelectionDelegate,spectator_free,Free camera,,,,,
+delegate/SelectionDelegate,spectator_next,Next - {0},,,,,
+delegate/SelectionDelegate,spectator_previous,Previous - {0},,,,,
+delegate/SelectionDelegate,spectator_free_cam,Free cam - {0},,,,,
+delegate/SelectionDelegate,spectator_exit,Exit - Esc,,,,,
 delegate/TutorialOverDelegate,tutorial_completed,Tutorial {0} is now completed,Kursus {0} er gennemført,Das Tutorial {0} ist abgeschlossen.,El tutorial {0} ha terminado,Il tutorial {0} è completato,O tutorial {0} foi concluído
 delegate/TutorialOverDelegate,next_tutorial,Next tutorial,Næste kursus,Nächstes Tutorial,Próximo tutorial,Prossimo tutorial,Próximo tutorial
 delegate/TutorialOverDelegate,restart_tutorial,Restart tutorial,Genstart kursus,Tutorial erneut starten,Repetir el tutorial,Ricomincia tutorial,Recomeçar tutorial
@@ -449,6 +454,9 @@ form/OptionsMenu,action.CHEAT_6,Cheat 6,Snyd 6,Cheat 6,Truco 6,Trucco 6,Trapaça
 form/OptionsMenu,action.CHEAT_7,Cheat 7,Snyd 7,Cheat 7,Truco 7,Trucco 7,Trapaça 7
 form/OptionsMenu,action.CHEAT_8,Cheat 8,Snyd 8,Cheat 8,Truco 8,Trucco 8,Trapaça 8
 form/OptionsMenu,action.CHEAT_9,Cheat 9,Snyd 9,Cheat 9,Truco 9,Trucco 9,Trapaça 9
+form/OptionsMenu,action.SPECTATOR_NEXT_PLAYER,Spectator: Follow Next Player,,,,,
+form/OptionsMenu,action.SPECTATOR_PREV_PLAYER,Spectator: Follow Previous Player,,,,,
+form/OptionsMenu,action.SPECTATOR_FREE_CAMERA,Spectator: Free Camera,,,,,
 form/OptionsMenu,action.DEBUG_PRINT_INFO,Debug: Print Info,Debug: Udskriv Info,Debug: Info Drucken,Depurar: Imprimir Info,Debug: Stampa Info,Depurar: Imprimir Informação
 form/OptionsMenu,action.DEBUG_KILL_SELECTED,Debug: Kill Selected,Debug: Dræb Valgte,Debug: Ausgewählte Töten,Depurar: Matar Seleccionados,Debug: Uccidi Selezionati,Depurar: Matar Selecionados
 form/OptionsMenu,action.DEBUG_TOGGLE_LIGHT,Debug: Toggle Light,Debug: Skift Lys,Debug: Licht Umschalten,Depurar: Alternar Luz,Debug: Attiva/Disattiva Luce,Depurar: Habilitar Luz
