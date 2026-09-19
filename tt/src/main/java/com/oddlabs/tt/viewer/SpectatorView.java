@@ -13,6 +13,7 @@ public final class SpectatorView {
     private final @NonNull WorldViewer viewer;
     private final @NonNull PlayerView @NonNull [] views;
     private int followed = FREE_CAMERA;
+    private int last_followed = FREE_CAMERA;
     private boolean snap_pending;
     private @Nullable Runnable listener;
 
@@ -100,8 +101,17 @@ public final class SpectatorView {
     public void freeCamera() {
         if (followed == FREE_CAMERA)
             return;
+        last_followed = followed;
         followed = FREE_CAMERA;
         changed();
+    }
+
+    /** Free camera while following; back onto the last watched player while free. */
+    public void toggleFreeCamera() {
+        if (followed != FREE_CAMERA)
+            freeCamera();
+        else if (last_followed != FREE_CAMERA)
+            follow(last_followed);
     }
 
     private void changed() {

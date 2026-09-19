@@ -180,7 +180,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                     return;
                 }
                 if (event.consumeAction(GameAction.SPECTATOR_FREE_CAMERA)) {
-                    view.freeCamera();
+                    view.toggleFreeCamera();
                     event.consume();
                     return;
                 }
