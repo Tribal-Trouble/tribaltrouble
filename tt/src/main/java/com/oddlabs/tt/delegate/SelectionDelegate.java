@@ -6,11 +6,12 @@ import com.oddlabs.tt.form.InGameChatForm;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.ActionButtonPanel;
 import com.oddlabs.tt.gui.CursorType;
-import com.oddlabs.tt.gui.GUIObject;
+import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputManager;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.viewer.ObserverView;
 import com.oddlabs.tt.input.InputEvent;
@@ -49,8 +50,8 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     private static final GameAction[] ARMY_SELECTS = new GameAction[]{GameAction.ARMY_SELECT_0, GameAction.ARMY_SELECT_1, GameAction.ARMY_SELECT_2, GameAction.ARMY_SELECT_3, GameAction.ARMY_SELECT_4, GameAction.ARMY_SELECT_5, GameAction.ARMY_SELECT_6, GameAction.ARMY_SELECT_7, GameAction.ARMY_SELECT_8, GameAction.ARMY_SELECT_9
     };
     private final @NonNull InGameChatForm chat_form;
-    private final @NonNull Label observer_label;
-    private static final int OBSERVER_LABEL_WIDTH = 1000;
+    private static final int OBSERVER_MARGIN = 10;
+    private final List<Label> observer_labels = new ArrayList<>();
     private final @NonNull GameCamera game_camera;
 
     private boolean close_chat_override = false;
@@ -67,9 +68,6 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     public SelectionDelegate(@NonNull WorldViewer viewer, @NonNull GameCamera camera) {
         super(viewer, camera);
-        String observer_mode = Utils.getBundleString(ResourceBundle.getBundle(SelectionDelegate.class.getName()),
-                "observer_mode");
-        this.observer_label = new Label(observer_mode, Skin.getSkin().getHeadlineFont(), OBSERVER_LABEL_WIDTH);
         this.game_camera = (GameCamera) getCamera();
         displayChangedNotify(getGUIRoot().getWidth(), getGUIRoot().getHeight());
         addChild(getViewer().getPanel());
@@ -95,8 +93,6 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     public void setObserverMode() {
         observer = true;
         getViewer().getSelection().clearSelection();
-        if (!map_mode && Globals.draw_hud)
-            addChild(observer_label);
         ObserverView view = getViewer().getObserverView();
         if (view != null) {
             view.setListener(this::refreshObserver);
@@ -108,15 +104,46 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         return Utils.getBundleString(ResourceBundle.getBundle(SelectionDelegate.class.getName()), key, args);
     }
 
-    // Status line at the top plus the last few orders under it, one label per line in the player's color.
+    // Who is being observed, centered at the top with the name in the player's color; the keys stacked in the top
+    // right corner, one per line.
     private void refreshObserver() {
         ObserverView view = getViewer().getObserverView();
         if (view == null)
             return;
+        for (Label label : observer_labels)
+            label.remove();
+        observer_labels.clear();
+        if (map_mode)
+            return;
         Player followed = view.getFollowedPlayer();
-        observer_label.set(followed == null ? observerText("observer_free") : observerText("observer_following",
-                followed.getPlayerInfo().getName()));
-        displayChangedNotify(getGUIRoot().getWidth(), getGUIRoot().getHeight());
+        Font headline = Skin.getSkin().getHeadlineFont();
+        int width = getGUIRoot().getWidth();
+        int top = getGUIRoot().getHeight() - OBSERVER_MARGIN;
+        Label title = new Label(observerText(followed == null ? "observer_free" : "observer_following"), headline);
+        Label name = followed == null ? null : new Label(followed.getPlayerInfo().getName(), headline).setColor(
+                followed.getColor());
+        int x = (width - title.getWidth() - (name == null ? 0 : name.getWidth())) / 2;
+        int y = top - title.getHeight();
+        showObserverLabel(title, x, y);
+        if (name != null)
+            showObserverLabel(name, x + title.getWidth(), y);
+        InputManager input = Renderer.getLocalInput().getInputManager();
+        String[] lines = {observerText("observer_next", input.getBindingString(
+                GameAction.OBSERVER_NEXT_PLAYER)), observerText("observer_previous", input.getBindingString(
+                        GameAction.OBSERVER_PREV_PLAYER)), observerText("observer_free_cam", input.getBindingString(
+                                GameAction.OBSERVER_FREE_CAMERA)), observerText("observer_exit")};
+        y = top;
+        for (String text : lines) {
+            Label line = new Label(text, Skin.getSkin().getEditFont());
+            y -= line.getHeight();
+            showObserverLabel(line, width - OBSERVER_MARGIN - line.getWidth(), y);
+        }
+    }
+
+    private void showObserverLabel(@NonNull Label label, int x, int y) {
+        label.setPos(x, y);
+        addChild(label);
+        observer_labels.add(label);
     }
 
     @Override
@@ -163,7 +190,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                         getViewer().getPicker().pickRotate((GameCamera) getCamera());
                         map_mode = true;
                         if (observer)
-                            observer_label.remove();
+                            refreshObserver();
                         else
                             getActionButtonPanel().remove();
                         getCamera().disable();
@@ -428,10 +455,9 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         game_camera.getState().snapToTarget();
         setCamera(game_camera);
         getCamera().enable();
-        if (observer) {
-            addChild(observer_label);
+        if (observer)
             refreshObserver();
-        } else
+        else
             addChild(getActionButtonPanel());
 
         if (chat_visible) {
@@ -671,6 +697,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     @Override
     public void displayChangedNotify(int width, int height) {
         super.displayChangedNotify(width, height);
-        observer_label.setPos((width - observer_label.getWidth()) / 2, height - observer_label.getHeight());
+        if (observer)
+            refreshObserver();
     }
 }

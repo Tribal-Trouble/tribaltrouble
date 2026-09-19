@@ -213,7 +213,7 @@ public final class InputManager {
         // Observer mode
         def(GameAction.OBSERVER_NEXT_PLAYER, Key.RBRACKET);
         def(GameAction.OBSERVER_PREV_PLAYER, Key.LBRACKET);
-        def(GameAction.OBSERVER_FREE_CAMERA, Key.BACKSLASH);
+        def(GameAction.OBSERVER_FREE_CAMERA, Key.SLASH);
 
         // Debug
         def(GameAction.DEBUG_PRINT_INFO, Key.I, Modifier.CONTROL);
