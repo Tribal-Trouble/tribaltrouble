@@ -161,8 +161,9 @@ final class RouterClient implements ConnectionInterface {
         session.visit((RouterClient client) -> client.client_interface.receiveEvent(client_id, event));
     }
 
+    // Spectators have no client id of their own, so a targeted event must never be matched against them.
     private void doRelayEventTo(final int receiver_client_id, final ARMIEvent event) {
-        session.visit((RouterClient client) -> {
+        session.visitPlayers((RouterClient client) -> {
             if (client.client_id == receiver_client_id)
                 client.client_interface.receiveEvent(client_id, event);
         });
