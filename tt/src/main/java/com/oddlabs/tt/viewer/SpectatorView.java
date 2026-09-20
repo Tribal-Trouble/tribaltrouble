@@ -87,6 +87,7 @@ public final class SpectatorView {
             return;
         followed = Math.floorMod(index, players.length);
         snap_pending = true;
+        viewer.getCamera().stopAutoMotion();
         Player player = players[followed];
         Unit chieftain = player.getChieftain();
         if (chieftain != null && !chieftain.isDead())
