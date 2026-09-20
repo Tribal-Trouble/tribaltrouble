@@ -1381,6 +1381,12 @@ def load_unit(context, group, name, report):
     return active
 
 
+@bpy.app.handlers.persistent
+def refresh_units_on_load(_file=None):
+    """The list lives on the window manager, which a file load resets."""
+    refresh_units(bpy.context)
+
+
 def unit_index_update(self, context):
     wm = context.window_manager
     if wm.tt_auto_load and 0 <= wm.tt_unit_index < len(wm.tt_units):
@@ -1696,6 +1702,8 @@ def register():
                                     description="List only models with a skeleton")
     wm.tt_auto_load = BoolProperty(name="Load On Click", default=True,
                                    description="Load a model as soon as it is picked in the list")
+    bpy.app.handlers.load_post.append(refresh_units_on_load)
+    bpy.app.timers.register(refresh_units_on_load, first_interval=0.5)
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_export)
     bpy.types.VIEW3D_MT_object.append(menu_object)
@@ -1705,6 +1713,7 @@ def unregister():
     bpy.types.VIEW3D_MT_object.remove(menu_object)
     bpy.types.TOPBAR_MT_file_import.remove(menu_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_export)
+    bpy.app.handlers.load_post.remove(refresh_units_on_load)
     del bpy.types.Object.tt_attachments
     for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_units_only", "tt_auto_load"):
         delattr(bpy.types.WindowManager, name)
