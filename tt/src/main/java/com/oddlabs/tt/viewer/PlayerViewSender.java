@@ -31,6 +31,15 @@ final class PlayerViewSender implements Animated {
     private boolean sent_on_map;
     private float sent_cursor_x;
     private float sent_cursor_y;
+    private boolean picked;
+    private boolean picked_on_map;
+    private int picked_mouse_x;
+    private int picked_mouse_y;
+    private float picked_camera_x;
+    private float picked_camera_y;
+    private float picked_camera_z;
+    private float picked_horiz_angle;
+    private float picked_vert_angle;
     private int @NonNull [] sent_selection = new int[0];
 
     PlayerViewSender(@NonNull WorldViewer viewer) {
@@ -74,7 +83,7 @@ final class PlayerViewSender implements Animated {
         boolean over_world = gui_root.getDelegate().getCamera() == viewer.getCamera()
                 && gui_root.getCurrentGUIObject().canHoverBehind()
                 && Renderer.getLocalInput().getInputProvider().isCursorInWindow();
-        boolean on_map = over_world && viewer.getPicker().pickLocation(viewer.getCamera().getState(), location);
+        boolean on_map = over_world && pick();
         if (cursor_sent && on_map == sent_on_map && (!on_map || (same(location.x, sent_cursor_x) && same(location.y,
                 sent_cursor_y))))
             return;
@@ -83,6 +92,28 @@ final class PlayerViewSender implements Animated {
         out.viewCursor(sent_cursor_x, sent_cursor_y, on_map);
         cursor_sent = true;
         sent_on_map = on_map;
+    }
+
+    /** Picks the landscape under the pointer; the last result is reused while the pointer and camera rest. */
+    private boolean pick() {
+        CameraState state = viewer.getCamera().getState();
+        int mouse_x = Renderer.getLocalInput().getMouseX();
+        int mouse_y = Renderer.getLocalInput().getMouseY();
+        if (picked && mouse_x == picked_mouse_x && mouse_y == picked_mouse_y
+                && state.getCurrentX() == picked_camera_x && state.getCurrentY() == picked_camera_y
+                && state.getCurrentZ() == picked_camera_z && state.getHorizAngle() == picked_horiz_angle
+                && state.getCurrentVertAngle() == picked_vert_angle)
+            return picked_on_map;
+        picked = true;
+        picked_mouse_x = mouse_x;
+        picked_mouse_y = mouse_y;
+        picked_camera_x = state.getCurrentX();
+        picked_camera_y = state.getCurrentY();
+        picked_camera_z = state.getCurrentZ();
+        picked_horiz_angle = state.getHorizAngle();
+        picked_vert_angle = state.getCurrentVertAngle();
+        picked_on_map = viewer.getPicker().pickLocation(state, location);
+        return picked_on_map;
     }
 
     private void sendSelection(@NonNull PlayerInterface out) {
