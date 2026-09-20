@@ -392,6 +392,11 @@ def carried_items_load_on_the_peon_and_leave_the_model_list():
     rubber = next(o for o in addon.unit_items(arm())[addon.CARRY_SLOT] if o["tt_sprite"] == "rubber_resource")
     assert bpy.ops.object.tt_show_item(item=rubber.name) == {"FINISHED"}
     assert [name for name, shown in items()[addon.CARRY_SLOT] if shown] == ["rubber_resource"]
+    wood = next(o for o in addon.unit_items(arm())[addon.CARRY_SLOT] if o["tt_sprite"] == "wood_resource")
+    assert bpy.ops.object.tt_show_item(item=wood.name) == {"FINISHED"}
+    assert [name for name, shown in items()[addon.CARRY_SLOT] if shown] == ["rubber_resource", "wood_resource"]
+    assert bpy.ops.object.tt_show_item(item=wood.name) == {"FINISHED"}
+    assert [name for name, shown in items()[addon.CARRY_SLOT] if shown] == ["rubber_resource"]
     assert rubber.parent == arm() and rubber.parent_bone == "peon Ponytail1", (rubber.parent_type, rubber.parent_bone)
     source = os.path.join(GEOMETRY, "misc", "rubber_fragment_native.xml")
     assert bpy.ops.export_mesh.tt_to_repo() == {"FINISHED"}

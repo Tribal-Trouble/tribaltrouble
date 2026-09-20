@@ -39,7 +39,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 17, 0),
+    "version": (1, 18, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1225,7 +1225,8 @@ class CopyRegistrySnippet(bpy.types.Operator):
         return {"FINISHED"}
 
 
-SLOT_LABELS = {"hat": "Hats (H cycles them in game)", "weapon": "Weapons", "carried": "Carried (shown while hauling)"}
+SLOT_LABELS = {"hat": "Hats (one at a time, H cycles them)", "weapon": "Weapons (one at a time)",
+               "carried": "Carried (show any you like)"}
 _point_items = []
 
 
@@ -1560,11 +1561,17 @@ class LoadUnit(bpy.types.Operator):
 
 
 class ShowItem(bpy.types.Operator):
-    """Show this registry attachment and hide the others in its slot; pick the shown one again to hide it"""
+    """Show or hide this item. Carried things switch on and off one by one. Hats and weapons swap, the way the
+    game shows one per kind; hold Shift to keep the others showing"""
     bl_idname = "object.tt_show_item"
-    bl_label = "Show Attachment"
+    bl_label = "Show Item"
     bl_options = {"REGISTER", "UNDO"}
     item: StringProperty()
+    keep_others: BoolProperty(options={"SKIP_SAVE"})
+
+    def invoke(self, context, event):
+        self.keep_others = event.shift
+        return self.execute(context)
 
     def execute(self, context):
         arm = active_armature(context)
@@ -1572,6 +1579,9 @@ class ShowItem(bpy.types.Operator):
         if arm is None or chosen is None:
             return {"CANCELLED"}
         show = chosen.hide_get()
+        if self.keep_others or chosen["tt_slot"] == CARRY_SLOT:
+            set_item_visible(chosen, show)
+            return {"FINISHED"}
         for obj in unit_items(arm).get(chosen["tt_slot"], []):
             set_item_visible(obj, obj == chosen and show)
         return {"FINISHED"}
