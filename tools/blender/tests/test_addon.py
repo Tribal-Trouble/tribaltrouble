@@ -448,7 +448,7 @@ def a_new_clip_is_saved_last_on_the_unit_and_on_everything_it_carries():
     a = load("vikings", "peon")
     before = clip_lines("vikings", "peon")
     assert bpy.ops.object.tt_set_clip(clip=next(x.name for x in addon.armature_actions(a) if x.name.endswith("idle"))) == {"FINISHED"}
-    assert bpy.ops.object.tt_new_clip(clip_name="dance") == {"FINISHED"}
+    assert bpy.ops.object.tt_new_clip(clip_name="dance", start="COPY") == {"FINISHED"}
     action = a.animation_data.action
     assert action.name == "peon_dance" and "tt_clip" not in action, action.name
     expect_error(lambda: bpy.ops.object.tt_new_clip(clip_name="dance"), "already has a clip called dance")
@@ -488,6 +488,26 @@ def deleting_clips_unsaved_then_saved_and_only_from_the_end():
     assert len(entry("vikings", "peon")["clip_info"]) == 8
     assert not os.path.exists(os.path.join(GEOMETRY, "vikings", "peon", "peon_dance.xml"))
     assert "peon_dance" not in bpy.data.actions
+
+
+@test
+def a_clip_started_from_a_pose_has_two_keys_and_keeps_the_pose():
+    a = load("vikings", "warrior")
+    run = next(x for x in addon.armature_actions(a) if x.name.endswith("run"))
+    assert bpy.ops.object.tt_set_clip(clip=run.name) == {"FINISHED"}
+    bpy.context.scene.frame_set(6)
+    bpy.context.view_layer.update()
+    posed = {pb.name: pb.matrix.copy() for pb in a.pose.bones}
+    assert bpy.ops.object.tt_new_clip(clip_name="wave", length=30) == {"FINISHED"}
+    action = a.animation_data.action
+    assert action.name.endswith("wave") and tuple(action.frame_range) == (1.0, 30.0), tuple(action.frame_range)
+    assert bpy.context.scene.frame_end == 30
+    for frame in (1, 15, 30):
+        bpy.context.scene.frame_set(frame)
+        bpy.context.view_layer.update()
+        worst = max(abs(x - y) for pb in a.pose.bones for r1, r2 in zip(pb.matrix, posed[pb.name]) for x, y in zip(r1, r2))
+        assert worst < 1e-4, (frame, worst)
+    assert bpy.ops.object.tt_delete_clip() == {"FINISHED"}
 
 
 @test

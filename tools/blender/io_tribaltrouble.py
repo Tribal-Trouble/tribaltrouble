@@ -39,7 +39,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 16, 0),
+    "version": (1, 17, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -2138,11 +2138,16 @@ def clip_button_menu(self, context):
 
 
 class NewClip(bpy.types.Operator):
-    """Start a new clip for this unit from a copy of the one showing, so you begin from a sensible pose"""
+    """Start a new clip for this unit. Game clips have a key on every frame for every bone, which is miserable to
+    edit by hand, so the default starts from the pose on screen with only a first and a last key"""
     bl_idname = "object.tt_new_clip"
     bl_label = "New Clip"
     bl_options = {"REGISTER", "UNDO"}
     clip_name: StringProperty(name="Name", default="", description="Short name such as dance or wave")
+    start: EnumProperty(name="Start From", items=(
+        ("POSE", "This pose", "The pose on screen, keyed on the first and last frame only: easy to animate by hand"),
+        ("COPY", "Copy of this clip", "Every frame of the clip showing: good for small fixes, hard to re-animate")))
+    length: IntProperty(name="Frames", default=25, min=2, max=500, description="Length of a clip started from a pose")
 
     @classmethod
     def poll(cls, context):
@@ -2163,7 +2168,8 @@ class NewClip(bpy.types.Operator):
             return {"CANCELLED"}
         current = arm.animation_data.action if arm.animation_data is not None else None
         prefix = os.path.basename(arm.get("tt_skeleton", "")).replace("skeleton.xml", "")
-        action = current.copy() if current is not None else bpy.data.actions.new(prefix + name)
+        from_pose = self.start == "POSE" or current is None
+        action = bpy.data.actions.new(prefix + name) if from_pose else current.copy()
         action.name = prefix + name
         action.use_fake_user = True
         action["tt_armature"] = arm.name
@@ -2172,6 +2178,16 @@ class NewClip(bpy.types.Operator):
         if arm.animation_data is not None:
             arm.animation_data.action = None  # a copied action brings its own slot; let assign_action bind it
         assign_action(arm, action)
+        if from_pose:
+            # Pose bones still hold the values of the pose that was showing.
+            for pb in arm.pose.bones:
+                pb.rotation_mode = "QUATERNION"
+                for frame in (1, self.length):
+                    for path in ("location", "rotation_quaternion", "scale"):
+                        pb.keyframe_insert(path, frame=frame, group=pb.name)
+        context.scene.frame_start = 1
+        context.scene.frame_end = max(1, int(round(action.frame_range[1])))
+        context.scene.frame_set(1)
         return {"FINISHED"}
 
 
