@@ -64,6 +64,9 @@ public final class RacesResources {
     private static final String EVENT_TEXTURES_FILE = "/geometry/event_textures.txt";
     private static final int DEFAULT_TEXTURE = 0;
     private static final String NO_EVENT = "-";
+    private static final String CARRIED_SLOT = "carried";
+    private static final String CARRIED_UNIT = "peon";
+    private static final int IRON_TEXTURE = 1;
     private static final Pattern BUILDING_GEOMETRY = Pattern.compile("/geometry/(\\w+)/(\\w+)\\.binsprite");
     // Render-only, so it may differ between the players of one game.
     private static final String EVENT = System.getProperty("com.oddlabs.tt.event", NO_EVENT);
@@ -272,11 +275,61 @@ public final class RacesResources {
         return props;
     }
 
+    // What a peon holds is decided by the simulation, so these never reach the unit's own slots.
+    private static @NonNull Map<Class<? extends Supply>, SpriteKey> carried(@NonNull RenderQueues queues,
+            @NonNull List<AttachmentEntry> entries, @NonNull String group) {
+        AttachmentEntry rock = carriedEntry(entries, group, "rock_resource");
+        SpriteFile rock_sprite = carriedSprite(rock);
+        return Map.of(
+                TreeSupply.class, registerCarried(queues, carriedEntry(entries, group, "wood_resource")),
+                RockSupply.class, registerCarried(queues, rock, rock_sprite, DEFAULT_TEXTURE),
+                IronSupply.class, registerCarried(queues, rock, rock_sprite, IRON_TEXTURE),
+                RubberSupply.class, registerCarried(queues, carriedEntry(entries, group, "rubber_resource")),
+                LeftPaddle.class, registerCarried(queues, carriedEntry(entries, group, "left_paddle")),
+                RightPaddle.class, registerCarried(queues, carriedEntry(entries, group, "right_paddle")));
+    }
+
+    // During an event, <name>_<event> stands in for <name> when the registry has one.
+    private static @NonNull AttachmentEntry carriedEntry(@NonNull List<AttachmentEntry> entries, @NonNull String group,
+            @NonNull String name) {
+        AttachmentEntry found = null;
+        for (AttachmentEntry entry : entries) {
+            if (!entry.group().equals(group) || !entry.base().equals(CARRIED_UNIT) || !entry.slot().equals(
+                    CARRIED_SLOT))
+                continue;
+            if (entry.name().equals(name + "_" + EVENT) || (entry.name().equals(name) && found == null))
+                found = entry;
+        }
+        if (found == null)
+            throw new IllegalStateException("No carried sprite " + group + "/" + name + " in the geometry registry");
+        return found;
+    }
+
+    private static @NonNull String spritePath(@NonNull AttachmentEntry entry) {
+        return "/geometry/" + entry.group() + "/" + entry.name() + ".binsprite";
+    }
+
+    private static @NonNull SpriteFile carriedSprite(@NonNull AttachmentEntry entry) {
+        return new SpriteFile(spritePath(entry), Globals.NO_MIPMAP_CUTOFF, true, true, true, false);
+    }
+
+    private static @NonNull SpriteKey registerCarried(@NonNull RenderQueues queues, @NonNull AttachmentEntry entry) {
+        return registerCarried(queues, entry, carriedSprite(entry), DEFAULT_TEXTURE);
+    }
+
+    private static @NonNull SpriteKey registerCarried(@NonNull RenderQueues queues, @NonNull AttachmentEntry entry,
+            @NonNull SpriteFile sprite, int tex_index) {
+        int event_texture = eventTexture(spritePath(entry));
+        if (event_texture != DEFAULT_TEXTURE)
+            return queues.register(sprite, event_texture);
+        return queues.register(sprite, tex_index < entry.textures() ? tex_index : DEFAULT_TEXTURE);
+    }
+
     private static @NonNull Map<String, Map<String, SpriteKey>> attachments(@NonNull RenderQueues queues,
             @NonNull List<AttachmentEntry> entries, @NonNull String group, @NonNull String base, int tex_index) {
         Map<String, Map<String, SpriteKey>> slots = new LinkedHashMap<>();
         for (AttachmentEntry entry : entries) {
-            if (!entry.group().equals(group) || !entry.base().equals(base))
+            if (!entry.group().equals(group) || !entry.base().equals(base) || entry.slot().equals(CARRIED_SLOT))
                 continue;
             SpriteFile sprite = new SpriteFile("/geometry/" + group + "/" + entry.name() + ".binsprite",
                     Globals.NO_MIPMAP_CUTOFF,
@@ -299,74 +352,13 @@ public final class RacesResources {
 
     public RacesResources(@NonNull RenderQueues queues) {
         int num_progress = 25;
-        SpriteFile native_rock_sprite = new SpriteFile("/geometry/natives/rock_resource.binsprite",
-                Globals.NO_MIPMAP_CUTOFF,
-                true, true, true, false);
         ProgressForm.progress(1f / num_progress);
-        SpriteFile native_wood_sprite = new SpriteFile("/geometry/natives/wood_resource.binsprite",
-                Globals.NO_MIPMAP_CUTOFF,
-                true, true, true, false);
-        SpriteFile native_rubber_sprite = new SpriteFile("/geometry/natives/rubber_resource.binsprite",
-                Globals.NO_MIPMAP_CUTOFF,
-                true, true, true, false);
-        SpriteFile native_right_paddle_sprite = new SpriteFile(
-                "/geometry/natives/right_paddle.binsprite",
-                Globals.NO_MIPMAP_CUTOFF,
-                true,
-                true,
-                true,
-                false);
-        SpriteFile native_left_paddle_sprite = new SpriteFile(
-                "/geometry/natives/left_paddle.binsprite",
-                Globals.NO_MIPMAP_CUTOFF,
-                true,
-                true,
-                true,
-                false);
+        List<AttachmentEntry> attachments = loadAttachments();
+        Map<Class<? extends Supply>, SpriteKey> native_supply_sprite_lists = carried(queues, attachments, "natives");
         ProgressForm.progress(1f / num_progress);
-        Map<Class<? extends Supply>, SpriteKey> native_supply_sprite_lists = Map.of(
-                TreeSupply.class, queues.register(native_wood_sprite),
-                RockSupply.class, queues.register(native_rock_sprite),
-                IronSupply.class, queues.register(native_rock_sprite, 1),
-                RubberSupply.class, queues.register(native_rubber_sprite),
-                LeftPaddle.class, queues.register(native_left_paddle_sprite),
-                RightPaddle.class, queues.register(native_right_paddle_sprite)
-        );
-
-        SpriteFile viking_wood_sprite = new SpriteFile("/geometry/vikings/wood_resource.binsprite",
-                Globals.NO_MIPMAP_CUTOFF,
-                true, true, true, false);
-        SpriteFile viking_rubber_sprite = new SpriteFile("/geometry/vikings/rubber_resource.binsprite",
-                Globals.NO_MIPMAP_CUTOFF,
-                true, true, true, false);
         ProgressForm.progress(1f / num_progress);
-        SpriteFile viking_rock_sprite = new SpriteFile("/geometry/vikings/rock_resource.binsprite",
-                Globals.NO_MIPMAP_CUTOFF,
-                true, true, true, false);
-        SpriteFile viking_right_paddle_sprite = new SpriteFile(
-                "/geometry/vikings/right_paddle.binsprite",
-                Globals.NO_MIPMAP_CUTOFF,
-                true,
-                true,
-                true,
-                false);
-        SpriteFile viking_left_paddle_sprite = new SpriteFile(
-                "/geometry/vikings/left_paddle.binsprite",
-                Globals.NO_MIPMAP_CUTOFF,
-                true,
-                true,
-                true,
-                false);
-
+        Map<Class<? extends Supply>, SpriteKey> viking_supply_sprite_lists = carried(queues, attachments, "vikings");
         ProgressForm.progress(1f / num_progress);
-        Map<Class<? extends Supply>, SpriteKey> viking_supply_sprite_lists = Map.of(
-                TreeSupply.class, queues.register(viking_wood_sprite),
-                RockSupply.class, queues.register(viking_rock_sprite),
-                IronSupply.class, queues.register(viking_rock_sprite, 1),
-                RubberSupply.class, queues.register(viking_rubber_sprite),
-                LeftPaddle.class, queues.register(viking_left_paddle_sprite),
-                RightPaddle.class, queues.register(viking_right_paddle_sprite)
-        );
 
         smoke_textures[0] = queues.registerTexture(new GeneratorSmoke(), 0);
         damage_smoke_textures[0] = queues.registerTexture(new GeneratorDamageSmoke(), 0);
@@ -657,7 +649,6 @@ public final class RacesResources {
         final float shadow_diameter_chieftain = 2.2f;
         ProgressForm.progress(1f / num_progress);
 
-        List<AttachmentEntry> attachments = loadAttachments();
         SpriteFile sprite_list_warrior = new SpriteFile("/geometry/vikings/warrior.binsprite",
                 Globals.NO_MIPMAP_CUTOFF,
                 true, true, true, false);

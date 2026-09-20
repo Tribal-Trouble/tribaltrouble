@@ -60,6 +60,20 @@ The game picks a texture by its place in the list, and that place is shared by e
 
 Which event is on comes from the `com.oddlabs.tt.event` system property, for example `-Dcom.oddlabs.tt.event=halloween`. It is render-only, so players in one game may differ. Turning an event on by calendar date is a follow-up. Event items on units obey the same attribute: outside their event they are not loaded at all.
 
+## Carried items (moved into the registry 2026-09-19)
+
+What a peon hauls or rows with is a registry item like any other, in the `carried` slot:
+
+```xml
+<sprite name="wood_resource" base="peon" slot="carried">
+```
+
+There are five per race: `wood_resource`, `rock_resource` (iron is its second texture), `rubber_resource`, `left_paddle` and `right_paddle`. They used to repeat the peon's skeleton and all eight clip lines; now they inherit them, and the built files are byte for byte the same.
+
+The difference from a hat is who switches it on. The simulation decides what a peon holds, so the game asks for these five by name and they never enter the unit's player-facing slots; H does not touch them. That is also why they cannot be removed from the registry.
+
+During an event a sprite named `<name>_<event>` in the same slot stands in for `<name>`, for example `wood_resource_christmas` with `event="christmas"`. An event texture on the item works too, as on buildings.
+
 ## Attachment points
 
 Proposed logical names, mapped per skeleton. The plugin and the registry should speak the logical name; the mapping table resolves the bone string.
