@@ -2,9 +2,10 @@
 
 Run headless from the repo root, with either a skeleton plus clips or one or more mesh files:
 
-    blender -b --python tools/blender/validate_roundtrip.py -- \
+    blender -b --factory-startup --python tools/blender/validate_roundtrip.py -- \
         assets/geometry/vikings/peon/peon_skeleton.xml assets/geometry/vikings/peon/peon_run.xml [more clips...]
-    blender -b --python tools/blender/validate_roundtrip.py -- assets/geometry/vikings/warrior/warrior_mesh.xml
+    blender -b --factory-startup --python tools/blender/validate_roundtrip.py -- assets/geometry/vikings/warrior/warrior_mesh.xml
+--factory-startup keeps an installed copy of the addon from loading next to the one under test.
 
 Exit code 0 when every value matches within tolerance (1e-4 for positions, UVs, weights and matrices; 1.5e-2 for
 normal components, since Blender stores custom split normals at reduced precision), 1 otherwise. The exported files
