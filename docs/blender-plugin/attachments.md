@@ -30,6 +30,8 @@ An attachment is a sprite entry in `assets/geometry/geometry.xml` with three att
 - `slot` names the place it goes. A unit shows at most one item per slot. Slots are independent of each other.
 - `default="true"` makes every new unit start with it. The viking warrior's axe does this in the `weapon` slot.
 
+A sprite that inherits everything from its base (no skeleton or clips of its own) is built without clip data: its file names the base (`vikings/peon`) and the game reads that unit's clips once and shares them. An item is a few KB instead of several hundred.
+
 The geometry converter writes every slotted sprite to `attachments.txt` next to the binary sprites. The game reads that file at load and wires each item onto every template of its base unit, so adding an item needs no Java. An item with one texture uses it for every tier. An item with as many textures as the unit has tiers follows the tier, as the axe does.
 
 Items in a slot cycle in the order default first, then by name. In game, with cheats on (`/iamacheater` in chat), H cycles the `hat` slot on the selected units: bare, first item, second item, bare. It is a cheat, hidden from the key options, because the choice is local: other players do not see it until it travels on the wire. Every selected unit moves to the same item, taken from the first one in the selection. The choice is render-only and local until the wire change.

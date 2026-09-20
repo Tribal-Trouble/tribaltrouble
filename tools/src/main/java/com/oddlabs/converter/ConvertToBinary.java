@@ -212,9 +212,11 @@ public final class ConvertToBinary {
                 throw new RuntimeException("Sprite " + name + " has an unknown or circular base " + base_name);
         }
         ObjectInfo skeleton_info = getSkeletonObjectInfo(n, src_dir);
+        AnimObjectInfo[] anim_object_infos = getAnimObjectInfos(n, src_dir);
+        // A sprite that brings nothing of its own refers to its base's clips instead of carrying a copy of them.
+        boolean shares_clips = base != n && skeleton_info == null && anim_object_infos.length == 0;
         if (skeleton_info == null)
             skeleton_info = getSkeletonObjectInfo(base, src_dir);
-        AnimObjectInfo[] anim_object_infos = getAnimObjectInfos(n, src_dir);
         if (anim_object_infos.length == 0)
             anim_object_infos = getAnimObjectInfos(base, src_dir);
         ModelObjectInfo[] model_object_infos = getModelObjectInfos(n, src_dir);
@@ -269,7 +271,8 @@ public final class ConvertToBinary {
                 sprite_models[i] = Optimizer.convertToSprite(current.getTextures(), model_info,
                         current.getClearColor());
             }
-            write(new Object[]{sprite_models, animations}, build_file);
+            Object clips = shares_clips ? build_dir.getFileName() + "/" + getName(base) : animations;
+            write(new Object[]{sprite_models, clips}, build_file);
         }
     }
 

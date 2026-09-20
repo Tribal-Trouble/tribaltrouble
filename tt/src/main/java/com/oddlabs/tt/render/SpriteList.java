@@ -20,6 +20,8 @@ import org.lwjgl.opengl.GL31;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -71,10 +73,26 @@ public final class SpriteList implements AutoCloseable {
         initTBO();
     }
 
+    // Items name the sprite whose clips they use ("vikings/peon"); each unit's clips are then read once.
+    private static final Map<String, AnimationInfo[]> shared_clips = new HashMap<>();
+
+    private static AnimationInfo @NonNull [] clips(@NonNull Object clips_or_owner) {
+        if (clips_or_owner instanceof AnimationInfo[] clips)
+            return clips;
+        String owner = (String) clips_or_owner;
+        AnimationInfo[] clips = shared_clips.get(owner);
+        if (clips == null) {
+            Object[] sprites_and_animations = Utils.loadObject(Utils.makeURL("/geometry/" + owner + ".binsprite"));
+            clips = clips(sprites_and_animations[1]);
+            shared_clips.put(owner, clips);
+        }
+        return clips;
+    }
+
     public SpriteList(@NonNull SpriteFile sprite_file) {
         Object[] sprites_and_animations = Utils.loadObject(sprite_file.getURL());
         SpriteInfo[] sprite_infos = (SpriteInfo[]) sprites_and_animations[0];
-        AnimationInfo[] animation_infos = (AnimationInfo[]) sprites_and_animations[1];
+        AnimationInfo[] animation_infos = clips(sprites_and_animations[1]);
         bounds = Stream.generate(BoundingBox::new).limit(animation_infos.length).toArray(BoundingBox[]::new);
 
         int total_indices = 0;
