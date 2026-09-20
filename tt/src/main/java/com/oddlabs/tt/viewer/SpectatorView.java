@@ -1,5 +1,6 @@
 package com.oddlabs.tt.viewer;
 
+import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
@@ -47,11 +48,19 @@ public final class SpectatorView {
     }
 
     void receiveCamera(@NonNull Player player, float x, float y, float z, float horiz_angle, float vert_angle) {
-        getView(player).setCamera(x, y, z, horiz_angle, vert_angle);
+        if (!Float.isFinite(x) || !Float.isFinite(y) || !Float.isFinite(z) || !Float.isFinite(horiz_angle)
+                || !Float.isFinite(vert_angle))
+            return;
+        int size = viewer.getWorld().getHeightMap().getMetersPerWorld();
+        getView(player).setCamera(Math.clamp(x, -size, 2f * size), Math.clamp(y, -size, 2f * size),
+                Math.clamp(z, 0f, GameCamera.CINEMATIC_MAX_Z), horiz_angle, vert_angle);
     }
 
     void receiveCursor(@NonNull Player player, float x, float y, boolean on_map) {
-        getView(player).setCursor(x, y, on_map);
+        if (!Float.isFinite(x) || !Float.isFinite(y))
+            return;
+        int size = viewer.getWorld().getHeightMap().getMetersPerWorld();
+        getView(player).setCursor(Math.clamp(x, 0f, size), Math.clamp(y, 0f, size), on_map);
     }
 
     void receiveSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
