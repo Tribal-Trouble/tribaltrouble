@@ -78,6 +78,6 @@ public final class PlayerView {
     }
 
     public boolean isSelected(@NonNull Selectable<?> selectable) {
-        return selection.contains(selectable);
+        return !selectable.isDead() && selection.contains(selectable);
     }
 }

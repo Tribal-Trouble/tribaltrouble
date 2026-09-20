@@ -38,4 +38,7 @@ public interface NotificationListener {
 
     default void playerOrder(@NonNull Player player, float x, float y) {
     }
+
+    default void playerLeft(@NonNull Player player) {
+    }
 }
