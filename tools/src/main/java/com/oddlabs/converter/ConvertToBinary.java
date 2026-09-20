@@ -24,6 +24,8 @@ import java.util.stream.IntStream;
 
 public final class ConvertToBinary {
     private static final String ATTACHMENTS_FILE = "attachments.txt";
+    private static final String EVENT_TEXTURES_FILE = "event_textures.txt";
+    private static final String NO_EVENT = "-";
 
     void main(@NonNull String @NonNull... args) {
         if (args.length != 3)
@@ -51,14 +53,17 @@ public final class ConvertToBinary {
         if (n.hasChildNodes()) {
             NodeList nl = n.getChildNodes();
             List<String> attachments = new ArrayList<>();
+            List<String> event_textures = new ArrayList<>();
             for (int i = 0; i < nl.getLength(); i++) {
                 if (nl.item(i).getNodeType() == Node.ELEMENT_NODE)
-                    parseGroup(nl.item(i), src_dir, build_dir, attachments);
+                    parseGroup(nl.item(i), src_dir, build_dir, attachments, event_textures);
             }
             Collections.sort(attachments);
+            Collections.sort(event_textures);
             try {
                 Files.createDirectories(build_dir);
                 Files.write(build_dir.resolve(ATTACHMENTS_FILE), attachments);
+                Files.write(build_dir.resolve(EVENT_TEXTURES_FILE), event_textures);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -66,7 +71,7 @@ public final class ConvertToBinary {
     }
 
     private static void parseGroup(@NonNull Node n, @NonNull Path src_dir, @NonNull Path build_dir,
-            @NonNull List<String> attachments) {
+            @NonNull List<String> attachments, @NonNull List<String> event_textures) {
         if (n.hasChildNodes()) {
             Path new_build_dir = build_dir.resolve(getName(n));
             NodeList nl = n.getChildNodes();
@@ -81,11 +86,13 @@ public final class ConvertToBinary {
                 Node slot = sprite.getAttributes().getNamedItem("slot");
                 if (slot != null)
                     attachments.add(attachmentLine(getName(n), sprite, slot.getNodeValue(), src_dir));
+                eventTextureLines(getName(n), sprite, event_textures);
             }
         }
     }
 
-    // group base slot order name textures: one line per sprite with a slot, default-on sprites sorted first in their slot.
+    // group base slot order name textures event: one line per sprite with a slot, default-on sprites sorted first in
+    // their slot.
     private static @NonNull String attachmentLine(@NonNull String group, @NonNull Node sprite, @NonNull String slot,
             @NonNull Path src_dir) {
         Node base = sprite.getAttributes().getNamedItem("base");
@@ -94,8 +101,37 @@ public final class ConvertToBinary {
         Node default_on = sprite.getAttributes().getNamedItem("default");
         int order = default_on != null && Boolean.parseBoolean(default_on.getNodeValue()) ? 0 : 1;
         int textures = getModelObjectInfos(sprite, src_dir)[0].getTextures().length;
+        Node event = sprite.getAttributes().getNamedItem("event");
         return String.join(" ", group, base.getNodeValue(), slot, Integer.toString(order), getName(sprite),
-                Integer.toString(textures));
+                Integer.toString(textures), event != null ? event.getNodeValue() : NO_EVENT);
+    }
+
+    // group sprite event index: the texture index is shared by every detail level, so each model must agree on it.
+    private static void eventTextureLines(@NonNull String group, @NonNull Node sprite, @NonNull List<String> lines) {
+        Map<String, Integer> indices = null;
+        NodeList nl = sprite.getChildNodes();
+        for (int i = 0; i < nl.getLength(); i++) {
+            if (!nl.item(i).getNodeName().equals("model"))
+                continue;
+            Map<String, Integer> model_indices = new HashMap<>();
+            NodeList textures = nl.item(i).getChildNodes();
+            int index = 0;
+            for (int j = 0; j < textures.getLength(); j++) {
+                if (!textures.item(j).getNodeName().equals("texture"))
+                    continue;
+                Node event = textures.item(j).getAttributes().getNamedItem("event");
+                if (event != null)
+                    model_indices.put(event.getNodeValue(), index);
+                index++;
+            }
+            if (indices != null && !indices.equals(model_indices))
+                throw new RuntimeException("Sprite " + getName(
+                        sprite) + " needs the same event textures, in the same place, on every model");
+            indices = model_indices;
+        }
+        if (indices != null)
+            indices.forEach((event, index) -> lines.add(String.join(" ", group, getName(sprite), event,
+                    Integer.toString(index))));
     }
 
     private static boolean isModified(@NonNull Path src, @NonNull Path dest) {

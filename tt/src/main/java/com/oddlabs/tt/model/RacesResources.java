@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -53,11 +54,18 @@ import java.util.Set;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 public final class RacesResources {
     private static final String ATTACHMENTS_FILE = "/geometry/attachments.txt";
+    private static final String EVENT_TEXTURES_FILE = "/geometry/event_textures.txt";
     private static final int DEFAULT_TEXTURE = 0;
+    private static final String NO_EVENT = "-";
+    private static final Pattern BUILDING_GEOMETRY = Pattern.compile("/geometry/(\\w+)/(\\w+)\\.binsprite");
+    // Render-only, so it may differ between the players of one game.
+    private static final String EVENT = System.getProperty("com.oddlabs.tt.event", NO_EVENT);
     public static final int QUARTERS_SIZE = 5;
     public static final int ARMORY_SIZE = 5;
     public static final int TOWER_SIZE = 3;
@@ -171,6 +179,11 @@ public final class RacesResources {
         SpriteFile building_start = new SpriteFile(start_name,
                 Globals.NO_MIPMAP_CUTOFF,
                 true, false, true, false);
+        List<AttachmentEntry> attachments = loadAttachments();
+        Map<Building.BuildState, List<SpriteKey>> props = new EnumMap<>(Building.BuildState.class);
+        props.put(Building.BuildState.BUILT, buildingProps(queues, attachments, built_name));
+        props.put(Building.BuildState.HALFBUILT, buildingProps(queues, attachments, halfbuilt_name));
+        props.put(Building.BuildState.START, buildingProps(queues, attachments, start_name));
         return new BuildingTemplate(
                 template_id,
                 type,
@@ -180,13 +193,13 @@ public final class RacesResources {
                 num_fragments,
                 shadow_diameter,
                 shadow_renderer,
-                queues.register(building),
+                queues.register(building, eventTexture(built_name)),
                 built_selection_radius,
                 built_selection_height,
-                queues.register(building_halfbuilt),
+                queues.register(building_halfbuilt, eventTexture(halfbuilt_name)),
                 halfbuilt_selection_radius,
                 halfbuilt_selection_height,
-                queues.register(building_start),
+                queues.register(building_start, eventTexture(start_name)),
                 start_selection_radius,
                 start_selection_height,
                 max_hit_points,
@@ -203,23 +216,52 @@ public final class RacesResources {
                 chimney_y,
                 chimney_z,
                 is_vikings,
-                name);
+                name,
+                props);
     }
 
     private record AttachmentEntry(@NonNull String group, @NonNull String base, @NonNull String slot,
                                    boolean default_on,
-                                   @NonNull String name, int textures) {
+                                   @NonNull String name, int textures, @NonNull String event) {
+        boolean active() {
+            return event.equals(NO_EVENT) || event.equals(EVENT);
+        }
     }
 
-    // Lines of "group base slot order name textures" written by the geometry converter; order 0 is default-on.
+    // Lines of "group base slot order name textures event" written by the geometry converter; order 0 is default-on.
     private static @NonNull List<AttachmentEntry> loadAttachments() {
         try (var reader = new BufferedReader(new InputStreamReader(
                 com.oddlabs.util.Utils.makeURL(ATTACHMENTS_FILE).openStream(), StandardCharsets.UTF_8))) {
             return reader.lines().map(line -> line.split(" ")).map(f -> new AttachmentEntry(f[0], f[1], f[2],
-                    f[3].equals("0"), f[4], Integer.parseInt(f[5]))).toList();
+                    f[3].equals("0"), f[4], Integer.parseInt(f[5]), f[6])).filter(AttachmentEntry::active).toList();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    // Lines of "group sprite event index" written by the geometry converter.
+    private static int eventTexture(@NonNull String geometry) {
+        Matcher path = BUILDING_GEOMETRY.matcher(geometry);
+        if (!path.matches())
+            return DEFAULT_TEXTURE;
+        try (var reader = new BufferedReader(new InputStreamReader(
+                com.oddlabs.util.Utils.makeURL(EVENT_TEXTURES_FILE).openStream(), StandardCharsets.UTF_8))) {
+            return reader.lines().map(line -> line.split(" ")).filter(f -> f[0].equals(path.group(1))
+                    && f[1].equals(path.group(2)) && f[2].equals(EVENT)).map(f -> Integer.parseInt(
+                            f[3])).findFirst().orElse(DEFAULT_TEXTURE);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    // Every prop registered on a building stage is drawn with it; there is nothing to toggle.
+    private static @NonNull List<SpriteKey> buildingProps(@NonNull RenderQueues queues,
+            @NonNull List<AttachmentEntry> entries, @NonNull String geometry) {
+        Matcher path = BUILDING_GEOMETRY.matcher(geometry);
+        if (!path.matches())
+            return List.of();
+        return attachments(queues, entries, path.group(1), path.group(2), DEFAULT_TEXTURE).values().stream().flatMap(
+                slot -> slot.values().stream()).toList();
     }
 
     private static @NonNull Map<String, Map<String, SpriteKey>> attachments(@NonNull RenderQueues queues,

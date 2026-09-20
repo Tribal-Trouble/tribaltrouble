@@ -6,6 +6,9 @@ import com.oddlabs.tt.render.ShadowListKey;
 import com.oddlabs.tt.render.SpriteKey;
 import org.jspecify.annotations.NonNull;
 
+import java.util.List;
+import java.util.Map;
+
 public final class BuildingTemplate extends Template {
     public static final int TYPE_BUILDING = 0;
     public static final int TYPE_SHIP = 1;
@@ -35,6 +38,7 @@ public final class BuildingTemplate extends Template {
     private final float chimney_y;
     private final float chimney_z;
     private final boolean vikings;
+    private final @NonNull Map<Building.BuildState, List<SpriteKey>> props;
 
     public BuildingTemplate(
             int template_id,
@@ -62,7 +66,8 @@ public final class BuildingTemplate extends Template {
             float chimney_y,
             float chimney_z,
             boolean vikings,
-            @NonNull String name) {
+            @NonNull String name,
+            @NonNull Map<Building.BuildState, List<SpriteKey>> props) {
         super(abilities, shadow_diameter, shadow_renderer, hit_offset_z, no_detail_size, defense_chance, name);
         this.template_id = template_id;
         this.type = type;
@@ -89,6 +94,7 @@ public final class BuildingTemplate extends Template {
         this.chimney_y = chimney_y;
         this.chimney_z = chimney_z;
         this.vikings = vikings;
+        this.props = props;
     }
 
     public int getTemplateID() {
@@ -203,5 +209,9 @@ public final class BuildingTemplate extends Template {
 
     public final boolean isVikings() {
         return vikings;
+    }
+
+    public @NonNull List<SpriteKey> getProps(Building.@NonNull BuildState stage) {
+        return props.getOrDefault(stage, List.of());
     }
 }

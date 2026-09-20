@@ -34,6 +34,32 @@ The geometry converter writes every slotted sprite to `attachments.txt` next to 
 
 Items in a slot cycle in the order default first, then by name. In game, H cycles the `hat` slot on the selected units: bare, first item, second item, bare. Every selected unit moves to the same item, taken from the first one in the selection. The choice is render-only and local until the wire change.
 
+## Buildings: props and event textures (implemented 2026-09-19)
+
+A building is a static sprite, so a prop on it is simpler than a hat: it has no bone, it just sits where it was placed relative to the building.
+
+```xml
+<sprite name="quarters_lantern" base="quarters" slot="prop" event="halloween">
+```
+
+- `base` is the building stage it belongs to: `quarters`, `quarters_halfbuilt` or `quarters_start`. A prop only shows on that stage.
+- Every prop registered on a stage is drawn with it. There is nothing to toggle, so the slot name only groups them; the add-on writes `prop`.
+- `event` is optional. Without it the prop shows all year. With it the prop only shows while that event is on.
+
+A texture can carry the same attribute:
+
+```xml
+<model r="90" g="60" b="30">
+    vikings/quarters/viking_main_built.xml
+    <texture name="viking_buildings_hi" team="viking_buildings_hi_team"/>
+    <texture name="viking_buildings_hi_halloween" team="viking_buildings_hi_team" event="halloween"/>
+</model>
+```
+
+The game picks a texture by its place in the list, and that place is shared by every detail level of the sprite. So every model of the sprite needs an event texture in the same place; the converter refuses the registry otherwise. A model nobody painted for the event repeats its usual texture there. The converter writes `event_textures.txt` next to `attachments.txt`, and `attachments.txt` gained the event as a last column.
+
+Which event is on comes from the `com.oddlabs.tt.event` system property, for example `-Dcom.oddlabs.tt.event=halloween`. It is render-only, so players in one game may differ. Turning an event on by calendar date is a follow-up. Event items on units obey the same attribute: outside their event they are not loaded at all.
+
 ## Attachment points
 
 Proposed logical names, mapped per skeleton. The plugin and the registry should speak the logical name; the mapping table resolves the bone string.

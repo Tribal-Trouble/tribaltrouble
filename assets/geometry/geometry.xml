@@ -14,6 +14,7 @@
         <!ATTLIST sprite base CDATA #IMPLIED>
         <!ATTLIST sprite slot CDATA #IMPLIED>
         <!ATTLIST sprite default CDATA #IMPLIED>
+        <!ATTLIST sprite event CDATA #IMPLIED>
         <!ATTLIST group name CDATA #REQUIRED>
         <!ATTLIST model r CDATA #REQUIRED>
         <!ATTLIST model g CDATA #REQUIRED>
@@ -23,6 +24,7 @@
         <!ATTLIST animation type CDATA #REQUIRED>
         <!ATTLIST texture name CDATA #REQUIRED>
         <!ATTLIST texture team CDATA #IMPLIED>
+        <!ATTLIST texture event CDATA #IMPLIED>
         ]>
 
 <geometry>

@@ -237,7 +237,18 @@ final class RenderState implements ElementVisitor {
         };
     }
 
-    private static final ModelVisitor<Building> building_visitor = new SelectableVisitor<>();
+    private static final ModelVisitor<Building> building_visitor = new SelectableVisitor<>() {
+        @Override
+        public void markDetailPolygon(@NonNull ElementRenderState<Building> render_state, @NonNull PolyDetail detail) {
+            Building building = render_state.model;
+            super.markDetailPolygon(render_state, detail);
+            if (render_state.render_state.isPicking())
+                return;
+            for (SpriteKey prop : building.getTemplate().getProps(building.getRenderLevel())) {
+                render_state.getRenderer(prop).addToRenderList(detail, render_state, false);
+            }
+        }
+    };
 
     @Override
     public void visitBuilding(final @NonNull Building building) {
