@@ -264,7 +264,8 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                     return;
                 }
 
-                if (event.consumeAction(GameAction.UNIT_TOGGLE_HAT)) {
+                // Hats are local and unseen by other players until they travel on the wire, so this stays a cheat.
+                if (getViewer().getCheat().isEnabled() && event.consumeAction(GameAction.CHEAT_CYCLE_HAT)) {
                     boolean first = true;
                     int next = Unit.NO_ATTACHMENT;
                     for (Selectable<?> selectable : getViewer().getSelection().getCurrentSelection().getSet()) {

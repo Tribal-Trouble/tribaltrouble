@@ -128,7 +128,6 @@ public final class InputManager {
         def(GameAction.UNIT_BEACON, Key.B, Modifier.CONTROL);
         def(GameAction.UNIT_NEXT_IDLE, Key.N);
         def(GameAction.UNIT_SET_RALLY, Key.R);
-        def(GameAction.UNIT_TOGGLE_HAT, Key.H);
         def(GameAction.GAMEPLAY_BACK, Key.BACK);
 
         // Army Shortcuts (0-9)
@@ -203,6 +202,7 @@ public final class InputManager {
         def(GameAction.NOTIFICATION_JUMP, Key.TAB);
 
         // Cheats
+        def(GameAction.CHEAT_CYCLE_HAT, Key.H);
         def(GameAction.CHEAT_1, Key.F1);
         def(GameAction.CHEAT_2, Key.F2);
         def(GameAction.CHEAT_3, Key.F3);
