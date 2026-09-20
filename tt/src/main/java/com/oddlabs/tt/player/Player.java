@@ -124,7 +124,9 @@ public final class Player implements PlayerInterface {
         return World.isValidGamespeed(preferred_speed) ? preferred_speed : world.getGamespeed();
     }
 
-    private void notifyOrder(@NonNull Target target) {
+    private void notifyOrder(@Nullable Target target) {
+        if (target == null)
+            return;
         world.getNotificationListener().playerOrder(this, target.getPositionX(), target.getPositionY());
     }
 
