@@ -433,6 +433,50 @@ def one_press_saves_a_new_item_and_turns_it_into_a_button():
 
 
 @test
+def put_it_there_places_and_shrinks_an_oversized_mesh():
+    a = load("natives", "peon")
+    height = addon.unit_height(a)
+    assert 1.5 < height < 3.0, height
+    bpy.ops.mesh.primitive_monkey_add(size=10.0, location=(7.0, -4.0, 0.0))
+    monkey = bpy.context.active_object
+    monkey.name = "test_monkey"
+    put_on_head(monkey)
+    warnings = [text for level, text in addon.preflight(bpy.context, a) if level == "WARNING"]
+    assert any("bigger than the unit" in text for text in warnings), warnings
+    assert bpy.ops.object.tt_put_on_bone(point="HEAD") == {"FINISHED"}
+    low, high = addon.world_box(monkey)
+    assert abs(max(high - low) - addon.FIT_SHARE * height) < 0.02, (max(high - low), height)
+    top = addon.top_of_part(bpy.context, a, "peon Head")
+    body_top = addon.world_box(addon.browsed_unit(a))[1].z
+    joint = (a.matrix_world @ a.pose.bones["peon Head"].head).z  # the native peon's tall hair is not the head
+    assert joint < top.z <= body_top, (joint, top.z, body_top)
+    assert abs((low.x + high.x) / 2 - top.x) < 0.01 and abs((low.y + high.y) / 2 - top.y) < 0.01
+    assert abs(low.z - top.z) < 0.01, (low.z, top.z)
+    assert monkey.parent == a and monkey.parent_bone == "peon Head"
+    before = addon.world_box(monkey)[0].copy()
+    run = next(x for x in addon.armature_actions(a) if x.name.endswith("run"))
+    assert bpy.ops.object.tt_set_clip(clip=run.name) == {"FINISHED"}
+    bpy.context.scene.frame_set(5)
+    bpy.context.view_layer.update()
+    assert (addon.world_box(monkey)[0] - before).length > 0.01, "it stopped following the head"
+    small = fixture_mesh("test_grip", fixture_image("test_grip_tex"), kind="cube")
+    small.scale = (0.1, 0.1, 0.1)
+    next(s for s in a.tt_attachments if s.point == "HAND_R").obj = small
+    bpy.context.view_layer.objects.active = a
+    bpy.context.view_layer.update()
+    size_before = max(addon.world_box(small)[1] - addon.world_box(small)[0])
+    assert bpy.ops.object.tt_put_on_bone(point="HAND_R") == {"FINISHED"}
+    hand = a.matrix_world @ a.pose.bones[next(s for s in a.tt_attachments if s.point == "HAND_R").bone].head
+    assert (small.matrix_world.translation - hand).length < 0.01
+    size_after = max(addon.world_box(small)[1] - addon.world_box(small)[0])
+    assert abs(size_after - size_before) < 1e-4, ("a small item was rescaled", size_before, size_after)
+    for s in a.tt_attachments:
+        s.obj = None
+    bpy.data.objects.remove(monkey)
+    bpy.data.objects.remove(small)
+
+
+@test
 def one_button_gives_a_bare_mesh_a_texture_the_game_accepts():
     a = load("vikings", "warrior")
     horn = fixture_mesh("My Horn", None)
@@ -455,6 +499,12 @@ def one_button_gives_a_bare_mesh_a_texture_the_game_accepts():
     assert entry("vikings", "warrior_my_horn")["slot"] == "hat"
     expect_cancel = bpy.ops.object.tt_make_texture(target=horn.name, size="128")
     assert expect_cancel == {"CANCELLED"}, "a mesh that has a texture got a second one"
+    assert bpy.ops.object.tt_paint_item(target=horn.name) == {"FINISHED"}
+    assert bpy.context.mode == "PAINT_TEXTURE" and bpy.context.active_object == horn
+    assert bpy.context.scene.tool_settings.image_paint.canvas == image
+    assert bpy.ops.object.tt_done_painting() == {"FINISHED"}
+    assert bpy.context.mode == "OBJECT"
+    assert addon.active_armature(bpy.context) == a, "the unit's panels would vanish after painting"
 
 
 @test

@@ -39,7 +39,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 20, 0),
+    "version": (1, 21, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1271,6 +1271,7 @@ class TT_UL_items(bpy.types.UIList):
         tag.alignment = "RIGHT"
         tag.enabled = False
         tag.label(text=slot_label(item["tt_slot"]))
+        row.operator(PaintItem.bl_idname, text="", icon="BRUSH_DATA", emboss=False).target = item.name
         if item["tt_slot"] != CARRY_SLOT:
             arm = active_armature(context)
             remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH", emboss=False)
@@ -1329,18 +1330,25 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
         box.prop(wm, "tt_new_point", text="Where")
         slot = next((x for x in arm.tt_attachments if x.point == wm.tt_new_point), arm.tt_attachments[0])
         box.prop(slot, "obj", text="Mesh")
+        if slot.obj is not None:
+            box.operator(PutOnBone.bl_idname, icon="SNAP_ON",
+                         text=f"Put It On The {POINT_LABELS.get(slot.point, slot.point)}").point = slot.point
         if slot.obj is not None and mesh_texture_image(slot.obj) is None:
             row = box.row()
             row.alert = True
             row.operator(MakeTexture.bl_idname, icon="TEXTURE").target = slot.obj.name
+        elif context.mode == "PAINT_TEXTURE":
+            box.operator(DonePainting.bl_idname, icon="CHECKMARK", depress=True)
+        elif slot.obj is not None:
+            box.operator(PaintItem.bl_idname, icon="BRUSH_DATA").target = slot.obj.name
         waiting = [x for x in arm.tt_attachments if x.obj is not None and x != slot]
         for other in waiting:
             row = box.row(align=True)
             row.label(text=f"{POINT_LABELS.get(other.point, other.point)}: {other.obj.name}", icon="DOT")
             row.prop(other, "obj", text="")
         if slot.obj is None and not waiting:
-            box.label(text="1. Put your mesh where it should sit")
-            box.label(text="2. Pick it above, then Save To Repo")
+            box.label(text="1. Pick where it goes and your mesh")
+            box.label(text="2. Put it there, nudge it, Save To Repo")
         row = layout.row(align=True)
         row.scale_y = 1.4
         row.operator(SaveItems.bl_idname, icon="EXPORT")
@@ -1739,6 +1747,133 @@ class AddToRegistry(bpy.types.Operator):
         return {"FINISHED"}
 
 
+FIT_SHARE = 0.3  # an oversized item is shrunk to this share of the unit's height
+
+
+def world_box(obj):
+    corners = [obj.matrix_world @ Vector(c) for c in obj.bound_box]
+    low = Vector(min(c[i] for c in corners) for i in range(3))
+    high = Vector(max(c[i] for c in corners) for i in range(3))
+    return low, high
+
+
+def unit_height(arm):
+    body = browsed_unit(arm) or next(iter(unit_meshes(arm)), None)
+    if body is None:
+        return 0.0
+    low, high = world_box(body)
+    return high.z - low.z
+
+
+def top_of_part(context, arm, bone_name):
+    """World point on top of the body where it follows this bone: the middle of those vertices, at the height
+    three quarters of them sit under. Measured on all six units that is the crown of the skull, below helmet
+    horns and feathers, which would otherwise lift a hat into the air."""
+    body = browsed_unit(arm)
+    group = body.vertex_groups.get(bone_name) if body is not None else None
+    if group is None:
+        return None
+    evaluated = body.evaluated_get(context.evaluated_depsgraph_get())
+    mesh = evaluated.to_mesh()
+    try:
+        points = [body.matrix_world @ mesh.vertices[v.index].co for v in body.data.vertices
+                  if any(g.group == group.index and g.weight > 0.5 for g in v.groups)]
+    finally:
+        evaluated.to_mesh_clear()
+    if not points:
+        return None
+    heights = sorted(point.z for point in points)
+    return Vector((sum(point.x for point in points) / len(points), sum(point.y for point in points) / len(points),
+                   heights[int(0.75 * (len(heights) - 1))]))
+
+
+class PutOnBone(bpy.types.Operator):
+    """Move your mesh to the part of the unit picked under Where. On the head it sits on top; anywhere else its
+    origin goes to the joint, so model a held item with its grip at the origin. Nudge it afterwards as you like"""
+    bl_idname = "object.tt_put_on_bone"
+    bl_label = "Put It There"
+    bl_options = {"REGISTER", "UNDO"}
+    point: StringProperty(options={"SKIP_SAVE"})
+    fit: BoolProperty(name="Shrink it if it is bigger than the unit", default=True)
+
+    def execute(self, context):
+        arm = active_armature(context)
+        slot = next((x for x in arm.tt_attachments if x.point == self.point), None) if arm is not None else None
+        if slot is None or slot.obj is None or slot.bone not in arm.pose.bones:
+            self.report({"ERROR"}, "Pick where it goes and your mesh first")
+            return {"CANCELLED"}
+        obj = slot.obj
+        note = ""
+        height = unit_height(arm)
+        low, high = world_box(obj)
+        largest = max(high - low)
+        if self.fit and height > 0.0 and largest > height:
+            factor = FIT_SHARE * height / largest
+            obj.scale = obj.scale * factor
+            context.view_layer.update()
+            note = f", shrunk to {factor:.0%} of its size because it was bigger than the unit"
+        pose_bone = arm.pose.bones[slot.bone]
+        on_top = self.point == "HEAD"
+        target = arm.matrix_world @ (pose_bone.tail if on_top else pose_bone.head)
+        if on_top:
+            target = top_of_part(context, arm, slot.bone) or target
+        low, high = world_box(obj)
+        anchor = Vector(((low.x + high.x) / 2, (low.y + high.y) / 2, low.z)) if on_top \
+            else obj.matrix_world.translation.copy()
+        moved = obj.matrix_world.copy()
+        moved.translation += target - anchor
+        obj.matrix_world = moved
+        context.view_layer.update()
+        self.report({"INFO"}, f"{obj.name} is on the {POINT_LABELS.get(self.point, self.point).lower()}{note}")
+        return {"FINISHED"}
+
+
+def switch_workspace(context, name):
+    workspace = bpy.data.workspaces.get(name)
+    if workspace is not None and context.window is not None:
+        context.window.workspace = workspace
+
+
+class PaintItem(bpy.types.Operator):
+    """Start painting this mesh's texture: selects it, picks its image as the canvas and opens Texture Paint"""
+    bl_idname = "object.tt_paint_item"
+    bl_label = "Paint It"
+    target: StringProperty(options={"SKIP_SAVE"})
+
+    def execute(self, context):
+        obj = bpy.data.objects.get(self.target) or context.active_object
+        image = mesh_texture_image(obj) if obj is not None and obj.type == "MESH" else None
+        if image is None:
+            self.report({"ERROR"}, "This mesh has no texture yet: press Make A Texture For It")
+            return {"CANCELLED"}
+        if context.mode != "OBJECT":
+            bpy.ops.object.mode_set(mode="OBJECT")
+        for o in context.selected_objects:
+            o.select_set(False)
+        obj.hide_set(False)
+        obj.select_set(True)
+        context.view_layer.objects.active = obj
+        bpy.ops.object.mode_set(mode="TEXTURE_PAINT")
+        paint = context.scene.tool_settings.image_paint
+        paint.mode = "IMAGE"
+        paint.canvas = image
+        switch_workspace(context, "Texture Paint")
+        self.report({"INFO"}, f"Painting {image.name}. Press Done Painting in the Tribal Trouble tab when finished")
+        return {"FINISHED"}
+
+
+class DonePainting(bpy.types.Operator):
+    """Leave Texture Paint and go back to the unit. The paint is kept; Save To Repo writes it"""
+    bl_idname = "object.tt_done_painting"
+    bl_label = "Done Painting"
+
+    def execute(self, context):
+        if context.mode != "OBJECT":
+            bpy.ops.object.mode_set(mode="OBJECT")
+        switch_workspace(context, "Layout")
+        return {"FINISHED"}
+
+
 class MakeTexture(bpy.types.Operator):
     """Give this mesh what the game needs to show it: a UV map if it has none, and a material with one image named
     after the mesh, filled with the color the material had. Then paint it in the Texture Paint tab"""
@@ -2004,6 +2139,12 @@ def preflight(context, arm):
     findings = []
     for obj in new + existing:
         findings += [(level, f"{obj.name}: {text}") for level, text in check_mesh(obj, obj in new, body_triangles)]
+    height = unit_height(arm)
+    for obj in new:
+        low, high = world_box(obj)
+        if height > 0.0 and max(high - low) > height:
+            findings.append(("WARNING", f"{obj.name}: is bigger than the unit itself ({max(high - low):.1f} against "
+                                        f"{height:.1f} tall)"))
     root = repo_root(context)
     group, base = find_base_sprite(arm.get("tt_skeleton", ""))
     if root and base is not None:
@@ -3099,7 +3240,8 @@ classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SnapToBone, SplitByBone, I
            TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, ShowItem, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
            RemoveFromRegistry, UpdateAddon, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
            SaveProps, VIEW3D_PT_tt_building, NewClip, SaveClip, DeleteClip,
-           SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, TT_UL_items, VIEW3D_PT_tt_units,
+           SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, PutOnBone, PaintItem, DonePainting,
+           TT_UL_items, VIEW3D_PT_tt_units,
            VIEW3D_PT_tt_preview,
            VIEW3D_PT_tt_attachments, VIEW3D_PT_tt_attachments_more)
 
