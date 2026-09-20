@@ -1268,9 +1268,9 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
 
         box = layout.box()
         box.label(text="Add a new item", icon="ADD")
-        box.prop(wm, "tt_new_point", text="Goes on")
+        box.prop(wm, "tt_new_point", text="Where")
         slot = next((x for x in arm.tt_attachments if x.point == wm.tt_new_point), arm.tt_attachments[0])
-        box.prop(slot, "obj", text="Your mesh")
+        box.prop(slot, "obj", text="Mesh")
         waiting = [x for x in arm.tt_attachments if x.obj is not None and x != slot]
         for other in waiting:
             row = box.row(align=True)
