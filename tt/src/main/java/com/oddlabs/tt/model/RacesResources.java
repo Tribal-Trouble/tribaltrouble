@@ -70,6 +70,8 @@ public final class RacesResources {
     private static final Pattern BUILDING_GEOMETRY = Pattern.compile("/geometry/(\\w+)/(\\w+)\\.binsprite");
     // Render-only, so it may differ between the players of one game.
     private static final String EVENT = System.getProperty("com.oddlabs.tt.event", NO_EVENT);
+    private static List<AttachmentEntry> attachment_entries;
+    private static List<String[]> event_texture_lines;
     public static final int QUARTERS_SIZE = 5;
     public static final int ARMORY_SIZE = 5;
     public static final int TOWER_SIZE = 3;
@@ -234,6 +236,12 @@ public final class RacesResources {
 
     // Lines of "group base slot order name textures event" written by the geometry converter; order 0 is default-on.
     private static @NonNull List<AttachmentEntry> loadAttachments() {
+        if (attachment_entries == null)
+            attachment_entries = readAttachments();
+        return attachment_entries;
+    }
+
+    private static @NonNull List<AttachmentEntry> readAttachments() {
         try (var reader = new BufferedReader(new InputStreamReader(
                 com.oddlabs.util.Utils.makeURL(ATTACHMENTS_FILE).openStream(), StandardCharsets.UTF_8))) {
             return reader.lines().map(line -> line.split(" ")).map(f -> new AttachmentEntry(f[0], f[1], f[2],
@@ -248,14 +256,16 @@ public final class RacesResources {
         Matcher path = BUILDING_GEOMETRY.matcher(geometry);
         if (!path.matches())
             return DEFAULT_TEXTURE;
-        try (var reader = new BufferedReader(new InputStreamReader(
-                com.oddlabs.util.Utils.makeURL(EVENT_TEXTURES_FILE).openStream(), StandardCharsets.UTF_8))) {
-            return reader.lines().map(line -> line.split(" ")).filter(f -> f[0].equals(path.group(1))
-                    && f[1].equals(path.group(2)) && f[2].equals(EVENT)).map(f -> Integer.parseInt(
-                            f[3])).findFirst().orElse(DEFAULT_TEXTURE);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        if (event_texture_lines == null) {
+            try (var reader = new BufferedReader(new InputStreamReader(
+                    com.oddlabs.util.Utils.makeURL(EVENT_TEXTURES_FILE).openStream(), StandardCharsets.UTF_8))) {
+                event_texture_lines = reader.lines().map(line -> line.split(" ")).toList();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
+        return event_texture_lines.stream().filter(f -> f[0].equals(path.group(1)) && f[1].equals(path.group(2))
+                && f[2].equals(EVENT)).map(f -> Integer.parseInt(f[3])).findFirst().orElse(DEFAULT_TEXTURE);
     }
 
     // Every prop registered on a building stage is drawn with it; there is nothing to toggle.

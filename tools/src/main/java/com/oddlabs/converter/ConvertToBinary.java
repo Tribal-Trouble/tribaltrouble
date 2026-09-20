@@ -204,12 +204,12 @@ public final class ConvertToBinary {
             @NonNull Path src_dir, @NonNull Path build_dir) {
         String name = getName(n);
         // base="peon" makes an attachment share the unit's skeleton and clip list without repeating them.
-        Node base_attr = n.getAttributes().getNamedItem("base");
         Node base = n;
-        if (base_attr != null) {
-            base = group_sprites.get(base_attr.getNodeValue());
-            if (base == null)
-                throw new RuntimeException("Sprite " + name + " has unknown base " + base_attr.getNodeValue());
+        for (int depth = 0; base.getAttributes().getNamedItem("base") != null; depth++) {
+            String base_name = base.getAttributes().getNamedItem("base").getNodeValue();
+            base = group_sprites.get(base_name);
+            if (base == null || depth > group_sprites.size())
+                throw new RuntimeException("Sprite " + name + " has an unknown or circular base " + base_name);
         }
         ObjectInfo skeleton_info = getSkeletonObjectInfo(n, src_dir);
         if (skeleton_info == null)
@@ -221,7 +221,8 @@ public final class ConvertToBinary {
         Path build_file = build_dir.resolve(name + ".binsprite");
 
         // Texture lists, scale and clip settings live in the registry, not in the mesh files.
-        boolean modified = isModified(registry, build_file);
+        boolean modified = isModified(registry, build_file)
+                || (skeleton_info != null && isModified(skeleton_info.getFile(), build_file));
         for (AnimObjectInfo anim_object_info : anim_object_infos) {
             if (isModified(anim_object_info.getFile(), build_file)) {
                 modified = true;
