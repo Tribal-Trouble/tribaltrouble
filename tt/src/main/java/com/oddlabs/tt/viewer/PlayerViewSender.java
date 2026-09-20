@@ -2,11 +2,13 @@ package com.oddlabs.tt.viewer;
 
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.camera.CameraState;
+import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.net.DistributableTable;
 import com.oddlabs.tt.net.PeerHub;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.render.LandscapeLocation;
+import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
@@ -68,7 +70,11 @@ final class PlayerViewSender implements Animated {
     }
 
     private void sendCursor(@NonNull PlayerInterface out) {
-        boolean on_map = viewer.getPicker().pickLocation(viewer.getCamera().getState(), location);
+        GUIRoot gui_root = viewer.getGUIRoot();
+        boolean over_world = gui_root.getDelegate().getCamera() == viewer.getCamera()
+                && gui_root.getCurrentGUIObject().canHoverBehind()
+                && Renderer.getLocalInput().getInputProvider().isCursorInWindow();
+        boolean on_map = over_world && viewer.getPicker().pickLocation(viewer.getCamera().getState(), location);
         if (cursor_sent && on_map == sent_on_map && (!on_map || (same(location.x, sent_cursor_x) && same(location.y,
                 sent_cursor_y))))
             return;
