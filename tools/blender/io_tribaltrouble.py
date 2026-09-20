@@ -38,7 +38,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 9, 0),
+    "version": (1, 9, 1),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1509,14 +1509,22 @@ class ExportToRepo(bpy.types.Operator):
         context.view_layer.update()
         try:
             depsgraph = context.evaluated_depsgraph_get()
+            missing = []
             for o in objs:
                 path = o.get("tt_source") or os.path.join(unit_dir, o.name + ".xml")
                 texture = o.get("tt_texture") or material_image_name([o])
                 write_mesh_xml([o], [o.get("tt_bone")], path, texture, False, depsgraph)
+                for name in [t.strip() for t in texture.split(",") if t.strip()]:
+                    if not ensure_texture_in_repo(repo_root(context), o, name):
+                        missing.append(name)
         finally:
             arm.data.pose_position = previous
             context.view_layer.update()
-        self.report({"INFO"}, f"Exported {len(objs)} file(s) into {unit_dir}")
+        if missing:
+            self.report({"WARNING"}, f"Exported {len(objs)} file(s) into {unit_dir}, but no texture image for "
+                                     f"{', '.join(sorted(set(missing)))}: give the material an Image Texture")
+        else:
+            self.report({"INFO"}, f"Exported {len(objs)} file(s) with their textures into {unit_dir}")
         return {"FINISHED"}
 
 
@@ -1572,19 +1580,28 @@ def registry_group_items(self, context):
 
 
 def ensure_texture_in_repo(root, obj, texture):
-    """Copy the material's image into assets/textures/models when the repo does not have it yet."""
+    """Put the material's image at assets/textures/models/<texture>.png: written when the repo lacks it or the
+    image has unsaved paint, so a texture made inside Blender travels with the mesh. False when there is no image."""
     target = os.path.join(root, "assets", "textures", "models", texture + ".png")
-    if os.path.isfile(target):
-        return True
     for slot in obj.material_slots:
         nodes = slot.material.node_tree.nodes if slot.material is not None and slot.material.use_nodes else []
         for node in nodes:
-            if node.type == "TEX_IMAGE" and node.image is not None:
-                source = bpy.path.abspath(node.image.filepath)
-                if os.path.isfile(source) and source.lower().endswith(".png"):
+            image = node.image if node.type == "TEX_IMAGE" else None
+            if image is None or os.path.splitext(image.name)[0] != texture:
+                continue
+            if os.path.isfile(target) and not image.is_dirty:
+                return True
+            source = bpy.path.abspath(image.filepath)
+            if not image.is_dirty and os.path.isfile(source) and source.lower().endswith(".png"):
+                if os.path.normcase(os.path.abspath(source)) != os.path.normcase(os.path.abspath(target)):
                     shutil.copyfile(source, target)
-                    return True
-    return False
+                return True
+            previous = (image.filepath_raw, image.file_format)
+            image.filepath_raw, image.file_format = target, "PNG"
+            image.save()
+            image.filepath_raw, image.file_format = previous
+            return True
+    return os.path.isfile(target)
 
 
 class RegisterModel(bpy.types.Operator):
