@@ -39,7 +39,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 12, 0),
+    "version": (1, 13, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1243,14 +1243,16 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
             return
         for game_slot, items in sorted(unit_items(arm).items()):
             box = layout.box()
-            box.label(text=f"In the registry: {game_slot}")
+            box.label(text="Carried (the game shows these by what the unit holds)" if game_slot == CARRY_SLOT
+                      else f"In the registry: {game_slot}")
             group_name = find_base_sprite(arm.get("tt_skeleton", ""))[0] or ""
             for obj in sorted(items, key=lambda o: o.name):
                 row = box.row(align=True)
                 row.operator(ShowItem.bl_idname, text=obj["tt_sprite"], depress=not obj.hide_get(),
                              icon="HIDE_ON" if obj.hide_get() else "HIDE_OFF").item = obj.name
-                remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
-                remove.group, remove.sprite = group_name, obj["tt_sprite"]
+                if game_slot != CARRY_SLOT:
+                    remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
+                    remove.group, remove.sprite = group_name, obj["tt_sprite"]
         layout.label(text="New items by point:")
         for slot in arm.tt_attachments:
             row = layout.row(align=True)
@@ -1336,6 +1338,21 @@ def rig_entry(registry, entry):
     return next((s for s in registry if s["group"] == entry["group"] and s["name"] == entry["base"]), entry)
 
 
+CARRY_SLOT = "carried"
+
+
+def carry_owner(registry, entry):
+    """The unit that carries this sprite, or None. The original game gives a carried item (wood, rock, rubber, a
+    paddle) its own copy of the peon's skeleton and clips instead of base=; the unit is the sprite whose mesh lives
+    in the skeleton's folder."""
+    if not entry["skeleton"] or entry["base"] or entry["slot"]:
+        return None
+    folder = os.path.dirname(entry["skeleton"])
+    owner = next((s for s in registry if s["group"] == entry["group"] and s["skeleton"] == entry["skeleton"]
+                  and s["models"] and os.path.dirname(s["models"][0]) == folder), None)
+    return owner if owner is not None and owner is not entry else None
+
+
 def team_attribute(root, texture, fallback):
     """team="..." when the decal PNG exists; without a repo folder, fall back to the caller's guess."""
     if root:
@@ -1350,7 +1367,8 @@ def refresh_units(context):
     if not root:
         return 0
     registry = read_registry(root)
-    sprites = [s for s in registry if not s["slot"] and (rig_entry(registry, s)["skeleton"] or not wm.tt_units_only)]
+    sprites = [s for s in registry if not s["slot"] and carry_owner(registry, s) is None
+               and (rig_entry(registry, s)["skeleton"] or not wm.tt_units_only)]
     for sprite in sorted(sprites, key=lambda s: (s["group"], s["name"])):
         item = wm.tt_units.add()
         item.name = f"{sprite['group']} / {sprite['name']}"
@@ -1419,14 +1437,15 @@ def load_unit(context, group, name, report):
 
     items = 0
     for sprite in registry:
-        if sprite["group"] != group or sprite["base"] != name or not sprite["slot"]:
+        carried = carry_owner(registry, sprite) is entry
+        if not carried and (sprite["group"] != group or sprite["base"] != name or not sprite["slot"]):
             continue
         path = os.path.join(geometry, sprite["models"][0])
         obj = import_mesh_file(context, path, False, True, quiet)
         if obj is None:
             continue
         obj[BROWSER_TAG] = True
-        obj["tt_slot"] = sprite["slot"]
+        obj["tt_slot"] = CARRY_SLOT if carried else sprite["slot"]
         obj["tt_sprite"] = sprite["name"]
         obj["tt_source"] = path
         obj["tt_event"] = sprite["event"]

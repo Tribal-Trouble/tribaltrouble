@@ -379,6 +379,28 @@ def load_building(group, sprite):
 
 
 @test
+def carried_items_load_on_the_peon_and_leave_the_model_list():
+    wm.tt_units_only = True
+    addon.refresh_units(bpy.context)
+    units = [u.name for u in wm.tt_units]
+    assert "natives / peon" in units and "natives / rubber_resource" not in units, units
+    load("natives", "peon")
+    carried = items()[addon.CARRY_SLOT]
+    assert [name for name, _ in carried] == ["left_paddle", "right_paddle", "rock_resource", "rubber_resource",
+                                             "wood_resource"], carried
+    assert not any(shown for _, shown in carried), "carried items start hidden"
+    rubber = next(o for o in addon.unit_items(arm())[addon.CARRY_SLOT] if o["tt_sprite"] == "rubber_resource")
+    assert bpy.ops.object.tt_show_item(item=rubber.name) == {"FINISHED"}
+    assert [name for name, shown in items()[addon.CARRY_SLOT] if shown] == ["rubber_resource"]
+    assert rubber.parent == arm() and rubber.parent_bone == "peon Ponytail1", (rubber.parent_type, rubber.parent_bone)
+    source = os.path.join(GEOMETRY, "misc", "rubber_fragment_native.xml")
+    assert bpy.ops.export_mesh.tt_to_repo() == {"FINISHED"}
+    skins = set(re.findall(r'<skin bone="([^"]+)"', open(source).read()))
+    assert skins == {"peon Ponytail1"}, skins
+    assert entry("natives", "rubber_resource") is not None
+
+
+@test
 def props_on_a_building_save_register_and_come_back_on_reload():
     body = load_building("vikings", "quarters")
     assert body is not None and body["tt_sprite"] == "quarters"
