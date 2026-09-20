@@ -36,7 +36,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 6, 0),
+    "version": (1, 7, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -101,6 +101,9 @@ SKELETONS = (
 )
 
 # Bone names must match the skeleton file exactly (note the double space in "warrior  Head").
+# Game slot an attachment point feeds; H in game cycles the "hat" slot. Other points use their own name.
+GAME_SLOTS = {"HEAD": "hat", "PROP1": "weapon"}
+
 ATTACHMENT_POINTS = {
     "HEAD": {"PEON": "peon Head", "VIKING_WARRIOR": "warrior  Head", "NATIVE_WARRIOR": "Head",
              "VIKING_CHIEFTAIN": "Head", "NATIVE_CHIEFTAIN": "Head"},
@@ -1148,13 +1151,20 @@ class CopyRegistrySnippet(bpy.types.Operator):
             base = "BASE_SPRITE"
             self.report({"WARNING"}, "Could not find the unit's sprite in geometry.xml; fill in base by hand")
         entries = []
-        for obj in visible_attachments(arm):
-            texture = obj.get("tt_texture") or material_image_name([obj]) or "TEXTURE"
+        for slot in arm.tt_attachments:
+            if slot.obj is None or not slot.visible:
+                continue
+            obj = slot.obj
+            game_slot = GAME_SLOTS.get(slot.point, slot.point.lower())
+            # Only atlases imported from the game are known to have a team decal next to them.
+            atlas = obj.get("tt_texture")
+            texture = atlas or material_image_name([obj]) or "TEXTURE"
+            team = f' team="{texture}_team"' if atlas else ""
             entries.append("\n".join([
-                f'        <sprite name="{base}_{obj.name}" base="{base}">',
+                f'        <sprite name="{base}_{obj.name}" base="{base}" slot="{game_slot}">',
                 '            <model r="90" g="60" b="30">',
                 f"                misc/{obj.name}.xml",
-                f'                <texture name="{texture}" team="{texture}_team"/>',
+                f'                <texture name="{texture}"{team}/>',
                 "            </model>",
                 "        </sprite>",
             ]))
