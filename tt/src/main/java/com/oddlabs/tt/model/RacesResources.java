@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -260,8 +261,15 @@ public final class RacesResources {
         Matcher path = BUILDING_GEOMETRY.matcher(geometry);
         if (!path.matches())
             return List.of();
-        return attachments(queues, entries, path.group(1), path.group(2), DEFAULT_TEXTURE).values().stream().flatMap(
-                slot -> slot.values().stream()).toList();
+        List<SpriteKey> props = new ArrayList<>();
+        for (AttachmentEntry entry : entries) {
+            if (!entry.group().equals(path.group(1)) || !entry.base().equals(path.group(2)))
+                continue;
+            String prop = "/geometry/" + entry.group() + "/" + entry.name() + ".binsprite";
+            props.add(queues.register(new SpriteFile(prop, Globals.NO_MIPMAP_CUTOFF, true, false, true, false),
+                    eventTexture(prop)));
+        }
+        return props;
     }
 
     private static @NonNull Map<String, Map<String, SpriteKey>> attachments(@NonNull RenderQueues queues,
