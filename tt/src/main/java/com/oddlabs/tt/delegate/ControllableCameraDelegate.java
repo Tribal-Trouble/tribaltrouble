@@ -89,13 +89,13 @@ public abstract class ControllableCameraDelegate extends InGameDelegate {
     }
 
     private void pushFirstPersonDelegate(boolean key_pressed) {
-        game_camera.stopFollowing();
+        game_camera.manualControl();
         first_person_delegate = new FirstPersonDelegate(getViewer(), getCamera().getState(), key_pressed);
         getGUIRoot().pushDelegate(first_person_delegate);
     }
 
     private void pushZoomDelegate() {
-        game_camera.stopFollowing();
+        game_camera.manualControl();
         getGUIRoot().pushDelegate(new ZoomDelegate(getViewer(), game_camera));
     }
 }
