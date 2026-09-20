@@ -39,7 +39,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 15, 0),
+    "version": (1, 15, 1),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1253,7 +1253,7 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
         if not arm.tt_attachments:
             layout.operator(SetupAttachments.bl_idname)
             return
-        layout.label(text="Separate meshes that follow a bone", icon="INFO")
+        layout.label(text="Hats, weapons and things this unit carries")
         group_name = find_base_sprite(arm.get("tt_skeleton", ""))[0] or ""
         for game_slot, items in sorted(unit_items(arm).items()):
             box = layout.box()
@@ -1277,7 +1277,8 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
             row.label(text=f"{POINT_LABELS.get(other.point, other.point)}: {other.obj.name}", icon="DOT")
             row.prop(other, "obj", text="")
         if slot.obj is None and not waiting:
-            box.label(text="Place your mesh on the unit, then pick it here")
+            box.label(text="1. Put your mesh where it should sit")
+            box.label(text="2. Pick it above, then Save To Repo")
         row = layout.row(align=True)
         row.scale_y = 1.4
         row.operator(SaveItems.bl_idname, icon="EXPORT")
