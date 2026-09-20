@@ -1,0 +1,366 @@
+"""Headless tests for the Tribal Trouble Blender addon. Run from the repo root:
+
+    blender -b --factory-startup --python tools/blender/tests/test_addon.py
+
+--factory-startup keeps an installed copy of the addon from loading next to the one under test. Everything is done
+in a temporary copy of assets/geometry, so the repo is never written to. Exit code 0 when every test passes.
+
+The shapes and images the tests make are throwaway fixtures inside that temporary folder. They are never art for
+the game and must never be copied into the repo.
+"""
+import importlib.util
+import os
+import re
+import shutil
+import sys
+import tempfile
+import traceback
+import xml.etree.ElementTree as ET
+
+import bpy
+
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+TEMP = tempfile.mkdtemp(prefix="tt_addon_test_")
+GEOMETRY = os.path.join(TEMP, "assets", "geometry")
+MODELS = os.path.join(TEMP, "assets", "textures", "models")
+DECALS = os.path.join(TEMP, "assets", "textures", "teamdecals")
+
+shutil.copytree(os.path.join(REPO, "assets", "geometry"), GEOMETRY)
+os.makedirs(MODELS)
+os.makedirs(DECALS)
+for texture in ("viking_warrior_rock", "viking_warrior_iron", "viking_warrior_rubber", "native_warrior_rock"):
+    shutil.copy(os.path.join(REPO, "assets", "textures", "models", texture + ".png"), MODELS)
+    shutil.copy(os.path.join(REPO, "assets", "textures", "teamdecals", texture + "_team.png"), DECALS)
+
+# A developer may keep uncommitted test sprites (named *_dev_*) in the working tree; results must not depend on them.
+registry_path = os.path.join(GEOMETRY, "geometry.xml")
+with open(registry_path, "rb") as f:
+    registry_text = f.read().decode("utf-8")
+registry_text = re.sub(r'[ \t]*<sprite name="[^"]*_dev_[^"]*".*?</sprite>\r?\n', "", registry_text, flags=re.S)
+with open(registry_path, "wb") as f:
+    f.write(registry_text.encode("utf-8"))
+PRISTINE = registry_text
+
+spec = importlib.util.spec_from_file_location("io_tribaltrouble", os.path.join(REPO, "tools", "blender", "io_tribaltrouble.py"))
+addon = importlib.util.module_from_spec(spec)
+sys.modules["io_tribaltrouble"] = addon
+spec.loader.exec_module(addon)
+addon.register()
+wm = bpy.context.window_manager
+wm.tt_auto_load = False
+results = []
+
+
+def test(fn):
+    try:
+        results.append((fn.__name__, "PASS", str(fn() or "")))
+    except Exception:
+        results.append((fn.__name__, "FAIL", " | ".join(traceback.format_exc().strip().splitlines()[-3:])))
+    return fn
+
+
+def arm():
+    return next(o for o in bpy.data.objects if o.type == "ARMATURE" and o.get(addon.BROWSER_TAG))
+
+
+def load(group, sprite):
+    assert bpy.ops.wm.tt_load_unit(group=group, sprite=sprite) == {"FINISHED"}
+    bpy.context.view_layer.objects.active = arm()
+    return arm()
+
+
+def entry(group, name):
+    return next((s for s in addon.read_registry(TEMP) if s["group"] == group and s["name"] == name), None)
+
+
+def items():
+    return {slot: sorted((o["tt_sprite"], not o.hide_get()) for o in objs)
+            for slot, objs in addon.unit_items(arm()).items()}
+
+
+def select_only(obj):
+    for o in bpy.context.selected_objects:
+        o.select_set(False)
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+
+
+def fixture_image(name, size=64):
+    image = bpy.data.images.new(name, size, size)  # lives in memory only until the addon exports it
+    image.pixels = [1.0, 0.5, 0.0, 1.0] * (size * size)
+    return image
+
+
+def fixture_mesh(name, image, z=1.7, kind="cone"):
+    if kind == "cone":
+        bpy.ops.mesh.primitive_cone_add(radius1=0.2, depth=0.3, location=(0, 0, z))
+    else:
+        bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, z))
+    obj = bpy.context.active_object
+    obj.name = name
+    if image is not None:
+        material = bpy.data.materials.new(name + "_mat")
+        material.use_nodes = True
+        material.node_tree.nodes.new("ShaderNodeTexImage").image = image
+        obj.data.materials.append(material)
+    return obj
+
+
+def put_on_head(obj):
+    next(s for s in arm().tt_attachments if s.point == "HEAD").obj = obj
+    bpy.context.view_layer.objects.active = arm()
+
+
+def expect_error(call, fragment):
+    try:
+        call()
+    except RuntimeError as e:
+        assert fragment in str(e), e
+        return
+    raise AssertionError(f"expected an error containing: {fragment}")
+
+
+@test
+def repo_folder_and_model_list():
+    wm.tt_repo_root = os.path.join(TEMP, "assets")  # pointing one level too deep must still resolve
+    assert addon.repo_root(bpy.context) == TEMP
+    units = [u.name for u in wm.tt_units]
+    assert "vikings / warrior" in units and "vikings / warrior_axe_held" not in units
+    wm.tt_units_only = False
+    everything = len(wm.tt_units)
+    wm.tt_units_only = True
+    assert everything > len(units)
+    return f"{len(units)} units, {everything} models"
+
+
+@test
+def load_unit_with_default_attachment():
+    a = load("vikings", "warrior")
+    assert items() == {"weapon": [("warrior_axe_held", True)]}, items()
+    assert a.animation_data.action.name.endswith("idle")
+    return f"{len(a.data.bones)} bones, {len(addon.armature_actions(a))} clips, axe on by default"
+
+
+@test
+def loading_another_unit_replaces_the_first_but_keeps_user_objects():
+    keep = fixture_mesh("my_own_cube", None, kind="cube")
+    load("natives", "warrior")
+    names = [o.name for o in bpy.data.objects]
+    assert "my_own_cube" in names and not any(n.startswith("warrior") for n in names), names
+    bpy.data.objects.remove(keep)
+
+
+@test
+def clip_buttons_switch_the_action_and_fit_the_timeline():
+    a = load("vikings", "warrior")
+    actions = sorted(addon.armature_actions(a), key=lambda x: x.name)
+    labels = addon.short_labels([x.name for x in actions])
+    assert "run" in labels and "idle" in labels, labels
+    assert not any("." in label for label in labels), f"clips from an earlier load were left behind: {labels}"
+    run = actions[labels.index("run")]
+    assert bpy.ops.object.tt_set_clip(clip=run.name) == {"FINISHED"}
+    assert a.animation_data.action == run
+    assert bpy.context.scene.frame_end == int(round(run.frame_range[1]))
+    return f"labels {labels}"
+
+
+@test
+def tier_buttons_swap_the_texture_on_the_unit_and_its_attachments():
+    a = load("vikings", "warrior")
+    assert addon.short_labels(addon.unit_tiers(a)) == ["rock", "iron", "rubber"], addon.unit_tiers(a)
+    assert bpy.ops.object.tt_set_tier(index=1) == {"FINISHED"}
+    shown = {o.name: o.data.materials[0].name for o in addon.unit_meshes(a)}
+    assert set(shown.values()) == {"tt_viking_warrior_iron"}, shown
+    return str(shown)
+
+
+@test
+def team_color_preview_blends_through_the_decal():
+    load("vikings", "warrior")
+    material = bpy.data.materials["tt_viking_warrior_rock"]
+    nodes = material.node_tree.nodes
+    assert addon.TEAM_MIX in nodes and addon.TEAM_DECAL in nodes, "team nodes missing although the decal exists"
+    base_color = nodes["Principled BSDF"].inputs["Base Color"]
+    assert base_color.links[0].from_node.type == "TEX_IMAGE", "preview must start switched off"
+    wm.tt_team_color = (0.0, 0.0, 1.0)
+    wm.tt_team_preview = True
+    assert base_color.links[0].from_node.name == addon.TEAM_MIX
+    assert tuple(round(c, 3) for c in nodes[addon.TEAM_COLOR].outputs[0].default_value[:3]) == (0.0, 0.0, 1.0)
+    mix = nodes[addon.TEAM_MIX]
+    assert mix.inputs[addon.MIX_A].links[0].from_node.type == "TEX_IMAGE"
+    assert mix.inputs[addon.MIX_B].links[0].from_node.name == addon.TEAM_COLOR
+    assert mix.inputs[addon.MIX_FACTOR].links[0].from_node.name == addon.TEAM_DECAL
+    wm.tt_team_preview = False
+    assert base_color.links[0].from_node.type == "TEX_IMAGE"
+
+
+@test
+def new_hat_exports_with_its_texture_and_registers():
+    load("natives", "warrior")
+    put_on_head(fixture_mesh("pumpkin", fixture_image("pumpkin_tex")))
+    assert bpy.ops.object.tt_preflight() == {"FINISHED"}
+    levels = [c.level for c in wm.tt_checks]
+    assert "ERROR" not in levels and "INFO" in levels, [(c.level, c.name) for c in wm.tt_checks]
+    assert bpy.ops.export_mesh.tt_to_repo() == {"FINISHED"}
+    mesh = ET.parse(os.path.join(GEOMETRY, "natives", "warrior", "pumpkin.xml")).getroot()
+    assert mesh.get("texture") == "pumpkin_tex"
+    assert {s.get("bone") for s in mesh.iter("skin")} == {"Head"}
+    assert os.path.getsize(os.path.join(MODELS, "pumpkin_tex.png")) > 0
+    assert bpy.data.images["pumpkin_tex"].filepath_raw == "", "the image must not be left pointing into the repo"
+    assert bpy.ops.object.tt_add_to_registry() == {"FINISHED"}
+    e = entry("natives", "warrior_pumpkin")
+    assert e["slot"] == "hat" and e["base"] == "warrior" and e["models"] == ["natives/warrior/pumpkin.xml"], e
+    text = open(registry_path, encoding="utf-8").read()
+    assert '<texture name="pumpkin_tex"/>' in text, "no decal file, so no team attribute"
+    assert addon.append_registry_entries(registry_path, "natives", addon.registry_entries(bpy.context, arm(), "warrior")) == 0
+
+
+@test
+def repainting_updates_the_png_in_the_repo():
+    png = os.path.join(MODELS, "pumpkin_tex.png")
+    before = open(png, "rb").read()
+    image = bpy.data.images["pumpkin_tex"]
+    image.pixels = [0.1, 0.8, 0.1, 1.0] * (64 * 64)
+    image.update()
+    bpy.context.view_layer.objects.active = arm()
+    assert bpy.ops.export_mesh.tt_to_repo() == {"FINISHED"}
+    assert open(png, "rb").read() != before
+
+
+@test
+def two_hats_share_a_slot_and_show_one_at_a_time():
+    put_on_head(fixture_mesh("witch", fixture_image("witch_tex")))
+    assert bpy.ops.export_mesh.tt_to_repo() == {"FINISHED"}
+    assert bpy.ops.object.tt_add_to_registry() == {"FINISHED"}
+    load("natives", "warrior")
+    assert items() == {"hat": [("warrior_pumpkin", False), ("warrior_witch", False)]}, items()
+    by_sprite = {o["tt_sprite"]: o for o in addon.unit_items(arm())["hat"]}
+    assert by_sprite["warrior_pumpkin"].parent_bone == "Head"
+    bpy.ops.object.tt_show_item(item=by_sprite["warrior_pumpkin"].name)
+    bpy.ops.object.tt_show_item(item=by_sprite["warrior_witch"].name)
+    assert items() == {"hat": [("warrior_pumpkin", False), ("warrior_witch", True)]}, items()
+    bpy.ops.object.tt_show_item(item=by_sprite["warrior_witch"].name)
+    assert items() == {"hat": [("warrior_pumpkin", False), ("warrior_witch", False)]}, items()
+
+
+@test
+def checks_catch_what_breaks_in_game_and_block_the_export():
+    load("natives", "warrior")
+    bad = fixture_mesh("my hat", None)
+    while bad.data.uv_layers:
+        bad.data.uv_layers.remove(bad.data.uv_layers[0])
+    bad.scale = (-1.0, 1.0, 1.0)
+    colors = bad.data.color_attributes.new(name="Col", type="FLOAT_COLOR", domain="CORNER")
+    for c in colors.data:
+        c.color = (0.5, 0.5, 0.5, 1.0)
+    bpy.context.view_layer.update()
+    put_on_head(bad)
+    bpy.context.view_layer.update()
+    expect_error(bpy.ops.object.tt_preflight, "problem(s) to fix")
+    text = " / ".join(c.name for c in wm.tt_checks)
+    for fragment in ("letters, digits and underscores", "no UV map", "no Image Texture", "negative scale", "tint"):
+        assert fragment in text, f"missing '{fragment}' in: {text}"
+    expect_error(bpy.ops.export_mesh.tt_to_repo, "Not exported")
+    assert not os.path.exists(os.path.join(GEOMETRY, "natives", "warrior", "my hat.xml"))
+    odd = fixture_mesh("odd", fixture_image("odd_tex", 100))
+    found = [text for _, text in addon.check_mesh(odd, True, 0)]
+    assert any("square power of two" in t for t in found), found
+    bpy.data.objects.remove(bad)
+    bpy.data.objects.remove(odd)
+    return text
+
+
+@test
+def remove_from_registry_keeps_files_and_protects_bases():
+    assert bpy.ops.object.tt_remove_from_registry(group="natives", sprite="warrior_witch") == {"FINISHED"}
+    assert entry("natives", "warrior_witch") is None and entry("natives", "warrior_pumpkin") is not None
+    assert os.path.isfile(os.path.join(GEOMETRY, "natives", "warrior", "witch.xml")), "files must stay on disk"
+    expect_error(lambda: bpy.ops.object.tt_remove_from_registry(group="natives", sprite="warrior"), "is the base of")
+    expect_error(lambda: bpy.ops.object.tt_remove_from_registry(group="natives", sprite="nope"), "No sprite named")
+
+
+@test
+def register_a_building_with_all_three_stages():
+    addon.clear_browser_objects()
+    hi, lo = fixture_image("test_hut_hi"), fixture_image("test_hut_lo", 32)
+    built = fixture_mesh("hut", hi, 0, "cube")
+    far = fixture_mesh("hut_far", lo, 0, "cube")
+    half = fixture_mesh("hut_half", hi, 3, "cube")
+    site = fixture_mesh("hut_site", hi, 6, "cube")
+    select_only(built)
+    assert bpy.ops.object.tt_register_model(sprite_name="test_hut", group="vikings", low_detail=far.name,
+                                            half_built=half.name, start=site.name) == {"FINISHED"}
+    assert entry("vikings", "test_hut")["models"] == ["vikings/test_hut/test_hut.xml", "vikings/test_hut/test_hut_lo.xml"]
+    assert entry("vikings", "test_hut_halfbuilt")["models"] == ["vikings/test_hut/test_hut_halfbuilt.xml"]
+    assert entry("vikings", "test_hut_start")["models"] == ["vikings/test_hut/test_hut_start.xml"]
+    assert all(os.path.isfile(os.path.join(MODELS, t + ".png")) for t in ("test_hut_hi", "test_hut_lo"))
+    select_only(built)
+    expect_error(lambda: bpy.ops.object.tt_register_model(sprite_name="test_hut", group="vikings"), "already has")
+    expect_error(lambda: bpy.ops.object.tt_register_model(sprite_name="bad name", group="vikings"), "letters")
+    wm.tt_units_only = False
+    assert "vikings / test_hut_start" in [u.name for u in wm.tt_units]
+    wm.tt_units_only = True
+    assert bpy.ops.wm.tt_load_unit(group="vikings", sprite="test_hut") == {"FINISHED"}
+    for o in (built, far, half, site):
+        bpy.data.objects.remove(o)
+
+
+@test
+def register_a_unit_on_an_existing_rig():
+    load("natives", "warrior")
+    body = next(o for o in addon.unit_meshes(arm()) if not o.get("tt_slot"))
+    variant = body.copy()
+    variant.data = body.data.copy()
+    variant.name = "variant"
+    del variant[addon.BROWSER_TAG]
+    bpy.context.collection.objects.link(variant)
+    select_only(variant)
+    assert bpy.ops.object.tt_register_model(sprite_name="warrior_variant") == {"FINISHED"}
+    e = entry("natives", "warrior_variant")
+    assert e["base"] == "warrior" and not e["skeleton"] and not e["slot"], e
+    assert "natives / warrior_variant" in [u.name for u in wm.tt_units], "a unit on a borrowed rig is still a unit"
+    a = load("natives", "warrior_variant")
+    assert len(a.data.bones) == 30 and len(addon.armature_actions(a)) > 0
+    bpy.data.objects.remove(variant)
+
+
+@test
+def register_a_unit_with_its_own_rig():
+    addon.clear_browser_objects()
+    src = os.path.join(GEOMETRY, "vikings", "peon")
+    mesh = addon.import_mesh_file(bpy.context, os.path.join(src, "peon_mesh.xml"), False, False, lambda k, m: None)
+    mesh.name = "goblin"
+    mesh["tt_texture"] = "native_warrior_rock"
+    parents, rest = addon.read_skeleton(os.path.join(src, "peon_skeleton.xml"))
+    rig = addon.build_armature(bpy.context, "goblin", parents, rest)  # no tt_skeleton: a rig the registry never saw
+    addon.bind_meshes(rig, [mesh])
+    for clip in ("run", "attack"):
+        addon.apply_clip(bpy.context, rig, "goblin_" + clip, addon.read_animation(os.path.join(src, f"peon_{clip}.xml")))
+    select_only(mesh)
+    assert bpy.ops.object.tt_register_model(sprite_name="goblin", group="misc") == {"FINISHED"}
+    e = entry("misc", "goblin")
+    assert e["skeleton"] == "misc/goblin/goblin_skeleton.xml", e
+    assert sorted(e["clips"]) == ["misc/goblin/goblin_attack.xml", "misc/goblin/goblin_run.xml"], e
+    text = open(registry_path, encoding="utf-8").read()
+    assert '<animation name="run" wpc="1" type="loop">' in text and '<animation name="attack" wpc="1" type="plain">' in text
+    a = load("misc", "goblin")
+    assert len(a.data.bones) == 28
+
+
+@test
+def geometry_xml_is_only_ever_appended_to():
+    text = open(registry_path, "rb").read().decode("utf-8")
+    assert text.startswith(PRISTINE[:PRISTINE.index("<geometry>")]), "DOCTYPE was touched"
+    assert ("\r\n" in text) == ("\r\n" in PRISTINE), "line endings changed"
+    ET.fromstring(text.encode("utf-8"))
+    for line in PRISTINE.splitlines():
+        assert line in text, f"an original line went missing: {line[:60]}"
+
+
+print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
+for name, status, detail in results:
+    print(f"{status}  {name}" + (f": {detail}" if detail else ""))
+failed = sum(1 for r in results if r[1] == "FAIL")
+print(f"{len(results) - failed} passed, {failed} failed")
+shutil.rmtree(TEMP, ignore_errors=True)
+sys.exit(1 if failed else 0)

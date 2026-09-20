@@ -25,6 +25,7 @@ and also check it on export.
 """
 
 import os
+import re
 import shutil
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import quoteattr
@@ -32,13 +33,13 @@ from xml.sax.saxutils import quoteattr
 import bpy
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from bpy.props import (StringProperty, BoolProperty, CollectionProperty, EnumProperty, PointerProperty, FloatProperty,
-                       IntProperty)
+                       IntProperty, FloatVectorProperty)
 from mathutils import Matrix, Vector
 
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 9, 1),
+    "version": (1, 10, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -195,7 +196,37 @@ def get_atlas_material(texture, image_path):
         mat.blend_method = "CLIP"
     except AttributeError:
         pass
+    add_team_nodes(mat, tex_node, image_path)
     return mat
+
+
+TEAM_MIX, TEAM_COLOR, TEAM_DECAL = "TT Team Mix", "TT Team Color", "TT Team Decal"
+MIX_FACTOR, MIX_A, MIX_B, MIX_RESULT = 0, 6, 7, 2  # ShaderNodeMix sockets for the RGBA data type
+
+
+def add_team_nodes(mat, tex_node, image_path):
+    """The game blends base toward the player's color by the decal: mix(base, team, decal). Left unlinked
+    until the preview is switched on."""
+    models_dir, file_name = os.path.split(image_path)
+    decal_path = os.path.join(os.path.dirname(models_dir), "teamdecals", os.path.splitext(file_name)[0] + "_team.png")
+    if not os.path.isfile(decal_path):
+        return
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    decal = nodes.new("ShaderNodeTexImage")
+    decal.name = TEAM_DECAL
+    decal.image = bpy.data.images.load(decal_path, check_existing=True)
+    decal.image.colorspace_settings.name = "Non-Color"
+    decal.location = (-350, 0)
+    color = nodes.new("ShaderNodeRGB")
+    color.name = TEAM_COLOR
+    color.location = (-350, -300)
+    mix = nodes.new("ShaderNodeMix")
+    mix.name = TEAM_MIX
+    mix.data_type = "RGBA"
+    mix.location = (-100, 150)
+    links.new(mix.inputs[MIX_FACTOR], decal.outputs["Color"])
+    links.new(mix.inputs[MIX_A], tex_node.outputs["Color"])
+    links.new(mix.inputs[MIX_B], color.outputs["Color"])
 
 
 class MeshRecord:
@@ -1213,15 +1244,28 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
         for game_slot, items in sorted(unit_items(arm).items()):
             box = layout.box()
             box.label(text=f"In the registry: {game_slot}")
+            group_name = find_base_sprite(arm.get("tt_skeleton", ""))[0] or ""
             for obj in sorted(items, key=lambda o: o.name):
-                box.operator(ShowItem.bl_idname, text=obj["tt_sprite"], depress=not obj.hide_get(),
+                row = box.row(align=True)
+                row.operator(ShowItem.bl_idname, text=obj["tt_sprite"], depress=not obj.hide_get(),
                              icon="HIDE_ON" if obj.hide_get() else "HIDE_OFF").item = obj.name
+                remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
+                remove.group, remove.sprite = group_name, obj["tt_sprite"]
         layout.label(text="New items by point:")
         for slot in arm.tt_attachments:
             row = layout.row(align=True)
             row.label(text=POINT_LABELS.get(slot.point, slot.point))
             row.prop(slot, "obj", text="")
             row.prop(slot, "visible", text="", icon="HIDE_OFF" if slot.visible else "HIDE_ON")
+        col = layout.column(align=True)
+        col.operator(Preflight.bl_idname, icon="CHECKMARK")
+        wm = context.window_manager
+        if wm.tt_checked:
+            box = layout.box()
+            if not wm.tt_checks:
+                box.label(text="Nothing to fix", icon="CHECKMARK")
+            for check in wm.tt_checks:
+                box.label(text=check.name, icon=CHECK_ICONS.get(check.level, "INFO"))
         col = layout.column(align=True)
         col.operator(SetupAttachments.bl_idname, text="Refresh Points")
         col.operator(ExportToRepo.bl_idname)
@@ -1318,7 +1362,8 @@ def clear_browser_objects():
         bpy.data.objects.remove(obj, do_unlink=True)
         if data is not None and data.users == 0:
             (bpy.data.meshes if isinstance(data, bpy.types.Mesh) else bpy.data.armatures).remove(data)
-    for action in [a for a in bpy.data.actions if a.get(BROWSER_TAG) and a.users == 0]:
+    # Clips keep a fake user so they survive saving; that is the only user left once the browsed rig is gone.
+    for action in [a for a in bpy.data.actions if a.get(BROWSER_TAG) and a.users <= int(a.use_fake_user)]:
         bpy.data.actions.remove(action)
 
 
@@ -1393,6 +1438,7 @@ def load_unit(context, group, name, report):
     active = arm if arm is not None else body
     context.view_layer.objects.active = active
     active.select_set(True)
+    apply_team_preview(context)
     report({"INFO"}, f"{group} / {name}: {len(rig['clips'])} clip(s), {items} registry attachment(s)")
     return active
 
@@ -1504,6 +1550,10 @@ class ExportToRepo(bpy.types.Operator):
         if not objs:
             self.report({"ERROR"}, "Nothing visible to export")
             return {"CANCELLED"}
+        errors = store_findings(context, preflight(context, arm))
+        if errors:
+            self.report({"ERROR"}, f"Not exported: {errors} problem(s) listed under Check Before Export")
+            return {"CANCELLED"}
         previous = arm.data.pose_position
         arm.data.pose_position = "REST"
         context.view_layer.update()
@@ -1568,6 +1618,292 @@ class AddToRegistry(bpy.types.Operator):
         return {"FINISHED"}
 
 
+def apply_team_preview(context):
+    """Route every atlas material through its team mix, or straight from the texture, per the preview toggle."""
+    wm = context.window_manager
+    for mat in bpy.data.materials:
+        nodes = mat.node_tree.nodes if mat.use_nodes and mat.node_tree is not None else None
+        if nodes is None or TEAM_MIX not in nodes:
+            continue
+        nodes[TEAM_COLOR].outputs[0].default_value = (*wm.tt_team_color, 1.0)
+        bsdf = nodes.get("Principled BSDF")
+        base = next((n for n in nodes if n.type == "TEX_IMAGE" and n.name != TEAM_DECAL), None)
+        if bsdf is None or base is None:
+            continue
+        source = nodes[TEAM_MIX].outputs[MIX_RESULT] if wm.tt_team_preview else base.outputs["Color"]
+        mat.node_tree.links.new(bsdf.inputs["Base Color"], source)
+
+
+def team_preview_update(self, context):
+    apply_team_preview(context)
+
+
+def short_labels(names):
+    """Names with their shared prefix removed: viking_warrior_rock, viking_warrior_iron -> rock, iron."""
+    if len(names) < 2:
+        return list(names)
+    prefix = os.path.commonprefix(list(names))
+    prefix = prefix[:prefix.rfind("_") + 1]
+    return [n[len(prefix):] or n for n in names]
+
+
+def unit_meshes(arm):
+    return [o for o in bpy.data.objects if o.type == "MESH" and o.parent == arm and o.get("tt_texture")]
+
+
+def unit_tiers(arm):
+    """The longest comma-separated atlas list among the unit's meshes: one entry per weapon tier."""
+    lists = [[t.strip() for t in o["tt_texture"].split(",") if t.strip()] for o in unit_meshes(arm)]
+    return max(lists, key=len, default=[])
+
+
+class SetClip(bpy.types.Operator):
+    """Show this clip on the unit and fit the timeline to it"""
+    bl_idname = "object.tt_set_clip"
+    bl_label = "Show Clip"
+    clip: StringProperty()
+
+    def execute(self, context):
+        arm = active_armature(context)
+        action = bpy.data.actions.get(self.clip)
+        if arm is None or action is None:
+            return {"CANCELLED"}
+        assign_action(arm, action)
+        context.scene.frame_start = 1
+        context.scene.frame_end = max(1, int(round(action.frame_range[1])))
+        context.scene.frame_set(1)
+        return {"FINISHED"}
+
+
+class SetTier(bpy.types.Operator):
+    """Show the unit, and every attachment that has one texture per tier, in this tier's texture"""
+    bl_idname = "object.tt_set_tier"
+    bl_label = "Show Tier"
+    bl_options = {"REGISTER", "UNDO"}
+    index: IntProperty()
+
+    def execute(self, context):
+        arm = active_armature(context)
+        root = repo_root(context)
+        if arm is None or not root:
+            return {"CANCELLED"}
+        for obj in unit_meshes(arm):
+            names = [t.strip() for t in obj["tt_texture"].split(",") if t.strip()]
+            if self.index >= len(names):
+                continue
+            path = os.path.join(root, "assets", "textures", "models", names[self.index] + ".png")
+            if not os.path.isfile(path):
+                self.report({"WARNING"}, f"{names[self.index]}.png is not in assets/textures/models")
+                continue
+            obj.data.materials.clear()
+            obj.data.materials.append(get_atlas_material(names[self.index], path))
+        arm["tt_tier"] = self.index
+        apply_team_preview(context)
+        return {"FINISHED"}
+
+
+class MaterialPreview(bpy.types.Operator):
+    """Team color only shows in Material Preview shading; the first switch can take a minute to compile"""
+    bl_idname = "view3d.tt_material_preview"
+    bl_label = "Switch To Material Preview"
+
+    def execute(self, context):
+        context.space_data.shading.type = "MATERIAL"
+        return {"FINISHED"}
+
+
+CHECK_ICONS = {"ERROR": "CANCEL", "WARNING": "ERROR", "INFO": "INFO"}
+
+
+def mesh_texture_image(obj):
+    for slot in obj.material_slots:
+        nodes = slot.material.node_tree.nodes if slot.material is not None and slot.material.use_nodes else []
+        for node in nodes:
+            if node.type == "TEX_IMAGE" and node.image is not None and node.name != TEAM_DECAL:
+                return node.image
+    return None
+
+
+def check_mesh(obj, is_new, body_triangles):
+    """(level, message) findings for one mesh, covering what goes wrong in game rather than in Blender."""
+    found = []
+    me = obj.data
+    if len(me.polygons) == 0:
+        return [("ERROR", "has no faces")]
+    if is_new and not re.fullmatch(r"[A-Za-z0-9_]+", obj.name):
+        found.append(("ERROR", "name becomes a file and sprite name: use only letters, digits and underscores"))
+    uv = me.uv_layers.active
+    if uv is None:
+        found.append(("ERROR", "has no UV map, so the texture cannot be placed"))
+    else:
+        coords = [0.0] * (2 * len(me.loops))
+        uv.data.foreach_get("uv", coords)
+        if max(coords) - min(coords) < 1e-6:
+            found.append(("ERROR", "UV map is collapsed to one point: unwrap it"))
+        elif min(coords) < -1e-4 or max(coords) > 1.0001:
+            found.append(("WARNING", "UVs leave the 0 to 1 square; the game does not tile textures"))
+    image = mesh_texture_image(obj)
+    if image is None and not obj.get("tt_texture"):
+        found.append(("ERROR", "material has no Image Texture, so there is no texture to name in game"))
+    elif image is not None and image.size[0] > 0:
+        w, h = image.size
+        if w != h or w & (w - 1):
+            found.append(("WARNING", f"texture {image.name} is {w}x{h}: use a square power of two such as 256 or 512"))
+        if not re.fullmatch(r"[A-Za-z0-9_]+", os.path.splitext(image.name)[0]):
+            found.append(("ERROR", f"image name '{image.name}' becomes the texture name: letters, digits, underscores"))
+    if obj.matrix_world.determinant() < 0:
+        found.append(("WARNING", "negative scale flips the faces inside out in game: apply the scale"))
+    colors = me.color_attributes.active_color if len(me.color_attributes) else None
+    if colors is not None and colors.domain == "CORNER" and colors.data_type in ("FLOAT_COLOR", "BYTE_COLOR"):
+        values = [0.0] * (4 * len(colors.data))
+        colors.data.foreach_get("color", values)
+        if min(values) < 0.999:
+            found.append(("WARNING", "vertex colors are not white and will tint the texture in game"))
+    if any(m.type == "ARMATURE" for m in obj.modifiers):
+        loose = sum(1 for v in me.vertices if not v.groups)
+        if loose:
+            found.append(("WARNING", f"{loose} vertices have no bone weight and will stay at the unit's origin"))
+    triangles = sum(len(p.vertices) - 2 for p in me.polygons)
+    if body_triangles and is_new and triangles > body_triangles:
+        found.append(("WARNING", f"{triangles} triangles, more than the unit itself ({body_triangles})"))
+    return found
+
+
+def preflight(context, arm):
+    """Findings for everything Export Visible To Repo would write."""
+    body = next((o for o in unit_meshes(arm) if not o.get("tt_slot")), None)
+    body_triangles = sum(len(p.vertices) - 2 for p in body.data.polygons) if body is not None else 0
+    new = visible_attachments(arm)
+    existing = [o for items in unit_items(arm).values() for o in items if not o.hide_get()]
+    findings = []
+    for obj in new + existing:
+        findings += [(level, f"{obj.name}: {text}") for level, text in check_mesh(obj, obj in new, body_triangles)]
+    root = repo_root(context)
+    group, base = find_base_sprite(arm.get("tt_skeleton", ""))
+    if root and base is not None:
+        names = {s["name"] for s in read_registry(root) if s["group"] == group}
+        for obj in new:
+            if f"{base}_{obj.name}" not in names:
+                findings.append(("INFO", f"{obj.name}: not in the registry yet, press Add To Registry after exporting"))
+    return findings
+
+
+def store_findings(context, findings):
+    checks = context.window_manager.tt_checks
+    checks.clear()
+    for level, text in findings:
+        item = checks.add()
+        item.level = level
+        item.name = text
+    context.window_manager.tt_checked = True
+    return sum(1 for level, _ in findings if level == "ERROR")
+
+
+class TTCheck(bpy.types.PropertyGroup):
+    level: StringProperty()
+
+
+class Preflight(bpy.types.Operator):
+    """Check the visible attachments for what breaks in game: UVs, texture, naming, flipped faces, tint, weights"""
+    bl_idname = "object.tt_preflight"
+    bl_label = "Check Before Export"
+
+    @classmethod
+    def poll(cls, context):
+        return active_armature(context) is not None
+
+    def execute(self, context):
+        findings = preflight(context, active_armature(context))
+        errors = store_findings(context, findings)
+        self.report({"ERROR"} if errors else {"INFO"},
+                    f"{errors} problem(s) to fix" if errors else f"Ready to export, {len(findings)} note(s)")
+        return {"FINISHED"}
+
+
+def remove_registry_entry(registry_path, group, name):
+    """Cut one sprite entry out of a group. The mesh files stay on disk."""
+    with open(registry_path, "rb") as f:
+        text = f.read().decode("utf-8")
+    start = text.find(f'<group name="{group}">')
+    end = text.index("</group>", start) if start >= 0 else -1
+    match = re.search(r'[ \t]*<sprite name="%s"[ >].*?</sprite>\r?\n' % re.escape(name), text[start:end], re.S) \
+        if start >= 0 else None
+    if match is None:
+        return False
+    with open(registry_path, "wb") as f:
+        f.write((text[:start + match.start()] + text[start + match.end():]).encode("utf-8"))
+    return True
+
+
+class RemoveFromRegistry(bpy.types.Operator):
+    """Take this sprite out of geometry.xml. Its files stay on disk. Refused while another sprite is based on it"""
+    bl_idname = "object.tt_remove_from_registry"
+    bl_label = "Remove From Registry"
+    bl_options = {"REGISTER"}
+    group: StringProperty(options={"SKIP_SAVE"})
+    sprite: StringProperty(options={"SKIP_SAVE"})
+
+    @classmethod
+    def poll(cls, context):
+        return bool(repo_root(context))
+
+    def invoke(self, context, event):
+        wm = context.window_manager
+        if not self.sprite and 0 <= wm.tt_unit_index < len(wm.tt_units):
+            self.group, self.sprite = wm.tt_units[wm.tt_unit_index].group, wm.tt_units[wm.tt_unit_index].sprite
+        return wm.invoke_confirm(self, event)
+
+    def execute(self, context):
+        root = repo_root(context)
+        dependents = [s["name"] for s in read_registry(root) if s["group"] == self.group and s["base"] == self.sprite]
+        if dependents:
+            self.report({"ERROR"}, f"{self.sprite} is the base of {', '.join(dependents)}: remove those first")
+            return {"CANCELLED"}
+        if not remove_registry_entry(os.path.join(root, REGISTRY_FILE), self.group, self.sprite):
+            self.report({"ERROR"}, f"No sprite named {self.sprite} in group {self.group}")
+            return {"CANCELLED"}
+        for obj in [o for o in bpy.data.objects if o.get("tt_sprite") == self.sprite and o.get(BROWSER_TAG)]:
+            bpy.data.objects.remove(obj, do_unlink=True)
+        refresh_units(context)
+        self.report({"INFO"}, f"Removed {self.group} / {self.sprite} from the registry; its files are still on disk")
+        return {"FINISHED"}
+
+
+class VIEW3D_PT_tt_preview(bpy.types.Panel):
+    bl_label = "Preview"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Tribal Trouble"
+
+    @classmethod
+    def poll(cls, context):
+        return active_armature(context) is not None
+
+    def draw(self, context):
+        layout = self.layout
+        wm = context.window_manager
+        arm = active_armature(context)
+        actions = sorted(armature_actions(arm), key=lambda a: a.name)
+        current = arm.animation_data.action if arm.animation_data is not None else None
+        if actions:
+            grid = layout.grid_flow(row_major=True, columns=3, even_columns=True, align=True)
+            for action, label in zip(actions, short_labels([a.name for a in actions])):
+                grid.operator(SetClip.bl_idname, text=label, depress=action == current).clip = action.name
+            playing = context.screen.is_animation_playing
+            layout.operator("screen.animation_play", text="Pause" if playing else "Play",
+                            icon="PAUSE" if playing else "PLAY")
+        tiers = unit_tiers(arm)
+        if len(tiers) > 1:
+            row = layout.row(align=True)
+            for index, label in enumerate(short_labels(tiers)):
+                row.operator(SetTier.bl_idname, text=label, depress=arm.get("tt_tier", 0) == index).index = index
+        row = layout.row(align=True)
+        row.prop(wm, "tt_team_preview", toggle=True)
+        row.prop(wm, "tt_team_color", text="")
+        if wm.tt_team_preview and context.space_data.shading.type not in ("MATERIAL", "RENDERED"):
+            layout.operator(MaterialPreview.bl_idname, icon="SHADING_TEXTURE")
+
+
 PLAIN_CLIPS = ("attack", "die", "death", "throw")
 _group_items = []
 
@@ -1613,6 +1949,12 @@ class RegisterModel(bpy.types.Operator):
     sprite_name: StringProperty(name="Name", description="Sprite name in geometry.xml and the new folder's name")
     group: EnumProperty(name="Group", items=registry_group_items)
     low_detail: StringProperty(name="Low Detail", description="Optional mesh object shown at a distance")
+    half_built: StringProperty(name="Half Built", description="Building only: mesh for the half built stage, "
+                                                              "registered as <name>_halfbuilt")
+    half_built_low: StringProperty(name="Half Built Low Detail")
+    start: StringProperty(name="Start", description="Building only: mesh for the construction site, registered "
+                                                    "as <name>_start")
+    start_low: StringProperty(name="Start Low Detail")
 
     @classmethod
     def poll(cls, context):
@@ -1635,32 +1977,53 @@ class RegisterModel(bpy.types.Operator):
             layout.label(text="Unit with its own new rig" if arm is not None else "Static model",
                          icon="ARMATURE_DATA" if arm is not None else "MESH_CUBE")
         layout.prop_search(self, "low_detail", bpy.data, "objects")
+        if arm is None:
+            box = layout.box()
+            box.label(text="Building stages (optional)")
+            for prop in ("half_built", "half_built_low", "start", "start_low"):
+                box.prop_search(self, prop, bpy.data, "objects")
 
     def execute(self, context):
         root = repo_root(context)
         obj = context.active_object
         name = self.sprite_name.strip()
-        if not name or any(c in name for c in ' "<>/\\'):
-            self.report({"ERROR"}, "Give the model a name without spaces, quotes or slashes")
+        if not re.fullmatch(r"[A-Za-z0-9_]+", name):
+            self.report({"ERROR"}, "Give the model a name made of letters, digits and underscores")
             return {"CANCELLED"}
         arm = active_armature(context)
         group, base = find_base_sprite(arm.get("tt_skeleton", "")) if arm is not None else (None, None)
         if base is None:
             group = self.group
-        if any(s["group"] == group and s["name"] == name for s in read_registry(root)):
-            self.report({"ERROR"}, f"{group} already has a sprite named {name}")
+
+        def picked(prop):
+            return bpy.data.objects.get(getattr(self, prop)) if getattr(self, prop) else None
+
+        stages = [("", obj, picked("low_detail"))]
+        if arm is None:
+            stages += [(suffix, picked(hi), picked(lo)) for suffix, hi, lo in
+                       (("_halfbuilt", "half_built", "half_built_low"), ("_start", "start", "start_low"))
+                       if picked(hi) is not None]
+        meshes = [m for _, hi, lo in stages for m in (hi, lo) if m is not None]
+        if any(m.type != "MESH" for m in meshes) or len(set(meshes)) != len(meshes):
+            self.report({"ERROR"}, "Every stage and low detail pick must be a different mesh object")
             return {"CANCELLED"}
-        low = bpy.data.objects.get(self.low_detail) if self.low_detail else None
-        if low is not None and (low.type != "MESH" or low == obj):
-            self.report({"ERROR"}, "Low Detail must be a different mesh object")
+        taken = {s["name"] for s in read_registry(root) if s["group"] == group}
+        clash = [name + suffix for suffix, _, _ in stages if name + suffix in taken]
+        if clash:
+            self.report({"ERROR"}, f"{group} already has a sprite named {', '.join(clash)}")
+            return {"CANCELLED"}
+        findings = [(level, f"{m.name}: {text}") for m in meshes for level, text in check_mesh(m, False, 0)]
+        errors = store_findings(context, findings)
+        if errors:
+            self.report({"ERROR"}, f"Not registered: {errors} problem(s): " +
+                        "; ".join(text for level, text in findings if level == "ERROR"))
             return {"CANCELLED"}
 
         geometry = os.path.join(root, GEOMETRY_DIR)
         folder = os.path.join(geometry, group, name)
         os.makedirs(folder, exist_ok=True)
         relative = lambda path: os.path.relpath(path, geometry).replace(os.sep, "/")
-        lines = [f'        <sprite name="{name}"' + (f' base="{base}"' if base is not None else "") + ">"]
-        missing = []
+        rig_lines, missing, entries = [], [], []
 
         previous = arm.data.pose_position if arm is not None else None
         if arm is not None:
@@ -1670,22 +2033,23 @@ class RegisterModel(bpy.types.Operator):
             if arm is not None and base is None:
                 skeleton_path = os.path.join(folder, name + "_skeleton.xml")
                 write_skeleton_xml(arm, skeleton_path)
-                lines.append(f"            <skeleton>{relative(skeleton_path)}</skeleton>")
+                rig_lines.append(f"            <skeleton>{relative(skeleton_path)}</skeleton>")
             depsgraph = context.evaluated_depsgraph_get()
-            for mesh_obj, suffix in ((obj, ""), (low, "_lo")):
-                if mesh_obj is None:
-                    continue
-                texture = mesh_obj.get("tt_texture", "").split(",")[0].strip() or material_image_name([mesh_obj])
-                if not texture:
-                    self.report({"ERROR"}, f"{mesh_obj.name} has no image texture to name in the registry")
-                    return {"CANCELLED"}
-                if not ensure_texture_in_repo(root, mesh_obj, texture):
-                    missing.append(texture)
-                path = os.path.join(folder, name + suffix + ".xml")
-                write_mesh_xml([mesh_obj], [None], path, texture, False, depsgraph)
-                lines += ['            <model r="90" g="60" b="30">', f"                {relative(path)}",
-                          f'                <texture name="{texture}"{team_attribute(root, texture, False)}/>',
-                          "            </model>"]
+            for suffix, hi, lo in stages:
+                lines = [f'        <sprite name="{name}{suffix}"' + (f' base="{base}"' if base is not None else "") + ">"]
+                lines += rig_lines
+                for mesh_obj, lod in ((hi, ""), (lo, "_lo")):
+                    if mesh_obj is None:
+                        continue
+                    texture = mesh_obj.get("tt_texture", "").split(",")[0].strip() or material_image_name([mesh_obj])
+                    if not ensure_texture_in_repo(root, mesh_obj, texture):
+                        missing.append(texture)
+                    path = os.path.join(folder, name + suffix + lod + ".xml")
+                    write_mesh_xml([mesh_obj], [None], path, texture, False, depsgraph)
+                    lines += ['            <model r="90" g="60" b="30">', f"                {relative(path)}",
+                              f'                <texture name="{texture}"{team_attribute(root, texture, False)}/>',
+                              "            </model>"]
+                entries.append([name + suffix, lines])
         finally:
             if arm is not None:
                 arm.data.pose_position = previous
@@ -1697,15 +2061,16 @@ class RegisterModel(bpy.types.Operator):
                 write_animation_xml(context, arm, action, path)
                 clip = action.name[len(name) + 1:] if action.name.startswith(name + "_") else action.name
                 kind = "plain" if any(word in clip for word in PLAIN_CLIPS) else "loop"
-                lines.append(f'            <animation name="{clip}" wpc="1" type="{kind}">{relative(path)}</animation>')
+                entries[0][1].append(f'            <animation name="{clip}" wpc="1" type="{kind}">{relative(path)}</animation>')
             arm["tt_skeleton"] = os.path.join(folder, name + "_skeleton.xml")
-        lines.append("        </sprite>")
 
-        append_registry_entries(os.path.join(root, REGISTRY_FILE), group, [(name, "\n".join(lines))])
+        append_registry_entries(os.path.join(root, REGISTRY_FILE), group,
+                                [(sprite, "\n".join(lines + ["        </sprite>"])) for sprite, lines in entries])
         refresh_units(context)
         note = f"; add {', '.join(m + '.png' for m in missing)} to assets/textures/models" if missing else ""
+        sprites = ", ".join(sprite for sprite, _ in entries)
         self.report({"WARNING"} if missing else {"INFO"},
-                    f"Registered {group} / {name} as /geometry/{group}/{name}.binsprite{note}")
+                    f"Registered {group} / {sprites} under /geometry/{group}/ as .binsprite{note}")
         return {"FINISHED"}
 
 
@@ -1729,7 +2094,9 @@ class VIEW3D_PT_tt_units(bpy.types.Panel):
         row.prop(wm, "tt_auto_load", toggle=True)
         layout.template_list("TT_UL_units", "", wm, "tt_units", wm, "tt_unit_index", rows=10)
         layout.operator(LoadUnit.bl_idname, icon="IMPORT")
-        layout.operator(RegisterModel.bl_idname, icon="ADD")
+        row = layout.row(align=True)
+        row.operator(RegisterModel.bl_idname, icon="ADD")
+        row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
 
 
 def subset_record(record, face_indices):
@@ -1852,8 +2219,9 @@ def menu_object(self, context):
 
 
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SnapToBone, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
-           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, ShowItem, ExportToRepo, AddToRegistry, RegisterModel,
-           SetupAttachments, ExportAttachments, CopyRegistrySnippet, VIEW3D_PT_tt_units, VIEW3D_PT_tt_attachments)
+           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, ShowItem, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
+           RemoveFromRegistry,
+           SetupAttachments, ExportAttachments, CopyRegistrySnippet, VIEW3D_PT_tt_units, VIEW3D_PT_tt_preview, VIEW3D_PT_tt_attachments)
 
 
 def register():
@@ -1868,6 +2236,12 @@ def register():
                                     description="List only models with a skeleton")
     wm.tt_auto_load = BoolProperty(name="Load On Click", default=True,
                                    description="Load a model as soon as it is picked in the list")
+    wm.tt_checks = CollectionProperty(type=TTCheck)
+    wm.tt_checked = BoolProperty()
+    wm.tt_team_preview = BoolProperty(name="Team Color", default=False, update=team_preview_update,
+                                      description="Blend the player's color in through the team decal, as in game")
+    wm.tt_team_color = FloatVectorProperty(name="Team Color", subtype="COLOR", size=3, min=0.0, max=1.0,
+                                           default=(0.8, 0.1, 0.1), update=team_preview_update)
     bpy.app.handlers.load_post.append(refresh_units_on_load)
     bpy.app.timers.register(refresh_units_on_load, first_interval=0.5)
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
@@ -1881,7 +2255,8 @@ def unregister():
     bpy.types.TOPBAR_MT_file_export.remove(menu_export)
     bpy.app.handlers.load_post.remove(refresh_units_on_load)
     del bpy.types.Object.tt_attachments
-    for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_units_only", "tt_auto_load"):
+    for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_units_only", "tt_auto_load", "tt_checks",
+                 "tt_checked", "tt_team_preview", "tt_team_color"):
         delattr(bpy.types.WindowManager, name)
     for cls in classes:
         bpy.utils.unregister_class(cls)
