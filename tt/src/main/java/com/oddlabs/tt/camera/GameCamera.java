@@ -25,7 +25,7 @@ public class GameCamera extends Camera {
     private static final float SCROLL_START_MAX_SPEED = 60f;
     private static final float ROTATE_PICKING_ANGLE_MAX = (-(Globals.FOV) - 10) * ((float) Math.PI / 180) * .5f;
     private static final float ZOOM_SPEED = 50f;
-    private static final float CINEMATIC_MAX_Z = 300f;
+    public static final float CINEMATIC_MAX_Z = 300f;
     private static final float CINEMATIC_SMOOTHNESS_FACTOR = 4f;
     private static final float ORBIT_SPEED = (float) (Math.PI / 8);
     private static final float AUTO_PAN_SPEED = 25f;
