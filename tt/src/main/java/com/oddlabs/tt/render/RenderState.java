@@ -182,6 +182,11 @@ final class RenderState implements ElementVisitor {
         return spectator_view != null && spectator_view.isSelectedByFollowed(selectable);
     }
 
+    @Nullable
+    Player getFollowedPlayer() {
+        return spectator_view != null ? spectator_view.getFollowedPlayer() : null;
+    }
+
     private <S extends Selectable<?>> void visitSelectable(@NonNull ModelVisitor<S> visitor, @NonNull S selectable,
             float z_offset, float selection_radius, float selection_height) {
         boolean in_view = !picking || (selectable.isEnabled() && (visible_override || pickingInFrustum(selectable,
