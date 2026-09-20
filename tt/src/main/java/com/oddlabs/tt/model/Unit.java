@@ -47,6 +47,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable {
 
@@ -71,6 +72,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     public static final int SPEAR_RELEASE_FRAME = 29;
+    public static final int NO_ATTACHMENT = -1;
 
     private final @Nullable UnitSupplyContainer supply_container;
     private final @NonNull List<SpriteKey> attachments = new ArrayList<>(1); // render-only, never part of the sim
@@ -128,8 +130,8 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         this.path_tracker = new PathTracker(getUnitGrid(), this);
         UnitSupplyContainerFactory factory = unit_template.getUnitSupplyContainerFactory();
         supply_container = factory != null ? (UnitSupplyContainer) factory.createContainer(this) : null;
-        for (String attachment : unit_template.getDefaultAttachments()) {
-            attachments.add(unit_template.getAttachments().get(attachment));
+        for (String slot : unit_template.getDefaultAttachments()) {
+            setAttachment(slot, 0);
         }
 
         if (!imaginary) {
@@ -197,17 +199,28 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     /**
-     * Show or hide one of the template's attachments on this unit. Render-only.
-     *
-     * @return false if the template has no attachment by that name
+     * Position of the item this unit shows in a slot, or {@link #NO_ATTACHMENT}. Render-only.
      */
-    public final boolean toggleAttachment(@NonNull String name) {
-        SpriteKey key = getTemplate().getAttachments().get(name);
-        if (key == null)
-            return false;
-        if (!attachments.remove(key))
-            attachments.add(key);
-        return true;
+    public final int getAttachment(@NonNull String slot) {
+        int index = 0;
+        for (SpriteKey key : getTemplate().getAttachments().getOrDefault(slot, Map.of()).values()) {
+            if (attachments.contains(key))
+                return index;
+            index++;
+        }
+        return NO_ATTACHMENT;
+    }
+
+    /**
+     * Show the item at that position in a slot; any other position leaves the slot empty. Render-only.
+     */
+    public final void setAttachment(@NonNull String slot, int index) {
+        int i = 0;
+        for (SpriteKey key : getTemplate().getAttachments().getOrDefault(slot, Map.of()).values()) {
+            attachments.remove(key);
+            if (i++ == index)
+                attachments.add(key);
+        }
     }
 
     @Override

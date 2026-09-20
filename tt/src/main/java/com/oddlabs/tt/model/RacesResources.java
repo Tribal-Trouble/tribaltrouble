@@ -39,7 +39,15 @@ import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Random;
@@ -48,6 +56,8 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 public final class RacesResources {
+    private static final String ATTACHMENTS_FILE = "/geometry/attachments.txt";
+    private static final int DEFAULT_TEXTURE = 0;
     public static final int QUARTERS_SIZE = 5;
     public static final int ARMORY_SIZE = 5;
     public static final int TOWER_SIZE = 3;
@@ -194,6 +204,47 @@ public final class RacesResources {
                 chimney_z,
                 is_vikings,
                 name);
+    }
+
+    private record AttachmentEntry(@NonNull String group, @NonNull String base, @NonNull String slot,
+                                   boolean default_on,
+                                   @NonNull String name, int textures) {
+    }
+
+    // Lines of "group base slot order name textures" written by the geometry converter; order 0 is default-on.
+    private static @NonNull List<AttachmentEntry> loadAttachments() {
+        try (var reader = new BufferedReader(new InputStreamReader(
+                com.oddlabs.util.Utils.makeURL(ATTACHMENTS_FILE).openStream(), StandardCharsets.UTF_8))) {
+            return reader.lines().map(line -> line.split(" ")).map(f -> new AttachmentEntry(f[0], f[1], f[2],
+                    f[3].equals("0"), f[4], Integer.parseInt(f[5]))).toList();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static @NonNull Map<String, Map<String, SpriteKey>> attachments(@NonNull RenderQueues queues,
+            @NonNull List<AttachmentEntry> entries, @NonNull String group, @NonNull String base, int tex_index) {
+        Map<String, Map<String, SpriteKey>> slots = new LinkedHashMap<>();
+        for (AttachmentEntry entry : entries) {
+            if (!entry.group().equals(group) || !entry.base().equals(base))
+                continue;
+            SpriteFile sprite = new SpriteFile("/geometry/" + group + "/" + entry.name() + ".binsprite",
+                    Globals.NO_MIPMAP_CUTOFF,
+                    true, true, true, false);
+            slots.computeIfAbsent(entry.slot(), _ -> new LinkedHashMap<>()).put(entry.name(), queues.register(sprite,
+                    tex_index < entry.textures() ? tex_index : DEFAULT_TEXTURE));
+        }
+        return slots;
+    }
+
+    private static @NonNull Set<String> defaultAttachments(@NonNull List<AttachmentEntry> entries,
+            @NonNull String group, @NonNull String base) {
+        Set<String> slots = new HashSet<>();
+        for (AttachmentEntry entry : entries) {
+            if (entry.default_on() && entry.group().equals(group) && entry.base().equals(base))
+                slots.add(entry.slot());
+        }
+        return slots;
     }
 
     public RacesResources(@NonNull RenderQueues queues) {
@@ -556,10 +607,8 @@ public final class RacesResources {
         final float shadow_diameter_chieftain = 2.2f;
         ProgressForm.progress(1f / num_progress);
 
+        List<AttachmentEntry> attachments = loadAttachments();
         SpriteFile sprite_list_warrior = new SpriteFile("/geometry/vikings/warrior.binsprite",
-                Globals.NO_MIPMAP_CUTOFF,
-                true, true, true, false);
-        SpriteFile sprite_list_warrior_axe = new SpriteFile("/geometry/vikings/warrior_axe_held.binsprite",
                 Globals.NO_MIPMAP_CUTOFF,
                 true, true, true, false);
         ProgressForm.progress(1f / num_progress);
@@ -659,8 +708,8 @@ public final class RacesResources {
                 1,
                 0f, 0f, 2f,
                 3,
-                Map.of("weapon", queues.register(sprite_list_warrior_axe, Race.UNIT_WARRIOR_ROCK)),
-                Set.of("weapon"));
+                attachments(queues, attachments, "vikings", "warrior", Race.UNIT_WARRIOR_ROCK),
+                defaultAttachments(attachments, "vikings", "warrior"));
         UnitTemplate viking_warrior_iron_template = new UnitTemplate(.4f,
                 1.2f,
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
@@ -679,8 +728,8 @@ public final class RacesResources {
                 1,
                 0f, 0f, 2f,
                 5,
-                Map.of("weapon", queues.register(sprite_list_warrior_axe, Race.UNIT_WARRIOR_IRON)),
-                Set.of("weapon"));
+                attachments(queues, attachments, "vikings", "warrior", Race.UNIT_WARRIOR_IRON),
+                defaultAttachments(attachments, "vikings", "warrior"));
         UnitTemplate viking_warrior_rubber_template = new UnitTemplate(.4f,
                 1.2f,
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
@@ -699,8 +748,8 @@ public final class RacesResources {
                 1,
                 0f, 0f, 2f,
                 10,
-                Map.of("weapon", queues.register(sprite_list_warrior_axe, Race.UNIT_WARRIOR_RUBBER)),
-                Set.of("weapon"));
+                attachments(queues, attachments, "vikings", "warrior", Race.UNIT_WARRIOR_RUBBER),
+                defaultAttachments(attachments, "vikings", "warrior"));
         UnitTemplate native_warrior_rock_template = new UnitTemplate(.4f,
                 1.2f,
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
@@ -718,7 +767,9 @@ public final class RacesResources {
                 i18n("rock_warrior"),
                 1,
                 0f, 0f, 2f,
-                3);
+                3,
+                attachments(queues, attachments, "natives", "warrior", Race.UNIT_WARRIOR_ROCK),
+                defaultAttachments(attachments, "natives", "warrior"));
         UnitTemplate native_warrior_iron_template = new UnitTemplate(.4f,
                 1.2f,
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
@@ -736,7 +787,9 @@ public final class RacesResources {
                 i18n("iron_warrior"),
                 1,
                 0f, 0f, 2f,
-                5);
+                5,
+                attachments(queues, attachments, "natives", "warrior", Race.UNIT_WARRIOR_IRON),
+                defaultAttachments(attachments, "natives", "warrior"));
         UnitTemplate native_warrior_rubber_template = new UnitTemplate(.4f,
                 1.2f,
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
@@ -754,7 +807,9 @@ public final class RacesResources {
                 i18n("chicken_warrior"),
                 1,
                 0f, 0f, 2f,
-                10);
+                10,
+                attachments(queues, attachments, "natives", "warrior", Race.UNIT_WARRIOR_RUBBER),
+                defaultAttachments(attachments, "natives", "warrior"));
         UnitTemplate viking_peon_template = new UnitTemplate(.4f,
                 1.1f,
                 new Abilities(Abilities.BUILD | Abilities.HARVEST | Abilities.ATTACK | Abilities.TARGET),
@@ -772,7 +827,9 @@ public final class RacesResources {
                 i18n("peon"),
                 1,
                 .1f, 0f, 1.75f,
-                1);
+                1,
+                attachments(queues, attachments, "vikings", "peon", DEFAULT_TEXTURE),
+                defaultAttachments(attachments, "vikings", "peon"));
         UnitTemplate native_peon_template = new UnitTemplate(.4f,
                 1.1f,
                 new Abilities(Abilities.BUILD | Abilities.HARVEST | Abilities.ATTACK | Abilities.TARGET),
@@ -790,7 +847,9 @@ public final class RacesResources {
                 i18n("peon"),
                 1,
                 0f, 0f, 1.75f,
-                1);
+                1,
+                attachments(queues, attachments, "natives", "peon", DEFAULT_TEXTURE),
+                defaultAttachments(attachments, "natives", "peon"));
         UnitTemplate viking_chieftain_template = new UnitTemplate(.4f,
                 1.4f,
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.MAGIC),
@@ -808,7 +867,9 @@ public final class RacesResources {
                 i18n("chieftain"),
                 VIKING_CHIEFTAIN_HIT_POINTS,
                 -.07f, .312f, 2.7f,
-                40);
+                40,
+                attachments(queues, attachments, "vikings", "chieftain", DEFAULT_TEXTURE),
+                defaultAttachments(attachments, "vikings", "chieftain"));
         UnitTemplate native_chieftain_template = new UnitTemplate(.4f,
                 1.4f,
                 new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.MAGIC),
@@ -826,7 +887,9 @@ public final class RacesResources {
                 i18n("chieftain"),
                 NATIVE_CHIEFTAIN_HIT_POINTS,
                 .878f, .151f, 2.8f,
-                40);
+                40,
+                attachments(queues, attachments, "natives", "chieftain", DEFAULT_TEXTURE),
+                defaultAttachments(attachments, "natives", "chieftain"));
 
         MagicFactory[] native_magic = new MagicFactory[NUM_MAGIC];
         native_magic[INDEX_MAGIC_POISON] = new PoisonFogFactory(0.9f, 0f, 0.55f, 26f, .5f, 2f, 20f, 10, 5f, 80f / 224f,
