@@ -261,7 +261,7 @@ def checks_catch_what_breaks_in_game_and_block_the_export():
     text = " / ".join(c.name for c in wm.tt_checks)
     for fragment in ("letters, digits and underscores", "no UV map", "no Image Texture", "negative scale", "tint"):
         assert fragment in text, f"missing '{fragment}' in: {text}"
-    expect_error(bpy.ops.export_mesh.tt_to_repo, "Not saved")
+    expect_error(bpy.ops.export_mesh.tt_to_repo, "Not published")
     assert not os.path.exists(os.path.join(GEOMETRY, "natives", "warrior", "my hat.xml"))
     odd = fixture_mesh("odd", fixture_image("odd_tex", 100))
     found = [text for _, text in addon.check_mesh(odd, True, 0)]

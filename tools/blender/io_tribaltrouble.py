@@ -39,7 +39,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 21, 2),
+    "version": (1, 22, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1352,7 +1352,7 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
             row.prop(other, "obj", text="")
         if slot.obj is None and not waiting:
             box.label(text="1. Pick where it goes and your mesh")
-            box.label(text="2. Snap it, nudge it, Save To Repo")
+            box.label(text="2. Snap it, nudge it, Publish")
         row = layout.row(align=True)
         row.scale_y = 1.4
         row.operator(SaveItems.bl_idname, icon="EXPORT")
@@ -1670,7 +1670,7 @@ def export_visible(context, arm, report):
         return False
     errors = store_findings(context, preflight(context, arm))
     if errors:
-        report({"ERROR"}, f"Not saved: {errors} problem(s) listed in the panel")
+        report({"ERROR"}, f"Not published: {errors} problem(s) listed in the panel")
         return False
     previous = arm.data.pose_position
     arm.data.pose_position = "REST"
@@ -1867,7 +1867,7 @@ class PaintItem(bpy.types.Operator):
 
 
 class DonePainting(bpy.types.Operator):
-    """Leave Texture Paint and go back to the unit. The paint is kept; Save To Repo writes it"""
+    """Leave Texture Paint and go back to the unit. The paint is kept; Publish writes it"""
     bl_idname = "object.tt_done_painting"
     bl_label = "Done Painting"
 
@@ -1933,7 +1933,7 @@ class MakeTexture(bpy.types.Operator):
             bsdf.inputs["Roughness"].default_value = 1.0
         nodes.active = tex  # Texture Paint paints the active image node
         self.report({"INFO"}, f"{obj.name} now has the texture {name} ({size}x{size}). Paint it in the Texture "
-                              f"Paint tab; Save To Repo writes it")
+                              f"Paint tab; Publish writes it into the repo")
         return {"FINISHED"}
 
 
@@ -1942,7 +1942,7 @@ class SaveItems(bpy.types.Operator):
     geometry.xml. A new item then becomes one of the unit's buttons above; its file in the repo is the real copy
     from here on"""
     bl_idname = "object.tt_save_items"
-    bl_label = "Save To Repo"
+    bl_label = "Publish"
 
     @classmethod
     def poll(cls, context):
@@ -1977,7 +1977,7 @@ class SaveItems(bpy.types.Operator):
             x.obj = None
             for other in unit_items(arm).get(obj["tt_slot"], []):
                 set_item_visible(other, other == obj)
-        self.report({"INFO"}, f"Saved {len(fresh)} new item(s) on {group} / {base}; the game shows them after the "
+        self.report({"INFO"}, f"Published {len(fresh)} new item(s) on {group} / {base}; the game shows them after the "
                               f"next build")
         return {"FINISHED"}
 
@@ -2265,7 +2265,7 @@ class VIEW3D_PT_tt_preview(bpy.types.Panel):
                             icon="PAUSE" if playing else "PLAY")
         row = layout.row(align=True)
         row.operator(NewClip.bl_idname, icon="ADD")
-        row.operator(SaveClip.bl_idname, text="Save Clip", icon="EXPORT")
+        row.operator(SaveClip.bl_idname, text="Publish Clip", icon="EXPORT")
         row.operator(DeleteClip.bl_idname, text="", icon="TRASH")
         tiers = unit_tiers(arm)
         if len(tiers) > 1:
@@ -2471,7 +2471,7 @@ class SaveClip(bpy.types.Operator):
     """Write the clip that is showing into the unit's folder and list it in geometry.xml. An existing clip is
     replaced in place and the game plays it straight away; a brand new clip also needs code that asks for it"""
     bl_idname = "object.tt_save_clip"
-    bl_label = "Save Clip To Repo"
+    bl_label = "Publish Clip"
     clip_name: StringProperty(name="Name", description="The clip's name in geometry.xml, such as run or dance")
     kind: EnumProperty(name="Plays", items=(("loop", "Looping", "Repeats, like idle and run"),
                                             ("plain", "Once", "Plays once and holds, like attack and die")))
@@ -2534,7 +2534,7 @@ class SaveClip(bpy.types.Operator):
         action.use_fake_user = True
         frames = int(round(end)) - int(round(start)) + 1
         if is_new:
-            self.report({"WARNING"}, f"Saved new clip {name} ({frames} frames) on {', '.join(touched)}. It shows "
+            self.report({"WARNING"}, f"Published new clip {name} ({frames} frames) on {', '.join(touched)}. It shows "
                                      f"in game only once code asks for it")
         else:
             self.report({"INFO"}, f"Replaced clip {name} ({frames} frames); the game plays it after the next build")
@@ -2952,7 +2952,7 @@ class SaveEventTexture(bpy.types.Operator):
     """Write the event texture shown on the building into the repo and list it in geometry.xml for the event.
     Models seen from far away keep their usual texture unless you also paint <their texture>_<event>.png"""
     bl_idname = "object.tt_save_event_texture"
-    bl_label = "Save Event Texture"
+    bl_label = "Publish Event Texture"
     everywhere: BoolProperty(name="Every model that shares this texture", default=True,
                              description="Buildings share one atlas; off means only the model on screen")
 
@@ -2976,7 +2976,7 @@ class SaveEventTexture(bpy.types.Operator):
         ensure_texture_in_repo(root, body, variant)
         only = None if self.everywhere else {(body["tt_group"], body["tt_sprite"])}
         touched = edit_event_textures(root, original, event, only, False)
-        self.report({"INFO"}, f"Saved {variant}.png; {len(touched)} model(s) now use it during {event}")
+        self.report({"INFO"}, f"Published {variant}.png; {len(touched)} model(s) now use it during {event}")
         return {"FINISHED"}
 
 
@@ -3005,7 +3005,7 @@ class SaveProps(bpy.types.Operator):
     geometry.xml. Props already in the registry are written back to their own files. With an event named, new
     props only show during that event"""
     bl_idname = "object.tt_save_props"
-    bl_label = "Save Props To Repo"
+    bl_label = "Publish Props"
 
     @classmethod
     def poll(cls, context):
@@ -3026,7 +3026,7 @@ class SaveProps(bpy.types.Operator):
                      if f"{base}_{o.name}" in taken]
         errors = store_findings(context, findings)
         if errors:
-            self.report({"ERROR"}, f"Not saved: {errors} problem(s): " +
+            self.report({"ERROR"}, f"Not published: {errors} problem(s): " +
                         "; ".join(text for level, text in findings if level == "ERROR"))
             return {"CANCELLED"}
         geometry = os.path.join(root, GEOMETRY_DIR)
@@ -3061,7 +3061,7 @@ class SaveProps(bpy.types.Operator):
         append_registry_entries(os.path.join(root, REGISTRY_FILE), group, entries)
         note = f"; no texture image for {', '.join(sorted(set(missing)))}" if missing else ""
         self.report({"WARNING"} if missing else {"INFO"},
-                    f"Saved {len(fresh)} new and {len(existing)} existing prop(s) on {group} / {base}{note}")
+                    f"Published {len(fresh)} new and {len(existing)} existing prop(s) on {group} / {base}{note}")
         return {"FINISHED"}
 
 
