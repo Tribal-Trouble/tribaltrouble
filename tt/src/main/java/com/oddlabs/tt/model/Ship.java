@@ -880,8 +880,11 @@ public class Ship extends Building implements Movable {
                         dir_y,
                         half_length_meters,
                         half_width_meters)) {
-                    if (grid.getOccupant(x, y, getLayer()) == this) {
-                        grid.freeGrid(x, y, this, getLayer());
+                    if (grid.getOccupant(x, y, UnitGrid.LAND) == this) {
+                        grid.freeGrid(x, y, this, UnitGrid.LAND);
+                    }
+                    if (grid.getOccupant(x, y, UnitGrid.SEA) == this) {
+                        grid.freeGrid(x, y, this, UnitGrid.SEA);
                     }
                 }
             }
