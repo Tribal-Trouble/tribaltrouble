@@ -39,7 +39,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 14, 0),
+    "version": (1, 15, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1225,8 +1225,19 @@ class CopyRegistrySnippet(bpy.types.Operator):
         return {"FINISHED"}
 
 
+SLOT_LABELS = {"hat": "Hats (H cycles them in game)", "weapon": "Weapons", "carried": "Carried (shown while hauling)"}
+_point_items = []
+
+
+def point_items(self, context):
+    arm = active_armature(context)
+    slots = arm.tt_attachments if arm is not None else []
+    _point_items[:] = [(slot.point, POINT_LABELS.get(slot.point, slot.point), "") for slot in slots] or [("HEAD", "Head", "")]
+    return _point_items
+
+
 class VIEW3D_PT_tt_attachments(bpy.types.Panel):
-    bl_label = "Attachments"
+    bl_label = "Items On This Unit"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Tribal Trouble"
@@ -1237,16 +1248,16 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
 
     def draw(self, context):
         arm = active_armature(context)
+        wm = context.window_manager
         layout = self.layout
-        layout.label(text=arm.name, icon="ARMATURE_DATA")
         if not arm.tt_attachments:
             layout.operator(SetupAttachments.bl_idname)
             return
+        layout.label(text="Separate meshes that follow a bone", icon="INFO")
+        group_name = find_base_sprite(arm.get("tt_skeleton", ""))[0] or ""
         for game_slot, items in sorted(unit_items(arm).items()):
             box = layout.box()
-            box.label(text="Carried (the game shows these by what the unit holds)" if game_slot == CARRY_SLOT
-                      else f"In the registry: {game_slot}")
-            group_name = find_base_sprite(arm.get("tt_skeleton", ""))[0] or ""
+            box.label(text=SLOT_LABELS.get(game_slot, game_slot.replace("_", " ").title()))
             for obj in sorted(items, key=lambda o: o.name):
                 row = box.row(align=True)
                 row.operator(ShowItem.bl_idname, text=obj["tt_sprite"], depress=not obj.hide_get(),
@@ -1254,22 +1265,41 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
                 if game_slot != CARRY_SLOT:
                     remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
                     remove.group, remove.sprite = group_name, obj["tt_sprite"]
-        layout.label(text="Add your own new mesh to a point:")
-        for slot in arm.tt_attachments:
-            row = layout.row(align=True)
-            row.label(text=POINT_LABELS.get(slot.point, slot.point))
-            row.prop(slot, "obj", text="")
-            row.prop(slot, "visible", text="", icon="HIDE_OFF" if slot.visible else "HIDE_ON")
-        col = layout.column(align=True)
-        col.operator(Preflight.bl_idname, icon="CHECKMARK")
-        wm = context.window_manager
+
+        box = layout.box()
+        box.label(text="Add a new item", icon="ADD")
+        box.prop(wm, "tt_new_point", text="Goes on")
+        slot = next((x for x in arm.tt_attachments if x.point == wm.tt_new_point), arm.tt_attachments[0])
+        box.prop(slot, "obj", text="Your mesh")
+        waiting = [x for x in arm.tt_attachments if x.obj is not None and x != slot]
+        for other in waiting:
+            row = box.row(align=True)
+            row.label(text=f"{POINT_LABELS.get(other.point, other.point)}: {other.obj.name}", icon="DOT")
+            row.prop(other, "obj", text="")
+        if slot.obj is None and not waiting:
+            box.label(text="Place your mesh on the unit, then pick it here")
+        row = layout.row(align=True)
+        row.scale_y = 1.4
+        row.operator(SaveItems.bl_idname, icon="EXPORT")
+        row.operator(Preflight.bl_idname, text="", icon="CHECKMARK")
         if wm.tt_checked:
             box = layout.box()
             if not wm.tt_checks:
                 box.label(text="Nothing to fix", icon="CHECKMARK")
             for check in wm.tt_checks:
                 box.label(text=check.name, icon=CHECK_ICONS.get(check.level, "INFO"))
-        col = layout.column(align=True)
+
+
+class VIEW3D_PT_tt_attachments_more(bpy.types.Panel):
+    bl_label = "By hand"
+    bl_parent_id = "VIEW3D_PT_tt_attachments"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Tribal Trouble"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    def draw(self, context):
+        col = self.layout.column(align=True)
         col.operator(SetupAttachments.bl_idname, text="Refresh Points")
         col.operator(ExportToRepo.bl_idname)
         col.operator(AddToRegistry.bl_idname)
@@ -1560,6 +1590,42 @@ class ShowItem(bpy.types.Operator):
         return {"FINISHED"}
 
 
+def export_visible(context, arm, report):
+    """Write every visible item on the unit to its file, with its texture. False when nothing was written."""
+    unit_dir = os.path.dirname(arm["tt_skeleton"])
+    objs = visible_attachments(arm) + [o for items in unit_items(arm).values() for o in items
+                                       if not o.hide_get()]
+    if not objs:
+        report({"ERROR"}, "Nothing visible to export")
+        return False
+    errors = store_findings(context, preflight(context, arm))
+    if errors:
+        report({"ERROR"}, f"Not saved: {errors} problem(s) listed in the panel")
+        return False
+    previous = arm.data.pose_position
+    arm.data.pose_position = "REST"
+    context.view_layer.update()
+    try:
+        depsgraph = context.evaluated_depsgraph_get()
+        missing = []
+        for o in objs:
+            path = o.get("tt_source") or os.path.join(unit_dir, o.name + ".xml")
+            texture = o.get("tt_texture") or material_image_name([o])
+            write_mesh_xml([o], [o.get("tt_bone")], path, texture, False, depsgraph)
+            for name in [t.strip() for t in texture.split(",") if t.strip()]:
+                if not ensure_texture_in_repo(repo_root(context), o, name):
+                    missing.append(name)
+    finally:
+        arm.data.pose_position = previous
+        context.view_layer.update()
+    if missing:
+        report({"WARNING"}, f"Exported {len(objs)} file(s) into {unit_dir}, but no texture image for "
+                            f"{', '.join(sorted(set(missing)))}: give the material an Image Texture")
+    else:
+        report({"INFO"}, f"Exported {len(objs)} file(s) with their textures into {unit_dir}")
+    return True
+
+
 class ExportToRepo(bpy.types.Operator):
     """Write every visible attachment into the unit's folder in the repo: registry items back to their own
     file, new items next to the unit as <object name>.xml"""
@@ -1572,39 +1638,7 @@ class ExportToRepo(bpy.types.Operator):
         return arm is not None and bool(arm.get("tt_skeleton")) and bool(repo_root(context))
 
     def execute(self, context):
-        arm = active_armature(context)
-        unit_dir = os.path.dirname(arm["tt_skeleton"])
-        objs = visible_attachments(arm) + [o for items in unit_items(arm).values() for o in items
-                                           if not o.hide_get()]
-        if not objs:
-            self.report({"ERROR"}, "Nothing visible to export")
-            return {"CANCELLED"}
-        errors = store_findings(context, preflight(context, arm))
-        if errors:
-            self.report({"ERROR"}, f"Not exported: {errors} problem(s) listed under Check Before Export")
-            return {"CANCELLED"}
-        previous = arm.data.pose_position
-        arm.data.pose_position = "REST"
-        context.view_layer.update()
-        try:
-            depsgraph = context.evaluated_depsgraph_get()
-            missing = []
-            for o in objs:
-                path = o.get("tt_source") or os.path.join(unit_dir, o.name + ".xml")
-                texture = o.get("tt_texture") or material_image_name([o])
-                write_mesh_xml([o], [o.get("tt_bone")], path, texture, False, depsgraph)
-                for name in [t.strip() for t in texture.split(",") if t.strip()]:
-                    if not ensure_texture_in_repo(repo_root(context), o, name):
-                        missing.append(name)
-        finally:
-            arm.data.pose_position = previous
-            context.view_layer.update()
-        if missing:
-            self.report({"WARNING"}, f"Exported {len(objs)} file(s) into {unit_dir}, but no texture image for "
-                                     f"{', '.join(sorted(set(missing)))}: give the material an Image Texture")
-        else:
-            self.report({"INFO"}, f"Exported {len(objs)} file(s) with their textures into {unit_dir}")
-        return {"FINISHED"}
+        return {"FINISHED"} if export_visible(context, active_armature(context), self.report) else {"CANCELLED"}
 
 
 def append_registry_entries(registry_path, group, entries):
@@ -1644,6 +1678,51 @@ class AddToRegistry(bpy.types.Operator):
         added = append_registry_entries(os.path.join(repo_root(context), REGISTRY_FILE), group,
                                         registry_entries(context, arm, base))
         self.report({"INFO"}, f"Added {added} sprite entr{'y' if added == 1 else 'ies'} to group {group}")
+        return {"FINISHED"}
+
+
+class SaveItems(bpy.types.Operator):
+    """Check, write every visible item into the unit's folder with its texture, and list the new ones in
+    geometry.xml. A new item then becomes one of the unit's buttons above; its file in the repo is the real copy
+    from here on"""
+    bl_idname = "object.tt_save_items"
+    bl_label = "Save To Repo"
+
+    @classmethod
+    def poll(cls, context):
+        arm = active_armature(context)
+        return arm is not None and bool(arm.get("tt_skeleton")) and bool(repo_root(context))
+
+    def execute(self, context):
+        arm = active_armature(context)
+        group, base = find_base_sprite(arm["tt_skeleton"])
+        if base is None:
+            self.report({"ERROR"}, "Could not find this unit's sprite in geometry.xml")
+            return {"CANCELLED"}
+        taken = {x["name"] for x in read_registry(repo_root(context)) if x["group"] == group}
+        fresh = [x for x in arm.tt_attachments if x.obj is not None and x.visible]
+        clash = [f"{base}_{x.obj.name}" for x in fresh if f"{base}_{x.obj.name}" in taken]
+        if clash:
+            self.report({"ERROR"}, f"{group} already has {', '.join(clash)}: rename your mesh")
+            return {"CANCELLED"}
+        entries = registry_entries(context, arm, base)
+        if not export_visible(context, arm, self.report):
+            return {"CANCELLED"}
+        append_registry_entries(os.path.join(repo_root(context), REGISTRY_FILE), group, entries)
+        unit_dir = os.path.dirname(arm["tt_skeleton"])
+        for x in fresh:
+            obj = x.obj
+            obj["tt_slot"] = GAME_SLOTS.get(x.point, x.point.lower())
+            obj["tt_sprite"] = f"{base}_{obj.name}"
+            obj["tt_source"] = os.path.join(unit_dir, obj.name + ".xml")
+            obj["tt_texture"] = obj.get("tt_texture") or material_image_name([obj])
+            obj[BROWSER_TAG] = True
+            x.prev_name = ""  # hand the mesh over to the unit's buttons instead of letting it go
+            x.obj = None
+            for other in unit_items(arm).get(obj["tt_slot"], []):
+                set_item_visible(other, other == obj)
+        self.report({"INFO"}, f"Saved {len(fresh)} new item(s) on {group} / {base}; the game shows them after the "
+                              f"next build")
         return {"FINISHED"}
 
 
@@ -1923,7 +2002,8 @@ class VIEW3D_PT_tt_preview(bpy.types.Panel):
                             icon="PAUSE" if playing else "PLAY")
         row = layout.row(align=True)
         row.operator(NewClip.bl_idname, icon="ADD")
-        row.operator(SaveClip.bl_idname, icon="EXPORT")
+        row.operator(SaveClip.bl_idname, text="Save Clip", icon="EXPORT")
+        row.operator(DeleteClip.bl_idname, text="", icon="TRASH")
         tiers = unit_tiers(arm)
         if len(tiers) > 1:
             row = layout.row(align=True)
@@ -1976,6 +2056,98 @@ def save_clip_line(registry_path, group, skeleton, name, wpc, kind, path):
         with open(registry_path, "wb") as f:
             f.write(("".join(out) + text[cursor:]).encode("utf-8"))
     return touched
+
+
+def remove_clip_line(registry_path, group, skeleton, name):
+    """Take <animation name=...> off every sprite in the group that lists this skeleton. Returns the sprites touched."""
+    with open(registry_path, "rb") as f:
+        text = f.read().decode("utf-8")
+    touched, out, cursor = [], [], 0
+    for sprite_group, sprite, start, end in sprite_blocks(text):
+        block = text[start:end]
+        listed = re.search(r"<skeleton>\s*([^<]+?)\s*</skeleton>", block)
+        if sprite_group != group or listed is None or listed.group(1).replace("\\", "/") != skeleton:
+            continue
+        line = re.search(r'[ \t]*<animation\s+name="%s"[^>]*>[^<]*</animation>[ \t]*\r?\n' % re.escape(name), block)
+        if line is None:
+            continue
+        out.append(text[cursor:start] + block[:line.start()] + block[line.end():])
+        cursor = end
+        touched.append(sprite)
+    if touched:
+        with open(registry_path, "wb") as f:
+            f.write(("".join(out) + text[cursor:]).encode("utf-8"))
+    return touched
+
+
+class DeleteClip(bpy.types.Operator):
+    """Delete this clip. One that was never saved just goes. A saved one also leaves geometry.xml and its file is
+    deleted; only the last clip in the list can go, because the game finds clips by their number"""
+    bl_idname = "object.tt_delete_clip"
+    bl_label = "Delete Clip"
+    bl_options = {"REGISTER"}
+    clip: StringProperty(options={"SKIP_SAVE"})
+
+    @classmethod
+    def poll(cls, context):
+        return active_armature(context) is not None
+
+    def target(self, context):
+        arm = active_armature(context)
+        current = arm.animation_data.action if arm.animation_data is not None else None
+        return bpy.data.actions.get(self.clip) if self.clip else current
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_confirm(self, event) if self.target(context) is not None \
+            else {"CANCELLED"}
+
+    def execute(self, context):
+        arm = active_armature(context)
+        action = self.target(context)
+        if action is None:
+            return {"CANCELLED"}
+        root = repo_root(context)
+        group, base = find_base_sprite(arm.get("tt_skeleton", "")) if root else (None, None)
+        rig = next((s for s in read_registry(root) if s["group"] == group and s["name"] == base), None) \
+            if base is not None else None
+        saved = next((name for name, (_, _, path) in (rig["clip_info"].items() if rig else [])
+                      if action.get("tt_clip") and os.path.basename(path) == action["tt_clip"]), None)
+        label = clip_short_name(arm, action)
+        if saved is not None:
+            body = browsed_unit(arm)
+            if body is not None and body["tt_sprite"] != base:
+                self.report({"ERROR"}, f"{body['tt_sprite']} borrows the {base} rig and its clips: load {base} to "
+                                       f"change them")
+                return {"CANCELLED"}
+            if list(rig["clip_info"])[-1] != saved:
+                self.report({"ERROR"}, f"Only the last clip ({list(rig['clip_info'])[-1]}) can be deleted: the game "
+                                       f"finds clips by their number, and removing {saved} would shift the ones after it")
+                return {"CANCELLED"}
+            relative = rig["clip_info"][saved][2]
+            touched = remove_clip_line(os.path.join(root, REGISTRY_FILE), group, rig["skeleton"].replace("\\", "/"), saved)
+            still_used = any(relative in s["clips"] for s in read_registry(root))
+            path = os.path.join(root, GEOMETRY_DIR, relative)
+            if not still_used and os.path.isfile(path):
+                os.remove(path)
+            self.report({"INFO"}, f"Deleted clip {saved} from {', '.join(touched)} and removed {relative}")
+        else:
+            self.report({"INFO"}, f"Deleted unsaved clip {label}")
+        others = [a for a in armature_actions(arm) if a != action]
+        fallback = next((a for a in others if "idle" in a.name), others[0] if others else None)
+        if arm.animation_data is not None and arm.animation_data.action == action:
+            arm.animation_data.action = None
+            if fallback is not None:
+                assign_action(arm, fallback)
+        bpy.data.actions.remove(action)
+        return {"FINISHED"}
+
+
+def clip_button_menu(self, context):
+    """Right click on a clip button."""
+    op = getattr(context, "button_operator", None)
+    if op is not None and op.bl_rna.identifier == "OBJECT_OT_tt_set_clip":
+        self.layout.separator()
+        self.layout.operator(DeleteClip.bl_idname, icon="TRASH").clip = op.clip
 
 
 class NewClip(bpy.types.Operator):
@@ -2787,8 +2959,9 @@ def menu_object(self, context):
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SnapToBone, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
            TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, ShowItem, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
            RemoveFromRegistry, UpdateAddon, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
-           SaveProps, VIEW3D_PT_tt_building, NewClip, SaveClip,
-           SetupAttachments, ExportAttachments, CopyRegistrySnippet, VIEW3D_PT_tt_units, VIEW3D_PT_tt_preview, VIEW3D_PT_tt_attachments)
+           SaveProps, VIEW3D_PT_tt_building, NewClip, SaveClip, DeleteClip,
+           SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, VIEW3D_PT_tt_units, VIEW3D_PT_tt_preview,
+           VIEW3D_PT_tt_attachments, VIEW3D_PT_tt_attachments_more)
 
 
 def register():
@@ -2809,6 +2982,8 @@ def register():
                                       description="Blend the player's color in through the team decal, as in game")
     wm.tt_team_color = FloatVectorProperty(name="Team Color", subtype="COLOR", size=3, min=0.0, max=1.0,
                                            default=(0.8, 0.1, 0.1), update=team_preview_update)
+    wm.tt_new_point = EnumProperty(name="Goes On", items=point_items,
+                                   description="The part of the unit your new mesh follows")
     wm.tt_event = StringProperty(name="Event", description="Blank means all year. With a name such as halloween, "
                                                            "new props and the texture only show during that event")
     bpy.app.handlers.load_post.append(refresh_units_on_load)
@@ -2816,16 +2991,20 @@ def register():
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_export)
     bpy.types.VIEW3D_MT_object.append(menu_object)
+    if hasattr(bpy.types, "UI_MT_button_context_menu"):
+        bpy.types.UI_MT_button_context_menu.append(clip_button_menu)
 
 
 def unregister():
+    if hasattr(bpy.types, "UI_MT_button_context_menu"):
+        bpy.types.UI_MT_button_context_menu.remove(clip_button_menu)
     bpy.types.VIEW3D_MT_object.remove(menu_object)
     bpy.types.TOPBAR_MT_file_import.remove(menu_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_export)
     bpy.app.handlers.load_post.remove(refresh_units_on_load)
     del bpy.types.Object.tt_attachments
     for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_units_only", "tt_auto_load", "tt_checks",
-                 "tt_checked", "tt_team_preview", "tt_team_color", "tt_event"):
+                 "tt_checked", "tt_team_preview", "tt_team_color", "tt_event", "tt_new_point"):
         delattr(bpy.types.WindowManager, name)
     for cls in classes:
         bpy.utils.unregister_class(cls)

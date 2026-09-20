@@ -261,7 +261,7 @@ def checks_catch_what_breaks_in_game_and_block_the_export():
     text = " / ".join(c.name for c in wm.tt_checks)
     for fragment in ("letters, digits and underscores", "no UV map", "no Image Texture", "negative scale", "tint"):
         assert fragment in text, f"missing '{fragment}' in: {text}"
-    expect_error(bpy.ops.export_mesh.tt_to_repo, "Not exported")
+    expect_error(bpy.ops.export_mesh.tt_to_repo, "Not saved")
     assert not os.path.exists(os.path.join(GEOMETRY, "natives", "warrior", "my hat.xml"))
     odd = fixture_mesh("odd", fixture_image("odd_tex", 100))
     found = [text for _, text in addon.check_mesh(odd, True, 0)]
@@ -401,6 +401,33 @@ def carried_items_load_on_the_peon_and_leave_the_model_list():
 
 
 @test
+def one_press_saves_a_new_item_and_turns_it_into_a_button():
+    a = load("natives", "peon")
+    crown = fixture_mesh("test_crown", fixture_image("test_crown_tex"))
+    put_on_head(crown)
+    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    e = entry("natives", "peon_test_crown")
+    assert e is not None and e["base"] == "peon" and e["slot"] == "hat", e
+    assert os.path.isfile(os.path.join(GEOMETRY, "natives", "peon", "test_crown.xml"))
+    assert os.path.isfile(os.path.join(MODELS, "test_crown_tex.png"))
+    assert all(slot.obj is None for slot in a.tt_attachments), "the row was not handed over"
+    assert crown.parent == a and crown.parent_bone == "peon Head", "the saved item stopped following the head"
+    assert ("peon_test_crown", True) in items()["hat"], items()
+    second = fixture_mesh("test_crown", fixture_image("test_crown_tex_b"))
+    second.name = "test_crown_b"
+    put_on_head(second)
+    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert sorted(items()["hat"]) == [("peon_test_crown", False), ("peon_test_crown_b", True)], items()["hat"]
+    a = load("natives", "peon")
+    assert [name for name, _ in items()["hat"]] == ["peon_test_crown", "peon_test_crown_b"], "lost on reload"
+    bare = fixture_mesh("test_bare_hat", None)
+    put_on_head(bare)
+    expect_error(bpy.ops.object.tt_save_items, "problem(s)")
+    assert entry("natives", "peon_test_bare_hat") is None, "a refused item still reached the registry"
+    bpy.data.objects.remove(bare)
+
+
+@test
 def point_rows_only_take_the_artists_own_meshes():
     a = load("natives", "peon")
     head = next(slot for slot in a.tt_attachments if slot.point == "HEAD")
@@ -443,6 +470,23 @@ def a_new_clip_is_saved_last_on_the_unit_and_on_everything_it_carries():
     assert "dance" not in entry("natives", "peon")["clip_info"], "the other race's peon was touched"
     a = load("vikings", "peon")
     assert "peon_dance" in [x.name for x in addon.armature_actions(a)], "the new clip has no button after a reload"
+
+
+@test
+def deleting_clips_unsaved_then_saved_and_only_from_the_end():
+    a = load("vikings", "peon")
+    assert "dance" in entry("vikings", "peon")["clip_info"], "needs the clip saved by the earlier test"
+    assert bpy.ops.object.tt_new_clip(clip_name="scratch") == {"FINISHED"}
+    assert bpy.ops.object.tt_delete_clip() == {"FINISHED"}
+    assert "peon_scratch" not in bpy.data.actions and a.animation_data.action.name.endswith("idle")
+    expect_error(lambda: bpy.ops.object.tt_delete_clip(clip="peon_run"), "Only the last clip (dance)")
+    assert os.path.isfile(os.path.join(GEOMETRY, "vikings", "peon", "peon_run.xml"))
+    assert bpy.ops.object.tt_delete_clip(clip="peon_dance") == {"FINISHED"}
+    for sprite in ("peon", "rock_resource", "wood_resource", "rubber_resource", "left_paddle", "right_paddle"):
+        assert "dance" not in entry("vikings", sprite)["clip_info"], sprite
+        assert len(entry("vikings", sprite)["clip_info"]) == 8, sprite
+    assert not os.path.exists(os.path.join(GEOMETRY, "vikings", "peon", "peon_dance.xml"))
+    assert "peon_dance" not in bpy.data.actions
 
 
 @test
