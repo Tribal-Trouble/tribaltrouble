@@ -58,6 +58,12 @@ public final class SpectatorView {
         getView(player).setSelection(selection);
     }
 
+    void playerLeft(@NonNull Player player) {
+        PlayerView view = getView(player);
+        view.setCursor(0f, 0f, false);
+        view.setSelection(new Selectable<?>[0]);
+    }
+
     public boolean isSelectedByFollowed(@NonNull Selectable<?> selectable) {
         return followed != FREE_CAMERA && views[followed].isSelected(selectable);
     }

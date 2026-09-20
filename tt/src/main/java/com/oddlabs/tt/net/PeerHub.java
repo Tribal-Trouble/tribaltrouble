@@ -532,6 +532,7 @@ public final class PeerHub implements Animated, RouterHandler {
         player_to_peer.remove(player);
         int peer_index = peer.getPeerIndex();
         removePeerFromActiveList(peer);
+        player.getWorld().getNotificationListener().playerLeft(player);
         String left_game_message = i18n("left_game", peer.getPlayerInfo().getName(), reason);
         receiveChat(SYSTEM_NAME, left_game_message, false);
         if (getFreeQuitTicksLeft(local_player.getWorld()) >= 0 && Network.getMatchmakingClient().isConnected())

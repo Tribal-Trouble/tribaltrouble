@@ -172,6 +172,12 @@ public final class WorldViewer implements Animated, AutoCloseable {
                         && Globals.draw_hud)
                     new LandscapeTargetRespond(world, x, y);
             }
+
+            @Override
+            public void playerLeft(@NonNull Player player) {
+                if (spectator_view != null)
+                    spectator_view.playerLeft(player);
+            }
         };
         PlayerInfo[] player_infos = Arrays.stream(player_slots).map(PlayerSlot::getInfo).toArray(PlayerInfo[]::new);
         WorldInfo world_info = generator.generate(player_infos.length, world_params.getInitialUnitCount(),
