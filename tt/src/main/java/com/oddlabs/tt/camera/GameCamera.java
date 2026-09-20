@@ -118,7 +118,7 @@ public class GameCamera extends Camera {
         return Settings.getSettings().camera_zoom_speed * cinematicSpeedFactor();
     }
 
-    private static boolean limitsUnlocked() {
+    protected boolean limitsUnlocked() {
         return Globals.cinematic_camera && Settings.getSettings().cinematic_unlock_limits;
     }
 
@@ -128,7 +128,6 @@ public class GameCamera extends Camera {
     }
 
     public void toggleOrbit(int direction) {
-        manualControl();
         auto_pan_direction = 0;
         if (orbit_direction == direction) {
             orbit_direction = 0;
@@ -148,7 +147,6 @@ public class GameCamera extends Camera {
     }
 
     public void toggleAutoPan(int direction) {
-        manualControl();
         orbit_direction = 0;
         auto_pan_direction = auto_pan_direction == direction ? 0 : direction;
     }
@@ -156,10 +154,6 @@ public class GameCamera extends Camera {
     public void stopAutoMotion() {
         orbit_direction = 0;
         auto_pan_direction = 0;
-    }
-
-    /** Called whenever the user takes manual control of the camera. */
-    public void manualControl() {
     }
 
     private void doOrbit(float time_delta) {
@@ -295,14 +289,16 @@ public class GameCamera extends Camera {
         float scroll_speed = scroll_start_speed * (.4f + acceleration * SCROLL_ACCELERATION_FACTOR);
         float scroll_factor = time_delta * scroll_speed * panSpeedFactor();
         boolean blocked = viewer.getGUIRoot().getDelegate().keyboardBlocked();
+        float edge_scroll_x = edgeScrollEnabled() ? scroll_x : 0f;
+        float edge_scroll_y = edgeScrollEnabled() ? scroll_y : 0f;
 
         scrolling_x = inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !inputManager.isActive(
                 GameAction.CAMERA_PAN_RIGHT) && !blocked ? -1f : inputManager.isActive(GameAction.CAMERA_PAN_RIGHT)
-                        && !inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !blocked ? 1f : scroll_x;
+                        && !inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !blocked ? 1f : edge_scroll_x;
 
         scrolling_y = inputManager.isActive(GameAction.CAMERA_PAN_DOWN) && !inputManager.isActive(
                 GameAction.CAMERA_PAN_UP) && !blocked ? -1f : inputManager.isActive(GameAction.CAMERA_PAN_UP)
-                        && !inputManager.isActive(GameAction.CAMERA_PAN_DOWN) && !blocked ? 1f : scroll_y;
+                        && !inputManager.isActive(GameAction.CAMERA_PAN_DOWN) && !blocked ? 1f : edge_scroll_y;
 
         float new_x = getState().getTargetX() - (scrolling_x * left_dir_x + scrolling_y * -left_dir_y) * scroll_factor;
         float new_y = getState().getTargetY() - (scrolling_x * left_dir_y + scrolling_y * left_dir_x) * scroll_factor;
@@ -358,6 +354,10 @@ public class GameCamera extends Camera {
         return x > 0 && x < getHeightMap().getMetersPerWorld() && y > 0 && y < getHeightMap().getMetersPerWorld();
     }
 
+    protected boolean edgeScrollEnabled() {
+        return true;
+    }
+
     protected void doControl(float t) {
         getState().setMaxVertAngle(limitsUnlocked() ? CameraState.MAX_ANGLE_UNLOCKED : CameraState.MAX_ANGLE);
         doOrbit(t);
@@ -380,7 +380,6 @@ public class GameCamera extends Camera {
 
     @Override
     public void mouseScrolled(int amount) {
-        manualControl();
         zoom_time = Math.clamp(zoom_time + amount * .05f, -.15f, .15f);
     }
 
@@ -413,8 +412,6 @@ public class GameCamera extends Camera {
                     setScrollSpeed();
                 }
             }
-            if (Renderer.getLocalInput().getInputProvider().isCursorInWindow())
-                manualControl();
             scroll_x = (x - view_width / 2f);
             scroll_y = (y - view_height / 2f);
             float inv_length = 1f / (float) Math.sqrt(scroll_x * scroll_x + scroll_y * scroll_y);
@@ -513,7 +510,6 @@ public class GameCamera extends Camera {
             }
 
             if (handled) {
-                manualControl();
                 event.consume();
             }
         }
