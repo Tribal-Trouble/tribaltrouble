@@ -68,13 +68,11 @@ public final class SpectatorCursor extends GUIObject {
         }
         time = now;
         float z = viewer.getWorld().getHeightMap().getNearestHeight(x, y);
-        point.set(x, y, z, 1f);
-        gui_root.getDelegate().getCamera().getState().getProjectionModelView().transform(point, point);
-        if (point.w < .1f)
+        gui_root.projectToScreen(x, y, z, point);
+        if (point.w < GUIRoot.MIN_PROJECTED_W)
             return;
-        float inv_w = 1f / point.w;
-        float screen_x = (point.x * inv_w + 1f) * .5f * gui_root.getWidth();
-        float screen_y = (point.y * inv_w + 1f) * .5f * gui_root.getHeight();
+        float screen_x = point.x;
+        float screen_y = point.y;
         Vector4fc player_color = followed.getColor();
         color.set(player_color.x(), player_color.y(), player_color.z(), 1f);
         // A PNG texture has its top row at v=0, so the quad is drawn downwards from the hot spot.

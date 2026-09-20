@@ -39,22 +39,11 @@ public final class Arrow extends GUIObject {
 
     private static final Vector4f point = new Vector4f();
 
-    private @NonNull Vector4f project3DTo2D(float x, float y, float z) {
-        point.set(x, y, z, 1);
-        gui_root.getDelegate().getCamera().getState().getProjectionModelView().transform(point, point);
-        if (point.w < .1f)
-            point.w = .1f;
-        float inv_w = 1 / point.w;
-        point.set((point.x * inv_w + 1) * .5f * gui_root.getWidth(), (point.y * inv_w + 1) * .5f * gui_root.getHeight(),
-                0, 0);
-        return point;
-    }
-
     @Override
     protected void renderGeometry(@NonNull GUIRenderer renderer) {
         int screen_width = gui_root.getWidth();
         int screen_height = gui_root.getHeight();
-        Vector4f result = project3DTo2D(target_x, target_y, target_z);
+        Vector4f result = gui_root.projectToScreen(target_x, target_y, target_z, point);
         float x = result.x;
         float y = result.y;
         float dx = x - screen_width / 2f;
