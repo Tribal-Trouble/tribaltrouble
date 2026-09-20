@@ -39,7 +39,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 21, 1),
+    "version": (1, 21, 2),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1228,7 +1228,7 @@ class CopyRegistrySnippet(bpy.types.Operator):
 SLOT_LABELS = {"hat": "Hats", "weapon": "Weapons", "carried": "Carried"}
 SLOT_HINTS = {"hat": "One at a time, as in game (H cycles). Shift click keeps others",
               "weapon": "One at a time, as in game. Shift click keeps others",
-              "carried": "Show any you like. The game shows what the peon is hauling"}
+              "carried": "Locked: the game needs all five. Edit them, never remove"}
 ALL_SLOTS = "ALL"
 _slot_filter_items = []
 
@@ -1277,6 +1277,10 @@ class TT_UL_items(bpy.types.UIList):
             remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH", emboss=False)
             remove.group = find_base_sprite(arm.get("tt_skeleton", ""))[0] or "" if arm is not None else ""
             remove.sprite = item["tt_sprite"]
+        else:
+            lock = row.row()
+            lock.enabled = False
+            lock.label(text="", icon="LOCKED")  # the game asks for these by name, so they cannot be removed
 
     def draw_filter(self, context, layout):
         layout.prop(self, "filter_name", text="", icon="VIEWZOOM")
