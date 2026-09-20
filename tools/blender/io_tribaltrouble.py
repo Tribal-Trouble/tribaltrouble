@@ -39,7 +39,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 21, 0),
+    "version": (1, 21, 1),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1332,7 +1332,7 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
         box.prop(slot, "obj", text="Mesh")
         if slot.obj is not None:
             box.operator(PutOnBone.bl_idname, icon="SNAP_ON",
-                         text=f"Put It On The {POINT_LABELS.get(slot.point, slot.point)}").point = slot.point
+                         text=f"Snap To {POINT_LABELS.get(slot.point, slot.point)}").point = slot.point
         if slot.obj is not None and mesh_texture_image(slot.obj) is None:
             row = box.row()
             row.alert = True
@@ -1348,7 +1348,7 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
             row.prop(other, "obj", text="")
         if slot.obj is None and not waiting:
             box.label(text="1. Pick where it goes and your mesh")
-            box.label(text="2. Put it there, nudge it, Save To Repo")
+            box.label(text="2. Snap it, nudge it, Save To Repo")
         row = layout.row(align=True)
         row.scale_y = 1.4
         row.operator(SaveItems.bl_idname, icon="EXPORT")
@@ -1791,7 +1791,7 @@ class PutOnBone(bpy.types.Operator):
     """Move your mesh to the part of the unit picked under Where. On the head it sits on top; anywhere else its
     origin goes to the joint, so model a held item with its grip at the origin. Nudge it afterwards as you like"""
     bl_idname = "object.tt_put_on_bone"
-    bl_label = "Put It There"
+    bl_label = "Snap To Bone"
     bl_options = {"REGISTER", "UNDO"}
     point: StringProperty(options={"SKIP_SAVE"})
     fit: BoolProperty(name="Shrink it if it is bigger than the unit", default=True)
@@ -1824,7 +1824,7 @@ class PutOnBone(bpy.types.Operator):
         moved.translation += target - anchor
         obj.matrix_world = moved
         context.view_layer.update()
-        self.report({"INFO"}, f"{obj.name} is on the {POINT_LABELS.get(self.point, self.point).lower()}{note}")
+        self.report({"INFO"}, f"{obj.name} snapped to the {POINT_LABELS.get(self.point, self.point).lower()}{note}")
         return {"FINISHED"}
 
 
