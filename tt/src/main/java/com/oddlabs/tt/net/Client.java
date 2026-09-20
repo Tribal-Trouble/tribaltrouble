@@ -14,7 +14,6 @@ import com.oddlabs.tt.form.ProgressForm;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.landscape.WorldParameters;
-import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.UnitInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.viewer.InGameInfo;
@@ -69,7 +68,7 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
 
         this.unit_infos = new UnitInfo[MatchmakingServerInterface.MAX_PLAYERS];
         for (int i = 0; i < unit_infos.length; i++) {
-            unit_infos[i] = new UnitInfo(false, false, 0, false, Player.INITIAL_UNIT_COUNT, 0, 0, 0);
+            unit_infos[i] = new UnitInfo(false, false, 0, false, world_params.getInitialUnitCount(), 0, 0, 0);
         }
     }
 

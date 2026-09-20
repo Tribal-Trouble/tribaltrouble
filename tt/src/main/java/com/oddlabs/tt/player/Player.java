@@ -37,15 +37,14 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public final class Player implements PlayerInterface {
-    public static final int INITIAL_UNIT_COUNT = 20;
-    public static final int MAX_BUILDING_COUNT = 20;
-    public static final int DEFAULT_MAX_UNIT_COUNT = 250;
+    public static final int INITIAL_UNIT_COUNT = Game.DEFAULT_INITIAL_UNIT_COUNT;
+    public static final int DEFAULT_MAX_UNIT_COUNT = Game.DEFAULT_MAX_UNIT_COUNT;
 
     private final @NonNull World world;
     private final @NonNull PlayerInfo player_info;
     private final Army units = new Army();
     private final @NonNull SupplyContainer unit_count;
-    private final SupplyContainer building_count = new SupplyContainer(MAX_BUILDING_COUNT);
+    private final SupplyContainer building_count;
 
     private final @NonNull Vector4fc color;
 
@@ -97,6 +96,7 @@ public final class Player implements PlayerInterface {
         Arrays.fill(can_build, true);
         this.player_info = player_info;
         this.unit_count = new SupplyContainer(world.getMaxUnitCount());
+        this.building_count = new SupplyContainer(world.getMaxBuildingCount());
 //		this.team_tip = i18n("team", new Object[]{Integer.toString(player_info.getTeam() + 1)});
     }
 
@@ -233,7 +233,7 @@ public final class Player implements PlayerInterface {
     }
 
     public boolean canBuild(int building) {
-        return can_build[building] && getBuildingCountContainer().getNumSupplies() < Player.MAX_BUILDING_COUNT;
+        return can_build[building] && getBuildingCountContainer().getNumSupplies() < world.getMaxBuildingCount();
     }
 
     public boolean canRepair() {

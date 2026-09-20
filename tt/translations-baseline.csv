@@ -62,11 +62,26 @@ delegate/QuitScreen,incentive3,- Two complete campaigns,- Begge felttog,- Den ge
 delegate/QuitScreen,incentive4,- Your own online player profiles,- Din egen online profil,- Ihre eigenen Onlinespielerprofile,- Tus propios perfiles de juego online,- Il tuo profilo online,- Seu próprio perfil online
 delegate/QuitScreen,incentive5,- Four times larger islands,- Fire gange større øer,- Vier mal größere Inseln,- Islas cuatro veces más grandes,- Isole quattro volte più grandi,- Ilhas quatro vezes maiores
 delegate/QuitScreen,incentive6,- Harder computer opponents,- Sværere computermodstandere,- Schwierigere Computergegner,- Oponentes con mayor dificultad,- Avversari più forti,- Oponentes mais difíceis
-delegate/SelectionDelegate,observer_mode,Observer Mode - Press escape to exit,Tilskuer - Tryk escape for at afslutte,Beobachtermodus - Drücken Sie zum Beenden die ESC-TASTE.,Modo de observación - Pulsa Esc para salir,Modalità osservatore - Premi esc per uscire,Modo Observador - Pressione esc para sair
+delegate/SelectionDelegate,cinematic_on,Cinematic camera on,Filmkamera tændt,Kinokamera an,Cámara cinematográfica en,Telecamera cinematografica accesa,Câmera cinematográfica em
+delegate/SelectionDelegate,cinematic_off,Cinematic camera off,Filmisk kamera slukket,Filmkamera aus,Cámara cinematográfica apagada,Telecamera cinematografica disattivata,Câmera cinematográfica desligada
+delegate/SelectionDelegate,spectator_following,Spectating - ,Tilskuere -,Zuschauen -,Espectador -,Spettatori -,Assistir -
+delegate/SelectionDelegate,spectator_free,Free camera,Gratis kamera,Kostenlose Kamera,Cámara libre,Fotocamera gratuita,Câmera gratuita
+delegate/SelectionDelegate,spectator_next,Next - {0},Næste - {0},Weiter - {0},Siguiente - {0},Avanti - {0},Próximo - {0}
+delegate/SelectionDelegate,spectator_previous,Previous - {0},Forrige - {0},Vorherige - {0},Anterior - {0},Precedente - {0},Anterior - {0}
+delegate/SelectionDelegate,spectator_free_cam,Free cam - {0},Gratis kamera - {0},Kostenlose Webcam - {0},Cámara gratuita - {0},Webcam gratuita - {0},Câmera grátis - {0}
+delegate/SelectionDelegate,spectator_exit,Exit - Esc,Afslut - Esc,Beenden - Esc,Salir - Esc,Esci - Esc,Sair - Esc
 delegate/TutorialOverDelegate,tutorial_completed,Tutorial {0} is now completed,Kursus {0} er gennemført,Das Tutorial {0} ist abgeschlossen.,El tutorial {0} ha terminado,Il tutorial {0} è completato,O tutorial {0} foi concluído
 delegate/TutorialOverDelegate,next_tutorial,Next tutorial,Næste kursus,Nächstes Tutorial,Próximo tutorial,Prossimo tutorial,Próximo tutorial
 delegate/TutorialOverDelegate,restart_tutorial,Restart tutorial,Genstart kursus,Tutorial erneut starten,Repetir el tutorial,Ricomincia tutorial,Recomeçar tutorial
 delegate/TutorialOverDelegate,main_menu,Main menu,Hovedmenu,Hauptmenü,Menú principal,Menu principale,Menu principal
+form/AdvancedSettingsForm,caption,Advanced settings,Avancerede indstillinger,Erweiterte Einstellungen,Configuración avanzada,Impostazioni avanzate,Configurações avançadas
+form/AdvancedSettingsForm,max_units,Max units:,Maks. enheder:,Maximale Einheiten:,Unidades máximas:,Unità massime:,Unidades máximas:
+form/AdvancedSettingsForm,starting_units,Starting units:,Startenheder:,Ausgangseinheiten:,Unidades iniciales:,Unità di avviamento:,Unidades iniciais:
+form/AdvancedSettingsForm,max_buildings,Max buildings:,Maks. bygninger:,Max-Gebäude:,Edificios máximos:,Edifici massimi:,Número máximo de edifícios:
+form/AdvancedSettingsForm,ships,Boats,Både,Boote,barcos,Barche,Barcos
+form/AdvancedSettingsForm,ships_tip,Allow harbours and ships in this game (always on for Archipelago),Tillad havne og skibe i dette spil (altid aktivt for Øgruppen),Häfen und Schiffe in diesem Spiel zulassen (für Archipel immer aktiviert),Permitir puertos y barcos en este juego (siempre activado para Archipiélago),Consenti la presenza di porti e navi in ​​questo gioco (sempre attivo per Archipelago),Permitir portos e navios neste jogo (sempre ativado para Archipelago)
+form/AdvancedSettingsForm,reset_defaults,Reset to defaults,Nulstil til standardindstillinger,Auf Standardeinstellungen zurücksetzen,Restablecer valores predeterminados,Ripristina le impostazioni predefinite,Restaurar padrões de fábrica
+form/AdvancedSettingsForm,performance_warning,Values above the defaults can degrade performance.,Værdier over standardværdierne kan forringe ydeevnen.,Werte oberhalb der Standardeinstellungen können die Leistung beeinträchtigen.,Los valores superiores a los predeterminados pueden degradar el rendimiento.,Valori superiori a quelli predefiniti possono compromettere le prestazioni.,Valores acima dos padrões podem degradar o desempenho.
 form/BugReportConfirmForm,confirm_report,"The game will quit now, and the next time you start it, you will be prompted to fill out a bug report form. Continue?","Spillet afsluttes nu, og næste gang du starter, vil du blive bedt om at udfylde en fejlrapport. Fortsæt?","Das Spiel wird nun beendet. Beim nächsten Start werden Sie aufgefordert, einen Fehlerbericht auszufüllen. Möchten Sie fortfahren?","El juego terminará ahora, y la próxima vez que lo arranques se te pedirá que rellenes un informe de error. ¿Continuar?","Il gioco terminerà ora, e al prossimo avvio, ti verrà richiesto di compilare un rapporto di errore. Continuare?","O jogo vai fechar agora, da próxima vez que você rodar o jogo, será pedido para você preencher um formulário de relatório de bug. Continuar?"
 form/CampaignForm,delete,Delete,Slet,Löschen,Borrar,Cancella,Apagar
 form/CampaignForm,campaign,Campaign,Felttog,Feldzug,Campaña,Campagna,Campanha
@@ -151,6 +166,14 @@ form/GameInfoForm,supplies,Resources:,Ressourcer:,Ressourcen:,Recursos:,Risorse:
 form/GameInfoForm,rated,Rated:,Ligaspil,Gewertet:,Puntuado,Voto:,Ranqueada:
 form/GameInfoForm,gamespeed,Gamespeed:,Hastighed:,Tempo:,Velocidad del Juego:,Velocità:,Velocidade do jogo:
 form/GameInfoForm,mapcode,Mapcode:,Ø-kode:,Kartencode:,Código de mapa:,Codice Mappa:,Código do mapa:
+form/GameInfoForm,max_units,Max units:,Maks. enheder:,Maximale Einheiten:,Unidades máximas:,Unità massime:,Unidades máximas:
+form/GameInfoForm,starting_units,Starting units:,Startenheder:,Ausgangseinheiten:,Unidades iniciales:,Unità di avviamento:,Unidades iniciais:
+form/GameInfoForm,max_buildings,Max buildings:,Maks. bygninger:,Max-Gebäude:,Edificios máximos:,Edifici massimi:,Número máximo de edifícios:
+form/GameInfoForm,ships,Boats:,Både:,Boote:,Barcos:,Barche:,Barcos:
+form/GameInfoForm,yes,Yes,Ja,Ja,Sí,SÌ,Sim
+form/GameInfoForm,no,No,Ingen,NEIN,No,NO,Não
+form/GameInfoForm,version,Game version:,Spilversion:,Spielversion:,Versión del juego:,Versione del gioco:,Versão do jogo:
+form/GameInfoForm,version_other,{0} (yours is {1}),{0} (din er {1}),{0} (deine ist {1}),{0} (el tuyo es {1}),{0} (il tuo è {1}),{0} (o seu é {1})
 form/GameMenu,game_caption,Game,Spil,Spiel,Partida,Gioco,Partida
 form/GameMenu,rated,[Rated],[Ligaspil],[Gewertet],[Puntuado],[Voto],[Ranqueada]
 form/GameMenu,game,Game:,Spil:,Spiel:,Partida:,Gioco:,Partida:
@@ -271,6 +294,17 @@ form/OptionsMenu,aggressive_units,Aggressive units,Aggressive enheder,Agressive 
 form/OptionsMenu,aggressive_units_tip,Units attack on sight when moving ({0}),Enheder i bevægelse angriber fjender i nærheden ({0}),Einheiten greifen bei Bewegung alles in Sichtweite an ({0}),Las unidades atacan al avistar mientras se mueven ({0}),Le unità attaccano a vista quando si muovono ({0}),Unidades atacam ao avistarem unidades inimigas enquanto se movem ({0})
 form/OptionsMenu,show_compass,Show compass,Vis kompas,Kompass anzeigen,Mostrar brújula,Mostra bussola,Mostrar bússula
 form/OptionsMenu,show_compass_tip,Display the compass indicator in the bottom-right corner,Vis kompasindikator i nederste højre hjørne,Zeige den Kompassanzeiger in der unteren rechten Ecke an,Mostrar el indicador de brújula en la esquina inferior derecha,Mostra l'indicatore della bussola nell'angolo in basso a destra,Mostrar o indicador de bússula no canto inferior direito
+form/OptionsMenu,camera_caption,Camera,Kamera,Kamera,Cámara,Telecamera,Câmera
+form/OptionsMenu,camera_pan_speed,Pan speed:,Pan-hastighed:,Schwenkgeschwindigkeit:,Velocidad de desplazamiento:,Velocità di panoramica:,Velocidade de panorâmica:
+form/OptionsMenu,camera_pan_acceleration,Ramp up pan speed,Øg panoreringshastigheden,Pfannengeschwindigkeit erhöhen,Aumentar la velocidad de la bandeja,Aumenta gradualmente la velocità di panoramica,Aumente a velocidade de panorâmica
+form/OptionsMenu,camera_pan_acceleration_tip,Panning accelerates smoothly to full speed; uncheck to pan at full speed immediately,Panorering accelererer jævnt til fuld hastighed; fjern markeringen for at panorere med fuld hastighed med det samme,"Die Schwenkbewegung beschleunigt sanft auf Höchstgeschwindigkeit; deaktivieren Sie die Option, um sofort mit Höchstgeschwindigkeit zu schwenken.",El paneo acelera suavemente hasta la velocidad máxima; desactive esta opción para realizar el paneo a máxima velocidad inmediatamente.,La panoramica accelera gradualmente fino alla velocità massima; deselezionare la casella per avviare immediatamente la panoramica alla massima velocità.,A panorâmica acelera suavemente até a velocidade máxima; desmarque para que a panorâmica atinja a velocidade máxima imediatamente.
+form/OptionsMenu,camera_rotate_speed,Rotate speed:,Rotationshastighed:,Drehzahl:,Velocidad de rotación:,Velocità di rotazione:,Velocidade de rotação:
+form/OptionsMenu,camera_zoom_speed,Zoom speed:,Zoomhastighed:,Zoomgeschwindigkeit:,Velocidad de zoom:,Velocità dello zoom:,Velocidade do zoom:
+form/OptionsMenu,cinematic_camera_speed,Cinematic camera speed:,Filmisk kamerahastighed:,Filmische Kamerageschwindigkeit:,Velocidad de cámara cinematográfica:,Velocità della telecamera cinematografica:,Velocidade de câmera cinematográfica:
+form/OptionsMenu,speed_slow,Slow,Langsom,Langsam,Lento,Lento,Lento
+form/OptionsMenu,speed_fast,Fast,Hurtig,Schnell,Rápido,Veloce,Rápido
+form/OptionsMenu,cinematic_unlock_limits,Unlock camera limits in cinematic mode,Lås op for kameraets begrænsninger i filmisk tilstand,Entfesseln Sie die Kamerabeschränkungen im Kinomodus,Desbloquea los límites de la cámara en el modo cinematográfico.,Sblocca i limiti della fotocamera in modalità cinematografica,Desbloqueie os limites da câmera no modo cinematográfico.
+form/OptionsMenu,cinematic_unlock_limits_tip,Let the camera fly higher and tilt above the horizon while cinematic mode is on,"Lad kameraet flyve højere og vippe over horisonten, mens filmtilstand er aktiveret","Lassen Sie die Kamera höher fliegen und über den Horizont neigen, während der Kinomodus aktiviert ist.",Deja que la cámara vuele más alto e inclínate sobre el horizonte mientras el modo cinematográfico esté activado.,Fai volare la telecamera più in alto e inclinala sopra l'orizzonte mentre la modalità cinematografica è attiva,"Com o modo cinematográfico ativado, faça a câmera subir e inclinar acima da linha do horizonte."
 form/OptionsMenu,multiplayer_domain,Multiplayer Domain,Multiplayer-domæne,Mehrspieler-Domäne,Dominio multijugador,Dominio multigiocatore,Domínio Multijogador
 form/OptionsMenu,domain_update,Update,Opdatering,Aktualisieren,Actualizar,Aggiornamento,Atualizar
 form/OptionsMenu,domain_reset,Reset,Nulstil,Zurücksetzen,Reiniciar,Reset,Resetar
@@ -313,6 +347,7 @@ form/OptionsMenu,action.GLOBAL_CHAT,Open Chat,Åbn Chat,Chat Öffnen,Abrir Chat,
 form/OptionsMenu,action.GLOBAL_CHAT_TEAM,Open Team Chat,Åbn teamchat,Team-Chat öffnen,Abrir chat de equipo,Chat di gruppo aperta,Abrir Chat de Equipe
 form/OptionsMenu,action.GLOBAL_MENU,Main Menu,Hovedmenu,Hauptmenü,Menú Principal,Menu Principale,Menu Principal
 form/OptionsMenu,action.GLOBAL_TOGGLE_STATUS,Toggle Status Display,Skift Statusvisning,Statusanzeige Umschalten,Mostrar Estado,Attiva/Disattiva Stato,Habilitar Exibição de Status
+form/OptionsMenu,action.GLOBAL_TOGGLE_HUD,Toggle HUD,Slå HUD til/fra,HUD umschalten,Alternar HUD,Attiva/disattiva HUD,Alternar HUD
 form/OptionsMenu,action.GLOBAL_AGGRESSIVE_UNITS,Toggle Aggressive Units,Skift Aggressive Enheder,Aggressive Einheiten Umschalten,Unidades Agresivas,Attiva/Disattiva Unità Aggressive,Habilitar Unidades Agressivas
 form/OptionsMenu,action.CAMERA_PAN_LEFT,Pan Left,Panorer Venstre,Kamera Links,Panorámica Izquierda,Panoramica Sinistra,Panorâmica Esquerda
 form/OptionsMenu,action.CAMERA_PAN_RIGHT,Pan Right,Panorer Højre,Kamera Rechts,Panorámica Derecha,Panoramica Destra,Panorâmica Direita
@@ -327,6 +362,11 @@ form/OptionsMenu,action.CAMERA_ZOOM_OUT,Zoom Out,Zoom Ud,Zoom Raus,Alejar,Zoom I
 form/OptionsMenu,action.CAMERA_MAP_MODE,Map Mode,Korttilstand,Kartenmodus,Modo Mapa,Modalità Mappa,Modo Mapa
 form/OptionsMenu,action.CAMERA_FIRST_PERSON,First Person View,First Person View,Ego-Perspektive,Vista Primera Persona,Vista Prima Persona,Visão em Primeira Pessoa
 form/OptionsMenu,action.CAMERA_ZOOM_MODE,Zoom Mode,Zoomtilstand,Zoom-Modus,Modo Zoom,Modalità Zoom,Modo Zoom
+form/OptionsMenu,action.CAMERA_CINEMATIC,Toggle Cinematic Camera,Skift filmkamera,Filmische Kamera umschalten,Alternar cámara cinematográfica,Attiva/disattiva la modalità telecamera cinematografica,Alternar câmera cinematográfica
+form/OptionsMenu,action.CAMERA_ORBIT_LEFT,Auto-Orbit Left,Automatisk kredsløb til venstre,Auto-Orbit links,Órbita automática izquierda,Auto-Orbit Sinistra,Órbita automática à esquerda
+form/OptionsMenu,action.CAMERA_ORBIT_RIGHT,Auto-Orbit Right,Automatisk kredsløb til højre,Auto-Orbit Rechts,Órbita automática derecha,Auto-Orbit Right,Órbita automática à direita
+form/OptionsMenu,action.CAMERA_AUTO_PAN_FORWARD,Auto-Pan Forward,Automatisk panorering fremad,Automatisches Schwenken nach vorne,Panorámica automática hacia adelante,Panoramica automatica in avanti,Panorâmica automática para frente
+form/OptionsMenu,action.CAMERA_AUTO_PAN_BACKWARD,Auto-Pan Backward,Automatisk panorering baglæns,Automatisches Rückwärtsschwenken,Desplazamiento automático hacia atrás,Panoramica automatica all'indietro,Panorâmica automática para trás
 form/OptionsMenu,action.UI_ACTIVATE,Activate,Aktiver,Aktivieren,Activar,Attiva,Ativar
 form/OptionsMenu,action.UI_CANCEL,Cancel,Annuller,Abbrechen,Cancelar,Annulla,Cancelar
 form/OptionsMenu,action.UI_FOCUS_NEXT,Focus Next,Fokusér Næste,Nächster Fokus,Foco Siguiente,Fuoco Successivo,Foco no Próximo
@@ -414,6 +454,9 @@ form/OptionsMenu,action.CHEAT_6,Cheat 6,Snyd 6,Cheat 6,Truco 6,Trucco 6,Trapaça
 form/OptionsMenu,action.CHEAT_7,Cheat 7,Snyd 7,Cheat 7,Truco 7,Trucco 7,Trapaça 7
 form/OptionsMenu,action.CHEAT_8,Cheat 8,Snyd 8,Cheat 8,Truco 8,Trucco 8,Trapaça 8
 form/OptionsMenu,action.CHEAT_9,Cheat 9,Snyd 9,Cheat 9,Truco 9,Trucco 9,Trapaça 9
+form/OptionsMenu,action.SPECTATOR_NEXT_PLAYER,Spectator: Follow Next Player,Tilskuer: Følg den næste spiller,Zuschauer: Folge dem nächsten Spieler,Espectador: Sigue al siguiente jugador,Spettatore: Segui il giocatore successivo,Espectador: Seguir o próximo jogador
+form/OptionsMenu,action.SPECTATOR_PREV_PLAYER,Spectator: Follow Previous Player,Tilskuer: Følg forrige spiller,Zuschauer: Dem vorherigen Spieler folgen,Espectador: Seguir al jugador anterior,Spettatore: Segui il giocatore precedente,Espectador: Seguir Jogador Anterior
+form/OptionsMenu,action.SPECTATOR_FREE_CAMERA,Spectator: Free Camera,Tilskuer: Gratis kamera,Zuschauer: Kostenlose Kamera,Espectador: Cámara libre,Spettatore: telecamera libera,Espectador: Câmera Livre
 form/OptionsMenu,action.DEBUG_PRINT_INFO,Debug: Print Info,Debug: Udskriv Info,Debug: Info Drucken,Depurar: Imprimir Info,Debug: Stampa Info,Depurar: Imprimir Informação
 form/OptionsMenu,action.DEBUG_KILL_SELECTED,Debug: Kill Selected,Debug: Dræb Valgte,Debug: Ausgewählte Töten,Depurar: Matar Seleccionados,Debug: Uccidi Selezionati,Depurar: Matar Selecionados
 form/OptionsMenu,action.DEBUG_TOGGLE_LIGHT,Debug: Toggle Light,Debug: Skift Lys,Debug: Licht Umschalten,Depurar: Alternar Luz,Debug: Attiva/Disattiva Luce,Depurar: Habilitar Luz
@@ -573,6 +616,8 @@ form/SelectGameMenu,connection_lost,Connection lost,Mistede forbindelsen,Die Ver
 form/SelectGameMenu,game,Game,Spil,Spiel,Partida,Partita,Partida
 form/SelectGameMenu,update_notice,You need to update your version of Tribal Trouble to join this game. Please select Update from the main menu.,Du skal opdatere din udgave af Tribal Trouble for at tilslutte dig dette spil. Vælg Opdater fra hovedmenuen.,"Diese Version von Tribal Trouble muss aktualisiert werden, damit Sie mitspielen können. Bitte wählen Sie die Option ''Aktualisieren'' im Hauptmenü.","Necesitas actualizar tu versión de Tribal Trouble para unirte a esta partida. Por favor, selecciona Actualizar desde el menú principal.",Devi aggiornare la tua versione di Tribal Trouble per unirti a questa partita. Seleziona Aggiorna dal menu principale.,"Você precisa atualizar a sua versão de Tribal Trouble para se juntar à essa partida. Por favor, selecione Atualizar no menu principal."
 form/SelectGameMenu,old_game,This game was created on an older version of Tribal Trouble than yours.,"Dette spil blev oprettet i en udgave af Tribal Trouble, der er ældre end din.",Dieses Spiel wurde mit einer älteren als der von Ihnen verwendeten Version von Tribal Trouble erstellt.,Este juego fue creado con una versión de Tribal Trouble anterior a la tuya.,Questa partita è stata creata con una vecchia versione di Tribal Trouble.,Essa partida foi criada numa versão mais antiga de tribal trouble que a sua.
+form/SelectGameMenu,game_version_newer,"This game is on a newer game version than yours (theirs: {0}, yours: {1}). Update Tribal Trouble to join this game.","Dette spil er på en nyere spilversion end din (deres: {0}, din: {1}). Opdater Tribal Trouble for at deltage i dette spil.","Dieses Spiel verwendet eine neuere Version als du (deren Version: {0}, deine: {1}). Aktualisiere Tribal Trouble, um diesem Spiel beizutreten.","Este juego está en una versión más reciente que la tuya (la suya: {0}, la tuya: {1}). Actualiza Tribal Trouble para unirte a este juego.","Questa partita si svolge su una versione del gioco più recente della tua (la loro: {0}, la tua: {1}). Aggiorna Tribal Trouble per unirti a questa partita.","Este jogo está em uma versão mais recente que a sua (deles: {0}, sua: {1}). Atualize Tribal Trouble para entrar neste jogo."
+form/SelectGameMenu,game_version_older,"This game is on an older game version than yours (theirs: {0}, yours: {1}). The host needs to update Tribal Trouble before you can join.","Dette spil er på en ældre spilversion end din (deres: {0}, din: {1}). Værten skal opdatere Tribal Trouble, før du kan deltage.","Dieses Spiel verwendet eine ältere Version als deine (deren: {0}, deine: {1}). Der Spielleiter muss Tribal Trouble aktualisieren, bevor du beitreten kannst.","Esta partida tiene una versión anterior a la tuya (la suya: {0}, la tuya: {1}). El anfitrión debe actualizar Tribal Trouble antes de que puedas unirte.","Questa partita si svolge su una versione del gioco precedente alla tua (la loro: {0}, la tua: {1}). L'host deve aggiornare Tribal Trouble prima che tu possa unirti.","Este jogo está em uma versão mais antiga que a sua (deles: {0}, sua: {1}). O anfitrião precisa atualizar o Tribal Trouble antes que você possa entrar."
 form/SelectGameMenu,min_wins,You have to win {0} normal games before you can play rated games.,"Du skal vinde {0} normale spil, før du kan spille ligaspil.","Sie müssen {0} normale Spiele gewinnen, bevor Sie gewertete Spiele spielen können.",Tienes que ganar al menos {0} partidas normales antes de poder entrar en partidas puntuadas.,Devi vincere {0} partite normali prima di entrare nei giochi a punteggio.,Você precisa vencer {0} partidas normais antes de jogar em partidas ranqueadas.
 form/SelectGameMenu,users_and_max,{0}/{1},{0}/{1},{0}/{1},{0}/{1},{0}/{1},{0}/{1}
 form/ShowChangesForm,update_complete,Update complete,Færdig med opdateringen,Aktualisierung abgeschlossen,Se ha completado la actualización,Aggiornamento completato,Atualização concluída
@@ -629,6 +674,7 @@ form/TerrainMenu,hard_unavailable,Hard AI players are unavailable in this demo v
 form/TerrainMenu,ai,AI,Computer,KI,IA,AI,IA
 form/TerrainMenu,confirm_delete_preset,"Delete preset ""{0}""?","Slet forudindstillingen ""{0}""?","Voreinstellung ""{0}"" löschen?","¿Eliminar el preajuste ""{0}""?","Eliminare il preset ""{0}""?","Apagar predefinição ""{0}""?"
 form/TerrainMenu,confirm_discard_changes,Discard your unsaved changes and load this preset?,Vil du kassere dine ikke-gemte ændringer og indlæse denne forudindstilling?,Nicht gespeicherte Änderungen verwerfen und diese Voreinstellung laden?,¿Descartar los cambios no guardados y cargar este preajuste?,Annullare le modifiche non salvate e caricare questo preset?,Descartar as mudanças não salvas e carregar essa predefinição?
+form/TerrainMenu,advanced,Advanced...,Fremskreden...,Fortschrittlich...,Avanzado...,Avanzato...,Avançado...
 form/TutorialForm,tutorial_caption,Tutorial,Grundkursus,Tutorial,Tutorial,Tutorial,Tutorial
 form/TutorialForm,tutorial,Tutorial {0},Kursus {0},Tutorial {0},Tutorial {0},Tutorial {0},Tutorial {0}
 form/TutorialForm,tutorial1_tip,Getting around,Manøvrering,Navigation,Dando una vuelta,Muoversi nell''ambiente,Se Movimentando

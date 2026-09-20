@@ -15,9 +15,10 @@ public final class Slider extends GUIObject {
 
     private final @NonNull SliderButton button;
     private final int left_offset;
-    private final int cardinality;
-    private final float step;
+    private final int right_offset;
     private final int min;
+    private int cardinality;
+    private float step;
     private int value;
 
     public Slider(int width, int min, int max, int init_value) {
@@ -26,12 +27,12 @@ public final class Slider extends GUIObject {
                 && init_value >= min : "Invalid values. cardinality = " + cardinality + " | max = " + max + " | min = " + min + " | init_value = " + init_value;
         this.min = min;
         left_offset = Skin.getSkin().getSliderData().leftOffset();
-        int right_offset = Skin.getSkin().getSliderData().rightOffset();
+        right_offset = Skin.getSkin().getSliderData().rightOffset();
         setDim(width, Skin.getSkin().getSliderData().slider().getHeight());
         setCanFocus(true);
 
         button = new SliderButton(this, Skin.getSkin().getSliderData().button());
-        step = (getWidth() - left_offset - right_offset - button.getWidth()) / (float) (cardinality - 1);
+        step = computeStep();
         setValue(init_value);
         addChild(button);
 
@@ -58,6 +59,19 @@ public final class Slider extends GUIObject {
 
     public int getValue() {
         return min + value;
+    }
+
+    private float computeStep() {
+        return (getWidth() - left_offset - right_offset - button.getWidth()) / (float) (cardinality - 1);
+    }
+
+    /** Changes the upper bound in place, cropping the value to the new range. */
+    public void setMax(int max) {
+        assert max > min : "max = " + max + " | min = " + min;
+        int current = getValue();
+        cardinality = max - min + 1;
+        step = computeStep();
+        setValue(current);
     }
 
     private int valueToOffset(int value) {

@@ -3,12 +3,17 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.camera.MapCamera;
 import com.oddlabs.tt.form.InGameChatForm;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.ActionButtonPanel;
 import com.oddlabs.tt.gui.CursorType;
+import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputManager;
+import com.oddlabs.tt.player.Player;
+import com.oddlabs.tt.viewer.SpectatorView;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.model.Abilities;
@@ -38,13 +43,15 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public final class SelectionDelegate extends ControllableCameraDelegate {
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(SelectionDelegate.class.getName());
     private static final Vector4fc SELECTION_COLOR = Color.argb4v(0xFF_4C_FF_00);
     private static final GameAction[] ARMY_CREATES = new GameAction[]{GameAction.ARMY_CREATE_0, GameAction.ARMY_CREATE_1, GameAction.ARMY_CREATE_2, GameAction.ARMY_CREATE_3, GameAction.ARMY_CREATE_4, GameAction.ARMY_CREATE_5, GameAction.ARMY_CREATE_6, GameAction.ARMY_CREATE_7, GameAction.ARMY_CREATE_8, GameAction.ARMY_CREATE_9,
     };
     private static final GameAction[] ARMY_SELECTS = new GameAction[]{GameAction.ARMY_SELECT_0, GameAction.ARMY_SELECT_1, GameAction.ARMY_SELECT_2, GameAction.ARMY_SELECT_3, GameAction.ARMY_SELECT_4, GameAction.ARMY_SELECT_5, GameAction.ARMY_SELECT_6, GameAction.ARMY_SELECT_7, GameAction.ARMY_SELECT_8, GameAction.ARMY_SELECT_9
     };
     private final @NonNull InGameChatForm chat_form;
-    private final @NonNull Label observer_label;
+    private static final int SPECTATOR_MARGIN = 10;
+    private final List<Label> spectator_labels = new ArrayList<>();
     private final @NonNull GameCamera game_camera;
 
     private boolean close_chat_override = false;
@@ -61,9 +68,6 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     public SelectionDelegate(@NonNull WorldViewer viewer, @NonNull GameCamera camera) {
         super(viewer, camera);
-        String observer_mode = Utils.getBundleString(ResourceBundle.getBundle(SelectionDelegate.class.getName()),
-                "observer_mode");
-        this.observer_label = new Label(observer_mode, Skin.getSkin().getHeadlineFont());
         this.game_camera = (GameCamera) getCamera();
         displayChangedNotify(getGUIRoot().getWidth(), getGUIRoot().getHeight());
         addChild(getViewer().getPanel());
@@ -89,8 +93,57 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     public void setObserverMode() {
         observer = true;
         getViewer().getSelection().clearSelection();
-        if (!map_mode)
-            addChild(observer_label);
+        SpectatorView view = getViewer().getSpectatorView();
+        if (view != null) {
+            view.setListener(this::refreshSpectator);
+            refreshSpectator();
+        }
+    }
+
+    private static @NonNull String spectatorText(@NonNull String key, @NonNull Object @NonNull... args) {
+        return Utils.getBundleString(ResourceBundle.getBundle(SelectionDelegate.class.getName()), key, args);
+    }
+
+    // Who is being observed, centered at the top with the name in the player's color; the keys stacked in the top
+    // right corner, one per line.
+    private void refreshSpectator() {
+        SpectatorView view = getViewer().getSpectatorView();
+        if (view == null)
+            return;
+        for (Label label : spectator_labels)
+            label.remove();
+        spectator_labels.clear();
+        if (map_mode || !Globals.draw_hud)
+            return;
+        Player followed = view.getFollowedPlayer();
+        Font headline = Skin.getSkin().getHeadlineFont();
+        int width = getGUIRoot().getWidth();
+        int top = getGUIRoot().getHeight() - SPECTATOR_MARGIN;
+        Label title = new Label(spectatorText(followed == null ? "spectator_free" : "spectator_following"), headline);
+        Label name = followed == null ? null : new Label(followed.getPlayerInfo().getName(), headline).setColor(
+                followed.getColor());
+        int x = (width - title.getWidth() - (name == null ? 0 : name.getWidth())) / 2;
+        int y = top - title.getHeight();
+        showSpectatorLabel(title, x, y);
+        if (name != null)
+            showSpectatorLabel(name, x + title.getWidth(), y);
+        InputManager input = Renderer.getLocalInput().getInputManager();
+        String[] lines = {spectatorText("spectator_next", input.getBindingString(
+                GameAction.SPECTATOR_NEXT_PLAYER)), spectatorText("spectator_previous", input.getBindingString(
+                        GameAction.SPECTATOR_PREV_PLAYER)), spectatorText("spectator_free_cam", input.getBindingString(
+                                GameAction.SPECTATOR_FREE_CAMERA)), spectatorText("spectator_exit")};
+        y = top;
+        for (String text : lines) {
+            Label line = new Label(text, Skin.getSkin().getEditFont());
+            y -= line.getHeight();
+            showSpectatorLabel(line, width - SPECTATOR_MARGIN - line.getWidth(), y);
+        }
+    }
+
+    private void showSpectatorLabel(@NonNull Label label, int x, int y) {
+        label.setPos(x, y);
+        addChild(label);
+        spectator_labels.add(label);
     }
 
     @Override
@@ -112,6 +165,24 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         if (event.isConsumed()) return;
 
         if (event.getPhase() == InputPhase.PRESSED) {
+            SpectatorView view = observer ? getViewer().getSpectatorView() : null;
+            if (view != null) {
+                if (event.consumeAction(GameAction.SPECTATOR_NEXT_PLAYER)) {
+                    view.next();
+                    event.consume();
+                    return;
+                }
+                if (event.consumeAction(GameAction.SPECTATOR_PREV_PLAYER)) {
+                    view.previous();
+                    event.consume();
+                    return;
+                }
+                if (event.consumeAction(GameAction.SPECTATOR_FREE_CAMERA)) {
+                    view.freeCamera();
+                    event.consume();
+                    return;
+                }
+            }
             if (event.hasActions()) {
                 if (event.consumeAction(GameAction.CAMERA_MAP_MODE)) {
                     if (!map_mode) {
@@ -119,7 +190,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                         getViewer().getPicker().pickRotate((GameCamera) getCamera());
                         map_mode = true;
                         if (observer)
-                            observer_label.remove();
+                            refreshSpectator();
                         else
                             getActionButtonPanel().remove();
                         getCamera().disable();
@@ -205,6 +276,48 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
                 if (event.consumeAction(GameAction.GAME_SPEED_DOWN)) {
                     changeGamespeed(-1);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.GLOBAL_TOGGLE_HUD)) {
+                    setHUDVisible(!Globals.draw_hud);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.CAMERA_CINEMATIC)) {
+                    Globals.cinematic_camera = !Globals.cinematic_camera;
+                    getGUIRoot().getInfoPrinter().print(Utils.getBundleString(bundle,
+                            Globals.cinematic_camera ? "cinematic_on" : "cinematic_off"));
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.CAMERA_ORBIT_LEFT)) {
+                    if (!map_mode)
+                        game_camera.toggleOrbit(1);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.CAMERA_ORBIT_RIGHT)) {
+                    if (!map_mode)
+                        game_camera.toggleOrbit(-1);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.CAMERA_AUTO_PAN_FORWARD)) {
+                    if (!map_mode)
+                        game_camera.toggleAutoPan(1);
+                    event.consume();
+                    return;
+                }
+
+                if (event.consumeAction(GameAction.CAMERA_AUTO_PAN_BACKWARD)) {
+                    if (!map_mode)
+                        game_camera.toggleAutoPan(-1);
                     event.consume();
                     return;
                 }
@@ -324,7 +437,14 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     @Override
     protected @NonNull CursorType getCursorType() {
+        if (!Globals.draw_hud)
+            return CursorType.HIDDEN;
         return map_mode ? CursorType.TARGET : CursorType.NORMAL;
+    }
+
+    @Override
+    public boolean renderCursor() {
+        return Globals.draw_hud;
     }
 
     public void exitMapMode() {
@@ -336,7 +456,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         setCamera(game_camera);
         getCamera().enable();
         if (observer)
-            addChild(observer_label);
+            refreshSpectator();
         else
             addChild(getActionButtonPanel());
 
@@ -526,6 +646,21 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         return selection;
     }
 
+    private void setHUDVisible(boolean visible) {
+        Globals.draw_hud = visible;
+        Renderer.getLocalInput().getPointerInput().setActiveCursor(getCursorType());
+        if (map_mode)
+            return;
+        if (observer) {
+            refreshSpectator();
+            return;
+        }
+        if (visible)
+            addChild(getActionButtonPanel());
+        else
+            getActionButtonPanel().remove();
+    }
+
     @Override
     public boolean keyboardBlocked() {
         return chat_visible && chat_form.isActive();
@@ -533,6 +668,8 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     @Override
     public void render2D(@NonNull GUIRenderer renderer) {
+        if (!Globals.draw_hud)
+            return;
         if (com.oddlabs.tt.global.Settings.getSettings().show_compass && getCamera() != null) {
             float horizAngle = getCamera().getState().getHorizAngle();
             CompassRenderer.render(renderer, Skin.getSkin().getEditFont(),
@@ -563,6 +700,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     @Override
     public void displayChangedNotify(int width, int height) {
         super.displayChangedNotify(width, height);
-        observer_label.setPos((width - observer_label.getWidth()) / 2, height - observer_label.getHeight());
+        if (observer)
+            refreshSpectator();
     }
 }

@@ -1,10 +1,12 @@
 package com.oddlabs.tt.net;
 
+import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.net.ARMIEvent;
 import com.oddlabs.net.ARMIEventWriter;
 import com.oddlabs.net.ARMIInterfaceMethods;
 import com.oddlabs.net.IllegalARMIEventException;
 import com.oddlabs.net.NetworkSelector;
+import com.oddlabs.router.GameInterface;
 import com.oddlabs.router.Router;
 import com.oddlabs.router.SessionID;
 import com.oddlabs.router.SessionInfo;
@@ -54,6 +56,12 @@ public final class PeerHub implements Animated, RouterHandler {
     private static final float FREE_QUIT_TIME = 120f;
     private static final int TICKS_PER_STATUS_UPDATE = (int) (20 / AnimationManager.ANIMATION_SECONDS_PER_TICK);
     private static final int TICKS_PER_SPECTATOR_UPDATE = 5;
+    private static final int SPECTATOR_KEY_TREES = -20000;
+    private static final int MAX_SPECTATOR_INFO_CHARS = 30000;
+    private static final char SPECTATOR_CHAT_SEPARATOR = '\u001f';
+    // One relayed event reaches the whole session: for a player every player and spectator, for a spectator the
+    // other spectators only.
+    private final @NonNull PeerHubInterface everyone;
     private static final int TICKS_PER_CHECKSUM = (int) (10 / AnimationManager.ANIMATION_SECONDS_PER_TICK);
     // Spectator controller is non-null only for spectator instances
 
@@ -90,6 +98,7 @@ public final class PeerHub implements Animated, RouterHandler {
     private boolean sentMap;
     private boolean sentInitInfo;
     private boolean sentTrees;
+    private boolean spectator_upload_failed;
     private int mapRowsSent;
 
     public boolean isSynchronized() {
@@ -133,6 +142,8 @@ public final class PeerHub implements Animated, RouterHandler {
             this.router = null;
             this.router_client = new RouterClient(network, Settings.getSettings().getRouterAddress(), this);
         }
+        this.everyone = (PeerHubInterface) ARMIEvent.createProxy(
+                (ARMIEvent event) -> router_client.getInterface().relayEvent(event), PeerHubInterface.class);
         for (short i = 0; i < players.length; i++) {
             Player player = players[i];
             if (player_slots[i].getType() != PlayerSlot.HUMAN) {
@@ -195,6 +206,16 @@ public final class PeerHub implements Animated, RouterHandler {
 
     @Override
     public void receiveEvent(int client_id, @NonNull ARMIEvent event) {
+        if (client_id == GameInterface.SPECTATOR_CLIENT_ID) {
+            if (is_spectator) {
+                try {
+                    event.execute(interface_methods, spectator_chat);
+                } catch (IllegalARMIEventException e) {
+                    IO.println("Ignoring bad spectator chat event: " + e.getMessage());
+                }
+            }
+            return;
+        }
         Peer peer = getPeerFromClientID(client_id);
         if (peer == null) {
             routerFailed(new IOException("Invalid client_id received: " + client_id));
@@ -345,11 +366,17 @@ public final class PeerHub implements Animated, RouterHandler {
             if (getTick() % TICKS_PER_STATUS_UPDATE == 0 && Network.getMatchmakingClient().isConnected())
                 sendStatusUpdate();
 
-            if (is_multiplayer && Network.getMatchmakingClient().isConnected()) {
-                if (!sentMap) sendMap();
-                if (!sentInitInfo) sendInitInfo();
-                if (!sentTrees) sendTrees();
-                if (getTick() % TICKS_PER_SPECTATOR_UPDATE == 0) sendSpectatorInfo();
+            if (is_multiplayer && !spectator_upload_failed && Network.getMatchmakingClient().isConnected()) {
+                // The web spectator feed is not worth the game: on any failure stop feeding it and play on.
+                try {
+                    if (!sentMap) sendMap();
+                    if (!sentInitInfo) sendInitInfo();
+                    if (!sentTrees) sendTrees();
+                    if (getTick() % TICKS_PER_SPECTATOR_UPDATE == 0) sendSpectatorInfo();
+                } catch (RuntimeException e) {
+                    spectator_upload_failed = true;
+                    IO.println("Web spectator feed stopped: " + e);
+                }
             }
         }
 
@@ -417,7 +444,7 @@ public final class PeerHub implements Animated, RouterHandler {
             info.append(pos[0]).append(' ').append(pos[1]).append(' ');
         }
         info.append('\n');
-        Network.getMatchmakingClient().getInterface().updateSpectatorInfo(-10000, info.toString());
+        sendSpectatorChunks(SPECTATOR_KEY_TREES, -1, info.toString());
         sentTrees = true;
     }
 
@@ -437,7 +464,17 @@ public final class PeerHub implements Animated, RouterHandler {
             }
         }
         info.append('\n');
-        Network.getMatchmakingClient().getInterface().updateSpectatorInfo(tick, info.toString());
+        sendSpectatorChunks(tick, 1, info.toString());
+    }
+
+    private void sendSpectatorChunks(int first_key, int key_step, @NonNull String info) {
+        var server = Network.getMatchmakingClient().getInterface();
+        int key = first_key;
+        for (int start = 0; start < info.length(); start += MAX_SPECTATOR_INFO_CHARS) {
+            server.updateSpectatorInfo(key, info.substring(start, Math.min(info.length(),
+                    start + MAX_SPECTATOR_INFO_CHARS)));
+            key += key_step;
+        }
     }
 
     public void setPaused(boolean p) {
@@ -502,6 +539,17 @@ public final class PeerHub implements Animated, RouterHandler {
     }
 
     public void sendChat(String text, boolean team_only) {
+        if (is_spectator) {
+            // Spectators talk only to each other: the router relays this to the session's other spectators.
+            String nick = spectatorNick();
+            Network.getChatHub().chat(new ChatMessage(nick, text, ChatMessage.Type.SPECTATOR_CHAT));
+            everyone.chat(nick + SPECTATOR_CHAT_SEPARATOR + text, false);
+            return;
+        }
+        if (!team_only) {
+            everyone.chat(text, false);
+            return;
+        }
         Iterator<Peer> it = getPeerIterator();
         int local_team = local_player.getPlayerInfo().getTeam();
         while (it.hasNext()) {
@@ -522,6 +570,26 @@ public final class PeerHub implements Animated, RouterHandler {
                 peer.getPeerHubInterface().beacon(x, y);
         }
     }
+
+    private static @NonNull String spectatorNick() {
+        Profile profile = Network.getMatchmakingClient().getProfile();
+        return profile != null ? profile.getNick() : "Spectator";
+    }
+
+    // Chat relayed from another spectator; the sender's nick travels in the text since spectators have no slot.
+    private final @NonNull PeerHubInterface spectator_chat = new PeerHubInterface() {
+        @Override
+        public void chat(String text, boolean team) {
+            int split = text.indexOf(SPECTATOR_CHAT_SEPARATOR);
+            String nick = split > 0 ? text.substring(0, split) : "Spectator";
+            String message = split > 0 ? text.substring(split + 1) : text;
+            Network.getChatHub().chat(new ChatMessage(nick, message, ChatMessage.Type.SPECTATOR_CHAT));
+        }
+
+        @Override
+        public void beacon(float x, float y) {
+        }
+    };
 
     public void receiveChat(@NonNull String name, @NonNull String text, boolean team) {
         if (team)

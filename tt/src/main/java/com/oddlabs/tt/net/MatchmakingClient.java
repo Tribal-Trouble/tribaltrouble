@@ -49,6 +49,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
     private final @NonNull ChatRoomHistory chat_room_history;
     private final @NonNull InGameChatHistory in_game_chat_history;
     private @Nullable GUIRoot chat_gui_root;
+    private @Nullable String spectate_nick;
     private @Nullable NetworkSelector network;
     private int current_seq_id = 1;
     private @Nullable SecureConnection conn;
@@ -335,6 +336,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 
     public void requestSpectate(GUIRoot gui_root, String nick) {
         this.chat_gui_root = gui_root;
+        this.spectate_nick = nick;
         getInterface().requestSpectate(nick);
     }
 
@@ -353,13 +355,19 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
             float random_start_position = ois.readFloat();
             int session_id = ois.readInt();
             ois.close();
+            int followed_slot = 0;
+            for (int i = 0; i < player_slots.length; i++) {
+                if (player_slots[i].getInfo() != null && player_slots[i].getInfo().getName().equalsIgnoreCase(
+                        spectate_nick))
+                    followed_slot = i;
+            }
 
             var gui = chat_gui_root.getGUI();
             com.oddlabs.tt.form.ProgressForm.setProgressForm(network, gui,
                     new ReplayWorldStarter(network, session_id, generator, world_params,
                             player_slots, unit_infos, (short) 0,
                             new com.oddlabs.tt.viewer.SpectatorInGameInfo(random_start_position),
-                            new SpectatorWorldInitAction()));
+                            new SpectatorWorldInitAction(followed_slot)));
             chat_gui_root = null;
         } catch (Exception e) {
             IO.println("Failed to deserialize spectator data: " + e);

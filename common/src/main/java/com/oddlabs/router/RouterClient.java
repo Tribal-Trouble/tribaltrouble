@@ -130,8 +130,13 @@ final class RouterClient implements ConnectionInterface {
             public void relayGameStateEvent(ARMIEvent event) {
             }
 
+            // Spectators only ever reach the other spectators of their session, never the players.
             @Override
             public void relayEvent(ARMIEvent event) {
+                session.visitSpectators((RouterClient client) -> {
+                    if (client != RouterClient.this)
+                        client.client_interface.receiveEvent(GameInterface.SPECTATOR_CLIENT_ID, event);
+                });
             }
         });
         session.addSpectator(this);
@@ -156,8 +161,9 @@ final class RouterClient implements ConnectionInterface {
         session.visit((RouterClient client) -> client.client_interface.receiveEvent(client_id, event));
     }
 
+    // Spectators have no client id of their own, so a targeted event must never be matched against them.
     private void doRelayEventTo(final int receiver_client_id, final ARMIEvent event) {
-        session.visit((RouterClient client) -> {
+        session.visitPlayers((RouterClient client) -> {
             if (client.client_id == receiver_client_id)
                 client.client_interface.receiveEvent(client_id, event);
         });

@@ -38,6 +38,7 @@ public abstract class AbstractOptionsMenu extends Form {
         PanelGroup panel_group = new PanelGroup(
                 generalPanel,
                 graphicsPanel,
+                new CameraPanel(),
                 new KeyBindingPanel(gui_root),
                 new AccessibilityPanel(gui_root),
                 new SoundPanel(gui_root),

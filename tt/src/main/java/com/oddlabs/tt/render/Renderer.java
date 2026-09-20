@@ -683,6 +683,7 @@ public final class Renderer implements AutoCloseable {
                 consoleHandler.setFormatter(new SimpleFormatter());
                 rootLogger.addHandler(consoleHandler);
             }
+            logger.info("version: " + BuildInfo.FULL_VERSION);
         } catch (IOException e) {
             logger.log(Level.WARNING, "Failed to setup file logging", e);
         }

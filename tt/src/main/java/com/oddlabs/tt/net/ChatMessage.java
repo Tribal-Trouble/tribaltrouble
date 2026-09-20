@@ -9,7 +9,8 @@ public record ChatMessage(@NonNull String nick, @NonNull String message, @NonNul
         TEAM,
         PRIVATE,
         CHATROOM,
-        GAME_MENU
+        GAME_MENU,
+        SPECTATOR_CHAT
     }
 
     public ChatMessage(@NonNull String nick, @NonNull String message, @NonNull Type type) {
@@ -27,6 +28,7 @@ public record ChatMessage(@NonNull String nick, @NonNull String message, @NonNul
             case TEAM -> "(Team) " + formatShort();
             case PRIVATE -> "(Private) " + formatShort(); /* Fall through */
             case NORMAL, CHATROOM, GAME_MENU -> formatShort();
+            case SPECTATOR_CHAT -> "(Spectators) " + formatShort();
         };
     }
 }

@@ -8,5 +8,6 @@ public enum CursorType {
     TARGET,
     TEXT,
     DEBUG,
+    HIDDEN,
     NULL
 }

@@ -25,6 +25,10 @@ public final class GameCamera extends Camera {
     private static final float SCROLL_START_MAX_SPEED = 60f;
     private static final float ROTATE_PICKING_ANGLE_MAX = (-(Globals.FOV) - 10) * ((float) Math.PI / 180) * .5f;
     private static final float ZOOM_SPEED = 50f;
+    private static final float CINEMATIC_MAX_Z = 300f;
+    private static final float CINEMATIC_SMOOTHNESS_FACTOR = 4f;
+    private static final float ORBIT_SPEED = (float) (Math.PI / 8);
+    private static final float AUTO_PAN_SPEED = 25f;
 
     private final @NonNull WorldViewer viewer;
 
@@ -48,6 +52,11 @@ public final class GameCamera extends Camera {
     private boolean pitch_down;
     private boolean rotate_left;
     private boolean rotate_right;
+
+    private int orbit_direction;
+    private int auto_pan_direction;
+    private float orbit_x;
+    private float orbit_y;
 
     public GameCamera(@NonNull WorldViewer viewer, @NonNull CameraState camera) {
         super(viewer.getWorld().getHeightMap(), camera);
@@ -91,6 +100,86 @@ public final class GameCamera extends Camera {
 
     public boolean rotateLeft() {
         return rotate_left;
+    }
+
+    public static float cinematicSpeedFactor() {
+        return Globals.cinematic_camera ? Settings.getSettings().cinematic_camera_speed : 1f;
+    }
+
+    static float panSpeedFactor() {
+        return Settings.getSettings().camera_pan_speed * cinematicSpeedFactor();
+    }
+
+    static float rotateSpeedFactor() {
+        return Settings.getSettings().camera_rotate_speed * cinematicSpeedFactor();
+    }
+
+    static float zoomSpeedFactor() {
+        return Settings.getSettings().camera_zoom_speed * cinematicSpeedFactor();
+    }
+
+    private static boolean limitsUnlocked() {
+        return Globals.cinematic_camera && Settings.getSettings().cinematic_unlock_limits;
+    }
+
+    @Override
+    protected float getMaxZ() {
+        return limitsUnlocked() ? CINEMATIC_MAX_Z : MAX_Z;
+    }
+
+    public void toggleOrbit(int direction) {
+        auto_pan_direction = 0;
+        if (orbit_direction == direction) {
+            orbit_direction = 0;
+            return;
+        }
+        viewer.getPicker().pickRotate(this);
+        float[] point = getRotationPoint();
+        if (!insideWorld(point[0], point[1])) {
+            point[0] = getState().getTargetX() + (float) Math.cos(
+                    getState().getTargetHorizAngle()) * default_rotate_radius;
+            point[1] = getState().getTargetY() + (float) Math.sin(
+                    getState().getTargetHorizAngle()) * default_rotate_radius;
+        }
+        orbit_x = point[0];
+        orbit_y = point[1];
+        orbit_direction = direction;
+    }
+
+    public void toggleAutoPan(int direction) {
+        orbit_direction = 0;
+        auto_pan_direction = auto_pan_direction == direction ? 0 : direction;
+    }
+
+    public void stopAutoMotion() {
+        orbit_direction = 0;
+        auto_pan_direction = 0;
+    }
+
+    private void doOrbit(float time_delta) {
+        if (orbit_direction == 0)
+            return;
+        float da = orbit_direction * time_delta * ORBIT_SPEED * rotateSpeedFactor();
+        if (Settings.getSettings().invert_camera_yaw) {
+            da *= -1;
+        }
+        float dx = getState().getTargetX() - orbit_x;
+        float dy = getState().getTargetY() - orbit_y;
+        float cos = (float) Math.cos(da);
+        float sin = (float) Math.sin(da);
+        getState().setTargetHorizAngle(getState().getTargetHorizAngle() + da);
+        getState().setTargetX(orbit_x + dx * cos - dy * sin);
+        getState().setTargetY(orbit_y + dx * sin + dy * cos);
+        checkPosition();
+    }
+
+    private void doAutoPan(float time_delta) {
+        if (auto_pan_direction == 0)
+            return;
+        float distance = auto_pan_direction * time_delta * AUTO_PAN_SPEED * panSpeedFactor();
+        getState().setTargetX(getState().getTargetX() + (float) Math.cos(getState().getTargetHorizAngle()) * distance);
+        getState().setTargetY(getState().getTargetY() + (float) Math.sin(getState().getTargetHorizAngle()) * distance);
+        checkPosition();
     }
 
     /*
@@ -141,7 +230,7 @@ public final class GameCamera extends Camera {
     }
 
     private void doZoom(float time_delta) {
-        zoom(zoom_time * time_delta * ZOOM_SPEED * getState().getTargetZ());
+        zoom(zoom_time * time_delta * ZOOM_SPEED * zoomSpeedFactor() * getState().getTargetZ());
         if (zoom_time < 0f)
             zoom_time = Math.min(0f, zoom_time + time_delta);
         else if (zoom_time > 0f)
@@ -177,7 +266,7 @@ public final class GameCamera extends Camera {
             float dy = (temp_y - mid);
             float squared_dist = dx * dx + dy * dy;
             if (squared_dist < getHeightMap().getMetersPerWorld() * getHeightMap().getMetersPerWorld()
-                    && temp_z < MAX_Z) {
+                    && temp_z < getMaxZ()) {
                 getState().setTargetX(temp_x);
                 getState().setTargetY(temp_y);
                 getState().setTargetZ(temp_z);
@@ -196,8 +285,9 @@ public final class GameCamera extends Camera {
         if (!viewer.getGUIRoot().getDelegate().canScroll())
             return;
         var inputManager = Renderer.getLocalInput().getInputManager();
-        float scroll_speed = scroll_start_speed * (.4f + (scroll_acceleration_seconds / SCROLL_ACCELERATION_SECONDS_MAX) * SCROLL_ACCELERATION_FACTOR);
-        float scroll_factor = time_delta * scroll_speed;
+        float acceleration = Settings.getSettings().camera_pan_acceleration ? scroll_acceleration_seconds / SCROLL_ACCELERATION_SECONDS_MAX : 1f;
+        float scroll_speed = scroll_start_speed * (.4f + acceleration * SCROLL_ACCELERATION_FACTOR);
+        float scroll_factor = time_delta * scroll_speed * panSpeedFactor();
         boolean blocked = viewer.getGUIRoot().getDelegate().keyboardBlocked();
 
         scrolling_x = inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !inputManager.isActive(
@@ -223,7 +313,7 @@ public final class GameCamera extends Camera {
     private void doPitch(float time_delta) {
         checkKeys();
         if (pitch_up != pitch_down) {
-            float da = pitch_up ? time_delta * ANGLE_DELTA : -time_delta * ANGLE_DELTA;
+            float da = (pitch_up ? time_delta : -time_delta) * ANGLE_DELTA * rotateSpeedFactor();
             if (Settings.getSettings().invert_camera_pitch) {
                 da *= -1;
             }
@@ -235,7 +325,7 @@ public final class GameCamera extends Camera {
     private void doRotate(float time_delta) {
         checkKeys();
         if (rotate_left != rotate_right) {
-            float da = rotate_left ? time_delta * ANGLE_DELTA : -time_delta * ANGLE_DELTA;
+            float da = (rotate_left ? time_delta : -time_delta) * ANGLE_DELTA * rotateSpeedFactor();
             if (Settings.getSettings().invert_camera_yaw) {
                 da *= -1;
             }
@@ -254,7 +344,7 @@ public final class GameCamera extends Camera {
             // int dy = (int)(((float)Math.tan(da))*pixels_to_screen);
             int dy = (int) (Math.tan(da) * Globals.VIEW_MIN);
             int y = center_y - dy;
-            return y;
+            return Math.clamp(y, 0, viewer.getGUIRoot().getHeight() - 1);
         }
     }
 
@@ -264,6 +354,10 @@ public final class GameCamera extends Camera {
 
     @Override
     public void doAnimate(float t) {
+        setSmoothnessFactor(Globals.cinematic_camera ? CINEMATIC_SMOOTHNESS_FACTOR : SMOOTHNESS_FACTOR);
+        getState().setMaxVertAngle(limitsUnlocked() ? CameraState.MAX_ANGLE_UNLOCKED : CameraState.MAX_ANGLE);
+        doOrbit(t);
+        doAutoPan(t);
         doZoom(t);
         doScroll(t);
         doPitch(t);
@@ -348,6 +442,13 @@ public final class GameCamera extends Camera {
     public void handleInput(@NonNull InputEvent event) {
         if (event.getPhase() == InputPhase.PRESSED) {
             boolean handled = false;
+
+            if (event.hasAction(GameAction.CAMERA_PAN_UP) || event.hasAction(GameAction.CAMERA_PAN_DOWN)
+                    || event.hasAction(GameAction.CAMERA_PAN_LEFT) || event.hasAction(GameAction.CAMERA_PAN_RIGHT)
+                    || event.hasAction(GameAction.CAMERA_ROTATE_LEFT) || event.hasAction(
+                            GameAction.CAMERA_ROTATE_RIGHT)) {
+                stopAutoMotion();
+            }
 
             if (event.consumeAction(GameAction.CAMERA_PITCH_UP)) handled = true;
             if (event.consumeAction(GameAction.CAMERA_PITCH_DOWN)) handled = true;

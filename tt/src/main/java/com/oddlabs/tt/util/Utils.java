@@ -11,7 +11,6 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -124,14 +123,13 @@ public final class Utils {
         buffer.put((byte) 0);                                // ...
 
         pixel_data.rewind();
-        IntBuffer int_pixel_data = pixel_data.asIntBuffer();
-        //write BMP image data
+        //write BMP image data; pixels are RGBA bytes, so read them as bytes rather than as native-order ints
         for (int y = height - 1; y >= 0; y--) {
             for (int x = 0; x < width; x++) {
-                int pixel = int_pixel_data.get(y * width + x);
-                byte r = (byte) ((pixel >> 24) & 0xff);
-                byte g = (byte) ((pixel >> 16) & 0xff);
-                byte b = (byte) ((pixel >> 8) & 0xff);
+                int offset = (y * width + x) * 4;
+                byte r = pixel_data.get(offset);
+                byte g = pixel_data.get(offset + 1);
+                byte b = pixel_data.get(offset + 2);
                 buffer.put(b);
                 buffer.put(g);
                 buffer.put(r);

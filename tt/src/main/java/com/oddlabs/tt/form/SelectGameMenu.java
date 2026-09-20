@@ -6,9 +6,11 @@ import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -118,10 +120,9 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         Label label_headline = new Label(i18n("multiplayer_caption"), Skin.getSkin().getHeadlineFont());
         game_list_panel.addChild(label_headline);
         game_list_panel.addFocusListener(new GameListPanelListener());
-        game_name_size = 260;
+        game_name_size = 340;
         ColumnInfo[] infos = new ColumnInfo[]{new ColumnInfo(i18n("game_name"), game_name_size), new ColumnInfo(i18n(
-                "rated"), 120), new ColumnInfo(i18n("speed"), 120), new ColumnInfo(i18n("map_size"),
-                        120), new ColumnInfo(i18n("version"), 80)};
+                "rated"), 120), new ColumnInfo(i18n("speed"), 120), new ColumnInfo(i18n("map_size"), 120)};
         game_list_box = new MultiColumnComboBox<>(gui_root, infos, 350);
         game_list_box.addRowListener(new GameDoubleClickedListener());
         game_list_panel.addChild(game_list_box);
@@ -463,17 +464,25 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         ranking_list_box.addRow(row);
     }
 
+    private static boolean joinable(@NonNull GameHost game_host) {
+        return game_host.getSimVersion() == Compatibility.SIM_VERSION;
+    }
+
+    // Games on another sim version cannot be joined: they sink to the bottom and their rows are dimmed.
     private void updateGameListGUI() {
         Font combofont = Skin.getSkin().getMultiColumnComboBoxData().font();
-        for (GameHost game_host : game_hosts) {
+        List<GameHost> sorted = new ArrayList<>(game_hosts);
+        sorted.sort(Comparator.comparingInt(game_host -> joinable(game_host) ? 0 : 1));
+        for (GameHost game_host : sorted) {
             String rated = ServerMessageBundler.getRatedString(game_host.getGame().isRated());
             String size = ServerMessageBundler.getSizeString(game_host.getGame().getSize());
+            Vector4fc color = joinable(game_host) ? Label.DEFAULT_COLOR : Label.DISABLED_COLOR;
             Row<GameHost, Label> row = new Row<>(List.of(
-                    new Label(game_host.getGame().getName(), combofont, game_name_size),
-                    new Label(rated, combofont),
-                    new Label(ServerMessageBundler.getGamespeedString(game_host.getGame().getGamespeed()), combofont),
-                    new Label(size, combofont),
-                    new IntegerLabel(game_host.getSimVersion(), combofont)),
+                    new Label(game_host.getGame().getName(), combofont, game_name_size).setColor(color),
+                    new Label(rated, combofont).setColor(color),
+                    new Label(ServerMessageBundler.getGamespeedString(game_host.getGame().getGamespeed()),
+                            combofont).setColor(color),
+                    new Label(size, combofont).setColor(color)),
                     game_host);
             game_list_box.addRow(row);
         }
@@ -523,9 +532,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
                             gui_root.addModalForm(new MessageForm(min_wins));
                         } else {
                             Game game = selected_game.getGame();
-                            main_menu.joinGame(network, gui_root.getGUI(), selected_game.getHostID(), game.isRated(),
-                                    game.getGamespeed(), game.getMapcode(), this, game.getRandomStartPos(),
-                                    game.getMaxUnitCount(), game.getSize());
+                            main_menu.joinGame(network, gui_root.getGUI(), selected_game.getHostID(), game, this);
                         }
             }
         }
@@ -641,7 +648,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
                     joinGame(host);
                     break;
                 case 1: //Info
-                    gui_root.addModalForm(new GameInfoForm(host.getGame()));
+                    gui_root.addModalForm(new GameInfoForm(host.getGame(), host.getSimVersion()));
                     break;
                 default:
                     throw new IllegalArgumentException("Unexpected action " + item_index);
