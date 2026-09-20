@@ -39,7 +39,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 10, 0),
+    "version": (1, 11, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1904,6 +1904,72 @@ class VIEW3D_PT_tt_preview(bpy.types.Panel):
             layout.operator(MaterialPreview.bl_idname, icon="SHADING_TEXTURE")
 
 
+ADDON_SOURCE = os.path.join("tools", "blender", "io_tribaltrouble.py")
+_repo_version_cache = {}
+
+
+def version_from_source(path):
+    """bl_info version of an add-on source file, read as text so nothing gets imported."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            match = re.search(r'"version":\s*\((\d+),\s*(\d+),\s*(\d+)\)', f.read(20000))
+    except OSError:
+        return None
+    return tuple(int(g) for g in match.groups()) if match else None
+
+
+def update_available(context):
+    """Version of the add-on in the repo folder when it is newer than this installed copy, else None."""
+    root = repo_root(context)
+    if not root:
+        return None
+    source = os.path.join(root, ADDON_SOURCE)
+    if os.path.normcase(os.path.abspath(source)) == os.path.normcase(os.path.abspath(__file__)):
+        return None
+    try:
+        stamp = os.path.getmtime(source)
+    except OSError:
+        return None
+    if _repo_version_cache.get(source, (None,))[0] != stamp:
+        _repo_version_cache[source] = (stamp, version_from_source(source))
+    version = _repo_version_cache[source][1]
+    # Blender removes bl_info from extension modules, so the installed version is read from this file's text too.
+    if __file__ not in _repo_version_cache:
+        _repo_version_cache[__file__] = (None, version_from_source(__file__))
+    installed = _repo_version_cache[__file__][1]
+    return version if version is not None and installed is not None and version > installed else None
+
+
+def install_repo_addon(context):
+    """Copy the repo's add-on over this installed file. The running code is unchanged until a reload."""
+    version = update_available(context)
+    if version is not None:
+        shutil.copyfile(os.path.join(repo_root(context), ADDON_SOURCE), __file__)
+    return version
+
+
+def reload_addon():
+    import addon_utils
+    addon_utils.disable(__name__)
+    addon_utils.enable(__name__, default_set=True)
+    return None
+
+
+class UpdateAddon(bpy.types.Operator):
+    """Replace the installed add-on with the newer copy in your repo folder and reload it"""
+    bl_idname = "wm.tt_update_addon"
+    bl_label = "Update Add-on"
+
+    def execute(self, context):
+        version = install_repo_addon(context)
+        if version is None:
+            self.report({"INFO"}, "The installed add-on is already as new as the one in the repo")
+            return {"CANCELLED"}
+        bpy.app.timers.register(reload_addon, first_interval=0.1)  # not from inside the module being replaced
+        self.report({"INFO"}, "Updated to " + ".".join(map(str, version)))
+        return {"FINISHED"}
+
+
 PLAIN_CLIPS = ("attack", "die", "death", "throw")
 _group_items = []
 
@@ -2083,6 +2149,12 @@ class VIEW3D_PT_tt_units(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         wm = context.window_manager
+        newer = update_available(context)
+        if newer is not None:
+            row = layout.row()
+            row.alert = True
+            row.operator(UpdateAddon.bl_idname, text="Update add-on to " + ".".join(map(str, newer)),
+                         icon="FILE_REFRESH")
         holder = root_holder(context)
         layout.prop(holder, "repo_root" if hasattr(holder, "repo_root") else "tt_repo_root", text="Repo")
         if not repo_root(context):
@@ -2220,7 +2292,7 @@ def menu_object(self, context):
 
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SnapToBone, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
            TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, ShowItem, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
-           RemoveFromRegistry,
+           RemoveFromRegistry, UpdateAddon,
            SetupAttachments, ExportAttachments, CopyRegistrySnippet, VIEW3D_PT_tt_units, VIEW3D_PT_tt_preview, VIEW3D_PT_tt_attachments)
 
 

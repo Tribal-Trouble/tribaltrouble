@@ -348,6 +348,30 @@ def register_a_unit_with_its_own_rig():
 
 
 @test
+def update_button_appears_only_for_a_newer_repo_copy():
+    assert addon.update_available(bpy.context) is None, "the copy under test IS the repo copy"
+    source = os.path.join(REPO, "tools", "blender", "io_tribaltrouble.py")
+    assert addon.version_from_source(source) == tuple(addon.bl_info["version"])
+    repo_copy = os.path.join(TEMP, "tools", "blender", "io_tribaltrouble.py")
+    os.makedirs(os.path.dirname(repo_copy))
+    text = open(source, encoding="utf-8").read()
+    newer = re.sub(r'"version": \(\d+, \d+, \d+\)', '"version": (99, 0, 0)', text, count=1)
+    open(repo_copy, "w", encoding="utf-8").write(newer)
+    installed = os.path.join(TEMP, "installed_addon.py")
+    shutil.copy(source, installed)
+    real_file, addon.__file__ = addon.__file__, installed
+    try:
+        assert addon.update_available(bpy.context) == (99, 0, 0)
+        assert addon.install_repo_addon(bpy.context) == (99, 0, 0)
+        assert addon.version_from_source(installed) == (99, 0, 0), "the installed file was not replaced"
+        open(repo_copy, "w", encoding="utf-8").write(text)
+        os.utime(repo_copy, (1, 1))
+        assert addon.update_available(bpy.context) is None, "an equal or older repo copy must not offer an update"
+    finally:
+        addon.__file__ = real_file
+
+
+@test
 def geometry_xml_is_only_ever_appended_to():
     text = open(registry_path, "rb").read().decode("utf-8")
     assert text.startswith(PRISTINE[:PRISTINE.index("<geometry>")]), "DOCTYPE was touched"
