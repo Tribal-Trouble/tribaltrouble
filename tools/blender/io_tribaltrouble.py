@@ -39,7 +39,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 18, 0),
+    "version": (1, 19, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1225,8 +1225,66 @@ class CopyRegistrySnippet(bpy.types.Operator):
         return {"FINISHED"}
 
 
-SLOT_LABELS = {"hat": "Hats (one at a time, H cycles them)", "weapon": "Weapons (one at a time)",
-               "carried": "Carried (show any you like)"}
+SLOT_LABELS = {"hat": "Hats", "weapon": "Weapons", "carried": "Carried"}
+SLOT_HINTS = {"hat": "One at a time, as in game (H cycles). Shift click keeps others",
+              "weapon": "One at a time, as in game. Shift click keeps others",
+              "carried": "Show any you like. The game shows what the peon is hauling"}
+ALL_SLOTS = "ALL"
+_slot_filter_items = []
+
+
+def slot_label(game_slot):
+    return SLOT_LABELS.get(game_slot, game_slot.replace("_", " ").title())
+
+
+def slot_filter_items(self, context):
+    arm = active_armature(context)
+    slots = sorted(unit_items(arm)) if arm is not None else []
+    _slot_filter_items[:] = [(ALL_SLOTS, "All", "Every item on this unit")] + [
+        (game_slot, slot_label(game_slot), SLOT_HINTS.get(game_slot, "")) for game_slot in slots]
+    return _slot_filter_items
+
+
+def item_rows(objects, arm, slot_filter, name_filter):
+    """(visible, order) per object for the items list: this unit's registry items, narrowed by slot and by typed
+    text, sorted by slot then name."""
+    wanted = name_filter.strip().lower()
+    shown = [arm is not None and o.get("tt_slot") and o.parent == arm and slot_filter in (ALL_SLOTS, "", o["tt_slot"])
+             and wanted in o.get("tt_sprite", "").lower() for o in objects]
+    ranked = sorted(range(len(objects)), key=lambda i: (not shown[i], objects[i].get("tt_slot", ""),
+                                                        objects[i].get("tt_sprite", objects[i].name)))
+    order = [0] * len(objects)
+    for position, index in enumerate(ranked):
+        order[index] = position
+    return [bool(x) for x in shown], order
+
+
+class TT_UL_items(bpy.types.UIList):
+    """The unit's items. The list keeps its height and scrolls, however many there are; type to search"""
+
+    def draw_item(self, context, layout, data, item, icon, active_data, active_property, index):
+        row = layout.row(align=True)
+        hidden = item.hide_get()
+        row.operator(ShowItem.bl_idname, text="", icon="HIDE_ON" if hidden else "HIDE_OFF", emboss=False).item = item.name
+        row.label(text=item["tt_sprite"])
+        tag = row.row()
+        tag.alignment = "RIGHT"
+        tag.enabled = False
+        tag.label(text=slot_label(item["tt_slot"]))
+        if item["tt_slot"] != CARRY_SLOT:
+            arm = active_armature(context)
+            remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH", emboss=False)
+            remove.group = find_base_sprite(arm.get("tt_skeleton", ""))[0] or "" if arm is not None else ""
+            remove.sprite = item["tt_sprite"]
+
+    def draw_filter(self, context, layout):
+        layout.prop(self, "filter_name", text="", icon="VIEWZOOM")
+
+    def filter_items(self, context, data, propname):
+        objects = list(getattr(data, propname))
+        shown, order = item_rows(objects, active_armature(context), context.window_manager.tt_item_filter,
+                                 self.filter_name)
+        return [self.bitflag_filter_item if x else 0 for x in shown], order
 _point_items = []
 
 
@@ -1255,17 +1313,16 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
             layout.operator(SetupAttachments.bl_idname)
             return
         layout.label(text="Hats, weapons and things this unit carries")
-        group_name = find_base_sprite(arm.get("tt_skeleton", ""))[0] or ""
-        for game_slot, items in sorted(unit_items(arm).items()):
-            box = layout.box()
-            box.label(text=SLOT_LABELS.get(game_slot, game_slot.replace("_", " ").title()))
-            for obj in sorted(items, key=lambda o: o.name):
-                row = box.row(align=True)
-                row.operator(ShowItem.bl_idname, text=obj["tt_sprite"], depress=not obj.hide_get(),
-                             icon="HIDE_ON" if obj.hide_get() else "HIDE_OFF").item = obj.name
-                if game_slot != CARRY_SLOT:
-                    remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
-                    remove.group, remove.sprite = group_name, obj["tt_sprite"]
+        items = unit_items(arm)
+        if items:
+            if len(items) > 1:
+                layout.row(align=True).prop(wm, "tt_item_filter", expand=True)
+            layout.template_list("TT_UL_items", "", bpy.data, "objects", wm, "tt_item_index", rows=6, maxrows=12)
+            chosen = wm.tt_item_filter if wm.tt_item_filter != ALL_SLOTS else (next(iter(items)) if len(items) == 1
+                                                                               else "")
+            layout.label(text=SLOT_HINTS.get(chosen, "Click the eye to show or hide an item"))
+        else:
+            layout.label(text="Nothing yet: add one below", icon="INFO")
 
         box = layout.box()
         box.label(text="Add a new item", icon="ADD")
@@ -1757,8 +1814,9 @@ def unit_meshes(arm):
 
 
 def unit_tiers(arm):
-    """The longest comma-separated atlas list among the unit's meshes: one entry per weapon tier."""
-    lists = [[t.strip() for t in o["tt_texture"].split(",") if t.strip()] for o in unit_meshes(arm)]
+    """The unit body's comma-separated atlas list: one entry per weapon tier. Items follow it, they do not set it."""
+    lists = [[t.strip() for t in o["tt_texture"].split(",") if t.strip()] for o in unit_meshes(arm)
+             if not o.get("tt_slot")]
     return max(lists, key=len, default=[])
 
 
@@ -2973,7 +3031,8 @@ classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SnapToBone, SplitByBone, I
            TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, ShowItem, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
            RemoveFromRegistry, UpdateAddon, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
            SaveProps, VIEW3D_PT_tt_building, NewClip, SaveClip, DeleteClip,
-           SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, VIEW3D_PT_tt_units, VIEW3D_PT_tt_preview,
+           SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, TT_UL_items, VIEW3D_PT_tt_units,
+           VIEW3D_PT_tt_preview,
            VIEW3D_PT_tt_attachments, VIEW3D_PT_tt_attachments_more)
 
 
@@ -2995,6 +3054,8 @@ def register():
                                       description="Blend the player's color in through the team decal, as in game")
     wm.tt_team_color = FloatVectorProperty(name="Team Color", subtype="COLOR", size=3, min=0.0, max=1.0,
                                            default=(0.8, 0.1, 0.1), update=team_preview_update)
+    wm.tt_item_filter = EnumProperty(name="Show", items=slot_filter_items)
+    wm.tt_item_index = IntProperty()
     wm.tt_new_point = EnumProperty(name="Goes On", items=point_items,
                                    description="The part of the unit your new mesh follows")
     wm.tt_event = StringProperty(name="Event", description="Blank means all year. With a name such as halloween, "
@@ -3017,7 +3078,8 @@ def unregister():
     bpy.app.handlers.load_post.remove(refresh_units_on_load)
     del bpy.types.Object.tt_attachments
     for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_units_only", "tt_auto_load", "tt_checks",
-                 "tt_checked", "tt_team_preview", "tt_team_color", "tt_event", "tt_new_point"):
+                 "tt_checked", "tt_team_preview", "tt_team_color", "tt_event", "tt_new_point", "tt_item_filter",
+                 "tt_item_index"):
         delattr(bpy.types.WindowManager, name)
     for cls in classes:
         bpy.utils.unregister_class(cls)

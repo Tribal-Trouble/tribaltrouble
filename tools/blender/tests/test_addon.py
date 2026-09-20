@@ -433,6 +433,33 @@ def one_press_saves_a_new_item_and_turns_it_into_a_button():
 
 
 @test
+def the_items_list_filters_by_slot_and_text_and_holds_a_hundred():
+    a = load("natives", "peon")
+    template = next(o for o in addon.unit_items(a)[addon.CARRY_SLOT] if o["tt_sprite"] == "wood_resource")
+    existing = sum(len(v) for v in addon.unit_items(a).values())
+    made = []
+    for i in range(100):
+        hat = template.copy()
+        hat["tt_slot"], hat["tt_sprite"] = "hat", f"peon_hat_{i:03d}"
+        bpy.context.collection.objects.link(hat)
+        made.append(hat)
+    objects = list(bpy.data.objects)
+    shown, order = addon.item_rows(objects, a, addon.ALL_SLOTS, "")
+    assert sum(shown) == existing + 100, (sum(shown), existing)
+    listed = [objects[i]["tt_sprite"] for i in sorted(range(len(objects)), key=lambda i: order[i]) if shown[i]]
+    assert listed[:5] == ["left_paddle", "right_paddle", "rock_resource", "rubber_resource", "wood_resource"], listed[:5]
+    hats = [name for name in listed if name.startswith("peon_hat_")]
+    assert hats == sorted(hats) and len(hats) == 100
+    shown, _ = addon.item_rows(objects, a, "hat", "hat_04")
+    assert sorted(objects[i]["tt_sprite"] for i in range(len(objects)) if shown[i]) == [f"peon_hat_04{d}" for d in range(10)]
+    shown, _ = addon.item_rows(objects, a, addon.CARRY_SLOT, "")
+    assert sum(shown) == 5
+    assert not any(addon.item_rows(objects, None, addon.ALL_SLOTS, "")[0]), "items listed with no unit active"
+    for hat in made:
+        bpy.data.objects.remove(hat)
+
+
+@test
 def point_rows_only_take_the_artists_own_meshes():
     a = load("natives", "peon")
     head = next(slot for slot in a.tt_attachments if slot.point == "HEAD")
