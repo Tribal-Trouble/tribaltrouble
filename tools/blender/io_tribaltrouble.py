@@ -39,7 +39,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 13, 0),
+    "version": (1, 14, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1084,7 +1084,8 @@ def detach_object(obj):
 
 
 def attachment_obj_poll(self, obj):
-    return obj.type == "MESH" and obj != self.id_data
+    """Only the artist's own meshes: items loaded from the registry already have their place and their own buttons."""
+    return obj.type == "MESH" and not obj.get(BROWSER_TAG)
 
 
 def slot_obj_update(self, context):
@@ -1253,7 +1254,7 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
                 if game_slot != CARRY_SLOT:
                     remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
                     remove.group, remove.sprite = group_name, obj["tt_sprite"]
-        layout.label(text="New items by point:")
+        layout.label(text="Add your own new mesh to a point:")
         for slot in arm.tt_attachments:
             row = layout.row(align=True)
             row.label(text=POINT_LABELS.get(slot.point, slot.point))
@@ -1327,6 +1328,8 @@ def read_registry(root):
                 "skeleton": skeleton.text.strip() if skeleton is not None and skeleton.text else "",
                 "models": [(m.text or "").strip() for m in sprite.findall("model")],
                 "clips": [(a.text or "").strip() for a in sprite.findall("animation")],
+                "clip_info": {a.get("name"): (a.get("wpc"), a.get("type"), (a.text or "").strip())
+                              for a in sprite.findall("animation")},
             })
     return sprites
 
@@ -1918,6 +1921,9 @@ class VIEW3D_PT_tt_preview(bpy.types.Panel):
             playing = context.screen.is_animation_playing
             layout.operator("screen.animation_play", text="Pause" if playing else "Play",
                             icon="PAUSE" if playing else "PLAY")
+        row = layout.row(align=True)
+        row.operator(NewClip.bl_idname, icon="ADD")
+        row.operator(SaveClip.bl_idname, icon="EXPORT")
         tiers = unit_tiers(arm)
         if len(tiers) > 1:
             row = layout.row(align=True)
@@ -1928,6 +1934,160 @@ class VIEW3D_PT_tt_preview(bpy.types.Panel):
         row.prop(wm, "tt_team_color", text="")
         if wm.tt_team_preview and context.space_data.shading.type not in ("MATERIAL", "RENDERED"):
             layout.operator(MaterialPreview.bl_idname, icon="SHADING_TEXTURE")
+
+
+def browsed_unit(arm):
+    """The mesh loaded from the Models list onto this armature."""
+    return next((o for o in unit_meshes(arm) if o.get("tt_group") and not o.get("tt_slot")), None)
+
+
+def clip_short_name(arm, action):
+    """walk for an action called peon_walk on the peon rig; the action name otherwise."""
+    stem = os.path.splitext(action.get("tt_clip") or action.name)[0]
+    prefix = os.path.basename(arm.get("tt_skeleton", "")).replace("skeleton.xml", "")
+    return stem[len(prefix):] if prefix and stem.startswith(prefix) and len(stem) > len(prefix) else stem
+
+
+def save_clip_line(registry_path, group, skeleton, name, wpc, kind, path):
+    """Add or update <animation name=...> on every sprite in the group that lists this skeleton: the unit, and the
+    carried items that copy its clip list and are drawn with the unit's clip number. New clips go last, so the
+    numbers the game already uses do not move. Returns the sprites touched."""
+    with open(registry_path, "rb") as f:
+        text = f.read().decode("utf-8")
+    touched, out, cursor = [], [], 0
+    for sprite_group, sprite, start, end in sprite_blocks(text):
+        block = text[start:end]
+        listed = re.search(r"<skeleton>\s*([^<]+?)\s*</skeleton>", block)
+        if sprite_group != group or listed is None or listed.group(1).replace("\\", "/") != skeleton:
+            continue
+        existing = re.search(r'<animation\s+name="%s"[^>]*>[^<]*</animation>' % re.escape(name), block)
+        line = f'<animation name="{name}" wpc="{wpc:g}" type="{kind}">{path}</animation>'
+        if existing is not None:
+            edited = block[:existing.start()] + line + block[existing.end():]
+        else:
+            anchors = list(re.finditer(r"([ \t]*)<(?:animation|model)\b.*?</(?:animation|model)>[ \t]*(\r?\n)", block, re.S))
+            last = anchors[-1]
+            edited = block[:last.end()] + last.group(1) + line + last.group(2) + block[last.end():]
+        if edited != block:
+            out.append(text[cursor:start] + edited)
+            cursor = end
+        touched.append(sprite)
+    if out:
+        with open(registry_path, "wb") as f:
+            f.write(("".join(out) + text[cursor:]).encode("utf-8"))
+    return touched
+
+
+class NewClip(bpy.types.Operator):
+    """Start a new clip for this unit from a copy of the one showing, so you begin from a sensible pose"""
+    bl_idname = "object.tt_new_clip"
+    bl_label = "New Clip"
+    bl_options = {"REGISTER", "UNDO"}
+    clip_name: StringProperty(name="Name", default="", description="Short name such as dance or wave")
+
+    @classmethod
+    def poll(cls, context):
+        return active_armature(context) is not None
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+    def execute(self, context):
+        arm = active_armature(context)
+        name = self.clip_name.strip().lower()
+        if not re.fullmatch(r"[a-z0-9_]+", name):
+            self.report({"ERROR"}, "Name the clip with letters, digits and underscores")
+            return {"CANCELLED"}
+        taken = {clip_short_name(arm, a) for a in armature_actions(arm)}
+        if name in taken:
+            self.report({"ERROR"}, f"This unit already has a clip called {name}")
+            return {"CANCELLED"}
+        current = arm.animation_data.action if arm.animation_data is not None else None
+        prefix = os.path.basename(arm.get("tt_skeleton", "")).replace("skeleton.xml", "")
+        action = current.copy() if current is not None else bpy.data.actions.new(prefix + name)
+        action.name = prefix + name
+        action.use_fake_user = True
+        action["tt_armature"] = arm.name
+        if "tt_clip" in action:
+            del action["tt_clip"]
+        if arm.animation_data is not None:
+            arm.animation_data.action = None  # a copied action brings its own slot; let assign_action bind it
+        assign_action(arm, action)
+        return {"FINISHED"}
+
+
+class SaveClip(bpy.types.Operator):
+    """Write the clip that is showing into the unit's folder and list it in geometry.xml. An existing clip is
+    replaced in place and the game plays it straight away; a brand new clip also needs code that asks for it"""
+    bl_idname = "object.tt_save_clip"
+    bl_label = "Save Clip To Repo"
+    clip_name: StringProperty(name="Name", description="The clip's name in geometry.xml, such as run or dance")
+    kind: EnumProperty(name="Plays", items=(("loop", "Looping", "Repeats, like idle and run"),
+                                            ("plain", "Once", "Plays once and holds, like attack and die")))
+    wpc: FloatProperty(name="Distance Per Loop", default=1.0, min=0.0001,
+                       description="For a walk or run: how far the unit travels in one loop, so feet do not slide. "
+                                   "Leave at 1 for anything that stays in place")
+
+    @classmethod
+    def poll(cls, context):
+        arm = active_armature(context)
+        return (arm is not None and bool(arm.get("tt_skeleton")) and bool(repo_root(context))
+                and arm.animation_data is not None and arm.animation_data.action is not None)
+
+    def invoke(self, context, event):
+        arm = active_armature(context)
+        self.clip_name = clip_short_name(arm, arm.animation_data.action)
+        group, base = find_base_sprite(arm["tt_skeleton"])
+        rig = next((s for s in read_registry(repo_root(context)) if s["group"] == group and s["name"] == base), None)
+        file_name = arm.animation_data.action.get("tt_clip")
+        for name, (wpc, kind, path) in (rig["clip_info"].items() if rig else []):
+            if file_name and os.path.basename(path) == file_name:
+                self.clip_name, self.kind, self.wpc = name, kind, float(wpc)
+        return context.window_manager.invoke_props_dialog(self)
+
+    def execute(self, context):
+        arm = active_armature(context)
+        root = repo_root(context)
+        action = arm.animation_data.action
+        name = self.clip_name.strip().lower()
+        if not re.fullmatch(r"[a-z0-9_]+", name):
+            self.report({"ERROR"}, "Name the clip with letters, digits and underscores")
+            return {"CANCELLED"}
+        group, base = find_base_sprite(arm["tt_skeleton"])
+        if base is None:
+            self.report({"ERROR"}, "Could not find this unit's sprite in geometry.xml")
+            return {"CANCELLED"}
+        body = browsed_unit(arm)
+        if body is not None and body["tt_sprite"] != base:
+            self.report({"ERROR"}, f"{body['tt_sprite']} borrows the {base} rig and its clips: load {base} to "
+                                   f"change them")
+            return {"CANCELLED"}
+        start, end = action.frame_range
+        if int(round(end)) - int(round(start)) < 1:
+            self.report({"ERROR"}, "The clip has fewer than two frames")
+            return {"CANCELLED"}
+        geometry = os.path.join(root, GEOMETRY_DIR)
+        rig = next(s for s in read_registry(root) if s["group"] == group and s["name"] == base)
+        is_new = name not in rig["clip_info"]
+        if is_new:
+            prefix = os.path.basename(arm["tt_skeleton"]).replace("skeleton.xml", "")
+            path = os.path.join(os.path.dirname(arm["tt_skeleton"]), prefix + name + ".xml")
+        else:
+            path = os.path.join(geometry, rig["clip_info"][name][2])
+        write_animation_xml(context, arm, action, path)
+        relative = os.path.relpath(path, geometry).replace(os.sep, "/")
+        touched = save_clip_line(os.path.join(root, REGISTRY_FILE), group, rig["skeleton"].replace("\\", "/"), name,
+                                 self.wpc, self.kind, relative)
+        action.name = os.path.splitext(os.path.basename(path))[0]
+        action["tt_clip"], action["tt_armature"], action[BROWSER_TAG] = os.path.basename(path), arm.name, True
+        action.use_fake_user = True
+        frames = int(round(end)) - int(round(start)) + 1
+        if is_new:
+            self.report({"WARNING"}, f"Saved new clip {name} ({frames} frames) on {', '.join(touched)}. It shows "
+                                     f"in game only once code asks for it")
+        else:
+            self.report({"INFO"}, f"Replaced clip {name} ({frames} frames); the game plays it after the next build")
+        return {"FINISHED"}
 
 
 ADDON_SOURCE = os.path.join("tools", "blender", "io_tribaltrouble.py")
@@ -2627,7 +2787,7 @@ def menu_object(self, context):
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SnapToBone, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
            TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, ShowItem, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
            RemoveFromRegistry, UpdateAddon, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
-           SaveProps, VIEW3D_PT_tt_building,
+           SaveProps, VIEW3D_PT_tt_building, NewClip, SaveClip,
            SetupAttachments, ExportAttachments, CopyRegistrySnippet, VIEW3D_PT_tt_units, VIEW3D_PT_tt_preview, VIEW3D_PT_tt_attachments)
 
 

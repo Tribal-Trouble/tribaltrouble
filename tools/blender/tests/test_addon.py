@@ -401,6 +401,76 @@ def carried_items_load_on_the_peon_and_leave_the_model_list():
 
 
 @test
+def point_rows_only_take_the_artists_own_meshes():
+    a = load("natives", "peon")
+    head = next(slot for slot in a.tt_attachments if slot.point == "HEAD")
+    rubber = next(o for o in addon.unit_items(a)[addon.CARRY_SLOT] if o["tt_sprite"] == "rubber_resource")
+    assert not addon.attachment_obj_poll(head, rubber), "a registry item could be picked into a point row"
+    assert not addon.attachment_obj_poll(head, addon.browsed_unit(a)), "the unit's own body could be picked"
+    own = fixture_mesh("own_hat", fixture_image("own_hat_tex"))
+    assert addon.attachment_obj_poll(head, own)
+    bpy.data.objects.remove(own)
+
+
+def clip_lines(group, sprite):
+    return list(entry(group, sprite)["clip_info"].items())
+
+
+@test
+def a_new_clip_is_saved_last_on_the_unit_and_on_everything_it_carries():
+    a = load("vikings", "peon")
+    before = clip_lines("vikings", "peon")
+    assert bpy.ops.object.tt_set_clip(clip=next(x.name for x in addon.armature_actions(a) if x.name.endswith("idle"))) == {"FINISHED"}
+    assert bpy.ops.object.tt_new_clip(clip_name="dance") == {"FINISHED"}
+    action = a.animation_data.action
+    assert action.name == "peon_dance" and "tt_clip" not in action, action.name
+    expect_error(lambda: bpy.ops.object.tt_new_clip(clip_name="dance"), "already has a clip called dance")
+    head = a.pose.bones["peon Head"]
+    head.rotation_mode = "QUATERNION"
+    head.rotation_quaternion = (0.9, 0.0, 0.0, 0.43)
+    head.keyframe_insert("rotation_quaternion", frame=5)
+    assert bpy.ops.object.tt_save_clip(clip_name="dance", kind="loop", wpc=1.0) == {"FINISHED"}
+    path = os.path.join(GEOMETRY, "vikings", "peon", "peon_dance.xml")
+    assert os.path.isfile(path)
+    idle = ET.parse(os.path.join(GEOMETRY, "vikings", "peon", "peon_idle.xml")).getroot()
+    dance = ET.parse(path).getroot()
+    assert len(dance.findall("frame")) == len(idle.findall("frame"))
+    assert len(dance.find("frame").findall("transform")) == len(idle.find("frame").findall("transform"))
+    for sprite in ("peon", "rock_resource", "wood_resource", "rubber_resource", "left_paddle", "right_paddle"):
+        lines = clip_lines("vikings", sprite)
+        assert lines[:-1] == before, f"{sprite}: existing clip numbers moved"
+        assert lines[-1] == ("dance", ("1", "loop", "vikings/peon/peon_dance.xml")), (sprite, lines[-1])
+    assert "dance" not in entry("natives", "peon")["clip_info"], "the other race's peon was touched"
+    a = load("vikings", "peon")
+    assert "peon_dance" in [x.name for x in addon.armature_actions(a)], "the new clip has no button after a reload"
+
+
+@test
+def saving_an_existing_clip_replaces_it_in_place():
+    a = load("vikings", "warrior")
+    run = next(x for x in addon.armature_actions(a) if x.name.endswith("run"))
+    assert bpy.ops.object.tt_set_clip(clip=run.name) == {"FINISHED"}
+    before = clip_lines("vikings", "warrior")
+    wpc, kind, relative = dict(before)["run"]
+    path = os.path.join(GEOMETRY, relative)
+    frames = len(ET.parse(path).getroot().findall("frame"))
+    os.remove(path)
+    assert bpy.ops.object.tt_save_clip(clip_name="run", kind=kind, wpc=float(wpc)) == {"FINISHED"}
+    assert len(ET.parse(path).getroot().findall("frame")) == frames
+    assert clip_lines("vikings", "warrior") == before
+    assert bpy.ops.object.tt_save_clip(clip_name="run", kind="loop", wpc=4.5) == {"FINISHED"}
+    assert dict(clip_lines("vikings", "warrior"))["run"] == ("4.5", "loop", relative)
+    assert [n for n, _ in clip_lines("vikings", "warrior")] == [n for n, _ in before], "clip order changed"
+    assert bpy.ops.object.tt_save_clip(clip_name="run", kind=kind, wpc=float(wpc)) == {"FINISHED"}
+
+
+@test
+def a_unit_on_a_borrowed_rig_cannot_change_the_clips():
+    load("natives", "warrior_variant")
+    expect_error(lambda: bpy.ops.object.tt_save_clip(clip_name="wave", kind="loop", wpc=1.0), "borrows the warrior rig")
+
+
+@test
 def props_on_a_building_save_register_and_come_back_on_reload():
     body = load_building("vikings", "quarters")
     assert body is not None and body["tt_sprite"] == "quarters"
