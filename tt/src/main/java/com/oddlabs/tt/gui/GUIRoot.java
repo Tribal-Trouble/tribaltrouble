@@ -431,7 +431,7 @@ public final class GUIRoot extends GUIObject {
     }
 
     @NonNull
-    GUIObject getCurrentGUIObject() {
+    public GUIObject getCurrentGUIObject() {
         return current_gui_object;
     }
 
