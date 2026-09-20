@@ -12,6 +12,8 @@
         <!ATTLIST sprite name CDATA #REQUIRED>
         <!ATTLIST sprite scale CDATA #IMPLIED>
         <!ATTLIST sprite base CDATA #IMPLIED>
+        <!ATTLIST sprite slot CDATA #IMPLIED>
+        <!ATTLIST sprite default CDATA #IMPLIED>
         <!ATTLIST group name CDATA #REQUIRED>
         <!ATTLIST model r CDATA #REQUIRED>
         <!ATTLIST model g CDATA #REQUIRED>
@@ -45,7 +47,7 @@
             <animation name="die" wpc="1" type="plain">vikings/warrior/warrior_die.xml</animation>
             <animation name="sit" wpc="1" type="loop">vikings/warrior/warrior_sitting.xml</animation>
         </sprite>
-        <sprite name="warrior_axe_held" base="warrior">
+        <sprite name="warrior_axe_held" base="warrior" slot="weapon" default="true">
             <model r="90" g="60" b="30">
                 vikings/warrior/warrior_axe_held.xml
                 <texture name="viking_warrior_rock" team="viking_warrior_rock_team"/>

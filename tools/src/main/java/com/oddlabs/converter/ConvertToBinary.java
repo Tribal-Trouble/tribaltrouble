@@ -16,12 +16,15 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
 public final class ConvertToBinary {
+    private static final String ATTACHMENTS_FILE = "attachments.txt";
+
     void main(@NonNull String @NonNull... args) {
         if (args.length != 3)
             throw new IllegalArgumentException("Invalid number of arguments : <xml_file> <src_dir> <build_dir>");
@@ -47,14 +50,23 @@ public final class ConvertToBinary {
     private static void parseGeometry(@NonNull Node n, @NonNull Path src_dir, @NonNull Path build_dir) {
         if (n.hasChildNodes()) {
             NodeList nl = n.getChildNodes();
+            List<String> attachments = new ArrayList<>();
             for (int i = 0; i < nl.getLength(); i++) {
                 if (nl.item(i).getNodeType() == Node.ELEMENT_NODE)
-                    parseGroup(nl.item(i), src_dir, build_dir);
+                    parseGroup(nl.item(i), src_dir, build_dir, attachments);
+            }
+            Collections.sort(attachments);
+            try {
+                Files.createDirectories(build_dir);
+                Files.write(build_dir.resolve(ATTACHMENTS_FILE), attachments);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }
 
-    private static void parseGroup(@NonNull Node n, @NonNull Path src_dir, @NonNull Path build_dir) {
+    private static void parseGroup(@NonNull Node n, @NonNull Path src_dir, @NonNull Path build_dir,
+            @NonNull List<String> attachments) {
         if (n.hasChildNodes()) {
             Path new_build_dir = build_dir.resolve(getName(n));
             NodeList nl = n.getChildNodes();
@@ -66,8 +78,24 @@ public final class ConvertToBinary {
             }
             for (Node sprite : sprites.values()) {
                 parseSprite(sprite, sprites, src_dir, new_build_dir);
+                Node slot = sprite.getAttributes().getNamedItem("slot");
+                if (slot != null)
+                    attachments.add(attachmentLine(getName(n), sprite, slot.getNodeValue(), src_dir));
             }
         }
+    }
+
+    // group base slot order name textures: one line per sprite with a slot, default-on sprites sorted first in their slot.
+    private static @NonNull String attachmentLine(@NonNull String group, @NonNull Node sprite, @NonNull String slot,
+            @NonNull Path src_dir) {
+        Node base = sprite.getAttributes().getNamedItem("base");
+        if (base == null)
+            throw new RuntimeException("Sprite " + getName(sprite) + " has a slot but no base");
+        Node default_on = sprite.getAttributes().getNamedItem("default");
+        int order = default_on != null && Boolean.parseBoolean(default_on.getNodeValue()) ? 0 : 1;
+        int textures = getModelObjectInfos(sprite, src_dir)[0].getTextures().length;
+        return String.join(" ", group, base.getNodeValue(), slot, Integer.toString(order), getName(sprite),
+                Integer.toString(textures));
     }
 
     private static boolean isModified(@NonNull Path src, @NonNull Path dest) {
