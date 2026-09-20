@@ -463,10 +463,12 @@ def a_new_clip_is_saved_last_on_the_unit_and_on_everything_it_carries():
     dance = ET.parse(path).getroot()
     assert len(dance.findall("frame")) == len(idle.findall("frame"))
     assert len(dance.find("frame").findall("transform")) == len(idle.find("frame").findall("transform"))
-    for sprite in ("peon", "rock_resource", "wood_resource", "rubber_resource", "left_paddle", "right_paddle"):
-        lines = clip_lines("vikings", sprite)
-        assert lines[:-1] == before, f"{sprite}: existing clip numbers moved"
-        assert lines[-1] == ("dance", ("1", "loop", "vikings/peon/peon_dance.xml")), (sprite, lines[-1])
+    lines = clip_lines("vikings", "peon")
+    assert lines[:-1] == before, "existing clip numbers moved"
+    assert lines[-1] == ("dance", ("1", "loop", "vikings/peon/peon_dance.xml")), lines[-1]
+    for sprite in ("rock_resource", "wood_resource", "rubber_resource", "left_paddle", "right_paddle"):
+        e = entry("vikings", sprite)
+        assert e["base"] == "peon" and e["slot"] == addon.CARRY_SLOT and not e["clip_info"], (sprite, e)
     assert "dance" not in entry("natives", "peon")["clip_info"], "the other race's peon was touched"
     a = load("vikings", "peon")
     assert "peon_dance" in [x.name for x in addon.armature_actions(a)], "the new clip has no button after a reload"
@@ -482,9 +484,8 @@ def deleting_clips_unsaved_then_saved_and_only_from_the_end():
     expect_error(lambda: bpy.ops.object.tt_delete_clip(clip="peon_run"), "Only the last clip (dance)")
     assert os.path.isfile(os.path.join(GEOMETRY, "vikings", "peon", "peon_run.xml"))
     assert bpy.ops.object.tt_delete_clip(clip="peon_dance") == {"FINISHED"}
-    for sprite in ("peon", "rock_resource", "wood_resource", "rubber_resource", "left_paddle", "right_paddle"):
-        assert "dance" not in entry("vikings", sprite)["clip_info"], sprite
-        assert len(entry("vikings", sprite)["clip_info"]) == 8, sprite
+    assert "dance" not in entry("vikings", "peon")["clip_info"]
+    assert len(entry("vikings", "peon")["clip_info"]) == 8
     assert not os.path.exists(os.path.join(GEOMETRY, "vikings", "peon", "peon_dance.xml"))
     assert "peon_dance" not in bpy.data.actions
 

@@ -39,7 +39,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 15, 1),
+    "version": (1, 16, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1372,19 +1372,7 @@ def rig_entry(registry, entry):
     return next((s for s in registry if s["group"] == entry["group"] and s["name"] == entry["base"]), entry)
 
 
-CARRY_SLOT = "carried"
-
-
-def carry_owner(registry, entry):
-    """The unit that carries this sprite, or None. The original game gives a carried item (wood, rock, rubber, a
-    paddle) its own copy of the peon's skeleton and clips instead of base=; the unit is the sprite whose mesh lives
-    in the skeleton's folder."""
-    if not entry["skeleton"] or entry["base"] or entry["slot"]:
-        return None
-    folder = os.path.dirname(entry["skeleton"])
-    owner = next((s for s in registry if s["group"] == entry["group"] and s["skeleton"] == entry["skeleton"]
-                  and s["models"] and os.path.dirname(s["models"][0]) == folder), None)
-    return owner if owner is not None and owner is not entry else None
+CARRY_SLOT = "carried"  # what a peon hauls or rows with; the game picks which one shows
 
 
 def team_attribute(root, texture, fallback):
@@ -1401,8 +1389,7 @@ def refresh_units(context):
     if not root:
         return 0
     registry = read_registry(root)
-    sprites = [s for s in registry if not s["slot"] and carry_owner(registry, s) is None
-               and (rig_entry(registry, s)["skeleton"] or not wm.tt_units_only)]
+    sprites = [s for s in registry if not s["slot"] and (rig_entry(registry, s)["skeleton"] or not wm.tt_units_only)]
     for sprite in sorted(sprites, key=lambda s: (s["group"], s["name"])):
         item = wm.tt_units.add()
         item.name = f"{sprite['group']} / {sprite['name']}"
@@ -1471,15 +1458,14 @@ def load_unit(context, group, name, report):
 
     items = 0
     for sprite in registry:
-        carried = carry_owner(registry, sprite) is entry
-        if not carried and (sprite["group"] != group or sprite["base"] != name or not sprite["slot"]):
+        if sprite["group"] != group or sprite["base"] != name or not sprite["slot"]:
             continue
         path = os.path.join(geometry, sprite["models"][0])
         obj = import_mesh_file(context, path, False, True, quiet)
         if obj is None:
             continue
         obj[BROWSER_TAG] = True
-        obj["tt_slot"] = CARRY_SLOT if carried else sprite["slot"]
+        obj["tt_slot"] = sprite["slot"]
         obj["tt_sprite"] = sprite["name"]
         obj["tt_source"] = path
         obj["tt_event"] = sprite["event"]
@@ -2030,9 +2016,9 @@ def clip_short_name(arm, action):
 
 
 def save_clip_line(registry_path, group, skeleton, name, wpc, kind, path):
-    """Add or update <animation name=...> on every sprite in the group that lists this skeleton: the unit, and the
-    carried items that copy its clip list and are drawn with the unit's clip number. New clips go last, so the
-    numbers the game already uses do not move. Returns the sprites touched."""
+    """Add or update <animation name=...> on the sprite in the group that lists this skeleton. Items and carried
+    things inherit the unit's clips through base=. New clips go last, so the numbers the game already uses do not
+    move. Returns the sprites touched."""
     with open(registry_path, "rb") as f:
         text = f.read().decode("utf-8")
     touched, out, cursor = [], [], 0
