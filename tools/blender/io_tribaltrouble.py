@@ -25,6 +25,7 @@ and also check it on export.
 """
 
 import os
+import shutil
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import quoteattr
 
@@ -37,7 +38,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 8, 0),
+    "version": (1, 9, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1151,10 +1152,8 @@ def registry_entries(context, arm, base):
             continue
         obj = slot.obj
         game_slot = GAME_SLOTS.get(slot.point, slot.point.lower())
-        # Only atlases imported from the game are known to have a team decal next to them.
-        atlas = obj.get("tt_texture")
-        texture = atlas or material_image_name([obj]) or "TEXTURE"
-        team = f' team="{texture}_team"' if atlas else ""
+        texture = obj.get("tt_texture") or material_image_name([obj]) or "TEXTURE"
+        team = team_attribute(root, texture, bool(obj.get("tt_texture")))
         model = f"misc/{obj.name}.xml"
         if root and arm.get("tt_skeleton"):
             model = os.path.relpath(os.path.join(os.path.dirname(arm["tt_skeleton"]), obj.name + ".xml"),
@@ -1211,17 +1210,18 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
         if not arm.tt_attachments:
             layout.operator(SetupAttachments.bl_idname)
             return
-        for slot in arm.tt_attachments:
-            row = layout.row(align=True)
-            row.label(text=POINT_LABELS.get(slot.point, slot.point))
-            row.prop(slot, "obj", text="")
-            row.prop(slot, "visible", text="", icon="HIDE_OFF" if slot.visible else "HIDE_ON")
         for game_slot, items in sorted(unit_items(arm).items()):
             box = layout.box()
             box.label(text=f"In the registry: {game_slot}")
             for obj in sorted(items, key=lambda o: o.name):
                 box.operator(ShowItem.bl_idname, text=obj["tt_sprite"], depress=not obj.hide_get(),
                              icon="HIDE_ON" if obj.hide_get() else "HIDE_OFF").item = obj.name
+        layout.label(text="New items by point:")
+        for slot in arm.tt_attachments:
+            row = layout.row(align=True)
+            row.label(text=POINT_LABELS.get(slot.point, slot.point))
+            row.prop(slot, "obj", text="")
+            row.prop(slot, "visible", text="", icon="HIDE_OFF" if slot.visible else "HIDE_ON")
         col = layout.column(align=True)
         col.operator(SetupAttachments.bl_idname, text="Refresh Points")
         col.operator(ExportToRepo.bl_idname)
@@ -1282,13 +1282,28 @@ def read_registry(root):
     return sprites
 
 
+def rig_entry(registry, entry):
+    """The sprite that supplies the skeleton and clips: the entry itself, or its base."""
+    if not entry["base"]:
+        return entry
+    return next((s for s in registry if s["group"] == entry["group"] and s["name"] == entry["base"]), entry)
+
+
+def team_attribute(root, texture, fallback):
+    """team="..." when the decal PNG exists; without a repo folder, fall back to the caller's guess."""
+    if root:
+        fallback = os.path.isfile(os.path.join(root, "assets", "textures", "teamdecals", texture + "_team.png"))
+    return f' team="{texture}_team"' if fallback else ""
+
+
 def refresh_units(context):
     wm = context.window_manager
     wm.tt_units.clear()
     root = repo_root(context)
     if not root:
         return 0
-    sprites = [s for s in read_registry(root) if not s["base"] and (s["skeleton"] or not wm.tt_units_only)]
+    registry = read_registry(root)
+    sprites = [s for s in registry if not s["slot"] and (rig_entry(registry, s)["skeleton"] or not wm.tt_units_only)]
     for sprite in sorted(sprites, key=lambda s: (s["group"], s["name"])):
         item = wm.tt_units.add()
         item.name = f"{sprite['group']} / {sprite['name']}"
@@ -1337,12 +1352,13 @@ def load_unit(context, group, name, report):
         return None
     body[BROWSER_TAG] = True
     arm = None
-    if entry["skeleton"]:
-        arm = armature_from_file(context, os.path.join(geometry, entry["skeleton"]))
+    rig = rig_entry(registry, entry)
+    if rig["skeleton"]:
+        arm = armature_from_file(context, os.path.join(geometry, rig["skeleton"]))
         arm[BROWSER_TAG] = True
         bind_meshes(arm, [body])
         idle = None
-        for clip in entry["clips"]:
+        for clip in rig["clips"]:
             clip_name = os.path.splitext(os.path.basename(clip))[0]
             action = apply_clip(context, arm, clip_name, read_animation(os.path.join(geometry, clip)))
             action["tt_clip"] = os.path.basename(clip)
@@ -1377,7 +1393,7 @@ def load_unit(context, group, name, report):
     active = arm if arm is not None else body
     context.view_layer.objects.active = active
     active.select_set(True)
-    report({"INFO"}, f"{group} / {name}: {len(entry['clips'])} clip(s), {items} registry attachment(s)")
+    report({"INFO"}, f"{group} / {name}: {len(rig['clips'])} clip(s), {items} registry attachment(s)")
     return active
 
 
@@ -1544,6 +1560,138 @@ class AddToRegistry(bpy.types.Operator):
         return {"FINISHED"}
 
 
+PLAIN_CLIPS = ("attack", "die", "death", "throw")
+_group_items = []
+
+
+def registry_group_items(self, context):
+    root = repo_root(context)
+    names = sorted({s["group"] for s in read_registry(root)}) if root else []
+    _group_items[:] = [(n, n, "") for n in names] or [("misc", "misc", "")]
+    return _group_items
+
+
+def ensure_texture_in_repo(root, obj, texture):
+    """Copy the material's image into assets/textures/models when the repo does not have it yet."""
+    target = os.path.join(root, "assets", "textures", "models", texture + ".png")
+    if os.path.isfile(target):
+        return True
+    for slot in obj.material_slots:
+        nodes = slot.material.node_tree.nodes if slot.material is not None and slot.material.use_nodes else []
+        for node in nodes:
+            if node.type == "TEX_IMAGE" and node.image is not None:
+                source = bpy.path.abspath(node.image.filepath)
+                if os.path.isfile(source) and source.lower().endswith(".png"):
+                    shutil.copyfile(source, target)
+                    return True
+    return False
+
+
+class RegisterModel(bpy.types.Operator):
+    """Export the active mesh as a brand new model and add it to geometry.xml: a static building or prop, a
+    unit on the rig it is bound to, or a unit with its own new rig. Using it in game still needs code"""
+    bl_idname = "object.tt_register_model"
+    bl_label = "Register New Model"
+    bl_options = {"REGISTER"}
+    sprite_name: StringProperty(name="Name", description="Sprite name in geometry.xml and the new folder's name")
+    group: EnumProperty(name="Group", items=registry_group_items)
+    low_detail: StringProperty(name="Low Detail", description="Optional mesh object shown at a distance")
+
+    @classmethod
+    def poll(cls, context):
+        o = context.active_object
+        return o is not None and o.type == "MESH" and bool(repo_root(context))
+
+    def invoke(self, context, event):
+        self.sprite_name = context.active_object.name
+        return context.window_manager.invoke_props_dialog(self)
+
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "sprite_name")
+        arm = active_armature(context)
+        group, base = find_base_sprite(arm.get("tt_skeleton", "")) if arm is not None else (None, None)
+        if base is not None:
+            layout.label(text=f"Unit on the {group} / {base} rig", icon="ARMATURE_DATA")
+        else:
+            layout.prop(self, "group")
+            layout.label(text="Unit with its own new rig" if arm is not None else "Static model",
+                         icon="ARMATURE_DATA" if arm is not None else "MESH_CUBE")
+        layout.prop_search(self, "low_detail", bpy.data, "objects")
+
+    def execute(self, context):
+        root = repo_root(context)
+        obj = context.active_object
+        name = self.sprite_name.strip()
+        if not name or any(c in name for c in ' "<>/\\'):
+            self.report({"ERROR"}, "Give the model a name without spaces, quotes or slashes")
+            return {"CANCELLED"}
+        arm = active_armature(context)
+        group, base = find_base_sprite(arm.get("tt_skeleton", "")) if arm is not None else (None, None)
+        if base is None:
+            group = self.group
+        if any(s["group"] == group and s["name"] == name for s in read_registry(root)):
+            self.report({"ERROR"}, f"{group} already has a sprite named {name}")
+            return {"CANCELLED"}
+        low = bpy.data.objects.get(self.low_detail) if self.low_detail else None
+        if low is not None and (low.type != "MESH" or low == obj):
+            self.report({"ERROR"}, "Low Detail must be a different mesh object")
+            return {"CANCELLED"}
+
+        geometry = os.path.join(root, GEOMETRY_DIR)
+        folder = os.path.join(geometry, group, name)
+        os.makedirs(folder, exist_ok=True)
+        relative = lambda path: os.path.relpath(path, geometry).replace(os.sep, "/")
+        lines = [f'        <sprite name="{name}"' + (f' base="{base}"' if base is not None else "") + ">"]
+        missing = []
+
+        previous = arm.data.pose_position if arm is not None else None
+        if arm is not None:
+            arm.data.pose_position = "REST"
+            context.view_layer.update()
+        try:
+            if arm is not None and base is None:
+                skeleton_path = os.path.join(folder, name + "_skeleton.xml")
+                write_skeleton_xml(arm, skeleton_path)
+                lines.append(f"            <skeleton>{relative(skeleton_path)}</skeleton>")
+            depsgraph = context.evaluated_depsgraph_get()
+            for mesh_obj, suffix in ((obj, ""), (low, "_lo")):
+                if mesh_obj is None:
+                    continue
+                texture = mesh_obj.get("tt_texture", "").split(",")[0].strip() or material_image_name([mesh_obj])
+                if not texture:
+                    self.report({"ERROR"}, f"{mesh_obj.name} has no image texture to name in the registry")
+                    return {"CANCELLED"}
+                if not ensure_texture_in_repo(root, mesh_obj, texture):
+                    missing.append(texture)
+                path = os.path.join(folder, name + suffix + ".xml")
+                write_mesh_xml([mesh_obj], [None], path, texture, False, depsgraph)
+                lines += ['            <model r="90" g="60" b="30">', f"                {relative(path)}",
+                          f'                <texture name="{texture}"{team_attribute(root, texture, False)}/>',
+                          "            </model>"]
+        finally:
+            if arm is not None:
+                arm.data.pose_position = previous
+                context.view_layer.update()
+
+        if arm is not None and base is None:
+            for action in armature_actions(arm):
+                path = os.path.join(folder, action.name + ".xml")
+                write_animation_xml(context, arm, action, path)
+                clip = action.name[len(name) + 1:] if action.name.startswith(name + "_") else action.name
+                kind = "plain" if any(word in clip for word in PLAIN_CLIPS) else "loop"
+                lines.append(f'            <animation name="{clip}" wpc="1" type="{kind}">{relative(path)}</animation>')
+            arm["tt_skeleton"] = os.path.join(folder, name + "_skeleton.xml")
+        lines.append("        </sprite>")
+
+        append_registry_entries(os.path.join(root, REGISTRY_FILE), group, [(name, "\n".join(lines))])
+        refresh_units(context)
+        note = f"; add {', '.join(m + '.png' for m in missing)} to assets/textures/models" if missing else ""
+        self.report({"WARNING"} if missing else {"INFO"},
+                    f"Registered {group} / {name} as /geometry/{group}/{name}.binsprite{note}")
+        return {"FINISHED"}
+
+
 class VIEW3D_PT_tt_units(bpy.types.Panel):
     bl_label = "Models"
     bl_space_type = "VIEW_3D"
@@ -1564,6 +1712,7 @@ class VIEW3D_PT_tt_units(bpy.types.Panel):
         row.prop(wm, "tt_auto_load", toggle=True)
         layout.template_list("TT_UL_units", "", wm, "tt_units", wm, "tt_unit_index", rows=10)
         layout.operator(LoadUnit.bl_idname, icon="IMPORT")
+        layout.operator(RegisterModel.bl_idname, icon="ADD")
 
 
 def subset_record(record, face_indices):
@@ -1686,7 +1835,7 @@ def menu_object(self, context):
 
 
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SnapToBone, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
-           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, ShowItem, ExportToRepo, AddToRegistry,
+           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, ShowItem, ExportToRepo, AddToRegistry, RegisterModel,
            SetupAttachments, ExportAttachments, CopyRegistrySnippet, VIEW3D_PT_tt_units, VIEW3D_PT_tt_attachments)
 
 
