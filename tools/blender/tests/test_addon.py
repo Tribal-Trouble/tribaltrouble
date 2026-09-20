@@ -433,6 +433,31 @@ def one_press_saves_a_new_item_and_turns_it_into_a_button():
 
 
 @test
+def one_button_gives_a_bare_mesh_a_texture_the_game_accepts():
+    a = load("vikings", "warrior")
+    horn = fixture_mesh("My Horn", None)
+    horn.data.uv_layers.remove(horn.data.uv_layers[0])
+    plain = bpy.data.materials.new("plain_red")
+    plain.use_nodes = True
+    next(n for n in plain.node_tree.nodes if n.type == "BSDF_PRINCIPLED").inputs["Base Color"].default_value = (0.8, 0.1, 0.1, 1.0)
+    horn.data.materials.append(plain)
+    assert any(level == "ERROR" for level, _ in addon.check_mesh(horn, True, 0))
+    assert bpy.ops.object.tt_make_texture(target=horn.name, size="128") == {"FINISHED"}
+    assert horn.name == "my_horn", horn.name
+    image = addon.mesh_texture_image(horn)
+    assert image is not None and image.name == "my_horn" and tuple(image.size) == (128, 128), (image.name, tuple(image.size))
+    assert abs(image.pixels[0] - 0.8) < 0.02 and abs(image.pixels[1] - 0.1) < 0.02, list(image.pixels[:4])
+    assert len(horn.data.uv_layers) == 1
+    assert not [text for level, text in addon.check_mesh(horn, True, 0) if level == "ERROR"]
+    put_on_head(horn)
+    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert os.path.isfile(os.path.join(MODELS, "my_horn.png"))
+    assert entry("vikings", "warrior_my_horn")["slot"] == "hat"
+    expect_cancel = bpy.ops.object.tt_make_texture(target=horn.name, size="128")
+    assert expect_cancel == {"CANCELLED"}, "a mesh that has a texture got a second one"
+
+
+@test
 def the_items_list_filters_by_slot_and_text_and_holds_a_hundred():
     a = load("natives", "peon")
     template = next(o for o in addon.unit_items(a)[addon.CARRY_SLOT] if o["tt_sprite"] == "wood_resource")

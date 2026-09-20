@@ -39,7 +39,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 19, 0),
+    "version": (1, 20, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1329,6 +1329,10 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
         box.prop(wm, "tt_new_point", text="Where")
         slot = next((x for x in arm.tt_attachments if x.point == wm.tt_new_point), arm.tt_attachments[0])
         box.prop(slot, "obj", text="Mesh")
+        if slot.obj is not None and mesh_texture_image(slot.obj) is None:
+            row = box.row()
+            row.alert = True
+            row.operator(MakeTexture.bl_idname, icon="TEXTURE").target = slot.obj.name
         waiting = [x for x in arm.tt_attachments if x.obj is not None and x != slot]
         for other in waiting:
             row = box.row(align=True)
@@ -1732,6 +1736,65 @@ class AddToRegistry(bpy.types.Operator):
         added = append_registry_entries(os.path.join(repo_root(context), REGISTRY_FILE), group,
                                         registry_entries(context, arm, base))
         self.report({"INFO"}, f"Added {added} sprite entr{'y' if added == 1 else 'ies'} to group {group}")
+        return {"FINISHED"}
+
+
+class MakeTexture(bpy.types.Operator):
+    """Give this mesh what the game needs to show it: a UV map if it has none, and a material with one image named
+    after the mesh, filled with the color the material had. Then paint it in the Texture Paint tab"""
+    bl_idname = "object.tt_make_texture"
+    bl_label = "Make A Texture For It"
+    bl_options = {"REGISTER", "UNDO"}
+    target: StringProperty(options={"SKIP_SAVE"})
+    size: EnumProperty(name="Size", default="256", items=(
+        ("128", "128", "Tiny items"), ("256", "256", "Hats and hand items"), ("512", "512", "Large or detailed items"),
+        ("1024", "1024", "As large as a whole unit's texture")))
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+    def execute(self, context):
+        obj = bpy.data.objects.get(self.target) or context.active_object
+        if obj is None or obj.type != "MESH":
+            self.report({"ERROR"}, "Pick a mesh first")
+            return {"CANCELLED"}
+        if mesh_texture_image(obj) is not None:
+            self.report({"INFO"}, f"{obj.name} already has a texture: {mesh_texture_image(obj).name}")
+            return {"CANCELLED"}
+        name = re.sub(r"[^A-Za-z0-9_]+", "_", obj.name).strip("_").lower() or "item"
+        if name != obj.name:
+            obj.name = name  # it becomes the file and sprite name
+        if not obj.data.uv_layers:
+            previous = context.view_layer.objects.active
+            for o in context.selected_objects:
+                o.select_set(False)
+            obj.select_set(True)
+            context.view_layer.objects.active = obj
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.ops.mesh.select_all(action="SELECT")
+            bpy.ops.uv.smart_project(island_margin=0.02)
+            bpy.ops.object.mode_set(mode="OBJECT")
+            context.view_layer.objects.active = previous or obj
+        mat = obj.active_material
+        if mat is None:
+            mat = bpy.data.materials.new("tt_" + name)
+            obj.data.materials.append(mat)
+        mat.use_nodes = True
+        nodes, links = mat.node_tree.nodes, mat.node_tree.links
+        bsdf = next((n for n in nodes if n.type == "BSDF_PRINCIPLED"), None)
+        color = tuple(bsdf.inputs["Base Color"].default_value) if bsdf is not None else (0.6, 0.6, 0.6, 1.0)
+        size = int(self.size)
+        image = bpy.data.images.new(name, size, size, alpha=True)
+        image.generated_color = color[:3] + (1.0,)
+        tex = nodes.new("ShaderNodeTexImage")
+        tex.image = image
+        tex.location = (-350, 300)
+        if bsdf is not None:
+            links.new(bsdf.inputs["Base Color"], tex.outputs["Color"])
+            bsdf.inputs["Roughness"].default_value = 1.0
+        nodes.active = tex  # Texture Paint paints the active image node
+        self.report({"INFO"}, f"{obj.name} now has the texture {name} ({size}x{size}). Paint it in the Texture "
+                              f"Paint tab; Save To Repo writes it")
         return {"FINISHED"}
 
 
@@ -2901,6 +2964,11 @@ class VIEW3D_PT_tt_building(bpy.types.Panel):
         fresh = new_props(context, body)
         box.label(text=f"New: {', '.join(o.name for o in fresh)}" if fresh else "Select meshes to add as props",
                   icon="ADD" if fresh else "INFO")
+        for o in fresh:
+            if mesh_texture_image(o) is None:
+                row = box.row()
+                row.alert = True
+                row.operator(MakeTexture.bl_idname, text=f"Make A Texture For {o.name}", icon="TEXTURE").target = o.name
         box.operator(SaveProps.bl_idname, icon="EXPORT")
         if wm.tt_checked and wm.tt_checks:
             box = layout.box()
@@ -3031,7 +3099,7 @@ classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SnapToBone, SplitByBone, I
            TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, ShowItem, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
            RemoveFromRegistry, UpdateAddon, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
            SaveProps, VIEW3D_PT_tt_building, NewClip, SaveClip, DeleteClip,
-           SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, TT_UL_items, VIEW3D_PT_tt_units,
+           SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, TT_UL_items, VIEW3D_PT_tt_units,
            VIEW3D_PT_tt_preview,
            VIEW3D_PT_tt_attachments, VIEW3D_PT_tt_attachments_more)
 
