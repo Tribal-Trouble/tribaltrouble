@@ -39,7 +39,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 11, 0),
+    "version": (1, 12, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1319,6 +1319,9 @@ def read_registry(root):
             sprites.append({
                 "group": group.get("name"), "name": sprite.get("name"), "base": sprite.get("base") or "",
                 "slot": sprite.get("slot") or "", "default": sprite.get("default") == "true",
+                "event": sprite.get("event") or "",
+                "textures": [[(t.get("name"), t.get("event") or "") for t in m.findall("texture")]
+                             for m in sprite.findall("model")],
                 "skeleton": skeleton.text.strip() if skeleton is not None and skeleton.text else "",
                 "models": [(m.text or "").strip() for m in sprite.findall("model")],
                 "clips": [(a.text or "").strip() for a in sprite.findall("animation")],
@@ -1396,6 +1399,7 @@ def load_unit(context, group, name, report):
     if body is None:
         return None
     body[BROWSER_TAG] = True
+    body["tt_group"], body["tt_sprite"], body["tt_source"] = group, name, os.path.join(geometry, entry["models"][0])
     arm = None
     rig = rig_entry(registry, entry)
     if rig["skeleton"]:
@@ -1415,7 +1419,7 @@ def load_unit(context, group, name, report):
 
     items = 0
     for sprite in registry:
-        if arm is None or sprite["group"] != group or sprite["base"] != name or not sprite["slot"]:
+        if sprite["group"] != group or sprite["base"] != name or not sprite["slot"]:
             continue
         path = os.path.join(geometry, sprite["models"][0])
         obj = import_mesh_file(context, path, False, True, quiet)
@@ -1425,8 +1429,11 @@ def load_unit(context, group, name, report):
         obj["tt_slot"] = sprite["slot"]
         obj["tt_sprite"] = sprite["name"]
         obj["tt_source"] = path
+        obj["tt_event"] = sprite["event"]
         bones = [g.name for g in obj.vertex_groups]
-        if len(bones) == 1 and bones[0] in arm.data.bones:
+        if arm is None:
+            obj.parent = body
+        elif len(bones) == 1 and bones[0] in arm.data.bones:
             attach_object(arm, obj, bones[0], sprite["default"])
         else:
             bind_meshes(arm, [obj])
@@ -2171,6 +2178,314 @@ class VIEW3D_PT_tt_units(bpy.types.Panel):
         row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
 
 
+PROP_SLOT = "prop"
+TEXTURE_LINE = re.compile(r'([ \t]*)<texture\s+name="([^"]+)"([^>]*?)/>[ \t]*\r?\n')
+
+
+def browsed_building(context):
+    """The static model loaded from the Models list, when that is what is on screen."""
+    return next((o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.get("tt_group") and o.type == "MESH"
+                 and o.parent is None), None)
+
+
+def building_props(body):
+    return sorted((o for o in bpy.data.objects if o.parent == body and o.get("tt_slot")), key=lambda o: o.name)
+
+
+def new_props(context, body):
+    return [o for o in context.selected_objects if o.type == "MESH" and o != body and not o.get(BROWSER_TAG)]
+
+
+def models_texture_path(root, texture):
+    return os.path.join(root, "assets", "textures", "models", texture + ".png")
+
+
+def event_name(context):
+    return context.window_manager.tt_event.strip().lower()
+
+
+def sprite_blocks(text):
+    """(group, name, start, end) of every sprite element in the registry text."""
+    groups = [(m.start(), m.group(1)) for m in re.finditer(r'<group\s+name="([^"]+)"', text)]
+    for m in re.finditer(r'<sprite\s+name="([^"]+)"[^>]*>.*?</sprite>', text, re.S):
+        group = [name for start, name in groups if start < m.start()][-1]
+        yield group, m.group(1), m.start(), m.end()
+
+
+def edit_event_textures(root, original, event, only, remove):
+    """Give every model of every sprite that uses the original atlas a texture for this event (or take them away).
+    The game picks a texture by its place in the list, shared by all detail levels, so each model of a sprite gets
+    one: <its texture>_<event> when that image is in the repo, its usual texture again when not. Returns the
+    sprites touched."""
+    registry_path = os.path.join(root, REGISTRY_FILE)
+    with open(registry_path, "rb") as f:
+        text = f.read().decode("utf-8")
+    touched, out, cursor = [], [], 0
+    for group, name, start, end in sprite_blocks(text):
+        block = text[start:end]
+        models = list(re.finditer(r"<model\b[^>]*>.*?</model>", block, re.S))
+        firsts = [TEXTURE_LINE.search(m.group(0)) for m in models]
+        if only is not None and (group, name) not in only:
+            continue
+        if not any(first is not None and first.group(2) == original for first in firsts):
+            continue
+        edited, offset = block, 0
+        for model, first in zip(models, firsts):
+            if first is None:
+                continue
+            body = model.group(0)
+            tagged = [t for t in TEXTURE_LINE.finditer(body) if f'event="{event}"' in t.group(3)]
+            if remove:
+                new_body = body
+                for t in reversed(tagged):
+                    new_body = new_body[:t.start()] + new_body[t.end():]
+            elif tagged:
+                continue
+            else:
+                last = list(TEXTURE_LINE.finditer(body))[-1]
+                variant = f"{first.group(2)}_{event}"
+                texture = variant if os.path.isfile(models_texture_path(root, variant)) else first.group(2)
+                team = re.search(r'\steam="[^"]+"', first.group(3))
+                line = (f'{first.group(1)}<texture name="{texture}"{team.group(0) if team else ""} '
+                        f'event="{event}"/>' + last.group(0)[len(last.group(0).rstrip("\r\n")):])
+                new_body = body[:last.end()] + line + body[last.end():]
+            if new_body != body:
+                at = model.start() + offset
+                edited = edited[:at] + new_body + edited[at + len(body):]
+                offset += len(new_body) - len(body)
+        if edited != block:
+            touched.append(f"{group} / {name}")
+            out.append(text[cursor:start] + edited)
+            cursor = end
+    if touched:
+        with open(registry_path, "wb") as f:
+            f.write(("".join(out) + text[cursor:]).encode("utf-8"))
+    return touched
+
+
+class NewEventTexture(bpy.types.Operator):
+    """Put a copy of the building's texture on it, named for the event, so you paint the copy and never the
+    original"""
+    bl_idname = "object.tt_new_event_texture"
+    bl_label = "Start Event Texture"
+    bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        return browsed_building(context) is not None and bool(event_name(context)) and bool(repo_root(context))
+
+    def execute(self, context):
+        body = browsed_building(context)
+        event = event_name(context)
+        if not re.fullmatch(r"[a-z0-9_]+", event):
+            self.report({"ERROR"}, "Name the event with letters, digits and underscores")
+            return {"CANCELLED"}
+        original = body["tt_texture"].split(",")[0].strip()
+        variant = f"{original}_{event}"
+        root = repo_root(context)
+        if not os.path.isfile(models_texture_path(root, variant)):
+            shutil.copyfile(models_texture_path(root, original), models_texture_path(root, variant))
+        return bpy.ops.object.tt_show_event_texture(texture=variant)
+
+
+class ShowEventTexture(bpy.types.Operator):
+    """Show the building in this texture"""
+    bl_idname = "object.tt_show_event_texture"
+    bl_label = "Show Texture"
+    bl_options = {"REGISTER", "UNDO"}
+    texture: StringProperty()
+
+    def execute(self, context):
+        body = browsed_building(context)
+        root = repo_root(context)
+        if body is None or not root:
+            return {"CANCELLED"}
+        path = models_texture_path(root, self.texture)
+        if not os.path.isfile(path):
+            self.report({"ERROR"}, f"{self.texture}.png is not in assets/textures/models")
+            return {"CANCELLED"}
+        mat = bpy.data.materials.get("tt_" + self.texture)
+        if mat is None:
+            mat = get_atlas_material(self.texture, path)
+            if mat.node_tree.nodes.get(TEAM_MIX) is None:
+                # The game keeps the usual team decal for an event texture.
+                original = body["tt_texture"].split(",")[0].strip()
+                add_team_nodes(mat, next(n for n in mat.node_tree.nodes if n.type == "TEX_IMAGE"),
+                               models_texture_path(root, original))
+        body.data.materials.clear()
+        body.data.materials.append(mat)
+        apply_team_preview(context)
+        return {"FINISHED"}
+
+
+class SaveEventTexture(bpy.types.Operator):
+    """Write the event texture shown on the building into the repo and list it in geometry.xml for the event.
+    Models seen from far away keep their usual texture unless you also paint <their texture>_<event>.png"""
+    bl_idname = "object.tt_save_event_texture"
+    bl_label = "Save Event Texture"
+    everywhere: BoolProperty(name="Every model that shares this texture", default=True,
+                             description="Buildings share one atlas; off means only the model on screen")
+
+    @classmethod
+    def poll(cls, context):
+        return browsed_building(context) is not None and bool(event_name(context)) and bool(repo_root(context))
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+    def execute(self, context):
+        body = browsed_building(context)
+        root = repo_root(context)
+        event = event_name(context)
+        original = body["tt_texture"].split(",")[0].strip()
+        variant = f"{original}_{event}"
+        image = mesh_texture_image(body)
+        if image is None or os.path.splitext(image.name)[0] != variant:
+            self.report({"ERROR"}, f"The building is not showing {variant}: press Start Event Texture first")
+            return {"CANCELLED"}
+        ensure_texture_in_repo(root, body, variant)
+        only = None if self.everywhere else {(body["tt_group"], body["tt_sprite"])}
+        touched = edit_event_textures(root, original, event, only, False)
+        self.report({"INFO"}, f"Saved {variant}.png; {len(touched)} model(s) now use it during {event}")
+        return {"FINISHED"}
+
+
+class RemoveEventTexture(bpy.types.Operator):
+    """Take this event's texture off every model that shares the building's texture. The image stays on disk"""
+    bl_idname = "object.tt_remove_event_texture"
+    bl_label = "Remove Event Texture"
+
+    @classmethod
+    def poll(cls, context):
+        return browsed_building(context) is not None and bool(event_name(context)) and bool(repo_root(context))
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_confirm(self, event)
+
+    def execute(self, context):
+        body = browsed_building(context)
+        original = body["tt_texture"].split(",")[0].strip()
+        touched = edit_event_textures(repo_root(context), original, event_name(context), None, True)
+        self.report({"INFO"}, f"{len(touched)} model(s) no longer change for {event_name(context)}")
+        return {"FINISHED"}
+
+
+class SaveProps(bpy.types.Operator):
+    """Write the selected meshes into the building's folder as props drawn with it in game, and add them to
+    geometry.xml. Props already in the registry are written back to their own files. With an event named, new
+    props only show during that event"""
+    bl_idname = "object.tt_save_props"
+    bl_label = "Save Props To Repo"
+
+    @classmethod
+    def poll(cls, context):
+        body = browsed_building(context)
+        return body is not None and bool(repo_root(context)) and bool(new_props(context, body) or building_props(body))
+
+    def execute(self, context):
+        body = browsed_building(context)
+        root = repo_root(context)
+        event = event_name(context)
+        group, base = body["tt_group"], body["tt_sprite"]
+        fresh = new_props(context, body)
+        existing = [o for o in building_props(body) if not o.hide_viewport and not o.hide_get()]
+        findings = [(level, f"{o.name}: {text}") for o in fresh + existing
+                    for level, text in check_mesh(o, o in fresh, 0)]
+        taken = {s["name"] for s in read_registry(root) if s["group"] == group}
+        findings += [("ERROR", f"{o.name}: {group} already has a sprite named {base}_{o.name}") for o in fresh
+                     if f"{base}_{o.name}" in taken]
+        errors = store_findings(context, findings)
+        if errors:
+            self.report({"ERROR"}, f"Not saved: {errors} problem(s): " +
+                        "; ".join(text for level, text in findings if level == "ERROR"))
+            return {"CANCELLED"}
+        geometry = os.path.join(root, GEOMETRY_DIR)
+        folder = os.path.dirname(body["tt_source"])
+        depsgraph = context.evaluated_depsgraph_get()
+        entries, missing = [], []
+        for o in fresh + existing:
+            path = o.get("tt_source") or os.path.join(folder, o.name + ".xml")
+            texture = o.get("tt_texture", "").split(",")[0].strip() or material_image_name([o])
+            write_mesh_xml([o], [None], path, texture, False, depsgraph, use_groups=False)
+            if not ensure_texture_in_repo(root, o, texture):
+                missing.append(texture)
+            if o in existing:
+                continue
+            sprite = f"{base}_{o.name}"
+            model = os.path.relpath(path, geometry).replace(os.sep, "/")
+            entries.append((sprite, "\n".join([
+                f'        <sprite name="{sprite}" base="{base}" slot="{PROP_SLOT}"' +
+                (f' event="{event}"' if event else "") + ">",
+                '            <model r="90" g="60" b="30">',
+                f"                {model}",
+                f'                <texture name="{texture}"{team_attribute(root, texture, False)}/>',
+                "            </model>",
+                "        </sprite>",
+            ])))
+            world = o.matrix_world.copy()
+            o.parent = body
+            o.matrix_world = world
+            o[BROWSER_TAG] = True
+            o["tt_slot"], o["tt_sprite"], o["tt_source"], o["tt_event"] = PROP_SLOT, sprite, path, event
+            o["tt_texture"] = texture
+        append_registry_entries(os.path.join(root, REGISTRY_FILE), group, entries)
+        note = f"; no texture image for {', '.join(sorted(set(missing)))}" if missing else ""
+        self.report({"WARNING"} if missing else {"INFO"},
+                    f"Saved {len(fresh)} new and {len(existing)} existing prop(s) on {group} / {base}{note}")
+        return {"FINISHED"}
+
+
+class VIEW3D_PT_tt_building(bpy.types.Panel):
+    bl_label = "Building"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Tribal Trouble"
+
+    @classmethod
+    def poll(cls, context):
+        return browsed_building(context) is not None
+
+    def draw(self, context):
+        layout = self.layout
+        wm = context.window_manager
+        body = browsed_building(context)
+        root = repo_root(context)
+        layout.label(text=f"{body['tt_group']} / {body['tt_sprite']}", icon="MESH_CUBE")
+        layout.prop(wm, "tt_event")
+        original = body["tt_texture"].split(",")[0].strip()
+        box = layout.box()
+        box.label(text="Texture")
+        entry = next((s for s in read_registry(root) if s["group"] == body["tt_group"]
+                      and s["name"] == body["tt_sprite"]), None) if root else None
+        shown = mesh_texture_image(body)
+        shown = os.path.splitext(shown.name)[0] if shown is not None else ""
+        row = box.row(align=True)
+        row.operator(ShowEventTexture.bl_idname, text="usual", depress=shown == original).texture = original
+        for texture, event in (entry["textures"][0] if entry else []):
+            if event:
+                row.operator(ShowEventTexture.bl_idname, text=event, depress=shown == texture).texture = texture
+        col = box.column(align=True)
+        col.operator(NewEventTexture.bl_idname, icon="BRUSH_DATA")
+        col.operator(SaveEventTexture.bl_idname, icon="EXPORT")
+        col.operator(RemoveEventTexture.bl_idname, icon="TRASH")
+        box = layout.box()
+        box.label(text="Props in the registry")
+        for obj in building_props(body):
+            row = box.row(align=True)
+            row.prop(obj, "hide_viewport", text=obj["tt_sprite"] + (f" ({obj['tt_event']})" if obj.get("tt_event") else ""),
+                     toggle=True, invert_checkbox=True)
+            remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
+            remove.group, remove.sprite = body["tt_group"], obj["tt_sprite"]
+        fresh = new_props(context, body)
+        box.label(text=f"New: {', '.join(o.name for o in fresh)}" if fresh else "Select meshes to add as props",
+                  icon="ADD" if fresh else "INFO")
+        box.operator(SaveProps.bl_idname, icon="EXPORT")
+        if wm.tt_checked and wm.tt_checks:
+            box = layout.box()
+            for check in wm.tt_checks:
+                box.label(text=check.name, icon=CHECK_ICONS.get(check.level, "INFO"))
+
+
 def subset_record(record, face_indices):
     """New record holding only these triangles, with vertices compacted and sharing kept."""
     out = MeshRecord()
@@ -2292,7 +2607,8 @@ def menu_object(self, context):
 
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SnapToBone, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
            TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, ShowItem, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
-           RemoveFromRegistry, UpdateAddon,
+           RemoveFromRegistry, UpdateAddon, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
+           SaveProps, VIEW3D_PT_tt_building,
            SetupAttachments, ExportAttachments, CopyRegistrySnippet, VIEW3D_PT_tt_units, VIEW3D_PT_tt_preview, VIEW3D_PT_tt_attachments)
 
 
@@ -2314,6 +2630,8 @@ def register():
                                       description="Blend the player's color in through the team decal, as in game")
     wm.tt_team_color = FloatVectorProperty(name="Team Color", subtype="COLOR", size=3, min=0.0, max=1.0,
                                            default=(0.8, 0.1, 0.1), update=team_preview_update)
+    wm.tt_event = StringProperty(name="Event", description="Blank means all year. With a name such as halloween, "
+                                                           "new props and the texture only show during that event")
     bpy.app.handlers.load_post.append(refresh_units_on_load)
     bpy.app.timers.register(refresh_units_on_load, first_interval=0.5)
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
@@ -2328,7 +2646,7 @@ def unregister():
     bpy.app.handlers.load_post.remove(refresh_units_on_load)
     del bpy.types.Object.tt_attachments
     for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_units_only", "tt_auto_load", "tt_checks",
-                 "tt_checked", "tt_team_preview", "tt_team_color"):
+                 "tt_checked", "tt_team_preview", "tt_team_color", "tt_event"):
         delattr(bpy.types.WindowManager, name)
     for cls in classes:
         bpy.utils.unregister_class(cls)

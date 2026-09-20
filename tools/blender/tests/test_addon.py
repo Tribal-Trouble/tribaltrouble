@@ -28,7 +28,8 @@ DECALS = os.path.join(TEMP, "assets", "textures", "teamdecals")
 shutil.copytree(os.path.join(REPO, "assets", "geometry"), GEOMETRY)
 os.makedirs(MODELS)
 os.makedirs(DECALS)
-for texture in ("viking_warrior_rock", "viking_warrior_iron", "viking_warrior_rubber", "native_warrior_rock"):
+for texture in ("viking_warrior_rock", "viking_warrior_iron", "viking_warrior_rubber", "native_warrior_rock",
+                "viking_buildings_hi"):
     shutil.copy(os.path.join(REPO, "assets", "textures", "models", texture + ".png"), MODELS)
     shutil.copy(os.path.join(REPO, "assets", "textures", "teamdecals", texture + "_team.png"), DECALS)
 
@@ -369,6 +370,94 @@ def update_button_appears_only_for_a_newer_repo_copy():
         assert addon.update_available(bpy.context) is None, "an equal or older repo copy must not offer an update"
     finally:
         addon.__file__ = real_file
+
+
+def load_building(group, sprite):
+    wm.tt_units_only = False
+    assert bpy.ops.wm.tt_load_unit(group=group, sprite=sprite) == {"FINISHED"}
+    return addon.browsed_building(bpy.context)
+
+
+@test
+def props_on_a_building_save_register_and_come_back_on_reload():
+    body = load_building("vikings", "quarters")
+    assert body is not None and body["tt_sprite"] == "quarters"
+    wm.tt_event = ""
+    flag = fixture_mesh("test_flag", fixture_image("test_flag_tex"), z=8.0, kind="cube")
+    wm.tt_event = "Halloween"
+    lantern = fixture_mesh("test_lantern", fixture_image("test_lantern_tex"), z=2.0, kind="cube")
+    lantern.location.x = 4.0
+    select_only(lantern)
+    assert bpy.ops.object.tt_save_props() == {"FINISHED"}
+    wm.tt_event = ""
+    select_only(flag)
+    assert bpy.ops.object.tt_save_props() == {"FINISHED"}
+    seasonal, always = entry("vikings", "quarters_test_lantern"), entry("vikings", "quarters_test_flag")
+    assert seasonal["base"] == "quarters" and seasonal["slot"] == "prop" and seasonal["event"] == "halloween"
+    assert always["event"] == ""
+    assert seasonal["models"][0] == "vikings/quarters/test_lantern.xml"
+    assert os.path.isfile(os.path.join(GEOMETRY, "vikings", "quarters", "test_lantern.xml"))
+    assert os.path.isfile(os.path.join(MODELS, "test_lantern_tex.png"))
+    skins = set(re.findall(r'<skin bone="([^"]+)"', open(os.path.join(GEOMETRY, "vikings", "quarters", "test_lantern.xml")).read()))
+    assert skins == {addon.STATIC_BONE}, skins
+    body = load_building("vikings", "quarters")
+    props = {o["tt_sprite"]: o for o in addon.building_props(body)}
+    assert sorted(props) == ["quarters_test_flag", "quarters_test_lantern"], sorted(props)
+    assert props["quarters_test_lantern"]["tt_event"] == "halloween"
+    xs = [v.co.x for v in props["quarters_test_lantern"].data.vertices]
+    assert 3.4 < min(xs) and max(xs) < 4.6, "the prop did not keep its place next to the building"
+
+
+@test
+def a_prop_with_a_taken_name_or_no_texture_is_refused():
+    body = load_building("vikings", "quarters")
+    for o in addon.building_props(body):
+        bpy.data.objects.remove(o)  # frees the object name; the registry entry stays
+    select_only(fixture_mesh("test_flag", fixture_image("test_flag_tex2"), kind="cube"))
+    expect_error(bpy.ops.object.tt_save_props, "already has a sprite named quarters_test_flag")
+    select_only(fixture_mesh("test_bare", None, kind="cube"))
+    expect_error(bpy.ops.object.tt_save_props, "no Image Texture")
+
+
+@test
+def event_texture_is_a_copy_listed_on_every_model_that_shares_the_atlas():
+    body = load_building("vikings", "quarters")
+    wm.tt_event = "halloween"
+    before = open(os.path.join(MODELS, "viking_buildings_hi.png"), "rb").read()
+    assert bpy.ops.object.tt_new_event_texture() == {"FINISHED"}
+    image = addon.mesh_texture_image(body)
+    assert image.name.startswith("viking_buildings_hi_halloween"), image.name
+    image.pixels[0] = 0.25  # paint
+    assert image.is_dirty
+    assert bpy.ops.object.tt_save_event_texture(everywhere=True) == {"FINISHED"}
+    assert open(os.path.join(MODELS, "viking_buildings_hi.png"), "rb").read() == before, "the original was painted"
+    assert open(os.path.join(MODELS, "viking_buildings_hi_halloween.png"), "rb").read() != before
+    quarters, armory = entry("vikings", "quarters"), entry("vikings", "armory")
+    assert quarters["textures"][0] == [("viking_buildings_hi", ""), ("viking_buildings_hi_halloween", "halloween")]
+    # Far away the usual texture is kept, in the same place in the list, because nobody painted a low one.
+    assert quarters["textures"][1] == [("viking_buildings_lo", ""), ("viking_buildings_lo", "halloween")]
+    assert armory["textures"][0][-1] == ("viking_buildings_hi_halloween", "halloween")
+    text = open(registry_path, "rb").read().decode("utf-8")
+    assert 'name="viking_buildings_hi_halloween" team="viking_buildings_hi_team" event="halloween"' in text
+    assert entry("vikings", "warrior")["textures"][0][-1][1] == "", "a model on another atlas was touched"
+    count = text.count('event="halloween"/>')
+    assert bpy.ops.object.tt_save_event_texture(everywhere=True) == {"FINISHED"}
+    assert open(registry_path, "rb").read().decode("utf-8").count('event="halloween"/>') == count, "listed twice"
+    assert bpy.ops.object.tt_show_event_texture(texture="viking_buildings_hi") == {"FINISHED"}
+    assert addon.mesh_texture_image(body).name.startswith("viking_buildings_hi.png")
+    assert bpy.ops.object.tt_remove_event_texture() == {"FINISHED"}
+    assert 'event="halloween"/>' not in open(registry_path, "rb").read().decode("utf-8")
+
+
+@test
+def event_texture_for_one_model_only():
+    load_building("vikings", "quarters")
+    wm.tt_event = "winter"
+    assert bpy.ops.object.tt_new_event_texture() == {"FINISHED"}
+    assert bpy.ops.object.tt_save_event_texture(everywhere=False) == {"FINISHED"}
+    assert entry("vikings", "quarters")["textures"][0][-1] == ("viking_buildings_hi_winter", "winter")
+    assert all(event == "" for _, event in entry("vikings", "armory")["textures"][0])
+    wm.tt_event = ""
 
 
 @test
