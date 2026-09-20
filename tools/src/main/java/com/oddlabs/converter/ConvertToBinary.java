@@ -41,7 +41,7 @@ public final class ConvertToBinary {
             builder.setErrorHandler(new GeometryErrorHandler());
             Document document = builder.parse(input_stream);
             org.w3c.dom.Element root = document.getDocumentElement();
-            parseGeometry(root, src_dir, build_dir);
+            parseGeometry(root, src_dir.resolve(xml_file), src_dir, build_dir);
         } catch (Exception e) {
             System.err.println("Error processing " + xml_file);
             e.printStackTrace(System.err);
@@ -49,14 +49,15 @@ public final class ConvertToBinary {
         }
     }
 
-    private static void parseGeometry(@NonNull Node n, @NonNull Path src_dir, @NonNull Path build_dir) {
+    private static void parseGeometry(@NonNull Node n, @NonNull Path registry, @NonNull Path src_dir,
+            @NonNull Path build_dir) {
         if (n.hasChildNodes()) {
             NodeList nl = n.getChildNodes();
             List<String> attachments = new ArrayList<>();
             List<String> event_textures = new ArrayList<>();
             for (int i = 0; i < nl.getLength(); i++) {
                 if (nl.item(i).getNodeType() == Node.ELEMENT_NODE)
-                    parseGroup(nl.item(i), src_dir, build_dir, attachments, event_textures);
+                    parseGroup(nl.item(i), registry, src_dir, build_dir, attachments, event_textures);
             }
             Collections.sort(attachments);
             Collections.sort(event_textures);
@@ -70,7 +71,8 @@ public final class ConvertToBinary {
         }
     }
 
-    private static void parseGroup(@NonNull Node n, @NonNull Path src_dir, @NonNull Path build_dir,
+    private static void parseGroup(@NonNull Node n, @NonNull Path registry, @NonNull Path src_dir,
+            @NonNull Path build_dir,
             @NonNull List<String> attachments, @NonNull List<String> event_textures) {
         if (n.hasChildNodes()) {
             Path new_build_dir = build_dir.resolve(getName(n));
@@ -82,7 +84,7 @@ public final class ConvertToBinary {
                     sprites.put(getName(child), child);
             }
             for (Node sprite : sprites.values()) {
-                parseSprite(sprite, sprites, src_dir, new_build_dir);
+                parseSprite(sprite, sprites, registry, src_dir, new_build_dir);
                 Node slot = sprite.getAttributes().getNamedItem("slot");
                 if (slot != null)
                     attachments.add(attachmentLine(getName(n), sprite, slot.getNodeValue(), src_dir));
@@ -198,8 +200,8 @@ public final class ConvertToBinary {
         return object_infos.toArray(infos);
     }
 
-    private static void parseSprite(@NonNull Node n, @NonNull Map<String, Node> group_sprites, @NonNull Path src_dir,
-            @NonNull Path build_dir) {
+    private static void parseSprite(@NonNull Node n, @NonNull Map<String, Node> group_sprites, @NonNull Path registry,
+            @NonNull Path src_dir, @NonNull Path build_dir) {
         String name = getName(n);
         // base="peon" makes an attachment share the unit's skeleton and clip list without repeating them.
         Node base_attr = n.getAttributes().getNamedItem("base");
@@ -218,7 +220,8 @@ public final class ConvertToBinary {
         ModelObjectInfo[] model_object_infos = getModelObjectInfos(n, src_dir);
         Path build_file = build_dir.resolve(name + ".binsprite");
 
-        boolean modified = false;
+        // Texture lists, scale and clip settings live in the registry, not in the mesh files.
+        boolean modified = isModified(registry, build_file);
         for (AnimObjectInfo anim_object_info : anim_object_infos) {
             if (isModified(anim_object_info.getFile(), build_file)) {
                 modified = true;
