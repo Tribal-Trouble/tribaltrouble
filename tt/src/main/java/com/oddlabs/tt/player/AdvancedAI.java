@@ -583,6 +583,30 @@ public final class AdvancedAI extends AI {
         return enemy != null;
     }
 
+    private void pickSafeLandingPoint(Ship ship, int islandId) {
+        var info = getOwner().getWorld().getHeightMap().getIslandInfo(islandId);
+        var pts = info.contourPoints();
+        int best_d2 = 0;
+        var best_pt = pts.get(0);
+        for (int i = 0; i < pts.size(); i += 10) {
+            var pt = pts.get(i);
+            Selectable<?> enemy = getOwner().findNearestEnemy(pt[0], pt[1], s -> s.getIslandId() == islandId
+                    || s instanceof Ship);
+            if (enemy == null) {
+                best_pt = pt;
+                break;
+            }
+            int dx = pt[0] - enemy.getGridX();
+            int dy = pt[1] - enemy.getGridY();
+            int d2 = dx * dx + dy * dy;
+            if (i == 0 || best_d2 < d2) {
+                best_d2 = d2;
+                best_pt = pt;
+            }
+        }
+        getOwner().setSailingTarget(Selectable.newArray(ship), best_pt[0], best_pt[1]);
+    }
+
     private void useShip(@NonNull Ship ship) {
         if (ship.isDead() || !ship.isComplete() || ship.isMoving())
             return;
@@ -621,7 +645,7 @@ public final class AdvancedAI extends AI {
                         s -> !(s instanceof Ship));
                 if (enemy != null) {
                     if (ship.getEntrance().getIslandId() != enemy.getIslandId()) {
-                        getOwner().setSailingTarget(Selectable.newArray(ship), enemy);
+                        pickSafeLandingPoint(ship, enemy.getIslandId());
                         return;
                     }
 
