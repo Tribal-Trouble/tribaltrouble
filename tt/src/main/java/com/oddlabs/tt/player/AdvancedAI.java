@@ -20,6 +20,7 @@ import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberSpearWeapon;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
 import com.oddlabs.tt.landscape.IslandInfo;
+import com.oddlabs.tt.landscape.DensityMap;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -76,9 +77,12 @@ public final class AdvancedAI extends AI {
 
     private boolean home_is_safe = false;
 
+    private DensityMap density_map;
+
     public AdvancedAI(@NonNull Player owner, UnitInfo unit_info, int difficulty) {
         super(owner, unit_info);
         this.difficulty = difficulty;
+        this.density_map = new DensityMap(owner.getWorld(), owner.getPlayerInfo().getTeam());
     }
 
     public int getDifficulty() {
@@ -98,6 +102,7 @@ public final class AdvancedAI extends AI {
             nodeGuardTowers(1);
 
         if (isArchipelago()) {
+            density_map.update();
             if (hasFoundIsland()) {
                 home_is_safe = !islandHasEnemies(init_island);
                 reclassify();
@@ -578,6 +583,10 @@ public final class AdvancedAI extends AI {
     }
 
     private boolean islandHasEnemies(IslandInfo island) {
+        if (density_map.sum(island.minX(), island.minY(), island.maxX(), island.maxY()) == 0) {
+            return false;
+        }
+
         Selectable<?> enemy = getOwner().findNearestEnemy(island.centerX(), island.centerY(),
                 s -> s.getIslandId() == island.id());
         return enemy != null;
@@ -586,21 +595,13 @@ public final class AdvancedAI extends AI {
     private void pickSafeLandingPoint(Ship ship, int islandId) {
         var info = getOwner().getWorld().getHeightMap().getIslandInfo(islandId);
         var pts = info.contourPoints();
-        int best_d2 = 0;
+        int best_weight = 10000;
         var best_pt = pts.get(0);
-        for (int i = 0; i < pts.size(); i += 10) {
+        for (int i = 0; i < pts.size(); i++) {
             var pt = pts.get(i);
-            Selectable<?> enemy = getOwner().findNearestEnemy(pt[0], pt[1], s -> s.getIslandId() == islandId
-                    || s instanceof Ship);
-            if (enemy == null) {
-                best_pt = pt;
-                break;
-            }
-            int dx = pt[0] - enemy.getGridX();
-            int dy = pt[1] - enemy.getGridY();
-            int d2 = dx * dx + dy * dy;
-            if (i == 0 || best_d2 < d2) {
-                best_d2 = d2;
+            int weight = density_map.getWeight(pt[0], pt[1], 1);
+            if (i == 0 || weight < best_weight) {
+                best_weight = weight;
                 best_pt = pt;
             }
         }
@@ -642,7 +643,7 @@ public final class AdvancedAI extends AI {
         } else {
             if (battle_ready) {
                 Selectable<?> enemy = getOwner().findNearestEnemy(ship.getGridX(), ship.getGridY(),
-                        s -> !(s instanceof Ship));
+                        s -> !(s instanceof Ship) && (s.getIslandId() != 0));
                 if (enemy != null) {
                     if (ship.getEntrance().getIslandId() != enemy.getIslandId()) {
                         pickSafeLandingPoint(ship, enemy.getIslandId());
