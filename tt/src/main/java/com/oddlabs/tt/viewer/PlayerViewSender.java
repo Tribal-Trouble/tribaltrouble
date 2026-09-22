@@ -31,6 +31,8 @@ final class PlayerViewSender implements Animated {
     private float sent_vert_angle;
     private boolean cursor_sent;
     private boolean map_mode_sent;
+    private boolean submenu_sent;
+    private int sent_submenu;
     private boolean placing_sent;
     private boolean sent_placing;
     private int sent_building_index;
@@ -76,6 +78,7 @@ final class PlayerViewSender implements Animated {
         sendMapMode(out);
         sendSelectionBox(out);
         sendPlacing(out);
+        sendPanelMenu(out);
     }
 
     private void sendCamera(@NonNull PlayerInterface out) {
@@ -181,6 +184,15 @@ final class PlayerViewSender implements Animated {
         sent_building_index = building_index;
         sent_grid_x = grid_x;
         sent_grid_y = grid_y;
+    }
+
+    private void sendPanelMenu(@NonNull PlayerInterface out) {
+        int submenu = viewer.getPanel().getSubmenu();
+        if (submenu_sent && submenu == sent_submenu)
+            return;
+        out.viewPanelMenu(submenu);
+        submenu_sent = true;
+        sent_submenu = submenu;
     }
 
     private void sendSelection(@NonNull PlayerInterface out) {

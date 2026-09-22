@@ -11,6 +11,7 @@ import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.SpectatorCursor;
+import com.oddlabs.tt.gui.SpectatorPanel;
 import com.oddlabs.tt.gui.SpectatorSelectionBox;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputManager;
@@ -42,6 +43,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.ResourceBundle;
 
 public final class SelectionDelegate extends ControllableCameraDelegate {
@@ -93,14 +95,20 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     }
 
     public void setObserverMode() {
+        if (observer)
+            return;
         observer = true;
         getViewer().getSelection().clearSelection();
         SpectatorView view = getViewer().getSpectatorView();
         if (view != null) {
+            getActionButtonPanel().remove();
+            getViewer().getRenderer().setSelectedBuilding(null);
             view.setListener(this::refreshSpectator);
             refreshSpectator();
-            addChild(new SpectatorCursor(getViewer(), getGUIRoot(), () -> !map_mode && Globals.draw_hud));
-            addChild(new SpectatorSelectionBox(getViewer(), getGUIRoot(), () -> !map_mode && Globals.draw_hud));
+            BooleanSupplier hud_shown = () -> !map_mode && Globals.draw_hud;
+            addChild(new SpectatorCursor(getViewer(), getGUIRoot(), hud_shown));
+            addChild(new SpectatorSelectionBox(getViewer(), getGUIRoot(), hud_shown));
+            addChild(new SpectatorPanel(getViewer(), getGUIRoot(), hud_shown));
         }
     }
 
@@ -648,6 +656,10 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
             }
         }
 
+    }
+
+    public boolean isInMapMode() {
+        return map_mode;
     }
 
     /** On the overview map and not on the way back down. */

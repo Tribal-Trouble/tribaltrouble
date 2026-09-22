@@ -3,6 +3,8 @@ package com.oddlabs.tt.viewer;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.gui.ActionButtonPanel;
+import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.net.ChatCommand;
 import com.oddlabs.tt.model.Unit;
@@ -13,6 +15,7 @@ import com.oddlabs.tt.render.MatrixStack;
 import com.oddlabs.tt.render.RenderQueues;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
 
 /** What a spectator is looking at: the player being followed, or a free camera. */
 public final class SpectatorView {
@@ -83,7 +86,7 @@ public final class SpectatorView {
         x = Math.clamp(x, 0f, size);
         y = Math.clamp(y, 0f, size);
         Player followed = getFollowedPlayer();
-        if (followed == null || !viewer.getPeerHub().isSynchronized() || !Globals.draw_hud)
+        if (followed == null || !viewer.getPeerHub().isSynchronized())
             return;
         if (player != followed && player.getPlayerInfo().getTeam() != followed.getPlayerInfo().getTeam())
             return;
@@ -101,7 +104,7 @@ public final class SpectatorView {
 
     void receivePlacing(@NonNull Player player, int building_index, int grid_x, int grid_y, boolean placing) {
         int grid_size = viewer.getWorld().getUnitGrid().getGridSize();
-        if (building_index < 0 || building_index >= player.getRace().getNumBuildingTemplates() || grid_x < 0
+        if (building_index < 0 || building_index >= Race.NUM_BUILDINGS || grid_x < 0
                 || grid_x >= grid_size || grid_y < 0 || grid_y >= grid_size)
             placing = false;
         getView(player).setPlacing(building_index, grid_x, grid_y, placing);
@@ -111,10 +114,10 @@ public final class SpectatorView {
     public void render3D(@NonNull LandscapeRenderer renderer, @NonNull RenderQueues queues,
             @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         Player followed = getFollowedPlayer();
-        if (followed == null || !Globals.draw_hud)
+        if (followed == null || !Globals.draw_hud || viewer.getGUIRoot().getDelegate() != viewer.getDelegate())
             return;
         PlayerView view = getView(followed);
-        if (!view.isPlacing() || view.isMapMode() || viewer.getDelegate().isOnMap())
+        if (!view.isPlacing() || view.isMapMode() || viewer.getDelegate().isInMapMode())
             return;
         if (ghost == null)
             ghost = new BuildingGhostRenderer();
@@ -122,17 +125,14 @@ public final class SpectatorView {
                 view.getPlacingGridX(), view.getPlacingGridY(), renderer, queues, modelViewStack, projectionStack);
     }
 
-    void receiveSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
-        getView(player).setSelection(selection);
-        if (getFollowedPlayer() == player)
-            showFollowedBuilding();
+    void receivePanelMenu(@NonNull Player player, int submenu) {
+        if (submenu < ActionButtonPanel.SUBMENU_NONE || submenu > ActionButtonPanel.SUBMENU_TRANSPORT)
+            submenu = ActionButtonPanel.SUBMENU_NONE;
+        getView(player).setPanelSubmenu(submenu);
     }
 
-    /**
-     * The renderer draws the rally point of whichever building it is told about; the spectator selects nothing itself.
-     */
-    private void showFollowedBuilding() {
-        viewer.getRenderer().setSelectedBuilding(followed == FREE_CAMERA ? null : views[followed].getBuilding());
+    void receiveSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
+        getView(player).setSelection(selection);
     }
 
     void playerLeft(@NonNull Player player) {
@@ -141,8 +141,8 @@ public final class SpectatorView {
         view.setMapMode(false);
         view.setSelectionBox(0f, 0f, 0f, 0f, false);
         view.setPlacing(0, 0, 0, false);
+        view.setPanelSubmenu(ActionButtonPanel.SUBMENU_NONE);
         view.setSelection(new Selectable<?>[0]);
-        showFollowedBuilding();
     }
 
     public boolean isSelectedByFollowed(@NonNull Selectable<?> selectable) {
@@ -203,7 +203,7 @@ public final class SpectatorView {
     }
 
     private void changed() {
-        showFollowedBuilding();
+        viewer.getNotificationManager().clear();
         if (listener != null)
             listener.run();
     }

@@ -167,6 +167,12 @@ public final class WorldViewer implements Animated, AutoCloseable {
             }
 
             @Override
+            public void playerPanelMenu(@NonNull Player player, int submenu) {
+                if (spectator_view != null)
+                    spectator_view.receivePanelMenu(player, submenu);
+            }
+
+            @Override
             public void playerPlacing(@NonNull Player player, int building_index, int grid_x, int grid_y,
                     boolean placing) {
                 if (spectator_view != null)

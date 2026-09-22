@@ -60,6 +60,8 @@ public interface PlayerInterface {
 
     void viewMapMode(boolean on);
 
+    void viewPanelMenu(int submenu);
+
     void viewPlacing(int building_index, int grid_x, int grid_y, boolean placing);
 
     void viewSelectionBox(float x1, float y1, float x2, float y2, boolean active);

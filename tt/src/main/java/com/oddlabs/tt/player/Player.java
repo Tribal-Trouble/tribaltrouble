@@ -151,6 +151,11 @@ public final class Player implements PlayerInterface {
     }
 
     @Override
+    public void viewPanelMenu(int submenu) {
+        world.getNotificationListener().playerPanelMenu(this, submenu);
+    }
+
+    @Override
     public void viewPlacing(int building_index, int grid_x, int grid_y, boolean placing) {
         world.getNotificationListener().playerPlacing(this, building_index, grid_x, grid_y, placing);
     }

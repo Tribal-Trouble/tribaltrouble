@@ -39,6 +39,9 @@ public interface NotificationListener {
     default void playerMapMode(@NonNull Player player, boolean on) {
     }
 
+    default void playerPanelMenu(@NonNull Player player, int submenu) {
+    }
+
     default void playerPlacing(@NonNull Player player, int building_index, int grid_x, int grid_y, boolean placing) {
     }
 

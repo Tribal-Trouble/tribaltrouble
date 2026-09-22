@@ -14,6 +14,7 @@ final class SpectatorMapMode implements Animated {
     private boolean last_followed_map_mode;
     private boolean last_own_map_mode;
     private boolean driving;
+    private boolean drove_in;
 
     SpectatorMapMode(@NonNull WorldViewer viewer, @NonNull SpectatorView view) {
         this.viewer = viewer;
@@ -25,8 +26,13 @@ final class SpectatorMapMode implements Animated {
         SelectionDelegate delegate = viewer.getDelegate();
         boolean own_map_mode = delegate.isOnMap();
         PlayerView followed = view.getFollowedView();
+        if (followed == null && own_map_mode && drove_in && delegate.getCamera() instanceof MapCamera map_camera) {
+            map_camera.leaveMap();
+            drove_in = false;
+        }
         if (followed == null || viewer.getGUIRoot().getDelegate() != delegate) {
             last_followed = followed;
+            last_followed_map_mode = followed != null && followed.isMapMode();
             last_own_map_mode = own_map_mode;
             driving = false;
             return;
@@ -38,10 +44,13 @@ final class SpectatorMapMode implements Animated {
             driving = false;
         } else if (followed_changed || driving) {
             driving = true;
-            if (own_map_mode)
+            if (own_map_mode) {
                 ((MapCamera) delegate.getCamera()).leaveMap();
-            else
+                drove_in = false;
+            } else {
                 delegate.enterMapMode();
+                drove_in = true;
+            }
         } else if (own_map_mode != last_own_map_mode) {
             view.freeCamera();
         }

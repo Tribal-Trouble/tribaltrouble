@@ -106,6 +106,10 @@ public final class NoOpPlayerInterface implements PlayerInterface {
     }
 
     @Override
+    public void viewPanelMenu(int submenu) {
+    }
+
+    @Override
     public void viewPlacing(int building_index, int grid_x, int grid_y, boolean placing) {
     }
 
