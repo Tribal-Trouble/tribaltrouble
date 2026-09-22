@@ -1,13 +1,16 @@
 package com.oddlabs.tt.viewer;
 
+import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Selectable;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public final class PlayerView {
     private final @NonNull Set<Selectable<?>> selection = new HashSet<>();
+    private @Nullable Building building;
     private boolean cursor_on_map;
     private float cursor_x;
     private float cursor_y;
@@ -71,10 +74,19 @@ public final class PlayerView {
 
     void setSelection(Selectable<?> @NonNull [] selected) {
         selection.clear();
+        building = null;
         for (Selectable<?> s : selected) {
-            if (s != null)
-                selection.add(s);
+            if (s == null)
+                continue;
+            selection.add(s);
+            if (s instanceof Building b)
+                building = b;
         }
+    }
+
+    /** The selected building, the one whose rally point and panel the player sees. */
+    public @Nullable Building getBuilding() {
+        return building != null && !building.isDead() ? building : null;
     }
 
     public boolean isSelected(@NonNull Selectable<?> selectable) {

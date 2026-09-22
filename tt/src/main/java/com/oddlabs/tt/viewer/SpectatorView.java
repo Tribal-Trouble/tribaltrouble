@@ -65,12 +65,22 @@ public final class SpectatorView {
 
     void receiveSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
         getView(player).setSelection(selection);
+        if (getFollowedPlayer() == player)
+            showFollowedBuilding();
+    }
+
+    /**
+     * The renderer draws the rally point of whichever building it is told about; the spectator selects nothing itself.
+     */
+    private void showFollowedBuilding() {
+        viewer.getRenderer().setSelectedBuilding(followed == FREE_CAMERA ? null : views[followed].getBuilding());
     }
 
     void playerLeft(@NonNull Player player) {
         PlayerView view = getView(player);
         view.setCursor(0f, 0f, false);
         view.setSelection(new Selectable<?>[0]);
+        showFollowedBuilding();
     }
 
     public boolean isSelectedByFollowed(@NonNull Selectable<?> selectable) {
@@ -131,6 +141,7 @@ public final class SpectatorView {
     }
 
     private void changed() {
+        showFollowedBuilding();
         if (listener != null)
             listener.run();
     }
