@@ -150,6 +150,11 @@ public final class Player implements PlayerInterface {
         world.getNotificationListener().playerMapMode(this, on);
     }
 
+    @Override
+    public void viewBeacon(float x, float y) {
+        world.getNotificationListener().playerBeacon(this, x, y);
+    }
+
     public int getPreferredGamespeed() {
         return preferred_speed;
     }

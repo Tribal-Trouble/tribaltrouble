@@ -1,7 +1,9 @@
 package com.oddlabs.tt.viewer;
 
 import com.oddlabs.tt.camera.GameCamera;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.net.ChatCommand;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import org.jspecify.annotations.NonNull;
@@ -65,6 +67,23 @@ public final class SpectatorView {
 
     void receiveMapMode(@NonNull Player player, boolean on) {
         getView(player).setMapMode(on);
+    }
+
+    /** Beacons the watched player would see: their own and their teammates'. */
+    void receiveBeacon(@NonNull Player player, float x, float y) {
+        if (!Float.isFinite(x) || !Float.isFinite(y))
+            return;
+        int size = viewer.getWorld().getHeightMap().getMetersPerWorld();
+        x = Math.clamp(x, 0f, size);
+        y = Math.clamp(y, 0f, size);
+        Player followed = getFollowedPlayer();
+        if (followed == null || !viewer.getPeerHub().isSynchronized() || !Globals.draw_hud)
+            return;
+        if (player != followed && player.getPlayerInfo().getTeam() != followed.getPlayerInfo().getTeam())
+            return;
+        if (ChatCommand.isIgnoring(player.getPlayerInfo().getName()))
+            return;
+        viewer.getNotificationManager().newBeacon(viewer.getAnimationManagerLocal(), followed, x, y);
     }
 
     void receiveSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {

@@ -59,4 +59,6 @@ public interface PlayerInterface {
     void viewSelection(Selectable<?> @NonNull [] selection);
 
     void viewMapMode(boolean on);
+
+    void viewBeacon(float x, float y);
 }

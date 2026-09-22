@@ -104,4 +104,8 @@ public final class NoOpPlayerInterface implements PlayerInterface {
     @Override
     public void viewMapMode(boolean on) {
     }
+
+    @Override
+    public void viewBeacon(float x, float y) {
+    }
 }
