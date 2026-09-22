@@ -124,15 +124,15 @@ public final class WorldViewer implements Animated, AutoCloseable {
             @Override
             public void newAttackNotification(@NonNull Selectable<?> target) {
                 Player owner = target.getOwner();
-                if (owner == getLocalPlayer())
-                    notification_manager.newAttackNotification(animation_manager_local, target, getLocalPlayer());
+                if (owner == notifiedPlayer())
+                    notification_manager.newAttackNotification(animation_manager_local, target, owner);
             }
 
             @Override
             public void newSelectableNotification(@NonNull Selectable<?> target) {
                 Player owner = target.getOwner();
-                if (owner == getLocalPlayer())
-                    notification_manager.newSelectableNotification(target, animation_manager_local, getLocalPlayer());
+                if (owner == notifiedPlayer())
+                    notification_manager.newSelectableNotification(target, animation_manager_local, owner);
             }
 
             @Override
@@ -243,6 +243,13 @@ public final class WorldViewer implements Animated, AutoCloseable {
         initPlayers(world_info.starting_locations(), player_slots, world.getPlayers(), unit_infos,
                 world_params.getInitialGameSpeed());
         LocalEventQueue.getQueue().getManager().registerAnimation(this);
+    }
+
+    /** Whose arrows and cues this screen shows: the watched player for a spectator, otherwise the local player. */
+    private @Nullable Player notifiedPlayer() {
+        if (spectator_view == null)
+            return getLocalPlayer();
+        return peerhub.isSynchronized() ? spectator_view.getFollowedPlayer() : null;
     }
 
     public @Nullable SpectatorView getSpectatorView() {
