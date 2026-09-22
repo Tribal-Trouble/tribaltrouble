@@ -187,18 +187,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
             }
             if (event.hasActions()) {
                 if (event.consumeAction(GameAction.CAMERA_MAP_MODE)) {
-                    if (!map_mode) {
-                        selection = false;
-                        getViewer().getPicker().pickRotate((GameCamera) getCamera());
-                        map_mode = true;
-                        if (observer)
-                            refreshSpectator();
-                        else
-                            getActionButtonPanel().remove();
-                        getCamera().disable();
-                        setCamera(new MapCamera(this, game_camera));
-                        getCamera().enable();
-                    }
+                    enterMapMode();
                     event.consume();
                     return;
                 }
@@ -449,6 +438,21 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         return Globals.draw_hud;
     }
 
+    public void enterMapMode() {
+        if (map_mode)
+            return;
+        selection = false;
+        getViewer().getPicker().pickRotate((GameCamera) getCamera());
+        map_mode = true;
+        if (observer)
+            refreshSpectator();
+        else
+            getActionButtonPanel().remove();
+        getCamera().disable();
+        setCamera(new MapCamera(this, game_camera));
+        getCamera().enable();
+    }
+
     public void exitMapMode() {
         map_mode = false;
         getCamera().disable();
@@ -642,6 +646,11 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
             }
         }
 
+    }
+
+    /** On the overview map and not on the way back down. */
+    public boolean isOnMap() {
+        return map_mode && getCamera() instanceof MapCamera map_camera && !map_camera.isLeaving();
     }
 
     public boolean isSelecting() {

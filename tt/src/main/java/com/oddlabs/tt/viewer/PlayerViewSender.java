@@ -28,6 +28,8 @@ final class PlayerViewSender implements Animated {
     private float sent_horiz_angle;
     private float sent_vert_angle;
     private boolean cursor_sent;
+    private boolean map_mode_sent;
+    private boolean sent_map_mode;
     private boolean sent_on_map;
     private float sent_cursor_x;
     private float sent_cursor_y;
@@ -57,6 +59,7 @@ final class PlayerViewSender implements Animated {
         sendCamera(out);
         sendCursor(out);
         sendSelection(out);
+        sendMapMode(out);
     }
 
     private void sendCamera(@NonNull PlayerInterface out) {
@@ -114,6 +117,15 @@ final class PlayerViewSender implements Animated {
         picked_vert_angle = state.getCurrentVertAngle();
         picked_on_map = viewer.getPicker().pickLocation(state, location);
         return picked_on_map;
+    }
+
+    private void sendMapMode(@NonNull PlayerInterface out) {
+        boolean on = viewer.getDelegate().isOnMap();
+        if (map_mode_sent && on == sent_map_mode)
+            return;
+        out.viewMapMode(on);
+        map_mode_sent = true;
+        sent_map_mode = on;
     }
 
     private void sendSelection(@NonNull PlayerInterface out) {

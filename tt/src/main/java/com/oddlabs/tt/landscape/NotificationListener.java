@@ -36,6 +36,9 @@ public interface NotificationListener {
     default void playerSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
     }
 
+    default void playerMapMode(@NonNull Player player, boolean on) {
+    }
+
     default void playerOrder(@NonNull Player player, float x, float y) {
     }
 

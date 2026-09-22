@@ -63,6 +63,10 @@ public final class SpectatorView {
         getView(player).setCursor(Math.clamp(x, 0f, size), Math.clamp(y, 0f, size), on_map);
     }
 
+    void receiveMapMode(@NonNull Player player, boolean on) {
+        getView(player).setMapMode(on);
+    }
+
     void receiveSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
         getView(player).setSelection(selection);
         if (getFollowedPlayer() == player)
@@ -79,6 +83,7 @@ public final class SpectatorView {
     void playerLeft(@NonNull Player player) {
         PlayerView view = getView(player);
         view.setCursor(0f, 0f, false);
+        view.setMapMode(false);
         view.setSelection(new Selectable<?>[0]);
         showFollowedBuilding();
     }

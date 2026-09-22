@@ -161,6 +161,12 @@ public final class WorldViewer implements Animated, AutoCloseable {
             }
 
             @Override
+            public void playerMapMode(@NonNull Player player, boolean on) {
+                if (spectator_view != null)
+                    spectator_view.receiveMapMode(player, on);
+            }
+
+            @Override
             public void playerSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
                 if (spectator_view != null)
                     spectator_view.receiveSelection(player, selection);
@@ -205,6 +211,8 @@ public final class WorldViewer implements Animated, AutoCloseable {
         this.delegate = new SelectionDelegate(this, camera);
         if (ingame_info.isMultiplayer() && !spectator)
             animation_manager_local.registerAnimation(new PlayerViewSender(this));
+        if (spectator_view != null)
+            animation_manager_local.registerAnimation(new SpectatorMapMode(this, spectator_view));
         camera.reset(getLocalPlayer().getStartX(), getLocalPlayer().getStartY());
         initPlayers(world_info.starting_locations(), player_slots, world.getPlayers(), unit_infos,
                 world_params.getInitialGameSpeed());

@@ -11,6 +11,7 @@ import java.util.Set;
 public final class PlayerView {
     private final @NonNull Set<Selectable<?>> selection = new HashSet<>();
     private @Nullable Building building;
+    private boolean map_mode;
     private boolean cursor_on_map;
     private float cursor_x;
     private float cursor_y;
@@ -58,6 +59,14 @@ public final class PlayerView {
         cursor_on_map = on_map;
         cursor_x = x;
         cursor_y = y;
+    }
+
+    void setMapMode(boolean on) {
+        map_mode = on;
+    }
+
+    public boolean isMapMode() {
+        return map_mode;
     }
 
     public boolean isCursorOnMap() {

@@ -100,4 +100,8 @@ public final class NoOpPlayerInterface implements PlayerInterface {
     @Override
     public void viewSelection(Selectable<?> @NonNull [] selection) {
     }
+
+    @Override
+    public void viewMapMode(boolean on) {
+    }
 }

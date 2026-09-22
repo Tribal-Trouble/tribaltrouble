@@ -57,4 +57,6 @@ public interface PlayerInterface {
     void viewCursor(float x, float y, boolean on_map);
 
     void viewSelection(Selectable<?> @NonNull [] selection);
+
+    void viewMapMode(boolean on);
 }

@@ -169,6 +169,15 @@ public final class MapCamera extends Camera {
         }
     }
 
+    public boolean isLeaving() {
+        return map_mode == MapMode.FROM_MAP;
+    }
+
+    public void leaveMap() {
+        if (!isLeaving())
+            changeMode(MapMode.FROM_MAP);
+    }
+
     public void mapGoto(float x, float y) {
         this.mapGoto(x, y, false);
     }
@@ -211,8 +220,10 @@ public final class MapCamera extends Camera {
 
         if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
             if (event.consumeAction(GameAction.CAMERA_MAP_MODE)) {
-                changeMode((map_mode == MapMode.TO_MAP
-                        || map_mode == MapMode.IN_MAP) ? MapMode.FROM_MAP : MapMode.TO_MAP);
+                if (isLeaving())
+                    changeMode(MapMode.TO_MAP);
+                else
+                    leaveMap();
                 event.consume();
             }
         }

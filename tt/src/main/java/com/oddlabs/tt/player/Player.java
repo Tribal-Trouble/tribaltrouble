@@ -145,6 +145,11 @@ public final class Player implements PlayerInterface {
         world.getNotificationListener().playerSelection(this, selection);
     }
 
+    @Override
+    public void viewMapMode(boolean on) {
+        world.getNotificationListener().playerMapMode(this, on);
+    }
+
     public int getPreferredGamespeed() {
         return preferred_speed;
     }
