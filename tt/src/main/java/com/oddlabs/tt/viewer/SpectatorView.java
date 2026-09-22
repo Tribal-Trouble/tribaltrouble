@@ -131,6 +131,10 @@ public final class SpectatorView {
         getView(player).setPanelSubmenu(submenu);
     }
 
+    void receiveTargeting(@NonNull Player player, boolean on) {
+        getView(player).setTargeting(on);
+    }
+
     void receiveSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
         getView(player).setSelection(selection);
     }
@@ -139,6 +143,7 @@ public final class SpectatorView {
         PlayerView view = getView(player);
         view.setCursor(0f, 0f, false);
         view.setMapMode(false);
+        view.setTargeting(false);
         view.setSelectionBox(0f, 0f, 0f, 0f, false);
         view.setPlacing(0, 0, 0, false);
         view.setPanelSubmenu(ActionButtonPanel.SUBMENU_NONE);

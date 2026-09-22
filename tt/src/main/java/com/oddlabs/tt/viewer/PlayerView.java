@@ -12,6 +12,7 @@ public final class PlayerView {
     private int selection_version;
     private int panel_submenu;
     private boolean map_mode;
+    private boolean targeting;
     private boolean placing;
     private int placing_building_index;
     private int placing_grid_x;
@@ -128,6 +129,15 @@ public final class PlayerView {
 
     public int getPlacingGridY() {
         return placing_grid_y;
+    }
+
+    void setTargeting(boolean on) {
+        targeting = on;
+    }
+
+    /** True while the player is picking a spot for a move, attack, rally point or beacon. */
+    public boolean isTargeting() {
+        return targeting;
     }
 
     public boolean isCursorOnMap() {

@@ -106,6 +106,10 @@ public final class NoOpPlayerInterface implements PlayerInterface {
     }
 
     @Override
+    public void viewTargeting(boolean on) {
+    }
+
+    @Override
     public void viewPanelMenu(int submenu) {
     }
 

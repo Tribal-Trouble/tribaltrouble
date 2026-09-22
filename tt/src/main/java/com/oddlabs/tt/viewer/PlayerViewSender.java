@@ -31,6 +31,8 @@ final class PlayerViewSender implements Animated {
     private float sent_vert_angle;
     private boolean cursor_sent;
     private boolean map_mode_sent;
+    private boolean targeting_sent;
+    private boolean sent_targeting;
     private boolean submenu_sent;
     private int sent_submenu;
     private boolean placing_sent;
@@ -79,6 +81,7 @@ final class PlayerViewSender implements Animated {
         sendSelectionBox(out);
         sendPlacing(out);
         sendPanelMenu(out);
+        sendTargeting(out);
     }
 
     private void sendCamera(@NonNull PlayerInterface out) {
@@ -193,6 +196,15 @@ final class PlayerViewSender implements Animated {
         out.viewPanelMenu(submenu);
         submenu_sent = true;
         sent_submenu = submenu;
+    }
+
+    private void sendTargeting(@NonNull PlayerInterface out) {
+        boolean on = viewer.getGUIRoot().getDelegate().isTargeting();
+        if (targeting_sent && on == sent_targeting)
+            return;
+        out.viewTargeting(on);
+        targeting_sent = true;
+        sent_targeting = on;
     }
 
     private void sendSelection(@NonNull PlayerInterface out) {

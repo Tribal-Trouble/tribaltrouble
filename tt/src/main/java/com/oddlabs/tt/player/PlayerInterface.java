@@ -60,6 +60,8 @@ public interface PlayerInterface {
 
     void viewMapMode(boolean on);
 
+    void viewTargeting(boolean on);
+
     void viewPanelMenu(int submenu);
 
     void viewPlacing(int building_index, int grid_x, int grid_y, boolean placing);
