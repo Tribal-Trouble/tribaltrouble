@@ -60,5 +60,7 @@ public interface PlayerInterface {
 
     void viewMapMode(boolean on);
 
+    void viewSelectionBox(float x1, float y1, float x2, float y2, boolean active);
+
     void viewBeacon(float x, float y);
 }

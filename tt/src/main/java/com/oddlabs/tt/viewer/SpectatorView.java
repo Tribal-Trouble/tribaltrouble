@@ -86,6 +86,13 @@ public final class SpectatorView {
         viewer.getNotificationManager().newBeacon(viewer.getAnimationManagerLocal(), followed, x, y);
     }
 
+    void receiveSelectionBox(@NonNull Player player, float x1, float y1, float x2, float y2, boolean active) {
+        if (!Float.isFinite(x1) || !Float.isFinite(y1) || !Float.isFinite(x2) || !Float.isFinite(y2))
+            return;
+        getView(player).setSelectionBox(Math.clamp(x1, 0f, 1f), Math.clamp(y1, 0f, 1f), Math.clamp(x2, 0f, 1f),
+                Math.clamp(y2, 0f, 1f), active);
+    }
+
     void receiveSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
         getView(player).setSelection(selection);
         if (getFollowedPlayer() == player)
@@ -103,6 +110,7 @@ public final class SpectatorView {
         PlayerView view = getView(player);
         view.setCursor(0f, 0f, false);
         view.setMapMode(false);
+        view.setSelectionBox(0f, 0f, 0f, 0f, false);
         view.setSelection(new Selectable<?>[0]);
         showFollowedBuilding();
     }

@@ -151,6 +151,11 @@ public final class Player implements PlayerInterface {
     }
 
     @Override
+    public void viewSelectionBox(float x1, float y1, float x2, float y2, boolean active) {
+        world.getNotificationListener().playerSelectionBox(this, x1, y1, x2, y2, active);
+    }
+
+    @Override
     public void viewBeacon(float x, float y) {
         world.getNotificationListener().playerBeacon(this, x, y);
     }

@@ -29,6 +29,13 @@ final class PlayerViewSender implements Animated {
     private float sent_vert_angle;
     private boolean cursor_sent;
     private boolean map_mode_sent;
+    private final int @NonNull [] box = new int[4];
+    private boolean box_sent;
+    private boolean sent_box_active;
+    private float sent_box_x1;
+    private float sent_box_y1;
+    private float sent_box_x2;
+    private float sent_box_y2;
     private boolean sent_map_mode;
     private boolean sent_on_map;
     private float sent_cursor_x;
@@ -60,6 +67,7 @@ final class PlayerViewSender implements Animated {
         sendCursor(out);
         sendSelection(out);
         sendMapMode(out);
+        sendSelectionBox(out);
     }
 
     private void sendCamera(@NonNull PlayerInterface out) {
@@ -126,6 +134,25 @@ final class PlayerViewSender implements Animated {
         out.viewMapMode(on);
         map_mode_sent = true;
         sent_map_mode = on;
+    }
+
+    private void sendSelectionBox(@NonNull PlayerInterface out) {
+        GUIRoot gui_root = viewer.getGUIRoot();
+        boolean active = viewer.getDelegate().getSelectionBox(box) && gui_root.getDelegate() == viewer.getDelegate();
+        float x1 = active ? box[0] / (float) gui_root.getWidth() : 0f;
+        float y1 = active ? box[1] / (float) gui_root.getHeight() : 0f;
+        float x2 = active ? box[2] / (float) gui_root.getWidth() : 0f;
+        float y2 = active ? box[3] / (float) gui_root.getHeight() : 0f;
+        if (box_sent && active == sent_box_active && (!active || (same(x1, sent_box_x1) && same(y1, sent_box_y1)
+                && same(x2, sent_box_x2) && same(y2, sent_box_y2))))
+            return;
+        out.viewSelectionBox(x1, y1, x2, y2, active);
+        box_sent = true;
+        sent_box_active = active;
+        sent_box_x1 = x1;
+        sent_box_y1 = y1;
+        sent_box_x2 = x2;
+        sent_box_y2 = y2;
     }
 
     private void sendSelection(@NonNull PlayerInterface out) {

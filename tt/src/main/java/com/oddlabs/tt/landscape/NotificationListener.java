@@ -39,6 +39,9 @@ public interface NotificationListener {
     default void playerMapMode(@NonNull Player player, boolean on) {
     }
 
+    default void playerSelectionBox(@NonNull Player player, float x1, float y1, float x2, float y2, boolean active) {
+    }
+
     default void playerBeacon(@NonNull Player player, float x, float y) {
     }
 

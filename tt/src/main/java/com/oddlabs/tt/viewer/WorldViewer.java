@@ -167,6 +167,13 @@ public final class WorldViewer implements Animated, AutoCloseable {
             }
 
             @Override
+            public void playerSelectionBox(@NonNull Player player, float x1, float y1, float x2, float y2,
+                    boolean active) {
+                if (spectator_view != null)
+                    spectator_view.receiveSelectionBox(player, x1, y1, x2, y2, active);
+            }
+
+            @Override
             public void playerBeacon(@NonNull Player player, float x, float y) {
                 if (spectator_view != null)
                     spectator_view.receiveBeacon(player, x, y);

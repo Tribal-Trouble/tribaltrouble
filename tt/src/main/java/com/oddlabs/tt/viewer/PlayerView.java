@@ -12,6 +12,11 @@ public final class PlayerView {
     private final @NonNull Set<Selectable<?>> selection = new HashSet<>();
     private @Nullable Building building;
     private boolean map_mode;
+    private boolean box_active;
+    private float box_x1;
+    private float box_y1;
+    private float box_x2;
+    private float box_y2;
     private boolean cursor_on_map;
     private float cursor_x;
     private float cursor_y;
@@ -67,6 +72,35 @@ public final class PlayerView {
 
     public boolean isMapMode() {
         return map_mode;
+    }
+
+    void setSelectionBox(float x1, float y1, float x2, float y2, boolean active) {
+        box_active = active;
+        box_x1 = x1;
+        box_y1 = y1;
+        box_x2 = x2;
+        box_y2 = y2;
+    }
+
+    public boolean isSelectionBoxActive() {
+        return box_active;
+    }
+
+    /** Box corners as fractions of the player's viewport. */
+    public float getSelectionBoxX1() {
+        return box_x1;
+    }
+
+    public float getSelectionBoxY1() {
+        return box_y1;
+    }
+
+    public float getSelectionBoxX2() {
+        return box_x2;
+    }
+
+    public float getSelectionBoxY2() {
+        return box_y2;
     }
 
     public boolean isCursorOnMap() {

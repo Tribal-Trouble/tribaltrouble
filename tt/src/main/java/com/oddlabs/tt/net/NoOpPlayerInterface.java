@@ -106,6 +106,10 @@ public final class NoOpPlayerInterface implements PlayerInterface {
     }
 
     @Override
+    public void viewSelectionBox(float x1, float y1, float x2, float y2, boolean active) {
+    }
+
+    @Override
     public void viewBeacon(float x, float y) {
     }
 }
