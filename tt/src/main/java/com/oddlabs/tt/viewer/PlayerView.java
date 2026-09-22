@@ -12,6 +12,10 @@ public final class PlayerView {
     private final @NonNull Set<Selectable<?>> selection = new HashSet<>();
     private @Nullable Building building;
     private boolean map_mode;
+    private boolean placing;
+    private int placing_building_index;
+    private int placing_grid_x;
+    private int placing_grid_y;
     private boolean box_active;
     private float box_x1;
     private float box_y1;
@@ -101,6 +105,29 @@ public final class PlayerView {
 
     public float getSelectionBoxY2() {
         return box_y2;
+    }
+
+    void setPlacing(int building_index, int grid_x, int grid_y, boolean on) {
+        placing = on;
+        placing_building_index = building_index;
+        placing_grid_x = grid_x;
+        placing_grid_y = grid_y;
+    }
+
+    public boolean isPlacing() {
+        return placing;
+    }
+
+    public int getPlacingBuildingIndex() {
+        return placing_building_index;
+    }
+
+    public int getPlacingGridX() {
+        return placing_grid_x;
+    }
+
+    public int getPlacingGridY() {
+        return placing_grid_y;
     }
 
     public boolean isCursorOnMap() {

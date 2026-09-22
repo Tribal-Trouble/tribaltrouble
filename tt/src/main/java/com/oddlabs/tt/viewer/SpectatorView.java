@@ -1,11 +1,16 @@
 package com.oddlabs.tt.viewer;
 
+import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.net.ChatCommand;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
+import com.oddlabs.tt.render.BuildingGhostRenderer;
+import com.oddlabs.tt.render.LandscapeRenderer;
+import com.oddlabs.tt.render.MatrixStack;
+import com.oddlabs.tt.render.RenderQueues;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -19,6 +24,7 @@ public final class SpectatorView {
     private int last_followed = FREE_CAMERA;
     private boolean snap_pending;
     private @Nullable Runnable listener;
+    private @Nullable BuildingGhostRenderer ghost;
 
     SpectatorView(@NonNull WorldViewer viewer) {
         this.viewer = viewer;
@@ -93,6 +99,29 @@ public final class SpectatorView {
                 Math.clamp(y2, 0f, 1f), active);
     }
 
+    void receivePlacing(@NonNull Player player, int building_index, int grid_x, int grid_y, boolean placing) {
+        int grid_size = viewer.getWorld().getUnitGrid().getGridSize();
+        if (building_index < 0 || building_index >= player.getRace().getNumBuildingTemplates() || grid_x < 0
+                || grid_x >= grid_size || grid_y < 0 || grid_y >= grid_size)
+            placing = false;
+        getView(player).setPlacing(building_index, grid_x, grid_y, placing);
+    }
+
+    /** Draws the building the watched player is placing, after the delegate has drawn its own 3D overlay. */
+    public void render3D(@NonNull LandscapeRenderer renderer, @NonNull RenderQueues queues,
+            @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+        Player followed = getFollowedPlayer();
+        if (followed == null || !Globals.draw_hud)
+            return;
+        PlayerView view = getView(followed);
+        if (!view.isPlacing() || view.isMapMode() || viewer.getDelegate().isOnMap())
+            return;
+        if (ghost == null)
+            ghost = new BuildingGhostRenderer();
+        ghost.render(viewer.getWorld(), followed.getRace().getBuildingTemplate(view.getPlacingBuildingIndex()),
+                view.getPlacingGridX(), view.getPlacingGridY(), renderer, queues, modelViewStack, projectionStack);
+    }
+
     void receiveSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
         getView(player).setSelection(selection);
         if (getFollowedPlayer() == player)
@@ -111,6 +140,7 @@ public final class SpectatorView {
         view.setCursor(0f, 0f, false);
         view.setMapMode(false);
         view.setSelectionBox(0f, 0f, 0f, 0f, false);
+        view.setPlacing(0, 0, 0, false);
         view.setSelection(new Selectable<?>[0]);
         showFollowedBuilding();
     }

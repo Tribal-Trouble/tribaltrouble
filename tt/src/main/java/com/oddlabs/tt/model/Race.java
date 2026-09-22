@@ -68,6 +68,10 @@ public final class Race {
         this.music_path = music_path;
     }
 
+    public int getNumBuildingTemplates() {
+        return buildings.length;
+    }
+
     public @NonNull BuildingTemplate getBuildingTemplate(int index) {
         return buildings[index];
     }

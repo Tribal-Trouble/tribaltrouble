@@ -151,6 +151,11 @@ public final class Player implements PlayerInterface {
     }
 
     @Override
+    public void viewPlacing(int building_index, int grid_x, int grid_y, boolean placing) {
+        world.getNotificationListener().playerPlacing(this, building_index, grid_x, grid_y, placing);
+    }
+
+    @Override
     public void viewSelectionBox(float x1, float y1, float x2, float y2, boolean active) {
         world.getNotificationListener().playerSelectionBox(this, x1, y1, x2, y2, active);
     }

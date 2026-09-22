@@ -2,6 +2,8 @@ package com.oddlabs.tt.viewer;
 
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.camera.CameraState;
+import com.oddlabs.tt.delegate.Delegate;
+import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.net.DistributableTable;
@@ -29,6 +31,11 @@ final class PlayerViewSender implements Animated {
     private float sent_vert_angle;
     private boolean cursor_sent;
     private boolean map_mode_sent;
+    private boolean placing_sent;
+    private boolean sent_placing;
+    private int sent_building_index;
+    private int sent_grid_x;
+    private int sent_grid_y;
     private final int @NonNull [] box = new int[4];
     private boolean box_sent;
     private boolean sent_box_active;
@@ -68,6 +75,7 @@ final class PlayerViewSender implements Animated {
         sendSelection(out);
         sendMapMode(out);
         sendSelectionBox(out);
+        sendPlacing(out);
     }
 
     private void sendCamera(@NonNull PlayerInterface out) {
@@ -91,8 +99,9 @@ final class PlayerViewSender implements Animated {
 
     private void sendCursor(@NonNull PlayerInterface out) {
         GUIRoot gui_root = viewer.getGUIRoot();
-        boolean over_world = gui_root.getDelegate().getCamera() == viewer.getCamera()
-                && gui_root.getCurrentGUIObject().canHoverBehind()
+        boolean placing = gui_root.getDelegate().getPlacingBuildingIndex() != Delegate.NOT_PLACING;
+        boolean over_world = (placing || gui_root.getDelegate().getCamera() == viewer.getCamera())
+                && (placing || gui_root.getCurrentGUIObject().canHoverBehind())
                 && Renderer.getLocalInput().getInputProvider().isCursorInWindow();
         boolean on_map = over_world && pick();
         if (cursor_sent && on_map == sent_on_map && (!on_map || (same(location.x, sent_cursor_x) && same(location.y,
@@ -107,7 +116,7 @@ final class PlayerViewSender implements Animated {
 
     /** Picks the landscape under the pointer; the last result is reused while the pointer and camera rest. */
     private boolean pick() {
-        CameraState state = viewer.getCamera().getState();
+        CameraState state = viewer.getGUIRoot().getDelegate().getCamera().getState();
         int mouse_x = Renderer.getLocalInput().getMouseX();
         int mouse_y = Renderer.getLocalInput().getMouseY();
         if (picked && mouse_x == picked_mouse_x && mouse_y == picked_mouse_y
@@ -153,6 +162,25 @@ final class PlayerViewSender implements Animated {
         sent_box_y1 = y1;
         sent_box_x2 = x2;
         sent_box_y2 = y2;
+    }
+
+    private void sendPlacing(@NonNull PlayerInterface out) {
+        int building_index = viewer.getGUIRoot().getDelegate().getPlacingBuildingIndex();
+        boolean placing = building_index != Delegate.NOT_PLACING
+                && Renderer.getLocalInput().getInputProvider().isCursorInWindow() && pick();
+        if (!placing)
+            building_index = 0;
+        int grid_x = placing ? UnitGrid.toGridCoordinate(location.x) : 0;
+        int grid_y = placing ? UnitGrid.toGridCoordinate(location.y) : 0;
+        if (placing_sent && placing == sent_placing && (!placing || (building_index == sent_building_index
+                && grid_x == sent_grid_x && grid_y == sent_grid_y)))
+            return;
+        out.viewPlacing(building_index, grid_x, grid_y, placing);
+        placing_sent = true;
+        sent_placing = placing;
+        sent_building_index = building_index;
+        sent_grid_x = grid_x;
+        sent_grid_y = grid_y;
     }
 
     private void sendSelection(@NonNull PlayerInterface out) {

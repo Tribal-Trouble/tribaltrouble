@@ -72,6 +72,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     private final Vector3f groundAmbientEnhanced = new Vector3f(0.15f, 0.12f, 0.1f);
 
     private @Nullable Building selected_building;
+    private final @Nullable SpectatorView spectator_view;
     private boolean suppressTeamHighlight;
 
     private void setDrawBuffers(boolean mask) {
@@ -96,6 +97,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         this.render_queues = render_queues;
         this.picker = picker;
         this.selection = selection;
+        this.spectator_view = spectator_view;
         this.element_renderer = new ElementRenderer<>(local_player, render_queues, picker, false, sprite_sorter,
                 selection, spectator_view);
         this.tree_renderer = new TreeRenderer(cheat, sprite_sorter, picker.getRespondManager(), treeSpriteRenderer);
@@ -294,6 +296,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
         gui_root.getDelegate().render3D(landscape_renderer, render_queues, frustum_state, modelViewStack,
                 projectionStack);
+        if (spectator_view != null)
+            spectator_view.render3D(landscape_renderer, render_queues, frustum_state, modelViewStack, projectionStack);
 
         if (Globals.debugRenderingEnabled()) {
             renderDebugElements(frustum_state);
