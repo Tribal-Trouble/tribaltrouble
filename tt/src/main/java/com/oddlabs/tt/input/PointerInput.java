@@ -32,11 +32,17 @@ public final class PointerInput {
     private final Map<@NonNull CursorType, @NonNull Cursor> cursors = new EnumMap<>(CursorType.class);
     private @NonNull Cursor debug_cursor = Cursor.NULL_CURSOR;
 
+    public static final int NORMAL_HOT_X = 2;
+    public static final int NORMAL_HOT_Y = 2;
+    public static final int TARGET_HOT_X = 14;
+    public static final int TARGET_HOT_Y = 14;
+
     public void loadCursors() {
         debug_cursor = Resources.findResource(new CursorFile("/textures/gui/pointer_clientload_32_8.png", 2, 2));
-        cursors.put(CursorType.NORMAL, Resources.findResource(new CursorFile("/textures/gui/pointer_32_8.png", 2, 2)));
+        cursors.put(CursorType.NORMAL, Resources.findResource(new CursorFile("/textures/gui/pointer_32_8.png",
+                NORMAL_HOT_X, NORMAL_HOT_Y)));
         cursors.put(CursorType.TARGET, Resources.findResource(new CursorFile("/textures/gui/pointer_target_32_8.png",
-                14, 14)));
+                TARGET_HOT_X, TARGET_HOT_Y)));
         cursors.put(CursorType.TEXT, Resources.findResource(new CursorFile("/textures/gui/pointer_text_32_8.png", 6,
                 11)));
         cursors.put(CursorType.DEBUG, debug_cursor);

@@ -11,6 +11,8 @@ import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.SpectatorCursor;
+import com.oddlabs.tt.gui.SpectatorPanel;
+import com.oddlabs.tt.gui.SpectatorSelectionBox;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputManager;
 import com.oddlabs.tt.player.Player;
@@ -41,6 +43,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.ResourceBundle;
 
 public final class SelectionDelegate extends ControllableCameraDelegate {
@@ -92,13 +95,20 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
     }
 
     public void setObserverMode() {
+        if (observer)
+            return;
         observer = true;
         getViewer().getSelection().clearSelection();
         SpectatorView view = getViewer().getSpectatorView();
         if (view != null) {
+            getActionButtonPanel().remove();
+            getViewer().getRenderer().setSelectedBuilding(null);
             view.setListener(this::refreshSpectator);
             refreshSpectator();
-            addChild(new SpectatorCursor(getViewer(), getGUIRoot(), () -> !map_mode && Globals.draw_hud));
+            BooleanSupplier hud_shown = () -> !map_mode && Globals.draw_hud;
+            addChild(new SpectatorCursor(getViewer(), getGUIRoot(), hud_shown));
+            addChild(new SpectatorSelectionBox(getViewer(), getGUIRoot(), hud_shown));
+            addChild(new SpectatorPanel(getViewer(), getGUIRoot(), hud_shown));
         }
     }
 
@@ -187,18 +197,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
             }
             if (event.hasActions()) {
                 if (event.consumeAction(GameAction.CAMERA_MAP_MODE)) {
-                    if (!map_mode) {
-                        selection = false;
-                        getViewer().getPicker().pickRotate((GameCamera) getCamera());
-                        map_mode = true;
-                        if (observer)
-                            refreshSpectator();
-                        else
-                            getActionButtonPanel().remove();
-                        getCamera().disable();
-                        setCamera(new MapCamera(this, game_camera));
-                        getCamera().enable();
-                    }
+                    enterMapMode();
                     event.consume();
                     return;
                 }
@@ -449,6 +448,21 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         return Globals.draw_hud;
     }
 
+    public void enterMapMode() {
+        if (map_mode)
+            return;
+        selection = false;
+        getViewer().getPicker().pickRotate((GameCamera) getCamera());
+        map_mode = true;
+        if (observer)
+            refreshSpectator();
+        else
+            getActionButtonPanel().remove();
+        getCamera().disable();
+        setCamera(new MapCamera(this, game_camera));
+        getCamera().enable();
+    }
+
     public void exitMapMode() {
         map_mode = false;
         getCamera().disable();
@@ -644,6 +658,24 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
     }
 
+    public boolean isInMapMode() {
+        return map_mode;
+    }
+
+    /** On the overview map and not on the way back down. */
+    public boolean isOnMap() {
+        return map_mode && getCamera() instanceof MapCamera map_camera && !map_camera.isLeaving();
+    }
+
+    /** The drag rectangle in GUI coordinates while the player is box selecting. */
+    public boolean getSelectionBox(int @NonNull [] dest) {
+        dest[0] = selection_x1;
+        dest[1] = selection_y1;
+        dest[2] = selection_x2;
+        dest[3] = selection_y2;
+        return selection;
+    }
+
     public boolean isSelecting() {
         return selection;
     }
@@ -678,25 +710,28 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                     horizAngle, getGUIRoot().getWidth(), getGUIRoot().getHeight());
         }
 
-        if (selection) {
-            float minX = Math.min(selection_x1, selection_x2);
-            float minY = Math.min(selection_y1, selection_y2);
-            float maxX = Math.max(selection_x1, selection_x2);
-            float maxY = Math.max(selection_y1, selection_y2);
-            float w = maxX - minX;
-            float h = maxY - minY;
+        if (selection)
+            drawSelectionBox(renderer, selection_x1, selection_y1, selection_x2, selection_y2);
+    }
 
-            float thickness = com.oddlabs.tt.global.Settings.getSettings().high_contrast ? 3.0f : 1.0f;
+    public static void drawSelectionBox(@NonNull GUIRenderer renderer, float x1, float y1, float x2, float y2) {
+        float minX = Math.min(x1, x2);
+        float minY = Math.min(y1, y2);
+        float maxX = Math.max(x1, x2);
+        float maxY = Math.max(y1, y2);
+        float w = maxX - minX;
+        float h = maxY - minY;
 
-            // Ensure thickness doesn't exceed half dimensions
-            if (thickness > w / 2) thickness = w / 2;
-            if (thickness > h / 2) thickness = h / 2;
+        float thickness = com.oddlabs.tt.global.Settings.getSettings().high_contrast ? 3.0f : 1.0f;
 
-            renderer.drawColoredQuad(minX, minY, w, thickness, SELECTION_COLOR);
-            renderer.drawColoredQuad(minX, maxY - thickness, w, thickness, SELECTION_COLOR);
-            renderer.drawColoredQuad(minX, minY + thickness, thickness, h - 2 * thickness, SELECTION_COLOR);
-            renderer.drawColoredQuad(maxX - thickness, minY + thickness, thickness, h - 2 * thickness, SELECTION_COLOR);
-        }
+        // Ensure thickness doesn't exceed half dimensions
+        if (thickness > w / 2) thickness = w / 2;
+        if (thickness > h / 2) thickness = h / 2;
+
+        renderer.drawColoredQuad(minX, minY, w, thickness, SELECTION_COLOR);
+        renderer.drawColoredQuad(minX, maxY - thickness, w, thickness, SELECTION_COLOR);
+        renderer.drawColoredQuad(minX, minY + thickness, thickness, h - 2 * thickness, SELECTION_COLOR);
+        renderer.drawColoredQuad(maxX - thickness, minY + thickness, thickness, h - 2 * thickness, SELECTION_COLOR);
     }
 
     @Override

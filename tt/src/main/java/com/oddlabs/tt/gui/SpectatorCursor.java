@@ -1,5 +1,6 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Texture;
@@ -18,14 +19,14 @@ import java.util.function.BooleanSupplier;
 /** The watched player's mouse pointer, drawn where their cursor touches the ground, in their color. */
 public final class SpectatorCursor extends GUIObject {
     private static final String POINTER_TEXTURE = "/textures/gui/pointer_32_8";
-    private static final int HOT_X = 2;
-    private static final int HOT_Y = 2;
+    private static final String TARGET_TEXTURE = "/textures/gui/pointer_target_32_8";
     private static final float SMOOTHNESS_FACTOR = 15f;
 
     private final @NonNull WorldViewer viewer;
     private final @NonNull GUIRoot gui_root;
     private final @NonNull BooleanSupplier visible;
     private final @NonNull Texture texture;
+    private final @NonNull Texture target_texture;
     private final @NonNull Vector4f point = new Vector4f();
     private final @NonNull Vector4f color = new Vector4f();
     private boolean shown;
@@ -38,6 +39,8 @@ public final class SpectatorCursor extends GUIObject {
         this.gui_root = gui_root;
         this.visible = visible;
         this.texture = Resources.findResource(new TextureFile(POINTER_TEXTURE, GL11.GL_RGBA, GL11.GL_LINEAR,
+                GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT));
+        this.target_texture = Resources.findResource(new TextureFile(TARGET_TEXTURE, GL11.GL_RGBA, GL11.GL_LINEAR,
                 GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT));
         displayChangedNotify(gui_root.getWidth(), gui_root.getHeight());
     }
@@ -76,7 +79,10 @@ public final class SpectatorCursor extends GUIObject {
         Vector4fc player_color = followed.getColor();
         color.set(player_color.x(), player_color.y(), player_color.z(), 1f);
         // A PNG texture has its top row at v=0, so the quad is drawn downwards from the hot spot.
-        renderer.drawTexture(texture, screen_x - HOT_X, screen_y + HOT_Y, texture.getWidth(), -texture.getHeight(),
-                0f, 0f, 1f, 1f, color);
+        Texture shown_texture = player_view.isTargeting() ? target_texture : texture;
+        int hot_x = player_view.isTargeting() ? PointerInput.TARGET_HOT_X : PointerInput.NORMAL_HOT_X;
+        int hot_y = player_view.isTargeting() ? PointerInput.TARGET_HOT_Y : PointerInput.NORMAL_HOT_Y;
+        renderer.drawTexture(shown_texture, screen_x - hot_x, screen_y + hot_y, shown_texture.getWidth(),
+                -shown_texture.getHeight(), 0f, 0f, 1f, 1f, color);
     }
 }

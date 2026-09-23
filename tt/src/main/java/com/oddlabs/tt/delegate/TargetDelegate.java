@@ -33,6 +33,11 @@ public class TargetDelegate extends ControllableCameraDelegate {
     }
 
     @Override
+    public boolean isTargeting() {
+        return true;
+    }
+
+    @Override
     protected final @NonNull CursorType getCursorType() {
         return CursorType.TARGET;
     }

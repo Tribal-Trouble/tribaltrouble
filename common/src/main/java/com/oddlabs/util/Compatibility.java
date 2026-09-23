@@ -15,10 +15,11 @@ public final class Compatibility {
      * connecting (setSimVersion); the server only lists and joins games between
      * clients with equal values. Clients too old to report one are assigned
      * {@link #SIM_LEGACY}. Bump when a change alters lockstep simulation
-     * behavior (model, pathfinding, landscape generation, behaviours). Needs no
-     * server deploy and locks nobody out.
+     * behavior (model, pathfinding, landscape generation, behaviours), or the
+     * methods of PlayerInterface or PeerHubInterface, whose sorted order numbers
+     * the game events. Needs no server deploy and locks nobody out.
      */
-    public static final int SIM_VERSION = 1004;
+    public static final int SIM_VERSION = 1005;
 
     /** Sim version assumed for clients that predate sim version reporting. */
     public static final int SIM_LEGACY = 0;

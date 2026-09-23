@@ -562,6 +562,7 @@ public final class PeerHub implements Animated, RouterHandler {
     }
 
     public void sendBeacon(float x, float y) {
+        player_interface.viewBeacon(x, y);
         Iterator<Peer> it = getPeerIterator();
         int local_team = local_player.getPlayerInfo().getTeam();
         while (it.hasNext()) {
