@@ -2,6 +2,8 @@ package com.oddlabs.tt.viewer;
 
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.camera.CameraState;
+import com.oddlabs.tt.delegate.Delegate;
+import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.net.DistributableTable;
@@ -28,6 +30,24 @@ final class PlayerViewSender implements Animated {
     private float sent_horiz_angle;
     private float sent_vert_angle;
     private boolean cursor_sent;
+    private boolean map_mode_sent;
+    private boolean targeting_sent;
+    private boolean sent_targeting;
+    private boolean submenu_sent;
+    private int sent_submenu;
+    private boolean placing_sent;
+    private boolean sent_placing;
+    private int sent_building_index;
+    private int sent_grid_x;
+    private int sent_grid_y;
+    private final int @NonNull [] box = new int[4];
+    private boolean box_sent;
+    private boolean sent_box_active;
+    private float sent_box_x1;
+    private float sent_box_y1;
+    private float sent_box_x2;
+    private float sent_box_y2;
+    private boolean sent_map_mode;
     private boolean sent_on_map;
     private float sent_cursor_x;
     private float sent_cursor_y;
@@ -57,6 +77,11 @@ final class PlayerViewSender implements Animated {
         sendCamera(out);
         sendCursor(out);
         sendSelection(out);
+        sendMapMode(out);
+        sendSelectionBox(out);
+        sendPlacing(out);
+        sendPanelMenu(out);
+        sendTargeting(out);
     }
 
     private void sendCamera(@NonNull PlayerInterface out) {
@@ -80,8 +105,9 @@ final class PlayerViewSender implements Animated {
 
     private void sendCursor(@NonNull PlayerInterface out) {
         GUIRoot gui_root = viewer.getGUIRoot();
-        boolean over_world = gui_root.getDelegate().getCamera() == viewer.getCamera()
-                && gui_root.getCurrentGUIObject().canHoverBehind()
+        boolean placing = gui_root.getDelegate().getPlacingBuildingIndex() != Delegate.NOT_PLACING;
+        boolean over_world = (placing || gui_root.getDelegate().getCamera() == viewer.getCamera())
+                && (placing || gui_root.getCurrentGUIObject().canHoverBehind())
                 && Renderer.getLocalInput().getInputProvider().isCursorInWindow();
         boolean on_map = over_world && pick();
         if (cursor_sent && on_map == sent_on_map && (!on_map || (same(location.x, sent_cursor_x) && same(location.y,
@@ -96,7 +122,7 @@ final class PlayerViewSender implements Animated {
 
     /** Picks the landscape under the pointer; the last result is reused while the pointer and camera rest. */
     private boolean pick() {
-        CameraState state = viewer.getCamera().getState();
+        CameraState state = viewer.getGUIRoot().getDelegate().getCamera().getState();
         int mouse_x = Renderer.getLocalInput().getMouseX();
         int mouse_y = Renderer.getLocalInput().getMouseY();
         if (picked && mouse_x == picked_mouse_x && mouse_y == picked_mouse_y
@@ -114,6 +140,71 @@ final class PlayerViewSender implements Animated {
         picked_vert_angle = state.getCurrentVertAngle();
         picked_on_map = viewer.getPicker().pickLocation(state, location);
         return picked_on_map;
+    }
+
+    private void sendMapMode(@NonNull PlayerInterface out) {
+        boolean on = viewer.getDelegate().isOnMap();
+        if (map_mode_sent && on == sent_map_mode)
+            return;
+        out.viewMapMode(on);
+        map_mode_sent = true;
+        sent_map_mode = on;
+    }
+
+    private void sendSelectionBox(@NonNull PlayerInterface out) {
+        GUIRoot gui_root = viewer.getGUIRoot();
+        boolean active = viewer.getDelegate().getSelectionBox(box) && gui_root.getDelegate() == viewer.getDelegate();
+        float x1 = active ? box[0] / (float) gui_root.getWidth() : 0f;
+        float y1 = active ? box[1] / (float) gui_root.getHeight() : 0f;
+        float x2 = active ? box[2] / (float) gui_root.getWidth() : 0f;
+        float y2 = active ? box[3] / (float) gui_root.getHeight() : 0f;
+        if (box_sent && active == sent_box_active && (!active || (same(x1, sent_box_x1) && same(y1, sent_box_y1)
+                && same(x2, sent_box_x2) && same(y2, sent_box_y2))))
+            return;
+        out.viewSelectionBox(x1, y1, x2, y2, active);
+        box_sent = true;
+        sent_box_active = active;
+        sent_box_x1 = x1;
+        sent_box_y1 = y1;
+        sent_box_x2 = x2;
+        sent_box_y2 = y2;
+    }
+
+    private void sendPlacing(@NonNull PlayerInterface out) {
+        int building_index = viewer.getGUIRoot().getDelegate().getPlacingBuildingIndex();
+        boolean placing = building_index != Delegate.NOT_PLACING
+                && Renderer.getLocalInput().getInputProvider().isCursorInWindow() && pick();
+        if (!placing)
+            building_index = 0;
+        int grid_x = placing ? UnitGrid.toGridCoordinate(location.x) : 0;
+        int grid_y = placing ? UnitGrid.toGridCoordinate(location.y) : 0;
+        if (placing_sent && placing == sent_placing && (!placing || (building_index == sent_building_index
+                && grid_x == sent_grid_x && grid_y == sent_grid_y)))
+            return;
+        out.viewPlacing(building_index, grid_x, grid_y, placing);
+        placing_sent = true;
+        sent_placing = placing;
+        sent_building_index = building_index;
+        sent_grid_x = grid_x;
+        sent_grid_y = grid_y;
+    }
+
+    private void sendPanelMenu(@NonNull PlayerInterface out) {
+        int submenu = viewer.getPanel().getSubmenu();
+        if (submenu_sent && submenu == sent_submenu)
+            return;
+        out.viewPanelMenu(submenu);
+        submenu_sent = true;
+        sent_submenu = submenu;
+    }
+
+    private void sendTargeting(@NonNull PlayerInterface out) {
+        boolean on = viewer.getGUIRoot().getDelegate().isTargeting();
+        if (targeting_sent && on == sent_targeting)
+            return;
+        out.viewTargeting(on);
+        targeting_sent = true;
+        sent_targeting = on;
     }
 
     private void sendSelection(@NonNull PlayerInterface out) {

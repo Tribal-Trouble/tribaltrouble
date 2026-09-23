@@ -57,6 +57,18 @@ public abstract class Delegate extends GUIObject {
         return false;
     }
 
+    /** True while the player is picking a spot or a unit for an order. */
+    public boolean isTargeting() {
+        return false;
+    }
+
+    public static final int NOT_PLACING = -1;
+
+    /** The building type being placed through this delegate, or NOT_PLACING. */
+    public int getPlacingBuildingIndex() {
+        return NOT_PLACING;
+    }
+
     final void renderBackgroundAlpha(@NonNull GUIRenderer renderer) {
         renderer.drawColoredQuad(0, 0, getWidth(), getHeight(), BACKGROUND_ALPHA);
     }

@@ -55,6 +55,17 @@ public final class NotificationManager {
         latest_notification = notification;
     }
 
+    /** Drops every arrow and cue on screen; the spectator calls this when it starts watching someone else. */
+    public void clear() {
+        for (Notification notification : new ArrayList<>(attack_notifies))
+            notification.remove();
+        for (Notification notification : new ArrayList<>(notifies))
+            notification.remove();
+        attack_notifies.clear();
+        notifies.clear();
+        latest_notification = null;
+    }
+
     void removeAttackNotification(@NonNull AttackNotification current) {
         attack_notifies.remove(current);
     }

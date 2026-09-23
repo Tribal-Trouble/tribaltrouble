@@ -145,6 +145,36 @@ public final class Player implements PlayerInterface {
         world.getNotificationListener().playerSelection(this, selection);
     }
 
+    @Override
+    public void viewMapMode(boolean on) {
+        world.getNotificationListener().playerMapMode(this, on);
+    }
+
+    @Override
+    public void viewTargeting(boolean on) {
+        world.getNotificationListener().playerTargeting(this, on);
+    }
+
+    @Override
+    public void viewPanelMenu(int submenu) {
+        world.getNotificationListener().playerPanelMenu(this, submenu);
+    }
+
+    @Override
+    public void viewPlacing(int building_index, int grid_x, int grid_y, boolean placing) {
+        world.getNotificationListener().playerPlacing(this, building_index, grid_x, grid_y, placing);
+    }
+
+    @Override
+    public void viewSelectionBox(float x1, float y1, float x2, float y2, boolean active) {
+        world.getNotificationListener().playerSelectionBox(this, x1, y1, x2, y2, active);
+    }
+
+    @Override
+    public void viewBeacon(float x, float y) {
+        world.getNotificationListener().playerBeacon(this, x, y);
+    }
+
     public int getPreferredGamespeed() {
         return preferred_speed;
     }

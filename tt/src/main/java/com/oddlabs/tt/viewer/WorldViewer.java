@@ -124,15 +124,15 @@ public final class WorldViewer implements Animated, AutoCloseable {
             @Override
             public void newAttackNotification(@NonNull Selectable<?> target) {
                 Player owner = target.getOwner();
-                if (owner == getLocalPlayer())
-                    notification_manager.newAttackNotification(animation_manager_local, target, getLocalPlayer());
+                if (owner == notifiedPlayer())
+                    notification_manager.newAttackNotification(animation_manager_local, target, owner);
             }
 
             @Override
             public void newSelectableNotification(@NonNull Selectable<?> target) {
                 Player owner = target.getOwner();
-                if (owner == getLocalPlayer())
-                    notification_manager.newSelectableNotification(target, animation_manager_local, getLocalPlayer());
+                if (owner == notifiedPlayer())
+                    notification_manager.newSelectableNotification(target, animation_manager_local, owner);
             }
 
             @Override
@@ -158,6 +158,44 @@ public final class WorldViewer implements Animated, AutoCloseable {
             public void playerCursor(@NonNull Player player, float x, float y, boolean on_map) {
                 if (spectator_view != null)
                     spectator_view.receiveCursor(player, x, y, on_map);
+            }
+
+            @Override
+            public void playerMapMode(@NonNull Player player, boolean on) {
+                if (spectator_view != null)
+                    spectator_view.receiveMapMode(player, on);
+            }
+
+            @Override
+            public void playerTargeting(@NonNull Player player, boolean on) {
+                if (spectator_view != null)
+                    spectator_view.receiveTargeting(player, on);
+            }
+
+            @Override
+            public void playerPanelMenu(@NonNull Player player, int submenu) {
+                if (spectator_view != null)
+                    spectator_view.receivePanelMenu(player, submenu);
+            }
+
+            @Override
+            public void playerPlacing(@NonNull Player player, int building_index, int grid_x, int grid_y,
+                    boolean placing) {
+                if (spectator_view != null)
+                    spectator_view.receivePlacing(player, building_index, grid_x, grid_y, placing);
+            }
+
+            @Override
+            public void playerSelectionBox(@NonNull Player player, float x1, float y1, float x2, float y2,
+                    boolean active) {
+                if (spectator_view != null)
+                    spectator_view.receiveSelectionBox(player, x1, y1, x2, y2, active);
+            }
+
+            @Override
+            public void playerBeacon(@NonNull Player player, float x, float y) {
+                if (spectator_view != null)
+                    spectator_view.receiveBeacon(player, x, y);
             }
 
             @Override
@@ -205,10 +243,19 @@ public final class WorldViewer implements Animated, AutoCloseable {
         this.delegate = new SelectionDelegate(this, camera);
         if (ingame_info.isMultiplayer() && !spectator)
             animation_manager_local.registerAnimation(new PlayerViewSender(this));
+        if (spectator_view != null)
+            animation_manager_local.registerAnimation(new SpectatorMapMode(this, spectator_view));
         camera.reset(getLocalPlayer().getStartX(), getLocalPlayer().getStartY());
         initPlayers(world_info.starting_locations(), player_slots, world.getPlayers(), unit_infos,
                 world_params.getInitialGameSpeed());
         LocalEventQueue.getQueue().getManager().registerAnimation(this);
+    }
+
+    /** Whose arrows and cues this screen shows: the watched player for a spectator, otherwise the local player. */
+    private @Nullable Player notifiedPlayer() {
+        if (spectator_view == null)
+            return getLocalPlayer();
+        return peerhub.isSynchronized() ? spectator_view.getFollowedPlayer() : null;
     }
 
     public @Nullable SpectatorView getSpectatorView() {
