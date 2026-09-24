@@ -127,11 +127,34 @@ def repo_folder_and_model_list():
     assert addon.repo_root(bpy.context) == TEMP
     units = [u.name for u in wm.tt_units]
     assert "vikings / warrior" in units and "vikings / warrior_axe_held" not in units
-    wm.tt_units_only = False
+    wm.tt_category = "ALL"
     everything = len(wm.tt_units)
-    wm.tt_units_only = True
+    wm.tt_category = "UNITS"
     assert everything > len(units)
     return f"{len(units)} units, {everything} models"
+
+
+@test
+def the_category_picks_which_kind_of_model_is_listed():
+    listed = {}
+    for category, _, _ in addon.CATEGORY_ITEMS:
+        wm.tt_category = category
+        listed[category] = {u.name for u in wm.tt_units}
+    wm.tt_category = "UNITS"
+    expected = {
+        "UNITS": ["vikings / warrior", "natives / peon", "vikings / chieftain", "misc / chicken"],
+        "BUILDINGS": ["vikings / quarters", "vikings / quarters_halfbuilt", "natives / ship_start", "natives / tower"],
+        "RESOURCES": ["misc / rock_1", "misc / wood_2", "misc / treasure_5"],
+        "NATURE": ["misc / oak_tree_crown", "misc / palm_trunk", "misc / plant_1", "misc / viking_plant_4"],
+        "OTHER": ["vikings / rally_point", "vikings / axe", "natives / spear", "misc / icon"],
+    }
+    for category, names in expected.items():
+        for name in names:
+            others = [c for c, found in listed.items() if name in found and c not in (category, "ALL")]
+            assert name in listed[category] and not others, (name, category, others)
+    assert "natives / rock_resource" not in listed["ALL"], "a carried item was listed as a model"
+    assert sum(len(v) for c, v in listed.items() if c != "ALL") == len(listed["ALL"])
+    return ", ".join(f"{c.lower()} {len(v)}" for c, v in listed.items())
 
 
 @test
@@ -140,6 +163,46 @@ def load_unit_with_default_attachment():
     assert items() == {"weapon": [("warrior_axe_held", True)]}, items()
     assert a.animation_data.action.name.endswith("idle")
     return f"{len(a.data.bones)} bones, {len(addon.armature_actions(a))} clips, axe on by default"
+
+
+@test
+def publishing_leaves_untouched_registry_items_alone():
+    a = load("vikings", "peon")
+    rubber = next(o for o in addon.unit_items(a)[addon.CARRY_SLOT] if o["tt_sprite"] == "rubber_resource")
+    assert bpy.ops.object.tt_show_item(item=rubber.name) == {"FINISHED"}
+    os.utime(rubber["tt_source"], (1, 1))
+    assert bpy.ops.export_mesh.tt_to_repo() == {"FINISHED"}
+    assert os.path.getmtime(rubber["tt_source"]) == 1, "an unchanged item was written again"
+    rubber.location.z += 0.5
+    assert bpy.ops.export_mesh.tt_to_repo() == {"FINISHED"}
+    assert os.path.getmtime(rubber["tt_source"]) != 1, "a moved item was not written"
+
+
+@test
+def a_new_item_never_overwrites_a_file_already_in_the_unit_folder():
+    load("vikings", "warrior")
+    path = os.path.join(GEOMETRY, "vikings", "warrior", "warrior_skeleton.xml")
+    before = open(path, "rb").read()
+    put_on_head(fixture_mesh("warrior_skeleton", fixture_image("clash_tex")))
+    expect_error(bpy.ops.object.tt_save_items, "already has a file named after warrior_skeleton")
+    assert open(path, "rb").read() == before
+    obj = bpy.data.objects["warrior_skeleton"]
+    next(s for s in arm().tt_attachments if s.point == "HEAD").obj = None
+    assert "tt_bone" not in obj, "a mesh taken out of its slot still exports skinned to the bone"
+    bpy.data.objects.remove(obj)
+
+
+@test
+def a_mirrored_mesh_keeps_its_faces_pointing_out():
+    cube = fixture_mesh("test_mirror", None, 0, "cube")
+    cube.scale = (-1.0, 1.0, 1.0)
+    bpy.context.view_layer.update()
+    record = addon.mesh_record_from_mesh(cube.data, cube, cube.matrix_world, False, None, False)
+    for i, (a, b, c) in enumerate(record.faces):
+        pa, pb, pc = (addon.Vector(record.verts[v]) for v in (a, b, c))
+        winding = (pb - pa).cross(pc - pa)
+        assert winding.dot(addon.Vector(record.loop_normals[3 * i])) > 0, f"face {i} is inside out"
+    bpy.data.objects.remove(cube)
 
 
 @test
@@ -259,7 +322,7 @@ def checks_catch_what_breaks_in_game_and_block_the_export():
     bpy.context.view_layer.update()
     expect_error(bpy.ops.object.tt_preflight, "problem(s) to fix")
     text = " / ".join(c.name for c in wm.tt_checks)
-    for fragment in ("letters, digits and underscores", "no UV map", "no Image Texture", "negative scale", "tint"):
+    for fragment in ("letters, digits and underscores", "no UV map", "no Image Texture", "tint"):
         assert fragment in text, f"missing '{fragment}' in: {text}"
     expect_error(bpy.ops.export_mesh.tt_to_repo, "Not published")
     assert not os.path.exists(os.path.join(GEOMETRY, "natives", "warrior", "my hat.xml"))
@@ -298,9 +361,9 @@ def register_a_building_with_all_three_stages():
     select_only(built)
     expect_error(lambda: bpy.ops.object.tt_register_model(sprite_name="test_hut", group="vikings"), "already has")
     expect_error(lambda: bpy.ops.object.tt_register_model(sprite_name="bad name", group="vikings"), "letters")
-    wm.tt_units_only = False
+    wm.tt_category = "BUILDINGS"
     assert "vikings / test_hut_start" in [u.name for u in wm.tt_units]
-    wm.tt_units_only = True
+    wm.tt_category = "UNITS"
     assert bpy.ops.wm.tt_load_unit(group="vikings", sprite="test_hut") == {"FINISHED"}
     for o in (built, far, half, site):
         bpy.data.objects.remove(o)
@@ -373,14 +436,14 @@ def update_button_appears_only_for_a_newer_repo_copy():
 
 
 def load_building(group, sprite):
-    wm.tt_units_only = False
+    wm.tt_category = "BUILDINGS"
     assert bpy.ops.wm.tt_load_unit(group=group, sprite=sprite) == {"FINISHED"}
     return addon.browsed_building(bpy.context)
 
 
 @test
 def carried_items_load_on_the_peon_and_leave_the_model_list():
-    wm.tt_units_only = True
+    wm.tt_category = "UNITS"
     addon.refresh_units(bpy.context)
     units = [u.name for u in wm.tt_units]
     assert "natives / peon" in units and "natives / rubber_resource" not in units, units
