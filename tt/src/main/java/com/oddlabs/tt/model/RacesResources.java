@@ -418,11 +418,16 @@ public final class RacesResources {
     private static @Nullable SpriteKey reskin(@NonNull RenderQueues queues, @NonNull SpriteKey stock,
             @NonNull SkinEntry entry) {
         SpriteFile stock_file = queues.getSpriteFile(stock);
-        if (!stock_file.equals(stock_file.withLocation(spritePath(entry.group(), entry.replaces()))))
+        String replaced = spritePath(entry.group(), entry.replaces());
+        if (!stock_file.equals(stock_file.withLocation(replaced)))
             return null;
         String location = spritePath(entry.group(), entry.name());
+        // A stock building drawn with its event texture stands on its first texture as far as the skin is concerned.
+        int tex_index = queues.getRenderer(stock).getTexIndex();
+        if (tex_index == eventTexture(replaced))
+            tex_index = DEFAULT_TEXTURE;
         SpriteKey skin = queues.register(stock_file.withLocation(location),
-                textureIndex(location, entry.textures(), queues.getRenderer(stock).getTexIndex()));
+                textureIndex(location, entry.textures(), tex_index));
         if (queues.getRenderer(skin).getSpriteList().getAnimationTypes().length != queues.getRenderer(
                 stock).getSpriteList().getAnimationTypes().length)
             throw new IllegalStateException(
