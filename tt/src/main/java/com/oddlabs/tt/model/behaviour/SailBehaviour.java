@@ -78,7 +78,7 @@ public final class SailBehaviour implements Behaviour {
         int rowers = ship.getShipHR().countRowers() + 1;
 
         if (next_pose == null) {
-            float speed = rowers * SHIP_SPEED;
+            float speed = rowers * SHIP_SPEED * (ship.getShipHR().hasChieftain() ? 2 : 1);
             next_pose = trajectory.advance(speed * t);
         }
 

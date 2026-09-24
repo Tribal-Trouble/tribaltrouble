@@ -570,6 +570,10 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         return false;
     }
 
+    public final boolean isChieftain() {
+        return getAbilities().hasAbilities(Abilities.MAGIC);
+    }
+
     private @NonNull BalancedParametricEmitter createStunStar(float x, float y, float z, float time, float velocity) {
         int num_particles = 5;
         return new BalancedParametricEmitter(getOwner().getWorld(),
@@ -620,11 +624,16 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     public boolean canEnter(@NonNull Target target) {
-        return target instanceof Building building &&
-                !getAbilities().hasAbilities(Abilities.MAGIC) &&
-                building.getUnitContainer() != null &&
-                getOwner() == building.getOwner() &&
-                building.getUnitContainer().canEnter(this);
+        if (!(target instanceof Building building) || building.getUnitContainer() == null
+                || getOwner() != building.getOwner() || !building.getUnitContainer().canEnter(this)) {
+            return false;
+        }
+
+        if (target instanceof LandBuilding) {
+            return !isChieftain();
+        } else {
+            return true;
+        }
     }
 
     @Override
@@ -806,7 +815,15 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     public final float getHitError() {
-        return on_ship ? 2.2f : 0.0f;
+        if (on_ship && mounted_building instanceof Ship ship) {
+            if (ship.getShipHR().hasChieftain()) {
+                return 0.2f;
+            } else {
+                return 2.2f;
+            }
+        } else {
+            return 0.0f;
+        }
     }
 
     public final void debugRender() {
