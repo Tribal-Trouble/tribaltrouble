@@ -121,6 +121,7 @@ public final class Landscape {
     private final float hills;
     private final float vegetation_amount;
     private final float supplies_amount;
+    private final int supplyshadow_size;
     private final int seed;
     private final float area;
     private final int max_trees;
@@ -163,24 +164,29 @@ public final class Landscape {
                 size_multiplier = 1;
                 height_scale = 32;
                 access_threshold = 0.05f;
+                supplyshadow_size = Math.max(unit_grids_per_world >> 5, 2);
             }
             case 512 -> {
                 size_multiplier = 4;
                 height_scale = 48;
                 access_threshold = 0.0375f;
+                supplyshadow_size = Math.max(unit_grids_per_world >> 6, 2);
             }
             case 1024 -> {
                 size_multiplier = 16;
                 height_scale = 64;
                 access_threshold = 0.025f;
+                supplyshadow_size = Math.max(unit_grids_per_world >> 7, 2);
             }
             case 2048 -> {
                 size_multiplier = 40;
                 height_scale = 56;
                 access_threshold = 0.0325f;
+                supplyshadow_size = Math.max(unit_grids_per_world >> 8, 2);
             }
             default -> {
                 size_multiplier = 0;
+                supplyshadow_size = 2;
                 assert false : "illegal meters_per_world";
             }
         }
@@ -1134,7 +1140,6 @@ public final class Landscape {
         float interval_size = 1f / intervals;
         float upper_bound = 1f;
         float lower_bound = upper_bound - interval_size;
-        int supplyshadow_size = Math.max(unit_grids_per_world >> 7, 2);
         Channel supplyshadow_alpha = new Channel(supplyshadow_size << 1, supplyshadow_size << 1).place(new Channel(
                 supplyshadow_size, supplyshadow_size).fill(1f), supplyshadow_size >> 1,
                 supplyshadow_size >> 1).smoothFast();
