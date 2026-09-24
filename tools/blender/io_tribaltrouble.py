@@ -1034,8 +1034,13 @@ class ExportTTSkeleton(bpy.types.Operator, ExportHelper):
             written.append(os.path.basename(self.filepath))
         if self.export_clips:
             out_dir = os.path.dirname(self.filepath)
+            taken = set()
             for action in armature_actions(arm):
+                # A copy made in the Action editor carries the original's tt_clip, so it falls back to its own name.
                 path = os.path.join(out_dir, action.get("tt_clip") or action.name + ".xml")
+                if os.path.normcase(path) in taken:
+                    path = os.path.join(out_dir, action.name + ".xml")
+                taken.add(os.path.normcase(path))
                 write_animation_xml(context, arm, action, path)
                 written.append(os.path.basename(path))
         if not written:
