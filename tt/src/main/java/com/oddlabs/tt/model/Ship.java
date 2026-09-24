@@ -1014,11 +1014,11 @@ public class Ship extends Building implements Movable {
     }
 
     public final void endSlide() {
+        slid = true;
         forceDecide();
         free();
         reinsert();
         occupy();
-        slid = true;
     }
 
     public final void setPosition(float x, float y) {

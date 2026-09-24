@@ -5,46 +5,54 @@ import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.pathfinder.ShipTrajectory;
 import com.oddlabs.tt.pathfinder.ShipTrajectoryPoint;
 import com.oddlabs.tt.pathfinder.UnitGrid;
-import com.oddlabs.tt.util.Target;
+import com.oddlabs.tt.landscape.LandscapeTarget;
 import org.jspecify.annotations.NonNull;
 
-public final class SailBehaviour implements Behaviour {
+public final class ShipUnstuckBehaviour implements Behaviour {
     private static final float SHIP_SPEED = 0.45f;
     private ShipTrajectoryPoint next_pose = null;
 
     private final Ship ship;
-    private final Target target;
-
-    private int prev_target_x = 0;
-    private int prev_target_y = 0;
 
     private ShipTrajectory trajectory = null;
 
-    private boolean blocked = false;
-    private boolean stuck = false;
+    private boolean finished = false;
+    private boolean failed = false;
 
-    public SailBehaviour(Ship ship, Target t) {
+    public ShipUnstuckBehaviour(Ship ship) {
         this.ship = ship;
-        this.target = t;
-    }
-
-    public void replanIfNeeded() {
-        boolean no_traj = (trajectory == null || !trajectory.exists());
-        boolean ship_moved = (target instanceof Ship) && (prev_target_x != target.getGridX()
-                || prev_target_y != target.getGridY());
-        if (no_traj || ship_moved) {
-            this.trajectory = new ShipTrajectory(ship, target);
-            this.prev_target_x = target.getGridX();
-            this.prev_target_y = target.getGridY();
+        var grid = ship.getUnitGrid();
+        System.out.println("Trying ship unstuck behaviour");
+        ShipTrajectoryPoint p0 = new ShipTrajectoryPoint(ship);
+        for (int i = 0; i < 4; i++) {
+            float angle = i * 45.0f;
+            var p1 = p0.rotated(angle).moved(15);
+            if (!ShipTrajectory.checkLandCollision(grid, p0, p1)) {
+                if (ShipTrajectory.checkShipsCollision(grid, ship, p0, p1) == null) {
+                    this.trajectory = new ShipTrajectory(ship, new LandscapeTarget(p1.gridX, p1.gridY));
+                    break;
+                }
+            }
+            p1 = p0.rotated(-angle).moved(15);
+            if (!ShipTrajectory.checkLandCollision(grid, p0, p1)) {
+                if (ShipTrajectory.checkShipsCollision(grid, ship, p0, p1) == null) {
+                    this.trajectory = new ShipTrajectory(ship, new LandscapeTarget(p1.gridX, p1.gridY));
+                    break;
+                }
+            }
         }
     }
 
     public final boolean isBlocking() {
-        return blocked;
+        return true;
     }
 
-    public final boolean isStuck() {
-        return stuck;
+    public final boolean isFinished() {
+        return finished;
+    }
+
+    public final boolean hasFailed() {
+        return failed;
     }
 
     public final ShipTrajectory getTrajectory() {
@@ -52,12 +60,7 @@ public final class SailBehaviour implements Behaviour {
     }
 
     public void appendToolTip(ToolTipBox tool_tip_box) {
-        tool_tip_box.append("SailBehaviour: ");
-        if (blocked) {
-            tool_tip_box.append("BLOCKED");
-        } else {
-            tool_tip_box.append("MOVING");
-        }
+        tool_tip_box.append("ShipUnstuckBehaviour");
     }
 
     @Override
@@ -70,12 +73,11 @@ public final class SailBehaviour implements Behaviour {
             return State.UNINTERRUPTIBLE;
         }
 
-        replanIfNeeded();
-
         ship.setLayer(UnitGrid.SEA);
 
         if (trajectory == null || !trajectory.exists()) {
-            ship.endTrip();
+            failed = true;
+            ship.reportStuck();
             return State.INTERRUPTIBLE;
         }
 
@@ -87,7 +89,7 @@ public final class SailBehaviour implements Behaviour {
         }
 
         if (trajectory.reachedGoal()) {
-            ship.endTrip();
+            finished = true;
             return State.DONE;
         }
 
@@ -95,14 +97,10 @@ public final class SailBehaviour implements Behaviour {
 
         var grid = ship.getUnitGrid();
 
-        var blockingShip = ShipTrajectory.checkShipsCollision(grid, ship, fromPoint, next_pose.moved(8));
-        if (fromPoint.distanceTo(next_pose) > 0.0001f && blockingShip != null) {
-            // If it's an enemy ship, stand your ground and fight! Do not escape!
-            // Otherwise if it's one of your own or an ally, let it pass.
-            if (blockingShip.getOwner().getPlayerInfo().getTeam() == ship.getOwner().getPlayerInfo().getTeam()) {
-                stuck = true;
-                ship.reportStuck();
-            }
+        if (fromPoint.distanceTo(next_pose) > 0.0001f && ShipTrajectory.checkShipsCollision(grid, ship, fromPoint,
+                next_pose.moved(8)) != null) {
+            failed = true;
+            ship.reportStuck();
             return State.INTERRUPTIBLE;
         }
 
