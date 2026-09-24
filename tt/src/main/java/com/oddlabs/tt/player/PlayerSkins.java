@@ -39,12 +39,9 @@ public final class PlayerSkins {
         return skin != null ? skin : template.getRenderer(stage);
     }
 
-    /**
-     * A skin that names props for a building replaces its template's at every stage, so stock props never mix with a
-     * skin's.
-     */
+    /** Props follow the mesh: a stage the skin replaces draws the skin's props, any other stage the stock ones. */
     public @NonNull List<SpriteKey> propsFor(@NonNull BuildingTemplate template, Building.@NonNull BuildState stage) {
-        Map<Building.BuildState, List<SpriteKey>> skin = props.get(template);
-        return skin != null ? skin.getOrDefault(stage, List.of()) : template.getProps(stage);
+        List<SpriteKey> skin = props.getOrDefault(template, Map.of()).get(stage);
+        return skin != null ? skin : template.getProps(stage);
     }
 }

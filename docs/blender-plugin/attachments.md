@@ -60,7 +60,7 @@ A texture can carry the same attribute:
 
 The game picks a texture by its place in the list, and that place is shared by every detail level of the sprite. So every model of the sprite needs an event texture in the same place; the converter refuses the registry otherwise. A model nobody painted for the event repeats its usual texture there. The converter writes `event_textures.txt` next to `attachments.txt`, and `attachments.txt` gained the event as a last column.
 
-Which event is on comes from the `com.oddlabs.tt.event` system property, for example `-Dcom.oddlabs.tt.event=halloween`. It is render-only, so players in one game may differ. Turning an event on by calendar date is a follow-up. Event items on units obey the same attribute: outside their event they are not loaded at all.
+Which event is on comes from the `com.oddlabs.tt.event` system property, for example `-Dcom.oddlabs.tt.event=halloween`. It is render-only, so players in one game may differ. Turning an event on by calendar date is a follow-up. Event items on units obey the same attribute: outside their event they are not loaded at all. An event texture only replaces a sprite's first texture, so iron rocks and iron or chicken warriors keep their tier texture during an event.
 
 ## Carried items (moved into the registry 2026-09-19)
 

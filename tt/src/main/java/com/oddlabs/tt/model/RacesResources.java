@@ -282,7 +282,7 @@ public final class RacesResources {
         for (AttachmentEntry entry : entries) {
             if (!entry.group().equals(path.group(1)) || !entry.base().equals(path.group(2)))
                 continue;
-            String prop = "/geometry/" + entry.group() + "/" + entry.name() + ".binsprite";
+            String prop = spritePath(entry.group(), entry.name());
             props.add(queues.register(new SpriteFile(prop, Globals.NO_MIPMAP_CUTOFF, true, false, true, false),
                     eventTexture(prop)));
         }
@@ -293,14 +293,15 @@ public final class RacesResources {
     private static @NonNull Map<Class<? extends Supply>, SpriteKey> carried(@NonNull RenderQueues queues,
             @NonNull List<AttachmentEntry> entries, @NonNull String group) {
         AttachmentEntry rock = carriedEntry(entries, group, "rock_resource");
-        SpriteFile rock_sprite = carriedSprite(rock);
         return Map.of(
-                TreeSupply.class, registerCarried(queues, carriedEntry(entries, group, "wood_resource")),
-                RockSupply.class, registerCarried(queues, rock, rock_sprite, DEFAULT_TEXTURE),
-                IronSupply.class, registerCarried(queues, rock, rock_sprite, IRON_TEXTURE),
-                RubberSupply.class, registerCarried(queues, carriedEntry(entries, group, "rubber_resource")),
-                LeftPaddle.class, registerCarried(queues, carriedEntry(entries, group, "left_paddle")),
-                RightPaddle.class, registerCarried(queues, carriedEntry(entries, group, "right_paddle")));
+                TreeSupply.class, registerItem(queues, carriedEntry(entries, group, "wood_resource"), DEFAULT_TEXTURE),
+                RockSupply.class, registerItem(queues, rock, DEFAULT_TEXTURE),
+                IronSupply.class, registerItem(queues, rock, IRON_TEXTURE),
+                RubberSupply.class, registerItem(queues, carriedEntry(entries, group, "rubber_resource"),
+                        DEFAULT_TEXTURE),
+                LeftPaddle.class, registerItem(queues, carriedEntry(entries, group, "left_paddle"), DEFAULT_TEXTURE),
+                RightPaddle.class, registerItem(queues, carriedEntry(entries, group, "right_paddle"),
+                        DEFAULT_TEXTURE));
     }
 
     // During an event, <name>_<event> stands in for <name> when the registry has one.
@@ -319,28 +320,22 @@ public final class RacesResources {
         return found;
     }
 
-    private static @NonNull String spritePath(@NonNull AttachmentEntry entry) {
-        return spritePath(entry.group(), entry.name());
-    }
-
     private static @NonNull String spritePath(@NonNull String group, @NonNull String name) {
         return "/geometry/" + group + "/" + name + ".binsprite";
     }
 
-    private static @NonNull SpriteFile carriedSprite(@NonNull AttachmentEntry entry) {
-        return new SpriteFile(spritePath(entry), Globals.NO_MIPMAP_CUTOFF, true, true, true, false);
+    private static @NonNull SpriteKey registerItem(@NonNull RenderQueues queues, @NonNull AttachmentEntry entry,
+            int tex_index) {
+        String location = spritePath(entry.group(), entry.name());
+        return queues.register(new SpriteFile(location, Globals.NO_MIPMAP_CUTOFF, true, true, true, false),
+                textureIndex(location, entry.textures(), tex_index));
     }
 
-    private static @NonNull SpriteKey registerCarried(@NonNull RenderQueues queues, @NonNull AttachmentEntry entry) {
-        return registerCarried(queues, entry, carriedSprite(entry), DEFAULT_TEXTURE);
-    }
-
-    private static @NonNull SpriteKey registerCarried(@NonNull RenderQueues queues, @NonNull AttachmentEntry entry,
-            @NonNull SpriteFile sprite, int tex_index) {
-        int event_texture = eventTexture(spritePath(entry));
-        if (event_texture != DEFAULT_TEXTURE)
-            return queues.register(sprite, event_texture);
-        return queues.register(sprite, tex_index < entry.textures() ? tex_index : DEFAULT_TEXTURE);
+    // An event texture only stands in for the first texture, so tiers drawn with another one stay told apart.
+    private static int textureIndex(@NonNull String location, int textures, int tex_index) {
+        if (tex_index == DEFAULT_TEXTURE)
+            return eventTexture(location);
+        return tex_index < textures ? tex_index : DEFAULT_TEXTURE;
     }
 
     private static @NonNull Map<String, Map<String, SpriteKey>> attachments(@NonNull RenderQueues queues,
@@ -349,11 +344,8 @@ public final class RacesResources {
         for (AttachmentEntry entry : entries) {
             if (!entry.group().equals(group) || !entry.base().equals(base) || entry.slot().equals(CARRIED_SLOT))
                 continue;
-            SpriteFile sprite = new SpriteFile("/geometry/" + group + "/" + entry.name() + ".binsprite",
-                    Globals.NO_MIPMAP_CUTOFF,
-                    true, true, true, false);
-            slots.computeIfAbsent(entry.slot(), _ -> new LinkedHashMap<>()).put(entry.name(), queues.register(sprite,
-                    tex_index < entry.textures() ? tex_index : DEFAULT_TEXTURE));
+            slots.computeIfAbsent(entry.slot(), _ -> new LinkedHashMap<>()).put(entry.name(),
+                    registerItem(queues, entry, tex_index));
         }
         return slots;
     }
@@ -405,10 +397,10 @@ public final class RacesResources {
                             continue;
                         buildings.computeIfAbsent(entry.skin(), _ -> new HashMap<>()).computeIfAbsent(building,
                                 _ -> new EnumMap<>(Building.BuildState.class)).put(stage, skin);
-                        // Stages the skin leaves alone keep their stock props, so props follow the mesh they fit.
                         props.computeIfAbsent(entry.skin(), _ -> new HashMap<>()).computeIfAbsent(building,
-                                RacesResources::stockProps).put(stage, buildingProps(queues, attachments, spritePath(
-                                        entry.group(), entry.name())));
+                                _ -> new EnumMap<>(Building.BuildState.class)).put(stage, buildingProps(queues,
+                                        attachments, spritePath(
+                                                entry.group(), entry.name())));
                     }
                 }
             }
@@ -422,13 +414,6 @@ public final class RacesResources {
         return skins;
     }
 
-    private static @NonNull Map<Building.BuildState, List<SpriteKey>> stockProps(@NonNull BuildingTemplate building) {
-        Map<Building.BuildState, List<SpriteKey>> props = new EnumMap<>(Building.BuildState.class);
-        for (Building.BuildState stage : Building.BuildState.values())
-            props.put(stage, building.getProps(stage));
-        return props;
-    }
-
     // Drawn with the replaced sprite's flags and texture, or the first texture when the skin has fewer.
     private static @Nullable SpriteKey reskin(@NonNull RenderQueues queues, @NonNull SpriteKey stock,
             @NonNull SkinEntry entry) {
@@ -436,10 +421,8 @@ public final class RacesResources {
         if (!stock_file.equals(stock_file.withLocation(spritePath(entry.group(), entry.replaces()))))
             return null;
         String location = spritePath(entry.group(), entry.name());
-        int tex_index = queues.getRenderer(stock).getTexIndex();
-        int event_texture = eventTexture(location);
         SpriteKey skin = queues.register(stock_file.withLocation(location),
-                event_texture != DEFAULT_TEXTURE ? event_texture : tex_index < entry.textures() ? tex_index : DEFAULT_TEXTURE);
+                textureIndex(location, entry.textures(), queues.getRenderer(stock).getTexIndex()));
         if (queues.getRenderer(skin).getSpriteList().getAnimationTypes().length != queues.getRenderer(
                 stock).getSpriteList().getAnimationTypes().length)
             throw new IllegalStateException(
