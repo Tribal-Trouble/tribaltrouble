@@ -180,6 +180,8 @@ public final class InputManager {
         def(GameAction.RES_CHICKEN_BATCH, Key.C, Modifier.CONTROL);
         def(GameAction.RES_CHICKEN_BATCH_DEC, Key.C, Modifier.SHIFT, Modifier.CONTROL);
 
+        def(GameAction.DEPLOY_CHIEFTAIN, Key.H);
+
         // Units
         def(GameAction.TRAIN_PEON, Key.P);
         def(GameAction.TRAIN_PEON_DEC, Key.P, Modifier.SHIFT);

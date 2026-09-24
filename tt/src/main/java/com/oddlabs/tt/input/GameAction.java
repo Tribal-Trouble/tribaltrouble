@@ -114,6 +114,8 @@ public enum GameAction {
     RES_CHICKEN_BATCH,
     RES_CHICKEN_BATCH_DEC,
 
+    DEPLOY_CHIEFTAIN,
+
     // Unit Specific
     TRAIN_PEON,
     TRAIN_PEON_DEC,
