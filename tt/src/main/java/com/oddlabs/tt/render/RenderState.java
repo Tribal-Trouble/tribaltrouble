@@ -244,7 +244,7 @@ final class RenderState implements ElementVisitor {
             super.markDetailPolygon(render_state, detail);
             if (render_state.render_state.isPicking())
                 return;
-            for (SpriteKey prop : building.getTemplate().getProps(building.getRenderLevel())) {
+            for (SpriteKey prop : building.getProps(building.getRenderLevel())) {
                 render_state.getRenderer(prop).addToRenderList(detail, render_state, false);
             }
         }

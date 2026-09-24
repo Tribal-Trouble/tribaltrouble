@@ -634,12 +634,7 @@ public final class LandBuilding extends Building {
 
     @Override
     public @NonNull SpriteKey getSpriteRenderer() {
-        BuildState render_level = getRenderLevel();
-        return switch (render_level) {
-            case START -> getTemplate().getStartRenderer();
-            case HALFBUILT -> getTemplate().getHalfbuiltRenderer();
-            case BUILT -> getTemplate().getBuiltRenderer();
-        };
+        return getOwner().getSkins().rendererFor(getTemplate(), getRenderLevel());
     }
 
     @Override

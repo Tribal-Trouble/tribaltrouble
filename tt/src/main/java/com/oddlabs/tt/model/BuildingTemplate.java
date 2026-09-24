@@ -171,6 +171,14 @@ public final class BuildingTemplate extends Template {
         return halfbuilt_renderer;
     }
 
+    public @NonNull SpriteKey getRenderer(Building.@NonNull BuildState stage) {
+        return switch (stage) {
+            case START -> start_renderer;
+            case HALFBUILT -> halfbuilt_renderer;
+            case BUILT -> built_renderer;
+        };
+    }
+
     public int getMaxHitPoints() {
         return max_hit_points;
     }

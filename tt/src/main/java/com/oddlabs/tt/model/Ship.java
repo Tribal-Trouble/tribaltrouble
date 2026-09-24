@@ -795,12 +795,7 @@ public class Ship extends Building implements Movable {
 
     @Override
     public @NonNull SpriteKey getSpriteRenderer() {
-        BuildState render_level = getRenderLevel();
-        return switch (render_level) {
-            case START -> getTemplate().getStartRenderer();
-            case HALFBUILT -> getTemplate().getHalfbuiltRenderer();
-            case BUILT -> getTemplate().getBuiltRenderer();
-        };
+        return getOwner().getSkins().rendererFor(getTemplate(), getRenderLevel());
     }
 
     public final void visit(ToolTipVisitor visitor) {

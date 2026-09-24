@@ -7,9 +7,12 @@ import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.model.weapon.ThrowingWeapon;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.player.Player;
+import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import java.util.List;
 
 
 public abstract class Building extends Selectable<BuildingTemplate> implements Occupant {
@@ -21,6 +24,13 @@ public abstract class Building extends Selectable<BuildingTemplate> implements O
 
     public Building(@NonNull Player owner, @NonNull BuildingTemplate template) {
         super(owner, template);
+    }
+
+    /**
+     * Sprites drawn alongside this building at that stage, from its owner's skins. Render-only.
+     */
+    public final @NonNull List<SpriteKey> getProps(@NonNull BuildState stage) {
+        return getOwner().getSkins().propsFor(getTemplate(), stage);
     }
 
     public abstract boolean hasRallyPoint();

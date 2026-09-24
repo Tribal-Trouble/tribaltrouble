@@ -439,7 +439,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
 
     @Override
     public final @NonNull SpriteKey getSpriteRenderer() {
-        return getTemplate().getSpriteRenderer();
+        return getOwner().getSkins().rendererFor(getTemplate());
     }
 
     @Override
@@ -785,6 +785,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         if (this.animation != animation) {
             this.animation = animation;
             this.anim_time = 0f;
+            // Timing reads the template's clips, never a skin's, so skins cannot change how a unit animates.
         } else if (getTemplate().getSpriteRenderer().getAnimationType(
                 animation) == AnimationInfo.AnimationType.PLAIN.ordinal()) {
                     this.anim_time = 0f;

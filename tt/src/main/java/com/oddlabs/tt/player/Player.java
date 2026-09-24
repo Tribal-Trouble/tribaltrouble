@@ -48,6 +48,8 @@ public final class Player implements PlayerInterface {
 
     private final @NonNull Vector4fc color;
 
+    private @NonNull PlayerSkins skins = PlayerSkins.NONE; // render-only, never part of the sim
+
 //	private final String team_tip;
 
     private @Nullable AI ai = null;
@@ -378,6 +380,18 @@ public final class Player implements PlayerInterface {
 
     public @NonNull Race getRace() {
         return getWorld().getRacesResources().getRace(player_info.getRace());
+    }
+
+    public @NonNull PlayerSkins getSkins() {
+        return skins;
+    }
+
+    /**
+     * Draw everything this player owns with these skins; {@link PlayerSkins#NONE} returns them to their templates'.
+     * Render-only.
+     */
+    public void setSkins(@NonNull PlayerSkins skins) {
+        this.skins = skins;
     }
 
     public @NonNull SupplyContainer getUnitCountContainer() {
