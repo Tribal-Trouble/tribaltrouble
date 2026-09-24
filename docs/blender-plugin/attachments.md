@@ -76,6 +76,21 @@ The difference from a hat is who switches it on. The simulation decides what a p
 
 During an event a sprite named `<name>_<event>` in the same slot stands in for `<name>`, for example `wood_resource_christmas` with `event="christmas"`. An event texture on the item works too, as on buildings.
 
+## Player skins (registry side implemented 2026-09-23)
+
+A skin redraws everything one player owns: every unit and building of a template, not one instance. A skin sprite names the skin it belongs to and the sprite of its group it stands in for:
+
+```xml
+<sprite name="warrior_gold" base="warrior" skin="gold" replaces="warrior">
+<sprite name="quarters_gold" skin="gold" replaces="quarters">
+<sprite name="quarters_gold_banner" base="quarters_gold" slot="prop">
+```
+
+- `replaces` is the stock sprite. Every template drawn with it uses the skin sprite instead, with the same texture slot (rock, iron and chicken warriors share one mesh), or the first texture when the skin has fewer.
+- A unit skin needs `base` on the unit it replaces so it has the same clips; the game refuses a skin whose clip list differs.
+- A building skin replaces one stage. Props whose `base` is the skin sprite are drawn with it; stages the skin leaves alone keep their stock props.
+- The converter writes `skins.txt` (`group skin replaces name textures`). Nothing picks a player's skin yet; `RacesResources.getSkins(name)` hands one to `Player.setSkins`.
+
 ## Attachment points
 
 Proposed logical names, mapped per skeleton. The plugin and the registry should speak the logical name; the mapping table resolves the bone string.

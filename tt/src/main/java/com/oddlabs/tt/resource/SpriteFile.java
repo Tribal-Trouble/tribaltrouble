@@ -44,6 +44,10 @@ public final class SpriteFile extends File<SpriteList> {
                 super.equals(o);
     }
 
+    public @NonNull SpriteFile withLocation(@NonNull String location) {
+        return new SpriteFile(location, mipmap_cutoff, lighting, cullface, alpha, modulate_color, max_alpha);
+    }
+
     public @NonNull String getLocation() {
         return getURL().toString();
     }

@@ -25,6 +25,7 @@ import java.util.stream.IntStream;
 public final class ConvertToBinary {
     private static final String ATTACHMENTS_FILE = "attachments.txt";
     private static final String EVENT_TEXTURES_FILE = "event_textures.txt";
+    private static final String SKINS_FILE = "skins.txt";
     private static final String NO_EVENT = "-";
 
     void main(@NonNull String @NonNull... args) {
@@ -55,16 +56,19 @@ public final class ConvertToBinary {
             NodeList nl = n.getChildNodes();
             List<String> attachments = new ArrayList<>();
             List<String> event_textures = new ArrayList<>();
+            List<String> skins = new ArrayList<>();
             for (int i = 0; i < nl.getLength(); i++) {
                 if (nl.item(i).getNodeType() == Node.ELEMENT_NODE)
-                    parseGroup(nl.item(i), registry, src_dir, build_dir, attachments, event_textures);
+                    parseGroup(nl.item(i), registry, src_dir, build_dir, attachments, event_textures, skins);
             }
             Collections.sort(attachments);
             Collections.sort(event_textures);
+            Collections.sort(skins);
             try {
                 Files.createDirectories(build_dir);
                 Files.write(build_dir.resolve(ATTACHMENTS_FILE), attachments);
                 Files.write(build_dir.resolve(EVENT_TEXTURES_FILE), event_textures);
+                Files.write(build_dir.resolve(SKINS_FILE), skins);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -73,7 +77,7 @@ public final class ConvertToBinary {
 
     private static void parseGroup(@NonNull Node n, @NonNull Path registry, @NonNull Path src_dir,
             @NonNull Path build_dir,
-            @NonNull List<String> attachments, @NonNull List<String> event_textures) {
+            @NonNull List<String> attachments, @NonNull List<String> event_textures, @NonNull List<String> skins) {
         if (n.hasChildNodes()) {
             Path new_build_dir = build_dir.resolve(getName(n));
             NodeList nl = n.getChildNodes();
@@ -88,6 +92,9 @@ public final class ConvertToBinary {
                 Node slot = sprite.getAttributes().getNamedItem("slot");
                 if (slot != null)
                     attachments.add(attachmentLine(getName(n), sprite, slot.getNodeValue(), src_dir));
+                Node skin = sprite.getAttributes().getNamedItem("skin");
+                if (skin != null)
+                    skins.add(skinLine(getName(n), sprite, skin.getNodeValue(), sprites, src_dir));
                 eventTextureLines(getName(n), sprite, event_textures);
             }
         }
@@ -106,6 +113,17 @@ public final class ConvertToBinary {
         Node event = sprite.getAttributes().getNamedItem("event");
         return String.join(" ", group, base.getNodeValue(), slot, Integer.toString(order), getName(sprite),
                 Integer.toString(textures), event != null ? event.getNodeValue() : NO_EVENT);
+    }
+
+    // group skin replaces name textures: one line per sprite that stands in for another sprite of its group in a skin.
+    private static @NonNull String skinLine(@NonNull String group, @NonNull Node sprite, @NonNull String skin,
+            @NonNull Map<String, Node> group_sprites, @NonNull Path src_dir) {
+        Node replaces = sprite.getAttributes().getNamedItem("replaces");
+        if (replaces == null || !group_sprites.containsKey(replaces.getNodeValue()))
+            throw new RuntimeException("Sprite " + getName(
+                    sprite) + " is in skin " + skin + " but replaces no sprite of group " + group);
+        int textures = getModelObjectInfos(sprite, src_dir)[0].getTextures().length;
+        return String.join(" ", group, skin, replaces.getNodeValue(), getName(sprite), Integer.toString(textures));
     }
 
     // group sprite event index: the texture index is shared by every detail level, so each model must agree on it.

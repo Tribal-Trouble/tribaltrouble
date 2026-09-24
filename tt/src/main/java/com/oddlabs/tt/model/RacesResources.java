@@ -21,6 +21,7 @@ import com.oddlabs.tt.model.weapon.StunFactory;
 import com.oddlabs.tt.model.weapon.ThrowingFactory;
 import com.oddlabs.tt.model.weapon.WeaponFactory;
 import com.oddlabs.tt.player.NativeChieftainAI;
+import com.oddlabs.tt.player.PlayerSkins;
 import com.oddlabs.tt.player.VikingChieftainAI;
 import com.oddlabs.tt.procedural.GeneratorDamageSmoke;
 import com.oddlabs.tt.procedural.GeneratorHalos;
@@ -37,6 +38,7 @@ import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 import java.io.BufferedReader;
@@ -62,6 +64,7 @@ import java.util.stream.IntStream;
 public final class RacesResources {
     private static final String ATTACHMENTS_FILE = "/geometry/attachments.txt";
     private static final String EVENT_TEXTURES_FILE = "/geometry/event_textures.txt";
+    private static final String SKINS_FILE = "/geometry/skins.txt";
     private static final int DEFAULT_TEXTURE = 0;
     private static final String NO_EVENT = "-";
     private static final String CARRIED_SLOT = "carried";
@@ -131,6 +134,7 @@ public final class RacesResources {
     private final @NonNull SpriteKey[] wood_fragment_sprites = new SpriteKey[4];
     private final @NonNull SpriteKey[] treasure_sprites = new SpriteKey[6];
     private final @NonNull Race @NonNull [] races;
+    private final @NonNull Map<String, PlayerSkins> skins;
 
     public static boolean isValidRace(int race) {
         return race == RACE_NATIVES || race == RACE_VIKINGS;
@@ -316,7 +320,11 @@ public final class RacesResources {
     }
 
     private static @NonNull String spritePath(@NonNull AttachmentEntry entry) {
-        return "/geometry/" + entry.group() + "/" + entry.name() + ".binsprite";
+        return spritePath(entry.group(), entry.name());
+    }
+
+    private static @NonNull String spritePath(@NonNull String group, @NonNull String name) {
+        return "/geometry/" + group + "/" + name + ".binsprite";
     }
 
     private static @NonNull SpriteFile carriedSprite(@NonNull AttachmentEntry entry) {
@@ -358,6 +366,85 @@ public final class RacesResources {
                 slots.add(entry.slot());
         }
         return slots;
+    }
+
+    private record SkinEntry(@NonNull String group, @NonNull String skin, @NonNull String replaces,
+                             @NonNull String name, int textures) {
+    }
+
+    // Lines of "group skin replaces name textures" written by the geometry converter.
+    private static @NonNull List<SkinEntry> readSkins() {
+        try (var reader = new BufferedReader(new InputStreamReader(
+                com.oddlabs.util.Utils.makeURL(SKINS_FILE).openStream(), StandardCharsets.UTF_8))) {
+            return reader.lines().map(line -> line.split(" ")).map(f -> new SkinEntry(f[0], f[1], f[2], f[3],
+                    Integer.parseInt(f[4]))).toList();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    // A skin sprite stands in wherever a template draws the sprite it replaces, and brings its own building props.
+    private static @NonNull Map<String, PlayerSkins> skins(@NonNull RenderQueues queues,
+            @NonNull Race @NonNull [] races, @NonNull List<AttachmentEntry> attachments) {
+        Map<String, Map<UnitTemplate, SpriteKey>> units = new HashMap<>();
+        Map<String, Map<BuildingTemplate, Map<Building.BuildState, SpriteKey>>> buildings = new HashMap<>();
+        Map<String, Map<BuildingTemplate, Map<Building.BuildState, List<SpriteKey>>>> props = new HashMap<>();
+        for (SkinEntry entry : readSkins()) {
+            for (Race race : races) {
+                for (int i = 0; i < Race.NUM_UNITS; i++) {
+                    UnitTemplate unit = race.getUnitTemplate(i);
+                    SpriteKey skin = reskin(queues, unit.getSpriteRenderer(), entry);
+                    if (skin != null)
+                        units.computeIfAbsent(entry.skin(), _ -> new HashMap<>()).put(unit, skin);
+                }
+                for (int i = 0; i < Race.NUM_BUILDINGS; i++) {
+                    BuildingTemplate building = race.getBuildingTemplate(i);
+                    for (Building.BuildState stage : Building.BuildState.values()) {
+                        SpriteKey skin = reskin(queues, building.getRenderer(stage), entry);
+                        if (skin == null)
+                            continue;
+                        buildings.computeIfAbsent(entry.skin(), _ -> new HashMap<>()).computeIfAbsent(building,
+                                _ -> new EnumMap<>(Building.BuildState.class)).put(stage, skin);
+                        // Stages the skin leaves alone keep their stock props, so props follow the mesh they fit.
+                        props.computeIfAbsent(entry.skin(), _ -> new HashMap<>()).computeIfAbsent(building,
+                                RacesResources::stockProps).put(stage, buildingProps(queues, attachments, spritePath(
+                                        entry.group(), entry.name())));
+                    }
+                }
+            }
+        }
+        Set<String> names = new HashSet<>(units.keySet());
+        names.addAll(buildings.keySet());
+        Map<String, PlayerSkins> skins = new HashMap<>();
+        for (String name : names)
+            skins.put(name, new PlayerSkins(units.getOrDefault(name, Map.of()), buildings.getOrDefault(name, Map.of()),
+                    props.getOrDefault(name, Map.of())));
+        return skins;
+    }
+
+    private static @NonNull Map<Building.BuildState, List<SpriteKey>> stockProps(@NonNull BuildingTemplate building) {
+        Map<Building.BuildState, List<SpriteKey>> props = new EnumMap<>(Building.BuildState.class);
+        for (Building.BuildState stage : Building.BuildState.values())
+            props.put(stage, building.getProps(stage));
+        return props;
+    }
+
+    // Drawn with the replaced sprite's flags and texture, or the first texture when the skin has fewer.
+    private static @Nullable SpriteKey reskin(@NonNull RenderQueues queues, @NonNull SpriteKey stock,
+            @NonNull SkinEntry entry) {
+        SpriteFile stock_file = queues.getSpriteFile(stock);
+        if (!stock_file.equals(stock_file.withLocation(spritePath(entry.group(), entry.replaces()))))
+            return null;
+        String location = spritePath(entry.group(), entry.name());
+        int tex_index = queues.getRenderer(stock).getTexIndex();
+        int event_texture = eventTexture(location);
+        SpriteKey skin = queues.register(stock_file.withLocation(location),
+                event_texture != DEFAULT_TEXTURE ? event_texture : tex_index < entry.textures() ? tex_index : DEFAULT_TEXTURE);
+        if (queues.getRenderer(skin).getSpriteList().getAnimationTypes().length != queues.getRenderer(
+                stock).getSpriteList().getAnimationTypes().length)
+            throw new IllegalStateException(
+                    "Skin sprite " + location + " has other clips than " + entry.replaces() + "; give it base=\"" + entry.replaces() + "\"");
+        return skin;
     }
 
     public RacesResources(@NonNull RenderQueues queues) {
@@ -992,6 +1079,7 @@ public final class RacesResources {
                 new VikingChieftainAI(),
                 "/music/viking.ogg");
         races = new Race[]{natives_race, vikings_race};
+        skins = skins(queues, races, attachments);
 
         wood_fragment_sprites[0] = queues.register(new SpriteFile("/geometry/misc/wood_2.binsprite",
                 Globals.NO_MIPMAP_CUTOFF,
@@ -1108,6 +1196,10 @@ public final class RacesResources {
 
     public @NonNull Race getRace(int i) {
         return races[i];
+    }
+
+    public @NonNull PlayerSkins getSkins(@NonNull String name) {
+        return skins.getOrDefault(name, PlayerSkins.NONE);
     }
 
     public static @NonNull String getRaceName(int i) {

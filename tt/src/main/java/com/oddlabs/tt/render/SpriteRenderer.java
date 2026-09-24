@@ -30,6 +30,10 @@ public final class SpriteRenderer {
         return sprite_list;
     }
 
+    public int getTexIndex() {
+        return tex_index;
+    }
+
     void addToNoDetailList(@NonNull ModelState<?> model) {
         no_detail_render_list.add(model);
     }

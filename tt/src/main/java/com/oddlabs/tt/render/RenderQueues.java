@@ -20,6 +20,7 @@ public final class RenderQueues implements AutoCloseable {
     private final List<@NonNull SpriteRenderer> plant_renderers = new ArrayList<>();
 
     private final List<@NonNull SpriteRenderer> sprite_list_lookup = new ArrayList<>();
+    private final List<@NonNull SpriteFile> sprite_file_lookup = new ArrayList<>();
     private final List<@NonNull ShadowListRenderer> shadow_renderer_lookup = new ArrayList<>();
     private final Map<@NonNull Supplier<@NonNull Texture @NonNull []>, @NonNull ShadowListKey> desc_to_shadow_key = new HashMap<>();
     private final List<@NonNull Texture> texture_lookup = new ArrayList<>();
@@ -82,6 +83,7 @@ public final class RenderQueues implements AutoCloseable {
         SpriteList sprite_list = Resources.findResource(sprite_file);
         SpriteRenderer sprite_renderer = new SpriteRenderer(sprite_list, tex_index, spriteRenderer);
         sprite_list_lookup.add(sprite_renderer);
+        sprite_file_lookup.add(sprite_file);
         registerSpriteRenderer(sprite_renderer, sprite_file.getLocation());
         AnimationInfo.AnimationType[] animation_types = sprite_list.getAnimationTypes();
         int[] type_array = new int[animation_types.length];
@@ -93,6 +95,10 @@ public final class RenderQueues implements AutoCloseable {
 
     public @NonNull SpriteRenderer getRenderer(@NonNull SpriteKey key) {
         return sprite_list_lookup.get(key.getKey());
+    }
+
+    public @NonNull SpriteFile getSpriteFile(@NonNull SpriteKey key) {
+        return sprite_file_lookup.get(key.getKey());
     }
 
     public @NonNull InstancedSpriteRenderer getInstancedRenderer() {
