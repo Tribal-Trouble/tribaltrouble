@@ -519,6 +519,15 @@ public final class ShipHR {
             rows.add(new LowerDeckRow(+5.57f, -2.77f, +2.77f, +0.37f, true, true));
             rows.add(new LowerDeckRow(+7.01f, -2.42f, +2.42f, +0.37f, true, true));
             rows.add(new LowerDeckRow(+8.62f, -2.42f, +2.42f, +0.37f, true, true));
+            var r1 = new UpperDeckRow(+8.00f, +1.09f, +3.24f);
+            var r2 = new UpperDeckRow(+9.50f, +0.83f, +3.24f);
+            rows.add(r1);
+            rows.add(r2);
+            chieftainRow = new ChieftainRow(+8.75f, +0.00f, +3.24f);
+            rows.add(chieftainRow);
+            r1.setAlt(chieftainRow);
+            r2.setAlt(chieftainRow);
+            chieftainRow.setAlts(r1, r2);
             rows.add(new UpperDeckRow(-9.39f, +1.01f, +3.41f));
             rows.add(new UpperDeckRow(-7.75f, +1.22f, +3.41f));
             rows.add(new UpperDeckRow(-6.02f, +1.35f, +3.41f));
@@ -530,15 +539,6 @@ public final class ShipHR {
             rows.add(new UpperDeckRow(+3.50f, +1.22f, +3.24f));
             rows.add(new UpperDeckRow(+5.00f, +1.22f, +3.24f));
             rows.add(new UpperDeckRow(+6.50f, +1.22f, +3.24f));
-            var r1 = new UpperDeckRow(+8.00f, +1.09f, +3.24f);
-            var r2 = new UpperDeckRow(+9.50f, +0.83f, +3.24f);
-            rows.add(r1);
-            rows.add(r2);
-            chieftainRow = new ChieftainRow(+8.75f, +0.00f, +3.24f);
-            rows.add(chieftainRow);
-            r1.setAlt(chieftainRow);
-            r2.setAlt(chieftainRow);
-            chieftainRow.setAlts(r1, r2);
         }
     }
 
