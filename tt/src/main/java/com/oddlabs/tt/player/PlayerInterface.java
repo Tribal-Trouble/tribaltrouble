@@ -51,4 +51,22 @@ public interface PlayerInterface {
     void setPreferredGamespeed(int speed);
 
     void changePreferredGamespeed(int delta);
+
+    void viewCamera(float target_x, float target_y, float target_z, float horiz_angle, float vert_angle);
+
+    void viewCursor(float x, float y, boolean on_map);
+
+    void viewSelection(Selectable<?> @NonNull [] selection);
+
+    void viewMapMode(boolean on);
+
+    void viewTargeting(boolean on);
+
+    void viewPanelMenu(int submenu);
+
+    void viewPlacing(int building_index, int grid_x, int grid_y, boolean placing);
+
+    void viewSelectionBox(float x1, float y1, float x2, float y2, boolean active);
+
+    void viewBeacon(float x, float y);
 }

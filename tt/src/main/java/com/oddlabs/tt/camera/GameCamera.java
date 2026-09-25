@@ -13,7 +13,7 @@ import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public final class GameCamera extends Camera {
+public class GameCamera extends Camera {
     public static final int SCROLL_BUFFER = 5;
     private static final float INIT_DISTANCE = 50;
     private static final float ANGLE_DELTA = (float) (Math.PI / 2);
@@ -25,7 +25,7 @@ public final class GameCamera extends Camera {
     private static final float SCROLL_START_MAX_SPEED = 60f;
     private static final float ROTATE_PICKING_ANGLE_MAX = (-(Globals.FOV) - 10) * ((float) Math.PI / 180) * .5f;
     private static final float ZOOM_SPEED = 50f;
-    private static final float CINEMATIC_MAX_Z = 300f;
+    public static final float CINEMATIC_MAX_Z = 300f;
     private static final float CINEMATIC_SMOOTHNESS_FACTOR = 4f;
     private static final float ORBIT_SPEED = (float) (Math.PI / 8);
     private static final float AUTO_PAN_SPEED = 25f;
@@ -118,7 +118,7 @@ public final class GameCamera extends Camera {
         return Settings.getSettings().camera_zoom_speed * cinematicSpeedFactor();
     }
 
-    private static boolean limitsUnlocked() {
+    protected boolean limitsUnlocked() {
         return Globals.cinematic_camera && Settings.getSettings().cinematic_unlock_limits;
     }
 
@@ -289,14 +289,16 @@ public final class GameCamera extends Camera {
         float scroll_speed = scroll_start_speed * (.4f + acceleration * SCROLL_ACCELERATION_FACTOR);
         float scroll_factor = time_delta * scroll_speed * panSpeedFactor();
         boolean blocked = viewer.getGUIRoot().getDelegate().keyboardBlocked();
+        float edge_scroll_x = edgeScrollEnabled() ? scroll_x : 0f;
+        float edge_scroll_y = edgeScrollEnabled() ? scroll_y : 0f;
 
         scrolling_x = inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !inputManager.isActive(
                 GameAction.CAMERA_PAN_RIGHT) && !blocked ? -1f : inputManager.isActive(GameAction.CAMERA_PAN_RIGHT)
-                        && !inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !blocked ? 1f : scroll_x;
+                        && !inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !blocked ? 1f : edge_scroll_x;
 
         scrolling_y = inputManager.isActive(GameAction.CAMERA_PAN_DOWN) && !inputManager.isActive(
                 GameAction.CAMERA_PAN_UP) && !blocked ? -1f : inputManager.isActive(GameAction.CAMERA_PAN_UP)
-                        && !inputManager.isActive(GameAction.CAMERA_PAN_DOWN) && !blocked ? 1f : scroll_y;
+                        && !inputManager.isActive(GameAction.CAMERA_PAN_DOWN) && !blocked ? 1f : edge_scroll_y;
 
         float new_x = getState().getTargetX() - (scrolling_x * left_dir_x + scrolling_y * -left_dir_y) * scroll_factor;
         float new_y = getState().getTargetY() - (scrolling_x * left_dir_y + scrolling_y * left_dir_x) * scroll_factor;
@@ -352,9 +354,11 @@ public final class GameCamera extends Camera {
         return x > 0 && x < getHeightMap().getMetersPerWorld() && y > 0 && y < getHeightMap().getMetersPerWorld();
     }
 
-    @Override
-    public void doAnimate(float t) {
-        setSmoothnessFactor(Globals.cinematic_camera ? CINEMATIC_SMOOTHNESS_FACTOR : SMOOTHNESS_FACTOR);
+    protected boolean edgeScrollEnabled() {
+        return true;
+    }
+
+    protected void doControl(float t) {
         getState().setMaxVertAngle(limitsUnlocked() ? CameraState.MAX_ANGLE_UNLOCKED : CameraState.MAX_ANGLE);
         doOrbit(t);
         doAutoPan(t);
@@ -362,6 +366,12 @@ public final class GameCamera extends Camera {
         doScroll(t);
         doPitch(t);
         doRotate(t);
+    }
+
+    @Override
+    public void doAnimate(float t) {
+        setSmoothnessFactor(Globals.cinematic_camera ? CINEMATIC_SMOOTHNESS_FACTOR : SMOOTHNESS_FACTOR);
+        doControl(t);
         updateDirection();
         getState().setFog(viewer.getWorld().getFog());
         // Enabling the fog here because it'll be disabled in other situations

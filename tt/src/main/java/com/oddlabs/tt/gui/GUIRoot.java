@@ -19,6 +19,7 @@ import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.Utils;
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -40,6 +41,7 @@ public final class GUIRoot extends GUIObject {
     }
 
     private static final int CURSOR_OFFSET_Y = 27;
+    public static final float MIN_PROJECTED_W = .1f;
 
     private final Deque<@NonNull CameraDelegate<?>> delegate_stack = new ArrayDeque<>();
     private final Deque<@NonNull ModalDelegate> modal_delegate_stack = new ArrayDeque<>();
@@ -430,8 +432,18 @@ public final class GUIRoot extends GUIObject {
         }
     }
 
+    /** Projects a world point to GUI coordinates; dest.w is the depth, below MIN_PROJECTED_W behind the camera. */
+    public @NonNull Vector4f projectToScreen(float x, float y, float z, @NonNull Vector4f dest) {
+        dest.set(x, y, z, 1f);
+        getDelegate().getCamera().getState().getProjectionModelView().transform(dest, dest);
+        float w = dest.w;
+        float inv_w = 1f / Math.max(w, MIN_PROJECTED_W);
+        dest.set((dest.x * inv_w + 1f) * .5f * getWidth(), (dest.y * inv_w + 1f) * .5f * getHeight(), 0f, w);
+        return dest;
+    }
+
     @NonNull
-    GUIObject getCurrentGUIObject() {
+    public GUIObject getCurrentGUIObject() {
         return current_gui_object;
     }
 

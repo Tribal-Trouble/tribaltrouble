@@ -9,6 +9,7 @@ import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.GameCamera;
+import com.oddlabs.tt.camera.SpectatorGameCamera;
 import com.oddlabs.tt.delegate.GameStatsDelegate;
 import com.oddlabs.tt.delegate.InGameMainMenu;
 import com.oddlabs.tt.delegate.SelectionDelegate;
@@ -19,6 +20,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.landscape.AudioImplementation;
 import com.oddlabs.tt.landscape.LandscapeResources;
+import com.oddlabs.tt.landscape.LandscapeTargetRespond;
 import com.oddlabs.tt.landscape.NotificationListener;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.landscape.WorldParameters;
@@ -125,15 +127,15 @@ public final class WorldViewer implements Animated, AutoCloseable {
             @Override
             public void newAttackNotification(@NonNull Selectable<?> target) {
                 Player owner = target.getOwner();
-                if (owner == getLocalPlayer())
-                    notification_manager.newAttackNotification(animation_manager_local, target, getLocalPlayer());
+                if (owner == notifiedPlayer())
+                    notification_manager.newAttackNotification(animation_manager_local, target, owner);
             }
 
             @Override
             public void newSelectableNotification(@NonNull Selectable<?> target) {
                 Player owner = target.getOwner();
-                if (owner == getLocalPlayer())
-                    notification_manager.newSelectableNotification(target, animation_manager_local, getLocalPlayer());
+                if (owner == notifiedPlayer())
+                    notification_manager.newSelectableNotification(target, animation_manager_local, owner);
             }
 
             @Override
@@ -147,6 +149,76 @@ public final class WorldViewer implements Animated, AutoCloseable {
                 if (target instanceof Selectable<?> selectable)
                     getSelection().removeFromArmies(selectable);
             }
+
+            @Override
+            public void playerCamera(@NonNull Player player, float x, float y, float z, float horiz_angle,
+                    float vert_angle) {
+                if (spectator_view != null)
+                    spectator_view.receiveCamera(player, x, y, z, horiz_angle, vert_angle);
+            }
+
+            @Override
+            public void playerCursor(@NonNull Player player, float x, float y, boolean on_map) {
+                if (spectator_view != null)
+                    spectator_view.receiveCursor(player, x, y, on_map);
+            }
+
+            @Override
+            public void playerMapMode(@NonNull Player player, boolean on) {
+                if (spectator_view != null)
+                    spectator_view.receiveMapMode(player, on);
+            }
+
+            @Override
+            public void playerTargeting(@NonNull Player player, boolean on) {
+                if (spectator_view != null)
+                    spectator_view.receiveTargeting(player, on);
+            }
+
+            @Override
+            public void playerPanelMenu(@NonNull Player player, int submenu) {
+                if (spectator_view != null)
+                    spectator_view.receivePanelMenu(player, submenu);
+            }
+
+            @Override
+            public void playerPlacing(@NonNull Player player, int building_index, int grid_x, int grid_y,
+                    boolean placing) {
+                if (spectator_view != null)
+                    spectator_view.receivePlacing(player, building_index, grid_x, grid_y, placing);
+            }
+
+            @Override
+            public void playerSelectionBox(@NonNull Player player, float x1, float y1, float x2, float y2,
+                    boolean active) {
+                if (spectator_view != null)
+                    spectator_view.receiveSelectionBox(player, x1, y1, x2, y2, active);
+            }
+
+            @Override
+            public void playerBeacon(@NonNull Player player, float x, float y) {
+                if (spectator_view != null)
+                    spectator_view.receiveBeacon(player, x, y);
+            }
+
+            @Override
+            public void playerSelection(@NonNull Player player, Selectable<?> @NonNull [] selection) {
+                if (spectator_view != null)
+                    spectator_view.receiveSelection(player, selection);
+            }
+
+            @Override
+            public void playerOrder(@NonNull Player player, float x, float y) {
+                if (spectator_view != null && spectator_view.getFollowedPlayer() == player && peerhub.isSynchronized()
+                        && Globals.draw_hud)
+                    new LandscapeTargetRespond(world, x, y);
+            }
+
+            @Override
+            public void playerLeft(@NonNull Player player) {
+                if (spectator_view != null)
+                    spectator_view.playerLeft(player);
+            }
         };
         PlayerInfo[] player_infos = Arrays.stream(player_slots).map(PlayerSlot::getInfo).toArray(PlayerInfo[]::new);
         WorldInfo world_info = generator.generate(player_infos.length, world_params.getInitialUnitCount(),
@@ -155,24 +227,38 @@ public final class WorldViewer implements Animated, AutoCloseable {
                 world_info, generator.getTerrainType(), player_infos, worldFog, colors);
         this.local_player = world.getPlayers()[player_slot];
         this.selection = new Selection(local_player);
+        boolean spectator = ingame_info instanceof SpectatorInGameInfo;
+        this.spectator_view = spectator ? new SpectatorView(this) : null;
         landscape_renderer = new LandscapeRenderer(world, world_info, animation_manager_local);
         this.picker = new Picker(animation_manager_local, local_player, gui_root, render_queues, landscape_renderer,
                 selection);
         this.renderer = new DefaultRenderer(cheat, local_player, render_queues, world_info, landscape_renderer, picker,
-                selection, generator, modelViewStack, projectionStack);
+                selection, generator, modelViewStack, projectionStack, spectator_view);
         this.gui_root = gui_root;
-        boolean spectator = ingame_info instanceof SpectatorInGameInfo;
         this.peerhub = new PeerHub(animation_manager_local, ingame_info.isMultiplayer(), ingame_info.isRated(),
                 spectator, local_player, player_slots, network, gui_root, notification_manager, distributable_table,
                 session_id, new ViewerStallHandler(this));
-        this.spectator_view = spectator ? new SpectatorView(this) : null;
-        this.camera = new GameCamera(this, camera_state);
+        if (spectator_view != null)
+            this.camera = new SpectatorGameCamera(this, camera_state, spectator_view);
+        else
+            this.camera = new GameCamera(this, camera_state);
         this.panel = new ActionButtonPanel(this, camera);
         this.delegate = new SelectionDelegate(this, camera);
+        if (ingame_info.isMultiplayer() && !spectator)
+            animation_manager_local.registerAnimation(new PlayerViewSender(this));
+        if (spectator_view != null)
+            animation_manager_local.registerAnimation(new SpectatorMapMode(this, spectator_view));
         camera.reset(getLocalPlayer().getStartX(), getLocalPlayer().getStartY());
         initPlayers(world_info.starting_locations(), player_slots, world.getPlayers(), unit_infos,
                 world_params.getInitialGameSpeed());
         LocalEventQueue.getQueue().getManager().registerAnimation(this);
+    }
+
+    /** Whose arrows and cues this screen shows: the watched player for a spectator, otherwise the local player. */
+    private @Nullable Player notifiedPlayer() {
+        if (spectator_view == null)
+            return getLocalPlayer();
+        return peerhub.isSynchronized() ? spectator_view.getFollowedPlayer() : null;
     }
 
     public @Nullable SpectatorView getSpectatorView() {

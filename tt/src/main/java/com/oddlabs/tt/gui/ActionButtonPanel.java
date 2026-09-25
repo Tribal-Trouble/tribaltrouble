@@ -29,6 +29,7 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
+import com.oddlabs.tt.viewer.Selection;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -153,6 +154,9 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
     private final @NonNull GameCamera camera;
     private final @NonNull WorldViewer viewer;
+    private final @NonNull Player player;
+    private final @NonNull Selection selection;
+    private final boolean read_only;
 
     private @Nullable Group current_submenu = null;
     private boolean update = false;
@@ -171,9 +175,18 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
     }
 
     public ActionButtonPanel(final @NonNull WorldViewer viewer, @NonNull GameCamera camera, int width, int height) {
+        this(viewer, camera, width, height, viewer.getLocalPlayer(), viewer.getSelection(), false);
+    }
+
+    /** The panel for one player's selection; read only means it shows the selection but takes no input. */
+    public ActionButtonPanel(final @NonNull WorldViewer viewer, @NonNull GameCamera camera, int width, int height,
+            final @NonNull Player player, @NonNull Selection selection, boolean read_only) {
         this.viewer = viewer;
         this.camera = camera;
-        RaceIcons race_icons = viewer.getLocalPlayer().getRace().getIcons();
+        this.player = player;
+        this.selection = selection;
+        this.read_only = read_only;
+        RaceIcons race_icons = player.getRace().getIcons();
         Skin skin = Skin.getSkin();
         GUIIcons icons = GUIIcons.getIcons();
         String widest_char = new String(Character.toChars(skin.getEditFont().getWidestCodepoint("0123456789")));
@@ -181,13 +194,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
         move_button = new NonFocusIconButton(race_icons.moveIcon(), GameAction.UNIT_MOVE,
                 () -> i18n("move_tip", getBinding(GameAction.UNIT_MOVE)));
-        move_button.setIconDisabler(() -> !viewer.getLocalPlayer().canMove());
+        move_button.setIconDisabler(() -> !player.canMove());
         unit_group.addChild(move_button);
         move_button.addMouseClickListener((_, _, _, _) -> pushDelegate(new TargetDelegate(viewer, camera,
                 Action.MOVE)));
         attack_button = new NonFocusIconButton(race_icons.attackIcon(), GameAction.UNIT_ATTACK,
                 () -> i18n("attack_tip", getBinding(GameAction.UNIT_ATTACK)));
-        attack_button.setIconDisabler(() -> !viewer.getLocalPlayer().canAttack());
+        attack_button.setIconDisabler(() -> !player.canAttack());
         unit_group.addChild(attack_button);
         attack_button.addMouseClickListener((_, _, _, _) -> pushDelegate(new TargetDelegate(viewer, camera,
                 Action.ATTACK)));
@@ -200,25 +213,25 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         peon_group.addChild(gather_repair_button);
         gather_repair_button.addMouseClickListener((_, _, _, _) -> pushDelegate(new TargetDelegate(viewer, camera,
                 Action.GATHER_REPAIR)));
-        gather_repair_button.setIconDisabler(() -> !viewer.getLocalPlayer().canRepair());
+        gather_repair_button.setIconDisabler(() -> !player.canRepair());
         quarters_button = new NonFocusIconButton(race_icons.quartersIcon(), GameAction.UNIT_BUILD_QUARTERS,
                 () -> i18n("quarters_tip", getBinding(GameAction.UNIT_BUILD_QUARTERS)));
         peon_group.addChild(quarters_button);
         quarters_button.addMouseClickListener((_, _, _, _) -> pushDelegate(new PlacingDelegate(viewer,
                 camera.getState(), Race.BUILDING_QUARTERS)));
-        quarters_button.setIconDisabler(() -> !viewer.getLocalPlayer().canBuild(Race.BUILDING_QUARTERS));
+        quarters_button.setIconDisabler(() -> !player.canBuild(Race.BUILDING_QUARTERS));
         armory_button = new NonFocusIconButton(race_icons.armoryIcon(), GameAction.UNIT_BUILD_ARMORY,
                 () -> i18n("armory_tip", getBinding(GameAction.UNIT_BUILD_ARMORY)));
         peon_group.addChild(armory_button);
         armory_button.addMouseClickListener((_, _, _, _) -> pushDelegate(new PlacingDelegate(viewer, camera.getState(),
                 Race.BUILDING_ARMORY)));
-        armory_button.setIconDisabler(() -> !viewer.getLocalPlayer().canBuild(Race.BUILDING_ARMORY));
+        armory_button.setIconDisabler(() -> !player.canBuild(Race.BUILDING_ARMORY));
         tower_button = new NonFocusIconButton(race_icons.towerIcon(), GameAction.UNIT_BUILD_TOWER,
                 () -> i18n("tower_tip", getBinding(GameAction.UNIT_BUILD_TOWER)));
         peon_group.addChild(tower_button);
         tower_button.addMouseClickListener((_, _, _, _) -> pushDelegate(new PlacingDelegate(viewer, camera.getState(),
                 Race.BUILDING_TOWER)));
-        tower_button.setIconDisabler(() -> !viewer.getLocalPlayer().canBuild(Race.BUILDING_TOWER));
+        tower_button.setIconDisabler(() -> !player.canBuild(Race.BUILDING_TOWER));
 
         ship_button = new NonFocusIconButton(race_icons.shipIcon(), GameAction.UNIT_BUILD_SHIP, () -> i18n("ship_tip",
                 getBinding(GameAction.UNIT_BUILD_SHIP)));
@@ -324,12 +337,12 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
         harvest_button = new NonFocusIconButton(icons.getHarvestIcon(), GameAction.PROD_HARVEST,
                 () -> i18n("gather_resources_tip", getBinding(GameAction.PROD_HARVEST)));
-        harvest_button.setIconDisabler(() -> !viewer.getLocalPlayer().canHarvest());
+        harvest_button.setIconDisabler(() -> !player.canHarvest());
         armory_group.addChild(harvest_button);
         harvest_button.addMouseClickListener((_, _, _, _) -> openSubmenu(harvest_group));
         build_button = new NonFocusIconButton(race_icons.buildWeaponsIcon(), GameAction.PROD_WEAPONS,
                 () -> i18n("produce_weapons_tip", getBinding(GameAction.PROD_WEAPONS)));
-        build_button.setIconDisabler(() -> !viewer.getLocalPlayer().canBuildWeapons());
+        build_button.setIconDisabler(() -> !player.canBuildWeapons());
         armory_group.addChild(build_button);
         build_button.addMouseClickListener((_, _, _, _) -> {
             openSubmenu(build_group);
@@ -337,7 +350,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         });
         army_button = new NonFocusIconButton(race_icons.armyIcon(), GameAction.PROD_ARMY,
                 () -> i18n("deploy_army_tip", getBinding(GameAction.PROD_ARMY)));
-        army_button.setIconDisabler(() -> !viewer.getLocalPlayer().canBuildArmies());
+        army_button.setIconDisabler(() -> !player.canBuildArmies());
         armory_group.addChild(army_button);
         army_button.addMouseClickListener((_, _, _, _) -> openSubmenu(army_group));
         transport_button = new NonFocusIconButton(race_icons.transportIcon(), GameAction.PROD_TRANSPORT,
@@ -346,7 +359,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         transport_button.addMouseClickListener((_, _, _, _) -> openSubmenu(transport_group));
         rally_point_button = new NonFocusIconButton(race_icons.rallyPointIcon(), GameAction.UNIT_SET_RALLY,
                 () -> i18n("rally_point_tip", getBinding(GameAction.UNIT_SET_RALLY)));
-        rally_point_button.setIconDisabler(() -> !viewer.getLocalPlayer().canSetRallyPoints());
+        rally_point_button.setIconDisabler(() -> !player.canSetRallyPoints());
         armory_group.addChild(rally_point_button);
         rally_point_button.addMouseClickListener(this::setRallyPoint);
         harvest_button.place();
@@ -384,7 +397,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         ship_sail_button.place(ship_rally_point_button, Placement.BOTTOM_MID);
         ship_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
 
-        Player local_player = viewer.getLocalPlayer();
+        Player local_player = player;
         harvest_tree_button = new DeploySpinner(viewer, player_interface, icons.getTreeIcon(), i18n("harvest_tree_tip"),
                 List.of(race_icons.unitStatusIcon()), GameAction.RES_TREE, GameAction.RES_TREE_DEC, local_player,
                 TreeSupply.class);
@@ -537,7 +550,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         transport_back_button.place(transport_rubber_button, Placement.BOTTOM_MID);
         transport_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
 
-        setCanFocus(true);
+        setCanFocus(!read_only);
         displayChangedNotify(width, height);
     }
 
@@ -559,17 +572,17 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
     @Override
     public void animate(float t) {
-        Building new_building = viewer.getSelection().getCurrentSelection().getBuilding();
+        Building new_building = selection.getCurrentSelection().getBuilding();
         boolean different_building = new_building != current_building;
         current_building = new_building;
         viewer.getRenderer().setSelectedBuilding(new_building);
 
-        Unit new_chieftain = viewer.getSelection().getCurrentSelection().getChieftain();
+        Unit new_chieftain = selection.getCurrentSelection().getChieftain();
         boolean different_chieftain = new_chieftain != current_chieftain;
         current_chieftain = new_chieftain;
 
-        int current_num_units = viewer.getSelection().getCurrentSelection().getNumUnits();
-        int current_num_peons = viewer.getSelection().getCurrentSelection().getNumBuilders();
+        int current_num_units = selection.getCurrentSelection().getNumUnits();
+        int current_num_peons = selection.getCurrentSelection().getNumBuilders();
 
         boolean new_quarters = current_building != null && current_building.getAbilities().hasAbilities(
                 Abilities.REPRODUCE);
@@ -602,7 +615,6 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
             if (current_chieftain != null) {
                 addChild(chieftain_group);
                 updateGroups();
-                Player player = viewer.getLocalPlayer();
                 if (player.canDoMagic(0)) {
                     magic1_button.setUnit(current_chieftain);
                     magic1_button.setIconDisabler(() -> !current_chieftain.canDoMagic(0));
@@ -637,7 +649,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
             if (current_armory) {
                 addChild(status_group);
                 addChild(armory_group);
-                if (viewer.getLocalPlayer().canUseRubber()) {
+                if (player.canUseRubber()) {
                     build_group.addChild(build_weapon_rubber_button);
                     army_group.addChild(army_warrior_rubber_button);
                 } else {
@@ -649,7 +661,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
             if (current_ship) {
                 addChild(status_group);
                 addChild(ship_group);
-                if (viewer.getLocalPlayer().canUseRubber()) {
+                if (player.canUseRubber()) {
                     ship_army_group.addChild(ship_army_warrior_rubber_button);
                 } else {
                     ship_army_warrior_rubber_button.remove();
@@ -763,6 +775,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         current_submenu = null;
     }
 
+    /** Rebinds the spinners to the current building; a read-only copy has no clicks of its own to keep them in step. */
+    public void refreshCounters() {
+        if (read_only && getSubmenu() != SUBMENU_NONE && (current_armory || current_ship)
+                && current_building != null && !current_building.isDead())
+            updateCounters();
+    }
+
     private void updateCounters() {
         assert current_building != null : "Building is null";
         SupplyCounter unit_counter = new SupplyCounter(current_building, Unit.class);
@@ -857,6 +876,8 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
     @Override
     public void handleInput(@NonNull InputEvent event) {
+        if (read_only)
+            return;
         InputPhase phase = event.getPhase();
         boolean pressed = phase == InputPhase.PRESSED || phase == InputPhase.REPEAT;
         boolean released = phase == InputPhase.RELEASED;
@@ -931,60 +952,43 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
                                 } else if (current_ship && current_submenu == ship_army_group
                                         && event.consumeAction(GameAction.DEPLOY_CHIEFTAIN)) {
                                             activate(event, ship_army_chieftain_button);
-                                        } else if (current_chieftain != null && event.consumeAction(
-                                                GameAction.MAGIC_2)) {
-                                                    if (viewer.getLocalPlayer().canDoMagic(1)) {
-                                                        activate(event, magic2_button);
-                                                    }
-                                                } else if ((current_armory || current_ship) && current_submenu != null
-                                                        && event.consumeAction(GameAction.GAMEPLAY_BACK)) {
-                                                            if (current_submenu == harvest_group)
-                                                                activate(event, harvest_back_button);
-                                                            else if (current_submenu == build_group)
-                                                                activate(event, build_back_button);
-                                                            else if (current_submenu == army_group)
-                                                                activate(event, army_back_button);
-                                                            else if (current_submenu == ship_army_group)
-                                                                activate(event, ship_army_back_button);
-                                                            else if (current_submenu == transport_group)
-                                                                activate(event, transport_back_button);
-                                                        } else if (current_building == null && current_peon
-                                                                && event.consumeAction(
-                                                                        GameAction.UNIT_BUILD_ARMORY)) {
-                                                                            activate(event, armory_button);
-                                                                        } else if (current_building != null
-                                                                                && event.consumeAction(
-                                                                                        GameAction.UNIT_SET_RALLY)) {
-                                                                                            if (current_armory
-                                                                                                    && current_submenu == null) {
-                                                                                                activate(event,
-                                                                                                        rally_point_button);
-                                                                                            } else if (current_ship
-                                                                                                    && current_submenu == null) {
-                                                                                                        activate(event,
-                                                                                                                ship_rally_point_button);
-                                                                                                    } else
-                                                                                                if (current_quarters) {
-                                                                                                    activate(event,
-                                                                                                            quarters_rally_point_button);
-                                                                                                }
-                                                                                        } else if (current_tower
-                                                                                                && event.consumeAction(
-                                                                                                        GameAction.UNIT_EXIT_TOWER)) {
-                                                                                                            activate(
-                                                                                                                    event,
-                                                                                                                    tower_exit_button);
-                                                                                                        } else
-                                                                                            if (current_chieftain != null
-                                                                                                    && event.consumeAction(
-                                                                                                            GameAction.MAGIC_1)) {
-                                                                                                                if (viewer.getLocalPlayer().canDoMagic(
-                                                                                                                        0)) {
-                                                                                                                    activate(
-                                                                                                                            event,
-                                                                                                                            magic1_button);
-                                                                                                                }
-                                                                                                            }
+                                        } else if (current_chieftain != null && event.consumeAction(GameAction.MAGIC_2)) {
+                                            if (player.canDoMagic(1)) {
+                                                activate(event, magic2_button);
+                                            }
+                                        } else if ((current_armory || current_ship) && current_submenu != null
+                                                && event.consumeAction(GameAction.GAMEPLAY_BACK)) {
+                                                    if (current_submenu == harvest_group)
+                                                        activate(event, harvest_back_button);
+                                                    else if (current_submenu == build_group)
+                                                        activate(event, build_back_button);
+                                                    else if (current_submenu == army_group)
+                                                        activate(event, army_back_button);
+                                                    else if (current_submenu == ship_army_group)
+                                                        activate(event, ship_army_back_button);
+                                                    else if (current_submenu == transport_group)
+                                                        activate(event, transport_back_button);
+                                                } else if (current_building == null && current_peon && event.consumeAction(
+                                                        GameAction.UNIT_BUILD_ARMORY)) {
+                                                            activate(event, armory_button);
+                                                        } else if (current_building != null && event.consumeAction(
+                                                                GameAction.UNIT_SET_RALLY)) {
+                                                                    if (current_armory && current_submenu == null) {
+                                                                        activate(event, rally_point_button);
+                                                                    } else if (current_ship && current_submenu == null) {
+                                                                        activate(event, ship_rally_point_button);
+                                                                    } else if (current_quarters) {
+                                                                        activate(event, quarters_rally_point_button);
+                                                                    }
+                                                                } else if (current_tower && event.consumeAction(
+                                                                        GameAction.UNIT_EXIT_TOWER)) {
+                                                                            activate(event, tower_exit_button);
+                                                                        } else if (current_chieftain != null
+                                                                                && event.consumeAction(GameAction.MAGIC_1)) {
+                                                                                    if (player.canDoMagic(0)) {
+                                                                                        activate(event, magic1_button);
+                                                                                    }
+                                                                                }
 
                 if (event.isConsumed()) return;
             }
@@ -1144,6 +1148,42 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
     @Override
     public boolean canHoverBehind() {
         return true;
+    }
+
+    public static final int SUBMENU_NONE = 0;
+    public static final int SUBMENU_HARVEST = 1;
+    public static final int SUBMENU_BUILD = 2;
+    public static final int SUBMENU_ARMY = 3;
+    public static final int SUBMENU_TRANSPORT = 4;
+
+    public int getSubmenu() {
+        if (current_submenu == harvest_group)
+            return SUBMENU_HARVEST;
+        if (current_submenu == build_group)
+            return SUBMENU_BUILD;
+        if (current_submenu == army_group)
+            return SUBMENU_ARMY;
+        if (current_submenu == transport_group)
+            return SUBMENU_TRANSPORT;
+        return SUBMENU_NONE;
+    }
+
+    public void setSubmenu(int submenu) {
+        if (submenu == getSubmenu() || (submenu != SUBMENU_NONE && !current_armory && !current_ship))
+            return;
+        switch (submenu) {
+            case SUBMENU_HARVEST -> openSubmenu(harvest_group);
+            case SUBMENU_BUILD -> {
+                openSubmenu(build_group);
+                updateCounters();
+            }
+            case SUBMENU_ARMY -> openSubmenu(army_group);
+            case SUBMENU_TRANSPORT -> openSubmenu(transport_group);
+            default -> {
+                removeGroups();
+                update = true;
+            }
+        }
     }
 
     public boolean inHarvestMenu() {

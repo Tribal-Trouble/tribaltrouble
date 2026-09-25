@@ -68,7 +68,7 @@ delegate/SelectionDelegate,spectator_following,Spectating - ,Tilskuere -,Zuschau
 delegate/SelectionDelegate,spectator_free,Free camera,Gratis kamera,Kostenlose Kamera,Cámara libre,Fotocamera gratuita,Câmera gratuita
 delegate/SelectionDelegate,spectator_next,Next - {0},Næste - {0},Weiter - {0},Siguiente - {0},Avanti - {0},Próximo - {0}
 delegate/SelectionDelegate,spectator_previous,Previous - {0},Forrige - {0},Vorherige - {0},Anterior - {0},Precedente - {0},Anterior - {0}
-delegate/SelectionDelegate,spectator_free_cam,Free cam - {0},Gratis kamera - {0},Kostenlose Webcam - {0},Cámara gratuita - {0},Webcam gratuita - {0},Câmera grátis - {0}
+delegate/SelectionDelegate,spectator_free_cam,Free cam / follow - {0},Gratis kamera - {0},Kostenlose Webcam - {0},Cámara gratuita - {0},Webcam gratuita - {0},Câmera grátis - {0}
 delegate/SelectionDelegate,spectator_exit,Exit - Esc,Afslut - Esc,Beenden - Esc,Salir - Esc,Esci - Esc,Sair - Esc
 delegate/TutorialOverDelegate,tutorial_completed,Tutorial {0} is now completed,Kursus {0} er gennemført,Das Tutorial {0} ist abgeschlossen.,El tutorial {0} ha terminado,Il tutorial {0} è completato,O tutorial {0} foi concluído
 delegate/TutorialOverDelegate,next_tutorial,Next tutorial,Næste kursus,Nächstes Tutorial,Próximo tutorial,Prossimo tutorial,Próximo tutorial

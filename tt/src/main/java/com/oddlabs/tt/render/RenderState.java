@@ -26,8 +26,10 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.procedural.GeneratorRing;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.viewer.Selection;
+import com.oddlabs.tt.viewer.SpectatorView;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -43,6 +45,7 @@ final class RenderState implements ElementVisitor {
     private final @NonNull SelectableShadowRenderer default_shadow_renderer;
     private final @NonNull Picker picker;
     private final Selection selection;
+    private final @Nullable SpectatorView spectator_view;
     private final @NonNull Player local_player;
     private final @NonNull MatrixStack model_view_stack = new MatrixStack();
 
@@ -51,9 +54,11 @@ final class RenderState implements ElementVisitor {
     private CameraState camera;
 
     public RenderState(@NonNull Player local_player, @NonNull SpriteSorter sprite_sorter,
-            @NonNull RenderQueues render_queues, @NonNull Picker picker, Selection selection) {
+            @NonNull RenderQueues render_queues, @NonNull Picker picker, Selection selection,
+            @Nullable SpectatorView spectator_view) {
         this.local_player = local_player;
         this.selection = selection;
+        this.spectator_view = spectator_view;
         this.picker = picker;
         this.sprite_sorter = sprite_sorter;
         this.render_queues = render_queues;
@@ -173,6 +178,15 @@ final class RenderState implements ElementVisitor {
         return selection.getCurrentSelection().contains(selectable);
     }
 
+    boolean isSelectedByFollowed(@NonNull Selectable<?> selectable) {
+        return spectator_view != null && spectator_view.isSelectedByFollowed(selectable);
+    }
+
+    @Nullable
+    Player getFollowedPlayer() {
+        return spectator_view != null ? spectator_view.getFollowedPlayer() : null;
+    }
+
     private <S extends Selectable<?>> void visitSelectable(@NonNull ModelVisitor<S> visitor, @NonNull S selectable,
             float z_offset, float selection_radius, float selection_height) {
         boolean in_view = !picking || (selectable.isEnabled() && (visible_override || pickingInFrustum(selectable,
@@ -186,7 +200,8 @@ final class RenderState implements ElementVisitor {
             if (!picking && selectable.isEnabled() && sort_status == SpriteSorter.DETAIL_POLYGON) {
                 SelectableShadowRenderer shadow_renderer = (SelectableShadowRenderer) render_queues.getShadowRenderer(
                         selectable.getTemplate().getSelectableShadowRenderer());
-                if (Globals.draw_hud && (isHovered(selectable) || isSelected(selectable))) {
+                if (Globals.draw_hud && (isHovered(selectable) || isSelected(selectable) || isSelectedByFollowed(
+                        selectable))) {
                     shadow_renderer.addToSelectionList(state);
                 } else {
                     shadow_renderer.addToShadowList(state);

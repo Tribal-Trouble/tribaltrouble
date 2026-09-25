@@ -217,6 +217,12 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
             getClientInterface().error(MatchmakingClientInterface.CHAT_ERROR_NO_SUCH_NICK);
             return;
         }
+        if (target.getSimVersion() != sim_version) {
+            MatchmakingServer.getLogger().info(
+                    getUsername() + " cannot spectate " + nick + ": sim version " + sim_version + " differs from " + target.getSimVersion());
+            getClientInterface().error(MatchmakingClientInterface.CHAT_ERROR_SPECTATE_FAILED);
+            return;
+        }
         MatchmakingServer.getLogger().info(
                 getUsername() + " requested to spectate " + nick + " in game " + game_session.getDatabaseID());
         byte[] world_params_data = game_session.getWorldParamsData();

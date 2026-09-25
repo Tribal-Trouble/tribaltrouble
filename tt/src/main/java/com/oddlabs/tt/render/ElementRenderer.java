@@ -1,6 +1,7 @@
 package com.oddlabs.tt.render;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.model.Element;
@@ -9,6 +10,7 @@ import com.oddlabs.tt.model.ElementNode;
 import com.oddlabs.tt.model.ElementNodeVisitor;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.viewer.Selection;
+import com.oddlabs.tt.viewer.SpectatorView;
 
 final class ElementRenderer<T extends Element<T>> implements ElementNodeVisitor<T> {
 
@@ -19,9 +21,11 @@ final class ElementRenderer<T extends Element<T>> implements ElementNodeVisitor<
     private boolean visible_override;
 
     ElementRenderer(@NonNull Player local_player, @NonNull RenderQueues render_queues, @NonNull Picker picker,
-            boolean picking, @NonNull SpriteSorter sprite_sorter, Selection selection) {
+            boolean picking, @NonNull SpriteSorter sprite_sorter, Selection selection,
+            @Nullable SpectatorView spectator_view) {
         this.picking = picking;
-        this.render_state = new RenderState(local_player, sprite_sorter, render_queues, picker, selection);
+        this.render_state = new RenderState(local_player, sprite_sorter, render_queues, picker, selection,
+                spectator_view);
     }
 
     @NonNull
