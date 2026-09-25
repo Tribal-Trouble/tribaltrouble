@@ -271,6 +271,8 @@ public final class Picker implements Updatable<TimerAnimation> {
                 } else {
                     return Selectable.newArray(nearest);
                 }
+            } else {
+                return Selectable.newArray(nearest);
             }
         }
         return Selectable.newArray(0);
