@@ -22,7 +22,6 @@ public final class ShipUnstuckBehaviour implements Behaviour {
     public ShipUnstuckBehaviour(Ship ship) {
         this.ship = ship;
         var grid = ship.getUnitGrid();
-        System.out.println("Trying ship unstuck behaviour");
         ShipTrajectoryPoint p0 = new ShipTrajectoryPoint(ship);
         for (int i = 0; i < 4; i++) {
             float angle = i * 45.0f;
