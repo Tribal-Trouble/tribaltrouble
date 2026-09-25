@@ -6119,5 +6119,22 @@
                 <skin bone="Head" weight="0.666667"/>
             </vertex>
         </polygon>
+        <polygon>
+            <vertex x="-1.02993" y="1.0269" z="1.38999" r="1" g="1" b="1" a="1" nx="-0.470764" ny="0.573477"
+                    nz="0.670452" u="0.159845" v="0.0625153">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+            <vertex x="-0.947819" y="1.02692" z="1.35936" r="1" g="1" b="1" a="1" nx="0.819924" ny="0.572473"
+                    nz="-0.000647213" u="0.177992" v="0.045894">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+            <vertex x="-1.02993" y="1.02684" z="1.32888" r="1" g="1" b="1" a="1" nx="-0.471421" ny="0.572751"
+                    nz="-0.670611" u="0.175127" v="0.0703186">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+        </polygon>
     </polygons>
 </mesh>

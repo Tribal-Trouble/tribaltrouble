@@ -336,12 +336,6 @@
                 <texture name="native_chieftain_prop2" team="native_chieftain_prop2_team"/>
             </model>
         </sprite>
-        <sprite name="chieftain_prop3" base="chieftain" slot="prop3" default="true">
-            <model r="90" g="60" b="30">
-                natives/chieftain/chieftain_prop3.xml
-                <texture name="native_chieftain_prop3" team="native_chieftain_prop3_team"/>
-            </model>
-        </sprite>
         <sprite name="peon">
             <skeleton>natives/peon/peon_skeleton.xml</skeleton>
             <model r="90" g="60" b="30">
@@ -397,14 +391,6 @@
                 <texture name="native_warrior_prop3_rock" team="native_warrior_prop3_rock_team"/>
                 <texture name="native_warrior_prop3_iron" team="native_warrior_prop3_iron_team"/>
                 <texture name="native_warrior_prop3_rubber" team="native_warrior_prop3_rubber_team"/>
-            </model>
-        </sprite>
-        <sprite name="warrior_prop1" base="warrior" slot="weapon" default="true">
-            <model r="90" g="60" b="30">
-                natives/warrior/warrior_prop1.xml
-                <texture name="native_warrior_prop1_rock" team="native_warrior_prop1_rock_team"/>
-                <texture name="native_warrior_prop1_iron" team="native_warrior_prop1_iron_team"/>
-                <texture name="native_warrior_prop1_rubber" team="native_warrior_prop1_rubber_team"/>
             </model>
         </sprite>
         <sprite name="rock_resource" base="peon" slot="carried">
