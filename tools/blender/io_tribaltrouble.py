@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 27, 1),
+    "version": (1, 27, 2),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1227,31 +1227,18 @@ class CopyRegistrySnippet(bpy.types.Operator):
 
 
 SLOT_LABELS = {"hat": "Hats", "weapon": "Weapons", "carried": "Carried"}
-SLOT_HINTS = {"hat": "One at a time, as in game (H cycles). Shift click keeps others",
-              "weapon": "One at a time, as in game. Shift click keeps others",
-              "carried": "Locked: the game needs all five. Edit them, never remove"}
-ALL_SLOTS = "ALL"
-_slot_filter_items = []
 
 
 def slot_label(game_slot):
     return SLOT_LABELS.get(game_slot, game_slot.replace("_", " ").title())
 
 
-def slot_filter_items(self, context):
-    arm = active_armature(context)
-    slots = sorted(unit_items(arm)) if arm is not None else []
-    _slot_filter_items[:] = [(ALL_SLOTS, "All", "Every item on this unit")] + [
-        (game_slot, slot_label(game_slot), SLOT_HINTS.get(game_slot, "")) for game_slot in slots]
-    return _slot_filter_items
-
-
-def item_rows(objects, arm, slot_filter, name_filter):
-    """(visible, order) per object for the items list: this unit's registry items, narrowed by slot and by typed
+def item_rows(objects, arm, name_filter):
+    """(visible, order) per object for the items list: this unit's registry items whose name or slot holds the typed
     text, sorted by slot then name."""
     wanted = name_filter.strip().lower()
     shown = [arm is not None and o.get("tt_slot") and not o.get("tt_detail") and o.parent == arm
-             and slot_filter in (ALL_SLOTS, "", o["tt_slot"]) and wanted in o.get("tt_sprite", "").lower()
+             and (wanted in o.get("tt_sprite", "").lower() or wanted in slot_label(o["tt_slot"]).lower())
              for o in objects]
     ranked = sorted(range(len(objects)), key=lambda i: (not shown[i], objects[i].get("tt_slot", ""),
                                                         objects[i].get("tt_sprite", objects[i].name)))
@@ -1291,7 +1278,7 @@ class TT_UL_items(bpy.types.UIList):
     def filter_items(self, context, data, propname):
         objects = list(getattr(data, propname))
         wm = context.window_manager
-        shown, order = item_rows(objects, active_armature(context), wm.tt_item_filter, wm.tt_item_search)
+        shown, order = item_rows(objects, active_armature(context), wm.tt_item_search)
         return [self.bitflag_filter_item if x else 0 for x in shown], order
 _point_items = []
 
@@ -1323,13 +1310,9 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
         layout.label(text="Hats, weapons and things this unit carries")
         items = unit_items(arm)
         if items:
-            if len(items) > 1:
-                layout.row(align=True).prop(wm, "tt_item_filter", expand=True)
             layout.prop(wm, "tt_item_search", text="", icon="VIEWZOOM")
             layout.template_list("TT_UL_items", "", bpy.data, "objects", wm, "tt_item_index", rows=6, maxrows=12)
-            chosen = wm.tt_item_filter if wm.tt_item_filter != ALL_SLOTS else (next(iter(items)) if len(items) == 1
-                                                                               else "")
-            layout.label(text=SLOT_HINTS.get(chosen, "Click the eye to show or hide an item"))
+            layout.label(text="Click the eye to show or hide an item")
         else:
             layout.label(text="Nothing yet: add one below", icon="INFO")
 
@@ -3842,7 +3825,6 @@ def register():
                                       description="Blend the player's color in through the team decal, as in game")
     wm.tt_team_color = FloatVectorProperty(name="Team Color", subtype="COLOR", size=3, min=0.0, max=1.0,
                                            default=(0.8, 0.1, 0.1), update=team_preview_update)
-    wm.tt_item_filter = EnumProperty(name="Show", items=slot_filter_items)
     wm.tt_item_index = IntProperty()
     wm.tt_item_search = StringProperty(name="Search", options={"TEXTEDIT_UPDATE"},
                                        description="Show only the items whose name contains this")
@@ -3870,7 +3852,7 @@ def unregister():
     bpy.app.handlers.load_post.remove(refresh_units_on_load)
     del bpy.types.Object.tt_attachments
     for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_category", "tt_auto_load", "tt_checks",
-                 "tt_checked", "tt_team_preview", "tt_team_color", "tt_event", "tt_new_point", "tt_item_filter",
+                 "tt_checked", "tt_team_preview", "tt_team_color", "tt_event", "tt_new_point",
                  "tt_item_index", "tt_detail", "tt_item_search", "tt_skin_name"):
         delattr(bpy.types.WindowManager, name)
     for cls in classes:

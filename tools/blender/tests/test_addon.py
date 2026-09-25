@@ -592,17 +592,17 @@ def the_items_list_filters_by_slot_and_text_and_holds_a_hundred():
         bpy.context.collection.objects.link(hat)
         made.append(hat)
     objects = list(bpy.data.objects)
-    shown, order = addon.item_rows(objects, a, addon.ALL_SLOTS, "")
+    shown, order = addon.item_rows(objects, a, "")
     assert sum(shown) == existing + 100, (sum(shown), existing)
     listed = [objects[i]["tt_sprite"] for i in sorted(range(len(objects)), key=lambda i: order[i]) if shown[i]]
     assert listed[:5] == ["left_paddle", "right_paddle", "rock_resource", "rubber_resource", "wood_resource"], listed[:5]
     hats = [name for name in listed if name.startswith("peon_hat_")]
     assert hats == sorted(hats) and len(hats) == 100
-    shown, _ = addon.item_rows(objects, a, "hat", "hat_04")
+    shown, _ = addon.item_rows(objects, a, "hat_04")
     assert sorted(objects[i]["tt_sprite"] for i in range(len(objects)) if shown[i]) == [f"peon_hat_04{d}" for d in range(10)]
-    shown, _ = addon.item_rows(objects, a, addon.CARRY_SLOT, "")
+    shown, _ = addon.item_rows(objects, a, "carried")
     assert sum(shown) == 5
-    assert not any(addon.item_rows(objects, None, addon.ALL_SLOTS, "")[0]), "items listed with no unit active"
+    assert not any(addon.item_rows(objects, None, "")[0]), "items listed with no unit active"
     for hat in made:
         bpy.data.objects.remove(hat)
 
