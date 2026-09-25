@@ -598,6 +598,18 @@ def the_items_list_filters_by_slot_and_text_and_holds_a_hundred():
 
 
 @test
+def the_search_field_above_the_items_list_filters_it():
+    load("natives", "peon")
+    fake = type("List", (), {"bitflag_filter_item": 1 << 30})()  # the list's own flag only exists while drawn
+    wm.tt_item_search = "paddle"
+    flags, _ = addon.TT_UL_items.filter_items(fake, bpy.context, bpy.data, "objects")
+    listed = sorted(o["tt_sprite"] for o, flag in zip(bpy.data.objects, flags) if flag)
+    wm.tt_item_search = ""
+    assert listed == ["left_paddle", "right_paddle"], listed
+    assert addon.VIEW3D_PT_tt_attachments.bl_label == "Carried Items"
+
+
+@test
 def point_rows_only_take_the_artists_own_meshes():
     a = load("natives", "peon")
     head = next(slot for slot in a.tt_attachments if slot.point == "HEAD")
@@ -785,6 +797,112 @@ def event_texture_for_one_model_only():
     assert entry("vikings", "quarters")["textures"][0][-1] == ("viking_buildings_hi_winter", "winter")
     assert all(event == "" for _, event in entry("vikings", "armory")["textures"][0])
     wm.tt_event = ""
+
+
+def polygons(path):
+    return open(path).read().count("<polygon>")
+
+
+def mtimes():
+    return {os.path.join(d, f): os.stat(os.path.join(d, f)).st_mtime_ns for d, _, fs in os.walk(GEOMETRY) for f in fs}
+
+
+@test
+def a_unit_and_its_items_load_their_low_detail_mesh_hidden():
+    a = load("vikings", "warrior")
+    body = addon.browsed_unit(a)
+    low = bpy.data.objects["warrior_mesh_lod1"]
+    assert low["tt_source"].endswith("warrior_low_poly_mesh.xml") and low["tt_detail"] == 1
+    assert low.parent == a and any(m.type == "ARMATURE" and m.object == a for m in low.modifiers)
+    assert low.hide_get() and not body.hide_get()
+    assert "tt_export_hash" in body and "tt_export_hash" in low
+    axe_low = bpy.data.objects["warrior_axe_held_lod1"]
+    assert axe_low["tt_source"].endswith("warrior_axe_held_lo.xml") and axe_low.hide_get()
+    assert items()["weapon"] == [("warrior_axe_held", True)], items()
+
+
+@test
+def the_detail_toggle_swaps_which_mesh_shows():
+    a = load("vikings", "warrior")
+    body, low = addon.browsed_unit(a), bpy.data.objects["warrior_mesh_lod1"]
+    axe, axe_low = bpy.data.objects["warrior_axe_held"], bpy.data.objects["warrior_axe_held_lod1"]
+    assert addon.has_low_detail()
+    wm.tt_detail = "LOW"
+    assert body.hide_get() and not low.hide_get() and axe.hide_get() and not axe_low.hide_get()
+    assert bpy.ops.object.tt_show_item(item=axe.name) == {"FINISHED"}
+    assert axe.hide_get() and axe_low.hide_get(), "hiding an item in low detail left its low mesh showing"
+    wm.tt_detail = "HIGH"
+    assert not body.hide_get() and low.hide_get() and axe.hide_get() and axe_low.hide_get()
+
+
+@test
+def publishing_without_edits_writes_no_unit_mesh():
+    load("vikings", "warrior")
+    files = [bpy.data.objects[n]["tt_source"] for n in ("warrior_mesh", "warrior_mesh_lod1", "warrior_axe_held",
+                                                        "warrior_axe_held_lod1")]
+    for path in files:
+        os.utime(path, (1, 1))
+    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
+    assert all(os.path.getmtime(path) == 1 for path in files), "an unchanged mesh was written again"
+
+
+@test
+def splitting_the_body_rewrites_both_detail_levels():
+    a = load("vikings", "warrior")
+    body, low = addon.browsed_unit(a), bpy.data.objects["warrior_mesh_lod1"]
+    before = {o: polygons(o["tt_source"]) for o in (body, low)}
+    wm.tt_detail = "LOW"
+    for o in (body, low):
+        select_only(o)
+        assert bpy.ops.object.tt_split_by_bone(bone="warrior  Pelvis") == {"FINISHED"}
+        assert bpy.context.active_object.get(addon.BROWSER_TAG) is None
+    wm.tt_detail = "HIGH"
+    assert body["tt_source"] and body.get(addon.BROWSER_TAG) and "tt_export_hash" in body
+    bpy.context.view_layer.objects.active = a
+    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    after = {o: polygons(o["tt_source"]) for o in (body, low)}
+    assert all(after[o] < before[o] for o in (body, low)), (before, after)
+    return f"high {before[body]} -> {after[body]}, low {before[low]} -> {after[low]} polygons"
+
+
+@test
+def an_edited_low_detail_axe_is_written_and_its_high_mesh_is_not():
+    load("vikings", "warrior")
+    axe, axe_low = bpy.data.objects["warrior_axe_held"], bpy.data.objects["warrior_axe_held_lod1"]
+    os.utime(axe["tt_source"], (1, 1))
+    os.utime(axe_low["tt_source"], (1, 1))
+    axe_low.data.vertices[0].co.z += 0.1
+    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert os.path.getmtime(axe["tt_source"]) == 1 and os.path.getmtime(axe_low["tt_source"]) != 1
+
+
+@test
+def a_building_publishes_only_the_detail_level_that_changed():
+    body = load_building("vikings", "quarters")
+    low = bpy.data.objects["viking_main_built_lod1"]
+    assert low.hide_get() and not body.hide_get() and low["tt_source"].endswith("viking_main_built_lo.xml")
+    wm.tt_detail = "LOW"
+    assert body.hide_get() and not low.hide_get()
+    wm.tt_detail = "HIGH"
+    os.utime(body["tt_source"], (1, 1))
+    os.utime(low["tt_source"], (1, 1))
+    low.data.vertices[0].co.z += 0.1
+    assert bpy.ops.object.tt_save_props() == {"FINISHED"}
+    assert os.path.getmtime(body["tt_source"]) == 1 and os.path.getmtime(low["tt_source"]) != 1
+
+
+@test
+def an_edited_rock_publishes_exactly_its_own_file():
+    rock = load_building("misc", "rock_1")
+    assert not addon.has_low_detail()
+    before = mtimes()
+    assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
+    assert mtimes() == before, "publishing an untouched rock wrote a file"
+    rock.data.vertices[0].co.z += 0.1
+    assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
+    changed = [path for path, stamp in mtimes().items() if before.get(path) != stamp]
+    assert changed == [os.path.normpath(rock["tt_source"])], changed
 
 
 @test

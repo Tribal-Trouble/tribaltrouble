@@ -40,7 +40,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 24, 0),
+    "version": (1, 25, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -419,6 +419,7 @@ def import_mesh_file(context, filepath, flip_v, load_textures, report):
                             f"{len(record.faces) - len(mesh.polygons)} invalid faces; loop data skipped")
     obj = bpy.data.objects.new(name, mesh)
     obj["tt_texture"] = root.get("texture") or find_registry_texture(filepath) or ""
+    obj["tt_file_texture"] = root.get("texture") or ""
     context.collection.objects.link(obj)
     set_vertex_groups(obj, record.skins)
 
@@ -1240,8 +1241,9 @@ def item_rows(objects, arm, slot_filter, name_filter):
     """(visible, order) per object for the items list: this unit's registry items, narrowed by slot and by typed
     text, sorted by slot then name."""
     wanted = name_filter.strip().lower()
-    shown = [arm is not None and o.get("tt_slot") and o.parent == arm and slot_filter in (ALL_SLOTS, "", o["tt_slot"])
-             and wanted in o.get("tt_sprite", "").lower() for o in objects]
+    shown = [arm is not None and o.get("tt_slot") and not o.get("tt_detail") and o.parent == arm
+             and slot_filter in (ALL_SLOTS, "", o["tt_slot"]) and wanted in o.get("tt_sprite", "").lower()
+             for o in objects]
     ranked = sorted(range(len(objects)), key=lambda i: (not shown[i], objects[i].get("tt_slot", ""),
                                                         objects[i].get("tt_sprite", objects[i].name)))
     order = [0] * len(objects)
@@ -1251,11 +1253,11 @@ def item_rows(objects, arm, slot_filter, name_filter):
 
 
 class TT_UL_items(bpy.types.UIList):
-    """The unit's items. The list keeps its height and scrolls, however many there are; type to search"""
+    """The unit's items. The list keeps its height and scrolls, however many there are"""
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_property, index):
         row = layout.row(align=True)
-        hidden = item.hide_get()
+        hidden = not item_shown(item)
         row.operator(ShowItem.bl_idname, text="", icon="HIDE_ON" if hidden else "HIDE_OFF", emboss=False).item = item.name
         row.label(text=item["tt_sprite"])
         tag = row.row()
@@ -1273,12 +1275,12 @@ class TT_UL_items(bpy.types.UIList):
             lock.label(text="", icon="LOCKED")  # the game asks for these by name, so they cannot be removed
 
     def draw_filter(self, context, layout):
-        layout.prop(self, "filter_name", text="", icon="VIEWZOOM")
+        pass  # the search field sits above the list instead
 
     def filter_items(self, context, data, propname):
         objects = list(getattr(data, propname))
-        shown, order = item_rows(objects, active_armature(context), context.window_manager.tt_item_filter,
-                                 self.filter_name)
+        wm = context.window_manager
+        shown, order = item_rows(objects, active_armature(context), wm.tt_item_filter, wm.tt_item_search)
         return [self.bitflag_filter_item if x else 0 for x in shown], order
 _point_items = []
 
@@ -1291,7 +1293,7 @@ def point_items(self, context):
 
 
 class VIEW3D_PT_tt_attachments(bpy.types.Panel):
-    bl_label = "Items On This Unit"
+    bl_label = "Carried Items"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Tribal Trouble"
@@ -1312,6 +1314,7 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
         if items:
             if len(items) > 1:
                 layout.row(align=True).prop(wm, "tt_item_filter", expand=True)
+            layout.prop(wm, "tt_item_search", text="", icon="VIEWZOOM")
             layout.template_list("TT_UL_items", "", bpy.data, "objects", wm, "tt_item_index", rows=6, maxrows=12)
             chosen = wm.tt_item_filter if wm.tt_item_filter != ALL_SLOTS else (next(iter(items)) if len(items) == 1
                                                                                else "")
@@ -1524,20 +1527,66 @@ def unit_items(arm):
     """Registry attachments loaded with this unit, grouped by game slot."""
     slots = {}
     for obj in bpy.data.objects:
-        if obj.get("tt_slot") and obj.parent == arm:
+        if obj.get("tt_slot") and not obj.get("tt_detail") and obj.parent == arm:
             slots.setdefault(obj["tt_slot"], []).append(obj)
     return slots
 
 
+def model_levels(obj):
+    """Every detail level loaded for obj's sprite, high detail first; just obj for anything else."""
+    if obj.get("tt_levels", 1) <= 1:
+        return [obj]
+    return sorted((o for o in bpy.data.objects if o.get(BROWSER_TAG) and "tt_detail" in o
+                   and o.get("tt_sprite") == obj["tt_sprite"] and o.get("tt_group") == obj.get("tt_group")),
+                  key=lambda o: o["tt_detail"])
+
+
 def set_item_visible(obj, visible):
-    obj.hide_set(not visible)
-    obj.hide_render = not visible
+    """Show or hide a model; of its detail levels only the one the Detail toggle picks ever shows."""
+    levels = model_levels(obj)
+    shown = levels[-1] if bpy.context.window_manager.tt_detail == "LOW" else levels[0]
+    for level in levels:
+        level.hide_set(not (visible and level == shown))
+        level.hide_render = level.hide_get()
+
+
+def item_shown(obj):
+    return any(not level.hide_get() for level in model_levels(obj))
 
 
 def item_export(o, depsgraph):
-    """The file text Publish writes for one of a unit's items, and its hash."""
-    text = mesh_xml_text([o], [o.get("tt_bone")], object_texture(o), False, depsgraph)
+    """The file text Publish writes for one loaded or new model, and its hash."""
+    # A model saved back keeps its file's own texture attribute, which the converter reads from the registry anyway.
+    texture = o["tt_file_texture"] if o.get("tt_source") and "tt_file_texture" in o else object_texture(o)
+    text = mesh_xml_text([o], [o.get("tt_bone")], texture, False, depsgraph)
     return text, hashlib.sha1(text.encode("utf-8")).hexdigest()
+
+
+def export_texts(context, arm, objs):
+    """{object: (text, hash)} as Publish would write them, taken with the rig at rest."""
+    previous = arm.data.pose_position if arm is not None else None
+    if arm is not None:
+        arm.data.pose_position = "REST"
+    context.view_layer.update()
+    try:
+        depsgraph = context.evaluated_depsgraph_get()
+        return {o: item_export(o, depsgraph) for o in objs}
+    finally:
+        if arm is not None:
+            arm.data.pose_position = previous
+            context.view_layer.update()
+
+
+def write_changed(context, arm, targets):
+    """Write each {object: path} whose export differs from the one it was loaded or last written as; the objects
+    written, so untouched files in the repo stay as they are."""
+    written = []
+    for o, (text, digest) in export_texts(context, arm, targets).items():
+        if not o.get("tt_source") or o.get("tt_export_hash") != digest:
+            write_text(targets[o], text)
+            o["tt_export_hash"] = digest
+            written.append(o)
+    return written
 
 
 def file_hash(path):
@@ -1557,6 +1606,28 @@ def file_clashes(targets):
     return clashes
 
 
+def load_sprite_models(context, geometry, sprite, report):
+    """Every model of a registry sprite as browser objects, high detail first; the lower levels start hidden."""
+    levels = []
+    for model in sprite["models"]:
+        path = os.path.join(geometry, model)
+        obj = import_mesh_file(context, path, False, True, report)
+        if obj is None:
+            if not levels:
+                return []
+            continue
+        if levels:
+            obj.name = f"{levels[0].name}_lod{len(levels)}"
+        obj[BROWSER_TAG] = True
+        obj["tt_group"], obj["tt_sprite"], obj["tt_source"] = sprite["group"], sprite["name"], path
+        obj["tt_detail"] = len(levels)
+        levels.append(obj)
+    for obj in levels:
+        obj["tt_levels"] = len(levels)
+    set_item_visible(levels[0], True)
+    return levels
+
+
 def load_unit(context, group, name, report):
     """Replace the previously browsed unit with this one: mesh, skeleton, clips, and its registry attachments."""
     root = repo_root(context)
@@ -1568,17 +1639,16 @@ def load_unit(context, group, name, report):
     clear_browser_objects()
     for o in context.selected_objects:
         o.select_set(False)
-    body = import_mesh_file(context, os.path.join(geometry, entry["models"][0]), False, True, quiet)
-    if body is None:
+    loaded = load_sprite_models(context, geometry, entry, quiet)
+    if not loaded:
         return None
-    body[BROWSER_TAG] = True
-    body["tt_group"], body["tt_sprite"], body["tt_source"] = group, name, os.path.join(geometry, entry["models"][0])
+    body = loaded[0]
     arm = None
     rig = rig_entry(registry, entry)
     if rig["skeleton"]:
         arm = armature_from_file(context, os.path.join(geometry, rig["skeleton"]))
         arm[BROWSER_TAG] = True
-        bind_meshes(arm, [body])
+        bind_meshes(arm, loaded)
         idle = None
         for clip in rig["clips"]:
             clip_name = os.path.splitext(os.path.basename(clip))[0]
@@ -1594,35 +1664,24 @@ def load_unit(context, group, name, report):
     for sprite in registry:
         if sprite["group"] != group or sprite["base"] != name or not sprite["slot"]:
             continue
-        path = os.path.join(geometry, sprite["models"][0])
-        obj = import_mesh_file(context, path, False, True, quiet)
-        if obj is None:
-            continue
-        obj[BROWSER_TAG] = True
-        obj["tt_group"] = group
-        obj["tt_slot"] = sprite["slot"]
-        obj["tt_sprite"] = sprite["name"]
-        obj["tt_source"] = path
-        obj["tt_event"] = sprite["event"]
-        bones = [g.name for g in obj.vertex_groups]
-        if arm is None:
-            obj.parent = body
-        elif len(bones) == 1 and bones[0] in arm.data.bones:
-            attach_object(arm, obj, bones[0], sprite["default"])
-        else:
-            bind_meshes(arm, [obj])
-            set_item_visible(obj, sprite["default"])
-        items.append(obj)
+        levels = load_sprite_models(context, geometry, sprite, quiet)
+        for obj in levels:
+            obj["tt_slot"] = sprite["slot"]
+            obj["tt_event"] = sprite["event"]
+            bones = [g.name for g in obj.vertex_groups]
+            if arm is None:
+                obj.parent = body
+            elif len(bones) == 1 and bones[0] in arm.data.bones:
+                attach_object(arm, obj, bones[0], sprite["default"])
+            else:
+                bind_meshes(arm, [obj])
+                set_item_visible(obj, sprite["default"])
+        items += levels[:1]
+        loaded += levels
 
-    if arm is not None and items:
-        # Publish skips an item whose export still matches this, so untouched files are not rewritten.
-        arm.data.pose_position = "REST"
-        context.view_layer.update()
-        depsgraph = context.evaluated_depsgraph_get()
-        for obj in items:
-            obj["tt_export_hash"] = item_export(obj, depsgraph)[1]
-        arm.data.pose_position = "POSE"
-        context.view_layer.update()
+    # Publish skips a model whose export still matches this, so untouched files are not rewritten.
+    for obj, (_, digest) in export_texts(context, arm, loaded).items():
+        obj["tt_export_hash"] = digest
 
     for o in context.selected_objects:
         o.select_set(False)
@@ -1706,6 +1765,45 @@ class LoadUnit(bpy.types.Operator):
         return {"FINISHED"} if load_unit(context, group, sprite, self.report) is not None else {"CANCELLED"}
 
 
+def loaded_models():
+    return [o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.type == "MESH" and o.get("tt_source")
+            and "tt_export_hash" in o]
+
+
+class PublishModel(bpy.types.Operator):
+    """Save the model loaded from the list back to its own files in the repo: every detail level and every item or
+    prop of it that you changed. Files you did not touch are left alone"""
+    bl_idname = "wm.tt_publish_model"
+    bl_label = "Publish Loaded Model"
+
+    @classmethod
+    def poll(cls, context):
+        return bool(repo_root(context)) and bool(loaded_models())
+
+    def execute(self, context):
+        arm = next((o for o in bpy.data.objects if o.type == "ARMATURE" and o.get(BROWSER_TAG)), None)
+        written = write_changed(context, arm, {o: o["tt_source"] for o in loaded_models()})
+        if not written:
+            self.report({"INFO"}, "Nothing changed since loading")
+            return {"FINISHED"}
+        self.report({"INFO"}, f"Saved {', '.join(os.path.basename(o['tt_source']) for o in written)}")
+        return {"FINISHED"}
+
+
+DETAIL_ITEMS = (("HIGH", "High", "The mesh the game draws close up"),
+                ("LOW", "Low", "The mesh the game draws from far away"))
+
+
+def has_low_detail():
+    return any(o.get("tt_detail") for o in bpy.data.objects if o.get(BROWSER_TAG))
+
+
+def detail_update(self, context):
+    for obj in [o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.get("tt_levels", 1) > 1
+                and not o.get("tt_detail")]:
+        set_item_visible(obj, item_shown(obj))
+
+
 class ShowItem(bpy.types.Operator):
     """Show or hide this item. Carried things switch on and off one by one. Hats and weapons swap, the way the
     game shows one per kind; hold Shift to keep the others showing"""
@@ -1724,7 +1822,7 @@ class ShowItem(bpy.types.Operator):
         chosen = bpy.data.objects.get(self.item)
         if arm is None or chosen is None:
             return {"CANCELLED"}
-        show = chosen.hide_get()
+        show = not item_shown(chosen)
         if self.keep_others or chosen["tt_slot"] == CARRY_SLOT:
             set_item_visible(chosen, show)
             return {"FINISHED"}
@@ -1734,11 +1832,15 @@ class ShowItem(bpy.types.Operator):
 
 
 def export_visible(context, arm, report):
-    """Write every visible item on the unit to its file, with its texture. False when nothing was written."""
+    """Write every visible item on the unit to its file, with its texture, and every detail level of the unit and
+    of those items that changed since loading. False when nothing was written."""
     unit_dir = os.path.dirname(arm["tt_skeleton"])
-    objs = visible_attachments(arm) + [o for items in unit_items(arm).values() for o in items
-                                       if not o.hide_get()]
-    if not objs:
+    shown = [o for items in unit_items(arm).values() for o in items if item_shown(o)]
+    objs = visible_attachments(arm) + shown
+    body = browsed_unit(arm)
+    bodies = model_levels(body) if body is not None else []
+    levels = [o for o in bodies + [x for o in shown for x in model_levels(o)[1:]] if o.get("tt_source")]
+    if not objs and not levels:
         report({"ERROR"}, "Nothing visible to export")
         return False
     paths = {o: o.get("tt_source") or os.path.join(unit_dir, o.name + ".xml") for o in objs}
@@ -1750,30 +1852,20 @@ def export_visible(context, arm, report):
     if errors:
         report({"ERROR"}, f"Not published: {errors} problem(s) listed in the panel")
         return False
-    previous = arm.data.pose_position
-    arm.data.pose_position = "REST"
-    context.view_layer.update()
-    try:
-        depsgraph = context.evaluated_depsgraph_get()
-        missing, written = [], 0
-        for o in objs:
-            texture = object_texture(o)
-            text, digest = item_export(o, depsgraph)
-            if not o.get("tt_source") or o.get("tt_export_hash") != digest:
-                write_text(paths[o], text)
-                o["tt_export_hash"] = digest
-                written += 1
-            for name in [t.strip() for t in texture.split(",") if t.strip()]:
-                if not ensure_texture_in_repo(repo_root(context), o, name):
-                    missing.append(name)
-    finally:
-        arm.data.pose_position = previous
-        context.view_layer.update()
+    written = write_changed(context, arm, {**paths, **{o: o["tt_source"] for o in levels}})
+    missing = []
+    for o in objs:
+        for name in [t.strip() for t in object_texture(o).split(",") if t.strip()]:
+            if not ensure_texture_in_repo(repo_root(context), o, name):
+                missing.append(name)
+    saved = [os.path.basename(o["tt_source"]) for o in written if o in bodies]
+    note = f"; unit mesh: {', '.join(saved)}" if saved else ""
     if missing:
-        report({"WARNING"}, f"Exported {written} file(s) into {unit_dir}, but no texture image for "
+        report({"WARNING"}, f"Exported {len(written)} file(s) into {unit_dir}{note}, but no texture image for "
                             f"{', '.join(sorted(set(missing)))}: give the material an Image Texture")
     else:
-        report({"INFO"}, f"Exported {written} changed file(s) of {len(objs)} with their textures into {unit_dir}")
+        report({"INFO"}, f"Exported {len(written)} changed file(s) of {len(objs) + len(levels)} with their textures "
+                         f"into {unit_dir}{note}")
     return True
 
 
@@ -2227,10 +2319,10 @@ def check_mesh(obj, is_new, body_triangles):
 
 def preflight(context, arm):
     """Findings for everything Export Visible To Repo would write."""
-    body = next((o for o in unit_meshes(arm) if not o.get("tt_slot")), None)
+    body = browsed_unit(arm) or next((o for o in unit_meshes(arm) if not o.get("tt_slot")), None)
     body_triangles = sum(len(p.vertices) - 2 for p in body.data.polygons) if body is not None else 0
     new = visible_attachments(arm)
-    existing = [o for items in unit_items(arm).values() for o in items if not o.hide_get()]
+    existing = [o for items in unit_items(arm).values() for o in items if item_shown(o)]
     findings = []
     for obj in new + existing:
         findings += [(level, f"{obj.name}: {text}") for level, text in check_mesh(obj, obj in new, body_triangles)]
@@ -2364,6 +2456,8 @@ class VIEW3D_PT_tt_preview(bpy.types.Panel):
             row = layout.row(align=True)
             for index, label in enumerate(short_labels(tiers)):
                 row.operator(SetTier.bl_idname, text=label, depress=arm.get("tt_tier", 0) == index).index = index
+        if has_low_detail():
+            layout.row(align=True).prop(wm, "tt_detail", expand=True)
         row = layout.row(align=True)
         row.prop(wm, "tt_team_preview", toggle=True)
         row.prop(wm, "tt_team_color", text="")
@@ -2373,7 +2467,8 @@ class VIEW3D_PT_tt_preview(bpy.types.Panel):
 
 def browsed_unit(arm):
     """The mesh loaded from the Models list onto this armature."""
-    return next((o for o in unit_meshes(arm) if o.get("tt_group") and not o.get("tt_slot")), None)
+    return next((o for o in unit_meshes(arm) if o.get("tt_group") and not o.get("tt_slot") and not o.get("tt_detail")),
+                None)
 
 
 def clip_short_name(arm, action):
@@ -2882,6 +2977,7 @@ class VIEW3D_PT_tt_units(bpy.types.Panel):
         row.prop(wm, "tt_auto_load", toggle=True)
         layout.template_list("TT_UL_units", "", wm, "tt_units", wm, "tt_unit_index", rows=10)
         layout.operator(LoadUnit.bl_idname, icon="IMPORT")
+        layout.operator(PublishModel.bl_idname, icon="EXPORT")
         row = layout.row(align=True)
         row.operator(RegisterModel.bl_idname, icon="ADD")
         row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
@@ -2894,11 +2990,12 @@ TEXTURE_LINE = re.compile(r'([ \t]*)<texture\s+name="([^"]+)"([^>]*?)/>[ \t]*\r?
 def browsed_building(context):
     """The static model loaded from the Models list, when that is what is on screen."""
     return next((o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.get("tt_group") and o.type == "MESH"
-                 and o.parent is None), None)
+                 and o.parent is None and not o.get("tt_detail")), None)
 
 
 def building_props(body):
-    return sorted((o for o in bpy.data.objects if o.parent == body and o.get("tt_slot")), key=lambda o: o.name)
+    return sorted((o for o in bpy.data.objects if o.parent == body and o.get("tt_slot") and not o.get("tt_detail")),
+                  key=lambda o: o.name)
 
 
 def new_props(context, body):
@@ -3086,15 +3183,14 @@ class RemoveEventTexture(bpy.types.Operator):
 
 class SaveProps(bpy.types.Operator):
     """Write the selected meshes into the building's folder as props drawn with it in game, and add them to
-    geometry.xml. Props already in the registry are written back to their own files. With an event named, new
-    props only show during that event"""
+    geometry.xml. Props already in the registry are written back to their own files, and the building's own
+    meshes when they changed. With an event named, new props only show during that event"""
     bl_idname = "object.tt_save_props"
     bl_label = "Publish Props"
 
     @classmethod
     def poll(cls, context):
-        body = browsed_building(context)
-        return body is not None and bool(repo_root(context)) and bool(new_props(context, body) or building_props(body))
+        return browsed_building(context) is not None and bool(repo_root(context))
 
     def execute(self, context):
         body = browsed_building(context)
@@ -3105,7 +3201,7 @@ class SaveProps(bpy.types.Operator):
             return {"CANCELLED"}
         group, base = body["tt_group"], body["tt_sprite"]
         fresh = new_props(context, body)
-        existing = [o for o in building_props(body) if not o.hide_viewport and not o.hide_get()]
+        existing = [o for o in building_props(body) if not o.hide_viewport and item_shown(o)]
         findings = [(level, f"{o.name}: {text}") for o in fresh + existing
                     for level, text in check_mesh(o, o in fresh, 0)]
         taken = {s["name"] for s in read_registry(root) if s["group"] == group}
@@ -3144,7 +3240,9 @@ class SaveProps(bpy.types.Operator):
             o["tt_group"] = group
             o["tt_texture"] = texture
         append_registry_entries(os.path.join(root, REGISTRY_FILE), group, entries)
-        note = f"; no texture image for {', '.join(sorted(set(missing)))}" if missing else ""
+        saved = write_changed(context, None, {o: o["tt_source"] for o in model_levels(body)})
+        note = f"; building mesh: {', '.join(os.path.basename(o['tt_source']) for o in saved)}" if saved else ""
+        note += f"; no texture image for {', '.join(sorted(set(missing)))}" if missing else ""
         self.report({"WARNING"} if missing else {"INFO"},
                     f"Published {len(fresh)} new and {len(existing)} existing prop(s) on {group} / {base}{note}")
         return {"FINISHED"}
@@ -3166,6 +3264,8 @@ class VIEW3D_PT_tt_building(bpy.types.Panel):
         body = browsed_building(context)
         root = repo_root(context)
         layout.label(text=f"{body['tt_group']} / {body['tt_sprite']}", icon="MESH_CUBE")
+        if has_low_detail():
+            layout.row(align=True).prop(wm, "tt_detail", expand=True)
         layout.prop(wm, "tt_event")
         original = body["tt_texture"].split(",")[0].strip()
         box = layout.box()
@@ -3329,7 +3429,7 @@ def menu_object(self, context):
 
 
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
-           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, ShowItem, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
+           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, ShowItem, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
            RemoveFromRegistry, UpdateAddon, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
            SaveProps, VIEW3D_PT_tt_building, NewClip, SaveClip, DeleteClip,
            SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, PutOnBone, PaintItem, DonePainting,
@@ -3351,6 +3451,9 @@ def register():
     wm.tt_auto_load = BoolProperty(name="Load On Click", default=True,
                                    description="Load a model as soon as it is picked in the list")
     wm.tt_checks = CollectionProperty(type=TTCheck)
+    wm.tt_detail = EnumProperty(name="Detail", items=DETAIL_ITEMS, update=detail_update,
+                                description="Which of the model's meshes shows: the close up one or the one the game "
+                                            "draws from far away")
     wm.tt_checked = BoolProperty()
     wm.tt_team_preview = BoolProperty(name="Team Color", default=False, update=team_preview_update,
                                       description="Blend the player's color in through the team decal, as in game")
@@ -3358,6 +3461,8 @@ def register():
                                            default=(0.8, 0.1, 0.1), update=team_preview_update)
     wm.tt_item_filter = EnumProperty(name="Show", items=slot_filter_items)
     wm.tt_item_index = IntProperty()
+    wm.tt_item_search = StringProperty(name="Search", options={"TEXTEDIT_UPDATE"},
+                                       description="Show only the items whose name contains this")
     wm.tt_new_point = EnumProperty(name="Goes On", items=point_items,
                                    description="The part of the unit your new mesh follows")
     wm.tt_event = StringProperty(name="Event", description="Blank means all year. With a name such as halloween, "
@@ -3381,7 +3486,7 @@ def unregister():
     del bpy.types.Object.tt_attachments
     for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_category", "tt_auto_load", "tt_checks",
                  "tt_checked", "tt_team_preview", "tt_team_color", "tt_event", "tt_new_point", "tt_item_filter",
-                 "tt_item_index"):
+                 "tt_item_index", "tt_detail", "tt_item_search"):
         delattr(bpy.types.WindowManager, name)
     for cls in classes:
         bpy.utils.unregister_class(cls)
