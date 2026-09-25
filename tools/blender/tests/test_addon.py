@@ -1081,6 +1081,158 @@ def a_new_mesh_on_the_units_texture_gets_one_named_after_it():
     assert '<texture name="test_visor" team="test_visor_team"/>' in open(registry_path, encoding="utf-8").read()
 
 
+WARRIOR_FILES = [os.path.join(GEOMETRY, "vikings", "warrior", f) for f in ("warrior_mesh.xml",
+                                                                           "warrior_low_poly_mesh.xml")]
+WARRIOR_TEXTURES = [(f"viking_warrior_{tier}", "") for tier in TIERS]
+
+
+def file_bytes(paths):
+    return {p: open(p, "rb").read() for p in paths}
+
+
+def changed_files(before):
+    return sorted(p for p, stamp in mtimes().items() if before.get(p) != stamp)
+
+
+def save_skin(name):
+    wm.tt_skin_name = name
+    return bpy.ops.object.tt_save_skin()
+
+
+@test
+def a_texture_only_skin_reuses_the_stock_meshes():
+    a = load("vikings", "warrior")
+    body = addon.browsed_unit(a)
+    assert addon.VIEW3D_PT_tt_skins.poll(bpy.context)
+    before, stock = mtimes(), file_bytes(WARRIOR_FILES)
+    material = bpy.data.materials.new("test_gold_mat")
+    material.use_nodes = True
+    material.node_tree.nodes.new("ShaderNodeTexImage").image = fixture_image("warrior_gold_rock")
+    body.data.materials.clear()
+    body.data.materials.append(material)
+    assert save_skin("gold") == {"FINISHED"}
+    e, stock_entry = entry("vikings", "warrior_gold"), entry("vikings", "warrior")
+    assert (e["skin"], e["replaces"], e["base"]) == ("gold", "warrior", "warrior"), e
+    assert e["models"] == stock_entry["models"], e["models"]
+    assert e["textures"] == [[("warrior_gold_rock", "")] + WARRIOR_TEXTURES[1:], WARRIOR_TEXTURES], e["textures"]
+    assert changed_files(before) == [os.path.normpath(registry_path)], changed_files(before)
+    assert os.path.isfile(os.path.join(MODELS, "warrior_gold_rock.png"))
+    text = open(registry_path, encoding="utf-8").read()
+    assert '<sprite name="warrior_gold" skin="gold" replaces="warrior" base="warrior">' in text
+    assert '<texture name="warrior_gold_rock" team="viking_warrior_rock_team"/>' in text
+    assert file_bytes(WARRIOR_FILES) == stock
+    assert body.data.materials[0].name == "tt_viking_warrior_rock" and "tt_skin" not in body
+
+
+@test
+def a_mesh_skin_writes_both_detail_levels_and_never_the_stock_body():
+    a = load("vikings", "warrior")
+    body, low = addon.browsed_unit(a), bpy.data.objects["warrior_mesh_lod1"]
+    stock, hashes = file_bytes(WARRIOR_FILES), {o: o["tt_export_hash"] for o in (body, low)}
+    for o in (body, low):
+        o.data.vertices[0].co.z += 0.1
+    assert save_skin("bald") == {"FINISHED"}
+    e = entry("vikings", "warrior_bald")
+    assert e["models"] == ["vikings/warrior/warrior_bald.xml", "vikings/warrior/warrior_bald_lo.xml"], e["models"]
+    assert e["base"] == "warrior" and e["textures"] == [WARRIOR_TEXTURES] * 2, e
+    for model in e["models"]:
+        mesh = ET.parse(os.path.join(GEOMETRY, model)).getroot()
+        bones = {s.get("bone") for s in mesh.iter("skin")}
+        assert len(bones) > 1 and addon.STATIC_BONE not in bones, bones
+        assert mesh.get("texture") == ",".join(t for t, _ in WARRIOR_TEXTURES)
+    assert file_bytes(WARRIOR_FILES) == stock
+    assert all(o["tt_export_hash"] == hashes[o] for o in (body, low)), "the body did not go back to stock"
+    for path in WARRIOR_FILES:
+        os.utime(path, (1, 1))
+    assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
+    assert all(os.path.getmtime(path) == 1 for path in WARRIOR_FILES), "Publish wrote the stock body"
+
+
+@test
+def a_building_stage_skin_is_static_and_has_no_base():
+    body = load_building("vikings", "quarters_halfbuilt")
+    stock_entry = entry("vikings", "quarters_halfbuilt")
+    stock = file_bytes([os.path.join(GEOMETRY, m) for m in stock_entry["models"]])
+    body.data.vertices[0].co.z += 0.1
+    assert save_skin("stone") == {"FINISHED"}
+    e = entry("vikings", "quarters_halfbuilt_stone")
+    assert (e["skin"], e["replaces"], e["base"]) == ("stone", "quarters_halfbuilt", ""), e
+    assert e["models"] == ["vikings/quarters/quarters_halfbuilt_stone.xml", stock_entry["models"][1]], e["models"]
+    assert e["textures"] == stock_entry["textures"]
+    mesh = ET.parse(os.path.join(GEOMETRY, e["models"][0])).getroot()
+    assert {s.get("bone") for s in mesh.iter("skin")} == {addon.STATIC_BONE} and mesh.get("texture") is None
+    assert '<sprite name="quarters_halfbuilt_stone" skin="stone" replaces="quarters_halfbuilt">' in \
+           open(registry_path, encoding="utf-8").read()
+    assert file_bytes(stock) == stock
+
+
+@test
+def a_skin_is_refused_for_a_taken_or_bad_name_a_file_on_disk_or_no_change():
+    a = load("vikings", "warrior")
+    registry_before = open(registry_path, "rb").read()
+    expect_error(lambda: save_skin("gold"), "already has a sprite named warrior_gold")
+    expect_error(lambda: save_skin("go ld"), "letters, digits and underscores")
+    expect_error(lambda: save_skin("plain"), "nothing differs from the stock model")
+    taken = os.path.join(GEOMETRY, "vikings", "warrior", "warrior_taken.xml")
+    with open(taken, "w") as f:
+        f.write("keep")
+    addon.browsed_unit(a).data.vertices[0].co.z += 0.1
+    expect_error(lambda: save_skin("taken"), "warrior_taken.xml is already on disk")
+    assert open(taken).read() == "keep"
+    os.remove(taken)
+    assert open(registry_path, "rb").read() == registry_before
+
+
+@test
+def preview_shows_a_skin_and_stock_puts_the_model_back():
+    a = load("vikings", "warrior")
+    body, low = addon.browsed_unit(a), bpy.data.objects["warrior_mesh_lod1"]
+    hashes, texture = {o: o["tt_export_hash"] for o in (body, low)}, body["tt_texture"]
+    assert bpy.ops.object.tt_show_skin(sprite="warrior_bald") == {"FINISHED"}
+    assert body["tt_skin"] == low["tt_skin"] == "warrior_bald"
+    for o, name in ((body, "warrior_bald.xml"), (low, "warrior_bald_lo.xml")):
+        record = addon.mesh_record_from_xml(ET.parse(os.path.join(GEOMETRY, "vikings", "warrior", name)).getroot(),
+                                            False)
+        assert np.allclose([v.co[:] for v in o.data.vertices], record.verts), f"{o.name} is not showing {name}"
+    for path in WARRIOR_FILES:
+        os.utime(path, (1, 1))
+    assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
+    assert all(os.path.getmtime(path) == 1 for path in WARRIOR_FILES), "Publish wrote a previewed skin as stock"
+    assert bpy.ops.object.tt_show_skin(sprite="warrior_gold") == {"FINISHED"}
+    assert body.data.materials[0].name == "tt_warrior_gold_rock" and body["tt_texture"].startswith("warrior_gold_rock")
+    assert low.data.materials[0].name == "tt_viking_warrior_rock"
+    expect_error(lambda: save_skin("again"), "press Stock")
+    assert bpy.ops.object.tt_show_skin(sprite="") == {"FINISHED"}
+    assert all("tt_skin" not in o and o["tt_export_hash"] == hashes[o] for o in (body, low))
+    assert body["tt_texture"] == texture and body.data.materials[0].name == "tt_viking_warrior_rock"
+
+
+@test
+def paint_on_the_stock_texture_goes_to_a_copy():
+    a = load("vikings", "warrior")
+    image = addon.mesh_texture_image(addon.browsed_unit(a))
+    stock = file_bytes([os.path.join(MODELS, "viking_warrior_rock.png")])
+    image.pixels[0] = 0.25
+    if not image.is_dirty:
+        return "skipped: setting pixels does not mark the image dirty in this Blender"
+    assert save_skin("painted") == {"FINISHED"}
+    assert os.path.isfile(os.path.join(MODELS, "viking_warrior_rock_painted.png"))
+    assert file_bytes(stock) == stock and not image.is_dirty
+    assert entry("vikings", "warrior_painted")["textures"][0][0] == ("viking_warrior_rock_painted", "")
+
+
+@test
+def removing_a_skin_takes_out_only_its_entry():
+    before = open(registry_path, "rb").read().decode("utf-8")
+    start, end = next((s, e) for g, n, s, e in addon.sprite_blocks(before) if (g, n) == ("vikings", "warrior_gold"))
+    assert bpy.ops.object.tt_remove_from_registry(group="vikings", sprite="warrior_gold") == {"FINISHED"}
+    after = open(registry_path, "rb").read().decode("utf-8")
+    line_start = before.rfind("\n", 0, start) + 1
+    line_end = before.index("\n", end) + 1
+    assert after == before[:line_start] + before[line_end:], "more than the skin's entry changed"
+    assert entry("vikings", "warrior_bald") is not None and os.path.isfile(os.path.join(MODELS, "warrior_gold_rock.png"))
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

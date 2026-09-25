@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 26, 0),
+    "version": (1, 27, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1433,7 +1433,8 @@ def read_registry(root):
             sprites.append({
                 "group": group.get("name"), "name": sprite.get("name"), "base": sprite.get("base") or "",
                 "slot": sprite.get("slot") or "", "default": sprite.get("default") == "true",
-                "event": sprite.get("event") or "",
+                "event": sprite.get("event") or "", "skin": sprite.get("skin") or "",
+                "replaces": sprite.get("replaces") or "",
                 "textures": [[(t.get("name"), t.get("event") or "") for t in m.findall("texture")]
                              for m in sprite.findall("model")],
                 "skeleton": skeleton.text.strip() if skeleton is not None and skeleton.text else "",
@@ -1515,7 +1516,8 @@ def refresh_units(context):
     if not root:
         return 0
     registry = read_registry(root)
-    sprites = [(s, sprite_category(registry, s)) for s in registry if not s["slot"]]
+    # Skins are reached through the Skins panel of the model they replace.
+    sprites = [(s, sprite_category(registry, s)) for s in registry if not s["slot"] and not s["skin"]]
     for sprite, category in sorted(sprites, key=lambda x: (x[0]["group"], x[0]["name"])):
         if wm.tt_category not in ("ALL", category):
             continue
@@ -1597,6 +1599,8 @@ def write_changed(context, arm, targets):
     written, so untouched files in the repo stay as they are."""
     written = []
     for o, (text, digest) in export_texts(context, arm, targets).items():
+        if o.get("tt_skin"):
+            continue  # showing a skin's look, which is not what its own file holds
         if not o.get("tt_source") or o.get("tt_export_hash") != digest:
             write_text(targets[o], text)
             o["tt_export_hash"] = digest
@@ -2942,12 +2946,16 @@ def ensure_texture_in_repo(root, obj, texture, folder="models"):
             if os.path.normcase(os.path.abspath(source)) != os.path.normcase(os.path.abspath(target)):
                 shutil.copyfile(source, target)
             return True
-        previous = (image.filepath_raw, image.file_format)
-        image.filepath_raw, image.file_format = target, "PNG"
-        image.save()
-        image.filepath_raw, image.file_format = previous
+        save_png(image, target)
         return True
     return os.path.isfile(target)
+
+
+def save_png(image, target):
+    previous = (image.filepath_raw, image.file_format)
+    image.filepath_raw, image.file_format = target, "PNG"
+    image.save()
+    image.filepath_raw, image.file_format = previous
 
 
 def set_sprite_textures(root, group, name, textures):
@@ -3472,6 +3480,208 @@ class VIEW3D_PT_tt_building(bpy.types.Panel):
                 box.label(text=check.name, icon=CHECK_ICONS.get(check.level, "INFO"))
 
 
+def skin_body(context):
+    """The unit or building loaded from the Models list, and its registry entry: what a skin stands in for."""
+    root = repo_root(context)
+    body = next((o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.type == "MESH" and o.get("tt_group")
+                 and o.get("tt_source") and not o.get("tt_slot") and not o.get("tt_detail")), None)
+    if body is None or not root:
+        return None, None
+    registry = read_registry(root)
+    entry = next((s for s in registry if s["group"] == body["tt_group"] and s["name"] == body["tt_sprite"]), None)
+    if entry is None or entry["skin"] or sprite_category(registry, entry) not in ("UNITS", "BUILDINGS"):
+        return None, None
+    return body, entry
+
+
+def sprite_skins(registry, entry):
+    return [s for s in registry if s["group"] == entry["group"] and s["skin"] and s["replaces"] == entry["name"]]
+
+
+def body_rig(body):
+    return body.parent if body.parent is not None and body.parent.type == "ARMATURE" else None
+
+
+def level_textures(entry, level):
+    """A model's texture list without its event textures: one per tier."""
+    return [t for t, event in entry["textures"][min(level, len(entry["textures"]) - 1)] if not event]
+
+
+def show_skin(context, body, entry, skin):
+    """Put a skin sprite's meshes and textures on every detail level of the loaded model; with no skin, put the
+    stock files back and let Publish save the model again."""
+    root = repo_root(context)
+    shown = skin or entry
+    arm = body_rig(body)
+    tier = arm.get("tt_tier", 0) if arm is not None else 0
+    levels = model_levels(body)
+    for level, o in enumerate(levels):
+        path = os.path.join(root, GEOMETRY_DIR, shown["models"][min(level, len(shown["models"]) - 1)]) if skin \
+            else o["tt_source"]
+        replace_mesh_data(o, mesh_record_from_xml(ET.parse(path).getroot(), False), o.data.name)
+        textures = level_textures(shown, level)
+        texture = textures[min(tier, len(textures) - 1)] if textures else ""
+        if os.path.isfile(models_texture_path(root, texture)):
+            o.data.materials.clear()
+            o.data.materials.append(get_atlas_material(texture, models_texture_path(root, texture)))
+        if skin is not None:
+            o["tt_stock_texture"] = o.get("tt_stock_texture", o.get("tt_texture", ""))
+            o["tt_texture"], o["tt_skin"] = ",".join(textures), skin["name"]
+        elif o.get("tt_skin"):
+            o["tt_texture"] = o.pop("tt_stock_texture")
+            del o["tt_skin"]
+    if skin is None:
+        for o, (_, digest) in export_texts(context, arm, levels).items():
+            o["tt_export_hash"] = digest
+    apply_team_preview(context)
+
+
+class ShowSkin(bpy.types.Operator):
+    """Show the loaded model in this skin, every detail level. Stock shows its own files again and drops edits"""
+    bl_idname = "object.tt_show_skin"
+    bl_label = "Preview Skin"
+    bl_options = {"REGISTER", "UNDO"}
+    sprite: StringProperty(options={"SKIP_SAVE"})
+
+    def execute(self, context):
+        body, entry = skin_body(context)
+        if body is None:
+            return {"CANCELLED"}
+        skin = next((s for s in sprite_skins(read_registry(repo_root(context)), entry) if s["name"] == self.sprite),
+                    None)
+        if self.sprite and skin is None:
+            self.report({"ERROR"}, f"No skin sprite named {self.sprite} replaces {entry['name']}")
+            return {"CANCELLED"}
+        show_skin(context, body, entry, skin)
+        return {"FINISHED"}
+
+
+def skin_level_suffix(level):
+    return "" if level == 0 else "_lo" if level == 1 else f"_lo{level}"
+
+
+class SaveSkin(bpy.types.Operator):
+    """Save the loaded model's look as a skin: a player who has it sees it on all of these units or buildings.
+    A detail level whose mesh you did not change keeps using the stock file. The stock files are never written,
+    and the model shows its stock look again afterwards"""
+    bl_idname = "object.tt_save_skin"
+    bl_label = "Save As Skin"
+
+    @classmethod
+    def poll(cls, context):
+        return skin_body(context)[0] is not None
+
+    def execute(self, context):
+        root = repo_root(context)
+        body, entry = skin_body(context)
+        skin = context.window_manager.tt_skin_name.strip()
+        group, sprite = entry["group"], entry["name"]
+        name = f"{sprite}_{skin}"
+        if not re.fullmatch(r"[A-Za-z0-9_]+", skin):
+            self.report({"ERROR"}, "Name the skin with letters, digits and underscores")
+            return {"CANCELLED"}
+        if body.get("tt_skin"):
+            self.report({"ERROR"}, f"Showing {body['tt_skin']}: press Stock, then make your changes")
+            return {"CANCELLED"}
+        registry = read_registry(root)
+        if any(s["group"] == group and s["name"] == name for s in registry) or \
+                any(s["skin"] == skin for s in sprite_skins(registry, entry)):
+            self.report({"ERROR"}, f"{group} already has a sprite named {name} or a {skin} skin of {sprite}")
+            return {"CANCELLED"}
+        arm = body_rig(body)
+        tier = arm.get("tt_tier", 0) if arm is not None else 0
+        levels = model_levels(body)
+        exports = export_texts(context, arm, levels)
+        findings = [(level, f"{o.name}: {text}") for o in levels for level, text in check_mesh(o, False, 0)]
+        paths, textures, images = {}, {}, {}
+        for level, o in enumerate(levels):
+            paths[o] = o["tt_source"]
+            if exports[o][1] != o.get("tt_export_hash"):
+                paths[o] = os.path.join(os.path.dirname(o["tt_source"]), name + skin_level_suffix(level) + ".xml")
+                if os.path.exists(paths[o]):
+                    findings.append(("ERROR", f"{o.name}: {os.path.basename(paths[o])} is already on disk"))
+            textures[o] = level_textures(entry, level)
+            image = mesh_texture_image(o)
+            if image is None or not textures[o]:
+                continue
+            at = min(tier, len(textures[o]) - 1)
+            texture = image_texture_name(image)
+            if texture == textures[o][at] and image.is_dirty:
+                texture = f"{texture}_{skin}"  # paint on the stock texture goes to a copy
+            if texture == textures[o][at]:
+                continue
+            target = models_texture_path(root, texture)
+            source = os.path.normcase(os.path.abspath(bpy.path.abspath(image.filepath))) if image.filepath else ""
+            if texture not in images and os.path.isfile(target) and \
+                    (image.is_dirty or source != os.path.normcase(os.path.abspath(target))):
+                findings.append(("ERROR", f"{o.name}: {texture}.png is already in assets/textures/models"))
+            images[texture] = (o, image, textures[o][at])
+            textures[o][at] = texture
+        if not findings and all(paths[o] == o["tt_source"] and textures[o] == level_textures(entry, level)
+                                for level, o in enumerate(levels)):
+            findings.append(("ERROR", "nothing differs from the stock model: change the mesh or its texture first"))
+        errors = store_findings(context, findings)
+        if errors:
+            self.report({"ERROR"}, f"Not saved: {errors} problem(s): " +
+                        "; ".join(text for level, text in findings if level == "ERROR"))
+            return {"CANCELLED"}
+
+        changed = [o for o in levels if paths[o] != o["tt_source"]]
+        stock_attributes = {o: o["tt_file_texture"] for o in changed if o.get("tt_file_texture")}
+        for o in stock_attributes:
+            o["tt_file_texture"] = ",".join(textures[o])
+        try:
+            for o, (text, _) in export_texts(context, arm, changed).items():
+                write_text(paths[o], text)
+        finally:
+            for o, attribute in stock_attributes.items():
+                o["tt_file_texture"] = attribute
+        for texture, (o, image, _) in images.items():
+            if image_texture_name(image) == texture:
+                ensure_texture_in_repo(root, o, texture)
+            else:
+                save_png(image, models_texture_path(root, texture))
+                image.reload()
+        # A new texture on a stock tier keeps that tier's team decal unless it has its own.
+        stock = {texture: replaced for texture, (_, _, replaced) in images.items()}
+        geometry = os.path.join(root, GEOMETRY_DIR)
+        models = [(os.path.relpath(paths[o], geometry).replace(os.sep, "/"),
+                   [(t, team_attribute(root, t, False) or team_attribute(root, stock.get(t, t), False))
+                    for t in textures[o]]) for o in levels]
+        attrs = [("name", name), ("skin", skin), ("replaces", sprite)] + ([("base", sprite)] if arm is not None else [])
+        append_registry_entries(os.path.join(root, REGISTRY_FILE), group, [(name, sprite_text(attrs, models))])
+        show_skin(context, body, entry, None)
+        refresh_units(context)
+        self.report({"INFO"}, f"Saved skin {skin} of {group} / {sprite}: {len(changed)} new mesh(es), "
+                              f"{len(images)} new texture(s)")
+        return {"FINISHED"}
+
+
+class VIEW3D_PT_tt_skins(bpy.types.Panel):
+    bl_label = "Skins"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Tribal Trouble"
+
+    @classmethod
+    def poll(cls, context):
+        return skin_body(context)[0] is not None
+
+    def draw(self, context):
+        layout = self.layout
+        body, entry = skin_body(context)
+        shown = body.get("tt_skin", "")
+        layout.operator(ShowSkin.bl_idname, text="Stock", depress=not shown).sprite = ""
+        for skin in sprite_skins(read_registry(repo_root(context)), entry):
+            row = layout.row(align=True)
+            row.operator(ShowSkin.bl_idname, text=skin["skin"], icon="HIDE_OFF",
+                         depress=shown == skin["name"]).sprite = skin["name"]
+            remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
+            remove.group, remove.sprite = skin["group"], skin["name"]
+        layout.prop(context.window_manager, "tt_skin_name")
+        layout.operator(SaveSkin.bl_idname, icon="EXPORT")
+
+
 def subset_record(record, face_indices):
     """New record holding only these triangles, with vertices compacted and sharing kept."""
     out = MeshRecord()
@@ -3597,7 +3807,7 @@ def menu_object(self, context):
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
            TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, ShowItem, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
            RemoveFromRegistry, UpdateAddon, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
-           SaveProps, VIEW3D_PT_tt_building, NewClip, SaveClip, DeleteClip,
+           SaveProps, VIEW3D_PT_tt_building, ShowSkin, SaveSkin, VIEW3D_PT_tt_skins, NewClip, SaveClip, DeleteClip,
            SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, OwnTexture, PutOnBone, PaintItem, DonePainting,
            TT_UL_items, VIEW3D_PT_tt_units,
            VIEW3D_PT_tt_preview,
@@ -3633,6 +3843,8 @@ def register():
                                    description="The part of the unit your new mesh follows")
     wm.tt_event = StringProperty(name="Event", description="Blank means all year. With a name such as halloween, "
                                                            "new props and the texture only show during that event")
+    wm.tt_skin_name = StringProperty(name="Skin Name", description="Letters, digits and underscores. The skin's "
+                                                                   "sprite is <model>_<skin name>")
     bpy.app.handlers.load_post.append(refresh_units_on_load)
     bpy.app.timers.register(refresh_units_on_load, first_interval=0.5)
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
@@ -3652,7 +3864,7 @@ def unregister():
     del bpy.types.Object.tt_attachments
     for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_category", "tt_auto_load", "tt_checks",
                  "tt_checked", "tt_team_preview", "tt_team_color", "tt_event", "tt_new_point", "tt_item_filter",
-                 "tt_item_index", "tt_detail", "tt_item_search"):
+                 "tt_item_index", "tt_detail", "tt_item_search", "tt_skin_name"):
         delattr(bpy.types.WindowManager, name)
     for cls in classes:
         bpy.utils.unregister_class(cls)
