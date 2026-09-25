@@ -38,6 +38,15 @@ for texture in ("viking_warrior_rock", "viking_warrior_iron", "viking_warrior_ru
 registry_path = os.path.join(GEOMETRY, "geometry.xml")
 with open(registry_path, "rb") as f:
     registry_text = f.read().decode("utf-8")
+
+# The tests use the warrior's axe as the item painted on its unit's atlas, as it was before it got textures of its
+# own, so the temp copy gets that axe back.
+FIXTURES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
+for level in ("warrior_axe_held", "warrior_axe_held_lo"):
+    shutil.copy(os.path.join(FIXTURES, level + "_shared.xml"), os.path.join(GEOMETRY, "vikings", "warrior", level + ".xml"))
+for tier in ("rock", "iron", "rubber"):
+    registry_text = registry_text.replace(f'name="viking_warrior_axe_held_{tier}" team="viking_warrior_axe_held_{tier}_team"',
+                                          f'name="viking_warrior_{tier}" team="viking_warrior_{tier}_team"')
 registry_text = re.sub(r'[ \t]*<sprite name="[^"]*_dev_[^"]*".*?</sprite>\r?\n', "", registry_text, flags=re.S)
 with open(registry_path, "wb") as f:
     f.write(registry_text.encode("utf-8"))

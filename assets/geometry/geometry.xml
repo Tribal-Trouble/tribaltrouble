@@ -54,15 +54,15 @@
         <sprite name="warrior_axe_held" base="warrior" slot="weapon" default="true">
             <model r="90" g="60" b="30">
                 vikings/warrior/warrior_axe_held.xml
-                <texture name="viking_warrior_rock" team="viking_warrior_rock_team"/>
-                <texture name="viking_warrior_iron" team="viking_warrior_iron_team"/>
-                <texture name="viking_warrior_rubber" team="viking_warrior_rubber_team"/>
+                <texture name="viking_warrior_axe_held_rock" team="viking_warrior_axe_held_rock_team"/>
+                <texture name="viking_warrior_axe_held_iron" team="viking_warrior_axe_held_iron_team"/>
+                <texture name="viking_warrior_axe_held_rubber" team="viking_warrior_axe_held_rubber_team"/>
             </model>
             <model r="90" g="60" b="30">
                 vikings/warrior/warrior_axe_held_lo.xml
-                <texture name="viking_warrior_rock" team="viking_warrior_rock_team"/>
-                <texture name="viking_warrior_iron" team="viking_warrior_iron_team"/>
-                <texture name="viking_warrior_rubber" team="viking_warrior_rubber_team"/>
+                <texture name="viking_warrior_axe_held_rock" team="viking_warrior_axe_held_rock_team"/>
+                <texture name="viking_warrior_axe_held_iron" team="viking_warrior_axe_held_iron_team"/>
+                <texture name="viking_warrior_axe_held_rubber" team="viking_warrior_axe_held_rubber_team"/>
             </model>
         </sprite>
         <sprite name="chieftain">

@@ -47,27 +47,27 @@
         <!ATTLIST transform m33 CDATA #REQUIRED>
         ]>
 
-<mesh texture="viking_warrior_axe_held_rock,viking_warrior_axe_held_iron,viking_warrior_axe_held_rubber">
+<mesh texture="viking_warrior_rock,viking_warrior_iron,viking_warrior_rubber">
     <polygons>
         <polygon>
-            <vertex x="-0.890975" y="-0.0908025" z="2.24755" r="1" g="1" b="1" a="1" nx="0.123705" ny="-0.991367" nz="-0.0434542" u="0.185015" v="0.395972">
+            <vertex x="-0.890975" y="-0.0908025" z="2.24755" r="1" g="1" b="1" a="1" nx="0.123705" ny="-0.991367" nz="-0.0434542" u="0.10032" v="0.744861">
                 <skin bone="warrior  Prop1" weight="1"/>
             </vertex>
-            <vertex x="-1.41375" y="-0.155441" z="2.23398" r="1" g="1" b="1" a="1" nx="0.123705" ny="-0.991367" nz="-0.0434542" u="0.279455" v="0.395972">
+            <vertex x="-1.41375" y="-0.155441" z="2.23398" r="1" g="1" b="1" a="1" nx="0.123705" ny="-0.991367" nz="-0.0434542" u="0.14754" v="0.744861">
                 <skin bone="warrior  Prop1" weight="1"/>
             </vertex>
-            <vertex x="-0.867312" y="-0.0364223" z="1.07428" r="1" g="1" b="1" a="1" nx="0.123705" ny="-0.991367" nz="-0.0434542" u="0.185037" v="0.185422">
+            <vertex x="-0.867312" y="-0.0364223" z="1.07428" r="1" g="1" b="1" a="1" nx="0.123705" ny="-0.991367" nz="-0.0434542" u="0.100331" v="0.639586">
                 <skin bone="warrior  Prop1" weight="1"/>
             </vertex>
         </polygon>
         <polygon>
-            <vertex x="-0.890975" y="-0.0908025" z="2.24755" r="1" g="1" b="1" a="1" nx="-0.123705" ny="0.991367" nz="0.0434542" u="0.185015" v="0.395972">
+            <vertex x="-0.890975" y="-0.0908025" z="2.24755" r="1" g="1" b="1" a="1" nx="-0.123705" ny="0.991367" nz="0.0434542" u="0.10032" v="0.744861">
                 <skin bone="warrior  Prop1" weight="1"/>
             </vertex>
-            <vertex x="-0.867312" y="-0.0364223" z="1.07428" r="1" g="1" b="1" a="1" nx="-0.123705" ny="0.991367" nz="0.0434542" u="0.185037" v="0.185422">
+            <vertex x="-0.867312" y="-0.0364223" z="1.07428" r="1" g="1" b="1" a="1" nx="-0.123705" ny="0.991367" nz="0.0434542" u="0.100331" v="0.639586">
                 <skin bone="warrior  Prop1" weight="1"/>
             </vertex>
-            <vertex x="-1.41375" y="-0.155441" z="2.23398" r="1" g="1" b="1" a="1" nx="-0.123705" ny="0.991367" nz="0.0434542" u="0.279455" v="0.395972">
+            <vertex x="-1.41375" y="-0.155441" z="2.23398" r="1" g="1" b="1" a="1" nx="-0.123705" ny="0.991367" nz="0.0434542" u="0.14754" v="0.744861">
                 <skin bone="warrior  Prop1" weight="1"/>
             </vertex>
         </polygon>
