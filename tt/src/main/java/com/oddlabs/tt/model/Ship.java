@@ -100,6 +100,8 @@ public class Ship extends Building implements Movable {
 
     private ShipHR ship_hr = null;
 
+    private boolean deploy_chieftain = false;
+
     private float anim_time;
 
     public Ship(Player owner, BuildingTemplate template, int grid_x, int grid_y) {
@@ -302,6 +304,11 @@ public class Ship extends Building implements Movable {
                         getOwner().getWorld().getAnimationManagerRealTime());
             }
         }
+
+        if (deploy_chieftain && proxy != null && ship_hr != null && !isMoving()) {
+            ship_hr.exitChieftain();
+            deploy_chieftain = false;
+        }
     }
 
     public final UnitContainer getUnitContainer() {
@@ -420,7 +427,10 @@ public class Ship extends Building implements Movable {
     }
 
     public final boolean canBuildChieftain() {
-        return false;
+        if (ship_hr == null) {
+            return false;
+        }
+        return ship_hr.hasChieftain();
     }
 
     public final boolean canStopChieftain() {
@@ -431,6 +441,9 @@ public class Ship extends Building implements Movable {
     }
 
     public final void deployChieftain() {
+        if (canBuildChieftain()) {
+            deploy_chieftain = true;
+        }
     }
 
     private Unit createUnit(Target rally_point, @NonNull UnitTemplate template) {

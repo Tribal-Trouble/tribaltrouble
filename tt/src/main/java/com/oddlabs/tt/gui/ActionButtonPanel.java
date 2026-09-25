@@ -503,7 +503,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
         ship_army_chieftain_button = new NonFocusIconButton(race_icons.chieftainIcon(), GameAction.DEPLOY_CHIEFTAIN,
                 () -> i18n("deploy_chieftain_tip"));
-        ship_army_chieftain_button.setIconDisabler(() -> !((Ship) current_building).getShipHR().hasChieftain());
+        ship_army_chieftain_button.setIconDisabler(() -> !current_building.canBuildChieftain());
         ship_army_chieftain_button.addMouseClickListener(this::deployChieftainFromShip);
         ship_army_group.addChild(ship_army_chieftain_button);
 
@@ -1247,9 +1247,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
     private void deployChieftainFromShip(@NonNull MouseButton button, int x, int y, int clicks) {
         if (current_ship && current_building instanceof Ship ship) {
-            if (ship.getShipHR().hasChieftain()) {
-                ship.getShipHR().exitChieftain();
-            }
+            ship.deployChieftain();
         }
     }
 
