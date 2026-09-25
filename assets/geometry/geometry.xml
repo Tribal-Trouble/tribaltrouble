@@ -82,6 +82,28 @@
             <animation name="magic" wpc="1" type="plain">vikings/chieftain/viking_chieftain_magic.xml</animation>
             <animation name="thor" wpc="1" type="loop">vikings/chieftain/thor.xml</animation>
         </sprite>
+        <sprite name="chieftain_prop1" base="chieftain" slot="weapon" default="true">
+            <model r="90" g="60" b="30">
+                vikings/chieftain/chieftain_prop1.xml
+                <texture name="viking_chieftain" team="viking_chieftain_team"/>
+            </model>
+            <model r="90" g="60" b="30">
+                vikings/chieftain/chieftain_prop1_lo.xml
+                <texture name="viking_chieftain" team="viking_chieftain_team"/>
+            </model>
+        </sprite>
+        <sprite name="chieftain_prop2" base="chieftain" slot="prop2" default="true">
+            <model r="90" g="60" b="30">
+                vikings/chieftain/chieftain_prop2.xml
+                <texture name="viking_chieftain" team="viking_chieftain_team"/>
+            </model>
+        </sprite>
+        <sprite name="chieftain_prop3" base="chieftain" slot="prop3" default="true">
+            <model r="90" g="60" b="30">
+                vikings/chieftain/chieftain_prop3.xml
+                <texture name="viking_chieftain" team="viking_chieftain_team"/>
+            </model>
+        </sprite>
         <sprite name="peon">
             <skeleton>vikings/peon/peon_skeleton.xml</skeleton>
             <model r="90" g="60" b="30">
@@ -101,6 +123,16 @@
             <animation name="paddle_right" wpc="1" type="loop">vikings/peon/peon_right_paddle.xml</animation>
             <animation name="paddle_left" wpc="1" type="loop">vikings/peon/peon_left_paddle.xml</animation>
 		</sprite>
+        <sprite name="peon_prop1" base="peon" slot="weapon" default="true">
+            <model r="90" g="60" b="30">
+                vikings/peon/peon_prop1.xml
+                <texture name="viking_peon" team="viking_peon_team"/>
+            </model>
+            <model r="90" g="60" b="30">
+                vikings/peon/peon_prop1_lo.xml
+                <texture name="viking_peon" team="viking_peon_team"/>
+            </model>
+        </sprite>
         <sprite name="rock_resource" base="peon" slot="carried">
             <model r="90" g="60" b="30">
                 misc/rock_fragment_viking.xml
@@ -284,6 +316,32 @@
             <animation name="die" wpc="1" type="plain">natives/chieftain/native_chieftain_die.xml</animation>
             <animation name="magic" wpc="1" type="plain">natives/chieftain/native_chieftain_magic.xml</animation>
         </sprite>
+        <sprite name="chieftain_prop1" base="chieftain" slot="weapon" default="true">
+            <model r="90" g="60" b="30">
+                natives/chieftain/chieftain_prop1.xml
+                <texture name="native_chieftain" team="native_chieftain_team"/>
+            </model>
+            <model r="90" g="60" b="30">
+                natives/chieftain/chieftain_prop1_lo.xml
+                <texture name="native_chieftain" team="native_chieftain_team"/>
+            </model>
+        </sprite>
+        <sprite name="chieftain_prop2" base="chieftain" slot="prop2" default="true">
+            <model r="90" g="60" b="30">
+                natives/chieftain/chieftain_prop2.xml
+                <texture name="native_chieftain" team="native_chieftain_team"/>
+            </model>
+            <model r="90" g="60" b="30">
+                natives/chieftain/chieftain_prop2_lo.xml
+                <texture name="native_chieftain" team="native_chieftain_team"/>
+            </model>
+        </sprite>
+        <sprite name="chieftain_prop3" base="chieftain" slot="prop3" default="true">
+            <model r="90" g="60" b="30">
+                natives/chieftain/chieftain_prop3.xml
+                <texture name="native_chieftain" team="native_chieftain_team"/>
+            </model>
+        </sprite>
         <sprite name="peon">
             <skeleton>natives/peon/peon_skeleton.xml</skeleton>
             <model r="90" g="60" b="30">
@@ -303,6 +361,16 @@
             <animation name="paddle_right" wpc="1" type="loop">natives/peon/peon_right_paddle.xml</animation>
             <animation name="paddle_left" wpc="1" type="loop">natives/peon/peon_left_paddle.xml</animation>
 		</sprite>
+        <sprite name="peon_prop1" base="peon" slot="weapon" default="true">
+            <model r="90" g="60" b="30">
+                natives/peon/peon_prop1.xml
+                <texture name="native_peon" team="native_peon_team"/>
+            </model>
+            <model r="90" g="60" b="30">
+                natives/peon/peon_prop1_lo.xml
+                <texture name="native_peon" team="native_peon_team"/>
+            </model>
+        </sprite>
         <sprite name="warrior">
             <skeleton>natives/warrior/native_warrior_skeleton.xml</skeleton>
             <model r="90" g="60" b="30">
@@ -322,6 +390,22 @@
             <animation name="attack" wpc="1" type="plain">natives/warrior/native_warrior_attack.xml</animation>
             <animation name="die" wpc="1" type="plain">natives/warrior/native_warrior_die.xml</animation>
             <animation name="sit" wpc="1" type="loop">natives/warrior/native_warrior_sitting.xml</animation>
+        </sprite>
+        <sprite name="warrior_prop3" base="warrior" slot="prop3" default="true">
+            <model r="90" g="60" b="30">
+                natives/warrior/warrior_prop3.xml
+                <texture name="native_warrior_rock" team="native_warrior_rock_team"/>
+                <texture name="native_warrior_iron" team="native_warrior_iron_team"/>
+                <texture name="native_warrior_rubber" team="native_warrior_rubber_team"/>
+            </model>
+        </sprite>
+        <sprite name="warrior_prop1" base="warrior" slot="weapon" default="true">
+            <model r="90" g="60" b="30">
+                natives/warrior/warrior_prop1.xml
+                <texture name="native_warrior_rock" team="native_warrior_rock_team"/>
+                <texture name="native_warrior_iron" team="native_warrior_iron_team"/>
+                <texture name="native_warrior_rubber" team="native_warrior_rubber_team"/>
+            </model>
         </sprite>
         <sprite name="rock_resource" base="peon" slot="carried">
             <model r="90" g="60" b="30">

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!DOCTYPE mesh [
+        <!ELEMENT mesh       (polygons, skeleton?)>
+        <!ELEMENT polygons   (polygon+)>
+        <!ELEMENT polygon    (vertex, vertex, vertex)>
+        <!ELEMENT vertex     (skin+)>
+        <!ELEMENT skin        EMPTY>
+        <!ELEMENT skeleton   (bones, init_pose)>
+        <!ELEMENT bones      (bone+)>
+        <!ELEMENT init_pose  (transform+)>
+        <!ELEMENT bone        EMPTY>
+        <!ELEMENT transform   EMPTY>
+        <!ATTLIST mesh texture CDATA #IMPLIED>
+        <!ATTLIST vertex x CDATA #REQUIRED>
+        <!ATTLIST vertex y CDATA #REQUIRED>
+        <!ATTLIST vertex z CDATA #REQUIRED>
+        <!ATTLIST vertex r CDATA #REQUIRED>
+        <!ATTLIST vertex g CDATA #REQUIRED>
+        <!ATTLIST vertex b CDATA #REQUIRED>
+        <!ATTLIST vertex a CDATA #REQUIRED>
+        <!ATTLIST vertex nx CDATA #REQUIRED>
+        <!ATTLIST vertex ny CDATA #REQUIRED>
+        <!ATTLIST vertex nz CDATA #REQUIRED>
+        <!ATTLIST vertex u CDATA #REQUIRED>
+        <!ATTLIST vertex v CDATA #REQUIRED>
+        <!ATTLIST vertex u2 CDATA #IMPLIED>
+        <!ATTLIST vertex v2 CDATA #IMPLIED>
+        <!ATTLIST skin bone CDATA #REQUIRED>
+        <!ATTLIST skin weight CDATA #REQUIRED>
+        <!ATTLIST transform name CDATA #REQUIRED>
+        <!ATTLIST transform m00 CDATA #REQUIRED>
+        <!ATTLIST transform m01 CDATA #REQUIRED>
+        <!ATTLIST transform m02 CDATA #REQUIRED>
+        <!ATTLIST transform m03 CDATA #REQUIRED>
+        <!ATTLIST transform m10 CDATA #REQUIRED>
+        <!ATTLIST transform m11 CDATA #REQUIRED>
+        <!ATTLIST transform m12 CDATA #REQUIRED>
+        <!ATTLIST transform m13 CDATA #REQUIRED>
+        <!ATTLIST transform m20 CDATA #REQUIRED>
+        <!ATTLIST transform m21 CDATA #REQUIRED>
+        <!ATTLIST transform m22 CDATA #REQUIRED>
+        <!ATTLIST transform m23 CDATA #REQUIRED>
+        <!ATTLIST transform m30 CDATA #REQUIRED>
+        <!ATTLIST transform m31 CDATA #REQUIRED>
+        <!ATTLIST transform m32 CDATA #REQUIRED>
+        <!ATTLIST transform m33 CDATA #REQUIRED>
+        ]>
+
+<mesh texture="viking_peon">
+    <polygons>
+        <polygon>
+            <vertex x="-0.463093" y="-0.0604949" z="1.66558" r="1" g="1" b="1" a="1" nx="-0.0285285" ny="-0.999582" nz="-0.00474284" u="0.0161681" v="0.913475">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.860655" y="-0.0491483" z="1.66558" r="1" g="1" b="1" a="1" nx="-0.0285285" ny="-0.999582" nz="-0.00474284" u="0.0161679" v="0.846029">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.605859" y="-0.0514758" z="0.6235" r="1" g="1" b="1" a="1" nx="-0.0285285" ny="-0.999582" nz="-0.00474284" u="0.192888" v="0.889231">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.463093" y="-0.0604949" z="1.66558" r="1" g="1" b="1" a="1" nx="0.0285285" ny="0.999582" nz="0.00474284" u="0.0161681" v="0.913475">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.605859" y="-0.0514758" z="0.6235" r="1" g="1" b="1" a="1" nx="0.0285285" ny="0.999582" nz="0.00474284" u="0.192888" v="0.889231">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.860655" y="-0.0491483" z="1.66558" r="1" g="1" b="1" a="1" nx="0.0285285" ny="0.999582" nz="0.00474284" u="0.0161679" v="0.846029">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+    </polygons>
+</mesh>

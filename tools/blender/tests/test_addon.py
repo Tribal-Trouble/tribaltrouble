@@ -211,7 +211,7 @@ def loading_another_unit_replaces_the_first_but_keeps_user_objects():
     keep = fixture_mesh("my_own_cube", None, kind="cube")
     load("natives", "warrior")
     names = [o.name for o in bpy.data.objects]
-    assert "my_own_cube" in names and not any(n.startswith("warrior") for n in names), names
+    assert "my_own_cube" in names and not any(n.startswith(("warrior_mesh", "warrior_axe")) for n in names), names
     bpy.data.objects.remove(keep)
 
 
@@ -298,14 +298,14 @@ def two_hats_share_a_slot_and_show_one_at_a_time():
     assert bpy.ops.export_mesh.tt_to_repo() == {"FINISHED"}
     assert bpy.ops.object.tt_add_to_registry() == {"FINISHED"}
     load("natives", "warrior")
-    assert items() == {"hat": [("warrior_pumpkin", False), ("warrior_witch", False)]}, items()
+    assert items()["hat"] == [("warrior_pumpkin", False), ("warrior_witch", False)], items()
     by_sprite = {o["tt_sprite"]: o for o in addon.unit_items(arm())["hat"]}
     assert by_sprite["warrior_pumpkin"].parent_bone == "Head"
     bpy.ops.object.tt_show_item(item=by_sprite["warrior_pumpkin"].name)
     bpy.ops.object.tt_show_item(item=by_sprite["warrior_witch"].name)
-    assert items() == {"hat": [("warrior_pumpkin", False), ("warrior_witch", True)]}, items()
+    assert items()["hat"] == [("warrior_pumpkin", False), ("warrior_witch", True)], items()
     bpy.ops.object.tt_show_item(item=by_sprite["warrior_witch"].name)
-    assert items() == {"hat": [("warrior_pumpkin", False), ("warrior_witch", False)]}, items()
+    assert items()["hat"] == [("warrior_pumpkin", False), ("warrior_witch", False)], items()
 
 
 @test

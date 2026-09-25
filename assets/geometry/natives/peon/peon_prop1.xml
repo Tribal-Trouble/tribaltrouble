@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!DOCTYPE mesh [
+        <!ELEMENT mesh       (polygons, skeleton?)>
+        <!ELEMENT polygons   (polygon+)>
+        <!ELEMENT polygon    (vertex, vertex, vertex)>
+        <!ELEMENT vertex     (skin+)>
+        <!ELEMENT skin        EMPTY>
+        <!ELEMENT skeleton   (bones, init_pose)>
+        <!ELEMENT bones      (bone+)>
+        <!ELEMENT init_pose  (transform+)>
+        <!ELEMENT bone        EMPTY>
+        <!ELEMENT transform   EMPTY>
+        <!ATTLIST mesh texture CDATA #IMPLIED>
+        <!ATTLIST vertex x CDATA #REQUIRED>
+        <!ATTLIST vertex y CDATA #REQUIRED>
+        <!ATTLIST vertex z CDATA #REQUIRED>
+        <!ATTLIST vertex r CDATA #REQUIRED>
+        <!ATTLIST vertex g CDATA #REQUIRED>
+        <!ATTLIST vertex b CDATA #REQUIRED>
+        <!ATTLIST vertex a CDATA #REQUIRED>
+        <!ATTLIST vertex nx CDATA #REQUIRED>
+        <!ATTLIST vertex ny CDATA #REQUIRED>
+        <!ATTLIST vertex nz CDATA #REQUIRED>
+        <!ATTLIST vertex u CDATA #REQUIRED>
+        <!ATTLIST vertex v CDATA #REQUIRED>
+        <!ATTLIST vertex u2 CDATA #IMPLIED>
+        <!ATTLIST vertex v2 CDATA #IMPLIED>
+        <!ATTLIST skin bone CDATA #REQUIRED>
+        <!ATTLIST skin weight CDATA #REQUIRED>
+        <!ATTLIST transform name CDATA #REQUIRED>
+        <!ATTLIST transform m00 CDATA #REQUIRED>
+        <!ATTLIST transform m01 CDATA #REQUIRED>
+        <!ATTLIST transform m02 CDATA #REQUIRED>
+        <!ATTLIST transform m03 CDATA #REQUIRED>
+        <!ATTLIST transform m10 CDATA #REQUIRED>
+        <!ATTLIST transform m11 CDATA #REQUIRED>
+        <!ATTLIST transform m12 CDATA #REQUIRED>
+        <!ATTLIST transform m13 CDATA #REQUIRED>
+        <!ATTLIST transform m20 CDATA #REQUIRED>
+        <!ATTLIST transform m21 CDATA #REQUIRED>
+        <!ATTLIST transform m22 CDATA #REQUIRED>
+        <!ATTLIST transform m23 CDATA #REQUIRED>
+        <!ATTLIST transform m30 CDATA #REQUIRED>
+        <!ATTLIST transform m31 CDATA #REQUIRED>
+        <!ATTLIST transform m32 CDATA #REQUIRED>
+        <!ATTLIST transform m33 CDATA #REQUIRED>
+        ]>
+
+<mesh texture="native_peon">
+    <polygons>
+        <polygon>
+            <vertex x="-0.607508" y="0.0418565" z="1.38159" r="1" g="1" b="1" a="1" nx="0.655399" ny="0.625676" nz="0.423062" u="0.226179" v="0.898369">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.657201" y="-0.000930089" z="1.41385" r="1" g="1" b="1" a="1" nx="-0.0240878" ny="0.00310484" nz="0.999705" u="0.208282" v="0.882855">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.607408" y="-0.045028" z="1.38159" r="1" g="1" b="1" a="1" nx="0.651604" ny="-0.627385" nz="0.426381" u="0.228707" v="0.870331">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.607408" y="-0.045028" z="1.38159" r="1" g="1" b="1" a="1" nx="0.651604" ny="-0.627385" nz="0.426381" u="0.230409" v="0.988908">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.657201" y="-0.000930089" z="1.41385" r="1" g="1" b="1" a="1" nx="-0.0240878" ny="0.00310484" nz="0.999705" u="0.21099" v="0.974875">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.700578" y="-0.0477307" z="1.3815" r="1" g="1" b="1" a="1" nx="-0.626893" ny="-0.652733" nz="0.425376" u="0.227709" v="0.958828">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.691586" y="0.0180317" z="0.644146" r="1" g="1" b="1" a="1" nx="-0.476099" ny="0.660337" nz="-0.580762" u="0.465243" v="0.925374">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.607508" y="0.0418565" z="1.38159" r="1" g="1" b="1" a="1" nx="0.655399" ny="0.625676" nz="0.423062" u="0.226179" v="0.898369">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.63295" y="-0.00383942" z="0.643923" r="1" g="1" b="1" a="1" nx="0.795787" ny="-0.0014896" nz="-0.605575" u="0.465687" v="0.905102">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.63295" y="-0.00383942" z="0.643923" r="1" g="1" b="1" a="1" nx="0.795787" ny="-0.0014896" nz="-0.605575" u="0.465687" v="0.905102">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.607508" y="0.0418565" z="1.38159" r="1" g="1" b="1" a="1" nx="0.655399" ny="0.625676" nz="0.423062" u="0.226179" v="0.898369">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.607408" y="-0.045028" z="1.38159" r="1" g="1" b="1" a="1" nx="0.651604" ny="-0.627385" nz="0.426381" u="0.228707" v="0.870331">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.691581" y="-0.025604" z="0.643543" r="1" g="1" b="1" a="1" nx="-0.473522" ny="-0.654826" nz="-0.58905" u="0.466159" v="0.939484">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.607408" y="-0.045028" z="1.38159" r="1" g="1" b="1" a="1" nx="0.651604" ny="-0.627385" nz="0.426381" u="0.230409" v="0.988908">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.700578" y="-0.0477307" z="1.3815" r="1" g="1" b="1" a="1" nx="-0.626893" ny="-0.652733" nz="0.425376" u="0.227709" v="0.958828">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.691581" y="-0.025604" z="0.643543" r="1" g="1" b="1" a="1" nx="-0.473522" ny="-0.654826" nz="-0.58905" u="0.466159" v="0.939484">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.63295" y="-0.00383942" z="0.643923" r="1" g="1" b="1" a="1" nx="0.795787" ny="-0.0014896" nz="-0.605575" u="0.468134" v="0.959652">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.607408" y="-0.045028" z="1.38159" r="1" g="1" b="1" a="1" nx="0.651604" ny="-0.627385" nz="0.426381" u="0.230409" v="0.988908">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.691581" y="-0.025604" z="0.643543" r="1" g="1" b="1" a="1" nx="-0.473522" ny="-0.654826" nz="-0.58905" u="0.466159" v="0.939484">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.700578" y="-0.0477307" z="1.3815" r="1" g="1" b="1" a="1" nx="-0.626893" ny="-0.652733" nz="0.425376" u="0.227709" v="0.958828">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.700625" y="0.0457881" z="1.3815" r="1" g="1" b="1" a="1" nx="-0.623019" ny="0.658315" nz="0.422456" u="0.226165" v="0.928566">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.691581" y="-0.025604" z="0.643543" r="1" g="1" b="1" a="1" nx="-0.473522" ny="-0.654826" nz="-0.58905" u="0.466159" v="0.939484">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.700625" y="0.0457881" z="1.3815" r="1" g="1" b="1" a="1" nx="-0.623019" ny="0.658315" nz="0.422456" u="0.226165" v="0.928566">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.691586" y="0.0180317" z="0.644146" r="1" g="1" b="1" a="1" nx="-0.476099" ny="0.660337" nz="-0.580762" u="0.465243" v="0.925374">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.691586" y="0.0180317" z="0.644146" r="1" g="1" b="1" a="1" nx="-0.476099" ny="0.660337" nz="-0.580762" u="0.465243" v="0.925374">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.700625" y="0.0457881" z="1.3815" r="1" g="1" b="1" a="1" nx="-0.623019" ny="0.658315" nz="0.422456" u="0.226165" v="0.928566">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.607508" y="0.0418565" z="1.38159" r="1" g="1" b="1" a="1" nx="0.655399" ny="0.625676" nz="0.423062" u="0.226179" v="0.898369">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.564522" y="-0.0307124" z="1.31349" r="1" g="1" b="1" a="1" nx="0.49475" ny="-0.691186" nz="0.526769" u="0.207544" v="0.741357">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.525359" y="-0.000482944" z="1.25354" r="1" g="1" b="1" a="1" nx="0.9791" ny="0.0412521" nz="-0.199152" u="0.197994" v="0.71789">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.564522" y="0.0255591" z="1.31349" r="1" g="1" b="1" a="1" nx="0.499091" ny="0.682596" nz="0.533827" u="0.189386" v="0.741474">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.564522" y="0.0255591" z="1.31349" r="1" g="1" b="1" a="1" nx="0.499091" ny="0.682596" nz="0.533827" u="0.207544" v="0.741357">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.525359" y="-0.000482944" z="1.25354" r="1" g="1" b="1" a="1" nx="0.9791" ny="0.0412521" nz="-0.199152" u="0.223844" v="0.721942">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.564259" y="-0.00225543" z="1.18802" r="1" g="1" b="1" a="1" nx="0.494766" ny="-0.00532835" nz="-0.86901" u="0.247401" v="0.728661">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.822105" y="0.00074552" z="1.12801" r="1" g="1" b="1" a="1" nx="-0.335055" ny="0.00469928" nz="-0.942187" u="0.290993" v="0.802131">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.564522" y="0.0255591" z="1.31349" r="1" g="1" b="1" a="1" nx="0.499091" ny="0.682596" nz="0.533827" u="0.207544" v="0.741357">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.564259" y="-0.00225543" z="1.18802" r="1" g="1" b="1" a="1" nx="0.494766" ny="-0.00532835" nz="-0.86901" u="0.247401" v="0.728661">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.564259" y="-0.00225543" z="1.18802" r="1" g="1" b="1" a="1" nx="0.494766" ny="-0.00532835" nz="-0.86901" u="0.247401" v="0.728661">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.564522" y="-0.0307124" z="1.31349" r="1" g="1" b="1" a="1" nx="0.49475" ny="-0.691186" nz="0.526769" u="0.207544" v="0.741357">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.822105" y="0.00074552" z="1.12801" r="1" g="1" b="1" a="1" nx="-0.335055" ny="0.00469928" nz="-0.942187" u="0.290993" v="0.802131">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.823596" y="0.0539834" z="1.37313" r="1" g="1" b="1" a="1" nx="-0.352252" ny="0.688317" nz="0.634143" u="0.179661" v="0.827579">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.564522" y="-0.0307124" z="1.31349" r="1" g="1" b="1" a="1" nx="0.49475" ny="-0.691186" nz="0.526769" u="0.207544" v="0.741357">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.564522" y="0.0255591" z="1.31349" r="1" g="1" b="1" a="1" nx="0.499091" ny="0.682596" nz="0.533827" u="0.189386" v="0.741474">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.564522" y="-0.0307124" z="1.31349" r="1" g="1" b="1" a="1" nx="0.49475" ny="-0.691186" nz="0.526769" u="0.207544" v="0.741357">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.823596" y="0.0539834" z="1.37313" r="1" g="1" b="1" a="1" nx="-0.352252" ny="0.688317" nz="0.634143" u="0.179661" v="0.827579">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.823596" y="-0.0515451" z="1.37313" r="1" g="1" b="1" a="1" nx="-0.357283" ny="-0.680257" nz="0.64" u="0.213881" v="0.82775">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.564522" y="0.0255591" z="1.31349" r="1" g="1" b="1" a="1" nx="0.499091" ny="0.682596" nz="0.533827" u="0.207544" v="0.741357">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.822105" y="0.00074552" z="1.12801" r="1" g="1" b="1" a="1" nx="-0.335055" ny="0.00469928" nz="-0.942187" u="0.290993" v="0.802131">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.823596" y="0.0539834" z="1.37313" r="1" g="1" b="1" a="1" nx="-0.352252" ny="0.688317" nz="0.634143" u="0.213881" v="0.82775">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.823596" y="-0.0515451" z="1.37313" r="1" g="1" b="1" a="1" nx="-0.357283" ny="-0.680257" nz="0.64" u="0.213881" v="0.82775">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.822105" y="0.00074552" z="1.12801" r="1" g="1" b="1" a="1" nx="-0.335055" ny="0.00469928" nz="-0.942187" u="0.290993" v="0.802131">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.564522" y="-0.0307124" z="1.31349" r="1" g="1" b="1" a="1" nx="0.49475" ny="-0.691186" nz="0.526769" u="0.207544" v="0.741357">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.823596" y="0.0539834" z="1.37313" r="1" g="1" b="1" a="1" nx="-0.352252" ny="0.688317" nz="0.634143" u="0.213881" v="0.82775">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.822105" y="0.00074552" z="1.12801" r="1" g="1" b="1" a="1" nx="-0.335055" ny="0.00469928" nz="-0.942187" u="0.290993" v="0.802131">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.88015" y="-0.00134806" z="1.252" r="1" g="1" b="1" a="1" nx="-0.977214" ny="-0.031727" nz="-0.209874" u="0.26004" v="0.83393">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.822105" y="0.00074552" z="1.12801" r="1" g="1" b="1" a="1" nx="-0.335055" ny="0.00469928" nz="-0.942187" u="0.290993" v="0.802131">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.823596" y="-0.0515451" z="1.37313" r="1" g="1" b="1" a="1" nx="-0.357283" ny="-0.680257" nz="0.64" u="0.213881" v="0.82775">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.88015" y="-0.00134806" z="1.252" r="1" g="1" b="1" a="1" nx="-0.977214" ny="-0.031727" nz="-0.209874" u="0.26004" v="0.83393">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.88015" y="-0.00134806" z="1.252" r="1" g="1" b="1" a="1" nx="-0.977214" ny="-0.031727" nz="-0.209874" u="0.197356" v="0.870973">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.823596" y="-0.0515451" z="1.37313" r="1" g="1" b="1" a="1" nx="-0.357283" ny="-0.680257" nz="0.64" u="0.213881" v="0.82775">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.823596" y="0.0539834" z="1.37313" r="1" g="1" b="1" a="1" nx="-0.352252" ny="0.688317" nz="0.634143" u="0.179661" v="0.827579">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.691586" y="0.0180317" z="0.644146" r="1" g="1" b="1" a="1" nx="-0.476099" ny="0.660337" nz="-0.580762" u="0.465243" v="0.925374">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.63295" y="-0.00383942" z="0.643923" r="1" g="1" b="1" a="1" nx="0.795787" ny="-0.0014896" nz="-0.605575" u="0.48466" v="0.931218">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.691581" y="-0.025604" z="0.643543" r="1" g="1" b="1" a="1" nx="-0.473522" ny="-0.654826" nz="-0.58905" u="0.466159" v="0.939484">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.564522" y="-0.0307124" z="1.31349" r="1" g="1" b="1" a="1" nx="0.49475" ny="-0.691186" nz="0.526769" u="0.207544" v="0.741357">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.564259" y="-0.00225543" z="1.18802" r="1" g="1" b="1" a="1" nx="0.494766" ny="-0.00532835" nz="-0.86901" u="0.247401" v="0.728661">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.525359" y="-0.000482944" z="1.25354" r="1" g="1" b="1" a="1" nx="0.9791" ny="0.0412521" nz="-0.199152" u="0.223844" v="0.721942">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.657201" y="-0.000930089" z="1.41385" r="1" g="1" b="1" a="1" nx="-0.0240878" ny="0.00310484" nz="0.999705" u="0.209429" v="0.944584">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.700625" y="0.0457881" z="1.3815" r="1" g="1" b="1" a="1" nx="-0.623019" ny="0.658315" nz="0.422456" u="0.226165" v="0.928566">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.700578" y="-0.0477307" z="1.3815" r="1" g="1" b="1" a="1" nx="-0.626893" ny="-0.652733" nz="0.425376" u="0.227709" v="0.958828">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.607508" y="0.0418565" z="1.38159" r="1" g="1" b="1" a="1" nx="0.655399" ny="0.625676" nz="0.423062" u="0.226179" v="0.898369">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.700625" y="0.0457881" z="1.3815" r="1" g="1" b="1" a="1" nx="-0.623019" ny="0.658315" nz="0.422456" u="0.226165" v="0.928566">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.657201" y="-0.000930089" z="1.41385" r="1" g="1" b="1" a="1" nx="-0.0240878" ny="0.00310484" nz="0.999705" u="0.208264" v="0.913862">
+                <skin bone="peon Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+    </polygons>
+</mesh>
