@@ -47,16 +47,16 @@
         <!ATTLIST transform m33 CDATA #REQUIRED>
         ]>
 
-<mesh texture="native_warrior_rock,native_warrior_iron,native_warrior_rubber">
+<mesh texture="native_warrior_prop1_rock,native_warrior_prop1_iron,native_warrior_prop1_rubber">
     <polygons>
         <polygon>
-            <vertex x="-1.02993" y="1.0269" z="1.38999" r="1" g="1" b="1" a="1" nx="-0.47071" ny="0.573409" nz="0.670548" u="0.159845" v="0.0625153">
+            <vertex x="-1.02993" y="1.0269" z="1.38999" r="1" g="1" b="1" a="1" nx="-0.470709" ny="0.57341" nz="0.670548" u="0.12002" v="0.375245">
                 <skin bone="Prop1" weight="1"/>
             </vertex>
-            <vertex x="-0.947819" y="1.02692" z="1.35936" r="1" g="1" b="1" a="1" nx="0.819893" ny="0.572516" nz="-0.000609994" u="0.177992" v="0.045894">
+            <vertex x="-0.947819" y="1.02692" z="1.35936" r="1" g="1" b="1" a="1" nx="0.819894" ny="0.572515" nz="-0.00060999" u="0.410372" v="0.109304">
                 <skin bone="Prop1" weight="1"/>
             </vertex>
-            <vertex x="-1.02993" y="1.02684" z="1.32888" r="1" g="1" b="1" a="1" nx="-0.471467" ny="0.572759" nz="-0.670572" u="0.175127" v="0.0703186">
+            <vertex x="-1.02993" y="1.02684" z="1.32888" r="1" g="1" b="1" a="1" nx="-0.471466" ny="0.572759" nz="-0.670572" u="0.364532" v="0.500098">
                 <skin bone="Prop1" weight="1"/>
             </vertex>
         </polygon>
