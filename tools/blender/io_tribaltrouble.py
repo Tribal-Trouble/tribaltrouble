@@ -32,6 +32,7 @@ import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape, quoteattr
 
 import bpy
+import numpy as np
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from bpy.props import (StringProperty, BoolProperty, CollectionProperty, EnumProperty, PointerProperty, FloatProperty,
                        IntProperty, FloatVectorProperty)
@@ -40,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 25, 0),
+    "version": (1, 26, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -178,7 +179,7 @@ def find_texture_image(mesh_path, texture):
     return find_up(mesh_path, os.path.join("textures", "models", texture + ".png"))
 
 
-def get_atlas_material(texture, image_path):
+def get_atlas_material(texture, image_path, image=None, decal=None):
     mat_name = "tt_" + texture
     mat = bpy.data.materials.get(mat_name)
     if mat is not None:
@@ -187,7 +188,7 @@ def get_atlas_material(texture, image_path):
     mat.use_nodes = True
     bsdf = mat.node_tree.nodes.get("Principled BSDF")
     tex_node = mat.node_tree.nodes.new("ShaderNodeTexImage")
-    tex_node.image = bpy.data.images.load(image_path, check_existing=True)
+    tex_node.image = image or bpy.data.images.load(image_path, check_existing=True)
     tex_node.location = (-350, 300)
     if bsdf is not None:
         mat.node_tree.links.new(bsdf.inputs["Base Color"], tex_node.outputs["Color"])
@@ -197,7 +198,7 @@ def get_atlas_material(texture, image_path):
         mat.blend_method = "CLIP"
     except AttributeError:
         pass
-    add_team_nodes(mat, tex_node, image_path)
+    add_team_nodes(mat, tex_node, image_path, decal)
     return mat
 
 
@@ -205,18 +206,20 @@ TEAM_MIX, TEAM_COLOR, TEAM_DECAL = "TT Team Mix", "TT Team Color", "TT Team Deca
 MIX_FACTOR, MIX_A, MIX_B, MIX_RESULT = 0, 6, 7, 2  # ShaderNodeMix sockets for the RGBA data type
 
 
-def add_team_nodes(mat, tex_node, image_path):
+def add_team_nodes(mat, tex_node, image_path, image=None):
     """The game blends base toward the player's color by the decal: mix(base, team, decal). Left unlinked
     until the preview is switched on."""
     models_dir, file_name = os.path.split(image_path)
     decal_path = os.path.join(os.path.dirname(models_dir), "teamdecals", os.path.splitext(file_name)[0] + "_team.png")
-    if not os.path.isfile(decal_path):
+    if image is None and not os.path.isfile(decal_path):
         return
+    image = image or bpy.data.images.load(decal_path, check_existing=True)
     nodes, links = mat.node_tree.nodes, mat.node_tree.links
     decal = nodes.new("ShaderNodeTexImage")
     decal.name = TEAM_DECAL
-    decal.image = bpy.data.images.load(decal_path, check_existing=True)
-    decal.image.colorspace_settings.name = "Non-Color"
+    decal.image = image
+    if decal.image.colorspace_settings.name != "Non-Color":  # setting it again would blank an image made in Blender
+        decal.image.colorspace_settings.name = "Non-Color"
     decal.location = (-350, 0)
     color = nodes.new("ShaderNodeRGB")
     color.name = TEAM_COLOR
@@ -486,6 +489,11 @@ def material_image_name(objs):
 
 def object_texture(o):
     return o.get("tt_texture") or material_image_name([o])
+
+
+def texture_names(o):
+    """The object's texture list, one per tier."""
+    return [t.strip() for t in object_texture(o).split(",") if t.strip()]
 
 
 def append_record_polygons(lines, record):
@@ -1160,14 +1168,15 @@ def find_base_sprite(skeleton_path):
 
 
 def sprite_text(attrs, models, skeleton=None, clips=()):
-    """One geometry.xml sprite entry. attrs are (name, value) pairs in order, models (path, texture, team attribute)
-    and clips (name, type, path)."""
+    """One geometry.xml sprite entry. attrs are (name, value) pairs in order, models (path, [(texture, team
+    attribute)], one per tier) and clips (name, type, path)."""
     lines = ["        <sprite " + " ".join(f"{key}={quoteattr(value)}" for key, value in attrs) + ">"]
     if skeleton:
         lines.append(f"            <skeleton>{escape(skeleton)}</skeleton>")
-    for path, texture, team in models:
-        lines += ['            <model r="90" g="60" b="30">', f"                {escape(path)}",
-                  f"                <texture name={quoteattr(texture)}{team}/>", "            </model>"]
+    for path, textures in models:
+        lines += ['            <model r="90" g="60" b="30">', f"                {escape(path)}"]
+        lines += [f"                <texture name={quoteattr(texture)}{team}/>" for texture, team in textures]
+        lines.append("            </model>")
     for name, kind, path in clips:
         lines.append(f'            <animation name={quoteattr(name)} wpc="1" type="{kind}">{escape(path)}</animation>')
     return "\n".join(lines + ["        </sprite>"])
@@ -1182,15 +1191,15 @@ def registry_entries(context, arm, base):
             continue
         obj = slot.obj
         game_slot = GAME_SLOTS.get(slot.point, slot.point.lower())
-        texture = object_texture(obj) or "TEXTURE"
-        team = team_attribute(root, texture, bool(obj.get("tt_texture")))
+        textures = [(t, team_attribute(root, t, bool(obj.get("tt_texture"))))
+                    for t in texture_names(obj) or ["TEXTURE"]]
         model = f"misc/{obj.name}.xml"
         if root and arm.get("tt_skeleton"):
             model = os.path.relpath(os.path.join(os.path.dirname(arm["tt_skeleton"]), obj.name + ".xml"),
                                     os.path.join(root, GEOMETRY_DIR)).replace(os.sep, "/")
         name = f"{base}_{obj.name}"
         entries.append((name, sprite_text([("name", name), ("base", base), ("slot", game_slot)],
-                                          [(model, texture, team)])))
+                                          [(model, textures)])))
     return entries
 
 
@@ -1264,6 +1273,8 @@ class TT_UL_items(bpy.types.UIList):
         tag.alignment = "RIGHT"
         tag.enabled = False
         tag.label(text=slot_label(item["tt_slot"]))
+        if shares_unit_texture(active_armature(context), item):
+            row.operator(OwnTexture.bl_idname, text="", icon="IMAGE_DATA", emboss=False).target = item.name
         row.operator(PaintItem.bl_idname, text="", icon="BRUSH_DATA", emboss=False).target = item.name
         if item["tt_slot"] != CARRY_SLOT:
             remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH", emboss=False)
@@ -1330,6 +1341,8 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
         if slot.obj is not None:
             box.operator(PutOnBone.bl_idname, icon="SNAP_ON",
                          text=f"Snap To {POINT_LABELS.get(slot.point, slot.point)}").point = slot.point
+        if shares_unit_texture(arm, slot.obj):
+            box.operator(OwnTexture.bl_idname, icon="IMAGE_DATA").target = slot.obj.name
         if slot.obj is not None and mesh_texture_image(slot.obj) is None:
             row = box.row()
             row.alert = True
@@ -1487,9 +1500,11 @@ CARRY_SLOT = "carried"  # what a peon hauls or rows with; the game picks which o
 
 
 def team_attribute(root, texture, fallback):
-    """team="..." when the decal PNG exists; without a repo folder, fall back to the caller's guess."""
+    """team="..." when the decal PNG exists or is an image Publish writes; without a repo folder, fall back to the
+    caller's guess."""
     if root:
-        fallback = os.path.isfile(os.path.join(root, "assets", "textures", "teamdecals", texture + "_team.png"))
+        decal = os.path.join(root, "assets", "textures", "teamdecals", texture + "_team.png")
+        fallback = os.path.isfile(decal) or texture + "_team" in bpy.data.images
     return f' team="{texture}_team"' if fallback else ""
 
 
@@ -1783,6 +1798,7 @@ class PublishModel(bpy.types.Operator):
     def execute(self, context):
         arm = next((o for o in bpy.data.objects if o.type == "ARMATURE" and o.get(BROWSER_TAG)), None)
         written = write_changed(context, arm, {o: o["tt_source"] for o in loaded_models()})
+        publish_own_textures(repo_root(context), loaded_models())
         if not written:
             self.report({"INFO"}, "Nothing changed since loading")
             return {"FINISHED"}
@@ -1855,9 +1871,10 @@ def export_visible(context, arm, report):
     written = write_changed(context, arm, {**paths, **{o: o["tt_source"] for o in levels}})
     missing = []
     for o in objs:
-        for name in [t.strip() for t in object_texture(o).split(",") if t.strip()]:
+        for name in texture_names(o):
             if not ensure_texture_in_repo(repo_root(context), o, name):
                 missing.append(name)
+    publish_own_textures(repo_root(context), objs)
     saved = [os.path.basename(o["tt_source"]) for o in written if o in bodies]
     note = f"; unit mesh: {', '.join(saved)}" if saved else ""
     if missing:
@@ -2119,6 +2136,116 @@ class MakeTexture(bpy.types.Operator):
         return {"FINISHED"}
 
 
+MIP_PAD = 4  # pixels kept around a cropped item so mipmaps do not bleed in the rest of the atlas
+
+
+def shares_unit_texture(arm, obj):
+    """True when obj is drawn from the loaded unit body's own texture atlas."""
+    body = browsed_unit(arm) if arm is not None else None
+    if body is None or obj is None or obj.type != "MESH" or obj in model_levels(body):
+        return False
+    return bool(set(texture_names(obj)) & set(texture_names(body)))
+
+
+def crop_pixels(image, x0, y0, x1, y1, size):
+    """image[y0:y1, x0:x1] on a size x size canvas at the same density, the rest filled by repeating its edges."""
+    w, h = image.size
+    pixels = np.empty(w * h * 4, np.float32)
+    image.pixels.foreach_get(pixels)
+    part = pixels.reshape(h, w, 4)[y0:y1, x0:x1]
+    return np.pad(part, ((0, size - part.shape[0]), (0, size - part.shape[1]), (0, 0)), mode="edge")
+
+
+class OwnTexture(bpy.types.Operator):
+    """Copy the part of the unit's texture this item uses into textures of its own, one per tier with its team
+    decal, and move its UVs onto them. The unit and its texture are not changed; Publish writes the new images and
+    lists them for the item"""
+    bl_idname = "object.tt_own_texture"
+    bl_label = "Give It Its Own Texture"
+    bl_options = {"REGISTER", "UNDO"}
+    target: StringProperty(options={"SKIP_SAVE"})
+
+    def execute(self, context):
+        arm = active_armature(context)
+        obj = bpy.data.objects.get(self.target)
+        root = repo_root(context)
+        if not root or not shares_unit_texture(arm, obj):
+            self.report({"ERROR"}, "Pick an item that uses the loaded unit's texture")
+            return {"CANCELLED"}
+        entry = next((s for s in read_registry(root) if s["group"] == obj.get("tt_group")
+                      and s["name"] == obj.get("tt_sprite")), None)
+        if entry is not None and any(event for model in entry["textures"] for _, event in model):
+            self.report({"ERROR"}, f"{entry['name']} has event textures in geometry.xml; this cannot move those")
+            return {"CANCELLED"}
+        levels = model_levels(obj)
+        name = obj.get("tt_sprite") or obj.name
+        textures = texture_names(obj)
+        fresh = [name] if len(textures) == 1 else [f"{name}_{label}" for label in short_labels(textures)]
+        decal_path = lambda texture: os.path.join(root, "assets", "textures", "teamdecals", texture + "_team.png")
+        taken = [n for n in fresh if n in bpy.data.images or n + "_team" in bpy.data.images
+                 or os.path.isfile(models_texture_path(root, n)) or os.path.isfile(decal_path(n))]
+        if taken:
+            self.report({"ERROR"}, f"A texture named {', '.join(taken)} already exists; nothing was changed, rename "
+                                   f"the item first")
+            return {"CANCELLED"}
+        if any(not os.path.isfile(models_texture_path(root, t)) for t in textures):
+            self.report({"ERROR"}, f"{', '.join(textures)} must all be in assets/textures/models")
+            return {"CANCELLED"}
+        atlases = [bpy.data.images.load(models_texture_path(root, t), check_existing=True) for t in textures]
+        decals = [bpy.data.images.load(decal_path(t), check_existing=True) if os.path.isfile(decal_path(t)) else None
+                  for t in textures]
+        w, h = atlases[0].size
+        step = next((w // d.size[0] for d in decals if d is not None), 1)
+        if any(tuple(a.size) != (w, h) for a in atlases) or any(
+                d is not None and tuple(d.size) != (w // step, h // step) for d in decals):
+            self.report({"ERROR"}, "The tier textures (and their team decals) are not all the same size")
+            return {"CANCELLED"}
+        layers = [layer for o in levels for layer in o.data.uv_layers]
+        uvs = [np.empty(2 * len(layer.data), np.float32) for layer in layers]
+        for layer, uv in zip(layers, uvs):
+            layer.data.foreach_get("uv", uv)
+        if not layers or not all(len(uv) for uv in uvs):
+            self.report({"ERROR"}, f"{obj.name} has no UV map")
+            return {"CANCELLED"}
+        us, vs = np.concatenate([uv[0::2] for uv in uvs]), np.concatenate([uv[1::2] for uv in uvs])
+        if min(us.min(), vs.min()) < -1e-4 or max(us.max(), vs.max()) > 1.0001:
+            self.report({"ERROR"}, f"{obj.name}: UVs leave the 0 to 1 square, so there is no part of the texture to "
+                                   f"copy")
+            return {"CANCELLED"}
+        x0, y0 = max(0, int(np.floor(us.min() * w)) - MIP_PAD), max(0, int(np.floor(vs.min() * h)) - MIP_PAD)
+        x1, y1 = min(w, int(np.ceil(us.max() * w)) + MIP_PAD), min(h, int(np.ceil(vs.max() * h)) + MIP_PAD)
+        x0, y0 = x0 - x0 % step, y0 - y0 % step  # so the smaller team decal crops on whole pixels too
+        size = max(step, 1 << (max(x1 - x0, y1 - y0) - 1).bit_length())
+        materials = []
+        for new, atlas, decal in zip(fresh, atlases, decals):
+            image = bpy.data.images.new(new, size, size, alpha=True)
+            image.pixels.foreach_set(crop_pixels(atlas, x0, y0, x1, y1, size).ravel())
+            team = None
+            if decal is not None:
+                team = bpy.data.images.new(new + "_team", size // step, size // step, alpha=True)
+                team.colorspace_settings.name = "Non-Color"
+                team.pixels.foreach_set(crop_pixels(decal, x0 // step, y0 // step, -(-x1 // step), -(-y1 // step),
+                                                    size // step).ravel())
+            materials.append(get_atlas_material(new, models_texture_path(root, new), image, team))
+        for layer, uv in zip(layers, uvs):
+            uv[0::2] = (uv[0::2] * w - x0) / size
+            uv[1::2] = (uv[1::2] * h - y0) / size
+            layer.data.foreach_set("uv", uv)
+        renamed = dict(zip(textures, fresh))
+        for o in levels:
+            o.data.update()
+            o.data.materials.clear()
+            o.data.materials.append(materials[0])
+            file_textures = [t.strip() for t in o.get("tt_file_texture", "").split(",") if t.strip()]
+            o["tt_texture"] = ",".join(fresh)
+            o["tt_file_texture"] = ",".join(renamed.get(t, t) for t in file_textures) or fresh[0]
+        obj["tt_own_texture"] = True
+        apply_team_preview(context)
+        self.report({"INFO"}, f"{obj.name} now has its own texture: {', '.join(fresh)} ({size}x{size}). Publish "
+                              f"writes it into the repo")
+        return {"FINISHED"}
+
+
 class SaveItems(bpy.types.Operator):
     """Check, write every visible item into the unit's folder with its texture, and list the new ones in
     geometry.xml. A new item then becomes one of the unit's buttons above; its file in the repo is the real copy
@@ -2242,7 +2369,7 @@ class SetTier(bpy.types.Operator):
             if self.index >= len(names):
                 continue
             path = os.path.join(root, "assets", "textures", "models", names[self.index] + ".png")
-            if not os.path.isfile(path):
+            if not os.path.isfile(path) and "tt_" + names[self.index] not in bpy.data.materials:
                 self.report({"WARNING"}, f"{names[self.index]}.png is not in assets/textures/models")
                 continue
             obj.data.materials.clear()
@@ -2798,29 +2925,68 @@ def registry_group_items(self, context):
     return _group_items
 
 
-def ensure_texture_in_repo(root, obj, texture):
-    """Put the material's image at assets/textures/models/<texture>.png: written when the repo lacks it or the
-    image has unsaved paint, so a texture made inside Blender travels with the mesh. False when there is no image."""
-    target = os.path.join(root, "assets", "textures", "models", texture + ".png")
-    for slot in obj.material_slots:
-        nodes = slot.material.node_tree.nodes if slot.material is not None and slot.material.use_nodes else []
-        for node in nodes:
-            image = node.image if node.type == "TEX_IMAGE" else None
-            if image is None or image_texture_name(image) != texture:
-                continue
-            if os.path.isfile(target) and not image.is_dirty:
-                return True
-            source = bpy.path.abspath(image.filepath)
-            if not image.is_dirty and os.path.isfile(source) and source.lower().endswith(".png"):
-                if os.path.normcase(os.path.abspath(source)) != os.path.normcase(os.path.abspath(target)):
-                    shutil.copyfile(source, target)
-                return True
-            previous = (image.filepath_raw, image.file_format)
-            image.filepath_raw, image.file_format = target, "PNG"
-            image.save()
-            image.filepath_raw, image.file_format = previous
+def ensure_texture_in_repo(root, obj, texture, folder="models"):
+    """Put the material's image, or the image of that name, at assets/textures/<folder>/<texture>.png: written when
+    the repo lacks it or the image has unsaved paint, so a texture made inside Blender travels with the mesh. False
+    when there is no image."""
+    target = os.path.join(root, "assets", "textures", folder, texture + ".png")
+    images = [node.image for slot in obj.material_slots if slot.material is not None and slot.material.use_nodes
+              for node in slot.material.node_tree.nodes if node.type == "TEX_IMAGE"]
+    for image in images + [bpy.data.images.get(texture)]:
+        if image is None or image_texture_name(image) != texture:
+            continue
+        if os.path.isfile(target) and not image.is_dirty:
             return True
+        source = bpy.path.abspath(image.filepath)
+        if not image.is_dirty and os.path.isfile(source) and source.lower().endswith(".png"):
+            if os.path.normcase(os.path.abspath(source)) != os.path.normcase(os.path.abspath(target)):
+                shutil.copyfile(source, target)
+            return True
+        previous = (image.filepath_raw, image.file_format)
+        image.filepath_raw, image.file_format = target, "PNG"
+        image.save()
+        image.filepath_raw, image.file_format = previous
+        return True
     return os.path.isfile(target)
+
+
+def set_sprite_textures(root, group, name, textures):
+    """Replace the texture lines of every model of one sprite in geometry.xml; the rest of the file stays as it is."""
+    registry_path = os.path.join(root, REGISTRY_FILE)
+    with open(registry_path, "rb") as f:
+        text = f.read().decode("utf-8")
+    for sprite_group, sprite, start, end in sprite_blocks(text):
+        if (sprite_group, sprite) != (group, name):
+            continue
+        block = text[start:end]
+        for model in reversed(list(re.finditer(r"<model\b[^>]*>.*?</model>", block, re.S))):
+            lines = list(TEXTURE_LINE.finditer(block, model.start(), model.end()))
+            if not lines:
+                continue
+            first = lines[0].group(0)
+            ending = first[len(first.rstrip("\r\n")):]
+            new = "".join(f"{lines[0].group(1)}<texture name={quoteattr(t)}{team_attribute(root, t, False)}/>{ending}"
+                          for t in textures)
+            block = block[:lines[0].start()] + new + block[lines[-1].end():]
+        with open(registry_path, "wb") as f:
+            f.write((text[:start] + block + text[end:]).encode("utf-8"))
+        return True
+    return False
+
+
+def publish_own_textures(root, objs):
+    """Write the images Give It Its Own Texture made for these items, team decals too, and list them for a registry
+    item in place of the unit's."""
+    for o in objs:
+        if not o.get("tt_own_texture"):
+            continue
+        for name in texture_names(o):
+            ensure_texture_in_repo(root, o, name)
+            if name + "_team" in bpy.data.images:
+                ensure_texture_in_repo(root, o, name + "_team", "teamdecals")
+        if o.get("tt_group"):
+            set_sprite_textures(root, o["tt_group"], o["tt_sprite"], texture_names(o))
+        del o["tt_own_texture"]
 
 
 class RegisterModel(bpy.types.Operator):
@@ -2928,7 +3094,7 @@ class RegisterModel(bpy.types.Operator):
                         missing.append(texture)
                     path = os.path.join(folder, name + suffix + lod + ".xml")
                     write_mesh_xml([mesh_obj], [None], path, texture, False, depsgraph)
-                    models.append((relative(path), texture, team_attribute(root, texture, False)))
+                    models.append((relative(path), [(texture, team_attribute(root, texture, False))]))
                 stage_models.append((name + suffix, models))
         finally:
             if arm is not None:
@@ -3231,7 +3397,7 @@ class SaveProps(bpy.types.Operator):
             model = os.path.relpath(path, geometry).replace(os.sep, "/")
             entries.append((sprite, sprite_text([("name", sprite), ("base", base), ("slot", PROP_SLOT)] +
                                                 ([("event", event)] if event else []),
-                                                [(model, texture, team_attribute(root, texture, False))])))
+                                                [(model, [(texture, team_attribute(root, texture, False))])])))
             world = o.matrix_world.copy()
             o.parent = body
             o.matrix_world = world
@@ -3432,7 +3598,7 @@ classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SplitByBone, ImportTTSkele
            TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, ShowItem, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
            RemoveFromRegistry, UpdateAddon, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
            SaveProps, VIEW3D_PT_tt_building, NewClip, SaveClip, DeleteClip,
-           SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, PutOnBone, PaintItem, DonePainting,
+           SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, OwnTexture, PutOnBone, PaintItem, DonePainting,
            TT_UL_items, VIEW3D_PT_tt_units,
            VIEW3D_PT_tt_preview,
            VIEW3D_PT_tt_attachments, VIEW3D_PT_tt_attachments_more)

@@ -18,6 +18,7 @@ import traceback
 import xml.etree.ElementTree as ET
 
 import bpy
+import numpy as np
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 TEMP = tempfile.mkdtemp(prefix="tt_addon_test_")
@@ -913,6 +914,171 @@ def geometry_xml_is_only_ever_appended_to():
     ET.fromstring(text.encode("utf-8"))
     for line in PRISTINE.splitlines():
         assert line in text, f"an original line went missing: {line[:60]}"
+
+
+TIERS = ("rock", "iron", "rubber")
+AXE_TEXTURES = [f"warrior_axe_held_{tier}" for tier in TIERS]
+
+
+def save_pattern(path, size, blue):
+    """A throwaway atlas whose every pixel is unique: red and green are x and y, blue carries the rest."""
+    y, x = np.mgrid[0:size, 0:size]
+    rgba = np.stack([x % 256, y % 256, blue(x, y), np.full_like(x, 255)], -1).astype(np.float32) / 255.0
+    image = bpy.data.images.new("tt_test_pattern", size, size, alpha=True)
+    image.pixels.foreach_set(rgba.ravel())
+    image.filepath_raw, image.file_format = path, "PNG"
+    image.save()
+    bpy.data.images.remove(image)
+
+
+def pixels(image):
+    w, h = image.size
+    out = np.empty(w * h * 4, np.float32)
+    image.pixels.foreach_get(out)
+    return out.reshape(h, w, 4)
+
+
+def atlas_xy(pixel):
+    r, g, b = (int(round(c * 255)) for c in pixel[:3])
+    return r + 256 * (b % 16 // 4), g + 256 * (b % 4)
+
+
+def uv_arrays(objs):
+    out = []
+    for o in objs:
+        for layer in o.data.uv_layers:
+            uv = np.empty(2 * len(layer.data), np.float32)
+            layer.data.foreach_get("uv", uv)
+            out.append(uv.reshape(-1, 2))
+    return out
+
+
+def texel(image_pixels, uv):
+    h, w = image_pixels.shape[:2]
+    return image_pixels[np.minimum((uv[:, 1] * h).astype(int), h - 1), np.minimum((uv[:, 0] * w).astype(int), w - 1)]
+
+
+def expect_copy(new, source, x0, y0, xe, ye):
+    """new holds source[y0..ye, x0..xe] at its origin, its last row and column repeated to fill the rest."""
+    size = new.shape[0]
+    rows = y0 + np.minimum(np.arange(size), ye - y0)
+    cols = x0 + np.minimum(np.arange(size), xe - x0)
+    assert np.array_equal(new, source[rows][:, cols]), "the new image is not an exact copy of the atlas area"
+
+
+@test
+def own_texture_refuses_a_name_that_is_taken():
+    a = load("vikings", "warrior")
+    axe = bpy.data.objects["warrior_axe_held"]
+    assert addon.shares_unit_texture(a, axe)
+    assert not addon.shares_unit_texture(a, addon.browsed_unit(a))
+    taken = bpy.data.images.new("warrior_axe_held_iron", 4, 4)
+    expect_error(lambda: bpy.ops.object.tt_own_texture(target=axe.name), "warrior_axe_held_iron already exists")
+    bpy.data.images.remove(taken)
+    on_disk = os.path.join(MODELS, "warrior_axe_held_rubber.png")
+    shutil.copy(os.path.join(MODELS, "viking_warrior_rock.png"), on_disk)
+    expect_error(lambda: bpy.ops.object.tt_own_texture(target=axe.name), "warrior_axe_held_rubber already exists")
+    os.remove(on_disk)
+    assert axe["tt_texture"] == "viking_warrior_rock,viking_warrior_iron,viking_warrior_rubber"
+    assert axe.data.materials[0].name == "tt_viking_warrior_rock"
+
+
+@test
+def own_texture_copies_the_axe_out_of_every_tier_and_publishes_it():
+    for i, tier in enumerate(TIERS):
+        save_pattern(os.path.join(MODELS, f"viking_warrior_{tier}.png"), 1024,
+                     lambda x, y, i=i: x // 256 * 4 + y // 256 + 16 * i)
+        save_pattern(os.path.join(DECALS, f"viking_warrior_{tier}_team.png"), 256, lambda x, y, i=i: 100 + i + 0 * x)
+    for image in bpy.data.images:
+        if image.filepath and os.path.abspath(bpy.path.abspath(image.filepath)).startswith(TEMP):
+            image.reload()
+    a = load("vikings", "warrior")
+    body, body_low = addon.browsed_unit(a), bpy.data.objects["warrior_mesh_lod1"]
+    axe, axe_low = bpy.data.objects["warrior_axe_held"], bpy.data.objects["warrior_axe_held_lod1"]
+    atlases = [pixels(bpy.data.images.load(os.path.join(MODELS, f"viking_warrior_{t}.png"), check_existing=True))
+               for t in TIERS]
+    decals = [pixels(bpy.data.images.load(os.path.join(DECALS, f"viking_warrior_{t}_team.png"), check_existing=True))
+              for t in TIERS]
+    before_uvs = uv_arrays([axe, axe_low])
+    body_files = {o["tt_source"]: os.path.getmtime(o["tt_source"]) for o in (body, body_low)}
+    for path in body_files:
+        os.utime(path, (1, 1))
+    atlas_bytes = {t: open(os.path.join(MODELS, f"viking_warrior_{t}.png"), "rb").read() for t in TIERS}
+    registry_before = open(registry_path, "rb").read().decode("utf-8")
+
+    assert bpy.ops.object.tt_own_texture(target=axe.name) == {"FINISHED"}
+    assert axe["tt_texture"] == axe_low["tt_texture"] == ",".join(AXE_TEXTURES), axe["tt_texture"]
+    assert axe["tt_file_texture"] == ",".join(AXE_TEXTURES), "the file keeps its list of one texture per tier"
+    assert all(addon.mesh_texture_image(o).name == AXE_TEXTURES[0] for o in (axe, axe_low))
+    after_uvs = uv_arrays([axe, axe_low])
+    for i, name in enumerate(AXE_TEXTURES):
+        new = pixels(bpy.data.images[name])
+        size = new.shape[0]
+        assert size & (size - 1) == 0 and size < 1024 and new.shape[1] == size, new.shape
+        (x0, y0), (xe, ye) = atlas_xy(new[0, 0]), atlas_xy(new[-1, -1])
+        assert int(round(new[0, 0, 2] * 255)) // 16 == i, "cropped from the wrong tier"
+        expect_copy(new, atlases[i], x0, y0, xe, ye)
+        for before, after in zip(before_uvs, after_uvs):
+            assert (before[:, 0] * 1024 >= x0).all() and (before[:, 0] * 1024 <= xe + 1).all()
+            assert (before[:, 1] * 1024 >= y0).all() and (before[:, 1] * 1024 <= ye + 1).all()
+            assert np.array_equal(texel(atlases[i], before), texel(new, after)), "a UV now shows another pixel"
+        team = pixels(bpy.data.images[name + "_team"])
+        assert team.shape[0] == size // 4, team.shape
+        dx0, dy0 = (int(round(c * 255)) for c in team[0, 0, :2])
+        dxe, dye = (int(round(c * 255)) for c in team[-1, -1, :2])
+        assert (dx0 * 4, dy0 * 4) == (x0, y0) and int(round(team[0, 0, 2] * 255)) == 100 + i
+        expect_copy(team, decals[i], dx0, dy0, dxe, dye)
+        for before, after in zip(before_uvs, after_uvs):
+            assert np.array_equal(texel(decals[i], before), texel(team, after)), "the decal moved against the UVs"
+    assert body["tt_texture"] == "viking_warrior_rock,viking_warrior_iron,viking_warrior_rubber"
+    assert body.data.materials[0].name == "tt_viking_warrior_rock"
+
+    assert bpy.ops.object.tt_set_tier(index=2) == {"FINISHED"}
+    assert all(addon.mesh_texture_image(o).name == AXE_TEXTURES[2] for o in (axe, axe_low))
+    assert body.data.materials[0].name == "tt_viking_warrior_rubber"
+    assert bpy.ops.object.tt_set_tier(index=0) == {"FINISHED"}
+
+    bpy.context.view_layer.objects.active = a
+    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    for name in AXE_TEXTURES:
+        for folder, png in ((MODELS, name), (DECALS, name + "_team")):
+            saved = bpy.data.images.load(os.path.join(folder, png + ".png"))
+            assert np.array_equal(pixels(saved), pixels(bpy.data.images[png])), f"{png}.png differs from the copy"
+            bpy.data.images.remove(saved)
+    e = entry("vikings", "warrior_axe_held")
+    assert e["textures"] == [[(n, "") for n in AXE_TEXTURES]] * 2, e["textures"]
+    text = open(registry_path, "rb").read().decode("utf-8")
+    for name in AXE_TEXTURES:
+        assert f'<texture name="{name}" team="{name}_team"/>' in text
+    spans = [{(g, n): (s, t) for g, n, s, t in addon.sprite_blocks(x)} for x in (registry_before, text)]
+    (s0, e0), (s1, e1) = (span[("vikings", "warrior_axe_held")] for span in spans)
+    assert registry_before[:s0] == text[:s1] and registry_before[e0:] == text[e1:], "another sprite's lines changed"
+    mesh = ET.parse(axe["tt_source"]).getroot()
+    assert mesh.get("texture") == ",".join(AXE_TEXTURES)
+    assert all(os.path.getmtime(path) == 1 for path in body_files), "the unit's mesh was written"
+    assert all(open(os.path.join(MODELS, f"viking_warrior_{t}.png"), "rb").read() == atlas_bytes[t] for t in TIERS)
+
+    a = load("vikings", "warrior")
+    axe = bpy.data.objects["warrior_axe_held"]
+    assert axe["tt_texture"] == ",".join(AXE_TEXTURES) and not addon.shares_unit_texture(a, axe)
+    assert addon.mesh_texture_image(axe).name == AXE_TEXTURES[0]
+    return f"{len(AXE_TEXTURES)} tiers, {bpy.data.images[AXE_TEXTURES[0]].size[0]} px"
+
+
+@test
+def a_new_mesh_on_the_units_texture_gets_one_named_after_it():
+    a = load("vikings", "warrior")
+    visor = fixture_mesh("test_visor", None)
+    visor.data.materials.append(bpy.data.materials["tt_viking_warrior_rock"])
+    put_on_head(visor)
+    assert addon.shares_unit_texture(a, visor)
+    assert bpy.ops.object.tt_own_texture(target=visor.name) == {"FINISHED"}
+    assert visor["tt_texture"] == "test_visor" and addon.mesh_texture_image(visor).name == "test_visor"
+    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert os.path.isfile(os.path.join(MODELS, "test_visor.png"))
+    assert os.path.isfile(os.path.join(DECALS, "test_visor_team.png"))
+    assert entry("vikings", "warrior_test_visor")["textures"] == [[("test_visor", "")]]
+    assert '<texture name="test_visor" team="test_visor_team"/>' in open(registry_path, encoding="utf-8").read()
 
 
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
