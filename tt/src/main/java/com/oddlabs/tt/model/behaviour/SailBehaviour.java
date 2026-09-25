@@ -94,16 +94,22 @@ public final class SailBehaviour implements Behaviour {
         ShipTrajectoryPoint fromPoint = new ShipTrajectoryPoint(ship);
 
         var grid = ship.getUnitGrid();
-
-        var blockingShip = ShipTrajectory.checkShipsCollision(grid, ship, fromPoint, next_pose.moved(8));
-        if (fromPoint.distanceTo(next_pose) > 0.0001f && blockingShip != null) {
-            // If it's an enemy ship, stand your ground and fight! Do not escape!
-            // Otherwise if it's one of your own or an ally, let it pass.
-            if (blockingShip.getOwner().getPlayerInfo().getTeam() == ship.getOwner().getPlayerInfo().getTeam()) {
+        if (fromPoint.distanceTo(next_pose) > 0.0001f) {
+            var blockingShip = ShipTrajectory.checkShipsCollision(grid, ship, fromPoint, next_pose.moved(8));
+            if (blockingShip != null) {
+                // If it's an enemy ship, stand your ground and fight! Do not escape!
+                // Otherwise if it's one of your own or an ally, let it pass.
+                if (blockingShip.getOwner().getPlayerInfo().getTeam() == ship.getOwner().getPlayerInfo().getTeam()) {
+                    stuck = true;
+                    ship.reportStuck();
+                }
+                return State.INTERRUPTIBLE;
+            }
+            if (ShipTrajectory.checkLandCollision(grid, fromPoint, next_pose)) {
                 stuck = true;
                 ship.reportStuck();
+                return State.INTERRUPTIBLE;
             }
-            return State.INTERRUPTIBLE;
         }
 
         ship.free();

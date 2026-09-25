@@ -765,7 +765,7 @@ public class Ship extends Building implements Movable {
             rally_point = target;
         } else {
             rally_point = getUnitGrid().findGridTargets(
-                    target.getGridX(), target.getGridY(), 1, false, UnitGrid.LAND)[0];
+                    target.getGridX(), target.getGridY(), 1, false)[0];
         }
     }
 
