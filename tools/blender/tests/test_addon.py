@@ -917,7 +917,7 @@ def geometry_xml_is_only_ever_appended_to():
 
 
 TIERS = ("rock", "iron", "rubber")
-AXE_TEXTURES = [f"warrior_axe_held_{tier}" for tier in TIERS]
+AXE_TEXTURES = [f"viking_warrior_axe_held_{tier}" for tier in TIERS]
 
 
 def save_pattern(path, size, blue):
@@ -972,12 +972,12 @@ def own_texture_refuses_a_name_that_is_taken():
     axe = bpy.data.objects["warrior_axe_held"]
     assert addon.shares_unit_texture(a, axe)
     assert not addon.shares_unit_texture(a, addon.browsed_unit(a))
-    taken = bpy.data.images.new("warrior_axe_held_iron", 4, 4)
-    expect_error(lambda: bpy.ops.object.tt_own_texture(target=axe.name), "warrior_axe_held_iron already exists")
+    taken = bpy.data.images.new("viking_warrior_axe_held_iron", 4, 4)
+    expect_error(lambda: bpy.ops.object.tt_own_texture(target=axe.name), "viking_warrior_axe_held_iron already exists")
     bpy.data.images.remove(taken)
-    on_disk = os.path.join(MODELS, "warrior_axe_held_rubber.png")
+    on_disk = os.path.join(MODELS, "viking_warrior_axe_held_rubber.png")
     shutil.copy(os.path.join(MODELS, "viking_warrior_rock.png"), on_disk)
-    expect_error(lambda: bpy.ops.object.tt_own_texture(target=axe.name), "warrior_axe_held_rubber already exists")
+    expect_error(lambda: bpy.ops.object.tt_own_texture(target=axe.name), "viking_warrior_axe_held_rubber already exists")
     os.remove(on_disk)
     assert axe["tt_texture"] == "viking_warrior_rock,viking_warrior_iron,viking_warrior_rubber"
     assert axe.data.materials[0].name == "tt_viking_warrior_rock"

@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 27, 0),
+    "version": (1, 27, 1),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -2160,6 +2160,9 @@ def crop_pixels(image, x0, y0, x1, y1, size):
     return np.pad(part, ((0, size - part.shape[0]), (0, size - part.shape[1]), (0, 0)), mode="edge")
 
 
+TEXTURE_PREFIXES = {"vikings": "viking", "natives": "native"}
+
+
 class OwnTexture(bpy.types.Operator):
     """Copy the part of the unit's texture this item uses into textures of its own, one per tier with its team
     decal, and move its UVs onto them. The unit and its texture are not changed; Publish writes the new images and
@@ -2182,7 +2185,11 @@ class OwnTexture(bpy.types.Operator):
             self.report({"ERROR"}, f"{entry['name']} has event textures in geometry.xml; this cannot move those")
             return {"CANCELLED"}
         levels = model_levels(obj)
+        # Texture names are shared by every group, so they carry the race the way viking_peon and native_warrior do.
+        prefix = TEXTURE_PREFIXES.get(obj.get("tt_group", ""), obj.get("tt_group", ""))
         name = obj.get("tt_sprite") or obj.name
+        if prefix and not name.startswith(prefix + "_"):
+            name = f"{prefix}_{name}"
         textures = texture_names(obj)
         fresh = [name] if len(textures) == 1 else [f"{name}_{label}" for label in short_labels(textures)]
         decal_path = lambda texture: os.path.join(root, "assets", "textures", "teamdecals", texture + "_team.png")
