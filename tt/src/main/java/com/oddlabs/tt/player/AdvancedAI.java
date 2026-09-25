@@ -609,6 +609,7 @@ public final class AdvancedAI extends AI {
     }
 
     private void useShip(@NonNull Ship ship) {
+
         if (ship.isDead() || !ship.isComplete() || ship.isMoving())
             return;
 
@@ -808,10 +809,11 @@ public final class AdvancedAI extends AI {
 
     private boolean shipAtHome(Ship ship) {
         Building entrance = ship.getEntrance();
-        if (entrance == null) {
+        Building home = homeBuilding();
+        if (home == null) {
             return false;
         }
-        return closeToAny(entrance, getQuarters()) || closeToAny(entrance, getArmory());
+        return entrance.getIslandId() == home.getIslandId();
     }
 
     private boolean closeToAny(@NonNull Target target, @NonNull Selectable<?> @Nullable [] buildings) {
@@ -914,7 +916,7 @@ public final class AdvancedAI extends AI {
         int peons_needed = SHIP_PEONS - peons_aboard;
         if (peons_needed > 0) {
             if (getIdlePeons() != null && getIdlePeons().length > 0) {
-                getOwner().setTarget(firstN(getIdlePeons(), peons_needed), ship, Action.DEFAULT, false);
+                getOwner().setTarget(firstN(getIdlePeons(), peons_needed), ship, Action.MOVE, false);
             } else {
                 nodeDeployPeonsFromQuarters(ship, peons_needed);
             }
@@ -923,7 +925,7 @@ public final class AdvancedAI extends AI {
         int warriors_needed = getMinWarriorsOnShip() - warriors_aboard;
         if (warriors_needed > 0) {
             if (getIdleWarriors() != null && getIdleWarriors().length > 0) {
-                getOwner().setTarget(firstN(getIdleWarriors(), warriors_needed), ship, Action.DEFAULT, false);
+                getOwner().setTarget(firstN(getIdleWarriors(), warriors_needed), ship, Action.MOVE, false);
             } else {
                 nodeDeployUnitsInArmory(warriors_needed);
             }
