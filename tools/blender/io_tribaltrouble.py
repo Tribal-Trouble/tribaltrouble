@@ -40,7 +40,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 23, 0),
+    "version": (1, 23, 1),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1712,6 +1712,7 @@ class TTPreferences(bpy.types.AddonPreferences):
                               description="Your tribaltrouble checkout (the folder that holds assets)")
 
     def draw(self, context):
+        draw_update_button(self.layout, context)
         self.layout.prop(self, "repo_root")
 
 
@@ -2708,6 +2709,14 @@ def update_available(context):
     return version if version is not None and installed is not None and version > installed else None
 
 
+def draw_update_button(layout, context):
+    newer = update_available(context)
+    if newer is not None:
+        row = layout.row()
+        row.alert = True
+        row.operator(UpdateAddon.bl_idname, text="Update add-on to " + ".".join(map(str, newer)), icon="FILE_REFRESH")
+
+
 def install_repo_addon(context):
     """Copy the repo's add-on over this installed file. The running code is unchanged until a reload."""
     version = update_available(context)
@@ -2916,12 +2925,7 @@ class VIEW3D_PT_tt_units(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         wm = context.window_manager
-        newer = update_available(context)
-        if newer is not None:
-            row = layout.row()
-            row.alert = True
-            row.operator(UpdateAddon.bl_idname, text="Update add-on to " + ".".join(map(str, newer)),
-                         icon="FILE_REFRESH")
+        draw_update_button(layout, context)
         holder = root_holder(context)
         layout.prop(holder, "repo_root" if hasattr(holder, "repo_root") else "tt_repo_root", text="Repo")
         if not repo_root(context):
