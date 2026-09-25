@@ -619,6 +619,9 @@ public class Ship extends Building implements Movable {
         if (!unit_grid.isDockable(grid_x, grid_y)) {
             return false;
         }
+        if (unit_grid.getRegion(grid_x, grid_y, UnitGrid.LAND) == null) {
+            return false;
+        }
         float[] dir = getInitDirection(unit_grid, grid_x, grid_y);
         float dir_x = dir[0];
         float dir_y = dir[1];
