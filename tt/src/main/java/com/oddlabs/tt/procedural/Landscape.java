@@ -36,6 +36,7 @@ public final class Landscape {
     private static final int STRUCTURE_SEED = 42; // must be constant; otherwise distinct repeating patterns might appear
 
     private static final int NUM_PLANT_TYPES = 4;
+    private static final float VISIBLE_GROUND_ALPHA = .5f;
 
     /** Depth (in meters below sea level) where the sea bottom color starts blending in. */
     private static final float SEABOTTOM_DEPTH_OFFSET_METERS = 3f;
@@ -73,6 +74,15 @@ public final class Landscape {
     public enum TerrainType {
         NATIVE,
         VIKING
+    }
+
+    // BEACH is the base layer: sand on native maps, gravel on viking maps.
+    public enum Ground {
+        BEACH,
+        DIRT,
+        ROCK,
+        GRASS,
+        SNOW
     }
 
     private static final int MIN_ISLAND_AREA = 2000;
@@ -140,6 +150,7 @@ public final class Landscape {
     private float @NonNull [] @NonNull [] player_locations;
     private int @NonNull [] @NonNull [] supply_locations;
     private float @NonNull [] @NonNull [] plants;
+    private byte @NonNull [] @NonNull [] ground;
 
     public Landscape(int num_players, int meters_per_world, @NonNull TerrainType terrain, float detail_alpha_value,
             float hills, float vegetation_amount, float supplies_amount, int seed, int initial_unit_count,
@@ -832,6 +843,8 @@ public final class Landscape {
                 alpha_maps[1] = new GLByteImage(alpha1, GL11.GL_RED);
                 alpha_maps[2] = new GLByteImage(alpha2, GL11.GL_RED);
                 alpha_maps[3] = new GLByteImage(alpha3, GL11.GL_RED);
+                ground = groundGrid(new Ground[]{Ground.DIRT, Ground.ROCK, Ground.ROCK, Ground.GRASS}, alpha0,
+                        alpha1, alpha2, alpha3);
                 yield alpha3;
             }
             case VIKING -> {
@@ -847,6 +860,8 @@ public final class Landscape {
                 alpha_maps[1] = new GLByteImage(alpha1, GL11.GL_RED);
                 alpha_maps[2] = new GLByteImage(alpha2, GL11.GL_RED);
                 alpha_maps[3] = new GLByteImage(alpha3, GL11.GL_RED);
+                ground = groundGrid(new Ground[]{Ground.DIRT, Ground.ROCK, Ground.GRASS, Ground.SNOW}, alpha0,
+                        alpha1, alpha2, alpha3);
                 yield alpha2;
             }
         };
@@ -922,6 +937,23 @@ public final class Landscape {
         alpha_maps[6] = new GLByteImage(seabottom_alpha, GL11.GL_RED);
 
         return grass_alpha;
+    }
+
+    // A cell shows the topmost layer painted over it at least half opaque; layers blend in alpha_maps order.
+    private byte @NonNull [] @NonNull [] groundGrid(@NonNull Ground @NonNull [] layer_grounds,
+            @NonNull Channel @NonNull... alphas) {
+        byte[][] grid = new byte[unit_grids_per_world][unit_grids_per_world];
+        for (int y = 0; y < unit_grids_per_world; y++) {
+            for (int x = 0; x < unit_grids_per_world; x++) {
+                Ground cell = Ground.BEACH;
+                for (int i = 0; i < alphas.length; i++) {
+                    if (alphas[i].getPixel(x, y) >= VISIBLE_GROUND_ALPHA)
+                        cell = layer_grounds[i];
+                }
+                grid[y][x] = (byte) cell.ordinal();
+            }
+        }
+        return grid;
     }
 
     // generate dirt alpha
@@ -1366,6 +1398,10 @@ public final class Landscape {
 
     public float @NonNull [] @NonNull [] getHeight() {
         return height.getPixels();
+    }
+
+    public byte @NonNull [] @NonNull [] getGround() {
+        return ground;
     }
 
     public boolean[][] getAccessGrid() {

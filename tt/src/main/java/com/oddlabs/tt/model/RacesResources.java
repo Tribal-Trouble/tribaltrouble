@@ -233,9 +233,10 @@ public final class RacesResources {
     private record AttachmentEntry(@NonNull String group, @NonNull String base, @NonNull String slot,
                                    boolean default_on,
                                    @NonNull String name, int textures, @NonNull String event) {
-        boolean active() {
-            return event.equals(NO_EVENT) || event.equals(EVENT);
-        }
+    }
+
+    public static boolean isEventActive(@NonNull String event) {
+        return event.equals(NO_EVENT) || event.equals(EVENT);
     }
 
     // Lines of "group base slot order name textures event" written by the geometry converter; order 0 is default-on.
@@ -249,7 +250,8 @@ public final class RacesResources {
         try (var reader = new BufferedReader(new InputStreamReader(
                 com.oddlabs.util.Utils.makeURL(ATTACHMENTS_FILE).openStream(), StandardCharsets.UTF_8))) {
             return reader.lines().map(line -> line.split(" ")).map(f -> new AttachmentEntry(f[0], f[1], f[2],
-                    f[3].equals("0"), f[4], Integer.parseInt(f[5]), f[6])).filter(AttachmentEntry::active).toList();
+                    f[3].equals("0"), f[4], Integer.parseInt(f[5]), f[6])).filter(entry -> isEventActive(
+                            entry.event())).toList();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

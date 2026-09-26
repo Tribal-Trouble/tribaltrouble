@@ -20,12 +20,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 public final class ConvertToBinary {
     private static final String ATTACHMENTS_FILE = "attachments.txt";
     private static final String EVENT_TEXTURES_FILE = "event_textures.txt";
     private static final String SKINS_FILE = "skins.txt";
+    private static final String DECORATIONS_FILE = "decorations.txt";
+    private static final Set<String> DECORATION_GROUNDS = Set.of("beach", "dirt", "grass", "snow", "land");
+    private static final int DEFAULT_DECORATION_COUNT = 20;
+    private static final int MAX_DECORATION_COUNT = 1000;
     private static final String NO_EVENT = "-";
 
     void main(@NonNull String @NonNull... args) {
@@ -57,18 +62,22 @@ public final class ConvertToBinary {
             List<String> attachments = new ArrayList<>();
             List<String> event_textures = new ArrayList<>();
             List<String> skins = new ArrayList<>();
+            List<String> decorations = new ArrayList<>();
             for (int i = 0; i < nl.getLength(); i++) {
                 if (nl.item(i).getNodeType() == Node.ELEMENT_NODE)
-                    parseGroup(nl.item(i), registry, src_dir, build_dir, attachments, event_textures, skins);
+                    parseGroup(nl.item(i), registry, src_dir, build_dir, attachments, event_textures, skins,
+                            decorations);
             }
             Collections.sort(attachments);
             Collections.sort(event_textures);
             Collections.sort(skins);
+            Collections.sort(decorations);
             try {
                 Files.createDirectories(build_dir);
                 Files.write(build_dir.resolve(ATTACHMENTS_FILE), attachments);
                 Files.write(build_dir.resolve(EVENT_TEXTURES_FILE), event_textures);
                 Files.write(build_dir.resolve(SKINS_FILE), skins);
+                Files.write(build_dir.resolve(DECORATIONS_FILE), decorations);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -77,7 +86,8 @@ public final class ConvertToBinary {
 
     private static void parseGroup(@NonNull Node n, @NonNull Path registry, @NonNull Path src_dir,
             @NonNull Path build_dir,
-            @NonNull List<String> attachments, @NonNull List<String> event_textures, @NonNull List<String> skins) {
+            @NonNull List<String> attachments, @NonNull List<String> event_textures, @NonNull List<String> skins,
+            @NonNull List<String> decorations) {
         if (n.hasChildNodes()) {
             Path new_build_dir = build_dir.resolve(getName(n));
             NodeList nl = n.getChildNodes();
@@ -96,6 +106,11 @@ public final class ConvertToBinary {
                 if (skin != null)
                     skins.add(skinLine(getName(n), sprite, skin.getNodeValue(), sprites, src_dir));
                 eventTextureLines(getName(n), sprite, event_textures);
+                Node decoration = sprite.getAttributes().getNamedItem("decoration");
+                if (decoration != null)
+                    decorations.add(decorationLine(getName(n), sprite, decoration.getNodeValue()));
+                else if (sprite.getAttributes().getNamedItem("count") != null)
+                    throw new RuntimeException("Sprite " + getName(sprite) + " has a count but no decoration");
             }
         }
     }
@@ -124,6 +139,26 @@ public final class ConvertToBinary {
                     sprite) + " is in skin " + skin + " but replaces no sprite of group " + group);
         int textures = getModelObjectInfos(sprite, src_dir)[0].getTextures().length;
         return String.join(" ", group, skin, replaces.getNodeValue(), getName(sprite), Integer.toString(textures));
+    }
+
+    // group name ground count event: one line per sprite the game scatters over the map as scenery.
+    private static @NonNull String decorationLine(@NonNull String group, @NonNull Node sprite, @NonNull String ground) {
+        if (!DECORATION_GROUNDS.contains(ground))
+            throw new RuntimeException("Sprite " + getName(
+                    sprite) + " has decoration=\"" + ground + "\"; use one of " + String.join(", ",
+                            DECORATION_GROUNDS.stream().sorted().toList()));
+        if (sprite.getAttributes().getNamedItem("slot") != null || sprite.getAttributes().getNamedItem("skin") != null)
+            throw new RuntimeException("Sprite " + getName(
+                    sprite) + " cannot be a decoration and an attachment or skin");
+        Node count_node = sprite.getAttributes().getNamedItem("count");
+        String count = count_node != null ? count_node.getNodeValue() : Integer.toString(DEFAULT_DECORATION_COUNT);
+        if (!count.matches("[0-9]{1,4}") || Integer.parseInt(count) < 1 || Integer.parseInt(
+                count) > MAX_DECORATION_COUNT)
+            throw new RuntimeException("Sprite " + getName(
+                    sprite) + " needs a count from 1 to " + MAX_DECORATION_COUNT + ", not " + count);
+        Node event = sprite.getAttributes().getNamedItem("event");
+        return String.join(" ", group, getName(sprite), ground, Integer.toString(Integer.parseInt(count)),
+                event != null ? event.getNodeValue() : NO_EVENT);
     }
 
     // group sprite event index: the texture index is shared by every detail level, so each model must agree on it.

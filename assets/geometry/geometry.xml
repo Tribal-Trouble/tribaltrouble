@@ -17,6 +17,8 @@
         <!ATTLIST sprite event CDATA #IMPLIED>
         <!ATTLIST sprite skin CDATA #IMPLIED>
         <!ATTLIST sprite replaces CDATA #IMPLIED>
+        <!ATTLIST sprite decoration CDATA #IMPLIED>
+        <!ATTLIST sprite count CDATA #IMPLIED>
         <!ATTLIST group name CDATA #REQUIRED>
         <!ATTLIST model r CDATA #REQUIRED>
         <!ATTLIST model g CDATA #REQUIRED>

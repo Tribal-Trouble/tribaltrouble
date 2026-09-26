@@ -91,6 +91,27 @@ A skin redraws everything one player owns: every unit and building of a template
 - A building skin replaces one stage. Props whose `base` is the skin sprite are drawn with it; stages the skin leaves alone keep their stock props.
 - The converter writes `skins.txt` (`group skin replaces name textures`). Nothing picks a player's skin yet; `RacesResources.getSkins(name)` hands one to `Player.setSkins`.
 
+## Map decorations (game side implemented 2026-09-25)
+
+A decoration is a static sprite the game scatters over every generated map, for example pumpkin patches during Halloween. It is scenery only: units walk through it, it never enters the simulation, and players in one game may see different decorations.
+
+```xml
+<sprite name="pumpkin_patch" decoration="grass" count="12" event="halloween">
+<sprite name="pumpkin" decoration="land">
+```
+
+- `decoration` is the ground it stands on:
+  - `grass`: the grass layer.
+  - `dirt`: dirt on native maps, soil on viking maps.
+  - `beach`: the base layer near the water, sand on native maps and gravel on viking maps.
+  - `snow`: snow, so viking maps only.
+  - `land`: any of them.
+- `count` is how many the game places on one map, from 1 to 1000; without it the converter writes 20. A map with less matching ground gets fewer.
+- `event` is optional, as for props. Outside its event the sprite is not loaded or placed.
+- A decoration cannot also have a `slot` or `skin`.
+
+The game places decorations after trees, rocks and iron, only on dry accessible ground, one per unit grid cell, never on a cell a tree or resource holds. It draws them like plants: they fade out with distance and follow the same detail switch. Placement uses its own random seeded from the map seed, so one map always gets the same decorations. The converter writes `decorations.txt` (`group name ground count event`), sorted, next to `attachments.txt`.
+
 ## Attachment points
 
 Proposed logical names, mapped per skeleton. The plugin and the registry should speak the logical name; the mapping table resolves the bone string.

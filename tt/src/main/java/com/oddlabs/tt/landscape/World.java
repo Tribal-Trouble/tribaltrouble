@@ -230,6 +230,7 @@ public final class World {
         this.tree_root = AbstractTreeGroup.newRoot(this, world_info.trees(), world_info.palm_trees(), terrain);
         this.element_root = AbstractElementNode.newRoot(world);
         AbstractElementNode.buildSupplies(this, world_info.iron(), world_info.rocks(), world_info.plants(), terrain);
+        landscape_resources.getDecorations().place(this, world_info.ground(), world_info.seed());
     }
 
     public @NonNull AbstractElementNode getElementRoot() {
