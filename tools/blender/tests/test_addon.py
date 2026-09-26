@@ -8,6 +8,7 @@ in a temporary copy of assets/geometry, so the repo is never written to. Exit co
 The shapes and images the tests make are throwaway fixtures inside that temporary folder. They are never art for
 the game and must never be copied into the repo.
 """
+import glob
 import importlib.util
 import os
 import re
@@ -751,14 +752,11 @@ def a_unit_on_a_borrowed_rig_cannot_change_the_clips():
 def props_on_a_building_save_register_and_come_back_on_reload():
     body = load_building("vikings", "quarters")
     assert body is not None and body["tt_sprite"] == "quarters"
-    wm.tt_event = ""
     flag = fixture_mesh("test_flag", fixture_image("test_flag_tex"), z=8.0, kind="cube")
-    wm.tt_event = "Halloween"
     lantern = fixture_mesh("test_lantern", fixture_image("test_lantern_tex"), z=2.0, kind="cube")
     lantern.location.x = 4.0
     select_only(lantern)
-    assert bpy.ops.object.tt_save_props() == {"FINISHED"}
-    wm.tt_event = ""
+    assert bpy.ops.object.tt_save_props(event=" Halloween") == {"FINISHED"}
     select_only(flag)
     assert bpy.ops.object.tt_save_props() == {"FINISHED"}
     seasonal, always = entry("vikings", "quarters_test_lantern"), entry("vikings", "quarters_test_flag")
@@ -791,14 +789,19 @@ def a_prop_with_a_taken_name_or_no_texture_is_refused():
 @test
 def event_texture_is_a_copy_listed_on_every_model_that_shares_the_atlas():
     body = load_building("vikings", "quarters")
-    wm.tt_event = "halloween"
     before = open(os.path.join(MODELS, "viking_buildings_hi.png"), "rb").read()
-    assert bpy.ops.object.tt_new_event_texture() == {"FINISHED"}
+    assert not bpy.ops.object.tt_save_event_texture.poll(), "nothing was started yet"
+    expect_error(lambda: bpy.ops.object.tt_new_event_texture(event="Hallo ween"), "letters, digits")
+    assert bpy.ops.object.tt_new_event_texture(event="halloween", scope="ALL") == {"FINISHED"}
+    assert bpy.context.mode == "PAINT_TEXTURE", "the dialog's OK did not start painting"
     image = addon.mesh_texture_image(body)
     assert image.name.startswith("viking_buildings_hi_halloween"), image.name
+    assert addon.building_events(body, entry("vikings", "quarters")) == [("halloween", "viking_buildings_hi_halloween")]
     image.pixels[0] = 0.25  # paint
     assert image.is_dirty
-    assert bpy.ops.object.tt_save_event_texture(everywhere=True) == {"FINISHED"}
+    assert bpy.ops.object.tt_save_event_texture() == {"FINISHED"}
+    assert not bpy.ops.object.tt_save_event_texture.poll(), "published textures still count as unsaved"
+    assert "halloween" in addon.known_events(bpy.context)
     assert open(os.path.join(MODELS, "viking_buildings_hi.png"), "rb").read() == before, "the original was painted"
     assert open(os.path.join(MODELS, "viking_buildings_hi_halloween.png"), "rb").read() != before
     quarters, armory = entry("vikings", "quarters"), entry("vikings", "armory")
@@ -810,23 +813,22 @@ def event_texture_is_a_copy_listed_on_every_model_that_shares_the_atlas():
     assert 'name="viking_buildings_hi_halloween" team="viking_buildings_hi_team" event="halloween"' in text
     assert entry("vikings", "warrior")["textures"][0][-1][1] == "", "a model on another atlas was touched"
     count = text.count('event="halloween"/>')
-    assert bpy.ops.object.tt_save_event_texture(everywhere=True) == {"FINISHED"}
+    image.pixels[1] = 0.5  # paint again
+    assert bpy.ops.object.tt_save_event_texture() == {"FINISHED"}
     assert open(registry_path, "rb").read().decode("utf-8").count('event="halloween"/>') == count, "listed twice"
     assert bpy.ops.object.tt_show_event_texture(texture="viking_buildings_hi") == {"FINISHED"}
     assert addon.mesh_texture_image(body).name.startswith("viking_buildings_hi.png")
-    assert bpy.ops.object.tt_remove_event_texture() == {"FINISHED"}
+    assert bpy.ops.object.tt_remove_event_texture(event="halloween") == {"FINISHED"}
     assert 'event="halloween"/>' not in open(registry_path, "rb").read().decode("utf-8")
 
 
 @test
 def event_texture_for_one_model_only():
     load_building("vikings", "quarters")
-    wm.tt_event = "winter"
-    assert bpy.ops.object.tt_new_event_texture() == {"FINISHED"}
-    assert bpy.ops.object.tt_save_event_texture(everywhere=False) == {"FINISHED"}
+    assert bpy.ops.object.tt_new_event_texture(event="winter", scope="ONLY") == {"FINISHED"}
+    assert bpy.ops.object.tt_save_event_texture() == {"FINISHED"}
     assert entry("vikings", "quarters")["textures"][0][-1] == ("viking_buildings_hi_winter", "winter")
     assert all(event == "" for _, event in entry("vikings", "armory")["textures"][0])
-    wm.tt_event = ""
 
 
 def polygons(path):
@@ -947,7 +949,8 @@ def a_building_publishes_only_the_detail_level_that_changed():
 
 @test
 def an_edited_rock_publishes_exactly_its_own_file():
-    rock = load_building("misc", "rock_1")
+    assert bpy.ops.wm.tt_load_unit(group="misc", sprite="rock_1") == {"FINISHED"}
+    rock = bpy.data.objects[addon.loaded_models()[0].name]
     assert not addon.has_low_detail()
     before = mtimes()
     assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
@@ -956,6 +959,45 @@ def an_edited_rock_publishes_exactly_its_own_file():
     assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
     changed = [path for path, stamp in mtimes().items() if before.get(path) != stamp]
     assert changed == [os.path.normpath(rock["tt_source"])], changed
+
+
+@test
+def the_building_panel_shows_only_for_a_building_stage():
+    assert bpy.ops.wm.tt_load_unit(group="misc", sprite="jungle_tree_crown") == {"FINISHED"}
+    assert addon.loaded_models() and not addon.VIEW3D_PT_tt_building.poll(bpy.context)
+    assert bpy.ops.object.tt_save_props.poll() is False
+    assert load_building("vikings", "quarters") is not None and addon.VIEW3D_PT_tt_building.poll(bpy.context)
+
+
+def x_range(objs):
+    return addon.x_extent(bpy.context, objs)
+
+
+@test
+def compare_puts_a_reference_beside_the_model_that_is_never_saved_or_cleared_by_loading():
+    wm.tt_category = "ALL"
+
+    def pick(group, sprite):
+        wm.tt_unit_index = next(i for i, u in enumerate(wm.tt_units) if (u.group, u.sprite) == (group, sprite))
+        assert bpy.ops.wm.tt_compare() == {"FINISHED"}
+        return next(o for o in addon.references() if o.type == "MESH" and o[addon.REFERENCE_TAG] == f"{group} / {sprite}")
+
+    hut = pick("vikings", "quarters")
+    body = addon.browsed_building(bpy.context)
+    assert x_range([body])[1] < x_range([hut])[0], (x_range([body]), x_range([hut]))
+    peon = pick("natives", "peon")
+    assert x_range([hut])[1] < x_range([peon])[0], (x_range([hut]), x_range([peon]))
+    assert peon.parent is not None and peon.parent.get(addon.REFERENCE_TAG) and peon.hide_select
+    assert bpy.context.active_object is not None and not bpy.context.active_object.get(addon.REFERENCE_TAG)
+    a = load("vikings", "peon")
+    assert hut.name in bpy.data.objects and peon.name in bpy.data.objects
+    assert all(not o.get(addon.REFERENCE_TAG) for o in addon.loaded_models())
+    assert addon.attachment_obj_poll(None, hut) is False and not addon.item_rows([hut], a, "")[0][0]
+    before = mtimes()
+    assert bpy.ops.wm.tt_publish_model() == {"FINISHED"} and mtimes() == before
+    assert bpy.ops.wm.tt_clear_compare() == {"FINISHED"}
+    assert not addon.references() and not any(x.get(addon.REFERENCE_TAG) for x in bpy.data.actions)
+    assert "ref_quarters" not in bpy.data.meshes and not bpy.ops.wm.tt_clear_compare.poll()
 
 
 @test
@@ -1295,13 +1337,57 @@ def a_building_stage_skin_is_static_and_has_no_base():
     assert file_bytes(stock) == stock
 
 
+def converter_skins(geometry):
+    """skins.txt as the game's geometry converter writes it for this geometry folder; None without a built
+    converter and a JDK that runs it."""
+    classes = [os.path.join(REPO, p, "build", "classes", "java", "main") for p in ("tools", "common")]
+    jars = [j for j in glob.glob(os.path.join(os.path.expanduser("~"), ".gradle", "caches", "modules-2", "files-2.1",
+                                              "org.joml", "joml", "*", "*", "joml-*.jar"))
+            if not j.endswith(("-sources.jar", "-javadoc.jar"))]
+    javas = [os.path.join(os.environ.get("JAVA_HOME", ""), "bin", "java"), "C:/Program Files/Java/jdk-26/bin/java",
+             shutil.which("java") or ""]
+    if not jars or not all(os.path.isdir(c) for c in classes):
+        return None
+    out = os.path.join(TEMP, "geometry_bin")
+    for java in [j for j in javas if os.path.isfile(j) or os.path.isfile(j + ".exe")]:
+        # An older JDK refuses the converter's class files; the next one may run them.
+        if subprocess.run([java, "-cp", os.pathsep.join(classes + jars[-1:]), "com.oddlabs.converter.ConvertToBinary",
+                           "geometry.xml", geometry, out], cwd=geometry, capture_output=True).returncode == 0:
+            return open(os.path.join(out, "skins.txt"), encoding="utf-8").read().splitlines()
+    return None
+
+
+@test
+def one_skin_name_covers_several_models():
+    for group, sprite in (("vikings", "warrior"), ("vikings", "quarters")):
+        if sprite == "warrior":
+            body = addon.browsed_unit(load(group, sprite))
+        else:
+            body = load_building(group, sprite)
+        material = bpy.data.materials.new(f"test_{sprite}_harvest_mat")
+        material.use_nodes = True
+        material.node_tree.nodes.new("ShaderNodeTexImage").image = fixture_image(f"{sprite}_harvest_tex")
+        body.data.materials.clear()
+        body.data.materials.append(material)
+        assert save_skin("harvest") == {"FINISHED"}
+    skins = {(s["name"], s["replaces"]) for s in addon.read_registry(TEMP) if s["skin"] == "harvest"}
+    assert skins == {("warrior_harvest", "warrior"), ("quarters_harvest", "quarters")}, skins
+    expect_error(lambda: save_skin("harvest"), "quarters already has a harvest skin")
+    lines = converter_skins(GEOMETRY)
+    if lines is None:
+        return "skins.txt skipped: no built converter or JDK"
+    harvest = sorted(line.rsplit(" ", 1)[0] for line in lines if line.split(" ")[1] == "harvest")
+    assert harvest == ["vikings harvest quarters quarters_harvest", "vikings harvest warrior warrior_harvest"], lines
+
+
 @test
 def a_skin_is_refused_for_a_taken_or_bad_name_a_file_on_disk_or_no_change():
     a = load("vikings", "warrior")
     registry_before = open(registry_path, "rb").read()
-    expect_error(lambda: save_skin("gold"), "already has a sprite named warrior_gold")
+    expect_error(lambda: save_skin("gold"), "warrior already has a gold skin")
+    expect_error(lambda: save_skin("axe_held"), "already has a sprite named warrior_axe_held")
     expect_error(lambda: save_skin("go ld"), "letters, digits and underscores")
-    expect_error(lambda: save_skin("plain"), "nothing differs from the stock model")
+    expect_error(lambda: save_skin("plain"), "nothing differs from the default model")
     taken = os.path.join(GEOMETRY, "vikings", "warrior", "warrior_taken.xml")
     with open(taken, "w") as f:
         f.write("keep")
@@ -1330,7 +1416,7 @@ def preview_shows_a_skin_and_stock_puts_the_model_back():
     assert bpy.ops.object.tt_show_skin(sprite="warrior_gold") == {"FINISHED"}
     assert body.data.materials[0].name == "tt_warrior_gold_rock" and body["tt_texture"].startswith("warrior_gold_rock")
     assert low.data.materials[0].name == "tt_viking_warrior_rock"
-    expect_error(lambda: save_skin("again"), "press Stock")
+    expect_error(lambda: save_skin("again"), "press Default")
     assert bpy.ops.object.tt_show_skin(sprite="") == {"FINISHED"}
     assert all("tt_skin" not in o and o["tt_export_hash"] == hashes[o] for o in (body, low))
     assert body["tt_texture"] == texture and body.data.materials[0].name == "tt_viking_warrior_rock"
