@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 31, 0),
+    "version": (1, 32, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1228,8 +1228,9 @@ def sprite_text(attrs, models, skeleton=None, clips=()):
     return "\n".join(lines + ["        </sprite>"])
 
 
-def registry_entries(context, arm, base):
-    """(sprite name, geometry.xml text) for every visible new attachment in the panel's point slots."""
+def registry_entries(context, arm, base, extra=()):
+    """(sprite name, geometry.xml text) for every visible new attachment in the panel's point slots, extra
+    attributes last."""
     root = repo_root(context)
     entries = []
     for slot in arm.tt_attachments:
@@ -1244,7 +1245,7 @@ def registry_entries(context, arm, base):
             model = os.path.relpath(os.path.join(os.path.dirname(arm["tt_skeleton"]), obj.name + ".xml"),
                                     os.path.join(root, GEOMETRY_DIR)).replace(os.sep, "/")
         name = f"{base}_{obj.name}"
-        entries.append((name, sprite_text([("name", name), ("base", base), ("slot", game_slot)],
+        entries.append((name, sprite_text([("name", name), ("base", base), ("slot", game_slot)] + list(extra),
                                           [(model, textures)])))
     return entries
 
@@ -1465,6 +1466,7 @@ def read_registry(root):
                 "group": group.get("name"), "name": sprite.get("name"), "base": sprite.get("base") or "",
                 "slot": sprite.get("slot") or "", "default": sprite.get("default") == "true",
                 "event": sprite.get("event") or "", "skin": sprite.get("skin") or "",
+                "decoration": sprite.get("decoration") or "",
                 "replaces": sprite.get("replaces") or "",
                 "textures": [[(t.get("name"), t.get("event") or "") for t in m.findall("texture")]
                              for m in sprite.findall("model")],
@@ -1508,6 +1510,7 @@ CATEGORY_ITEMS = (
     ("BUILDINGS", "Buildings", "Buildings and their half built and construction stages"),
     ("RESOURCES", "Resources", "Rocks, wood piles and treasure"),
     ("NATURE", "Trees and Plants", "Trees, palms and plants"),
+    ("DECORATIONS", "Decorations", "Map scenery the game scatters, such as pumpkin patches"),
     ("OTHER", "Other", "Everything else"),
     ("ALL", "All", "Every model"),
 )
@@ -1518,6 +1521,8 @@ def sprite_category(registry, sprite):
     name = sprite["name"]
     if rig_entry(registry, sprite)["skeleton"]:
         return "UNITS"
+    if sprite["decoration"]:
+        return "DECORATIONS"
     if name.endswith(("_halfbuilt", "_start")) or any(s["group"] == sprite["group"] and s["name"] == name + "_start"
                                                      for s in registry):
         return "BUILDINGS"
@@ -2414,12 +2419,29 @@ class OwnTexture(bpy.types.Operator):
         return {"FINISHED"}
 
 
+def known_events(context, edit_text=""):
+    """Every event geometry.xml already names, for the event fields to offer."""
+    root = repo_root(context)
+    registry = read_registry(root) if root else []
+    events = {s["event"] for s in registry} | {e for s in registry for level in s["textures"] for _, e in level}
+    return sorted(e for e in events if e and edit_text.strip().lower() in e)
+
+
+def event_search(self, context, edit_text):
+    return known_events(context, edit_text)
+
+
 class SaveItems(bpy.types.Operator):
     """Check, write every visible item into the unit's folder with its texture, and list the new ones in
     geometry.xml. A new item then becomes one of the unit's buttons above; its file in the repo is the real copy
     from here on"""
     bl_idname = "object.tt_save_items"
     bl_label = "Publish"
+    event: StringProperty(name="Event", search=event_search, options={"SKIP_SAVE"},
+                          description="Blank means all year. With a name such as halloween, the new items only "
+                                      "show during that event")
+    on_by_default: BoolProperty(name="On by default", options={"SKIP_SAVE"},
+                                description="Every unit wears the new items without a player choosing them")
 
     @classmethod
     def poll(cls, context):
@@ -2428,7 +2450,17 @@ class SaveItems(bpy.types.Operator):
         cls.poll_message_set("Load the unit from the Models list of your repo folder")
         return False
 
+    def invoke(self, context, event):
+        # Only new items take an event; existing ones keep their attributes and need no form.
+        if any(x.obj is not None and x.visible for x in active_armature(context).tt_attachments):
+            return context.window_manager.invoke_props_dialog(self)
+        return self.execute(context)
+
     def execute(self, context):
+        event = self.event.strip().lower()
+        if not valid_event(event):
+            self.report({"ERROR"}, "Name the event with letters, digits and underscores")
+            return {"CANCELLED"}
         arm = active_armature(context)
         group, base = find_base_sprite(arm["tt_skeleton"])
         if base is None:
@@ -2440,7 +2472,8 @@ class SaveItems(bpy.types.Operator):
         if clash:
             self.report({"ERROR"}, f"{group} already has {', '.join(clash)}: rename your mesh")
             return {"CANCELLED"}
-        entries = registry_entries(context, arm, base)
+        extra = ([("event", event)] if event else []) + ([("default", "true")] if self.on_by_default else [])
+        entries = registry_entries(context, arm, base, extra)
         if not export_visible(context, arm, self.report):
             return {"CANCELLED"}
         append_registry_entries(os.path.join(repo_root(context), REGISTRY_FILE), group, entries)
@@ -2449,6 +2482,7 @@ class SaveItems(bpy.types.Operator):
             obj = x.obj
             obj["tt_group"] = group
             obj["tt_slot"] = GAME_SLOTS.get(x.point, x.point.lower())
+            obj["tt_event"] = event
             obj["tt_sprite"] = f"{base}_{obj.name}"
             obj["tt_source"] = os.path.join(unit_dir, obj.name + ".xml")
             obj["tt_texture"] = object_texture(obj)
@@ -3193,9 +3227,21 @@ def publish_own_textures(root, objs):
         del o["tt_own_texture"]
 
 
+# Landscape.Ground names the game scatters decorations on; land is any of them.
+DECORATION_GROUNDS = (
+    ("grass", "Grass", ""),
+    ("beach", "Beach", ""),
+    ("dirt", "Dirt", ""),
+    ("rock", "Rock", ""),
+    ("snow", "Snow", ""),
+    ("land", "Any land", "Anywhere above the sea"),
+)
+
+
 class RegisterModel(bpy.types.Operator):
-    """Export the active mesh as a brand new model and add it to geometry.xml: a static building or prop, a
-    unit on the rig it is bound to, or a unit with its own new rig. Using it in game still needs code"""
+    """Export the active mesh as a brand new model and add it to geometry.xml: a static building, prop or map
+    decoration, a unit on the rig it is bound to, or a unit with its own new rig. Using it in game still needs code,
+    except for a map decoration, which the game scatters itself"""
     bl_idname = "object.tt_register_model"
     bl_label = "Register New Model"
     bl_options = {"REGISTER"}
@@ -3208,6 +3254,15 @@ class RegisterModel(bpy.types.Operator):
     start: StringProperty(name="Start", description="Building only: mesh for the construction site, registered "
                                                     "as <name>_start")
     start_low: StringProperty(name="Start Low Detail")
+    kind: EnumProperty(name="Kind", default="MODEL", items=(
+        ("BUILDING", "Building", "A building, with optional half built and construction stages"),
+        ("MODEL", "Prop or model", "A static model that code places"),
+        ("DECORATION", "Map decoration", "Scenery the game scatters over the map, like plants")))
+    ground: EnumProperty(name="Terrain", items=DECORATION_GROUNDS, description="Ground the game scatters it on")
+    count: IntProperty(name="Count", default=20, min=1, description="How many the game scatters over a map")
+    event: StringProperty(name="Event", search=event_search, options={"SKIP_SAVE"},
+                          description="Blank means all year. With a name such as halloween, it only shows during "
+                                      "that event")
 
     @classmethod
     def poll(cls, context):
@@ -3231,6 +3286,12 @@ class RegisterModel(bpy.types.Operator):
                          icon="ARMATURE_DATA" if arm is not None else "MESH_CUBE")
         layout.prop_search(self, "low_detail", bpy.data, "objects")
         if arm is None:
+            layout.prop(self, "kind")
+        if arm is None and self.kind == "DECORATION":
+            box = layout.box()
+            for prop in ("ground", "count", "event"):
+                box.prop(self, prop)
+        elif arm is None and self.kind == "BUILDING":
             box = layout.box()
             box.label(text="Building stages (optional)")
             for prop in ("half_built", "half_built_low", "start", "start_low"):
@@ -3243,16 +3304,21 @@ class RegisterModel(bpy.types.Operator):
         if not re.fullmatch(r"[A-Za-z0-9_]+", name):
             self.report({"ERROR"}, "Give the model a name made of letters, digits and underscores")
             return {"CANCELLED"}
+        event = self.event.strip().lower()
+        if not valid_event(event):
+            self.report({"ERROR"}, "Name the event with letters, digits and underscores")
+            return {"CANCELLED"}
         arm = active_armature(context)
         group, base, _ = rig_registry(context, arm)
         if base is None:
             group = self.group
+        kind = self.kind if arm is None else "UNIT"
 
         def picked(prop):
             return bpy.data.objects.get(getattr(self, prop)) if getattr(self, prop) else None
 
         stages = [("", obj, picked("low_detail"))]
-        if arm is None:
+        if kind == "BUILDING":
             stages += [(suffix, picked(hi), picked(lo)) for suffix, hi, lo in
                        (("_halfbuilt", "half_built", "half_built_low"), ("_start", "start", "start_low"))
                        if picked(hi) is not None]
@@ -3314,8 +3380,10 @@ class RegisterModel(bpy.types.Operator):
                 clips.append((clip, kind, relative(path)))
             arm["tt_skeleton"] = os.path.join(folder, name + "_skeleton.xml")
 
-        base_attr = [("base", base)] if base is not None else []
-        entries = [(sprite, sprite_text([("name", sprite)] + base_attr, models, skeleton, clips))
+        extra = [("base", base)] if base is not None else []
+        if kind == "DECORATION":
+            extra = [("decoration", self.ground), ("count", str(self.count))] + ([("event", event)] if event else [])
+        entries = [(sprite, sprite_text([("name", sprite)] + extra, models, skeleton, clips))
                    for sprite, models in stage_models]
         append_registry_entries(os.path.join(root, REGISTRY_FILE), group, entries)
         refresh_units(context)
@@ -3381,18 +3449,6 @@ def new_props(context, body):
 
 def models_texture_path(root, texture):
     return os.path.join(root, "assets", "textures", "models", texture + ".png")
-
-
-def known_events(context, edit_text=""):
-    """Every event geometry.xml already names, for the event fields to offer."""
-    root = repo_root(context)
-    registry = read_registry(root) if root else []
-    events = {s["event"] for s in registry} | {e for s in registry for level in s["textures"] for _, e in level}
-    return sorted(e for e in events if e and edit_text.strip().lower() in e)
-
-
-def event_search(self, context, edit_text):
-    return known_events(context, edit_text)
 
 
 def body_entry(context, body):

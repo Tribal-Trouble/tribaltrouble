@@ -363,7 +363,7 @@ def register_a_building_with_all_three_stages():
     half = fixture_mesh("hut_half", hi, 3, "cube")
     site = fixture_mesh("hut_site", hi, 6, "cube")
     select_only(built)
-    assert bpy.ops.object.tt_register_model(sprite_name="test_hut", group="vikings", low_detail=far.name,
+    assert bpy.ops.object.tt_register_model(sprite_name="test_hut", group="vikings", low_detail=far.name, kind="BUILDING",
                                             half_built=half.name, start=site.name) == {"FINISHED"}
     assert entry("vikings", "test_hut")["models"] == ["vikings/test_hut/test_hut.xml", "vikings/test_hut/test_hut_lo.xml"]
     assert entry("vikings", "test_hut_halfbuilt")["models"] == ["vikings/test_hut/test_hut_halfbuilt.xml"]
@@ -377,6 +377,28 @@ def register_a_building_with_all_three_stages():
     wm.tt_category = "UNITS"
     assert bpy.ops.wm.tt_load_unit(group="vikings", sprite="test_hut") == {"FINISHED"}
     for o in (built, far, half, site):
+        bpy.data.objects.remove(o)
+
+
+@test
+def register_a_map_decoration_with_terrain_count_and_event():
+    addon.clear_browser_objects()
+    patch = fixture_mesh("pumpkin_patch", fixture_image("test_patch_tex"), 0, "cube")
+    stage = fixture_mesh("patch_stage", fixture_image("test_patch_stage"), 3, "cube")
+    select_only(patch)
+    assert bpy.ops.object.tt_register_model(sprite_name="test_patch", group="misc", kind="DECORATION", ground="grass",
+                                            count=12, event=" Halloween", half_built=stage.name) == {"FINISHED"}
+    text = open(registry_path, encoding="utf-8").read()
+    assert '<sprite name="test_patch" decoration="grass" count="12" event="halloween">' in text
+    assert entry("misc", "test_patch")["models"] == ["misc/test_patch/test_patch.xml"]
+    assert entry("misc", "test_patch_halfbuilt") is None, "a decoration has no building stages"
+    select_only(patch)
+    expect_error(lambda: bpy.ops.object.tt_register_model(sprite_name="test_patch2", group="misc", kind="DECORATION",
+                                                          event="bad name"), "letters")
+    wm.tt_category = "DECORATIONS"
+    assert [u.name for u in wm.tt_units] == ["misc / test_patch"], [u.name for u in wm.tt_units]
+    wm.tt_category = "UNITS"
+    for o in (patch, stage):
         bpy.data.objects.remove(o)
 
 
@@ -504,6 +526,22 @@ def one_press_saves_a_new_item_and_turns_it_into_a_button():
     expect_error(bpy.ops.object.tt_save_items, "problem(s)")
     assert entry("natives", "peon_test_bare_hat") is None, "a refused item still reached the registry"
     bpy.data.objects.remove(bare)
+
+
+@test
+def a_new_item_can_belong_to_an_event_and_be_on_by_default():
+    load("natives", "peon")
+    put_on_head(fixture_mesh("test_pumpkin_hat", fixture_image("test_pumpkin_hat_tex")))
+    assert bpy.ops.object.tt_save_items(event="halloween", on_by_default=True) == {"FINISHED"}
+    put_on_head(fixture_mesh("test_plain_hat", fixture_image("test_plain_hat_tex")))
+    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    text = open(registry_path, encoding="utf-8").read()
+    assert '<sprite name="peon_test_pumpkin_hat" base="peon" slot="hat" event="halloween" default="true">' in text
+    assert '<sprite name="peon_test_plain_hat" base="peon" slot="hat">' in text
+    assert not entry("natives", "peon_test_plain_hat")["default"] and entry("natives", "peon_test_plain_hat")["event"] == ""
+    put_on_head(fixture_mesh("test_odd_hat", fixture_image("test_odd_hat_tex")))
+    expect_error(lambda: bpy.ops.object.tt_save_items(event="bad name"), "letters")
+    assert entry("natives", "peon_test_odd_hat") is None
 
 
 @test
