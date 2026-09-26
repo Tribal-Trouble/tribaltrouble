@@ -3,7 +3,7 @@
 Install: copy this folder into Blender's add-ons folder and enable it (tools/blender/README.md has the steps).
 Import: File > Import > Tribal Trouble Mesh (.xml), or Skeleton / Animation (.xml)
 Export: File > Export > Tribal Trouble Mesh (.xml), or Skeleton / Animation (.xml)
-Attachments: 3D view sidebar, "Tribal Trouble" tab, with an armature active.
+Panels: 3D view sidebar, "Tribal Trouble" tab.
 
 Skeleton and clip files hold absolute model-space 4x4 matrices per bone (m<column><row>,
 translation in m30..m32). Import builds an armature whose rest pose equals the file's and
