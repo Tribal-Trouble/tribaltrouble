@@ -508,7 +508,7 @@ public final class AdvancedAI extends AI {
 
         nodeBuildShip(ships.size());
 
-        for (Ship ship : ships) {
+        for (Ship ship : ships.subList(0, Math.min(ships.size(), getMaxFleetSize()))) {
             if (ship.isComplete() && !ship.isMoving() && shipAtHome(ship) && !shipFullyCrewed(ship)) {
                 nodeLoadShip(ship);
                 return;
