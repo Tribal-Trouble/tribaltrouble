@@ -9,7 +9,7 @@ from bpy.props import StringProperty, EnumProperty, FloatProperty, IntProperty
 from .textures import apply_team_preview, get_atlas_material, models_texture_path, short_labels
 from .rig import active_armature, armature_actions, assign_action, clip_short_name, item_hidden_here, shown_bones
 from .registry import GEOMETRY_DIR, read_registry, REGISTRY_FILE, repo_root, rig_registry, set_clip_line
-from .scene import has_low_detail, unit_meshes
+from .scene import BROWSER_TAG, has_low_detail, unit_meshes
 from .publish import borrowed_rig_problem
 from .forms import draw_confirm, form_title, name_problem, open_form
 
@@ -268,6 +268,8 @@ class NewClip(bpy.types.Operator):
         if "tt_clip" in action:
             del action["tt_clip"]
         action["tt_kind"], action["tt_wpc"] = self.kind, self.wpc
+        if arm.get(BROWSER_TAG):
+            action[BROWSER_TAG] = True  # goes with the loaded rig, like its loaded clips
         if arm.animation_data is not None:
             arm.animation_data.action = None  # a copied action brings its own slot; let assign_action bind it
         assign_action(arm, action)

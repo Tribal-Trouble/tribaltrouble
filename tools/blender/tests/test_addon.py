@@ -836,6 +836,14 @@ def a_clip_started_from_a_pose_has_two_keys_and_keeps_the_pose():
 
 
 @test
+def an_unsaved_clip_goes_with_its_unit_and_never_onto_another_rig_of_the_same_name():
+    load("vikings", "peon")
+    assert bpy.ops.object.tt_new_clip(clip_name="scribble") == {"FINISHED"}
+    a = load("natives", "peon")
+    assert a.name == "peon" and "peon_scribble" not in bpy.data.actions, [x.name for x in addon.armature_actions(a)]
+
+
+@test
 def saving_an_existing_clip_replaces_it_in_place():
     a = load("vikings", "warrior")
     run = next(x for x in addon.armature_actions(a) if x.name.endswith("run"))
