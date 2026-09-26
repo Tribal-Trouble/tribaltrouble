@@ -344,28 +344,28 @@ public final class WorldViewer implements Animated, AutoCloseable {
                 Unit unit = new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null,
                         player.getRace().getUnitTemplate(Race.UNIT_PEON));
                 if (ship != null) {
-                    ship.getUnitContainer().enter(unit);
+                    ship = ship.board(unit);
                 }
             }
             for (int j = 0; j < unit_info.numRockWarriors(); j++, i++) {
                 Unit unit = new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null,
                         player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
                 if (ship != null) {
-                    ship.getUnitContainer().enter(unit);
+                    ship = ship.board(unit);
                 }
             }
             for (int j = 0; j < unit_info.numIronWarriors(); j++, i++) {
                 Unit unit = new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null,
                         player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
                 if (ship != null) {
-                    ship.getUnitContainer().enter(unit);
+                    ship = ship.board(unit);
                 }
             }
             for (int j = 0; j < unit_info.numRubberWarriors(); j++, i++) {
                 Unit unit = new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null,
                         player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
                 if (ship != null) {
-                    ship.getUnitContainer().enter(unit);
+                    ship = ship.board(unit);
                 }
             }
             if (unit_info.hasChieftain()) {

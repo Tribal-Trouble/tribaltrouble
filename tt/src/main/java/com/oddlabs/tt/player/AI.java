@@ -72,25 +72,25 @@ public abstract class AI implements Animated {
                     Unit unit = new Unit(owner, ship.getPositionX(), ship.getPositionY(), null,
                             owner.getRace().getUnitTemplate(
                                     Race.UNIT_PEON));
-                    ship.getUnitContainer().enter(unit);
+                    ship = ship.board(unit);
                 }
                 for (int i = 0; i < unit_info.numRockWarriors(); i++) {
                     Unit unit = new Unit(owner, ship.getPositionX(), ship.getPositionY(), null,
                             owner.getRace().getUnitTemplate(
                                     Race.UNIT_WARRIOR_ROCK));
-                    ship.getUnitContainer().enter(unit);
+                    ship = ship.board(unit);
                 }
                 for (int i = 0; i < unit_info.numIronWarriors(); i++) {
                     Unit unit = new Unit(owner, ship.getPositionX(), ship.getPositionY(), null,
                             owner.getRace().getUnitTemplate(
                                     Race.UNIT_WARRIOR_IRON));
-                    ship.getUnitContainer().enter(unit);
+                    ship = ship.board(unit);
                 }
                 for (int i = 0; i < unit_info.numRubberWarriors(); i++) {
                     Unit unit = new Unit(owner, ship.getPositionX(), ship.getPositionY(), null,
                             owner.getRace().getUnitTemplate(
                                     Race.UNIT_WARRIOR_RUBBER));
-                    ship.getUnitContainer().enter(unit);
+                    ship = ship.board(unit);
                 }
                 found_island = false;
             } else {
