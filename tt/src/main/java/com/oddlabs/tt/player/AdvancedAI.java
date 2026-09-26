@@ -560,17 +560,25 @@ public final class AdvancedAI extends AI {
             }
         }
 
-        if (ship.getEntrance() == ship || ship.getEntrance().getIslandId() != init_island.id()) {
-            if (!ship.isMoving()) {
-                getOwner().setSailingTarget(Selectable.newArray(ship), init_island_contact_x, init_island_contact_y);
+        boolean landed = true;
+        for (Ship start_ship : getOwnShips()) {
+            if (shipIncomplete(start_ship)) {
+                continue;
             }
-            deployWholeShip(ship);
-            return;
+            if (start_ship.getEntrance() == start_ship
+                    || start_ship.getEntrance().getIslandId() != init_island.id()) {
+                if (!start_ship.isMoving()) {
+                    getOwner().setSailingTarget(Selectable.newArray(start_ship), init_island_contact_x,
+                            init_island_contact_y);
+                }
+                deployWholeShip(start_ship);
+                landed = false;
+            } else if (start_ship.getShipHR().countUnits() > 0) {
+                deployWholeShip(start_ship);
+                landed = false;
+            }
         }
-
-        if (ship.getShipHR().countUnits() > 0) {
-            deployWholeShip(ship);
-        } else {
+        if (landed) {
             setFoundIsland();
         }
     }
