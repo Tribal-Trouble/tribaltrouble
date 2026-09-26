@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 28, 0),
+    "version": (1, 28, 1),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -403,8 +403,9 @@ def mesh_record_from_mesh(me, obj, matrix, flip_v, rigid_bone, use_groups):
     return record
 
 
-def import_mesh_file(context, filepath, flip_v, load_textures, report):
-    """Build, link and select one mesh object from a mesh file; None when the file is not a mesh."""
+def import_mesh_file(context, filepath, flip_v, load_textures, report, texture=None):
+    """Build, link and select one mesh object from a mesh file; None when the file is not a mesh. A registry
+    texture list, when given, wins over the file's own attribute, as it does in game."""
     try:
         root = ET.parse(filepath).getroot()
     except ET.ParseError as e:
@@ -421,7 +422,7 @@ def import_mesh_file(context, filepath, flip_v, load_textures, report):
         report({"WARNING"}, f"{os.path.basename(filepath)}: Blender dropped "
                             f"{len(record.faces) - len(mesh.polygons)} invalid faces; loop data skipped")
     obj = bpy.data.objects.new(name, mesh)
-    obj["tt_texture"] = root.get("texture") or find_registry_texture(filepath) or ""
+    obj["tt_texture"] = texture or root.get("texture") or find_registry_texture(filepath) or ""
     obj["tt_file_texture"] = root.get("texture") or ""
     context.collection.objects.link(obj)
     set_vertex_groups(obj, record.skins)
@@ -1643,9 +1644,10 @@ def file_clashes(targets):
 def load_sprite_models(context, geometry, sprite, report):
     """Every model of a registry sprite as browser objects, high detail first; the lower levels start hidden."""
     levels = []
-    for model in sprite["models"]:
+    for model, textures in zip(sprite["models"], sprite["textures"]):
         path = os.path.join(geometry, model)
-        obj = import_mesh_file(context, path, False, True, report)
+        registry_texture = ",".join(name for name, event in textures if not event)
+        obj = import_mesh_file(context, path, False, True, report, registry_texture)
         if obj is None:
             if not levels:
                 return []
@@ -2049,6 +2051,17 @@ def switch_workspace(context, name):
         context.window.workspace = workspace
 
 
+def show_paint_canvas(image):
+    """Put image on the paint canvas and in the Texture Paint workspace's image editors."""
+    bpy.context.scene.tool_settings.image_paint.mode = "IMAGE"
+    bpy.context.scene.tool_settings.image_paint.canvas = image
+    workspace = bpy.data.workspaces.get("Texture Paint")
+    for screen in workspace.screens if workspace is not None else []:
+        for area in screen.areas:
+            if area.type == "IMAGE_EDITOR":
+                area.spaces.active.image = image
+
+
 class PaintItem(bpy.types.Operator):
     """Start painting this mesh's texture: selects it, picks its image as the canvas and opens Texture Paint"""
     bl_idname = "object.tt_paint_item"
@@ -2069,10 +2082,12 @@ class PaintItem(bpy.types.Operator):
         obj.select_set(True)
         context.view_layer.objects.active = obj
         bpy.ops.object.mode_set(mode="TEXTURE_PAINT")
-        paint = context.scene.tool_settings.image_paint
-        paint.mode = "IMAGE"
-        paint.canvas = image
+        show_paint_canvas(image)
         switch_workspace(context, "Texture Paint")
+        # The workspace switch lands after this operator and its first entry resets the canvas, so set it again then.
+        name = image.name
+        bpy.app.timers.register(lambda: show_paint_canvas(bpy.data.images[name]) if name in bpy.data.images else None,
+                                first_interval=0.1)
         self.report({"INFO"}, f"Painting {image.name}. Press Done Painting in the Tribal Trouble tab when finished")
         return {"FINISHED"}
 
