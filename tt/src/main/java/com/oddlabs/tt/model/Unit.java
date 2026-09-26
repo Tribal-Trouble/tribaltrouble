@@ -197,16 +197,13 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     public void reposition(Building building) {
-        findInitialPosition(getPositionX(), getPositionY(), true, building.getIslandId());
+        findInitialPosition(getPositionX(), getPositionY(), true, building.hasExitCell() ? building.getIslandId() : -1);
     }
 
     private void findInitialPosition(float x, float y, boolean grid_targets_only, int island) {
         UnitGrid unit_grid = getUnitGrid();
         Target reserved_target = unit_grid.findGridTargets(UnitGrid.toGridCoordinate(x), UnitGrid.toGridCoordinate(y),
                 1, grid_targets_only, island)[0];
-        if (reserved_target == null)
-            reserved_target = unit_grid.findGridTargets(UnitGrid.toGridCoordinate(x), UnitGrid.toGridCoordinate(y),
-                    1, grid_targets_only)[0];
         setGridPosition(reserved_target.getGridX(), reserved_target.getGridY());
         setPosition(reserved_target.getPositionX(), reserved_target.getPositionY());
 

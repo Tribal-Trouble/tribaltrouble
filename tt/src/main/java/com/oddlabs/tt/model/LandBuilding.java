@@ -591,6 +591,7 @@ public final class LandBuilding extends Building {
                 getOwner().getWorld().getRacesResources().getBuildingCollapseSound(), getPositionX(), getPositionY(),
                 getPositionZ(), AudioPlayer.AUDIO_RANK_BUILDING_COLLAPSE, AudioPlayer.AUDIO_DISTANCE_BUILDING_COLLAPSE,
                 AudioPlayer.AUDIO_GAIN_BUILDING_COLLAPSE, AudioPlayer.AUDIO_RADIUS_BUILDING_COLLAPSE));
+        free();
         if (getUnitContainer() != null) {
             while (getUnitContainer().getNumSupplies() > 0) {
                 Unit unit = getUnitContainer().exit();
@@ -607,7 +608,6 @@ public final class LandBuilding extends Building {
             int result = getOwner().getUnitCountContainer().increaseSupply(-deploy_container.getNumSupplies());
             assert result == -deploy_container.getNumSupplies();
         }
-        free();
         undoLandscape();
         int result = getOwner().getBuildingCountContainer().increaseSupply(-1);
         assert result == -1;
