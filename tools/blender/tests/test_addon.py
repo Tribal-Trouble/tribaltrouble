@@ -55,11 +55,17 @@ with open(registry_path, "wb") as f:
     f.write(registry_text.encode("utf-8"))
 PRISTINE = registry_text
 
-spec = importlib.util.spec_from_file_location("io_tribaltrouble", os.path.join(REPO, "tools", "blender", "io_tribaltrouble.py"))
-addon = importlib.util.module_from_spec(spec)
-sys.modules["io_tribaltrouble"] = addon
-spec.loader.exec_module(addon)
-addon.register()
+ADDON_DIR = os.path.join(REPO, "tools", "blender", "io_tribaltrouble")
+spec = importlib.util.spec_from_file_location("io_tribaltrouble", os.path.join(ADDON_DIR, "__init__.py"),
+                                              submodule_search_locations=[ADDON_DIR])
+package = importlib.util.module_from_spec(spec)
+sys.modules["io_tribaltrouble"] = package
+spec.loader.exec_module(package)
+package.register()
+# Every module's names in one place, so a test need not know which module holds what.
+addon = types.SimpleNamespace(**{name: value for module_name in sorted(sys.modules)
+                                 if module_name.split(".")[0] == "io_tribaltrouble"
+                                 for name, value in vars(sys.modules[module_name]).items() if not name.startswith("__")})
 wm = bpy.context.window_manager
 results = []
 
@@ -452,16 +458,16 @@ def register_a_unit_with_its_own_rig():
 @test
 def update_button_appears_only_for_a_newer_repo_copy():
     assert addon.update_available(bpy.context) is None, "the copy under test IS the repo copy"
-    source = os.path.join(REPO, "tools", "blender", "io_tribaltrouble.py")
+    source = os.path.join(ADDON_DIR, "__init__.py")
     assert addon.version_from_source(source) == tuple(addon.bl_info["version"])
-    repo_copy = os.path.join(TEMP, "tools", "blender", "io_tribaltrouble.py")
+    repo_copy = os.path.join(TEMP, "tools", "blender", "io_tribaltrouble", "__init__.py")
     os.makedirs(os.path.dirname(repo_copy))
     text = open(source, encoding="utf-8").read()
     newer = re.sub(r'"version": \(\d+, \d+, \d+\)', '"version": (99, 0, 0)', text, count=1)
     open(repo_copy, "w", encoding="utf-8").write(newer)
     installed = os.path.join(TEMP, "installed_addon.py")
     shutil.copy(source, installed)
-    real_file, addon.__file__ = addon.__file__, installed
+    real_file, package.__file__ = package.__file__, installed
     try:
         assert addon.update_available(bpy.context) == (99, 0, 0)
         assert addon.install_repo_addon(bpy.context) == (99, 0, 0)
@@ -470,7 +476,7 @@ def update_button_appears_only_for_a_newer_repo_copy():
         os.utime(repo_copy, (1, 1))
         assert addon.update_available(bpy.context) is None, "an equal or older repo copy must not offer an update"
     finally:
-        addon.__file__ = real_file
+        package.__file__ = real_file
 
 
 def load_building(group, sprite):

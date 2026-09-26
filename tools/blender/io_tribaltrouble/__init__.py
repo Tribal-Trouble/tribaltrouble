@@ -3469,7 +3469,7 @@ class SaveClip(bpy.types.Operator):
         return {"FINISHED"} if published else {"CANCELLED"}
 
 
-ADDON_SOURCE = os.path.join("tools", "blender", "io_tribaltrouble.py")
+ADDON_SOURCE = os.path.join("tools", "blender", "io_tribaltrouble", "__init__.py")
 _repo_version_cache = {}
 
 

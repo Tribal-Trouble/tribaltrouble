@@ -21,9 +21,11 @@ import bpy
 
 TOLERANCE = 1e-4
 
-addon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "io_tribaltrouble.py")
-spec = importlib.util.spec_from_file_location("io_tribaltrouble", addon_path)
+addon_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "io_tribaltrouble")
+spec = importlib.util.spec_from_file_location("io_tribaltrouble", os.path.join(addon_dir, "__init__.py"),
+                                              submodule_search_locations=[addon_dir])
 addon = importlib.util.module_from_spec(spec)
+sys.modules["io_tribaltrouble"] = addon
 spec.loader.exec_module(addon)
 addon.register()
 bpy.ops.wm.read_factory_settings(use_empty=True)

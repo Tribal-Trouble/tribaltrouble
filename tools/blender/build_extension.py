@@ -6,14 +6,14 @@ Writes tools/blender/dist/tribal_trouble_io-<version>.zip. Install it by draggin
 Edit > Preferences > Get Extensions > Install from Disk. After that the add-on updates itself from the repo folder:
 pull, then press "Update add-on" in the Models panel.
 
-io_tribaltrouble.py stays the single source of truth; the zip is that file as __init__.py plus a manifest.
+The io_tribaltrouble package stays the single source of truth; the zip is its modules plus a manifest.
 """
 import os
 import re
 import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SOURCE = os.path.join(HERE, "io_tribaltrouble.py")
+SOURCE = os.path.join(HERE, "io_tribaltrouble")
 EXTENSION_ID = "tribal_trouble_io"
 
 MANIFEST = '''schema_version = "1.0.0"
@@ -34,14 +34,16 @@ files = "Read and write model files in your Tribal Trouble checkout"
 
 
 def main():
-    with open(SOURCE, encoding="utf-8") as f:
+    with open(os.path.join(SOURCE, "__init__.py"), encoding="utf-8") as f:
         source = f.read()
     version = ".".join(re.search(r'"version":\s*\((\d+),\s*(\d+),\s*(\d+)\)', source).groups())
     out_dir = os.path.join(HERE, "dist")
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, f"{EXTENSION_ID}-{version}.zip")
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
-        z.writestr("__init__.py", source)
+        for name in sorted(os.listdir(SOURCE)):
+            if name.endswith(".py"):
+                z.write(os.path.join(SOURCE, name), name)
         z.writestr("blender_manifest.toml", MANIFEST.format(id=EXTENSION_ID, version=version))
     print(path)
     return path
