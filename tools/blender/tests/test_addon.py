@@ -621,6 +621,43 @@ def one_button_gives_a_bare_mesh_a_texture_the_game_accepts():
 
 
 @test
+def the_new_item_form_attaches_snaps_and_makes_a_texture_when_asked():
+    a = load("natives", "peon")
+    hat = fixture_mesh("test_form_hat", None, z=6.0)
+    bpy.context.view_layer.objects.active = a
+    assert bpy.ops.object.tt_new_item(point="HEAD", mesh=hat.name) == {"FINISHED"}
+    head = next(s for s in a.tt_attachments if s.point == "HEAD")
+    assert head.obj == hat and hat.parent == a and hat.parent_bone == head.bone
+    low, _ = addon.world_box(hat)
+    assert abs(low.z - addon.top_of_part(bpy.context, a, head.bone).z) < 0.01, "it was not snapped"
+    assert addon.mesh_texture_image(hat) is not None, "no texture was made"
+    stick = fixture_mesh("test_form_stick", None, z=6.0, kind="cube")
+    before = stick.matrix_world.translation.copy()
+    bpy.context.view_layer.objects.active = a
+    assert bpy.ops.object.tt_new_item(point="HAND_R", mesh=stick.name, snap=False, make_texture=False) == {"FINISHED"}
+    hand = next(s for s in a.tt_attachments if s.point == "HAND_R")
+    assert hand.obj == stick and stick.parent_bone == hand.bone
+    assert (stick.matrix_world.translation - before).length < 1e-4, "it moved without Snap"
+    assert addon.mesh_texture_image(stick) is None, "a texture was made without asking"
+    rubber = next(o for o in addon.unit_items(a)[addon.CARRY_SLOT] if o["tt_sprite"] == "rubber_resource")
+    expect_error(lambda: bpy.ops.object.tt_new_item(point="HEAD", mesh=rubber.name), "own meshes")
+    assert head.obj == hat
+    for s in a.tt_attachments:
+        s.obj = None
+    bpy.data.objects.remove(hat)
+    bpy.data.objects.remove(stick)
+
+
+@test
+def paint_it_splits_the_largest_3d_view_only_when_no_image_view_shows():
+    area = lambda kind, w, h: type("Area", (), {"type": kind, "width": w, "height": h})()
+    small, big = area("VIEW_3D", 400, 300), area("VIEW_3D", 1600, 900)
+    assert addon.area_to_split([area("OUTLINER", 2000, 2000), small, big]) is big
+    assert addon.area_to_split([big, area("IMAGE_EDITOR", 10, 10)]) is None
+    assert addon.area_to_split([area("PROPERTIES", 300, 900)]) is None
+
+
+@test
 def the_items_list_filters_by_slot_and_text_and_holds_a_hundred():
     a = load("natives", "peon")
     template = next(o for o in addon.unit_items(a)[addon.CARRY_SLOT] if o["tt_sprite"] == "wood_resource")

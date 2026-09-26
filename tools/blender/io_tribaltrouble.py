@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 33, 1),
+    "version": (1, 34, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1365,33 +1365,24 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
             layout.label(text="Click the eye to show or hide an item")
         else:
             layout.label(text="Nothing yet: add one below", icon="INFO")
-
-        box = layout.box()
-        box.label(text="Add a new item", icon="ADD")
-        box.prop(wm, "tt_new_point", text="Where")
-        slot = next((x for x in arm.tt_attachments if x.point == wm.tt_new_point), arm.tt_attachments[0])
-        box.prop(slot, "obj", text="Mesh")
-        if slot.obj is not None:
-            box.operator(PutOnBone.bl_idname, icon="SNAP_ON",
-                         text=f"Snap To {POINT_LABELS.get(slot.point, slot.point)}").point = slot.point
-        if shares_unit_texture(arm, slot.obj):
-            box.operator(OwnTexture.bl_idname, icon="IMAGE_DATA").target = slot.obj.name
-        if slot.obj is not None and mesh_texture_image(slot.obj) is None:
-            row = box.row()
-            row.alert = True
-            row.operator(MakeTexture.bl_idname, icon="TEXTURE").target = slot.obj.name
-        elif context.mode == "PAINT_TEXTURE":
-            box.operator(DonePainting.bl_idname, icon="CHECKMARK", depress=True)
-        elif slot.obj is not None:
-            box.operator(PaintItem.bl_idname, icon="BRUSH_DATA").target = slot.obj.name
-        waiting = [x for x in arm.tt_attachments if x.obj is not None and x != slot]
-        for other in waiting:
+        layout.operator(NewItem.bl_idname, icon="ADD")
+        if context.mode == "PAINT_TEXTURE":
+            layout.operator(DonePainting.bl_idname, icon="CHECKMARK", depress=True)
+        for slot in (x for x in arm.tt_attachments if x.obj is not None):
+            box = layout.box()
             row = box.row(align=True)
-            row.label(text=f"{POINT_LABELS.get(other.point, other.point)}: {other.obj.name}", icon="DOT")
-            row.prop(other, "obj", text="")
-        if slot.obj is None and not waiting:
-            box.label(text="1. Pick where it goes and your mesh")
-            box.label(text="2. Snap it, nudge it, Publish")
+            row.label(text=f"{POINT_LABELS.get(slot.point, slot.point)}: {slot.obj.name}", icon="ADD")
+            row.prop(slot, "obj", text="")
+            row = box.row(align=True)
+            row.operator(PutOnBone.bl_idname, icon="SNAP_ON", text="Snap again").point = slot.point
+            if mesh_texture_image(slot.obj) is None:
+                row.alert = True
+                row.operator(MakeTexture.bl_idname, icon="TEXTURE").target = slot.obj.name
+            else:
+                row.operator(PaintItem.bl_idname, icon="BRUSH_DATA").target = slot.obj.name
+            if shares_unit_texture(arm, slot.obj):
+                box.operator(OwnTexture.bl_idname, icon="IMAGE_DATA").target = slot.obj.name
+            box.label(text="Publish to save it", icon="INFO")
         row = layout.row(align=True)
         row.scale_y = 1.4
         row.operator(SaveItems.bl_idname, icon="EXPORT")
@@ -2230,6 +2221,50 @@ def show_paint_canvas(image):
                 area.spaces.active.image = image
 
 
+def area_to_split(areas):
+    """The largest 3D view, split to make room for the image, or None when an image editor already shows."""
+    if any(area.type == "IMAGE_EDITOR" for area in areas):
+        return None
+    views = [area for area in areas if area.type == "VIEW_3D"]
+    return max(views, key=lambda area: area.width * area.height) if views else None
+
+
+def show_image_view(workspace_name, image):
+    """Give the window on this workspace an image editor showing image, splitting its 3D view if it has none."""
+    window = next((w for w in bpy.context.window_manager.windows if w.workspace.name == workspace_name), None)
+    if window is None:
+        return
+    screen = window.screen
+    area = area_to_split(screen.areas)
+    if area is not None:
+        others = {a.as_pointer() for a in screen.areas if a != area}
+        region = next(r for r in area.regions if r.type == "WINDOW")
+        with bpy.context.temp_override(window=window, screen=screen, area=area, region=region):
+            bpy.ops.screen.area_split(direction="VERTICAL", factor=0.4)
+        left = min((a for a in screen.areas if a.as_pointer() not in others), key=lambda a: a.x)
+        left.type = "IMAGE_EDITOR"
+        if hasattr(left.spaces.active, "ui_mode"):
+            left.spaces.active.ui_mode = "PAINT"
+    for a in screen.areas:
+        if a.type == "IMAGE_EDITOR":
+            a.spaces.active.image = image
+
+
+def paint_canvas_later(workspace_name, image_name):
+    image = bpy.data.images.get(image_name)
+    if image is None:
+        return None
+    show_paint_canvas(image)
+    try:
+        show_image_view(workspace_name, image)
+    except Exception as e:
+        message = f"Could not open an image view to paint in ({e}); open an Image Editor by hand"
+        print("Tribal Trouble:", message)
+        bpy.context.window_manager.popup_menu(lambda menu, _: menu.layout.label(text=message), title="Paint It",
+                                              icon="ERROR")
+    return None
+
+
 class PaintItem(bpy.types.Operator):
     """Start painting this mesh's texture: selects it, picks its image as the canvas and opens Texture Paint"""
     bl_idname = "object.tt_paint_item"
@@ -2251,11 +2286,12 @@ class PaintItem(bpy.types.Operator):
         context.view_layer.objects.active = obj
         bpy.ops.object.mode_set(mode="TEXTURE_PAINT")
         show_paint_canvas(image)
+        workspace = "Texture Paint" if "Texture Paint" in bpy.data.workspaces or context.window is None \
+            else context.window.workspace.name
         switch_workspace(context, "Texture Paint")
         # The workspace switch lands after this operator and its first entry resets the canvas, so set it again then.
         name = image.name
-        bpy.app.timers.register(lambda: show_paint_canvas(bpy.data.images[name]) if name in bpy.data.images else None,
-                                first_interval=0.1)
+        bpy.app.timers.register(lambda: paint_canvas_later(workspace, name), first_interval=0.1)
         self.report({"INFO"}, f"Painting {image.name}. Press Done Painting in the Tribal Trouble tab when finished")
         return {"FINISHED"}
 
@@ -2337,6 +2373,61 @@ class MakeTexture(bpy.types.Operator):
         nodes.active = tex  # Texture Paint paints the active image node
         self.report({"INFO"}, f"{obj.name} now has the texture {image_name} ({size}x{size}). Paint it in the Texture "
                               f"Paint tab; Publish writes it into the repo")
+        return {"FINISHED"}
+
+
+def own_mesh_search(self, context, edit_text):
+    return [o.name for o in bpy.data.objects if attachment_obj_poll(self, o) and edit_text.lower() in o.name.lower()]
+
+
+class NewItem(bpy.types.Operator):
+    """Hang one of your meshes on this unit: it follows that part straight away. Publish saves it"""
+    bl_idname = "object.tt_new_item"
+    bl_label = "New Item..."
+    bl_options = {"REGISTER", "UNDO"}
+    point: EnumProperty(name="Where", items=point_items, description="The part of the unit your new mesh follows")
+    mesh: StringProperty(name="Mesh", search=own_mesh_search, options={"SKIP_SAVE"},
+                         description="One of your own meshes in this scene")
+    snap: BoolProperty(name="Snap", default=True, options={"SKIP_SAVE"},
+                       description="Move the mesh onto that part of the unit")
+    make_texture: BoolProperty(name="Make a texture for it", default=True, options={"SKIP_SAVE"},
+                               description="Give the mesh a UV map and an image named after it to paint")
+
+    @classmethod
+    def poll(cls, context):
+        arm = active_armature(context)
+        return arm is not None and bool(arm.tt_attachments)
+
+    def invoke(self, context, event):
+        picked = next((o for o in context.selected_objects if attachment_obj_poll(self, o)), None)
+        if picked is not None:
+            self.mesh = picked.name
+        return context.window_manager.invoke_props_dialog(self)
+
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "point")
+        layout.prop(self, "mesh", icon="MESH_DATA")
+        layout.prop(self, "snap", text=f"Snap to {POINT_LABELS.get(self.point, self.point).lower()}")
+        obj = bpy.data.objects.get(self.mesh)
+        if obj is not None and obj.type == "MESH" and mesh_texture_image(obj) is None:
+            layout.prop(self, "make_texture")
+
+    def execute(self, context):
+        arm = active_armature(context)
+        slot = next((x for x in arm.tt_attachments if x.point == self.point), None)
+        obj = bpy.data.objects.get(self.mesh)
+        if slot is None or obj is None or not attachment_obj_poll(self, obj):
+            self.report({"ERROR"}, "Pick where it goes and one of your own meshes")
+            return {"CANCELLED"}
+        slot.obj = obj
+        context.view_layer.objects.active = arm
+        if self.snap:
+            bpy.ops.object.tt_put_on_bone(point=self.point)
+        if self.make_texture and mesh_texture_image(obj) is None:
+            bpy.ops.object.tt_make_texture(target=obj.name)
+        self.report({"INFO"}, f"{obj.name} follows the {POINT_LABELS.get(self.point, self.point).lower()}. "
+                              f"Publish to save it")
         return {"FINISHED"}
 
 
@@ -4343,7 +4434,7 @@ classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SplitByBone, ImportTTSkele
            TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, PickUnit, AddToScene, RemoveAdded, ShowItem, ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
            RemoveFromRegistry, UpdateAddon, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
            CancelEventTexture, SaveProps, TT_UL_props, VIEW3D_PT_tt_building, ShowSkin, NewSkin, CancelSkin, SaveSkin, VIEW3D_PT_tt_skins, NewClip, SaveClip, DeleteClip,
-           SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, OwnTexture, PutOnBone, PaintItem, DonePainting,
+           SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, NewItem, OwnTexture, PutOnBone, PaintItem, DonePainting,
            TT_UL_items, VIEW3D_PT_tt_units,
            VIEW3D_PT_tt_preview,
            VIEW3D_PT_tt_attachments, VIEW3D_PT_tt_attachments_more)
@@ -4371,8 +4462,6 @@ def register():
     wm.tt_item_index = IntProperty()
     wm.tt_item_search = StringProperty(name="Search", options={"TEXTEDIT_UPDATE"},
                                        description="Show only the items whose name contains this")
-    wm.tt_new_point = EnumProperty(name="Goes On", items=point_items,
-                                   description="The part of the unit your new mesh follows")
     wm.tt_new_prop = PointerProperty(type=bpy.types.Object, name="Mesh", poll=attachment_obj_poll,
                                      description="Your mesh to publish as a prop of the building stage showing")
     wm.tt_prop_event = StringProperty(name="Event", search=event_search,
@@ -4399,7 +4488,7 @@ def unregister():
     bpy.app.handlers.load_post.remove(refresh_units_on_load)
     del bpy.types.Object.tt_attachments
     for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_category", "tt_checks",
-                 "tt_checked", "tt_team_preview", "tt_team_color", "tt_new_point",
+                 "tt_checked", "tt_team_preview", "tt_team_color",
                  "tt_item_index", "tt_detail", "tt_item_search", "tt_new_prop", "tt_prop_event",
                  "tt_prop_index"):
         delattr(bpy.types.WindowManager, name)
