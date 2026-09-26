@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 33, 0),
+    "version": (1, 33, 1),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1798,7 +1798,30 @@ class TTUnitEntry(bpy.types.PropertyGroup):
 
 class TT_UL_units(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_property, index):
-        layout.label(text=item.name, icon=CATEGORY_ICONS.get(item.category, "MESH_CUBE"))
+        # A button, not a label, so a right click knows which row it is on.
+        row = layout.row()
+        row.alignment = "LEFT"
+        pick = row.operator(PickUnit.bl_idname, text=item.name, icon=CATEGORY_ICONS.get(item.category, "MESH_CUBE"),
+                            emboss=False)
+        pick.group, pick.sprite = item.group, item.sprite
+
+
+class PickUnit(bpy.types.Operator):
+    """Load this model. Right click for Add To Scene"""
+    bl_idname = "wm.tt_pick_unit"
+    bl_label = "Pick Model"
+    bl_options = {"REGISTER", "UNDO"}
+    group: StringProperty(options={"SKIP_SAVE"})
+    sprite: StringProperty(options={"SKIP_SAVE"})
+
+    def execute(self, context):
+        wm = context.window_manager
+        index = next((i for i, u in enumerate(wm.tt_units) if (u.group, u.sprite) == (self.group, self.sprite)), -1)
+        if index < 0:
+            return {"CANCELLED"}
+        if index != wm.tt_unit_index:
+            wm.tt_unit_index = index
+        return {"FINISHED"}
 
 
 class RefreshUnits(bpy.types.Operator):
@@ -1940,22 +1963,25 @@ def clear_references():
 
 
 class AddToScene(bpy.types.Operator):
-    """Put the model picked in the list beside what is on screen, at the same scale, to size against or compose
-    with. Move it as you like; it is never published and stays when you load another model"""
+    """Put this model beside what is on screen, at the same scale, to size against or compose with. Move it as you
+    like; it is never published and stays when you load another model"""
     bl_idname = "wm.tt_add_to_scene"
     bl_label = "Add To Scene"
     bl_options = {"REGISTER", "UNDO"}
+    group: StringProperty(options={"SKIP_SAVE"})
+    sprite: StringProperty(options={"SKIP_SAVE"})
 
     @classmethod
     def poll(cls, context):
-        wm = context.window_manager
-        return bool(repo_root(context)) and 0 <= wm.tt_unit_index < len(wm.tt_units)
+        return bool(repo_root(context))
 
     def execute(self, context):
-        item = context.window_manager.tt_units[context.window_manager.tt_unit_index]
+        if not any((u.group, u.sprite) == (self.group, self.sprite) for u in context.window_manager.tt_units):
+            self.report({"ERROR"}, f"No model {self.group} / {self.sprite} in the list")
+            return {"CANCELLED"}
         if context.mode != "OBJECT" and context.view_layer.objects.active is not None:
             bpy.ops.object.mode_set(mode="OBJECT")
-        return {"FINISHED"} if add_reference(context, item.group, item.sprite, self.report) else {"CANCELLED"}
+        return {"FINISHED"} if add_reference(context, self.group, self.sprite, self.report) else {"CANCELLED"}
 
 
 class RemoveAdded(bpy.types.Operator):
@@ -1974,16 +2000,14 @@ class RemoveAdded(bpy.types.Operator):
 
 
 def units_list_menu(self, context):
-    """Right click on the Models list: acts on the active row, named in the menu."""
-    ui_list = getattr(context, "ui_list", None)
-    if ui_list is None or ui_list.bl_idname != "TT_UL_units":
+    """Right click on a row of the Models list."""
+    op = getattr(context, "button_operator", None)
+    if op is None or op.bl_rna.identifier != "WM_OT_tt_pick_unit":
         return
-    wm = context.window_manager
     layout = self.layout
     layout.separator()
-    if 0 <= wm.tt_unit_index < len(wm.tt_units):
-        layout.operator(AddToScene.bl_idname, text=f"Add To Scene: {wm.tt_units[wm.tt_unit_index].name}",
-                        icon="ADD")
+    add = layout.operator(AddToScene.bl_idname, text=f"Add To Scene: {op.sprite}", icon="ADD")
+    add.group, add.sprite = op.group, op.sprite
     layout.operator(RemoveAdded.bl_idname, icon="X")
 
 
@@ -3426,6 +3450,8 @@ class VIEW3D_PT_tt_units(bpy.types.Panel):
         row.operator(RefreshUnits.bl_idname, icon="FILE_REFRESH")
         row.prop(wm, "tt_category", text="")
         layout.template_list("TT_UL_units", "", wm, "tt_units", wm, "tt_unit_index", rows=10)
+        if references():
+            layout.operator(RemoveAdded.bl_idname, icon="X")
         layout.operator(LoadUnit.bl_idname, icon="FILE_REFRESH")
         layout.operator(PublishModel.bl_idname, icon="EXPORT")
         # Units show it under Preview and buildings under Building.
@@ -4314,7 +4340,7 @@ def menu_object(self, context):
 
 
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
-           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, AddToScene, RemoveAdded, ShowItem, ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
+           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, PickUnit, AddToScene, RemoveAdded, ShowItem, ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
            RemoveFromRegistry, UpdateAddon, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
            CancelEventTexture, SaveProps, TT_UL_props, VIEW3D_PT_tt_building, ShowSkin, NewSkin, CancelSkin, SaveSkin, VIEW3D_PT_tt_skins, NewClip, SaveClip, DeleteClip,
            SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, OwnTexture, PutOnBone, PaintItem, DonePainting,
@@ -4360,14 +4386,12 @@ def register():
     bpy.types.VIEW3D_MT_object.append(menu_object)
     if hasattr(bpy.types, "UI_MT_button_context_menu"):
         bpy.types.UI_MT_button_context_menu.append(clip_button_menu)
-    if hasattr(bpy.types, "UI_MT_list_item_context_menu"):
-        bpy.types.UI_MT_list_item_context_menu.append(units_list_menu)
+        bpy.types.UI_MT_button_context_menu.append(units_list_menu)
 
 
 def unregister():
-    if hasattr(bpy.types, "UI_MT_list_item_context_menu"):
-        bpy.types.UI_MT_list_item_context_menu.remove(units_list_menu)
     if hasattr(bpy.types, "UI_MT_button_context_menu"):
+        bpy.types.UI_MT_button_context_menu.remove(units_list_menu)
         bpy.types.UI_MT_button_context_menu.remove(clip_button_menu)
     bpy.types.VIEW3D_MT_object.remove(menu_object)
     bpy.types.TOPBAR_MT_file_import.remove(menu_import)

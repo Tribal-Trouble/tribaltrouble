@@ -17,6 +17,7 @@ import subprocess
 import sys
 import tempfile
 import traceback
+import types
 import xml.etree.ElementTree as ET
 
 import bpy
@@ -1056,12 +1057,40 @@ def add_to_scene_puts_a_movable_model_beside_the_rest_that_is_never_saved_or_cle
     wm.tt_category = "ALL"
 
     def pick(group, sprite):
-        wm.tt_unit_index = next(i for i, u in enumerate(wm.tt_units) if (u.group, u.sprite) == (group, sprite))
-        assert bpy.ops.wm.tt_add_to_scene() == {"FINISHED"}
+        index = wm.tt_unit_index
+        assert bpy.ops.wm.tt_add_to_scene(group=group, sprite=sprite) == {"FINISHED"}
+        assert wm.tt_unit_index == index, "adding a row changed the loaded model"
         return next(o for o in addon.references() if o.type == "MESH" and o[addon.REFERENCE_TAG] == f"{group} / {sprite}")
 
-    hut = pick("vikings", "quarters")
+    assert bpy.ops.wm.tt_pick_unit(group="vikings", sprite="armory") == {"FINISHED"}
     body = addon.browsed_building(bpy.context)
+    assert body["tt_sprite"] == "armory" and wm.tt_units[wm.tt_unit_index].sprite == "armory"
+
+    class Layout:
+        def __init__(self):
+            self.ops = []
+
+        def separator(self):
+            pass
+
+        def operator(self, idname, **kwargs):
+            self.ops.append((idname, kwargs.get("text"), types.SimpleNamespace()))
+            return self.ops[-1][2]
+
+    clicked = types.SimpleNamespace(bl_rna=types.SimpleNamespace(identifier="WM_OT_tt_pick_unit"), group="vikings",
+                                    sprite="quarters")
+    menu = types.SimpleNamespace(layout=Layout())
+    addon.units_list_menu(menu, types.SimpleNamespace(button_operator=clicked, window_manager=wm))
+    (add_id, add_text, add), (remove_id, _, _) = menu.layout.ops
+    assert (add_id, add_text, add.group, add.sprite) == ("wm.tt_add_to_scene", "Add To Scene: quarters", "vikings",
+                                                         "quarters"), menu.layout.ops
+    assert remove_id == "wm.tt_remove_added"
+    other = types.SimpleNamespace(layout=Layout())
+    addon.units_list_menu(other, types.SimpleNamespace(button_operator=None))
+    assert other.layout.ops == [], "the menu showed on a button that is not a Models row"
+    expect_error(lambda: bpy.ops.wm.tt_add_to_scene(group="vikings", sprite="nope"), "No model")
+
+    hut = pick("vikings", "quarters")
     assert x_range([body])[1] < x_range([hut])[0], (x_range([body]), x_range([hut]))
     peon = pick("natives", "peon")
     assert x_range([hut])[1] < x_range([peon])[0], (x_range([hut]), x_range([peon]))
