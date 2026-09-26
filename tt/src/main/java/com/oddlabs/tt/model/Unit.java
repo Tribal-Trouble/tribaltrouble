@@ -197,7 +197,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     public void reposition(Building building) {
-        findInitialPosition(getPositionX(), getPositionY(), true, building.hasExitCell() ? building.getIslandId() : -1);
+        findInitialPosition(getPositionX(), getPositionY(), true, building.getIslandId());
     }
 
     private void findInitialPosition(float x, float y, boolean grid_targets_only, int island) {
