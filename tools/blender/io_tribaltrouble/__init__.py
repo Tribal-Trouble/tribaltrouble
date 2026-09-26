@@ -1,6 +1,6 @@
 """Blender import/export addon for Tribal Trouble mesh XML files.
 
-Install: Edit > Preferences > Add-ons > Install... > pick this file, enable it.
+Install: copy this folder into Blender's add-ons folder and enable it (tools/blender/README.md has the steps).
 Import: File > Import > Tribal Trouble Mesh (.xml), or Skeleton / Animation (.xml)
 Export: File > Export > Tribal Trouble Mesh (.xml), or Skeleton / Animation (.xml)
 Attachments: 3D view sidebar, "Tribal Trouble" tab, with an armature active.
