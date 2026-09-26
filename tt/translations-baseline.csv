@@ -440,6 +440,7 @@ form/OptionsMenu,action.TRAIN_PEON_DEC,Train Peon (-1),Tog Peon (-1),Zugbegleite
 form/OptionsMenu,action.TRAIN_PEON_BATCH,Train Peon (+10),Tog Peon (+10),Zugbote (+10),Peón de tren (+10),Treno Peone (+10),Treinar Peão (+10)
 form/OptionsMenu,action.TRAIN_PEON_BATCH_DEC,Train Peon (-10),Tog Peon (-10),Zugbegleiter (-10),Peón de tren (-10),Treno Peone (-10),Treinar Peão (-10)
 form/OptionsMenu,action.TRAIN_CHIEFTAIN,Train Chieftain,Træn Høvding,Häuptling Ausbilden,Entrenar Jefe,Addestra Capo,Treinar Chefe
+form/OptionsMenu,action.DEPLOY_CHIEFTAIN,Chieftain,Høvding,Häuptling,Jefe,Capo,Chefe
 form/OptionsMenu,action.MAGIC_1,Magic 1,Magi 1,Magie 1,Magia 1,Magia 1,Magia 1
 form/OptionsMenu,action.MAGIC_2,Magic 2,Magi 2,Magie 2,Magia 2,Magia 2,Magia 2
 form/OptionsMenu,action.GAME_SPEED_UP,Increase Game Speed,Forøg Spilhastighed,Spielgeschwindigkeit Erhöhen,Aumentar Velocidad Juego,Aumenta Velocità Gioco,Aumentar Velocidade da Partida
@@ -765,6 +766,7 @@ gui/ActionButtonPanel,deploy_peon_tip,Peon,Arbejder,Knecht,Peón,Peone,Peão
 gui/ActionButtonPanel,deploy_rock_tip,Rock Warrior,Stenkriger,Steinkrieger,Guerrero piedra,Guerriero di roccia,Guerreiro de Pedra
 gui/ActionButtonPanel,deploy_iron_tip,Iron Warrior,Jernkriger,Eisenkrieger,Guerrero hierro,Guerriero di ferro,Guerreiro de Ferro
 gui/ActionButtonPanel,deploy_chicken_tip,Chicken Warrior,Kyllingekriger,Hühnchenkrieger,Guerrero pollo,Guerriero di pollo,Guerreiro de Galinha
+gui/ActionButtonPanel,deploy_chieftain_tip,Chieftain,Høvding,Häuptling,Jefe tribal,Capo Tribù,Chefe
 gui/ActionButtonPanel,transport_tree_tip,Wood,Træ,Holz,Madera,Legno,Madeira
 gui/ActionButtonPanel,transport_rock_tip,Rock,Sten,Stein,Piedra,Roccia,Pedra
 gui/ActionButtonPanel,transport_iron_tip,Iron,Jern,Eisen,Hierro,Ferro,Ferro
