@@ -269,8 +269,8 @@ def item_skin_texture(entry, textures, at, skin):
 
 class SaveSkin(bpy.types.Operator):
     """Save the model's or item's look as a skin: a player who has it, or everyone during its event, sees it on all
-    of these models. A detail level whose mesh you did not change keeps using the default file. The default files are never written,
-    and the model shows its default look again afterwards"""
+    of these models. A detail level whose mesh you did not change keeps using the default file. The default files are
+    never written, and the model shows its default look again afterwards"""
     bl_idname = "object.tt_save_skin"
     bl_label = "Save Skin"
 
