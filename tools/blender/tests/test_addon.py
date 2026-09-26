@@ -786,6 +786,11 @@ def a_unit_on_a_borrowed_rig_cannot_change_the_clips():
     expect_error(lambda: bpy.ops.object.tt_save_clip(clip_name="wave", kind="loop", wpc=1.0), "borrows the warrior rig")
 
 
+def publish_prop(obj, event=""):
+    wm.tt_new_prop, wm.tt_prop_event = obj, event
+    return bpy.ops.object.tt_save_props()
+
+
 @test
 def props_on_a_building_save_register_and_come_back_on_reload():
     body = load_building("vikings", "quarters")
@@ -793,10 +798,9 @@ def props_on_a_building_save_register_and_come_back_on_reload():
     flag = fixture_mesh("test_flag", fixture_image("test_flag_tex"), z=8.0, kind="cube")
     lantern = fixture_mesh("test_lantern", fixture_image("test_lantern_tex"), z=2.0, kind="cube")
     lantern.location.x = 4.0
-    select_only(lantern)
-    assert bpy.ops.object.tt_save_props(event=" Halloween") == {"FINISHED"}
-    select_only(flag)
-    assert bpy.ops.object.tt_save_props() == {"FINISHED"}
+    assert publish_prop(lantern, " Halloween") == {"FINISHED"}
+    assert wm.tt_new_prop is None and wm.tt_prop_event == "", "the picker was not cleared for the next prop"
+    assert publish_prop(flag) == {"FINISHED"}
     seasonal, always = entry("vikings", "quarters_test_lantern"), entry("vikings", "quarters_test_flag")
     assert seasonal["base"] == "quarters" and seasonal["slot"] == "prop" and seasonal["event"] == "halloween"
     assert always["event"] == ""
@@ -809,6 +813,7 @@ def props_on_a_building_save_register_and_come_back_on_reload():
     props = {o["tt_sprite"]: o for o in addon.building_props(body)}
     assert sorted(props) == ["quarters_test_flag", "quarters_test_lantern"], sorted(props)
     assert props["quarters_test_lantern"]["tt_event"] == "halloween"
+    assert [addon.prop_tag(o) for o in addon.building_props(body)] == ["Built, All year", "Built, halloween"]
     xs = [v.co.x for v in props["quarters_test_lantern"].data.vertices]
     assert 3.4 < min(xs) and max(xs) < 4.6, "the prop did not keep its place next to the building"
 
@@ -818,10 +823,28 @@ def a_prop_with_a_taken_name_or_no_texture_is_refused():
     body = load_building("vikings", "quarters")
     for o in addon.building_props(body):
         bpy.data.objects.remove(o)  # frees the object name; the registry entry stays
-    select_only(fixture_mesh("test_flag", fixture_image("test_flag_tex2"), kind="cube"))
-    expect_error(bpy.ops.object.tt_save_props, "already has a sprite named quarters_test_flag")
-    select_only(fixture_mesh("test_bare", None, kind="cube"))
-    expect_error(bpy.ops.object.tt_save_props, "no Image Texture")
+    expect_error(lambda: publish_prop(fixture_mesh("test_flag", fixture_image("test_flag_tex2"), kind="cube")),
+                 "already has a sprite named quarters_test_flag")
+    expect_error(lambda: publish_prop(fixture_mesh("test_bare", None, kind="cube")), "no Image Texture")
+    wm.tt_new_prop = None
+
+
+@test
+def a_prop_picked_on_a_stage_is_published_on_that_stage_with_its_event():
+    body = load_building("vikings", "quarters_halfbuilt")
+    assert addon.building_stage(body["tt_sprite"]) == ("quarters", "Half built")
+    assert addon.building_stage("quarters_start") == ("quarters", "Start")
+    assert addon.building_props(body) == []
+    registered = fixture_mesh("test_crane", fixture_image("test_crane_tex"), z=6.0, kind="cube")
+    wm.tt_new_prop = body
+    assert addon.new_props(bpy.context, body) == [], "the building itself was taken as a prop"
+    expect_error(lambda: publish_prop(registered, "Bad Event"), "letters, digits")
+    assert entry("vikings", "quarters_halfbuilt_test_crane") is None
+    assert publish_prop(registered, "harvest") == {"FINISHED"}
+    e = entry("vikings", "quarters_halfbuilt_test_crane")
+    assert (e["base"], e["slot"], e["event"]) == ("quarters_halfbuilt", "prop", "harvest"), e
+    assert [addon.prop_tag(o) for o in addon.building_props(body)] == ["Half built, harvest"]
+    assert not addon.attachment_obj_poll(None, registered), "a published prop is still offered by the picker"
 
 
 @test
@@ -867,6 +890,23 @@ def event_texture_for_one_model_only():
     assert bpy.ops.object.tt_save_event_texture() == {"FINISHED"}
     assert entry("vikings", "quarters")["textures"][0][-1] == ("viking_buildings_hi_winter", "winter")
     assert all(event == "" for _, event in entry("vikings", "armory")["textures"][0])
+
+
+@test
+def the_event_texture_banner_cancels_unsaved_paint_and_writes_nothing():
+    body = load_building("vikings", "quarters")
+    registry_before = open(registry_path, "rb").read()
+    assert not bpy.ops.object.tt_cancel_event_texture.poll(), "nothing to cancel yet"
+    assert bpy.ops.object.tt_new_event_texture(event="spring", scope="ALL") == {"FINISHED"}
+    assert list(addon.unsaved_events(body, entry("vikings", "quarters"))) == ["spring"]
+    addon.mesh_texture_image(body).pixels[0] = 0.25
+    assert bpy.ops.object.tt_cancel_event_texture() == {"FINISHED"}
+    assert bpy.context.mode == "OBJECT"
+    assert not addon.unsaved_events(body, entry("vikings", "quarters"))
+    assert "spring" not in dict(addon.building_events(body, entry("vikings", "quarters")))
+    assert addon.mesh_texture_image(body).name.startswith("viking_buildings_hi.png")
+    assert open(registry_path, "rb").read() == registry_before
+    assert not bpy.ops.object.tt_save_event_texture.poll()
 
 
 def polygons(path):
@@ -1012,12 +1052,12 @@ def x_range(objs):
 
 
 @test
-def compare_puts_a_reference_beside_the_model_that_is_never_saved_or_cleared_by_loading():
+def add_to_scene_puts_a_movable_model_beside_the_rest_that_is_never_saved_or_cleared_by_loading():
     wm.tt_category = "ALL"
 
     def pick(group, sprite):
         wm.tt_unit_index = next(i for i, u in enumerate(wm.tt_units) if (u.group, u.sprite) == (group, sprite))
-        assert bpy.ops.wm.tt_compare() == {"FINISHED"}
+        assert bpy.ops.wm.tt_add_to_scene() == {"FINISHED"}
         return next(o for o in addon.references() if o.type == "MESH" and o[addon.REFERENCE_TAG] == f"{group} / {sprite}")
 
     hut = pick("vikings", "quarters")
@@ -1025,7 +1065,9 @@ def compare_puts_a_reference_beside_the_model_that_is_never_saved_or_cleared_by_
     assert x_range([body])[1] < x_range([hut])[0], (x_range([body]), x_range([hut]))
     peon = pick("natives", "peon")
     assert x_range([hut])[1] < x_range([peon])[0], (x_range([hut]), x_range([peon]))
-    assert peon.parent is not None and peon.parent.get(addon.REFERENCE_TAG) and peon.hide_select
+    assert peon.parent is not None and peon.parent.get(addon.REFERENCE_TAG)
+    assert not peon.hide_select and not peon.parent.hide_select and not hut.hide_select
+    hut.location.y += 5.0  # the artist moves it
     assert bpy.context.active_object is not None and not bpy.context.active_object.get(addon.REFERENCE_TAG)
     a = load("vikings", "peon")
     assert hut.name in bpy.data.objects and peon.name in bpy.data.objects
@@ -1033,9 +1075,16 @@ def compare_puts_a_reference_beside_the_model_that_is_never_saved_or_cleared_by_
     assert addon.attachment_obj_poll(None, hut) is False and not addon.item_rows([hut], a, "")[0][0]
     before = mtimes()
     assert bpy.ops.wm.tt_publish_model() == {"FINISHED"} and mtimes() == before
-    assert bpy.ops.wm.tt_clear_compare() == {"FINISHED"}
+    select_only(hut)
+    expect_error(lambda: bpy.ops.export_mesh.tt_xml(filepath=os.path.join(TEMP, "ref.xml")), "never exported")
+    assert not os.path.exists(os.path.join(TEMP, "ref.xml"))
+    select_only(peon.parent)
+    assert bpy.ops.object.delete() == {"FINISHED"}, "plain Delete on an added rig"
+    assert bpy.ops.wm.tt_load_unit(group="vikings", sprite="peon") == {"FINISHED"}, "loading after a Delete"
+    assert bpy.ops.wm.tt_remove_added() == {"FINISHED"}
     assert not addon.references() and not any(x.get(addon.REFERENCE_TAG) for x in bpy.data.actions)
-    assert "ref_quarters" not in bpy.data.meshes and not bpy.ops.wm.tt_clear_compare.poll()
+    assert not any(d.get(addon.REFERENCE_TAG) for d in list(bpy.data.meshes) + list(bpy.data.armatures))
+    assert "ref_quarters" not in bpy.data.meshes and not bpy.ops.wm.tt_remove_added.poll()
 
 
 @test
@@ -1304,7 +1353,7 @@ def changed_files(before):
 
 
 def save_skin(name):
-    wm.tt_skin_name = name
+    assert bpy.ops.object.tt_new_skin(skin_name=name) == {"FINISHED"}
     return bpy.ops.object.tt_save_skin()
 
 
@@ -1454,10 +1503,35 @@ def preview_shows_a_skin_and_stock_puts_the_model_back():
     assert bpy.ops.object.tt_show_skin(sprite="warrior_gold") == {"FINISHED"}
     assert body.data.materials[0].name == "tt_warrior_gold_rock" and body["tt_texture"].startswith("warrior_gold_rock")
     assert low.data.materials[0].name == "tt_viking_warrior_rock"
-    expect_error(lambda: save_skin("again"), "press Default")
+    assert bpy.ops.object.tt_new_skin(skin_name="again") == {"FINISHED"}
+    assert body["tt_skin_editing"] == "again" and "tt_skin" not in body, "a new skin did not start from Default"
     assert bpy.ops.object.tt_show_skin(sprite="") == {"FINISHED"}
+    assert "tt_skin_editing" not in body
     assert all("tt_skin" not in o and o["tt_export_hash"] == hashes[o] for o in (body, low))
     assert body["tt_texture"] == texture and body.data.materials[0].name == "tt_viking_warrior_rock"
+
+
+@test
+def new_skin_suggests_used_names_and_cancel_restores_default_and_writes_nothing():
+    a = load("vikings", "warrior")
+    body = addon.browsed_unit(a)
+    assert not bpy.ops.object.tt_save_skin.poll(), "Save Skin shows before New Skin"
+    assert "gold" in addon.skin_name_search(None, bpy.context, "go")
+    expect_error(lambda: bpy.ops.object.tt_new_skin(skin_name="gold"), "warrior already has a gold skin")
+    expect_error(lambda: bpy.ops.object.tt_new_skin(skin_name="go ld"), "letters, digits")
+    assert "tt_skin_editing" not in body
+    before, hashes = mtimes(), {o: o["tt_export_hash"] for o in addon.model_levels(body)}
+    assert bpy.ops.object.tt_new_skin(skin_name="spotted") == {"FINISHED"}
+    assert body["tt_skin_editing"] == "spotted" and bpy.ops.object.tt_save_skin.poll()
+    body.data.vertices[0].co.z += 0.1
+    assert bpy.ops.object.tt_cancel_skin() == {"FINISHED"}
+    assert "tt_skin_editing" not in body and not bpy.ops.object.tt_save_skin.poll()
+    assert all(o["tt_export_hash"] == h for o, h in hashes.items()), "Cancel kept the edit"
+    assert changed_files(before) == [] and entry("vikings", "warrior_spotted") is None
+    assert bpy.ops.object.tt_new_skin(skin_name="spotted") == {"FINISHED"}
+    body.data.vertices[0].co.z += 0.1
+    assert bpy.ops.object.tt_save_skin() == {"FINISHED"}
+    assert "tt_skin_editing" not in body and entry("vikings", "warrior_spotted")["skin"] == "spotted"
 
 
 @test

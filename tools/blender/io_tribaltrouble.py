@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 32, 0),
+    "version": (1, 33, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -618,11 +618,12 @@ class ExportTTMesh(bpy.types.Operator, ExportHelper):
         return bone
 
     def execute(self, context):
-        objs = [o for o in context.selected_objects if o.type == "MESH"]
-        if not objs and context.active_object is not None and context.active_object.type == "MESH":
-            objs = [context.active_object]
+        objs = [o for o in context.selected_objects if o.type == "MESH" and not o.get(REFERENCE_TAG)]
+        active = context.active_object
+        if not objs and active is not None and active.type == "MESH" and not active.get(REFERENCE_TAG):
+            objs = [active]
         if not objs:
-            self.report({"ERROR"}, "Select at least one mesh object to export")
+            self.report({"ERROR"}, "Select at least one mesh object to export (added models are never exported)")
             return {"CANCELLED"}
 
         # Files hold the bind pose: evaluate deforming and carrying armatures at rest, whatever frame is showing.
@@ -1891,7 +1892,8 @@ def x_extent(context, objs):
 
 
 def add_reference(context, group, name, report):
-    """The high detail mesh of a registry sprite, in its idle pose, set down right of everything on screen."""
+    """The high detail mesh of a registry sprite, in its idle pose, set down right of everything on screen. It can be
+    moved but is never saved."""
     root = repo_root(context)
     geometry = os.path.join(root, GEOMETRY_DIR)
     registry = read_registry(root)
@@ -1906,12 +1908,12 @@ def add_reference(context, group, name, report):
         report({"ERROR"}, f"{group} / {name} has no mesh to show")
         return None
     obj.name = obj.data.name = f"ref_{name}"
-    obj[REFERENCE_TAG] = f"{group} / {name}"
+    obj[REFERENCE_TAG] = obj.data[REFERENCE_TAG] = f"{group} / {name}"
     moved = obj
     rig = rig_entry(registry, entry)
     if rig["skeleton"]:
         moved = build_armature(context, obj.name + "_rig", *read_skeleton(os.path.join(geometry, rig["skeleton"])))
-        moved[REFERENCE_TAG] = obj[REFERENCE_TAG]
+        moved[REFERENCE_TAG] = moved.data[REFERENCE_TAG] = obj[REFERENCE_TAG]
         bind_meshes(moved, [obj])
         idle = next((c for c in rig["clips"] if "idle" in os.path.basename(c)), None)
         if idle is not None:
@@ -1924,26 +1926,24 @@ def add_reference(context, group, name, report):
         moved.location.x += before[1] + gap - extent[0]
     for o in (obj, moved):
         o.select_set(False)
-        o.hide_select = True
     context.view_layer.objects.active = previous
     return obj
 
 
 def clear_references():
     for obj in references():
-        data = obj.data
         bpy.data.objects.remove(obj, do_unlink=True)
-        if data is not None and data.users == 0:
-            (bpy.data.meshes if isinstance(data, bpy.types.Mesh) else bpy.data.armatures).remove(data)
-    for action in [a for a in bpy.data.actions if a.get(REFERENCE_TAG)]:
-        bpy.data.actions.remove(action)
+    # Also what an object deleted by hand left behind.
+    for datas in (bpy.data.meshes, bpy.data.armatures, bpy.data.actions):
+        for data in [d for d in datas if d.get(REFERENCE_TAG) and d.users <= int(d.use_fake_user)]:
+            datas.remove(data)
 
 
-class CompareModel(bpy.types.Operator):
-    """Put the model picked in the list beside the loaded one, at the same scale, to size against. It is never
-    saved and stays when you load another model"""
-    bl_idname = "wm.tt_compare"
-    bl_label = "Compare"
+class AddToScene(bpy.types.Operator):
+    """Put the model picked in the list beside what is on screen, at the same scale, to size against or compose
+    with. Move it as you like; it is never published and stays when you load another model"""
+    bl_idname = "wm.tt_add_to_scene"
+    bl_label = "Add To Scene"
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod
@@ -1958,10 +1958,10 @@ class CompareModel(bpy.types.Operator):
         return {"FINISHED"} if add_reference(context, item.group, item.sprite, self.report) else {"CANCELLED"}
 
 
-class ClearCompare(bpy.types.Operator):
-    """Remove every model put beside the loaded one to compare"""
-    bl_idname = "wm.tt_clear_compare"
-    bl_label = "Clear Compare"
+class RemoveAdded(bpy.types.Operator):
+    """Remove every model added to the scene from the Models list"""
+    bl_idname = "wm.tt_remove_added"
+    bl_label = "Remove Added Objects"
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod
@@ -1971,6 +1971,20 @@ class ClearCompare(bpy.types.Operator):
     def execute(self, context):
         clear_references()
         return {"FINISHED"}
+
+
+def units_list_menu(self, context):
+    """Right click on the Models list: acts on the active row, named in the menu."""
+    ui_list = getattr(context, "ui_list", None)
+    if ui_list is None or ui_list.bl_idname != "TT_UL_units":
+        return
+    wm = context.window_manager
+    layout = self.layout
+    layout.separator()
+    if 0 <= wm.tt_unit_index < len(wm.tt_units):
+        layout.operator(AddToScene.bl_idname, text=f"Add To Scene: {wm.tt_units[wm.tt_unit_index].name}",
+                        icon="ADD")
+    layout.operator(RemoveAdded.bl_idname, icon="X")
 
 
 class ShowItem(bpy.types.Operator):
@@ -3230,11 +3244,10 @@ def publish_own_textures(root, objs):
 # Landscape.Ground names the game scatters decorations on; land is any of them.
 DECORATION_GROUNDS = (
     ("grass", "Grass", ""),
-    ("beach", "Beach", ""),
     ("dirt", "Dirt", ""),
-    ("rock", "Rock", ""),
-    ("snow", "Snow", ""),
-    ("land", "Any land", "Anywhere above the sea"),
+    ("beach", "Beach", "Sand on native maps, gravel on viking maps"),
+    ("snow", "Snow", "Viking maps only"),
+    ("land", "Any land", "Any ground above the sea"),
 )
 
 
@@ -3413,11 +3426,7 @@ class VIEW3D_PT_tt_units(bpy.types.Panel):
         row.operator(RefreshUnits.bl_idname, icon="FILE_REFRESH")
         row.prop(wm, "tt_category", text="")
         layout.template_list("TT_UL_units", "", wm, "tt_units", wm, "tt_unit_index", rows=10)
-        row = layout.row(align=True)
-        row.operator(LoadUnit.bl_idname, icon="FILE_REFRESH")
-        row.operator(CompareModel.bl_idname, icon="ARROW_LEFTRIGHT")
-        if references():
-            layout.operator(ClearCompare.bl_idname, icon="X")
+        layout.operator(LoadUnit.bl_idname, icon="FILE_REFRESH")
         layout.operator(PublishModel.bl_idname, icon="EXPORT")
         # Units show it under Preview and buildings under Building.
         if has_low_detail() and browsed_building(context) is None and not any(
@@ -3444,7 +3453,48 @@ def building_props(body):
 
 
 def new_props(context, body):
-    return [o for o in context.selected_objects if o.type == "MESH" and o != body and not o.get(BROWSER_TAG)]
+    picked = context.window_manager.tt_new_prop
+    return [picked] if picked is not None and picked != body and attachment_obj_poll(None, picked) else []
+
+
+def building_stage(sprite):
+    """(building name, stage label) of a building stage sprite."""
+    for suffix, stage in (("_halfbuilt", "Half built"), ("_start", "Start")):
+        if sprite.endswith(suffix):
+            return sprite[:-len(suffix)], stage
+    return sprite, "Built"
+
+
+def prop_tag(obj):
+    return f"{building_stage(obj.parent['tt_sprite'])[1]}, {obj.get('tt_event') or 'All year'}"
+
+
+class TT_UL_props(bpy.types.UIList):
+    """The loaded building's props"""
+
+    def draw_item(self, context, layout, data, item, icon, active_data, active_property, index):
+        row = layout.row(align=True)
+        row.prop(item, "hide_viewport", text="", icon="HIDE_ON" if item.hide_viewport else "HIDE_OFF", emboss=False)
+        row.label(text=item["tt_sprite"])
+        tag = row.row()
+        tag.alignment = "RIGHT"
+        tag.enabled = False
+        tag.label(text=prop_tag(item))
+        remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH", emboss=False)
+        remove.group, remove.sprite = item.get("tt_group", ""), item["tt_sprite"]
+
+    def draw_filter(self, context, layout):
+        pass
+
+    def filter_items(self, context, data, propname):
+        objects = list(getattr(data, propname))
+        body = browsed_building(context)
+        props = set(building_props(body)) if body is not None else set()
+        ranked = sorted(range(len(objects)), key=lambda i: (objects[i] not in props, objects[i].name))
+        order = [0] * len(objects)
+        for position, index in enumerate(ranked):
+            order[index] = position
+        return [self.bitflag_filter_item if o in props else 0 for o in objects], order
 
 
 def models_texture_path(root, texture):
@@ -3666,27 +3716,45 @@ class RemoveEventTexture(bpy.types.Operator):
         return {"FINISHED"}
 
 
+class CancelEventTexture(bpy.types.Operator):
+    """Drop the event texture paint since the last publish and show the usual texture again. geometry.xml is not
+    touched"""
+    bl_idname = "object.tt_cancel_event_texture"
+    bl_label = "Cancel"
+    bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        body = browsed_building(context)
+        return body is not None and bool(repo_root(context)) and bool(unsaved_events(body, body_entry(context, body)))
+
+    def execute(self, context):
+        body = browsed_building(context)
+        original = body["tt_texture"].split(",")[0].strip()
+        for event in unsaved_events(body, body_entry(context, body)):
+            image = event_image(f"{original}_{event}")
+            if image is not None and image.is_dirty:
+                image.reload()
+        body["tt_new_events"] = {}
+        bpy.ops.object.tt_done_painting()
+        return bpy.ops.object.tt_show_event_texture(texture=original)
+
+
 class SaveProps(bpy.types.Operator):
-    """Write the selected meshes into the building's folder as props drawn with it in game, and add them to
+    """Write the picked mesh into the building's folder as a prop drawn with this stage in game, and add it to
     geometry.xml. Props already in the registry are written back to their own files, and the building's own
-    meshes when they changed. With an event named, new props only show during that event"""
+    meshes when they changed. With an event named, the new prop only shows during that event"""
     bl_idname = "object.tt_save_props"
-    bl_label = "Publish Props..."
-    event: StringProperty(name="Event", search=event_search, options={"SKIP_SAVE"},
-                          description="Blank means all year. With a name such as halloween, the new props only "
-                                      "show during that event")
+    bl_label = "Publish"
 
     @classmethod
     def poll(cls, context):
         return browsed_building(context) is not None and bool(repo_root(context))
 
-    def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self)
-
     def execute(self, context):
         body = browsed_building(context)
         root = repo_root(context)
-        event = self.event.strip().lower()
+        event = context.window_manager.tt_prop_event.strip().lower()
         if not valid_event(event):
             self.report({"ERROR"}, "Name the event with letters, digits and underscores")
             return {"CANCELLED"}
@@ -3731,6 +3799,9 @@ class SaveProps(bpy.types.Operator):
             o["tt_group"] = group
             o["tt_texture"] = texture
         append_registry_entries(os.path.join(root, REGISTRY_FILE), group, entries)
+        if fresh:
+            context.window_manager.tt_new_prop = None
+            context.window_manager.tt_prop_event = ""
         saved = write_changed(context, None, {o: o["tt_source"] for o in model_levels(body)})
         note = f"; building mesh: {', '.join(os.path.basename(o['tt_source']) for o in saved)}" if saved else ""
         note += f"; no texture image for {', '.join(sorted(set(missing)))}" if missing else ""
@@ -3759,6 +3830,7 @@ class VIEW3D_PT_tt_building(bpy.types.Panel):
         original = body["tt_texture"].split(",")[0].strip()
         box = layout.box()
         box.label(text="Texture")
+        box.label(text="Seasonal paint everyone sees while the event is on")
         entry = body_entry(context, body)
         shown = mesh_texture_image(body)
         shown = image_texture_name(shown) if shown is not None else ""
@@ -3770,26 +3842,37 @@ class VIEW3D_PT_tt_building(bpy.types.Panel):
             row.operator(ShowEventTexture.bl_idname, text=event + (" (unsaved)" if event in unsaved else ""),
                          depress=shown == texture).texture = texture
             row.operator(RemoveEventTexture.bl_idname, text="", icon="TRASH").event = event
-        col = box.column(align=True)
-        col.operator(NewEventTexture.bl_idname, icon="BRUSH_DATA")
-        col.operator(SaveEventTexture.bl_idname, icon="EXPORT")
+        if unsaved:
+            banner = box.box()
+            banner.alert = True
+            banner.label(text=f"Editing {', '.join(unsaved)} texture for {body['tt_sprite']}", icon="BRUSH_DATA")
+            row = banner.row(align=True)
+            row.operator(SaveEventTexture.bl_idname, text="Save", icon="EXPORT")
+            row.operator(CancelEventTexture.bl_idname, icon="X")
+        else:
+            box.operator(NewEventTexture.bl_idname, icon="BRUSH_DATA")
         box = layout.box()
-        box.label(text="Props in the registry")
-        for obj in building_props(body):
-            row = box.row(align=True)
-            row.prop(obj, "hide_viewport", text=obj["tt_sprite"] + (f" ({obj['tt_event']})" if obj.get("tt_event") else ""),
-                     toggle=True, invert_checkbox=True)
-            remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
-            remove.group, remove.sprite = body["tt_group"], obj["tt_sprite"]
-        fresh = new_props(context, body)
-        box.label(text=f"New: {', '.join(o.name for o in fresh)}" if fresh else "Select meshes to add as props",
-                  icon="ADD" if fresh else "INFO")
-        for o in fresh:
-            if mesh_texture_image(o) is None:
-                row = box.row()
-                row.alert = True
-                row.operator(MakeTexture.bl_idname, text=f"Make A Texture For {o.name}", icon="TEXTURE").target = o.name
-        box.operator(SaveProps.bl_idname, icon="EXPORT")
+        box.label(text="Props on this building")
+        box.label(text="Meshes placed around this building, drawn with it at this stage")
+        if building_props(body):
+            box.template_list("TT_UL_props", "", bpy.data, "objects", wm, "tt_prop_index", rows=3, maxrows=8)
+        else:
+            box.label(text="None yet: add one below", icon="INFO")
+        add = box.box()
+        add.label(text="Add a new prop", icon="ADD")
+        add.prop(wm, "tt_new_prop", text="Mesh")
+        building, stage = building_stage(body["tt_sprite"])
+        add.label(text=f"Attaches to: {building} ({stage})")
+        add.prop(wm, "tt_prop_event", text="Event")
+        if not valid_event(wm.tt_prop_event.strip().lower()):
+            add.label(text="Letters, digits and underscores only", icon="ERROR")
+        if wm.tt_new_prop is not None and mesh_texture_image(wm.tt_new_prop) is None:
+            row = add.row()
+            row.alert = True
+            row.operator(MakeTexture.bl_idname, icon="TEXTURE").target = wm.tt_new_prop.name
+        row = box.row()
+        row.scale_y = 1.4
+        row.operator(SaveProps.bl_idname, icon="EXPORT")
         if wm.tt_checked and wm.tt_checks:
             box = layout.box()
             for check in wm.tt_checks:
@@ -3868,7 +3951,72 @@ class ShowSkin(bpy.types.Operator):
         if self.sprite and skin is None:
             self.report({"ERROR"}, f"No skin sprite named {self.sprite} replaces {entry['name']}")
             return {"CANCELLED"}
+        body.pop("tt_skin_editing", None)
         show_skin(context, body, entry, skin)
+        return {"FINISHED"}
+
+
+def skin_name_search(self, context, edit_text):
+    """Skin names geometry.xml already uses anywhere, so one name can cover many models."""
+    root = repo_root(context)
+    names = {s["skin"] for s in read_registry(root)} if root else set()
+    return sorted(n for n in names if n and edit_text.strip().lower() in n.lower())
+
+
+def skin_name_problem(registry, entry, skin):
+    if not re.fullmatch(r"[A-Za-z0-9_]+", skin):
+        return "Name the skin with letters, digits and underscores"
+    # One skin name covers many models, each with its own entry; only this model's entry must be new.
+    if any(s["skin"] == skin for s in sprite_skins(registry, entry)):
+        return f"{entry['name']} already has a {skin} skin"
+    if any(s["group"] == entry["group"] and s["name"] == f"{entry['name']}_{skin}" for s in registry):
+        return f"{entry['group']} already has a sprite named {entry['name']}_{skin}"
+    return None
+
+
+class NewSkin(bpy.types.Operator):
+    """Start a new skin for the loaded model: change its mesh or texture, then Save Skin"""
+    bl_idname = "object.tt_new_skin"
+    bl_label = "New Skin..."
+    skin_name: StringProperty(name="Skin name", search=skin_name_search, options={"SKIP_SAVE"},
+                              description="Letters, digits and underscores. Pick a name other models already use "
+                                          "to add this model to that skin")
+
+    @classmethod
+    def poll(cls, context):
+        return skin_body(context)[0] is not None
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+    def execute(self, context):
+        body, entry = skin_body(context)
+        skin = self.skin_name.strip()
+        problem = skin_name_problem(read_registry(repo_root(context)), entry, skin)
+        if problem:
+            self.report({"ERROR"}, problem)
+            return {"CANCELLED"}
+        if body.get("tt_skin"):
+            show_skin(context, body, entry, None)
+        body["tt_skin_editing"] = skin
+        return {"FINISHED"}
+
+
+class CancelSkin(bpy.types.Operator):
+    """Stop making this skin: the model shows its default look again and nothing is written"""
+    bl_idname = "object.tt_cancel_skin"
+    bl_label = "Cancel"
+    bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        body = skin_body(context)[0]
+        return body is not None and bool(body.get("tt_skin_editing"))
+
+    def execute(self, context):
+        body, entry = skin_body(context)
+        del body["tt_skin_editing"]
+        show_skin(context, body, entry, None)
         return {"FINISHED"}
 
 
@@ -3881,31 +4029,26 @@ class SaveSkin(bpy.types.Operator):
     A detail level whose mesh you did not change keeps using the default file. The default files are never written,
     and the model shows its default look again afterwards"""
     bl_idname = "object.tt_save_skin"
-    bl_label = "Save As Skin"
+    bl_label = "Save Skin"
 
     @classmethod
     def poll(cls, context):
-        return skin_body(context)[0] is not None
+        body = skin_body(context)[0]
+        return body is not None and bool(body.get("tt_skin_editing"))
 
     def execute(self, context):
         root = repo_root(context)
         body, entry = skin_body(context)
-        skin = context.window_manager.tt_skin_name.strip()
+        skin = body["tt_skin_editing"]
         group, sprite = entry["group"], entry["name"]
         name = f"{sprite}_{skin}"
-        if not re.fullmatch(r"[A-Za-z0-9_]+", skin):
-            self.report({"ERROR"}, "Name the skin with letters, digits and underscores")
-            return {"CANCELLED"}
         if body.get("tt_skin"):
             self.report({"ERROR"}, f"Showing {body['tt_skin']}: press Default, then make your changes")
             return {"CANCELLED"}
         registry = read_registry(root)
-        # One skin name covers many models, each with its own entry; only this model's entry must be new.
-        if any(s["skin"] == skin for s in sprite_skins(registry, entry)):
-            self.report({"ERROR"}, f"{sprite} already has a {skin} skin")
-            return {"CANCELLED"}
-        if any(s["group"] == group and s["name"] == name for s in registry):
-            self.report({"ERROR"}, f"{group} already has a sprite named {name}")
+        problem = skin_name_problem(registry, entry, skin)
+        if problem:
+            self.report({"ERROR"}, problem)
             return {"CANCELLED"}
         arm = body_rig(body)
         tier = arm.get("tt_tier", 0) if arm is not None else 0
@@ -3969,6 +4112,7 @@ class SaveSkin(bpy.types.Operator):
                     for t in textures[o]]) for o in levels]
         attrs = [("name", name), ("skin", skin), ("replaces", sprite)] + ([("base", sprite)] if arm is not None else [])
         append_registry_entries(os.path.join(root, REGISTRY_FILE), group, [(name, sprite_text(attrs, models))])
+        del body["tt_skin_editing"]
         show_skin(context, body, entry, None)
         refresh_units(context)
         self.report({"INFO"}, f"Saved skin {skin} of {group} / {sprite}: {len(changed)} new mesh(es), "
@@ -3990,6 +4134,7 @@ class VIEW3D_PT_tt_skins(bpy.types.Panel):
         layout = self.layout
         body, entry = skin_body(context)
         shown = body.get("tt_skin", "")
+        layout.label(text=f"A look one player can choose for all their {entry['name']}s, all year")
         layout.operator(ShowSkin.bl_idname, text="Default", depress=not shown).sprite = ""
         for skin in sprite_skins(read_registry(repo_root(context)), entry):
             row = layout.row(align=True)
@@ -3997,8 +4142,16 @@ class VIEW3D_PT_tt_skins(bpy.types.Panel):
                          depress=shown == skin["name"]).sprite = skin["name"]
             remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
             remove.group, remove.sprite = skin["group"], skin["name"]
-        layout.prop(context.window_manager, "tt_skin_name")
-        layout.operator(SaveSkin.bl_idname, icon="EXPORT")
+        editing = body.get("tt_skin_editing")
+        if editing:
+            banner = layout.box()
+            banner.alert = True
+            banner.label(text=f"Editing skin '{editing}' for {entry['name']}", icon="BRUSH_DATA")
+            row = banner.row(align=True)
+            row.operator(SaveSkin.bl_idname, icon="EXPORT")
+            row.operator(CancelSkin.bl_idname, icon="X")
+        else:
+            layout.operator(NewSkin.bl_idname, icon="ADD")
 
 
 def subset_record(record, face_indices):
@@ -4161,9 +4314,9 @@ def menu_object(self, context):
 
 
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
-           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, CompareModel, ClearCompare, ShowItem, ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
+           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, AddToScene, RemoveAdded, ShowItem, ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
            RemoveFromRegistry, UpdateAddon, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
-           SaveProps, VIEW3D_PT_tt_building, ShowSkin, SaveSkin, VIEW3D_PT_tt_skins, NewClip, SaveClip, DeleteClip,
+           CancelEventTexture, SaveProps, TT_UL_props, VIEW3D_PT_tt_building, ShowSkin, NewSkin, CancelSkin, SaveSkin, VIEW3D_PT_tt_skins, NewClip, SaveClip, DeleteClip,
            SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, OwnTexture, PutOnBone, PaintItem, DonePainting,
            TT_UL_items, VIEW3D_PT_tt_units,
            VIEW3D_PT_tt_preview,
@@ -4194,8 +4347,12 @@ def register():
                                        description="Show only the items whose name contains this")
     wm.tt_new_point = EnumProperty(name="Goes On", items=point_items,
                                    description="The part of the unit your new mesh follows")
-    wm.tt_skin_name = StringProperty(name="Skin Name", description="Letters, digits and underscores. The skin's "
-                                                                   "sprite is <model>_<skin name>")
+    wm.tt_new_prop = PointerProperty(type=bpy.types.Object, name="Mesh", poll=attachment_obj_poll,
+                                     description="Your mesh to publish as a prop of the building stage showing")
+    wm.tt_prop_event = StringProperty(name="Event", search=event_search,
+                                      description="Blank means all year. With a name such as halloween, the new "
+                                                  "prop only shows during that event")
+    wm.tt_prop_index = IntProperty()
     bpy.app.handlers.load_post.append(refresh_units_on_load)
     bpy.app.timers.register(refresh_units_on_load, first_interval=0.5)
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
@@ -4203,9 +4360,13 @@ def register():
     bpy.types.VIEW3D_MT_object.append(menu_object)
     if hasattr(bpy.types, "UI_MT_button_context_menu"):
         bpy.types.UI_MT_button_context_menu.append(clip_button_menu)
+    if hasattr(bpy.types, "UI_MT_list_item_context_menu"):
+        bpy.types.UI_MT_list_item_context_menu.append(units_list_menu)
 
 
 def unregister():
+    if hasattr(bpy.types, "UI_MT_list_item_context_menu"):
+        bpy.types.UI_MT_list_item_context_menu.remove(units_list_menu)
     if hasattr(bpy.types, "UI_MT_button_context_menu"):
         bpy.types.UI_MT_button_context_menu.remove(clip_button_menu)
     bpy.types.VIEW3D_MT_object.remove(menu_object)
@@ -4215,7 +4376,8 @@ def unregister():
     del bpy.types.Object.tt_attachments
     for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_category", "tt_checks",
                  "tt_checked", "tt_team_preview", "tt_team_color", "tt_new_point",
-                 "tt_item_index", "tt_detail", "tt_item_search", "tt_skin_name"):
+                 "tt_item_index", "tt_detail", "tt_item_search", "tt_new_prop", "tt_prop_event",
+                 "tt_prop_index"):
         delattr(bpy.types.WindowManager, name)
     for cls in classes:
         bpy.utils.unregister_class(cls)
