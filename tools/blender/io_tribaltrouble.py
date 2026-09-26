@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 28, 1),
+    "version": (1, 28, 2),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1672,6 +1672,9 @@ def load_unit(context, group, name, report):
     entry = next(s for s in registry if s["group"] == group and s["name"] == name)
     quiet = lambda kind, message: report(kind, message) if kind != {"INFO"} else None
 
+    # Deleting the object a paint or edit mode is working on leaves Blender's scene in a state it can crash on.
+    if context.mode != "OBJECT" and context.view_layer.objects.active is not None:
+        bpy.ops.object.mode_set(mode="OBJECT")
     clear_browser_objects()
     for o in context.selected_objects:
         o.select_set(False)
@@ -1739,7 +1742,7 @@ def refresh_units_on_load(_file=None):
 
 def unit_index_update(self, context):
     wm = context.window_manager
-    if wm.tt_auto_load and 0 <= wm.tt_unit_index < len(wm.tt_units):
+    if 0 <= wm.tt_unit_index < len(wm.tt_units):
         item = wm.tt_units[wm.tt_unit_index]
         load_unit(context, item.group, item.sprite, lambda kind, message: None)
 
@@ -1783,9 +1786,9 @@ class RefreshUnits(bpy.types.Operator):
 
 
 class LoadUnit(bpy.types.Operator):
-    """Replace the browsed model with the one picked in the list, with its skeleton, clips and registry attachments"""
+    """Load the model picked in the list again from its files, dropping unsaved edits"""
     bl_idname = "wm.tt_load_unit"
-    bl_label = "Load"
+    bl_label = "Reload"
     bl_options = {"REGISTER", "UNDO"}
     group: StringProperty(options={"SKIP_SAVE"})
     sprite: StringProperty(options={"SKIP_SAVE"})
@@ -3219,9 +3222,8 @@ class VIEW3D_PT_tt_units(bpy.types.Panel):
         row = layout.row(align=True)
         row.operator(RefreshUnits.bl_idname, icon="FILE_REFRESH")
         row.prop(wm, "tt_category", text="")
-        row.prop(wm, "tt_auto_load", toggle=True)
         layout.template_list("TT_UL_units", "", wm, "tt_units", wm, "tt_unit_index", rows=10)
-        layout.operator(LoadUnit.bl_idname, icon="IMPORT")
+        layout.operator(LoadUnit.bl_idname, icon="FILE_REFRESH")
         layout.operator(PublishModel.bl_idname, icon="EXPORT")
         row = layout.row(align=True)
         row.operator(RegisterModel.bl_idname, icon="ADD")
@@ -3895,8 +3897,6 @@ def register():
     wm.tt_unit_index = IntProperty(update=unit_index_update)
     wm.tt_category = EnumProperty(name="Category", items=CATEGORY_ITEMS, default="UNITS", update=root_update,
                                   description="Which kind of model the list shows")
-    wm.tt_auto_load = BoolProperty(name="Load On Click", default=True,
-                                   description="Load a model as soon as it is picked in the list")
     wm.tt_checks = CollectionProperty(type=TTCheck)
     wm.tt_detail = EnumProperty(name="Detail", items=DETAIL_ITEMS, update=detail_update,
                                 description="Which of the model's meshes shows: the close up one or the one the game "
@@ -3932,7 +3932,7 @@ def unregister():
     bpy.types.TOPBAR_MT_file_export.remove(menu_export)
     bpy.app.handlers.load_post.remove(refresh_units_on_load)
     del bpy.types.Object.tt_attachments
-    for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_category", "tt_auto_load", "tt_checks",
+    for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_category", "tt_checks",
                  "tt_checked", "tt_team_preview", "tt_team_color", "tt_event", "tt_new_point",
                  "tt_item_index", "tt_detail", "tt_item_search", "tt_skin_name"):
         delattr(bpy.types.WindowManager, name)

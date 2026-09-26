@@ -58,7 +58,6 @@ sys.modules["io_tribaltrouble"] = addon
 spec.loader.exec_module(addon)
 addon.register()
 wm = bpy.context.window_manager
-wm.tt_auto_load = False
 results = []
 
 
