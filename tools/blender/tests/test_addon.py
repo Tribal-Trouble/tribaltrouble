@@ -1821,8 +1821,10 @@ def picking_a_skin_row_shows_it_and_paint_and_the_bin_act_on_it():
     assert wm.tt_skin_index == 0, "a new skin starts from Default"
     assert bpy.ops.object.tt_cancel_skin() == {"FINISHED"}
     before = len(wm.tt_skins)
+    wm.tt_skin_index = [row.skin for row in wm.tt_skins].index("harvest")
     assert bpy.ops.object.tt_remove_from_registry(group="vikings", sprite="quarters_harvest") == {"FINISHED"}
     assert len(wm.tt_skins) == before - 1 and "harvest" not in [row.skin for row in wm.tt_skins]
+    assert not body.get("tt_skin") and wm.tt_skin_index == 0, "the removed skin still shows"
     load("vikings", "peon")
     open_hammer()
     assert [row.skin for row in wm.tt_item_skins][0] == "" and wm.tt_item_skin_index == 0

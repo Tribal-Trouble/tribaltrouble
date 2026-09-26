@@ -237,6 +237,8 @@ class RemoveFromRegistry(bpy.types.Operator):
         if not remove_registry_entry(os.path.join(root, REGISTRY_FILE), self.group, self.sprite):
             self.report({"ERROR"}, f"No sprite named {self.sprite} in group {self.group}")
             return {"CANCELLED"}
+        for obj in [o for o in bpy.data.objects if o.get("tt_skin") == self.sprite and not o.get("tt_detail")]:
+            bpy.ops.object.tt_show_skin(item=obj.name)
         for obj in [o for o in bpy.data.objects if o.get("tt_sprite") == self.sprite and o.get(BROWSER_TAG)
                     and o.get("tt_group", "") in ("", self.group)]:
             bpy.data.objects.remove(obj, do_unlink=True)
