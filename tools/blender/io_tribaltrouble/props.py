@@ -12,9 +12,8 @@ from .textures import (apply_team_preview, crop_pixels, ensure_texture_in_repo, 
 from .mesh_io import active_armature, item_hidden_here, POINT_LABELS, write_mesh_xml
 from .registry import (append_registry_entries, CARRY_SLOT, GEOMETRY_DIR, PROP_SLOT, read_registry, REGISTRY_FILE,
                        repo_root, sprite_text, team_attribute)
-from .scene import (attachment_obj_poll, browsed_unit, BROWSER_TAG, building_props, building_stage, export_texts,
-                    file_clashes, item_shown, model_levels, prop_body, prop_tag, refresh_skins, set_item_visible,
-                    skin_item, snap_to_bone, unit_items, write_changed)
+from .scene import (attachment_obj_poll, browsed_unit, BROWSER_TAG, export_texts, file_clashes, item_shown,
+                    model_levels, refresh_skins, set_item_visible, skin_item, snap_to_bone, unit_items, write_changed)
 from .publish import check_mesh, publish_skin_paint, store_findings
 from .forms import (chosen_event, draw_confirm, draw_event, event_property, form_title, mesh_problem, open_form,
                     own_mesh_search)
@@ -22,6 +21,35 @@ from .models import RemoveFromRegistry
 from .preview import ShowItemClip
 from .by_hand import SetupAttachments
 from .skins import draw_skin_banner, draw_skin_list, NewSkin
+
+
+PROP_CATEGORIES = ("BUILDINGS", "RESOURCES", "NATURE", "DECORATIONS", "OTHER")  # take props, besides units
+
+
+def prop_body(context):
+    """The loaded model props hang on, when it is not a unit."""
+    return next((o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.get("tt_category") in PROP_CATEGORIES
+                 and o.type == "MESH" and o.parent is None and not o.get("tt_detail")), None)
+
+
+def building_props(body):
+    return sorted((o for o in bpy.data.objects if o.parent == body and o.get("tt_slot") and not o.get("tt_detail")),
+                  key=lambda o: o.name)
+
+
+def building_stage(sprite):
+    """(building name, stage label) of a building stage sprite."""
+    for suffix, stage in (("_halfbuilt", "Half built"), ("_start", "Start")):
+        if sprite.endswith(suffix):
+            return sprite[:-len(suffix)], stage
+    return sprite, "Built"
+
+
+def prop_tag(obj):
+    event = obj.get("tt_event") or "All year"
+    if obj.parent.get("tt_category") != "BUILDINGS":
+        return event
+    return f"{building_stage(obj.parent['tt_sprite'])[1]}, {event}"
 
 
 SLOT_LABELS = {"hat": "Hats", "weapon": "Weapons", "carried": "Carried"}

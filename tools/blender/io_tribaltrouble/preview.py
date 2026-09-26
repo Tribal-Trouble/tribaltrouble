@@ -7,11 +7,24 @@ import bpy
 from bpy.props import StringProperty, EnumProperty, FloatProperty, IntProperty
 
 from .textures import apply_team_preview, get_atlas_material, short_labels
-from .mesh_io import (active_armature, armature_actions, assign_action, clip_short_name, item_hidden_here, show_clip,
-                      shown_bones)
+from .mesh_io import active_armature, armature_actions, assign_action, clip_short_name, item_hidden_here, shown_bones
 from .registry import GEOMETRY_DIR, read_registry, REGISTRY_FILE, repo_root, rig_registry, set_clip_line
-from .scene import browsed_unit, has_low_detail, unit_meshes, unit_tiers
+from .scene import browsed_unit, has_low_detail, unit_meshes
 from .forms import draw_confirm, form_title, name_problem, open_form
+
+
+def show_clip(context, arm, action):
+    assign_action(arm, action)
+    context.scene.frame_start = 1
+    context.scene.frame_end = max(1, int(round(action.frame_range[1])))
+    context.scene.frame_set(1)
+
+
+def unit_tiers(arm):
+    """The unit body's comma-separated atlas list: one entry per weapon tier. Items follow it, they do not set it."""
+    lists = [[t.strip() for t in o["tt_texture"].split(",") if t.strip()] for o in unit_meshes(arm)
+             if not o.get("tt_slot")]
+    return max(lists, key=len, default=[])
 
 
 class SetClip(bpy.types.Operator):
@@ -266,8 +279,6 @@ class NewClip(bpy.types.Operator):
                     for path in ("location", "rotation_quaternion", "scale"):
                         pb.keyframe_insert(path, frame=frame, group=pb.name)
             action["tt_shown_bones"] = shown_bones([{pb.name: pb.matrix for pb in arm.pose.bones}])
-        context.scene.frame_start = 1
-        context.scene.frame_end = max(1, int(round(action.frame_range[1])))
-        context.scene.frame_set(1)
+        show_clip(context, arm, action)
         return {"FINISHED"}
 

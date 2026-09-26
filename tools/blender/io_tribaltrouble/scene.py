@@ -11,7 +11,7 @@ from .textures import apply_team_preview, object_texture
 from .mesh_io import (apply_clip, armature_from_file, assign_action, bind_meshes, bone_tail_matrices, build_armature,
                       clip_keys, import_mesh_file, mesh_xml_text, read_animation, read_skeleton, shown_bones,
                       write_text)
-from .registry import GEOMETRY_DIR, read_registry, repo_root, rig_entry, SCENERY_GROUP, sprite_category, sprite_skins
+from .registry import GEOMETRY_DIR, read_registry, repo_root, rig_entry, sprite_category, sprite_skins
 
 
 def attach_object(arm, obj, bone_name, visible):
@@ -463,46 +463,10 @@ def unit_meshes(arm):
     return [o for o in bpy.data.objects if o.type == "MESH" and o.parent == arm and o.get("tt_texture")]
 
 
-def unit_tiers(arm):
-    """The unit body's comma-separated atlas list: one entry per weapon tier. Items follow it, they do not set it."""
-    lists = [[t.strip() for t in o["tt_texture"].split(",") if t.strip()] for o in unit_meshes(arm)
-             if not o.get("tt_slot")]
-    return max(lists, key=len, default=[])
-
-
 def browsed_unit(arm):
     """The mesh loaded from the Models list onto this armature."""
     return next((o for o in unit_meshes(arm) if o.get("tt_group") and not o.get("tt_slot") and not o.get("tt_detail")),
                 None)
-
-
-PROP_CATEGORIES = ("BUILDINGS", "RESOURCES", "NATURE", "DECORATIONS", "OTHER")  # take props, besides units
-
-
-def prop_body(context):
-    """The loaded model props hang on, when it is not a unit."""
-    return next((o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.get("tt_category") in PROP_CATEGORIES
-                 and o.type == "MESH" and o.parent is None and not o.get("tt_detail")), None)
-
-
-def building_props(body):
-    return sorted((o for o in bpy.data.objects if o.parent == body and o.get("tt_slot") and not o.get("tt_detail")),
-                  key=lambda o: o.name)
-
-
-def building_stage(sprite):
-    """(building name, stage label) of a building stage sprite."""
-    for suffix, stage in (("_halfbuilt", "Half built"), ("_start", "Start")):
-        if sprite.endswith(suffix):
-            return sprite[:-len(suffix)], stage
-    return sprite, "Built"
-
-
-def prop_tag(obj):
-    event = obj.get("tt_event") or "All year"
-    if obj.parent.get("tt_category") != "BUILDINGS":
-        return event
-    return f"{building_stage(obj.parent['tt_sprite'])[1]}, {event}"
 
 
 def loaded_body():
@@ -522,14 +486,6 @@ def skin_body(context):
     if entry is None or entry["skin"]:
         return None, None
     return body, entry
-
-
-OWNED_CATEGORIES = ("UNITS", "BUILDINGS")  # players own skins of these; any other skin is an event's
-
-
-def skins_owned(context):
-    body = loaded_body()
-    return body is not None and body.get("tt_category") in OWNED_CATEGORIES and body["tt_group"] != SCENERY_GROUP
 
 
 def item_entry(registry, obj):
@@ -554,20 +510,6 @@ def skin_parts(body, entry, registry):
     items = sorted((o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.get("tt_slot") and not o.get("tt_detail")),
                    key=lambda o: o["tt_sprite"])
     return [(body, entry)] + [(o, e) for o in items for e in [item_entry(registry, o)] if e is not None]
-
-
-def skin_editing(context):
-    """The model or item a skin is being made for, and its registry entry."""
-    obj = next((o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.get("tt_skin_editing")), None)
-    body, entry = skin_body(context)
-    if obj is None or body is None:
-        return None, None
-    return (body, entry) if obj == body else skin_item(context, obj.name)
-
-
-def skin_mesh(target):
-    """The artist's own mesh standing in for target while its skin is made, or None."""
-    return next((o for o in bpy.data.objects if o.get("tt_skin_mesh") == target.name), None)
 
 
 def fill_skins(skins, registry, entry, item="", parts=()):

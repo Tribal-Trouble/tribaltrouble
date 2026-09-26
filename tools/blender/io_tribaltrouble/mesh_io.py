@@ -713,13 +713,6 @@ def export_matrix(o):
     return o.matrix_world
 
 
-def show_clip(context, arm, action):
-    assign_action(arm, action)
-    context.scene.frame_start = 1
-    context.scene.frame_end = max(1, int(round(action.frame_range[1])))
-    context.scene.frame_set(1)
-
-
 def clip_short_name(arm, action):
     """walk for an action called peon_walk on the peon rig; the action name otherwise."""
     stem = os.path.splitext(action.get("tt_clip") or action.name)[0]

@@ -11,14 +11,35 @@ from .textures import (apply_team_preview, ensure_texture_in_repo, get_atlas_mat
                        mesh_texture_image, models_texture_path, race_texture_name, save_png, short_labels)
 from .mesh_io import body_rig, item_point, mesh_record_from_xml, POINT_LABELS, replace_mesh_data, write_text
 from .registry import (append_registry_entries, GEOMETRY_DIR, level_textures, read_registry, REGISTRY_FILE, repo_root,
-                       sprite_skins, sprite_text, team_attribute)
-from .scene import (attach_object, attachment_obj_poll, detach_object, export_texts, loaded_body, model_levels,
-                    refresh_units, set_item_visible, skin_body, skin_editing, skin_item, skin_mesh, skin_parts,
-                    skins_owned, snap_to_bone)
+                       SCENERY_GROUP, sprite_skins, sprite_text, team_attribute)
+from .scene import (attach_object, attachment_obj_poll, BROWSER_TAG, detach_object, export_texts, loaded_body,
+                    model_levels, refresh_units, set_item_visible, skin_body, skin_item, skin_parts, snap_to_bone)
 from .publish import check_mesh, store_findings
 from .forms import (chosen_event, draw_confirm, draw_event, event_property, form_title, mesh_problem, name_problem,
                     open_form, own_mesh_search)
 from .models import RemoveFromRegistry
+
+
+OWNED_CATEGORIES = ("UNITS", "BUILDINGS")  # players own skins of these; any other skin is an event's
+
+
+def skins_owned(context):
+    body = loaded_body()
+    return body is not None and body.get("tt_category") in OWNED_CATEGORIES and body["tt_group"] != SCENERY_GROUP
+
+
+def skin_editing(context):
+    """The model or item a skin is being made for, and its registry entry."""
+    obj = next((o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.get("tt_skin_editing")), None)
+    body, entry = skin_body(context)
+    if obj is None or body is None:
+        return None, None
+    return (body, entry) if obj == body else skin_item(context, obj.name)
+
+
+def skin_mesh(target):
+    """The artist's own mesh standing in for target while its skin is made, or None."""
+    return next((o for o in bpy.data.objects if o.get("tt_skin_mesh") == target.name), None)
 
 
 def show_skin(context, body, entry, skin):
