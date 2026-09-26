@@ -12,6 +12,7 @@ import importlib.util
 import os
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 import traceback
@@ -893,6 +894,29 @@ def splitting_the_body_rewrites_both_detail_levels():
     after = {o: polygons(o["tt_source"]) for o in (body, low)}
     assert all(after[o] < before[o] for o in (body, low)), (before, after)
     return f"high {before[body]} -> {after[body]}, low {before[low]} -> {after[low]} polygons"
+
+
+@test
+def a_horn_blended_over_three_bones_splits_whole_with_its_weights():
+    # The viking chieftain's body from before its lur was split out, with the horn on Prop1, Prop2 and Prop3.
+    path = os.path.join(TEMP, "viking_chief_unsplit.xml")
+    with open(path, "wb") as f:
+        f.write(subprocess.run(["git", "show", "20efb3a49:assets/geometry/vikings/chieftain/viking_chief.xml"],
+                               cwd=REPO, capture_output=True, check=True).stdout)
+    body = addon.import_mesh_file(bpy.context, path, False, False, lambda k, m: None)
+    select_only(body)
+    assert bpy.ops.object.tt_split_by_bone(bone="Prop1, Prop2, Prop3") == {"FINISHED"}
+    horn = bpy.context.active_object
+    assert horn.name == "viking_chief_unsplit_Prop1", horn.name
+    assert (len(horn.data.polygons), len(body.data.polygons)) == (82, 720)
+    props = {horn.vertex_groups[n].index for n in ("Prop2", "Prop3")}
+    assert any(sum(g.group in props for g in v.groups) == 2 for v in horn.data.vertices), "blended weights were lost"
+    assert not any(g.name.startswith("Prop") for g in body.vertex_groups if any(
+        w.group == g.index for v in body.data.vertices for w in v.groups))
+    select_only(body)
+    assert bpy.ops.object.tt_split_by_bone(bone="Spine", rule="MOSTLY", part_name="chief_back") == {"FINISHED"}
+    assert bpy.context.active_object.name == "chief_back"
+    return f"horn {len(horn.data.polygons)} faces, body {len(body.data.polygons)}"
 
 
 @test

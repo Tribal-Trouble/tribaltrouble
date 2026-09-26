@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 29, 0),
+    "version": (1, 30, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -3813,18 +3813,36 @@ def replace_mesh_data(obj, record, name):
 
 def vertex_group_search(self, context, edit_text):
     o = context.active_object
-    return [g.name for g in o.vertex_groups] if o is not None and o.type == "MESH" else []
+    if o is None or o.type != "MESH":
+        return []
+    chosen = edit_text.rpartition(",")[0]
+    prefix = chosen + ", " if chosen else ""
+    return [prefix + g.name for g in o.vertex_groups]
+
+
+def split_bone_names(text):
+    return [name.strip() for name in text.split(",") if name.strip()]
+
+
+def split_rule_follows_bones(self, context):
+    self.rule = "TOUCHES" if len(split_bone_names(self.bone)) > 1 else "MOSTLY"
 
 
 class SplitByBone(bpy.types.Operator):
-    """Move the faces weighted to one bone into a new object, turning a baked-in held item into an attachment"""
+    """Move the faces weighted to some bones into a new object, turning a baked-in held item into an attachment"""
     bl_idname = "object.tt_split_by_bone"
     bl_label = "Split Mesh by Bone"
     bl_options = {"REGISTER", "UNDO"}
-    bone: StringProperty(name="Bone", default="", search=vertex_group_search,
-                         description="Vertex group (bone) whose faces move to the new object")
+    bone: StringProperty(name="Bones", default="", search=vertex_group_search, update=split_rule_follows_bones,
+                         description="Vertex groups (bones) whose faces move to the new object, separated by commas")
+    rule: EnumProperty(name="Rule", default="MOSTLY", options={"SKIP_SAVE"}, items=(
+        ("MOSTLY", "Mostly this bone", "A face moves when every corner carries at least Min Weight on the bones"),
+        ("TOUCHES", "Touches these bones", "A face moves when any corner has any weight on any of the bones"),
+    ))
     threshold: FloatProperty(name="Min Weight", default=0.5, min=0.0, max=1.0,
-                             description="A face moves when every corner carries at least this weight on the bone")
+                             description="A face moves when every corner carries at least this weight on the bones")
+    part_name: StringProperty(name="Name", default="", options={"SKIP_SAVE"},
+                              description="Name of the new object; empty names it after the first bone")
 
     @classmethod
     def poll(cls, context):
@@ -3836,24 +3854,43 @@ class SplitByBone(bpy.types.Operator):
         return False
 
     def invoke(self, context, event):
+        split_rule_follows_bones(self, context)
         return context.window_manager.invoke_props_dialog(self)
+
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "bone")
+        layout.prop(self, "rule")
+        if self.rule == "MOSTLY":
+            layout.prop(self, "threshold")
+        layout.prop(self, "part_name")
 
     def execute(self, context):
         o = context.active_object
-        group = o.vertex_groups.get(self.bone)
-        if group is None:
-            self.report({"ERROR"}, f"{o.name} has no vertex group '{self.bone}'")
+        bones = split_bone_names(self.bone)
+        if not bones:
+            self.report({"ERROR"}, "Name at least one bone")
             return {"CANCELLED"}
+        missing = [b for b in bones if o.vertex_groups.get(b) is None]
+        if missing:
+            self.report({"ERROR"}, f"{o.name} has no vertex group '{missing[0]}'")
+            return {"CANCELLED"}
+        rule = self.rule if self.properties.is_property_set("rule") or len(bones) == 1 else "TOUCHES"
         record = mesh_record_from_mesh(o.data, o, Matrix.Identity(4), False, None, True)
-        weight = [next((g.weight for g in v.groups if g.group == group.index), 0.0) for v in o.data.vertices]
-        part_faces = [i for i, face in enumerate(record.faces) if all(weight[vi] >= self.threshold for vi in face)]
+        chosen = {o.vertex_groups[b].index for b in bones}
+        weight = [sum(g.weight for g in v.groups if g.group in chosen) for v in o.data.vertices]
+        if rule == "TOUCHES":
+            part_faces = [i for i, face in enumerate(record.faces) if any(weight[vi] > 0.0 for vi in face)]
+        else:
+            part_faces = [i for i, face in enumerate(record.faces) if all(weight[vi] >= self.threshold for vi in face)]
         if not part_faces:
-            self.report({"WARNING"}, f"No face has every corner weighted {self.threshold:g} or more to '{self.bone}'")
+            self.report({"WARNING"}, f"No face has every corner weighted {self.threshold:g} or more to {', '.join(bones)}"
+                        if rule == "MOSTLY" else f"No face has any weight on {', '.join(bones)}")
             return {"CANCELLED"}
         moving = set(part_faces)
         rest_faces = [i for i in range(len(record.faces)) if i not in moving]
 
-        part_name = f"{o.name}_{self.bone.split()[-1]}"
+        part_name = self.part_name.strip() or f"{o.name}_{bones[0].split()[-1]}"
         part_record = subset_record(record, part_faces)
         part = bpy.data.objects.new(part_name, build_mesh(part_name, part_record))
         for m in o.data.materials:
