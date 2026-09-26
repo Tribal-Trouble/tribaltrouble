@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 27, 2),
+    "version": (1, 28, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -959,6 +959,36 @@ def armature_actions(arm):
     return actions
 
 
+SHOWN_SCALE = 0.01
+
+
+def shown_bones(frames):
+    """Bones not shrunk to nothing on at least one frame; the game hides a held thing by scaling its bone to zero."""
+    return sorted({bone for frame in frames for bone, m in frame.items()
+                   if max(abs(s) for s in m.to_scale()) > SHOWN_SCALE})
+
+
+def item_bone(obj):
+    return obj.parent_bone if obj.parent_type == "BONE" and obj.parent_bone else obj.get("tt_bone")
+
+
+def item_clips(arm, obj):
+    """The clips in which obj's bone shows, by name; None for an item on no bone."""
+    bone = item_bone(obj)
+    if not bone:
+        return None
+    return sorted((a for a in armature_actions(arm) if bone in list(a.get("tt_shown_bones", ()))), key=lambda a: a.name)
+
+
+def item_hidden_here(arm, obj):
+    """The clips obj shows in when the clip on the rig is not one of them; None otherwise."""
+    current = arm.animation_data.action if arm.animation_data is not None else None
+    clips = item_clips(arm, obj)
+    if current is None or not clips or "tt_shown_bones" not in current or current in clips:
+        return None
+    return clips
+
+
 class ExportTTSkeleton(bpy.types.Operator, ExportHelper):
     """Export the active armature's rest pose as a skeleton file and its clips as animation files beside it"""
     bl_idname = "export_scene.tt_skeleton"
@@ -1271,6 +1301,8 @@ class TT_UL_items(bpy.types.UIList):
             lock = row.row()
             lock.enabled = False
             lock.label(text="", icon="LOCKED")  # the game asks for these by name, so they cannot be removed
+        if item_hidden_here(active_armature(context), item):
+            row.operator(ShowItemClip.bl_idname, text="", icon="TIME", emboss=False).item = item.name
 
     def draw_filter(self, context, layout):
         pass  # the search field sits above the list instead
@@ -1654,8 +1686,10 @@ def load_unit(context, group, name, report):
         idle = None
         for clip in rig["clips"]:
             clip_name = os.path.splitext(os.path.basename(clip))[0]
-            action = apply_clip(context, arm, clip_name, read_animation(os.path.join(geometry, clip)))
+            frames = read_animation(os.path.join(geometry, clip))
+            action = apply_clip(context, arm, clip_name, frames)
             action["tt_clip"] = os.path.basename(clip)
+            action["tt_shown_bones"] = shown_bones(frames)
             action[BROWSER_TAG] = True
             if idle is None or "idle" in clip_name:
                 idle = action
@@ -2339,10 +2373,40 @@ class SetClip(bpy.types.Operator):
         action = bpy.data.actions.get(self.clip)
         if arm is None or action is None:
             return {"CANCELLED"}
-        assign_action(arm, action)
-        context.scene.frame_start = 1
-        context.scene.frame_end = max(1, int(round(action.frame_range[1])))
-        context.scene.frame_set(1)
+        show_clip(context, arm, action)
+        return {"FINISHED"}
+
+
+def show_clip(context, arm, action):
+    assign_action(arm, action)
+    context.scene.frame_start = 1
+    context.scene.frame_end = max(1, int(round(action.frame_range[1])))
+    context.scene.frame_set(1)
+
+
+class ShowItemClip(bpy.types.Operator):
+    """Show a clip this item appears in"""
+    bl_idname = "object.tt_show_item_clip"
+    bl_label = "Show Item's Clip"
+    item: StringProperty()
+
+    @classmethod
+    def description(cls, context, properties):
+        arm = active_armature(context)
+        obj = bpy.data.objects.get(properties.item)
+        clips = item_hidden_here(arm, obj) if arm is not None and obj is not None else None
+        if not clips:
+            return cls.__doc__
+        names = ", ".join(clip_short_name(arm, a) for a in clips)
+        return f"Hidden in {clip_short_name(arm, arm.animation_data.action)}. Only visible in: {names}"
+
+    def execute(self, context):
+        arm = active_armature(context)
+        obj = bpy.data.objects.get(self.item)
+        clips = item_hidden_here(arm, obj) if arm is not None and obj is not None else None
+        if not clips:
+            return {"CANCELLED"}
+        show_clip(context, arm, clips[0])
         return {"FINISHED"}
 
 
@@ -2753,6 +2817,7 @@ class NewClip(bpy.types.Operator):
                 for frame in (1, self.length):
                     for path in ("location", "rotation_quaternion", "scale"):
                         pb.keyframe_insert(path, frame=frame, group=pb.name)
+            action["tt_shown_bones"] = shown_bones([{pb.name: pb.matrix for pb in arm.pose.bones}])
         context.scene.frame_start = 1
         context.scene.frame_end = max(1, int(round(action.frame_range[1])))
         context.scene.frame_set(1)
@@ -2824,6 +2889,7 @@ class SaveClip(bpy.types.Operator):
         touched = set_clip_line(os.path.join(root, REGISTRY_FILE), group, rig["skeleton"].replace("\\", "/"), name, line)
         action.name = os.path.splitext(os.path.basename(path))[0]
         action["tt_clip"], action["tt_armature"], action[BROWSER_TAG] = os.path.basename(path), arm.name, True
+        action["tt_shown_bones"] = shown_bones(read_animation(path))
         action.use_fake_user = True
         frames = int(round(end)) - int(round(start)) + 1
         if is_new:
@@ -3795,7 +3861,7 @@ def menu_object(self, context):
 
 
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
-           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, ShowItem, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
+           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, ShowItem, ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
            RemoveFromRegistry, UpdateAddon, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
            SaveProps, VIEW3D_PT_tt_building, ShowSkin, SaveSkin, VIEW3D_PT_tt_skins, NewClip, SaveClip, DeleteClip,
            SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, OwnTexture, PutOnBone, PaintItem, DonePainting,

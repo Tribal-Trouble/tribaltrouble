@@ -620,6 +620,26 @@ def the_search_field_above_the_items_list_filters_it():
 
 
 @test
+def an_item_hidden_in_the_clip_showing_points_to_the_clips_it_shows_in():
+    a = load("natives", "chieftain")
+    item = lambda name: next(o for o in sum(addon.unit_items(a).values(), []) if o["tt_sprite"] == name)
+    prop, always = item("chieftain_prop1"), item("chieftain_prop2")
+    names = lambda clips: [addon.clip_short_name(a, x) for x in clips]
+    every = sorted(addon.armature_actions(a), key=lambda x: x.name)
+    assert names(addon.item_clips(a, prop)) == ["magic"], names(addon.item_clips(a, prop))
+    assert addon.item_clips(a, always) == every and addon.item_hidden_here(a, always) is None
+    idle = next(x for x in every if addon.clip_short_name(a, x) == "idle")
+    assert bpy.ops.object.tt_set_clip(clip=idle.name) == {"FINISHED"}
+    assert names(addon.item_hidden_here(a, prop)) == ["magic"]
+    tip = addon.ShowItemClip.description(bpy.context, type("P", (), {"item": prop.name})())
+    assert tip == "Hidden in idle. Only visible in: magic", tip
+    assert bpy.ops.object.tt_show_item_clip(item=prop.name) == {"FINISHED"}
+    assert names([a.animation_data.action]) == ["magic"] and addon.item_hidden_here(a, prop) is None
+    assert bpy.context.scene.frame_end == int(round(a.animation_data.action.frame_range[1]))
+    return f"clips {names(every)}"
+
+
+@test
 def point_rows_only_take_the_artists_own_meshes():
     a = load("natives", "peon")
     head = next(slot for slot in a.tt_attachments if slot.point == "HEAD")
