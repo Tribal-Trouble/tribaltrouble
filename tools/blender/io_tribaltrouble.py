@@ -42,7 +42,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 38, 0),
+    "version": (1, 39, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1362,6 +1362,7 @@ def item_index_update(self, context):
     if obj is None or holder is None or obj not in unit_items(holder).get(obj.get("tt_slot", ""), []):
         return
     wm.tt_open_item = obj.name
+    refresh_skins(context)
     if item_shown(obj) and context.mode == "OBJECT":
         for o in context.selected_objects:
             o.select_set(False)
@@ -1378,6 +1379,7 @@ class CloseItem(bpy.types.Operator):
         wm = context.window_manager
         wm.tt_open_item = ""
         wm.tt_item_index = -1
+        refresh_skins(context)
         return {"FINISHED"}
 
 
@@ -1409,7 +1411,7 @@ def draw_item_detail(context, layout, arm, item):
         return
     box = layout.box()
     box.label(text=f"Skins of {entry['name']}")
-    draw_skin_rows(box, read_registry(repo_root(context)), entry, item, item.name)
+    draw_skin_list(box, context.window_manager, item.name)
     if item.get("tt_skin_editing"):
         draw_skin_banner(box, item, entry)
     else:
@@ -1643,6 +1645,7 @@ def team_attribute(root, texture, fallback):
 def refresh_units(context):
     wm = context.window_manager
     wm.tt_units.clear()
+    refresh_skins(context)
     root = repo_root(context)
     if not root:
         return 0
@@ -1854,6 +1857,7 @@ def load_unit(context, group, name, report):
     context.view_layer.objects.active = active
     active.select_set(True)
     apply_team_preview(context)
+    refresh_skins(context)
     report({"INFO"}, f"{group} / {name}: {len(rig['clips'])} clip(s), {len(items)} registry attachment(s)")
     return active
 
@@ -1900,12 +1904,6 @@ class TT_UL_units(bpy.types.UIList):
         pick = name.operator(PickUnit.bl_idname, text=item.name, icon=CATEGORY_ICONS.get(item.category, "MESH_CUBE"),
                              emboss=False)
         pick.group, pick.sprite = item.group, item.sprite
-        buttons = row.row(align=True)
-        buttons.alignment = "RIGHT"
-        paint = buttons.operator(PaintModel.bl_idname, text="", icon="BRUSH_DATA", emboss=False)
-        paint.group, paint.sprite = item.group, item.sprite
-        remove = buttons.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH", emboss=False)
-        remove.group, remove.sprite = item.group, item.sprite
 
 
 class PickUnit(bpy.types.Operator):
@@ -1924,23 +1922,6 @@ class PickUnit(bpy.types.Operator):
         if index != wm.tt_unit_index:
             wm.tt_unit_index = index
         return {"FINISHED"}
-
-
-class PaintModel(bpy.types.Operator):
-    """Load this model unless it is the loaded one, and start painting its texture"""
-    bl_idname = "wm.tt_paint_model"
-    bl_label = "Paint Model"
-    group: StringProperty(options={"SKIP_SAVE"})
-    sprite: StringProperty(options={"SKIP_SAVE"})
-
-    def execute(self, context):
-        body = loaded_body()
-        if body is None or (body["tt_group"], body["tt_sprite"]) != (self.group, self.sprite):
-            bpy.ops.wm.tt_pick_unit(group=self.group, sprite=self.sprite)
-            body = loaded_body()
-        if body is None or (body["tt_group"], body["tt_sprite"]) != (self.group, self.sprite):
-            return {"CANCELLED"}
-        return bpy.ops.object.tt_paint_item(target=body.name)
 
 
 class RefreshUnits(bpy.types.Operator):
@@ -3888,7 +3869,12 @@ class VIEW3D_PT_tt_units(bpy.types.Panel):
         if references():
             layout.operator(RemoveAdded.bl_idname, icon="X")
         layout.operator(LoadUnit.bl_idname, icon="FILE_REFRESH")
-        layout.operator(PublishModel.bl_idname, icon="EXPORT")
+        row = layout.row(align=True)
+        row.operator(PublishModel.bl_idname, icon="EXPORT")
+        body = loaded_body()
+        if body is not None:
+            remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
+            remove.group, remove.sprite = body["tt_group"], body["tt_sprite"]
         # Units show it under Preview.
         if has_low_detail() and not any(o.type == "ARMATURE" and o.get(BROWSER_TAG) for o in bpy.data.objects):
             layout.row(align=True).prop(wm, "tt_detail", expand=True)
@@ -4519,6 +4505,8 @@ class PaintSkin(bpy.types.Operator):
         if bpy.ops.object.tt_show_skin(skin=self.skin, item=self.item) != {"FINISHED"}:
             return {"CANCELLED"}
         target, entry = skin_item(context, self.item) if self.item else skin_body(context)
+        if not self.skin:
+            return bpy.ops.object.tt_paint_item(target=target.name)
         image = mesh_texture_image(target)
         stock = {t for level in entry["textures"] for t, _ in level}
         if image is not None and image_texture_name(image) in stock:
@@ -4528,27 +4516,99 @@ class PaintSkin(bpy.types.Operator):
         return bpy.ops.object.tt_paint_item(target=target.name)
 
 
-def draw_skin_rows(layout, registry, entry, target, item="", parts=()):
-    """Default, then one row per skin of entry: show, its name and the parts it also covers, who gets it, paint and
-    remove."""
-    shown = target.get("tt_skin", "")
-    default = layout.operator(ShowSkin.bl_idname, text="Default", depress=not shown)
-    default.skin, default.item = "", item
+class TTSkinEntry(bpy.types.PropertyGroup):
+    skin: StringProperty()
+    group: StringProperty()
+    sprite: StringProperty()
+    tag: StringProperty()
+    item: StringProperty()
+
+
+def fill_skins(skins, registry, entry, item="", parts=()):
+    skins.clear()
+    row = skins.add()
+    row.name, row.item = "Default", item
     for sprite in sprite_skins(registry, entry):
         covered = [e["name"] for _, e in parts if any(s["skin"] == sprite["skin"] for s in sprite_skins(registry, e))]
-        on = shown == sprite["name"]
-        row = layout.row(align=True)
-        eye = row.operator(ShowSkin.bl_idname, text="", icon="HIDE_OFF" if on else "HIDE_ON", emboss=False)
-        eye.skin, eye.item = "" if on else sprite["skin"], item
-        row.label(text=sprite["skin"] + (f" (+ {', '.join(covered)})" if covered else ""))
+        row = skins.add()
+        row.name = sprite["skin"] + (f" (+ {', '.join(covered)})" if covered else "")
+        row.skin, row.group, row.sprite, row.item = sprite["skin"], sprite["group"], sprite["name"], item
+        row.tag = sprite["event"] or "Owned"
+
+
+def refresh_skins(context):
+    """The rows of the Skins panel and of the open item's skins, read again from the registry."""
+    wm = context.window_manager
+    wm.tt_skins.clear()
+    wm.tt_item_skins.clear()
+    body, entry = skin_body(context)
+    if body is None:
+        return
+    registry = read_registry(repo_root(context))
+    # Item skins show in their item's view in the Props panel; here only the ones the model's own skin brings.
+    fill_skins(wm.tt_skins, registry, entry, parts=skin_parts(body, entry, registry)[1:])
+    item, item_sprite = skin_item(context, wm.tt_open_item)
+    if item is not None:
+        fill_skins(wm.tt_item_skins, registry, item_sprite, item.name)
+
+
+def shown_skin_index(skins, target):
+    """The row of the skin target shows: the list's selection always follows what is shown."""
+    shown = target.get("tt_skin_name", "") if target is not None else ""
+    return next((i for i, row in enumerate(skins) if row.skin == shown), -1)
+
+
+def pick_skin_row(skins, index):
+    if 0 <= index < len(skins):
+        bpy.ops.object.tt_pick_skin(skin=skins[index].skin, item=skins[index].item)
+
+
+class TT_UL_skins(bpy.types.UIList):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_property, index):
+        # A button, not a label, so a click on the name picks the row.
+        row = layout.row()
+        name = row.row()
+        name.alignment = "LEFT"
+        pick = name.operator(PickSkin.bl_idname, text=item.name, icon="MATERIAL" if item.skin else "OBJECT_DATA",
+                             emboss=False)
+        pick.skin, pick.item = item.skin, item.item
         tag = row.row()
         tag.alignment = "RIGHT"
         tag.enabled = False
-        tag.label(text=sprite["event"] or "Owned")
-        paint = row.operator(PaintSkin.bl_idname, text="", icon="BRUSH_DATA", emboss=False)
-        paint.skin, paint.item = sprite["skin"], item
-        remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH", emboss=False)
-        remove.group, remove.sprite = sprite["group"], sprite["name"]
+        tag.label(text=item.tag)
+
+
+class PickSkin(bpy.types.Operator):
+    """Show this skin on the loaded model and the items it covers, or on this item only"""
+    bl_idname = "object.tt_pick_skin"
+    bl_label = "Pick Skin"
+    bl_options = {"REGISTER", "UNDO"}
+    skin: StringProperty(options={"SKIP_SAVE"})
+    item: StringProperty(options={"SKIP_SAVE"})
+
+    def execute(self, context):
+        target = skin_item(context, self.item)[0] if self.item else skin_body(context)[0]
+        if target is None:
+            return {"CANCELLED"}
+        if target.get("tt_skin_name", "") == self.skin:
+            return {"FINISHED"}
+        return bpy.ops.object.tt_show_skin(skin=self.skin, item=self.item)
+
+
+def draw_skin_list(layout, wm, item=""):
+    """The skins list, then Paint and remove for the picked one."""
+    skins, index = ("tt_item_skins", "tt_item_skin_index") if item else ("tt_skins", "tt_skin_index")
+    layout.template_list("TT_UL_skins", skins, wm, skins, wm, index, rows=4)
+    rows, at = getattr(wm, skins), getattr(wm, index)
+    if not 0 <= at < len(rows):
+        return
+    picked = rows[at]
+    row = layout.row(align=True)
+    paint = row.operator(PaintSkin.bl_idname, text="Paint", icon="BRUSH_DATA")
+    paint.skin, paint.item = picked.skin, picked.item
+    if picked.skin:
+        remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
+        remove.group, remove.sprite = picked.group, picked.sprite
 
 
 class VIEW3D_PT_tt_skins(bpy.types.Panel):
@@ -4564,10 +4624,7 @@ class VIEW3D_PT_tt_skins(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        body, entry = skin_body(context)
-        registry = read_registry(repo_root(context))
-        # Item skins show in their item's view in the Props panel; here only the ones the model's own skin brings.
-        draw_skin_rows(layout, registry, entry, body, parts=skin_parts(body, entry, registry)[1:])
+        draw_skin_list(layout, context.window_manager)
         target, target_entry = skin_editing(context)
         if target is not None:
             draw_skin_banner(layout, target, target_entry)
@@ -4735,8 +4792,8 @@ def menu_object(self, context):
 
 
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
-           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, PickUnit, PaintModel, AddToScene, RemoveAdded, ShowItem, ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, NewDecoration, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
-           RemoveFromRegistry, UpdateAddon, NewEvent, SaveProps, NewProp, ShowSkin, PaintSkin, NewSkin, CancelSkin, SaveSkin, CloseItem, NewClip, SaveClip, DeleteClip,
+           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, PickUnit, AddToScene, RemoveAdded, ShowItem, ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, NewDecoration, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
+           RemoveFromRegistry, UpdateAddon, NewEvent, SaveProps, NewProp, ShowSkin, PaintSkin, TTSkinEntry, TT_UL_skins, PickSkin, NewSkin, CancelSkin, SaveSkin, CloseItem, NewClip, SaveClip, DeleteClip,
            SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, NewItem, OwnTexture, PutOnBone, PaintItem, DonePainting,
            TT_UL_items, VIEW3D_PT_tt_units, VIEW3D_PT_tt_skins,
            VIEW3D_PT_tt_preview,
@@ -4764,6 +4821,13 @@ def register():
                                            default=(0.8, 0.1, 0.1), update=team_preview_update)
     wm.tt_item_index = IntProperty(update=item_index_update)
     wm.tt_open_item = StringProperty()
+    wm.tt_skins = CollectionProperty(type=TTSkinEntry)
+    wm.tt_skin_index = IntProperty(get=lambda wm: shown_skin_index(wm.tt_skins, loaded_body()),
+                                   set=lambda wm, index: pick_skin_row(wm.tt_skins, index))
+    wm.tt_item_skins = CollectionProperty(type=TTSkinEntry)
+    wm.tt_item_skin_index = IntProperty(
+        get=lambda wm: shown_skin_index(wm.tt_item_skins, bpy.data.objects.get(wm.tt_open_item)),
+        set=lambda wm, index: pick_skin_row(wm.tt_item_skins, index))
     wm.tt_item_search = StringProperty(name="Search", options={"TEXTEDIT_UPDATE"},
                                        description="Show only the items whose name contains this")
     bpy.app.handlers.load_post.append(refresh_units_on_load)
@@ -4788,7 +4852,7 @@ def unregister():
     for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_category", "tt_checks",
                  "tt_checked", "tt_team_preview", "tt_team_color",
                  "tt_item_index", "tt_detail", "tt_item_search",
-                 "tt_open_item"):
+                 "tt_open_item", "tt_skins", "tt_skin_index", "tt_item_skins", "tt_item_skin_index"):
         delattr(bpy.types.WindowManager, name)
     for cls in classes:
         bpy.utils.unregister_class(cls)

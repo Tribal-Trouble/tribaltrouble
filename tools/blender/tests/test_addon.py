@@ -1685,6 +1685,9 @@ class Recorder:
     def label(self, text="", **kwargs):
         self.log.append(("label", text))
 
+    def template_list(self, list_type, list_id, data, prop, active_data, active_prop, **kwargs):
+        self.log.append(("list", prop))
+
 
 def drawn(panel):
     layout = Recorder()
@@ -1701,11 +1704,12 @@ def the_items_panel_shows_the_list_or_one_item_with_its_skins():
     detail = drawn(addon.VIEW3D_PT_tt_attachments)
     ops = [idname for idname, _ in detail]
     assert ops[0] == "object.tt_close_item" and "object.tt_paint_item" in ops and "object.tt_save_items" in ops, ops
-    assert "object.tt_new_item" not in ops and ("label", "gold") in detail, detail
-    assert ("object.tt_new_skin", None) in detail and ("object.tt_paint_skin", "") in detail, detail
-    skins = drawn(addon.VIEW3D_PT_tt_skins)
-    assert ("label", "gold (+ peon_hammer)") in skins and ("label", "Owned") in skins, skins
-    assert not [text for _, text in skins if text and text.startswith("big")], "an item-only skin is in the Skins panel"
+    assert "object.tt_new_item" not in ops, detail
+    assert ("object.tt_new_skin", None) in detail and ("object.tt_paint_skin", "Paint") in detail, detail
+    assert ("list", "tt_item_skins") in detail and "gold" in [row.name for row in wm.tt_item_skins], detail
+    assert ("list", "tt_skins") in drawn(addon.VIEW3D_PT_tt_skins)
+    assert ("gold (+ peon_hammer)", "Owned") in [(row.name, row.tag) for row in wm.tt_skins]
+    assert not [row for row in wm.tt_skins if row.name.startswith("big")], "an item-only skin is in the Skins panel"
     assert bpy.ops.object.tt_new_skin(item=hammer().name, skin_name="red") == {"FINISHED"}
     assert ("label", "Editing skin 'red' for peon_hammer") in drawn(addon.VIEW3D_PT_tt_attachments)
     assert ("label", "Editing skin 'red' for peon_hammer") in drawn(addon.VIEW3D_PT_tt_skins)
@@ -1755,12 +1759,42 @@ def an_event_skin_is_written_with_its_event_and_scenery_skins_need_one():
 def the_skins_panel_on_a_building_says_who_gets_each_skin():
     load_building("vikings", "quarters")
     assert addon.VIEW3D_PT_tt_skins.poll(bpy.context)
+    drawn_rows = drawn(addon.VIEW3D_PT_tt_skins)
+    assert ("list", "tt_skins") in drawn_rows and ("object.tt_new_skin", None) in drawn_rows, drawn_rows
+    assert ("object.tt_paint_skin", "Paint") in drawn_rows, drawn_rows
+    assert ("object.tt_remove_from_registry", "") not in drawn_rows, "Default can be removed"
+    rows = [(row.name, row.tag) for row in wm.tt_skins]
+    assert rows[0] == ("Default", "") and ("harvest", "Owned") in rows and ("halloween", "halloween") in rows, rows
+    for row in wm.tt_skins:
+        layout = Recorder()
+        addon.TT_UL_skins.draw_item(None, bpy.context, layout, wm, row, 0, None, "", 0)
+        assert layout.log == [("object.tt_pick_skin", row.name), ("label", row.tag)], layout.log
+
+
+@test
+def picking_a_skin_row_shows_it_and_paint_and_the_bin_act_on_it():
+    body = load_building("vikings", "quarters")
+    assert wm.tt_skin_index == 0 and not body.get("tt_skin")
+    wm.tt_skin_index = [row.skin for row in wm.tt_skins].index("harvest")
+    assert body["tt_skin"] == "quarters_harvest" and wm.tt_skins[wm.tt_skin_index].skin == "harvest"
     rows = drawn(addon.VIEW3D_PT_tt_skins)
-    assert ("object.tt_show_skin", "Default") in rows and ("object.tt_new_skin", None) in rows, rows
-    for skin, tag in (("harvest", "Owned"), ("halloween", "halloween")):
-        assert ("label", skin) in rows and ("label", tag) in rows, (skin, rows)
-    assert rows.count(("object.tt_paint_skin", "")) == 2 and rows.count(("object.tt_remove_from_registry", "")) == 2
-    assert rows.count(("object.tt_show_skin", "")) == 2, "every skin row has an eye"
+    assert ("object.tt_paint_skin", "Paint") in rows and ("object.tt_remove_from_registry", "") in rows, rows
+    assert bpy.ops.object.tt_pick_skin(skin="") == {"FINISHED"}
+    assert not body.get("tt_skin") and wm.tt_skin_index == 0
+    assert bpy.ops.object.tt_pick_skin(skin="halloween") == {"FINISHED"}
+    assert wm.tt_skins[wm.tt_skin_index].skin == "halloween"
+    assert bpy.ops.object.tt_new_skin(skin_name="red") == {"FINISHED"}
+    assert wm.tt_skin_index == 0, "a new skin starts from Default"
+    assert bpy.ops.object.tt_cancel_skin() == {"FINISHED"}
+    before = len(wm.tt_skins)
+    assert bpy.ops.object.tt_remove_from_registry(group="vikings", sprite="quarters_harvest") == {"FINISHED"}
+    assert len(wm.tt_skins) == before - 1 and "harvest" not in [row.skin for row in wm.tt_skins]
+    load("vikings", "peon")
+    open_hammer()
+    assert [row.skin for row in wm.tt_item_skins][0] == "" and wm.tt_item_skin_index == 0
+    wm.tt_item_skin_index = [row.skin for row in wm.tt_item_skins].index("gold")
+    assert hammer()["tt_skin"] == "peon_hammer_gold" and not addon.loaded_body().get("tt_skin")
+    assert bpy.ops.object.tt_close_item() == {"FINISHED"} and not len(wm.tt_item_skins)
 
 
 @test
@@ -1883,8 +1917,9 @@ def the_skin_and_decoration_forms_and_the_list_rows_offer_what_they_should():
     wm.tt_category = "BUILDINGS"
     row = Recorder()
     addon.TT_UL_units.draw_item(None, bpy.context, row, wm, wm.tt_units[0], 0, None, "", 0)
-    assert [x[0] for x in row.log] == ["wm.tt_pick_unit", "wm.tt_paint_model", "object.tt_remove_from_registry"]
-    assert bpy.ops.wm.tt_paint_model(group="vikings", sprite="quarters") == {"FINISHED"}
+    assert [x[0] for x in row.log] == ["wm.tt_pick_unit"]
+    assert bpy.ops.wm.tt_pick_unit(group="vikings", sprite="quarters") == {"FINISHED"}
+    assert bpy.ops.object.tt_paint_skin(skin="") == {"FINISHED"}
     assert bpy.context.mode == "PAINT_TEXTURE" and addon.loaded_body()["tt_sprite"] == "quarters"
     assert bpy.ops.object.tt_done_painting() == {"FINISHED"}
     row = Recorder()
