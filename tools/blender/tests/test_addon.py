@@ -622,7 +622,7 @@ def the_search_field_above_the_items_list_filters_it():
 def an_item_hidden_in_the_clip_showing_points_to_the_clips_it_shows_in():
     a = load("natives", "chieftain")
     item = lambda name: next(o for o in sum(addon.unit_items(a).values(), []) if o["tt_sprite"] == name)
-    prop, always = item("chieftain_prop1"), item("chieftain_prop2")
+    prop, always = item("chieftain_magic_pot"), item("chieftain_club")
     names = lambda clips: [addon.clip_short_name(a, x) for x in clips]
     every = sorted(addon.armature_actions(a), key=lambda x: x.name)
     assert names(addon.item_clips(a, prop)) == ["magic"], names(addon.item_clips(a, prop))
@@ -1120,10 +1120,10 @@ def evaluated_points(obj):
 
 @test
 def an_item_on_several_bones_deforms_with_all_of_them_and_keeps_its_weights():
-    # Fixture: the native chieftain's rigid Prop1 item, reweighted to hang three quarters off Prop1, a quarter Prop2.
+    # Fixture: the native chieftain's rigid magic pot, reweighted to hang three quarters off Prop1, a quarter Prop2.
     folder = os.path.join(GEOMETRY, "natives", "chieftain")
     path = os.path.join(folder, "chieftain_test_blend.xml")
-    text = open(os.path.join(folder, "chieftain_prop1.xml"), encoding="utf-8").read()
+    text = open(os.path.join(folder, "chieftain_magic_pot.xml"), encoding="utf-8").read()
     text = re.sub(r'<mesh texture="[^"]*">', "<mesh>", text).replace(
         '<skin bone="Prop1" weight="1"/>', '<skin bone="Prop1" weight="0.75"/><skin bone="Prop2" weight="0.25"/>')
     with open(path, "w", encoding="utf-8") as f:
@@ -1135,7 +1135,7 @@ def an_item_on_several_bones_deforms_with_all_of_them_and_keeps_its_weights():
         [("natives/chieftain/chieftain_test_blend.xml", [("native_chieftain", ' team="native_chieftain_team"')])]))])
 
     a = load("natives", "chieftain")
-    blend, rigid = bpy.data.objects["chieftain_test_blend"], bpy.data.objects["chieftain_prop1"]
+    blend, rigid = bpy.data.objects["chieftain_test_blend"], bpy.data.objects["chieftain_magic_pot"]
     assert blend.parent == a and blend.parent_type == "OBJECT" and "tt_bone" not in blend
     assert any(m.type == "ARMATURE" and m.object == a for m in blend.modifiers)
     assert rigid.parent_type == "BONE" and rigid.parent_bone == "Prop1"

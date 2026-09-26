@@ -47,7 +47,7 @@
         <!ATTLIST transform m33 CDATA #REQUIRED>
         ]>
 
-<mesh texture="native_peon_prop1">
+<mesh texture="native_peon_hammer">
     <polygons>
         <polygon>
             <vertex x="-0.607508" y="0.0418565" z="1.38159" r="1" g="1" b="1" a="1" nx="0.6554" ny="0.625676" nz="0.423061" u="0.054304" v="0.88665">

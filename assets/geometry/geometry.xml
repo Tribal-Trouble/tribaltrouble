@@ -111,14 +111,14 @@
             <animation name="paddle_right" wpc="1" type="loop">vikings/peon/peon_right_paddle.xml</animation>
             <animation name="paddle_left" wpc="1" type="loop">vikings/peon/peon_left_paddle.xml</animation>
 		</sprite>
-        <sprite name="peon_prop1" base="peon" slot="weapon" default="true">
+        <sprite name="peon_hammer" base="peon" slot="weapon" default="true">
             <model r="90" g="60" b="30">
-                vikings/peon/peon_prop1.xml
-                <texture name="viking_peon_prop1" team="viking_peon_prop1_team"/>
+                vikings/peon/peon_hammer.xml
+                <texture name="viking_peon_hammer" team="viking_peon_hammer_team"/>
             </model>
             <model r="90" g="60" b="30">
-                vikings/peon/peon_prop1_lo.xml
-                <texture name="viking_peon_prop1" team="viking_peon_prop1_team"/>
+                vikings/peon/peon_hammer_lo.xml
+                <texture name="viking_peon_hammer" team="viking_peon_hammer_team"/>
             </model>
         </sprite>
         <sprite name="rock_resource" base="peon" slot="carried">
@@ -304,24 +304,24 @@
             <animation name="die" wpc="1" type="plain">natives/chieftain/native_chieftain_die.xml</animation>
             <animation name="magic" wpc="1" type="plain">natives/chieftain/native_chieftain_magic.xml</animation>
         </sprite>
-        <sprite name="chieftain_prop1" base="chieftain" slot="weapon" default="true">
+        <sprite name="chieftain_magic_pot" base="chieftain" slot="magic" default="true">
             <model r="90" g="60" b="30">
-                natives/chieftain/chieftain_prop1.xml
-                <texture name="native_chieftain_prop1" team="native_chieftain_prop1_team"/>
+                natives/chieftain/chieftain_magic_pot.xml
+                <texture name="native_chieftain_magic_pot" team="native_chieftain_magic_pot_team"/>
             </model>
             <model r="90" g="60" b="30">
-                natives/chieftain/chieftain_prop1_lo.xml
-                <texture name="native_chieftain_prop1" team="native_chieftain_prop1_team"/>
+                natives/chieftain/chieftain_magic_pot_lo.xml
+                <texture name="native_chieftain_magic_pot" team="native_chieftain_magic_pot_team"/>
             </model>
         </sprite>
-        <sprite name="chieftain_prop2" base="chieftain" slot="prop2" default="true">
+        <sprite name="chieftain_club" base="chieftain" slot="weapon" default="true">
             <model r="90" g="60" b="30">
-                natives/chieftain/chieftain_prop2.xml
-                <texture name="native_chieftain_prop2" team="native_chieftain_prop2_team"/>
+                natives/chieftain/chieftain_club.xml
+                <texture name="native_chieftain_club" team="native_chieftain_club_team"/>
             </model>
             <model r="90" g="60" b="30">
-                natives/chieftain/chieftain_prop2_lo.xml
-                <texture name="native_chieftain_prop2" team="native_chieftain_prop2_team"/>
+                natives/chieftain/chieftain_club_lo.xml
+                <texture name="native_chieftain_club" team="native_chieftain_club_team"/>
             </model>
         </sprite>
         <sprite name="peon">
@@ -343,14 +343,14 @@
             <animation name="paddle_right" wpc="1" type="loop">natives/peon/peon_right_paddle.xml</animation>
             <animation name="paddle_left" wpc="1" type="loop">natives/peon/peon_left_paddle.xml</animation>
 		</sprite>
-        <sprite name="peon_prop1" base="peon" slot="weapon" default="true">
+        <sprite name="peon_hammer" base="peon" slot="weapon" default="true">
             <model r="90" g="60" b="30">
-                natives/peon/peon_prop1.xml
-                <texture name="native_peon_prop1" team="native_peon_prop1_team"/>
+                natives/peon/peon_hammer.xml
+                <texture name="native_peon_hammer" team="native_peon_hammer_team"/>
             </model>
             <model r="90" g="60" b="30">
-                natives/peon/peon_prop1_lo.xml
-                <texture name="native_peon_prop1" team="native_peon_prop1_team"/>
+                natives/peon/peon_hammer_lo.xml
+                <texture name="native_peon_hammer" team="native_peon_hammer_team"/>
             </model>
         </sprite>
         <sprite name="warrior">

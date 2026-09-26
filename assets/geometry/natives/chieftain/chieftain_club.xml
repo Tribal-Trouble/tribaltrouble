@@ -47,7 +47,7 @@
         <!ATTLIST transform m33 CDATA #REQUIRED>
         ]>
 
-<mesh texture="native_chieftain_prop2">
+<mesh texture="native_chieftain_club">
     <polygons>
         <polygon>
             <vertex x="-1.25455" y="-1.3701" z="2.06914" r="1" g="1" b="1" a="1" nx="0.289606" ny="0.0644319" nz="-0.954975" u="0.0454655" v="0.302123">

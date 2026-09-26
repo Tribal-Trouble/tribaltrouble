@@ -47,7 +47,7 @@
         <!ATTLIST transform m33 CDATA #REQUIRED>
         ]>
 
-<mesh texture="viking_peon_prop1">
+<mesh texture="viking_peon_hammer">
     <polygons>
         <polygon>
             <vertex x="-0.624385" y="-0.080783" z="0.895714" r="1" g="1" b="1" a="1" nx="-0.0139324" ny="-0.8032" nz="-0.595547" u="0.538455" v="0.340685">

@@ -47,7 +47,7 @@
         <!ATTLIST transform m33 CDATA #REQUIRED>
         ]>
 
-<mesh texture="native_chieftain_prop1">
+<mesh texture="native_chieftain_magic_pot">
     <polygons>
         <polygon>
             <vertex x="-0.687056" y="-0.689216" z="1.80694" r="1" g="1" b="1" a="1" nx="0.748151" ny="0.03992" nz="0.662326" u="0.833823" v="0.237866">
