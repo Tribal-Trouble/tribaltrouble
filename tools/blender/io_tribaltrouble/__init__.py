@@ -50,7 +50,7 @@ from .props import (CloseItem, DonePainting, item_index_update, MakeTexture, New
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (2, 0, 0),
+    "version": (2, 0, 1),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
