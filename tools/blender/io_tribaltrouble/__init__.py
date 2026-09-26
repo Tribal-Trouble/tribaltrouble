@@ -27,6 +27,7 @@ and also check it on export.
 import os
 import re
 import shutil
+import sys
 import xml.etree.ElementTree as ET
 
 import bpy
@@ -1268,12 +1269,14 @@ class SaveClip(bpy.types.Operator):
         return {"FINISHED"} if published else {"CANCELLED"}
 
 
-ADDON_SOURCE = os.path.join("tools", "blender", "io_tribaltrouble", "__init__.py")
+ADDON_SOURCE = os.path.join("tools", "blender", "io_tribaltrouble")
+ADDON_DIR = os.path.dirname(os.path.abspath(__file__))
+OLD_SINGLE_FILE = "io_tribaltrouble.py"  # how 1.x was installed; Blender cannot load it next to this folder
 _repo_version_cache = {}
 
 
 def version_from_source(path):
-    """bl_info version of an add-on source file, read as text so nothing gets imported."""
+    """bl_info version of an add-on's __init__.py, read as text so nothing gets imported."""
     try:
         with open(path, encoding="utf-8") as f:
             match = re.search(r'"version":\s*\((\d+),\s*(\d+),\s*(\d+)\)', f.read(20000))
@@ -1287,8 +1290,9 @@ def update_available(context):
     root = repo_root(context)
     if not root:
         return None
-    source = os.path.join(root, ADDON_SOURCE)
-    if os.path.normcase(os.path.abspath(source)) == os.path.normcase(os.path.abspath(__file__)):
+    source = os.path.join(root, ADDON_SOURCE, "__init__.py")
+    installed_source = os.path.join(ADDON_DIR, "__init__.py")
+    if os.path.normcase(os.path.abspath(source)) == os.path.normcase(installed_source):
         return None
     try:
         stamp = os.path.getmtime(source)
@@ -1297,10 +1301,10 @@ def update_available(context):
     if _repo_version_cache.get(source, (None,))[0] != stamp:
         _repo_version_cache[source] = (stamp, version_from_source(source))
     version = _repo_version_cache[source][1]
-    # Blender removes bl_info from extension modules, so the installed version is read from this file's text too.
-    if __file__ not in _repo_version_cache:
-        _repo_version_cache[__file__] = (None, version_from_source(__file__))
-    installed = _repo_version_cache[__file__][1]
+    # Blender removes bl_info from extension modules, so the installed version is read from the file's text too.
+    if installed_source not in _repo_version_cache:
+        _repo_version_cache[installed_source] = (None, version_from_source(installed_source))
+    installed = _repo_version_cache[installed_source][1]
     return version if version is not None and installed is not None and version > installed else None
 
 
@@ -1313,16 +1317,25 @@ def draw_update_button(layout, context):
 
 
 def install_repo_addon(context):
-    """Copy the repo's add-on over this installed file. The running code is unchanged until a reload."""
+    """Copy the repo's add-on modules over this installed copy. The running code is unchanged until a reload."""
     version = update_available(context)
     if version is not None:
-        shutil.copyfile(os.path.join(repo_root(context), ADDON_SOURCE), __file__)
+        source = os.path.join(repo_root(context), ADDON_SOURCE)
+        for name in os.listdir(source):
+            if name.endswith(".py"):
+                shutil.copyfile(os.path.join(source, name), os.path.join(ADDON_DIR, name))
+        old_single_file = os.path.join(os.path.dirname(ADDON_DIR), OLD_SINGLE_FILE)
+        if os.path.isfile(old_single_file):
+            os.remove(old_single_file)
     return version
 
 
 def reload_addon():
     import addon_utils
     addon_utils.disable(__package__)
+    # Enabling again would reload only __init__.py, so every module of the add-on is imported afresh.
+    for name in [n for n in sys.modules if n == __package__ or n.startswith(__package__ + ".")]:
+        del sys.modules[name]
     addon_utils.enable(__package__, default_set=True)
     return None
 

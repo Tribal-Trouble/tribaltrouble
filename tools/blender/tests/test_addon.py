@@ -65,7 +65,8 @@ package.register()
 # Every module's names in one place, so a test need not know which module holds what.
 addon = types.SimpleNamespace(**{name: value for module_name in sorted(sys.modules)
                                  if module_name.split(".")[0] == "io_tribaltrouble"
-                                 for name, value in vars(sys.modules[module_name]).items() if not name.startswith("__")})
+                                 for name, value in vars(sys.modules[module_name]).items()
+                                 if not name.startswith("__")})
 wm = bpy.context.window_manager
 results = []
 
@@ -460,23 +461,31 @@ def update_button_appears_only_for_a_newer_repo_copy():
     assert addon.update_available(bpy.context) is None, "the copy under test IS the repo copy"
     source = os.path.join(ADDON_DIR, "__init__.py")
     assert addon.version_from_source(source) == tuple(addon.bl_info["version"])
-    repo_copy = os.path.join(TEMP, "tools", "blender", "io_tribaltrouble", "__init__.py")
-    os.makedirs(os.path.dirname(repo_copy))
+    repo_copy = os.path.join(TEMP, "tools", "blender", "io_tribaltrouble")
+    shutil.copytree(ADDON_DIR, repo_copy, ignore=shutil.ignore_patterns("__pycache__"))
     text = open(source, encoding="utf-8").read()
     newer = re.sub(r'"version": \(\d+, \d+, \d+\)', '"version": (99, 0, 0)', text, count=1)
-    open(repo_copy, "w", encoding="utf-8").write(newer)
-    installed = os.path.join(TEMP, "installed_addon.py")
-    shutil.copy(source, installed)
-    real_file, package.__file__ = package.__file__, installed
+    open(os.path.join(repo_copy, "__init__.py"), "w", encoding="utf-8").write(newer)
+    open(os.path.join(repo_copy, "new_module.py"), "w", encoding="utf-8").write("")
+    addons = os.path.join(TEMP, "addons")
+    installed = os.path.join(addons, "io_tribaltrouble")
+    shutil.copytree(ADDON_DIR, installed, ignore=shutil.ignore_patterns("__pycache__"))
+    old_single_file = os.path.join(addons, "io_tribaltrouble.py")
+    shutil.copy(source, old_single_file)
+    update = sys.modules[addon.update_available.__module__]
+    real_dir, update.ADDON_DIR = update.ADDON_DIR, installed
     try:
         assert addon.update_available(bpy.context) == (99, 0, 0)
         assert addon.install_repo_addon(bpy.context) == (99, 0, 0)
-        assert addon.version_from_source(installed) == (99, 0, 0), "the installed file was not replaced"
-        open(repo_copy, "w", encoding="utf-8").write(text)
-        os.utime(repo_copy, (1, 1))
+        installed_version = addon.version_from_source(os.path.join(installed, "__init__.py"))
+        assert installed_version == (99, 0, 0), "the installed add-on was not replaced"
+        assert os.path.isfile(os.path.join(installed, "new_module.py")), "every module of the add-on is copied"
+        assert not os.path.exists(old_single_file), "Blender cannot load the old single-file add-on next to the package"
+        open(os.path.join(repo_copy, "__init__.py"), "w", encoding="utf-8").write(text)
+        os.utime(os.path.join(repo_copy, "__init__.py"), (1, 1))
         assert addon.update_available(bpy.context) is None, "an equal or older repo copy must not offer an update"
     finally:
-        package.__file__ = real_file
+        update.ADDON_DIR = real_dir
 
 
 def load_building(group, sprite):
