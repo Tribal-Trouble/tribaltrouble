@@ -2096,6 +2096,33 @@ def one_publish_writes_the_mesh_a_new_prop_and_the_clips_without_a_form():
     assert bpy.ops.object.tt_delete_clip(clip=a.animation_data.action.name) == {"FINISHED"}
 
 
+@test
+def publish_writes_paint_on_a_loaded_item_but_never_paint_a_skin_was_made_with():
+    load("vikings", "peon")
+    image = addon.mesh_texture_image(hammer())
+    png = os.path.join(MODELS, "viking_peon_hammer.png")
+    before = open(png, "rb").read()
+
+    def paint():
+        image.pixels = [0.1, 0.8, 0.1, 1.0] * (image.size[0] * image.size[1])
+        image.update()
+        assert image.is_dirty
+
+    try:
+        assert bpy.ops.object.tt_new_skin(item=hammer().name, skin_name="scratched") == {"FINISHED"}
+        paint()
+        assert bpy.ops.wm.tt_publish_model() == {"FINISHED"} and open(png, "rb").read() == before, \
+            "the paint of a skin being made went into the default texture"
+        assert bpy.ops.object.tt_cancel_skin() == {"FINISHED"} and not image.is_dirty, "Cancel kept the paint"
+        paint()
+        assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
+        assert open(png, "rb").read() != before and not image.is_dirty, "the item's paint was not written"
+    finally:
+        with open(png, "wb") as f:
+            f.write(before)
+        image.reload()
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

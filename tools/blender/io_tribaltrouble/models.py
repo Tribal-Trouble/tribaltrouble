@@ -17,7 +17,7 @@ from .registry import (append_registry_entries, CATEGORY_ICONS, GEOMETRY_DIR, re
 from .scene import (add_reference, attachment_obj_poll, BROWSER_TAG, clear_references, has_low_detail, load_unit,
                     loaded_body, loaded_models, REFERENCE_TAG, references, refresh_units, root_update, write_changed)
 from .publish import (check_mesh, preflight, publish_changed_clips, publish_items, publish_own_textures,
-                      publish_skin_paint, store_findings)
+                      publish_paint, store_findings)
 from .forms import (chosen_event, draw_confirm, draw_event, event_property, form_title, mesh_problem, name_problem,
                     open_form, own_mesh_search)
 
@@ -130,7 +130,7 @@ class PublishModel(bpy.types.Operator):
                 return {"CANCELLED"}
         written = write_changed(context, arm, {o: o["tt_source"] for o in loaded_models()})
         publish_own_textures(repo_root(context), loaded_models())
-        painted = publish_skin_paint(repo_root(context))
+        painted = publish_paint(repo_root(context))
         clips = publish_changed_clips(context, arm, self.report) if arm is not None else []
         saved = added + [os.path.basename(o["tt_source"]) for o in written] + painted + clips
         self.report({"INFO"}, f"Saved {', '.join(saved)}" if saved else "Nothing changed since loading")

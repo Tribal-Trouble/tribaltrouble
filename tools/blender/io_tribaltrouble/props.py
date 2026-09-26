@@ -16,7 +16,7 @@ from .registry import (append_registry_entries, CARRY_SLOT, GEOMETRY_DIR, PROP_S
                        repo_root, sprite_text, team_attribute)
 from .scene import (attachment_obj_poll, browsed_unit, BROWSER_TAG, export_texts, file_clashes, item_shown,
                     model_levels, refresh_skins, set_item_visible, skin_item, snap_to_bone, unit_items, write_changed)
-from .publish import check_mesh, publish_skin_paint, store_findings
+from .publish import check_mesh, publish_paint, store_findings
 from .forms import (chosen_event, draw_confirm, draw_event, event_property, form_title, mesh_problem, open_form,
                     own_mesh_search)
 from .models import RemoveFromRegistry
@@ -660,7 +660,7 @@ def publish_props(op, context, fresh, event, base=None):
     for o, (_, digest) in export_texts(context, None, fresh).items():
         o["tt_export_hash"] = digest
     saved = write_changed(context, None, {o: o["tt_source"] for o in model_levels(body)})
-    publish_skin_paint(root)
+    publish_paint(root)
     note = f"; model mesh: {', '.join(os.path.basename(o['tt_source']) for o in saved)}" if saved else ""
     note += f"; no texture image for {', '.join(sorted(set(missing)))}" if missing else ""
     op.report({"WARNING"} if missing else {"INFO"},

@@ -45,7 +45,7 @@ def export_visible(context, arm, report):
             if not ensure_texture_in_repo(repo_root(context), o, name):
                 missing.append(name)
     publish_own_textures(repo_root(context), objs)
-    publish_skin_paint(repo_root(context))
+    publish_paint(repo_root(context))
     saved = [os.path.basename(o["tt_source"]) for o in written if o in bodies]
     note = f"; unit mesh: {', '.join(saved)}" if saved else ""
     if missing:
@@ -264,15 +264,18 @@ def publish_own_textures(root, objs):
         del o["tt_own_texture"]
 
 
-def publish_skin_paint(root):
-    """Write paint on the textures of the skins showing; a texture a skin shares with the default look is never
-    written this way. The file names written."""
+def publish_paint(root):
+    """Write paint on the textures of the loaded models and the skins showing. A texture a skin shares with the
+    default look, and the textures of a model a skin is being made for, are never written this way. The file names
+    written."""
+    editing = {mesh_texture_image(level) for o in bpy.data.objects if o.get("tt_skin_editing")
+               for level in model_levels(o)}
     written = []
     for o in bpy.data.objects:
-        image = mesh_texture_image(o) if o.get(BROWSER_TAG) and o.get("tt_skin") and o.type == "MESH" else None
+        image = mesh_texture_image(o) if o.get(BROWSER_TAG) and o.type == "MESH" else None
         texture = image_texture_name(image) if image is not None else ""
-        if image is None or not image.is_dirty or texture not in texture_names(o) \
-                or texture in o.get("tt_stock_texture", "").split(","):
+        if image is None or not image.is_dirty or image in editing or texture not in texture_names(o) \
+                or o.get("tt_skin") and texture in o.get("tt_stock_texture", "").split(","):
             continue
         save_png(image, models_texture_path(root, texture))
         written.append(texture + ".png")

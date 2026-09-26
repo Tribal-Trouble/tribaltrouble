@@ -93,6 +93,10 @@ def end_skin_edit(context, target, entry, mesh_shown):
         mesh.hide_set(not mesh_shown)
         mesh.hide_render = not mesh_shown
         set_item_visible(target, True)
+    for level in model_levels(target):
+        image = mesh_texture_image(level)
+        if image is not None and image.is_dirty and image.filepath:
+            image.reload()  # paint left on the default texture is dropped, not published
     show_skin(context, target, entry, None)
 
 
