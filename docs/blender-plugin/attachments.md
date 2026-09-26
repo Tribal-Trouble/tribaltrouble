@@ -84,12 +84,15 @@ A skin redraws everything one player owns: every unit and building of a template
 <sprite name="warrior_gold" base="warrior" skin="gold" replaces="warrior">
 <sprite name="quarters_gold" skin="gold" replaces="quarters">
 <sprite name="quarters_gold_banner" base="quarters_gold" slot="prop">
+<sprite name="peon_hammer_gold" base="peon" slot="weapon" skin="gold" replaces="peon_hammer">
 ```
 
 - `replaces` is the stock sprite. Every template drawn with it uses the skin sprite instead, with the same texture slot (rock, iron and chicken warriors share one mesh), or the first texture when the skin has fewer.
 - A unit skin needs `base` on the unit it replaces so it has the same clips; the game refuses a skin whose clip list differs.
 - A building skin replaces one stage. Props whose `base` is the skin sprite are drawn with it; stages the skin leaves alone keep their stock props.
+- An item skin keeps the `base` and `slot` of the item it replaces (the converter refuses one that does not). It is listed in `skins.txt` only, never in `attachments.txt`, so nobody wears it as an extra item. Every unit drawing that item, held in a slot or carried, draws the skin sprite instead, with the item's tier texture rule and the same clip check. A skin may cover only items, only the body, or both.
 - The converter writes `skins.txt` (`group skin replaces name textures`). Nothing picks a player's skin yet; `RacesResources.getSkins(name)` hands one to `Player.setSkins`.
+- A skin belongs to a player and every client draws that player's units, buildings and items with it, so once skins are assigned everyone sees them. Skins are render-only: clip timing still comes from the template, and nothing a skin changes reaches the simulation or its checksums. Events are separate: an event is global, on for everyone at once, while a skin is one player's look all year.
 
 ## Map decorations (game side implemented 2026-09-25)
 

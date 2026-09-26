@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -100,9 +101,10 @@ public final class ConvertToBinary {
             for (Node sprite : sprites.values()) {
                 parseSprite(sprite, sprites, registry, src_dir, new_build_dir);
                 Node slot = sprite.getAttributes().getNamedItem("slot");
-                if (slot != null)
-                    attachments.add(attachmentLine(getName(n), sprite, slot.getNodeValue(), src_dir));
                 Node skin = sprite.getAttributes().getNamedItem("skin");
+                // An item skin only stands in for its item, so it is never offered as an item of its own.
+                if (slot != null && skin == null)
+                    attachments.add(attachmentLine(getName(n), sprite, slot.getNodeValue(), src_dir));
                 if (skin != null)
                     skins.add(skinLine(getName(n), sprite, skin.getNodeValue(), sprites, src_dir));
                 eventTextureLines(getName(n), sprite, event_textures);
@@ -137,8 +139,18 @@ public final class ConvertToBinary {
         if (replaces == null || !group_sprites.containsKey(replaces.getNodeValue()))
             throw new RuntimeException("Sprite " + getName(
                     sprite) + " is in skin " + skin + " but replaces no sprite of group " + group);
+        Node replaced = group_sprites.get(replaces.getNodeValue());
+        if (!Objects.equals(attribute(sprite, "slot"), attribute(replaced, "slot")) || (attribute(sprite,
+                "slot") != null && !Objects.equals(attribute(sprite, "base"), attribute(replaced, "base"))))
+            throw new RuntimeException("Sprite " + getName(
+                    sprite) + " needs the slot and base of " + replaces.getNodeValue() + ", the item it replaces");
         int textures = getModelObjectInfos(sprite, src_dir)[0].getTextures().length;
         return String.join(" ", group, skin, replaces.getNodeValue(), getName(sprite), Integer.toString(textures));
+    }
+
+    private static @Nullable String attribute(@NonNull Node n, @NonNull String name) {
+        Node attribute = n.getAttributes().getNamedItem(name);
+        return attribute != null ? attribute.getNodeValue() : null;
     }
 
     // group name ground count event: one line per sprite the game scatters over the map as scenery.

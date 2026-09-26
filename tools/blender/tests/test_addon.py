@@ -33,7 +33,7 @@ shutil.copytree(os.path.join(REPO, "assets", "geometry"), GEOMETRY)
 os.makedirs(MODELS)
 os.makedirs(DECALS)
 for texture in ("viking_warrior_rock", "viking_warrior_iron", "viking_warrior_rubber", "native_warrior_rock",
-                "viking_buildings_hi"):
+                "viking_buildings_hi", "viking_peon_hammer"):
     shutil.copy(os.path.join(REPO, "assets", "textures", "models", texture + ".png"), MODELS)
     shutil.copy(os.path.join(REPO, "assets", "textures", "teamdecals", texture + "_team.png"), DECALS)
 
@@ -693,7 +693,7 @@ def the_search_field_above_the_items_list_filters_it():
     listed = sorted(o["tt_sprite"] for o, flag in zip(bpy.data.objects, flags) if flag)
     wm.tt_item_search = ""
     assert listed == ["left_paddle", "right_paddle"], listed
-    assert addon.VIEW3D_PT_tt_attachments.bl_label == "Carried Items"
+    assert addon.VIEW3D_PT_tt_attachments.bl_label == "Props"
 
 
 @test
@@ -1490,9 +1490,9 @@ def a_building_stage_skin_is_static_and_has_no_base():
     assert file_bytes(stock) == stock
 
 
-def converter_skins(geometry):
-    """skins.txt as the game's geometry converter writes it for this geometry folder; None without a built
-    converter and a JDK that runs it."""
+def converter_skins(geometry, listing="skins.txt"):
+    """skins.txt, or another listing, as the game's geometry converter writes it for this geometry folder; None
+    without a built converter and a JDK that runs it."""
     classes = [os.path.join(REPO, p, "build", "classes", "java", "main") for p in ("tools", "common")]
     jars = [j for j in glob.glob(os.path.join(os.path.expanduser("~"), ".gradle", "caches", "modules-2", "files-2.1",
                                               "org.joml", "joml", "*", "*", "joml-*.jar"))
@@ -1506,7 +1506,7 @@ def converter_skins(geometry):
         # An older JDK refuses the converter's class files; the next one may run them.
         if subprocess.run([java, "-cp", os.pathsep.join(classes + jars[-1:]), "com.oddlabs.converter.ConvertToBinary",
                            "geometry.xml", geometry, out], cwd=geometry, capture_output=True).returncode == 0:
-            return open(os.path.join(out, "skins.txt"), encoding="utf-8").read().splitlines()
+            return open(os.path.join(out, listing), encoding="utf-8").read().splitlines()
     return None
 
 
@@ -1556,7 +1556,7 @@ def preview_shows_a_skin_and_stock_puts_the_model_back():
     a = load("vikings", "warrior")
     body, low = addon.browsed_unit(a), bpy.data.objects["warrior_mesh_lod1"]
     hashes, texture = {o: o["tt_export_hash"] for o in (body, low)}, body["tt_texture"]
-    assert bpy.ops.object.tt_show_skin(sprite="warrior_bald") == {"FINISHED"}
+    assert bpy.ops.object.tt_show_skin(skin="bald") == {"FINISHED"}
     assert body["tt_skin"] == low["tt_skin"] == "warrior_bald"
     for o, name in ((body, "warrior_bald.xml"), (low, "warrior_bald_lo.xml")):
         record = addon.mesh_record_from_xml(ET.parse(os.path.join(GEOMETRY, "vikings", "warrior", name)).getroot(),
@@ -1566,12 +1566,12 @@ def preview_shows_a_skin_and_stock_puts_the_model_back():
         os.utime(path, (1, 1))
     assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
     assert all(os.path.getmtime(path) == 1 for path in WARRIOR_FILES), "Publish wrote a previewed skin as stock"
-    assert bpy.ops.object.tt_show_skin(sprite="warrior_gold") == {"FINISHED"}
+    assert bpy.ops.object.tt_show_skin(skin="gold") == {"FINISHED"}
     assert body.data.materials[0].name == "tt_warrior_gold_rock" and body["tt_texture"].startswith("warrior_gold_rock")
     assert low.data.materials[0].name == "tt_viking_warrior_rock"
     assert bpy.ops.object.tt_new_skin(skin_name="again") == {"FINISHED"}
     assert body["tt_skin_editing"] == "again" and "tt_skin" not in body, "a new skin did not start from Default"
-    assert bpy.ops.object.tt_show_skin(sprite="") == {"FINISHED"}
+    assert bpy.ops.object.tt_show_skin(skin="") == {"FINISHED"}
     assert "tt_skin_editing" not in body
     assert all("tt_skin" not in o and o["tt_export_hash"] == hashes[o] for o in (body, low))
     assert body["tt_texture"] == texture and body.data.materials[0].name == "tt_viking_warrior_rock"
@@ -1625,6 +1625,168 @@ def removing_a_skin_takes_out_only_its_entry():
     assert after == before[:line_start] + before[line_end:], "more than the skin's entry changed"
     assert entry("vikings", "warrior_bald") is not None and os.path.isfile(os.path.join(MODELS, "warrior_gold_rock.png"))
 
+
+def hammer():
+    return next(o for o in bpy.data.objects if o.get("tt_sprite") == "peon_hammer" and not o.get("tt_detail"))
+
+
+def open_hammer():
+    wm.tt_item_index = list(bpy.data.objects).index(hammer())
+    assert addon.open_item(bpy.context) == hammer(), "clicking the row did not open the item"
+
+
+HAMMER_FILES = [os.path.join(GEOMETRY, "vikings", "peon", f) for f in ("peon_hammer.xml", "peon_hammer_lo.xml")] + \
+               [os.path.join(MODELS, "viking_peon_hammer.png")]
+
+
+@test
+def clicking_an_item_opens_it_and_back_or_another_unit_closes_it():
+    load("vikings", "peon")
+    assert addon.open_item(bpy.context) is None
+    open_hammer()
+    assert bpy.context.view_layer.objects.active == hammer() and addon.active_armature(bpy.context) == arm()
+    assert bpy.ops.object.tt_close_item() == {"FINISHED"}
+    assert addon.open_item(bpy.context) is None and wm.tt_open_item == ""
+    open_hammer()
+    load("vikings", "warrior")
+    assert wm.tt_open_item == "" and addon.open_item(bpy.context) is None, "the item stayed open on another unit"
+
+
+@test
+def an_item_skin_from_the_detail_view_repaints_the_item_and_leaves_it_alone():
+    load("vikings", "peon")
+    open_hammer()
+    before, stock = mtimes(), file_bytes(HAMMER_FILES)
+    assert bpy.ops.object.tt_new_skin(item=hammer().name, skin_name="gold") == {"FINISHED"}
+    assert hammer()["tt_skin_editing"] == "gold" and bpy.ops.object.tt_save_skin.poll()
+    expect_error(lambda: bpy.ops.object.tt_new_skin(skin_name="other"), "Save or cancel skin 'gold' for peon_hammer")
+    material = bpy.data.materials.new("test_hammer_gold_mat")
+    material.use_nodes = True
+    material.node_tree.nodes.new("ShaderNodeTexImage").image = fixture_image("viking_peon_hammer_gold")
+    hammer().data.materials.clear()
+    hammer().data.materials.append(material)
+    assert bpy.ops.object.tt_save_skin() == {"FINISHED"}
+    e, stock_entry = entry("vikings", "peon_hammer_gold"), entry("vikings", "peon_hammer")
+    assert (e["base"], e["slot"], e["skin"], e["replaces"]) == ("peon", "weapon", "gold", "peon_hammer"), e
+    assert e["models"] == stock_entry["models"] and e["textures"][0] == [("viking_peon_hammer_gold", "")], e
+    assert '<sprite name="peon_hammer_gold" base="peon" slot="weapon" skin="gold" replaces="peon_hammer">' in \
+           open(registry_path, encoding="utf-8").read()
+    assert changed_files(before) == [os.path.normpath(registry_path)], changed_files(before)
+    assert os.path.isfile(os.path.join(MODELS, "viking_peon_hammer_gold.png"))
+    assert file_bytes(HAMMER_FILES) == stock and "tt_skin_editing" not in hammer()
+    assert hammer().data.materials[0].name == "tt_viking_peon_hammer"
+    expect_error(lambda: bpy.ops.object.tt_new_skin(item=hammer().name, skin_name="gold"),
+                 "peon_hammer already has a gold skin")
+    assert "peon_hammer_gold" not in {o.get("tt_sprite") for o in bpy.data.objects}, "the skin loaded as an item"
+
+
+@test
+def an_item_skin_can_take_its_shape_from_the_artists_own_mesh():
+    a = load("vikings", "peon")
+    open_hammer()
+    stock, bone = file_bytes(HAMMER_FILES), hammer()["tt_bone"]
+    own = fixture_mesh("big_hammer", None, kind="cube")
+    bpy.context.view_layer.objects.active = a
+    assert bpy.ops.object.tt_new_skin(item=hammer().name, skin_name="big", mesh=own.name) == {"FINISHED"}
+    assert own.parent == a and own.get("tt_bone") == bone and addon.mesh_texture_image(own) is not None
+    assert not addon.item_shown(hammer()), "the default item still shows beside the new shape"
+    assert bpy.ops.object.tt_save_skin() == {"FINISHED"}
+    e = entry("vikings", "peon_hammer_big")
+    assert (e["base"], e["slot"], e["skin"], e["replaces"]) == ("peon", "weapon", "big", "peon_hammer"), e
+    assert e["models"] == ["vikings/peon/peon_hammer_big.xml"], e["models"]
+    assert e["textures"] == [[("viking_peon_hammer_big", "")]], e["textures"]
+    mesh = ET.parse(os.path.join(GEOMETRY, e["models"][0])).getroot()
+    assert {s.get("bone") for s in mesh.iter("skin")} == {bone} and mesh.get("texture") == "viking_peon_hammer_big"
+    assert os.path.isfile(os.path.join(MODELS, "viking_peon_hammer_big.png"))
+    assert file_bytes(HAMMER_FILES) == stock
+    assert own.parent is None and own.hide_get() and "tt_skin_mesh" not in own and addon.item_shown(hammer())
+
+
+@test
+def cancel_takes_the_artists_mesh_back_off_and_writes_nothing():
+    a = load("vikings", "peon")
+    own = fixture_mesh("spare_hammer", fixture_image("spare_hammer_tex"), kind="cube")
+    bpy.context.view_layer.objects.active = a
+    before = mtimes()
+    assert bpy.ops.object.tt_new_skin(item=hammer().name, skin_name="spare", mesh=own.name) == {"FINISHED"}
+    assert bpy.ops.object.tt_cancel_skin() == {"FINISHED"}
+    assert own.parent is None and not own.hide_get() and addon.item_shown(hammer())
+    assert changed_files(before) == [] and entry("vikings", "peon_hammer_spare") is None
+
+
+@test
+def a_skin_preview_swaps_the_body_and_the_items_it_covers():
+    a = load("vikings", "peon")
+    body = addon.browsed_unit(a)
+    body.data.vertices[0].co.z += 0.1
+    assert save_skin("gold") == {"FINISHED"}
+    assert bpy.ops.object.tt_show_skin(skin="gold") == {"FINISHED"}
+    assert body["tt_skin"] == "peon_gold" and hammer()["tt_skin"] == "peon_hammer_gold"
+    assert hammer().data.materials[0].name == "tt_viking_peon_hammer_gold"
+    assert bpy.ops.object.tt_show_skin(skin="big") == {"FINISHED"}
+    assert "tt_skin" not in body and hammer()["tt_skin"] == "peon_hammer_big"
+    assert bpy.ops.object.tt_show_skin(skin="", item=hammer().name) == {"FINISHED"}
+    assert "tt_skin" not in hammer() and hammer().data.materials[0].name == "tt_viking_peon_hammer"
+    skins = converter_skins(GEOMETRY)
+    if skins is None:
+        return "converter listings skipped: no built converter or JDK"
+    attachments = converter_skins(GEOMETRY, "attachments.txt")
+    assert "vikings gold peon_hammer peon_hammer_gold 1" in skins, skins
+    assert "vikings big peon_hammer peon_hammer_big 1" in skins, skins
+    assert not [line for line in attachments if "peon_hammer_gold" in line or "peon_hammer_big" in line], attachments
+
+class Recorder:
+    """Stands in for a panel's layout and records the buttons and labels drawn on it."""
+
+    def __init__(self, log=None):
+        self.log = [] if log is None else log
+
+    def __getattr__(self, name):
+        return lambda *args, **kwargs: Recorder(self.log)
+
+    def operator(self, idname, **kwargs):
+        self.log.append((idname, kwargs.get("text")))
+        return types.SimpleNamespace()
+
+    def label(self, text="", **kwargs):
+        self.log.append(("label", text))
+
+
+def drawn(panel):
+    layout = Recorder()
+    panel.draw(types.SimpleNamespace(layout=layout), bpy.context)
+    return layout.log
+
+
+@test
+def the_items_panel_shows_the_list_or_one_item_with_its_skins():
+    load("vikings", "peon")
+    listed = [idname for idname, _ in drawn(addon.VIEW3D_PT_tt_attachments)]
+    assert "object.tt_new_item" in listed and "object.tt_close_item" not in listed, listed
+    open_hammer()
+    detail = drawn(addon.VIEW3D_PT_tt_attachments)
+    ops = [idname for idname, _ in detail]
+    assert ops[0] == "object.tt_close_item" and "object.tt_paint_item" in ops and "object.tt_save_items" in ops, ops
+    assert "object.tt_new_item" not in ops and ("object.tt_show_skin", "gold") in detail, detail
+    assert ("object.tt_new_skin", None) in detail, detail
+    skins = drawn(addon.VIEW3D_PT_tt_skins)
+    assert ("object.tt_show_skin", "gold (+ peon_hammer)") in skins, skins
+    assert not [text for _, text in skins if text and text.startswith("big")], "an item-only skin is in the Skins panel"
+    assert bpy.ops.object.tt_new_skin(item=hammer().name, skin_name="red") == {"FINISHED"}
+    assert ("label", "Editing skin 'red' for peon_hammer") in drawn(addon.VIEW3D_PT_tt_attachments)
+    assert ("label", "Editing skin 'red' for peon_hammer") in drawn(addon.VIEW3D_PT_tt_skins)
+    assert bpy.ops.object.tt_cancel_skin() == {"FINISHED"}
+
+
+@test
+def a_skin_preview_from_texture_paint_shows_straight_away():
+    load("vikings", "peon")
+    select_only(hammer())
+    bpy.ops.object.mode_set(mode="TEXTURE_PAINT")
+    assert bpy.ops.object.tt_show_skin(skin="gold", item=hammer().name) == {"FINISHED"}
+    assert bpy.context.mode == "OBJECT" and hammer().data.materials[0].name == "tt_viking_peon_hammer_gold"
+    assert bpy.context.scene.tool_settings.image_paint.canvas == addon.mesh_texture_image(hammer())
+    assert bpy.ops.object.tt_show_skin(skin="", item=hammer().name) == {"FINISHED"}
 
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:

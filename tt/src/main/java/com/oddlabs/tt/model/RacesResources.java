@@ -379,11 +379,23 @@ public final class RacesResources {
 
     // A skin sprite stands in wherever a template draws the sprite it replaces, and brings its own building props.
     private static @NonNull Map<String, PlayerSkins> skins(@NonNull RenderQueues queues,
-            @NonNull Race @NonNull [] races, @NonNull List<AttachmentEntry> attachments) {
+            @NonNull Race @NonNull [] races, @NonNull List<AttachmentEntry> attachments,
+            @NonNull Set<SpriteKey> carried) {
         Map<String, Map<UnitTemplate, SpriteKey>> units = new HashMap<>();
         Map<String, Map<BuildingTemplate, Map<Building.BuildState, SpriteKey>>> buildings = new HashMap<>();
         Map<String, Map<BuildingTemplate, Map<Building.BuildState, List<SpriteKey>>>> props = new HashMap<>();
+        Map<String, Map<SpriteKey, SpriteKey>> items = new HashMap<>();
+        Set<SpriteKey> item_keys = new HashSet<>(carried);
+        for (Race race : races) {
+            for (int i = 0; i < Race.NUM_UNITS; i++)
+                race.getUnitTemplate(i).getAttachments().values().forEach(slot -> item_keys.addAll(slot.values()));
+        }
         for (SkinEntry entry : readSkins()) {
+            for (SpriteKey item : item_keys) {
+                SpriteKey skin = reskin(queues, item, entry);
+                if (skin != null)
+                    items.computeIfAbsent(entry.skin(), _ -> new HashMap<>()).put(item, skin);
+            }
             for (Race race : races) {
                 for (int i = 0; i < Race.NUM_UNITS; i++) {
                     UnitTemplate unit = race.getUnitTemplate(i);
@@ -409,10 +421,11 @@ public final class RacesResources {
         }
         Set<String> names = new HashSet<>(units.keySet());
         names.addAll(buildings.keySet());
+        names.addAll(items.keySet());
         Map<String, PlayerSkins> skins = new HashMap<>();
         for (String name : names)
             skins.put(name, new PlayerSkins(units.getOrDefault(name, Map.of()), buildings.getOrDefault(name, Map.of()),
-                    props.getOrDefault(name, Map.of())));
+                    props.getOrDefault(name, Map.of()), items.getOrDefault(name, Map.of())));
         return skins;
     }
 
@@ -1069,7 +1082,9 @@ public final class RacesResources {
                 new VikingChieftainAI(),
                 "/music/viking.ogg");
         races = new Race[]{natives_race, vikings_race};
-        skins = skins(queues, races, attachments);
+        Set<SpriteKey> carried = new HashSet<>(native_supply_sprite_lists.values());
+        carried.addAll(viking_supply_sprite_lists.values());
+        skins = skins(queues, races, attachments, carried);
 
         wood_fragment_sprites[0] = queues.register(new SpriteFile("/geometry/misc/wood_2.binsprite",
                 Globals.NO_MIPMAP_CUTOFF,

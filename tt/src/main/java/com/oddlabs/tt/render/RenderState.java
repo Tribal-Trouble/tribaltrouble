@@ -126,14 +126,15 @@ final class RenderState implements ElementVisitor {
             UnitSupplyContainer supply_container = unit.getSupplyContainer();
             if (unit.getAbilities().hasAbilities(Abilities.BUILD) && supply_container.getSupplyType() != null) {
                 if (supply_container.getNumSupplies() > 0) {
-                    SpriteRenderer supply_sprite = render_state.getRenderer(supply_container.getSupplySpriteRenderer(
-                            supply_container.getSupplyType()));
+                    SpriteRenderer supply_sprite = render_state.getRenderer(unit.getOwner().getSkins().itemFor(
+                            supply_container.getSupplySpriteRenderer(supply_container.getSupplyType())));
                     supply_sprite.addToRenderList(detail, render_state, false);
                 }
             }
             // Attachments share the unit's skeleton and clips, so the same state drives them in lockstep.
             for (SpriteKey attachment : unit.getAttachments()) {
-                render_state.getRenderer(attachment).addToRenderList(detail, render_state, false);
+                render_state.getRenderer(unit.getOwner().getSkins().itemFor(attachment)).addToRenderList(detail,
+                        render_state, false);
             }
         }
     };
