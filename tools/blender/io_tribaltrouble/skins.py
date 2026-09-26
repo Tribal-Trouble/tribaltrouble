@@ -400,11 +400,9 @@ class PaintSkin(bpy.types.Operator):
         if bpy.ops.object.tt_show_skin(skin=self.skin, item=self.item) != {"FINISHED"}:
             return {"CANCELLED"}
         target, entry = skin_item(context, self.item) if self.item else skin_body(context)
-        if not self.skin:
-            return bpy.ops.object.tt_paint_item(target=target.name)
         image = mesh_texture_image(target)
         stock = {t for level in entry["textures"] for t, _ in level}
-        if image is not None and image_texture_name(image) in stock:
+        if self.skin and image is not None and image_texture_name(image) in stock:
             self.report({"ERROR"}, f"The {self.skin} skin uses the default texture {image_texture_name(image)} here: "
                                    f"make a New Skin with its own texture")
             return {"CANCELLED"}
