@@ -6,7 +6,7 @@ import re
 import bpy
 from bpy.props import StringProperty, EnumProperty, FloatProperty, IntProperty
 
-from .textures import apply_team_preview, get_atlas_material, short_labels
+from .textures import apply_team_preview, get_atlas_material, models_texture_path, short_labels
 from .mesh_io import active_armature, armature_actions, assign_action, clip_short_name, item_hidden_here, shown_bones
 from .registry import GEOMETRY_DIR, read_registry, REGISTRY_FILE, repo_root, rig_registry, set_clip_line
 from .scene import browsed_unit, has_low_detail, unit_meshes
@@ -84,7 +84,7 @@ class SetTier(bpy.types.Operator):
             names = [t.strip() for t in obj["tt_texture"].split(",") if t.strip()]
             if self.index >= len(names):
                 continue
-            path = os.path.join(root, "assets", "textures", "models", names[self.index] + ".png")
+            path = models_texture_path(root, names[self.index])
             if not os.path.isfile(path) and "tt_" + names[self.index] not in bpy.data.materials:
                 self.report({"WARNING"}, f"{names[self.index]}.png is not in assets/textures/models")
                 continue

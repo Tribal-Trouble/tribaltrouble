@@ -338,7 +338,7 @@ _group_items = []
 def registry_group_items(self, context):
     root = repo_root(context)
     names = sorted({s["group"] for s in read_registry(root)}) if root else []
-    _group_items[:] = [(n, n, "") for n in names] or [("misc", "misc", "")]
+    _group_items[:] = [(n, n, "") for n in names] or [(SCENERY_GROUP, SCENERY_GROUP, "")]
     return _group_items
 
 

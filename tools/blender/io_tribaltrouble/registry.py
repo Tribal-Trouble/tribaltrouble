@@ -7,7 +7,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 import bpy
 
-from .textures import find_up, texture_names
+from .textures import decal_texture_path, find_up, texture_names
 from .mesh_io import GAME_SLOTS
 
 
@@ -195,8 +195,7 @@ def team_attribute(root, texture, fallback):
     """team="..." when the decal PNG exists or is an image Publish writes; without a repo folder, fall back to the
     caller's guess."""
     if root:
-        decal = os.path.join(root, "assets", "textures", "teamdecals", texture + "_team.png")
-        fallback = os.path.isfile(decal) or texture + "_team" in bpy.data.images
+        fallback = os.path.isfile(decal_texture_path(root, texture)) or texture + "_team" in bpy.data.images
     return f' team="{texture}_team"' if fallback else ""
 
 

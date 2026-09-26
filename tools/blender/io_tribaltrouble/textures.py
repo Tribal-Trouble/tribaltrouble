@@ -218,3 +218,7 @@ def save_png(image, target):
 
 def models_texture_path(root, texture):
     return os.path.join(root, "assets", "textures", "models", texture + ".png")
+
+
+def decal_texture_path(root, texture):
+    return os.path.join(root, "assets", "textures", "teamdecals", texture + "_team.png")

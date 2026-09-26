@@ -11,7 +11,7 @@ from .textures import apply_team_preview, object_texture
 from .mesh_io import (apply_clip, armature_from_file, assign_action, bind_meshes, bone_tail_matrices, build_armature,
                       clip_keys, import_mesh_file, mesh_xml_text, read_animation, read_skeleton, shown_bones,
                       write_text)
-from .registry import GEOMETRY_DIR, read_registry, repo_root, rig_entry, sprite_category, sprite_skins
+from .registry import GEOMETRY_DIR, level_textures, read_registry, repo_root, rig_entry, sprite_category, sprite_skins
 
 
 def attach_object(arm, obj, bone_name, visible):
@@ -357,7 +357,7 @@ def add_reference(context, group, name, report):
              and not o.hide_get()]
     before = x_extent(context, shown)
     previous = context.view_layer.objects.active
-    texture = ",".join(t for t, event in entry["textures"][0] if not event)
+    texture = ",".join(level_textures(entry, 0))
     obj = import_mesh_file(context, os.path.join(geometry, entry["models"][0]), False, True, lambda *_: None, texture)
     if obj is None:
         report({"ERROR"}, f"{group} / {name} has no mesh to show")

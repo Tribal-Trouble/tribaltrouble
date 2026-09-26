@@ -7,8 +7,9 @@ import bpy
 import numpy as np
 from bpy.props import StringProperty, BoolProperty, EnumProperty
 
-from .textures import (apply_team_preview, crop_pixels, ensure_texture_in_repo, get_atlas_material, material_image_name,
-                       mesh_texture_image, MIP_PAD, models_texture_path, race_texture_name, short_labels, texture_names)
+from .textures import (apply_team_preview, crop_pixels, decal_texture_path, ensure_texture_in_repo, get_atlas_material,
+                       material_image_name, mesh_texture_image, MIP_PAD, models_texture_path, race_texture_name,
+                       short_labels, texture_names)
 from .mesh_io import active_armature, item_hidden_here, POINT_LABELS, write_mesh_xml
 from .registry import (append_registry_entries, CARRY_SLOT, GEOMETRY_DIR, PROP_SLOT, read_registry, REGISTRY_FILE,
                        repo_root, sprite_text, team_attribute)
@@ -545,9 +546,8 @@ class OwnTexture(bpy.types.Operator):
         name = race_texture_name(obj.get("tt_group", ""), obj.get("tt_sprite") or obj.name)
         textures = texture_names(obj)
         fresh = [name] if len(textures) == 1 else [f"{name}_{label}" for label in short_labels(textures)]
-        decal_path = lambda texture: os.path.join(root, "assets", "textures", "teamdecals", texture + "_team.png")
         taken = [n for n in fresh if n in bpy.data.images or n + "_team" in bpy.data.images
-                 or os.path.isfile(models_texture_path(root, n)) or os.path.isfile(decal_path(n))]
+                 or os.path.isfile(models_texture_path(root, n)) or os.path.isfile(decal_texture_path(root, n))]
         if taken:
             self.report({"ERROR"}, f"A texture named {', '.join(taken)} already exists; nothing was changed, rename "
                                    f"the item first")
@@ -556,8 +556,8 @@ class OwnTexture(bpy.types.Operator):
             self.report({"ERROR"}, f"{', '.join(textures)} must all be in assets/textures/models")
             return {"CANCELLED"}
         atlases = [bpy.data.images.load(models_texture_path(root, t), check_existing=True) for t in textures]
-        decals = [bpy.data.images.load(decal_path(t), check_existing=True) if os.path.isfile(decal_path(t)) else None
-                  for t in textures]
+        decals = [bpy.data.images.load(decal_texture_path(root, t), check_existing=True)
+                  if os.path.isfile(decal_texture_path(root, t)) else None for t in textures]
         w, h = atlases[0].size
         step = next((w // d.size[0] for d in decals if d is not None), 1)
         if any(tuple(a.size) != (w, h) for a in atlases) or any(
