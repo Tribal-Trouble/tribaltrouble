@@ -1109,6 +1109,83 @@ def a_new_mesh_on_the_units_texture_gets_one_named_after_it():
     assert '<texture name="test_visor" team="test_visor_team"/>' in open(registry_path, encoding="utf-8").read()
 
 
+def evaluated_points(obj):
+    evaluated = obj.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    mesh = evaluated.to_mesh()
+    try:
+        return np.array([tuple(obj.matrix_world @ v.co) for v in mesh.vertices])
+    finally:
+        evaluated.to_mesh_clear()
+
+
+@test
+def an_item_on_several_bones_deforms_with_all_of_them_and_keeps_its_weights():
+    # Fixture: the native chieftain's rigid Prop1 item, reweighted to hang three quarters off Prop1, a quarter Prop2.
+    folder = os.path.join(GEOMETRY, "natives", "chieftain")
+    path = os.path.join(folder, "chieftain_test_blend.xml")
+    text = open(os.path.join(folder, "chieftain_prop1.xml"), encoding="utf-8").read()
+    text = re.sub(r'<mesh texture="[^"]*">', "<mesh>", text).replace(
+        '<skin bone="Prop1" weight="1"/>', '<skin bone="Prop1" weight="0.75"/><skin bone="Prop2" weight="0.25"/>')
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(text)
+    save_pattern(os.path.join(MODELS, "native_chieftain.png"), 1024, lambda x, y: x // 256 * 4 + y // 256)
+    save_pattern(os.path.join(DECALS, "native_chieftain_team.png"), 256, lambda x, y: 100 + 0 * x)
+    addon.append_registry_entries(registry_path, "natives", [("chieftain_test_blend", addon.sprite_text(
+        [("name", "chieftain_test_blend"), ("base", "chieftain"), ("slot", "test_blend"), ("default", "true")],
+        [("natives/chieftain/chieftain_test_blend.xml", [("native_chieftain", ' team="native_chieftain_team"')])]))])
+
+    a = load("natives", "chieftain")
+    blend, rigid = bpy.data.objects["chieftain_test_blend"], bpy.data.objects["chieftain_prop1"]
+    assert blend.parent == a and blend.parent_type == "OBJECT" and "tt_bone" not in blend
+    assert any(m.type == "ARMATURE" and m.object == a for m in blend.modifiers)
+    assert rigid.parent_type == "BONE" and rigid.parent_bone == "Prop1"
+    assert addon.item_bones(blend) == ["Prop1", "Prop2"] and addon.item_bones(rigid) == ["Prop1"]
+    assert items()["test_blend"] == [("chieftain_test_blend", True)]
+
+    every = sorted(addon.armature_actions(a), key=lambda x: x.name)
+    assert addon.item_clips(a, blend) == every, "Prop2 shows in every clip, so the item does too"
+    idle = next(x for x in every if addon.clip_short_name(a, x) == "idle")
+    assert bpy.ops.object.tt_set_clip(clip=idle.name) == {"FINISHED"}
+    assert addon.item_hidden_here(a, rigid) and addon.item_hidden_here(a, blend) is None
+
+    a.animation_data.action = None
+    for pose_bone in a.pose.bones:
+        pose_bone.matrix_basis.identity()
+    bpy.context.view_layer.update()
+    before = evaluated_points(blend), evaluated_points(rigid)
+    a.pose.bones["Prop2"].location = (0.0, 0.4, 0.0)
+    bpy.context.view_layer.update()
+    shift = np.linalg.norm(evaluated_points(blend) - before[0], axis=1)
+    assert np.allclose(shift, 0.1, atol=1e-4), (shift.min(), shift.max())
+    assert np.allclose(evaluated_points(rigid), before[1])
+    a.pose.bones["Prop2"].location = (0.0, 0.0, 0.0)
+    addon.assign_action(a, idle)
+
+    os.utime(path, (1, 1))
+    bpy.context.view_layer.objects.active = a
+    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert os.path.getmtime(path) == 1, "publishing an untouched item on several bones wrote it"
+
+    assert addon.shares_unit_texture(a, blend)
+    assert bpy.ops.object.tt_own_texture(target=blend.name) == {"FINISHED"}
+    assert blend["tt_texture"] == "native_chieftain_test_blend"
+    bpy.context.view_layer.objects.active = a
+    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    old, new = ET.fromstring(text.encode("utf-8")), ET.parse(path).getroot()
+    assert new.get("texture") == "native_chieftain_test_blend"
+    corners = lambda root: [tuple(float(v.get(k)) for k in "xyz") for v in root.iter("vertex")]
+    assert corners(new) == corners(old), "the item moved on export"
+    skins = {tuple((s.get("bone"), s.get("weight")) for s in v.iter("skin")) for v in new.iter("vertex")}
+    assert skins == {(("Prop1", "0.75"), ("Prop2", "0.25"))}, skins
+    assert entry("natives", "chieftain_test_blend")["textures"] == [[("native_chieftain_test_blend", "")]]
+    assert os.path.isfile(os.path.join(MODELS, "native_chieftain_test_blend.png"))
+
+    a = load("natives", "chieftain")
+    blend = bpy.data.objects["chieftain_test_blend"]
+    assert blend.parent_type == "OBJECT" and not addon.shares_unit_texture(a, blend)
+    return f"{len(blend.data.polygons)} faces on {', '.join(addon.item_bones(blend))}"
+
+
 WARRIOR_FILES = [os.path.join(GEOMETRY, "vikings", "warrior", f) for f in ("warrior_mesh.xml",
                                                                            "warrior_low_poly_mesh.xml")]
 WARRIOR_TEXTURES = [(f"viking_warrior_{tier}", "") for tier in TIERS]

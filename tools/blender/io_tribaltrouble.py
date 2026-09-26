@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 28, 2),
+    "version": (1, 29, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -969,16 +969,31 @@ def shown_bones(frames):
                    if max(abs(s) for s in m.to_scale()) > SHOWN_SCALE})
 
 
-def item_bone(obj):
-    return obj.parent_bone if obj.parent_type == "BONE" and obj.parent_bone else obj.get("tt_bone")
+def item_bones(obj):
+    """The bones obj follows: the one it hangs off, or for an item that deforms with several, every bone its vertex
+    groups weight, the one with the most weight first."""
+    bone = obj.parent_bone if obj.parent_type == "BONE" and obj.parent_bone else obj.get("tt_bone")
+    if bone:
+        return [bone]
+    arm = obj.parent if obj.parent is not None and obj.parent.type == "ARMATURE" else None
+    if arm is None or obj.type != "MESH":
+        return []
+    names = [g.name for g in obj.vertex_groups]
+    totals = {}
+    for v in obj.data.vertices:
+        for g in v.groups:
+            if g.weight > 0.0 and names[g.group] in arm.data.bones:
+                totals[names[g.group]] = totals.get(names[g.group], 0.0) + g.weight
+    return sorted(totals, key=lambda b: -totals[b])
 
 
 def item_clips(arm, obj):
-    """The clips in which obj's bone shows, by name; None for an item on no bone."""
-    bone = item_bone(obj)
-    if not bone:
+    """The clips in which any of obj's bones shows, by name; None for an item on no bone."""
+    bones = item_bones(obj)
+    if not bones:
         return None
-    return sorted((a for a in armature_actions(arm) if bone in list(a.get("tt_shown_bones", ()))), key=lambda a: a.name)
+    return sorted((a for a in armature_actions(arm) if set(bones) & set(list(a.get("tt_shown_bones", ())))),
+                  key=lambda a: a.name)
 
 
 def item_hidden_here(arm, obj):
@@ -1600,14 +1615,20 @@ def export_texts(context, arm, objs):
     previous = arm.data.pose_position if arm is not None else None
     if arm is not None:
         arm.data.pose_position = "REST"
+    # At rest an Armature modifier gives the mesh back unchanged but for float noise in the last digit written.
+    skinning = [m for o in objs for m in o.modifiers if m.type == "ARMATURE" and m.show_viewport]
+    for modifier in skinning:
+        modifier.show_viewport = False
     context.view_layer.update()
     try:
         depsgraph = context.evaluated_depsgraph_get()
         return {o: item_export(o, depsgraph) for o in objs}
     finally:
+        for modifier in skinning:
+            modifier.show_viewport = True
         if arm is not None:
             arm.data.pose_position = previous
-            context.view_layer.update()
+        context.view_layer.update()
 
 
 def write_changed(context, arm, targets):
