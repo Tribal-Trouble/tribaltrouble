@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 36, 0),
+    "version": (1, 36, 1),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -4575,7 +4575,7 @@ class VIEW3D_PT_tt_skins(bpy.types.Panel):
         registry = read_registry(repo_root(context))
         parts = skin_parts(body, entry, registry)
         layout.operator(ShowSkin.bl_idname, text="Default",
-                        depress=not any(o.get("tt_skin") for o, _ in parts)).skin = ""
+                        depress=not body.get("tt_skin")).skin = ""
         # Item skins show in their item's view in the Props panel; here only the ones the model's own skin brings.
         for sprite in sprite_skins(registry, entry):
             items = [e["name"] for _, e in parts[1:]
