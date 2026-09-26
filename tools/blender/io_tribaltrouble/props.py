@@ -11,11 +11,11 @@ from .textures import (apply_team_preview, crop_pixels, ensure_texture_in_repo, 
                        mesh_texture_image, MIP_PAD, models_texture_path, race_texture_name, short_labels, texture_names)
 from .mesh_io import active_armature, item_hidden_here, POINT_LABELS, write_mesh_xml
 from .registry import (append_registry_entries, CARRY_SLOT, GEOMETRY_DIR, PROP_SLOT, read_registry, REGISTRY_FILE,
-                       repo_root, rig_in_repo, sprite_text, team_attribute)
+                       repo_root, sprite_text, team_attribute)
 from .scene import (attachment_obj_poll, browsed_unit, BROWSER_TAG, building_props, building_stage, export_texts,
                     file_clashes, item_shown, model_levels, prop_body, prop_tag, refresh_skins, set_item_visible,
                     skin_item, snap_to_bone, unit_items, write_changed)
-from .publish import check_mesh, publish_items, publish_skin_paint, store_findings
+from .publish import check_mesh, publish_skin_paint, store_findings
 from .forms import (chosen_event, draw_confirm, draw_event, event_property, form_title, mesh_problem, open_form,
                     own_mesh_search)
 from .models import RemoveFromRegistry
@@ -579,26 +579,6 @@ class OwnTexture(bpy.types.Operator):
         apply_team_preview(context)
         self.report({"INFO"}, f"{obj.name} now has its own texture: {', '.join(fresh)} ({size}x{size}). Publish "
                               f"writes it into the repo")
-        return {"FINISHED"}
-
-
-class SaveItems(bpy.types.Operator):
-    """Write the unit's visible items and list the new ones in geometry.xml, as Publish does"""
-    bl_idname = "object.tt_save_items"
-    bl_label = "Publish Items"
-
-    @classmethod
-    def poll(cls, context):
-        if rig_in_repo(context, active_armature(context)):
-            return True
-        cls.poll_message_set("Load the unit from the Models list of your repo folder")
-        return False
-
-    def execute(self, context):
-        added = publish_items(context, active_armature(context), self.report)
-        if added is None:
-            return {"CANCELLED"}
-        self.report({"INFO"}, f"Published {len(added)} new item(s); the game shows them after the next build")
         return {"FINISHED"}
 
 

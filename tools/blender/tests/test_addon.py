@@ -89,6 +89,21 @@ def load(group, sprite):
     return arm()
 
 
+def raise_errors(kind, message):
+    if "ERROR" in kind:
+        raise RuntimeError(message)
+
+
+def save_items():
+    return {"FINISHED"} if addon.publish_items(bpy.context, arm(), raise_errors) is not None else {"CANCELLED"}
+
+
+def save_clip(clip_name, kind, wpc):
+    a = arm()
+    return {"FINISHED"} if addon.publish_clip(bpy.context, a, a.animation_data.action, clip_name, kind, wpc,
+                                              raise_errors) else {"CANCELLED"}
+
+
 def entry(group, name):
     return next((s for s in addon.read_registry(TEMP) if s["group"] == group and s["name"] == name), None)
 
@@ -203,7 +218,7 @@ def a_new_item_never_overwrites_a_file_already_in_the_unit_folder():
     path = os.path.join(GEOMETRY, "vikings", "warrior", "warrior_skeleton.xml")
     before = open(path, "rb").read()
     put_on_head(fixture_mesh("warrior_skeleton", fixture_image("clash_tex")))
-    expect_error(bpy.ops.object.tt_save_items, "already has a file named after warrior_skeleton")
+    expect_error(save_items, "already has a file named after warrior_skeleton")
     assert open(path, "rb").read() == before
     obj = bpy.data.objects["warrior_skeleton"]
     next(s for s in arm().tt_attachments if s.point == "HEAD").obj = None
@@ -526,7 +541,7 @@ def one_press_saves_a_new_item_and_turns_it_into_a_button():
     a = load("natives", "peon")
     crown = fixture_mesh("test_crown", fixture_image("test_crown_tex"))
     put_on_head(crown)
-    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert save_items() == {"FINISHED"}
     e = entry("natives", "peon_test_crown")
     assert e is not None and e["base"] == "peon" and e["slot"] == "hat", e
     assert os.path.isfile(os.path.join(GEOMETRY, "natives", "peon", "test_crown.xml"))
@@ -537,13 +552,13 @@ def one_press_saves_a_new_item_and_turns_it_into_a_button():
     second = fixture_mesh("test_crown", fixture_image("test_crown_tex_b"))
     second.name = "test_crown_b"
     put_on_head(second)
-    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert save_items() == {"FINISHED"}
     assert sorted(items()["hat"]) == [("peon_test_crown", False), ("peon_test_crown_b", True)], items()["hat"]
     a = load("natives", "peon")
     assert [name for name, _ in items()["hat"]] == ["peon_test_crown", "peon_test_crown_b"], "lost on reload"
     bare = fixture_mesh("test_bare_hat", None)
     put_on_head(bare)
-    expect_error(bpy.ops.object.tt_save_items, "problem(s)")
+    expect_error(save_items, "problem(s)")
     assert entry("natives", "peon_test_bare_hat") is None, "a refused item still reached the registry"
     bpy.data.objects.remove(bare)
 
@@ -556,9 +571,9 @@ def a_new_item_can_belong_to_an_event_and_be_on_by_default():
     bpy.context.view_layer.objects.active = a
     assert bpy.ops.object.tt_new_item(point="HEAD", mesh=pumpkin.name, event="halloween",
                                       on_by_default=True) == {"FINISHED"}
-    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert save_items() == {"FINISHED"}
     put_on_head(fixture_mesh("test_plain_hat", fixture_image("test_plain_hat_tex")))
-    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert save_items() == {"FINISHED"}
     text = open(registry_path, encoding="utf-8").read()
     assert '<sprite name="peon_test_pumpkin_hat" base="peon" slot="hat" event="halloween" default="true">' in text
     assert '<sprite name="peon_test_plain_hat" base="peon" slot="hat">' in text
@@ -627,7 +642,7 @@ def one_button_gives_a_bare_mesh_a_texture_the_game_accepts():
     assert len(horn.data.uv_layers) == 1
     assert not [text for level, text in addon.check_mesh(horn, True, 0) if level == "ERROR"]
     put_on_head(horn)
-    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert save_items() == {"FINISHED"}
     assert os.path.isfile(os.path.join(MODELS, "my_horn.png"))
     assert entry("vikings", "warrior_my_horn")["slot"] == "hat"
     expect_cancel = bpy.ops.object.tt_make_texture(target=horn.name, size="128")
@@ -765,7 +780,7 @@ def a_new_clip_is_saved_last_on_the_unit_and_on_everything_it_carries():
     head.rotation_mode = "QUATERNION"
     head.rotation_quaternion = (0.9, 0.0, 0.0, 0.43)
     head.keyframe_insert("rotation_quaternion", frame=5)
-    assert bpy.ops.object.tt_save_clip(clip_name="dance", kind="loop", wpc=1.0) == {"FINISHED"}
+    assert save_clip(clip_name="dance", kind="loop", wpc=1.0) == {"FINISHED"}
     path = os.path.join(GEOMETRY, "vikings", "peon", "peon_dance.xml")
     assert os.path.isfile(path)
     idle = ET.parse(os.path.join(GEOMETRY, "vikings", "peon", "peon_idle.xml")).getroot()
@@ -829,19 +844,19 @@ def saving_an_existing_clip_replaces_it_in_place():
     path = os.path.join(GEOMETRY, relative)
     frames = len(ET.parse(path).getroot().findall("frame"))
     os.remove(path)
-    assert bpy.ops.object.tt_save_clip(clip_name="run", kind=kind, wpc=float(wpc)) == {"FINISHED"}
+    assert save_clip(clip_name="run", kind=kind, wpc=float(wpc)) == {"FINISHED"}
     assert len(ET.parse(path).getroot().findall("frame")) == frames
     assert clip_lines("vikings", "warrior") == before
-    assert bpy.ops.object.tt_save_clip(clip_name="run", kind="loop", wpc=4.5) == {"FINISHED"}
+    assert save_clip(clip_name="run", kind="loop", wpc=4.5) == {"FINISHED"}
     assert dict(clip_lines("vikings", "warrior"))["run"] == ("4.5", "loop", relative)
     assert [n for n, _ in clip_lines("vikings", "warrior")] == [n for n, _ in before], "clip order changed"
-    assert bpy.ops.object.tt_save_clip(clip_name="run", kind=kind, wpc=float(wpc)) == {"FINISHED"}
+    assert save_clip(clip_name="run", kind=kind, wpc=float(wpc)) == {"FINISHED"}
 
 
 @test
 def a_unit_on_a_borrowed_rig_cannot_change_the_clips():
     load("natives", "warrior_variant")
-    expect_error(lambda: bpy.ops.object.tt_save_clip(clip_name="wave", kind="loop", wpc=1.0), "borrows the warrior rig")
+    expect_error(lambda: save_clip(clip_name="wave", kind="loop", wpc=1.0), "borrows the warrior rig")
 
 
 def publish_prop(obj, event="", make_texture=True):
@@ -948,7 +963,7 @@ def publishing_without_edits_writes_no_unit_mesh():
                                                         "warrior_axe_held_lod1")]
     for path in files:
         os.utime(path, (1, 1))
-    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert save_items() == {"FINISHED"}
     assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
     assert all(os.path.getmtime(path) == 1 for path in files), "an unchanged mesh was written again"
 
@@ -966,7 +981,7 @@ def splitting_the_body_rewrites_both_detail_levels():
     wm.tt_detail = "HIGH"
     assert body["tt_source"] and body.get(addon.BROWSER_TAG) and "tt_export_hash" in body
     bpy.context.view_layer.objects.active = a
-    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert save_items() == {"FINISHED"}
     after = {o: polygons(o["tt_source"]) for o in (body, low)}
     assert all(after[o] < before[o] for o in (body, low)), (before, after)
     return f"high {before[body]} -> {after[body]}, low {before[low]} -> {after[low]} polygons"
@@ -1002,7 +1017,7 @@ def an_edited_low_detail_axe_is_written_and_its_high_mesh_is_not():
     os.utime(axe["tt_source"], (1, 1))
     os.utime(axe_low["tt_source"], (1, 1))
     axe_low.data.vertices[0].co.z += 0.1
-    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert save_items() == {"FINISHED"}
     assert os.path.getmtime(axe["tt_source"]) == 1 and os.path.getmtime(axe_low["tt_source"]) != 1
 
 
@@ -1236,7 +1251,7 @@ def own_texture_copies_the_axe_out_of_every_tier_and_publishes_it():
     assert bpy.ops.object.tt_set_tier(index=0) == {"FINISHED"}
 
     bpy.context.view_layer.objects.active = a
-    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert save_items() == {"FINISHED"}
     for name in AXE_TEXTURES:
         for folder, png in ((MODELS, name), (DECALS, name + "_team")):
             saved = bpy.data.images.load(os.path.join(folder, png + ".png"))
@@ -1271,7 +1286,7 @@ def a_new_mesh_on_the_units_texture_gets_one_named_after_it():
     assert addon.shares_unit_texture(a, visor)
     assert bpy.ops.object.tt_own_texture(target=visor.name) == {"FINISHED"}
     assert visor["tt_texture"] == "test_visor" and addon.mesh_texture_image(visor).name == "test_visor"
-    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert save_items() == {"FINISHED"}
     assert os.path.isfile(os.path.join(MODELS, "test_visor.png"))
     assert os.path.isfile(os.path.join(DECALS, "test_visor_team.png"))
     assert entry("vikings", "warrior_test_visor")["textures"] == [[("test_visor", "")]]
@@ -1332,14 +1347,14 @@ def an_item_on_several_bones_deforms_with_all_of_them_and_keeps_its_weights():
 
     os.utime(path, (1, 1))
     bpy.context.view_layer.objects.active = a
-    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert save_items() == {"FINISHED"}
     assert os.path.getmtime(path) == 1, "publishing an untouched item on several bones wrote it"
 
     assert addon.shares_unit_texture(a, blend)
     assert bpy.ops.object.tt_own_texture(target=blend.name) == {"FINISHED"}
     assert blend["tt_texture"] == "native_chieftain_test_blend"
     bpy.context.view_layer.objects.active = a
-    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert save_items() == {"FINISHED"}
     old, new = ET.fromstring(text.encode("utf-8")), ET.parse(path).getroot()
     assert new.get("texture") == "native_chieftain_test_blend"
     corners = lambda root: [tuple(float(v.get(k)) for k in "xyz") for v in root.iter("vertex")]
@@ -1723,7 +1738,7 @@ def the_items_panel_shows_the_list_or_one_item_with_its_skins():
     open_hammer()
     detail = drawn(addon.VIEW3D_PT_tt_attachments)
     ops = [idname for idname, _ in detail]
-    assert ops[0] == "object.tt_close_item" and "object.tt_paint_item" in ops and "object.tt_save_items" not in ops, ops
+    assert ops[0] == "object.tt_close_item" and "object.tt_paint_item" in ops, ops
     assert "object.tt_new_item" not in ops, detail
     assert ("object.tt_new_skin", None) in detail and ("list", "tt_item_skins") in detail, detail
     assert ("list", "tt_item_skins") in detail and "gold" in [row.name for row in wm.tt_item_skins], detail
@@ -1853,7 +1868,7 @@ def props_sit_on_a_tree_trunk_or_crown_and_on_the_chicken():
     assert addon.prop_tag(props[0]) == "halloween"
     load("misc", "chicken")
     put_on_head(fixture_mesh("test_chicken_hat", fixture_image("test_chicken_hat_tex")))
-    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
+    assert save_items() == {"FINISHED"}
     e = entry("misc", "chicken_test_chicken_hat")
     assert (e["base"], e["slot"]) == ("chicken", "prop"), e
 
@@ -2035,8 +2050,7 @@ def one_publish_writes_the_mesh_a_new_prop_and_the_clips_without_a_form():
     listed = [idname for idname, *_ in drawn(addon.VIEW3D_PT_tt_units)]
     assert "wm.tt_publish_model" in listed and "object.tt_preflight" in listed, listed
     listed = [idname for idname, *_ in drawn(addon.VIEW3D_PT_tt_preview)]
-    assert "object.tt_new_clip" in listed and "object.tt_save_clip" not in listed, listed
-    assert "object.tt_save_items" not in [idname for idname, *_ in drawn(addon.VIEW3D_PT_tt_attachments)]
+    assert "object.tt_new_clip" in listed, listed
     item_form = form(addon.NewItem, point="HEAD", mesh="", snap=True, make_texture=True, event="ALL_YEAR",
                      on_by_default=False)
     assert ("confirm", "object.tt_new_event", " ", True) in item_form, "no event in the New Prop form"

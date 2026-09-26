@@ -9,9 +9,8 @@ from bpy.props import StringProperty, EnumProperty, FloatProperty, IntProperty
 from .textures import apply_team_preview, get_atlas_material, short_labels
 from .mesh_io import (active_armature, armature_actions, assign_action, clip_short_name, item_hidden_here, show_clip,
                       shown_bones)
-from .registry import GEOMETRY_DIR, read_registry, REGISTRY_FILE, repo_root, rig_in_repo, rig_registry, set_clip_line
+from .registry import GEOMETRY_DIR, read_registry, REGISTRY_FILE, repo_root, rig_registry, set_clip_line
 from .scene import browsed_unit, has_low_detail, unit_meshes, unit_tiers
-from .publish import publish_clip
 from .forms import draw_confirm, form_title, name_problem, open_form
 
 
@@ -272,22 +271,3 @@ class NewClip(bpy.types.Operator):
         context.scene.frame_set(1)
         return {"FINISHED"}
 
-
-class SaveClip(bpy.types.Operator):
-    """Publish the clip that is showing, with how it plays"""
-    bl_idname = "object.tt_save_clip"
-    bl_label = "Publish Clip"
-    clip_name: StringProperty(name="Name", description="The clip's name in geometry.xml, such as run or dance")
-    kind: EnumProperty(name="Plays", items=CLIP_KINDS)
-    wpc: FloatProperty(name="Distance Per Loop", default=1.0, min=0.0001, description=WPC_DESCRIPTION)
-
-    @classmethod
-    def poll(cls, context):
-        arm = active_armature(context)
-        return rig_in_repo(context, arm) and arm.animation_data is not None and arm.animation_data.action is not None
-
-    def execute(self, context):
-        arm = active_armature(context)
-        published = publish_clip(context, arm, arm.animation_data.action, self.clip_name, self.kind, self.wpc,
-                                 self.report)
-        return {"FINISHED"} if published else {"CANCELLED"}

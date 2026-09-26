@@ -37,14 +37,14 @@ from .import_export import (ExportTTMesh, ExportTTSkeleton, ImportTTMesh, Import
 from .models import (AddToScene, LoadUnit, PickUnit, Preflight, PublishModel, RefreshUnits, RegisterModel, RemoveAdded,
                      RemoveFromRegistry, TT_UL_units, TTCheck, TTPreferences, TTUnitEntry, units_list_menu, UpdateAddon,
                      VIEW3D_PT_tt_units)
-from .preview import (clip_button_menu, DeleteClip, MaterialPreview, NewClip, SaveClip, SetClip, SetTier, ShowItemClip,
+from .preview import (clip_button_menu, DeleteClip, MaterialPreview, NewClip, SetClip, SetTier, ShowItemClip,
                       VIEW3D_PT_tt_preview)
 from .by_hand import (AddToRegistry, CopyRegistrySnippet, ExportAttachments, ExportToRepo, SetupAttachments,
                       VIEW3D_PT_tt_attachments_more)
 from .skins import (CancelSkin, NewSkin, PaintSkin, pick_skin_row, PickSkin, SaveSkin, shown_skin_index, ShowSkin,
                     TT_UL_skins, TTSkinEntry, VIEW3D_PT_tt_skins)
 from .props import (CloseItem, DonePainting, item_index_update, MakeTexture, NewItem, NewProp, OwnTexture, PaintItem,
-                    PutOnBone, SaveItems, ShowItem, TT_UL_items, VIEW3D_PT_tt_attachments)
+                    PutOnBone, ShowItem, TT_UL_items, VIEW3D_PT_tt_attachments)
 
 
 bl_info = {
@@ -60,8 +60,8 @@ bl_info = {
 
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
            TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, PickUnit, AddToScene, RemoveAdded, ShowItem, ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
-           RemoveFromRegistry, UpdateAddon, NewEvent, NewProp, ShowSkin, PaintSkin, TTSkinEntry, TT_UL_skins, PickSkin, NewSkin, CancelSkin, SaveSkin, CloseItem, NewClip, SaveClip, DeleteClip,
-           SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, NewItem, OwnTexture, PutOnBone, PaintItem, DonePainting,
+           RemoveFromRegistry, UpdateAddon, NewEvent, NewProp, ShowSkin, PaintSkin, TTSkinEntry, TT_UL_skins, PickSkin, NewSkin, CancelSkin, SaveSkin, CloseItem, NewClip, DeleteClip,
+           SetupAttachments, ExportAttachments, CopyRegistrySnippet, MakeTexture, NewItem, OwnTexture, PutOnBone, PaintItem, DonePainting,
            TT_UL_items, VIEW3D_PT_tt_units, VIEW3D_PT_tt_skins,
            VIEW3D_PT_tt_preview,
            VIEW3D_PT_tt_attachments, VIEW3D_PT_tt_attachments_more)
