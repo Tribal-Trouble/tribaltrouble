@@ -21,6 +21,7 @@ import com.oddlabs.tt.pathfinder.Movable;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.StaticOccupant;
 import com.oddlabs.tt.pathfinder.PathTracker;
+import com.oddlabs.tt.pathfinder.StartingSeaSpotFilter;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
@@ -31,8 +32,10 @@ import org.lwjgl.opengl.GL11;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 public class Ship extends Building implements Movable {
@@ -42,6 +45,7 @@ public class Ship extends Building implements Movable {
     private static final int OCCUPY_LENGTH_CELLS = 14;
     private static final int OCCUPY_WIDTH_CELLS = 6;
     private static final int STARTING_SHIP_CLEARANCE_CELLS = OCCUPY_LENGTH_CELLS / 2 + 1;
+    private static final int STARTING_UNITS_PER_SHIP = 26;
 
     public static final Cost COST_ROCK_WEAPON = new Cost(new Class[]{TreeSupply.class, RockSupply.class},
             new int[]{2, 1});
@@ -691,50 +695,40 @@ public class Ship extends Building implements Movable {
         slid = true;
     }
 
-    public final @NonNull Ship board(@NonNull Unit unit) {
-        if (ship_hr.canAllocate(unit)) {
-            getUnitContainer().enter(unit);
-            return this;
+    public static @NonNull List<Ship> newStartingShips(@NonNull Player owner, int grid_x, int grid_y, int num_units) {
+        BuildingTemplate template = owner.getRace().getBuildingTemplate(Race.BUILDING_SHIP);
+        List<Ship> ships = new ArrayList<>();
+        Ship first = new Ship(owner, template, grid_x, grid_y);
+        first.instantBuild();
+        ships.add(first);
+        UnitGrid grid = first.getUnitGrid();
+        while (ships.size() < num_units / STARTING_UNITS_PER_SHIP && owner.canBuild(Race.BUILDING_SHIP)) {
+            StartingSeaSpotFilter filter = new StartingSeaSpotFilter(grid, STARTING_SHIP_CLEARANCE_CELLS);
+            grid.scan(filter, grid_x, grid_y, UnitGrid.SEA);
+            int[] spot = filter.getSpot();
+            if (spot == null) {
+                break;
+            }
+            Ship ship = new Ship(owner, template, spot[0], spot[1]);
+            ship.instantBuild();
+            ships.add(ship);
         }
-        int[] spot = findStartingSpot(getUnitGrid(), getGridX(), getGridY());
-        if (spot == null || !getOwner().canBuild(Race.BUILDING_SHIP)) {
+        return ships;
+    }
+
+    public static void board(@NonNull List<Ship> ships, @NonNull Unit unit) {
+        Ship emptiest = null;
+        for (Ship ship : ships) {
+            if (ship.ship_hr.canAllocate(unit)
+                    && (emptiest == null || ship.ship_hr.countUnits() < emptiest.ship_hr.countUnits())) {
+                emptiest = ship;
+            }
+        }
+        if (emptiest != null) {
+            emptiest.getUnitContainer().enter(unit);
+        } else {
             unit.removeNow();
-            return this;
         }
-        Ship ship = new Ship(getOwner(), getBuildingTemplate(), spot[0], spot[1]);
-        ship.instantBuild();
-        ship.getUnitContainer().enter(unit);
-        return ship;
-    }
-
-    private static int[] findStartingSpot(@NonNull UnitGrid grid, int center_x, int center_y) {
-        for (int r = 1; r < grid.getGridSize(); r++) {
-            for (int y = center_y - r; y <= center_y + r; y++) {
-                for (int x = center_x - r; x <= center_x + r; x++) {
-                    if (StrictMath.max(StrictMath.abs(x - center_x), StrictMath.abs(y - center_y)) == r
-                            && isClearDeepWater(grid, x, y)) {
-                        return new int[]{x, y};
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private static boolean isClearDeepWater(@NonNull UnitGrid grid, int center_x, int center_y) {
-        int c = STARTING_SHIP_CLEARANCE_CELLS;
-        if (center_x - c < 0 || center_y - c < 0 || center_x + c >= grid.getGridSize()
-                || center_y + c >= grid.getGridSize()) {
-            return false;
-        }
-        for (int y = center_y - c; y <= center_y + c; y++) {
-            for (int x = center_x - c; x <= center_x + c; x++) {
-                if (!grid.isDeepWater(x, y) || grid.isGridOccupied(x, y, UnitGrid.SEA)) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     public final void place() {
