@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 35, 0),
+    "version": (1, 36, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1411,6 +1411,7 @@ def point_items(self, context):
 
 class VIEW3D_PT_tt_attachments(bpy.types.Panel):
     bl_label = "Props"
+    bl_order = 4
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Tribal Trouble"
@@ -1437,8 +1438,6 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
         if items:
             layout.prop(wm, "tt_item_search", text="", icon="VIEWZOOM")
             layout.template_list("TT_UL_items", "", bpy.data, "objects", wm, "tt_item_index", rows=6, maxrows=12)
-        else:
-            layout.label(text="Nothing yet: add one below", icon="INFO")
         layout.operator(NewItem.bl_idname, icon="ADD")
         if context.mode == "PAINT_TEXTURE":
             layout.operator(DonePainting.bl_idname, icon="CHECKMARK", depress=True)
@@ -1475,6 +1474,7 @@ def draw_publish(context, layout):
 
 class VIEW3D_PT_tt_attachments_more(bpy.types.Panel):
     bl_label = "By hand"
+    bl_order = 5
     bl_parent_id = "VIEW3D_PT_tt_attachments"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
@@ -2643,8 +2643,41 @@ def known_events(context, edit_text=""):
     return sorted(e for e in events if e and edit_text.strip().lower() in e)
 
 
-def event_search(self, context, edit_text):
-    return known_events(context, edit_text)
+NO_EVENT, NEW_EVENT = "ALL_YEAR", "NEW_EVENT"
+_event_items = {True: [], False: []}
+
+
+def event_items(context, optional):
+    """The Event dropdown: All year where an event is optional, every event geometry.xml names, then New event..."""
+    items = _event_items[optional]
+    items[:] = ([(NO_EVENT, "All year", "No event: shows all year")] if optional else []) +                [(e, e, f"Only during {e}") for e in known_events(context)] +                [(NEW_EVENT, "New event...", "Type the name of an event geometry.xml does not use yet")]
+    return items
+
+
+def event_property(optional=True):
+    return EnumProperty(name="Event", items=lambda self, context: event_items(context, optional),
+                        options={"SKIP_SAVE"}, description="Pick an event, or New event... to name one")
+
+
+def new_event_property():
+    return StringProperty(name="Name", options={"SKIP_SAVE"},
+                          description="Such as halloween: letters, digits and underscores")
+
+
+def chosen_event(op):
+    """The event an operator's form picked: '' for all year, None when a new name is not valid."""
+    if op.event == NEW_EVENT:
+        event = op.new_event.strip().lower()
+        return event if event and valid_event(event) else None
+    return "" if op.event == NO_EVENT else op.event
+
+
+def draw_event(layout, op):
+    layout.prop(op, "event")
+    if op.event == NEW_EVENT:
+        layout.prop(op, "new_event")
+        if op.new_event.strip() and chosen_event(op) is None:
+            layout.label(text="Letters, digits and underscores only", icon="ERROR")
 
 
 class SaveItems(bpy.types.Operator):
@@ -2653,9 +2686,8 @@ class SaveItems(bpy.types.Operator):
     from here on"""
     bl_idname = "object.tt_save_items"
     bl_label = "Publish"
-    event: StringProperty(name="Event", search=event_search, options={"SKIP_SAVE"},
-                          description="Blank means all year. With a name such as halloween, the new items only "
-                                      "show during that event")
+    event: event_property()
+    new_event: new_event_property()
     on_by_default: BoolProperty(name="On by default", options={"SKIP_SAVE"},
                                 description="Every unit wears the new items without a player choosing them")
 
@@ -2672,9 +2704,13 @@ class SaveItems(bpy.types.Operator):
             return context.window_manager.invoke_props_dialog(self)
         return self.execute(context)
 
+    def draw(self, context):
+        draw_event(self.layout, self)
+        self.layout.prop(self, "on_by_default")
+
     def execute(self, context):
-        event = self.event.strip().lower()
-        if not valid_event(event):
+        event = chosen_event(self)
+        if event is None:
             self.report({"ERROR"}, "Name the event with letters, digits and underscores")
             return {"CANCELLED"}
         arm = active_armature(context)
@@ -3001,6 +3037,7 @@ class RemoveFromRegistry(bpy.types.Operator):
 
 class VIEW3D_PT_tt_preview(bpy.types.Panel):
     bl_label = "Preview"
+    bl_order = 3
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Tribal Trouble"
@@ -3453,13 +3490,19 @@ DECORATION_GROUNDS = (
 )
 
 
+def mesh_names_sprite(self, context):
+    self.sprite_name = self.mesh
+
+
 class RegisterModel(bpy.types.Operator):
-    """Export the active mesh as a brand new model and add it to geometry.xml: a static building, prop or map
+    """Export the picked mesh as a brand new model and add it to geometry.xml: a static building, prop or map
     decoration, a unit on the rig it is bound to, or a unit with its own new rig. Using it in game still needs code,
     except for a map decoration, which the game scatters itself"""
     bl_idname = "object.tt_register_model"
     bl_label = "Register New Model"
     bl_options = {"REGISTER"}
+    mesh: StringProperty(name="Mesh", search=own_mesh_search, options={"SKIP_SAVE"},
+                         description="One of your own meshes in this scene", update=mesh_names_sprite)
     sprite_name: StringProperty(name="Name", description="Sprite name in geometry.xml and the new folder's name")
     group: EnumProperty(name="Group", items=registry_group_items)
     low_detail: StringProperty(name="Low Detail", description="Optional mesh object shown at a distance")
@@ -3475,23 +3518,25 @@ class RegisterModel(bpy.types.Operator):
         ("DECORATION", "Map decoration", "Scenery the game scatters over the map, like plants")))
     ground: EnumProperty(name="Terrain", items=DECORATION_GROUNDS, description="Ground the game scatters it on")
     count: IntProperty(name="Count", default=20, min=1, description="How many the game scatters over a map")
-    event: StringProperty(name="Event", search=event_search, options={"SKIP_SAVE"},
-                          description="Blank means all year. With a name such as halloween, it only shows during "
-                                      "that event")
+    event: event_property()
+    new_event: new_event_property()
 
     @classmethod
     def poll(cls, context):
-        o = context.active_object
-        return o is not None and o.type == "MESH" and not o.get(REFERENCE_TAG) and bool(repo_root(context))
+        return bool(repo_root(context))
 
     def invoke(self, context, event):
-        self.sprite_name = context.active_object.name
+        active = context.active_object
+        if active is not None and attachment_obj_poll(self, active):
+            self.mesh = active.name
         return context.window_manager.invoke_props_dialog(self)
 
     def draw(self, context):
         layout = self.layout
+        layout.prop(self, "mesh", icon="MESH_DATA")
         layout.prop(self, "sprite_name")
-        arm = active_armature(context)
+        obj = bpy.data.objects.get(self.mesh)
+        arm = body_rig(obj) if obj is not None else None
         group, base, _ = rig_registry(context, arm)
         if base is not None:
             layout.label(text=f"Unit on the {group} / {base} rig", icon="ARMATURE_DATA")
@@ -3504,8 +3549,9 @@ class RegisterModel(bpy.types.Operator):
             layout.prop(self, "kind")
         if arm is None and self.kind == "DECORATION":
             box = layout.box()
-            for prop in ("ground", "count", "event"):
+            for prop in ("ground", "count"):
                 box.prop(self, prop)
+            draw_event(box, self)
         elif arm is None and self.kind == "BUILDING":
             box = layout.box()
             box.label(text="Building stages (optional)")
@@ -3514,16 +3560,19 @@ class RegisterModel(bpy.types.Operator):
 
     def execute(self, context):
         root = repo_root(context)
-        obj = context.active_object
+        obj = bpy.data.objects.get(self.mesh)
+        if obj is None or not attachment_obj_poll(self, obj):
+            self.report({"ERROR"}, "Pick one of your own meshes")
+            return {"CANCELLED"}
         name = self.sprite_name.strip()
         if not re.fullmatch(r"[A-Za-z0-9_]+", name):
             self.report({"ERROR"}, "Give the model a name made of letters, digits and underscores")
             return {"CANCELLED"}
-        event = self.event.strip().lower()
-        if not valid_event(event):
+        event = chosen_event(self)
+        if event is None:
             self.report({"ERROR"}, "Name the event with letters, digits and underscores")
             return {"CANCELLED"}
-        arm = active_armature(context)
+        arm = body_rig(obj)
         group, base, _ = rig_registry(context, arm)
         if base is None:
             group = self.group
@@ -3611,6 +3660,7 @@ class RegisterModel(bpy.types.Operator):
 
 class VIEW3D_PT_tt_units(bpy.types.Panel):
     bl_label = "Models"
+    bl_order = 0
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Tribal Trouble"
@@ -3654,11 +3704,6 @@ def browsed_building(context):
 def building_props(body):
     return sorted((o for o in bpy.data.objects if o.parent == body and o.get("tt_slot") and not o.get("tt_detail")),
                   key=lambda o: o.name)
-
-
-def new_props(context, body):
-    picked = context.window_manager.tt_new_prop
-    return [picked] if picked is not None and picked != body and attachment_obj_poll(None, picked) else []
 
 
 def building_stage(sprite):
@@ -3750,7 +3795,7 @@ def sprite_blocks(text):
 def edit_event_textures(root, original, event, only, remove):
     """Give every model of every sprite that uses the original atlas a texture for this event (or take them away).
     The game picks a texture by its place in the list, shared by all detail levels, so each model of a sprite gets
-    one: <its texture>_<event> when that image is in the repo, its usual texture again when not. Returns the
+    one: <its texture>_<event> when that image is in the repo, its default texture again when not. Returns the
     sprites touched."""
     registry_path = os.path.join(root, REGISTRY_FILE)
     with open(registry_path, "rb") as f:
@@ -3804,8 +3849,8 @@ class NewEventTexture(bpy.types.Operator):
     bl_idname = "object.tt_new_event_texture"
     bl_label = "New Event Texture..."
     bl_options = {"REGISTER", "UNDO"}
-    event: StringProperty(name="Event", search=event_search, options={"SKIP_SAVE"},
-                          description="Such as halloween: pick one already used or type a new one")
+    event: event_property(optional=False)
+    new_event: new_event_property()
     scope: EnumProperty(name="For", items=(("ALL", "Every model sharing its texture", "Buildings share one atlas"),
                                            ("ONLY", "This model only", "Only the model on screen")))
 
@@ -3816,10 +3861,14 @@ class NewEventTexture(bpy.types.Operator):
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self)
 
+    def draw(self, context):
+        draw_event(self.layout, self)
+        self.layout.prop(self, "scope")
+
     def execute(self, context):
         body = browsed_building(context)
-        event = self.event.strip().lower()
-        if not event or not valid_event(event):
+        event = chosen_event(self)
+        if not event:
             self.report({"ERROR"}, "Name the event with letters, digits and underscores")
             return {"CANCELLED"}
         original = body["tt_texture"].split(",")[0].strip()
@@ -3853,7 +3902,7 @@ class ShowEventTexture(bpy.types.Operator):
         if mat is None:
             mat = get_atlas_material(self.texture, path)
             if mat.node_tree.nodes.get(TEAM_MIX) is None:
-                # The game keeps the usual team decal for an event texture.
+                # The game keeps the default team decal for an event texture.
                 original = body["tt_texture"].split(",")[0].strip()
                 add_team_nodes(mat, next(n for n in mat.node_tree.nodes if n.type == "TEX_IMAGE"),
                                models_texture_path(root, original))
@@ -3865,7 +3914,7 @@ class ShowEventTexture(bpy.types.Operator):
 
 class SaveEventTexture(bpy.types.Operator):
     """Write every event texture started or painted since loading into the repo and list it in geometry.xml for its
-    event. Models seen from far away keep their usual texture unless you also paint <their texture>_<event>.png"""
+    event. Models seen from far away keep their Default texture unless you also paint <their texture>_<event>.png"""
     bl_idname = "object.tt_save_event_texture"
     bl_label = "Publish Event Textures"
 
@@ -3921,7 +3970,7 @@ class RemoveEventTexture(bpy.types.Operator):
 
 
 class CancelEventTexture(bpy.types.Operator):
-    """Drop the event texture paint since the last publish and show the usual texture again. geometry.xml is not
+    """Drop the event texture paint since the last publish and show the Default texture again. geometry.xml is not
     touched"""
     bl_idname = "object.tt_cancel_event_texture"
     bl_label = "Cancel"
@@ -3944,10 +3993,61 @@ class CancelEventTexture(bpy.types.Operator):
         return bpy.ops.object.tt_show_event_texture(texture=original)
 
 
+def publish_props(op, context, fresh, event):
+    """Write the new props into the building's folder, drawn with the stage showing, and add them to geometry.xml.
+    Props already listed are written back to their own files, and the building's own meshes when they changed."""
+    body = browsed_building(context)
+    root = repo_root(context)
+    group, base = body["tt_group"], body["tt_sprite"]
+    existing = [o for o in building_props(body) if not o.hide_viewport and item_shown(o)]
+    findings = [(level, f"{o.name}: {text}") for o in fresh + existing
+                for level, text in check_mesh(o, o in fresh, 0)]
+    taken = {s["name"] for s in read_registry(root) if s["group"] == group}
+    findings += [("ERROR", f"{o.name}: {group} already has a sprite named {base}_{o.name}") for o in fresh
+                 if f"{base}_{o.name}" in taken]
+    folder = os.path.dirname(body["tt_source"])
+    paths = {o: o.get("tt_source") or os.path.join(folder, o.name + ".xml") for o in fresh + existing}
+    findings += [("ERROR", f"{name}: the building's folder already has a file with this name") for name in
+                 file_clashes([(o, paths[o]) for o in fresh])]
+    errors = store_findings(context, findings)
+    if errors:
+        op.report({"ERROR"}, f"Not published: {errors} problem(s): " +
+                  "; ".join(text for level, text in findings if level == "ERROR"))
+        return {"CANCELLED"}
+    geometry = os.path.join(root, GEOMETRY_DIR)
+    depsgraph = context.evaluated_depsgraph_get()
+    entries, missing = [], []
+    for o in fresh + existing:
+        path = paths[o]
+        texture = o.get("tt_texture", "").split(",")[0].strip() or material_image_name([o])
+        write_mesh_xml([o], [None], path, texture, False, depsgraph, use_groups=False)
+        if not ensure_texture_in_repo(root, o, texture):
+            missing.append(texture)
+        if o in existing:
+            continue
+        sprite = f"{base}_{o.name}"
+        model = os.path.relpath(path, geometry).replace(os.sep, "/")
+        entries.append((sprite, sprite_text([("name", sprite), ("base", base), ("slot", PROP_SLOT)] +
+                                            ([("event", event)] if event else []),
+                                            [(model, [(texture, team_attribute(root, texture, False))])])))
+        world = o.matrix_world.copy()
+        o.parent = body
+        o.matrix_world = world
+        o[BROWSER_TAG] = True
+        o["tt_slot"], o["tt_sprite"], o["tt_source"], o["tt_event"] = PROP_SLOT, sprite, path, event
+        o["tt_group"] = group
+        o["tt_texture"] = texture
+    append_registry_entries(os.path.join(root, REGISTRY_FILE), group, entries)
+    saved = write_changed(context, None, {o: o["tt_source"] for o in model_levels(body)})
+    note = f"; building mesh: {', '.join(os.path.basename(o['tt_source']) for o in saved)}" if saved else ""
+    note += f"; no texture image for {', '.join(sorted(set(missing)))}" if missing else ""
+    op.report({"WARNING"} if missing else {"INFO"},
+              f"Published {len(fresh)} new and {len(existing)} existing prop(s) on {group} / {base}{note}")
+    return {"FINISHED"}
+
+
 class SaveProps(bpy.types.Operator):
-    """Write the picked mesh into the building's folder as a prop drawn with this stage in game, and add it to
-    geometry.xml. Props already in the registry are written back to their own files, and the building's own
-    meshes when they changed. With an event named, the new prop only shows during that event"""
+    """Write the building's props back to their own files, and the building's own meshes when they changed"""
     bl_idname = "object.tt_save_props"
     bl_label = "Publish"
 
@@ -3956,66 +4056,58 @@ class SaveProps(bpy.types.Operator):
         return browsed_building(context) is not None and bool(repo_root(context))
 
     def execute(self, context):
-        body = browsed_building(context)
-        root = repo_root(context)
-        event = context.window_manager.tt_prop_event.strip().lower()
-        if not valid_event(event):
+        return publish_props(self, context, [], "")
+
+
+class NewProp(bpy.types.Operator):
+    """Publish one of your meshes as a prop of the building stage showing: it is written into the building's folder,
+    in place around the building as you arranged it, and added to geometry.xml"""
+    bl_idname = "object.tt_new_prop"
+    bl_label = "New Prop..."
+    mesh: StringProperty(name="Mesh", search=own_mesh_search, options={"SKIP_SAVE"},
+                         description="One of your own meshes in this scene")
+    event: event_property()
+    new_event: new_event_property()
+    make_texture: BoolProperty(name="Make a texture for it", default=True, options={"SKIP_SAVE"},
+                               description="Give the mesh a UV map and an image named after it to paint")
+
+    @classmethod
+    def poll(cls, context):
+        return browsed_building(context) is not None and bool(repo_root(context))
+
+    def invoke(self, context, event):
+        picked = next((o for o in context.selected_objects if attachment_obj_poll(self, o)), None)
+        if picked is not None:
+            self.mesh = picked.name
+        return context.window_manager.invoke_props_dialog(self)
+
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "mesh", icon="MESH_DATA")
+        building, stage = building_stage(browsed_building(context)["tt_sprite"])
+        layout.label(text=f"Attaches to: {building} ({stage})")
+        draw_event(layout, self)
+        obj = bpy.data.objects.get(self.mesh)
+        if obj is not None and obj.type == "MESH" and mesh_texture_image(obj) is None:
+            layout.prop(self, "make_texture")
+
+    def execute(self, context):
+        obj = bpy.data.objects.get(self.mesh)
+        if obj is None or not attachment_obj_poll(self, obj):
+            self.report({"ERROR"}, "Pick one of your own meshes")
+            return {"CANCELLED"}
+        event = chosen_event(self)
+        if event is None:
             self.report({"ERROR"}, "Name the event with letters, digits and underscores")
             return {"CANCELLED"}
-        group, base = body["tt_group"], body["tt_sprite"]
-        fresh = new_props(context, body)
-        existing = [o for o in building_props(body) if not o.hide_viewport and item_shown(o)]
-        findings = [(level, f"{o.name}: {text}") for o in fresh + existing
-                    for level, text in check_mesh(o, o in fresh, 0)]
-        taken = {s["name"] for s in read_registry(root) if s["group"] == group}
-        findings += [("ERROR", f"{o.name}: {group} already has a sprite named {base}_{o.name}") for o in fresh
-                     if f"{base}_{o.name}" in taken]
-        folder = os.path.dirname(body["tt_source"])
-        paths = {o: o.get("tt_source") or os.path.join(folder, o.name + ".xml") for o in fresh + existing}
-        findings += [("ERROR", f"{name}: the building's folder already has a file with this name") for name in
-                     file_clashes([(o, paths[o]) for o in fresh])]
-        errors = store_findings(context, findings)
-        if errors:
-            self.report({"ERROR"}, f"Not published: {errors} problem(s): " +
-                        "; ".join(text for level, text in findings if level == "ERROR"))
-            return {"CANCELLED"}
-        geometry = os.path.join(root, GEOMETRY_DIR)
-        depsgraph = context.evaluated_depsgraph_get()
-        entries, missing = [], []
-        for o in fresh + existing:
-            path = paths[o]
-            texture = o.get("tt_texture", "").split(",")[0].strip() or material_image_name([o])
-            write_mesh_xml([o], [None], path, texture, False, depsgraph, use_groups=False)
-            if not ensure_texture_in_repo(root, o, texture):
-                missing.append(texture)
-            if o in existing:
-                continue
-            sprite = f"{base}_{o.name}"
-            model = os.path.relpath(path, geometry).replace(os.sep, "/")
-            entries.append((sprite, sprite_text([("name", sprite), ("base", base), ("slot", PROP_SLOT)] +
-                                                ([("event", event)] if event else []),
-                                                [(model, [(texture, team_attribute(root, texture, False))])])))
-            world = o.matrix_world.copy()
-            o.parent = body
-            o.matrix_world = world
-            o[BROWSER_TAG] = True
-            o["tt_slot"], o["tt_sprite"], o["tt_source"], o["tt_event"] = PROP_SLOT, sprite, path, event
-            o["tt_group"] = group
-            o["tt_texture"] = texture
-        append_registry_entries(os.path.join(root, REGISTRY_FILE), group, entries)
-        if fresh:
-            context.window_manager.tt_new_prop = None
-            context.window_manager.tt_prop_event = ""
-        saved = write_changed(context, None, {o: o["tt_source"] for o in model_levels(body)})
-        note = f"; building mesh: {', '.join(os.path.basename(o['tt_source']) for o in saved)}" if saved else ""
-        note += f"; no texture image for {', '.join(sorted(set(missing)))}" if missing else ""
-        self.report({"WARNING"} if missing else {"INFO"},
-                    f"Published {len(fresh)} new and {len(existing)} existing prop(s) on {group} / {base}{note}")
-        return {"FINISHED"}
+        if self.make_texture and mesh_texture_image(obj) is None:
+            bpy.ops.object.tt_make_texture(target=obj.name)
+        return publish_props(self, context, [obj], event)
 
 
 class VIEW3D_PT_tt_building(bpy.types.Panel):
     bl_label = "Building"
+    bl_order = 2
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Tribal Trouble"
@@ -4034,12 +4126,11 @@ class VIEW3D_PT_tt_building(bpy.types.Panel):
         original = body["tt_texture"].split(",")[0].strip()
         box = layout.box()
         box.label(text="Texture")
-        box.label(text="Seasonal paint everyone sees while the event is on")
         entry = body_entry(context, body)
         shown = mesh_texture_image(body)
         shown = image_texture_name(shown) if shown is not None else ""
         col = box.column(align=True)
-        col.operator(ShowEventTexture.bl_idname, text="usual", depress=shown == original).texture = original
+        col.operator(ShowEventTexture.bl_idname, text="Default", depress=shown == original).texture = original
         unsaved = unsaved_events(body, entry)
         for event, texture in building_events(body, entry):
             row = col.row(align=True)
@@ -4057,23 +4148,9 @@ class VIEW3D_PT_tt_building(bpy.types.Panel):
             box.operator(NewEventTexture.bl_idname, icon="BRUSH_DATA")
         box = layout.box()
         box.label(text="Props on this building")
-        box.label(text="Meshes placed around this building, drawn with it at this stage")
         if building_props(body):
             box.template_list("TT_UL_props", "", bpy.data, "objects", wm, "tt_prop_index", rows=3, maxrows=8)
-        else:
-            box.label(text="None yet: add one below", icon="INFO")
-        add = box.box()
-        add.label(text="Add a new prop", icon="ADD")
-        add.prop(wm, "tt_new_prop", text="Mesh")
-        building, stage = building_stage(body["tt_sprite"])
-        add.label(text=f"Attaches to: {building} ({stage})")
-        add.prop(wm, "tt_prop_event", text="Event")
-        if not valid_event(wm.tt_prop_event.strip().lower()):
-            add.label(text="Letters, digits and underscores only", icon="ERROR")
-        if wm.tt_new_prop is not None and mesh_texture_image(wm.tt_new_prop) is None:
-            row = add.row()
-            row.alert = True
-            row.operator(MakeTexture.bl_idname, icon="TEXTURE").target = wm.tt_new_prop.name
+        box.operator(NewProp.bl_idname, icon="ADD")
         row = box.row()
         row.scale_y = 1.4
         row.operator(SaveProps.bl_idname, icon="EXPORT")
@@ -4483,6 +4560,7 @@ def draw_skin_banner(layout, target, entry):
 
 class VIEW3D_PT_tt_skins(bpy.types.Panel):
     bl_label = "Skins"
+    bl_order = 1
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Tribal Trouble"
@@ -4676,7 +4754,7 @@ def menu_object(self, context):
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
            TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, PickUnit, AddToScene, RemoveAdded, ShowItem, ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
            RemoveFromRegistry, UpdateAddon, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
-           CancelEventTexture, SaveProps, TT_UL_props, ShowSkin, NewSkin, CancelSkin, SaveSkin, CloseItem, NewClip, SaveClip, DeleteClip,
+           CancelEventTexture, SaveProps, NewProp, TT_UL_props, ShowSkin, NewSkin, CancelSkin, SaveSkin, CloseItem, NewClip, SaveClip, DeleteClip,
            SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, NewItem, OwnTexture, PutOnBone, PaintItem, DonePainting,
            TT_UL_items, VIEW3D_PT_tt_units, VIEW3D_PT_tt_skins, VIEW3D_PT_tt_building,
            VIEW3D_PT_tt_preview,
@@ -4706,11 +4784,6 @@ def register():
     wm.tt_open_item = StringProperty()
     wm.tt_item_search = StringProperty(name="Search", options={"TEXTEDIT_UPDATE"},
                                        description="Show only the items whose name contains this")
-    wm.tt_new_prop = PointerProperty(type=bpy.types.Object, name="Mesh", poll=attachment_obj_poll,
-                                     description="Your mesh to publish as a prop of the building stage showing")
-    wm.tt_prop_event = StringProperty(name="Event", search=event_search,
-                                      description="Blank means all year. With a name such as halloween, the new "
-                                                  "prop only shows during that event")
     wm.tt_prop_index = IntProperty()
     bpy.app.handlers.load_post.append(refresh_units_on_load)
     bpy.app.timers.register(refresh_units_on_load, first_interval=0.5)
@@ -4733,7 +4806,7 @@ def unregister():
     del bpy.types.Object.tt_attachments
     for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_category", "tt_checks",
                  "tt_checked", "tt_team_preview", "tt_team_color",
-                 "tt_item_index", "tt_detail", "tt_item_search", "tt_new_prop", "tt_prop_event",
+                 "tt_item_index", "tt_detail", "tt_item_search",
                  "tt_prop_index", "tt_open_item"):
         delattr(bpy.types.WindowManager, name)
     for cls in classes:
