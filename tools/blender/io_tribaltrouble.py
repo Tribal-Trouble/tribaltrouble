@@ -25,6 +25,7 @@ and also check it on export.
 """
 
 import hashlib
+import json
 import os
 import re
 import shutil
@@ -41,7 +42,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 36, 2),
+    "version": (1, 37, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -2489,16 +2490,17 @@ class NewItem(bpy.types.Operator):
         picked = next((o for o in context.selected_objects if attachment_obj_poll(self, o)), None)
         if picked is not None:
             self.mesh = picked.name
-        return context.window_manager.invoke_props_dialog(self)
+        return open_form(self, context)
 
     def draw(self, context):
-        layout = self.layout
+        layout = form_title(self)
         layout.prop(self, "point")
         layout.prop(self, "mesh", icon="MESH_DATA")
         layout.prop(self, "snap", text=f"Snap to {POINT_LABELS.get(self.point, self.point).lower()}")
         obj = bpy.data.objects.get(self.mesh)
         if obj is not None and obj.type == "MESH" and mesh_texture_image(obj) is None:
             layout.prop(self, "make_texture")
+        draw_confirm(layout, self, mesh_problem(self.mesh))
 
     def execute(self, context):
         arm = active_armature(context)
@@ -2637,49 +2639,130 @@ class OwnTexture(bpy.types.Operator):
         return {"FINISHED"}
 
 
+_new_events = []  # made with New Event this session; geometry.xml names an event only once something uses it
+
+
 def known_events(context, edit_text=""):
-    """Every event geometry.xml already names, for the event fields to offer."""
+    """Every event geometry.xml already names, and those made with New Event, for the event fields to offer."""
     root = repo_root(context)
     registry = read_registry(root) if root else []
     events = {s["event"] for s in registry} | {e for s in registry for level in s["textures"] for _, e in level}
-    return sorted(e for e in events if e and edit_text.strip().lower() in e)
+    return sorted(e for e in events | set(_new_events) if e and edit_text.strip().lower() in e)
 
 
-NO_EVENT, NEW_EVENT = "ALL_YEAR", "NEW_EVENT"
+NO_EVENT = "ALL_YEAR"
 _event_items = {True: [], False: []}
 
 
 def event_items(context, optional):
-    """The Event dropdown: All year where an event is optional, every event geometry.xml names, then New event..."""
+    """The Event dropdown: All year where an event is optional, then every known event."""
     items = _event_items[optional]
-    items[:] = ([(NO_EVENT, "All year", "No event: shows all year")] if optional else []) +                [(e, e, f"Only during {e}") for e in known_events(context)] +                [(NEW_EVENT, "New event...", "Type the name of an event geometry.xml does not use yet")]
+    items[:] = (([(NO_EVENT, "All year", "No event: shows all year")] if optional else []) +
+                [(e, e, f"Only during {e}") for e in known_events(context)])
     return items
 
 
 def event_property(optional=True):
     return EnumProperty(name="Event", items=lambda self, context: event_items(context, optional),
-                        options={"SKIP_SAVE"}, description="Pick an event, or New event... to name one")
-
-
-def new_event_property():
-    return StringProperty(name="Name", options={"SKIP_SAVE"},
-                          description="Such as halloween: letters, digits and underscores")
+                        options={"SKIP_SAVE"}, description="Pick an event, or + to name a new one")
 
 
 def chosen_event(op):
-    """The event an operator's form picked: '' for all year, None when a new name is not valid."""
-    if op.event == NEW_EVENT:
-        event = op.new_event.strip().lower()
-        return event if event and valid_event(event) else None
+    """The event an operator's form picked: '' for all year."""
     return "" if op.event == NO_EVENT else op.event
 
 
+def form_values(op):
+    return {key: getattr(op, key) for key in op.properties.bl_rna.properties.keys() if key != "rna_type"}
+
+
 def draw_event(layout, op):
-    layout.prop(op, "event")
-    if op.event == NEW_EVENT:
-        layout.prop(op, "new_event")
-        if op.new_event.strip() and chosen_event(op) is None:
-            layout.label(text="Letters, digits and underscores only", icon="ERROR")
+    row = layout.row(align=True)
+    row.prop(op, "event")
+    plus = row.row(align=True)
+    plus.operator_context = "INVOKE_DEFAULT"
+    plus.ui_units_x = 1.5
+    # A confirm button closes the form, which New Event reopens with these values.
+    new = plus.template_popup_confirm(NewEvent.bl_idname, text=" ", icon="ADD", cancel_text="")
+    if new is not None:
+        new.form, new.values = op.bl_idname, json.dumps(form_values(op))
+
+
+_reopen = {}  # form bl_idname: the values New Event hands back to the form it closed
+
+
+def open_form(op, context):
+    """Show op's form as a popup, drawn with form_title and draw_confirm; a form New Event closed gets its values
+    back."""
+    for key, value in _reopen.pop(op.bl_idname, {}).items():
+        setattr(op, key, value)
+    return context.window_manager.invoke_popup(op)
+
+
+def form_title(op):
+    op.layout.label(text=op.bl_label.rstrip("."))
+    return op.layout
+
+
+def draw_confirm(layout, op, problem=None):
+    """OK and Cancel for a form opened with open_form. OK stays greyed while problem is not None; a problem that is
+    not blank is shown above them."""
+    if problem:
+        layout.label(text=problem, icon="ERROR")
+    row = layout.row()
+    row.operator_context = "EXEC_DEFAULT"
+    ok = row.row()
+    ok.enabled = problem is None
+    props = ok.template_popup_confirm(op.bl_idname, text="OK", cancel_text="")
+    if props is not None:
+        for key, value in form_values(op).items():
+            setattr(props, key, value)
+    row.row().template_popup_confirm("", text="", cancel_text="Cancel")
+
+
+def mesh_problem(name):
+    """Why a Mesh field cannot be used: blank when nothing is picked, None when it names one of your own meshes."""
+    obj = bpy.data.objects.get(name.strip())
+    if obj is not None and attachment_obj_poll(None, obj):
+        return None
+    return "Pick one of your own meshes" if name.strip() else ""
+
+
+def name_problem(name):
+    if re.fullmatch(r"[A-Za-z0-9_]+", name.strip()):
+        return None
+    return "Letters, digits and underscores only" if name.strip() else ""
+
+
+class NewEvent(bpy.types.Operator):
+    """Name an event geometry.xml does not use yet and pick it in the form"""
+    bl_idname = "object.tt_new_event"
+    bl_label = "New Event"
+    event_name: StringProperty(name="Name", options={"SKIP_SAVE"},
+                               description="Such as halloween: letters, digits and underscores")
+    form: StringProperty(options={"SKIP_SAVE", "HIDDEN"})
+    values: StringProperty(options={"SKIP_SAVE", "HIDDEN"})
+
+    def invoke(self, context, event):
+        return open_form(self, context)
+
+    def draw(self, context):
+        layout = form_title(self)
+        layout.prop(self, "event_name")
+        draw_confirm(layout, self, name_problem(self.event_name))
+
+    def execute(self, context):
+        event = self.event_name.strip().lower()
+        if not event or not valid_event(event):
+            self.report({"ERROR"}, "Name the event with letters, digits and underscores")
+            return {"CANCELLED"}
+        if event not in _new_events:
+            _new_events.append(event)
+        if self.form and context.window is not None:
+            _reopen[self.form] = {**json.loads(self.values or "{}"), "event": event}
+            module, _, name = self.form.partition(".")
+            getattr(getattr(bpy.ops, module), name)("INVOKE_DEFAULT")
+        return {"FINISHED"}
 
 
 class SaveItems(bpy.types.Operator):
@@ -2689,7 +2772,6 @@ class SaveItems(bpy.types.Operator):
     bl_idname = "object.tt_save_items"
     bl_label = "Publish"
     event: event_property()
-    new_event: new_event_property()
     on_by_default: BoolProperty(name="On by default", options={"SKIP_SAVE"},
                                 description="Every unit wears the new items without a player choosing them")
 
@@ -2703,18 +2785,17 @@ class SaveItems(bpy.types.Operator):
     def invoke(self, context, event):
         # Only new items take an event; existing ones keep their attributes and need no form.
         if any(x.obj is not None and x.visible for x in active_armature(context).tt_attachments):
-            return context.window_manager.invoke_props_dialog(self)
+            return open_form(self, context)
         return self.execute(context)
 
     def draw(self, context):
-        draw_event(self.layout, self)
-        self.layout.prop(self, "on_by_default")
+        layout = form_title(self)
+        draw_event(layout, self)
+        layout.prop(self, "on_by_default")
+        draw_confirm(layout, self)
 
     def execute(self, context):
         event = chosen_event(self)
-        if event is None:
-            self.report({"ERROR"}, "Name the event with letters, digits and underscores")
-            return {"CANCELLED"}
         arm = active_armature(context)
         group, base = find_base_sprite(arm["tt_skeleton"])
         if base is None:
@@ -3214,7 +3295,13 @@ class NewClip(bpy.types.Operator):
         return active_armature(context) is not None
 
     def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self)
+        return open_form(self, context)
+
+    def draw(self, context):
+        layout = form_title(self)
+        for prop in ("clip_name", "start", "length"):
+            layout.prop(self, prop)
+        draw_confirm(layout, self, name_problem(self.clip_name))
 
     def execute(self, context):
         arm = active_armature(context)
@@ -3278,7 +3365,13 @@ class SaveClip(bpy.types.Operator):
         for name, (wpc, kind, path) in (rig["clip_info"].items() if rig else []):
             if file_name and os.path.basename(path) == file_name:
                 self.clip_name, self.kind, self.wpc = name, kind, float(wpc)
-        return context.window_manager.invoke_props_dialog(self)
+        return open_form(self, context)
+
+    def draw(self, context):
+        layout = form_title(self)
+        for prop in ("clip_name", "kind", "wpc"):
+            layout.prop(self, prop)
+        draw_confirm(layout, self, name_problem(self.clip_name))
 
     def execute(self, context):
         arm = active_armature(context)
@@ -3521,7 +3614,6 @@ class RegisterModel(bpy.types.Operator):
     ground: EnumProperty(name="Terrain", items=DECORATION_GROUNDS, description="Ground the game scatters it on")
     count: IntProperty(name="Count", default=20, min=1, description="How many the game scatters over a map")
     event: event_property()
-    new_event: new_event_property()
 
     @classmethod
     def poll(cls, context):
@@ -3531,10 +3623,10 @@ class RegisterModel(bpy.types.Operator):
         active = context.active_object
         if active is not None and attachment_obj_poll(self, active):
             self.mesh = active.name
-        return context.window_manager.invoke_props_dialog(self)
+        return open_form(self, context)
 
     def draw(self, context):
-        layout = self.layout
+        layout = form_title(self)
         layout.prop(self, "mesh", icon="MESH_DATA")
         layout.prop(self, "sprite_name")
         obj = bpy.data.objects.get(self.mesh)
@@ -3559,6 +3651,8 @@ class RegisterModel(bpy.types.Operator):
             box.label(text="Building stages (optional)")
             for prop in ("half_built", "half_built_low", "start", "start_low"):
                 box.prop_search(self, prop, bpy.data, "objects")
+        problem = mesh_problem(self.mesh)
+        draw_confirm(layout, self, name_problem(self.sprite_name) if problem is None else problem)
 
     def execute(self, context):
         root = repo_root(context)
@@ -3571,9 +3665,6 @@ class RegisterModel(bpy.types.Operator):
             self.report({"ERROR"}, "Give the model a name made of letters, digits and underscores")
             return {"CANCELLED"}
         event = chosen_event(self)
-        if event is None:
-            self.report({"ERROR"}, "Name the event with letters, digits and underscores")
-            return {"CANCELLED"}
         arm = body_rig(obj)
         group, base, _ = rig_registry(context, arm)
         if base is None:
@@ -3852,7 +3943,6 @@ class NewEventTexture(bpy.types.Operator):
     bl_label = "New Event Texture..."
     bl_options = {"REGISTER", "UNDO"}
     event: event_property(optional=False)
-    new_event: new_event_property()
     scope: EnumProperty(name="For", items=(("ALL", "Every model sharing its texture", "Buildings share one atlas"),
                                            ("ONLY", "This model only", "Only the model on screen")))
 
@@ -3861,17 +3951,19 @@ class NewEventTexture(bpy.types.Operator):
         return browsed_building(context) is not None and bool(repo_root(context))
 
     def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self)
+        return open_form(self, context)
 
     def draw(self, context):
-        draw_event(self.layout, self)
-        self.layout.prop(self, "scope")
+        layout = form_title(self)
+        draw_event(layout, self)
+        layout.prop(self, "scope")
+        draw_confirm(layout, self, None if chosen_event(self) else "")
 
     def execute(self, context):
         body = browsed_building(context)
         event = chosen_event(self)
         if not event:
-            self.report({"ERROR"}, "Name the event with letters, digits and underscores")
+            self.report({"ERROR"}, "Pick an event, or + to name a new one")
             return {"CANCELLED"}
         original = body["tt_texture"].split(",")[0].strip()
         variant = f"{original}_{event}"
@@ -4069,7 +4161,6 @@ class NewProp(bpy.types.Operator):
     mesh: StringProperty(name="Mesh", search=own_mesh_search, options={"SKIP_SAVE"},
                          description="One of your own meshes in this scene")
     event: event_property()
-    new_event: new_event_property()
     make_texture: BoolProperty(name="Make a texture for it", default=True, options={"SKIP_SAVE"},
                                description="Give the mesh a UV map and an image named after it to paint")
 
@@ -4081,10 +4172,10 @@ class NewProp(bpy.types.Operator):
         picked = next((o for o in context.selected_objects if attachment_obj_poll(self, o)), None)
         if picked is not None:
             self.mesh = picked.name
-        return context.window_manager.invoke_props_dialog(self)
+        return open_form(self, context)
 
     def draw(self, context):
-        layout = self.layout
+        layout = form_title(self)
         layout.prop(self, "mesh", icon="MESH_DATA")
         building, stage = building_stage(browsed_building(context)["tt_sprite"])
         layout.label(text=f"Attaches to: {building} ({stage})")
@@ -4092,6 +4183,7 @@ class NewProp(bpy.types.Operator):
         obj = bpy.data.objects.get(self.mesh)
         if obj is not None and obj.type == "MESH" and mesh_texture_image(obj) is None:
             layout.prop(self, "make_texture")
+        draw_confirm(layout, self, mesh_problem(self.mesh))
 
     def execute(self, context):
         obj = bpy.data.objects.get(self.mesh)
@@ -4099,9 +4191,6 @@ class NewProp(bpy.types.Operator):
             self.report({"ERROR"}, "Pick one of your own meshes")
             return {"CANCELLED"}
         event = chosen_event(self)
-        if event is None:
-            self.report({"ERROR"}, "Name the event with letters, digits and underscores")
-            return {"CANCELLED"}
         if self.make_texture and mesh_texture_image(obj) is None:
             bpy.ops.object.tt_make_texture(target=obj.name)
         return publish_props(self, context, [obj], event)
@@ -4354,21 +4443,23 @@ class NewSkin(bpy.types.Operator):
         return skin_body(context)[0] is not None
 
     def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self)
+        return open_form(self, context)
 
     def draw(self, context):
-        layout = self.layout
+        layout = form_title(self)
         layout.prop(self, "skin_name")
-        if not self.item:
-            return
-        layout.prop(self, "mesh", icon="MESH_DATA")
-        mesh, target = bpy.data.objects.get(self.mesh), bpy.data.objects.get(self.item)
-        if mesh is None or target is None or body_rig(target) is None:
-            return
-        point = item_point(body_rig(target), target.get("tt_bone"))
-        layout.prop(self, "snap", text=f"Snap to {POINT_LABELS.get(point, target.get('tt_bone', '')).lower()}")
-        if mesh.type == "MESH" and mesh_texture_image(mesh) is None:
-            layout.prop(self, "make_texture")
+        problem = name_problem(self.skin_name)
+        if self.item:
+            layout.prop(self, "mesh", icon="MESH_DATA")
+            if self.mesh.strip() and problem is None:
+                problem = mesh_problem(self.mesh)
+            mesh, target = bpy.data.objects.get(self.mesh), bpy.data.objects.get(self.item)
+            if mesh is not None and target is not None and body_rig(target) is not None:
+                point = item_point(body_rig(target), target.get("tt_bone"))
+                layout.prop(self, "snap", text=f"Snap to {POINT_LABELS.get(point, target.get('tt_bone', '')).lower()}")
+                if mesh.type == "MESH" and mesh_texture_image(mesh) is None:
+                    layout.prop(self, "make_texture")
+        draw_confirm(layout, self, problem)
 
     def execute(self, context):
         target, entry = skin_item(context, self.item) if self.item else skin_body(context)
@@ -4756,7 +4847,7 @@ def menu_object(self, context):
 
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
            TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, PickUnit, AddToScene, RemoveAdded, ShowItem, ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
-           RemoveFromRegistry, UpdateAddon, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
+           RemoveFromRegistry, UpdateAddon, NewEvent, NewEventTexture, ShowEventTexture, SaveEventTexture, RemoveEventTexture,
            CancelEventTexture, SaveProps, NewProp, TT_UL_props, ShowSkin, NewSkin, CancelSkin, SaveSkin, CloseItem, NewClip, SaveClip, DeleteClip,
            SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, NewItem, OwnTexture, PutOnBone, PaintItem, DonePainting,
            TT_UL_items, VIEW3D_PT_tt_units, VIEW3D_PT_tt_skins, VIEW3D_PT_tt_building,

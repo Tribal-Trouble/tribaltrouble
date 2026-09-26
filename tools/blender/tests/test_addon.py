@@ -387,17 +387,15 @@ def register_a_map_decoration_with_terrain_count_and_event():
     patch = fixture_mesh("pumpkin_patch", fixture_image("test_patch_tex"), 0, "cube")
     stage = fixture_mesh("patch_stage", fixture_image("test_patch_stage"), 3, "cube")
     select_only(patch)
+    assert bpy.ops.object.tt_new_event(event_name=" Halloween") == {"FINISHED"}
     assert bpy.ops.object.tt_register_model(mesh=patch.name, sprite_name="test_patch", group="misc", kind="DECORATION",
-                                            ground="grass", count=12, event="NEW_EVENT", new_event=" Halloween",
+                                            ground="grass", count=12, event="halloween",
                                             half_built=stage.name) == {"FINISHED"}
     text = open(registry_path, encoding="utf-8").read()
     assert '<sprite name="test_patch" decoration="grass" count="12" event="halloween">' in text
     assert entry("misc", "test_patch")["models"] == ["misc/test_patch/test_patch.xml"]
     assert entry("misc", "test_patch_halfbuilt") is None, "a decoration has no building stages"
-    select_only(patch)
-    expect_error(lambda: bpy.ops.object.tt_register_model(mesh=patch.name, sprite_name="test_patch2", group="misc",
-                                                          kind="DECORATION", event="NEW_EVENT", new_event="bad name"),
-                 "letters")
+    expect_error(lambda: bpy.ops.object.tt_new_event(event_name="bad name"), "letters")
     wm.tt_category = "DECORATIONS"
     assert [u.name for u in wm.tt_units] == ["misc / test_patch"], [u.name for u in wm.tt_units]
     wm.tt_category = "UNITS"
@@ -535,16 +533,14 @@ def one_press_saves_a_new_item_and_turns_it_into_a_button():
 def a_new_item_can_belong_to_an_event_and_be_on_by_default():
     load("natives", "peon")
     put_on_head(fixture_mesh("test_pumpkin_hat", fixture_image("test_pumpkin_hat_tex")))
-    assert bpy.ops.object.tt_save_items(event="NEW_EVENT", new_event="halloween", on_by_default=True) == {"FINISHED"}
+    assert bpy.ops.object.tt_new_event(event_name="halloween") == {"FINISHED"}
+    assert bpy.ops.object.tt_save_items(event="halloween", on_by_default=True) == {"FINISHED"}
     put_on_head(fixture_mesh("test_plain_hat", fixture_image("test_plain_hat_tex")))
     assert bpy.ops.object.tt_save_items() == {"FINISHED"}
     text = open(registry_path, encoding="utf-8").read()
     assert '<sprite name="peon_test_pumpkin_hat" base="peon" slot="hat" event="halloween" default="true">' in text
     assert '<sprite name="peon_test_plain_hat" base="peon" slot="hat">' in text
     assert not entry("natives", "peon_test_plain_hat")["default"] and entry("natives", "peon_test_plain_hat")["event"] == ""
-    put_on_head(fixture_mesh("test_odd_hat", fixture_image("test_odd_hat_tex")))
-    expect_error(lambda: bpy.ops.object.tt_save_items(event="NEW_EVENT", new_event="bad name"), "letters")
-    assert entry("natives", "peon_test_odd_hat") is None
 
 
 @test
@@ -827,7 +823,9 @@ def a_unit_on_a_borrowed_rig_cannot_change_the_clips():
 
 
 def publish_prop(obj, event="", make_texture=True):
-    return bpy.ops.object.tt_new_prop(mesh=obj.name, event="NEW_EVENT" if event else "ALL_YEAR", new_event=event,
+    if event:
+        assert bpy.ops.object.tt_new_event(event_name=event) == {"FINISHED"}
+    return bpy.ops.object.tt_new_prop(mesh=obj.name, event=event.strip().lower() or "ALL_YEAR",
                                       make_texture=make_texture)
 
 
@@ -890,9 +888,9 @@ def event_texture_is_a_copy_listed_on_every_model_that_shares_the_atlas():
     body = load_building("vikings", "quarters")
     before = open(os.path.join(MODELS, "viking_buildings_hi.png"), "rb").read()
     assert not bpy.ops.object.tt_save_event_texture.poll(), "nothing was started yet"
-    expect_error(lambda: bpy.ops.object.tt_new_event_texture(event="NEW_EVENT", new_event="Hallo ween"),
-                 "letters, digits")
-    assert bpy.ops.object.tt_new_event_texture(event="NEW_EVENT", new_event="halloween", scope="ALL") == {"FINISHED"}
+    expect_error(lambda: bpy.ops.object.tt_new_event(event_name="Hallo ween"), "letters, digits")
+    assert bpy.ops.object.tt_new_event(event_name="halloween") == {"FINISHED"}
+    assert bpy.ops.object.tt_new_event_texture(event="halloween", scope="ALL") == {"FINISHED"}
     assert bpy.context.mode == "PAINT_TEXTURE", "the dialog's OK did not start painting"
     image = addon.mesh_texture_image(body)
     assert image.name.startswith("viking_buildings_hi_halloween"), image.name
@@ -925,7 +923,8 @@ def event_texture_is_a_copy_listed_on_every_model_that_shares_the_atlas():
 @test
 def event_texture_for_one_model_only():
     load_building("vikings", "quarters")
-    assert bpy.ops.object.tt_new_event_texture(event="NEW_EVENT", new_event="winter", scope="ONLY") == {"FINISHED"}
+    assert bpy.ops.object.tt_new_event(event_name="winter") == {"FINISHED"}
+    assert bpy.ops.object.tt_new_event_texture(event="winter", scope="ONLY") == {"FINISHED"}
     assert bpy.ops.object.tt_save_event_texture() == {"FINISHED"}
     assert entry("vikings", "quarters")["textures"][0][-1] == ("viking_buildings_hi_winter", "winter")
     assert all(event == "" for _, event in entry("vikings", "armory")["textures"][0])
@@ -936,7 +935,8 @@ def the_event_texture_banner_cancels_unsaved_paint_and_writes_nothing():
     body = load_building("vikings", "quarters")
     registry_before = open(registry_path, "rb").read()
     assert not bpy.ops.object.tt_cancel_event_texture.poll(), "nothing to cancel yet"
-    assert bpy.ops.object.tt_new_event_texture(event="NEW_EVENT", new_event="spring", scope="ALL") == {"FINISHED"}
+    assert bpy.ops.object.tt_new_event(event_name="spring") == {"FINISHED"}
+    assert bpy.ops.object.tt_new_event_texture(event="spring", scope="ALL") == {"FINISHED"}
     assert list(addon.unsaved_events(body, entry("vikings", "quarters"))) == ["spring"]
     addon.mesh_texture_image(body).pixels[0] = 0.25
     assert bpy.ops.object.tt_cancel_event_texture() == {"FINISHED"}
@@ -1745,6 +1745,10 @@ class Recorder:
     def __getattr__(self, name):
         return lambda *args, **kwargs: Recorder(self.log)
 
+    def template_popup_confirm(self, idname, text=None, **kwargs):
+        self.log.append(("confirm", idname, text, self.__dict__.get("enabled", True)))
+        return types.SimpleNamespace()
+
     def operator(self, idname, **kwargs):
         self.log.append((idname, kwargs.get("text")))
         return types.SimpleNamespace()
@@ -1791,17 +1795,50 @@ def a_skin_preview_from_texture_paint_shows_straight_away():
 
 
 @test
-def the_event_dropdown_offers_registry_events_and_a_new_one():
+def the_event_dropdown_offers_registry_events_and_new_ones():
     registry_events = addon.known_events(bpy.context)
-    assert "halloween" in registry_events, registry_events
+    assert "halloween" in registry_events and "easter_2" not in registry_events, registry_events
     optional = [i[0] for i in addon.event_items(bpy.context, True)]
-    assert optional[0] == "ALL_YEAR" and optional[-1] == "NEW_EVENT" and optional[1:-1] == registry_events, optional
+    assert optional[0] == "ALL_YEAR" and optional[1:] == registry_events, optional
     required = [i[0] for i in addon.event_items(bpy.context, False)]
-    assert "ALL_YEAR" not in required and required[-1] == "NEW_EVENT", required
-    assert addon.chosen_event(types.SimpleNamespace(event="NEW_EVENT", new_event=" Easter_2 ")) == "easter_2"
-    assert addon.chosen_event(types.SimpleNamespace(event="NEW_EVENT", new_event="bad name")) is None
-    assert addon.chosen_event(types.SimpleNamespace(event="ALL_YEAR", new_event="x")) == ""
-    assert addon.chosen_event(types.SimpleNamespace(event="halloween", new_event="")) == "halloween"
+    assert required == registry_events, required
+    assert addon.chosen_event(types.SimpleNamespace(event="ALL_YEAR")) == ""
+    assert addon.chosen_event(types.SimpleNamespace(event="halloween")) == "halloween"
+    assert bpy.ops.object.tt_new_event(event_name=" Easter_2 ") == {"FINISHED"}
+    assert "easter_2" in [i[0] for i in addon.event_items(bpy.context, False)]
+
+
+@test
+def new_event_reopens_its_form_with_the_values_it_had_and_the_new_event_picked():
+    addon._reopen["object.tt_new_prop"] = {"mesh": "test_fence", "event": "midsummer", "make_texture": False}
+    form = types.SimpleNamespace(bl_idname="object.tt_new_prop", mesh="", event="ALL_YEAR", make_texture=True)
+    popped = []
+    context = types.SimpleNamespace(window_manager=types.SimpleNamespace(invoke_popup=popped.append))
+    addon.open_form(form, context)
+    assert popped == [form] and (form.mesh, form.event, form.make_texture) == ("test_fence", "midsummer", False)
+    assert not addon._reopen
+
+
+@test
+def a_form_greys_out_ok_until_it_is_valid():
+    load_building("vikings", "quarters_start")
+    fence = fixture_mesh("test_form_fence", fixture_image("test_form_fence_tex"), z=1.0, kind="cube")
+
+    def form(mesh):
+        layout = Recorder()
+        addon.NewProp.draw(types.SimpleNamespace(layout=layout, mesh=mesh, event="ALL_YEAR", make_texture=True,
+                                                 bl_idname=addon.NewProp.bl_idname, bl_label=addon.NewProp.bl_label,
+                                                 properties=types.SimpleNamespace(
+                                                     bl_rna=bpy.ops.object.tt_new_prop.get_rna_type())), bpy.context)
+        return layout.log
+
+    blank, typo, picked = form(""), form("no_such_mesh"), form(fence.name)
+    assert ("confirm", "object.tt_new_prop", "OK", False) in blank, blank
+    assert not [entry for entry in blank if entry[0] == "label" and "Pick" in entry[1]], "an obvious gap was explained"
+    assert ("confirm", "object.tt_new_prop", "OK", False) in typo and ("label", "Pick one of your own meshes") in typo
+    assert ("confirm", "object.tt_new_prop", "OK", True) in picked, picked
+    assert ("confirm", "object.tt_new_event", " ", True) in picked, "no + next to the event"
+    bpy.data.objects.remove(fence)
 
 
 @test
