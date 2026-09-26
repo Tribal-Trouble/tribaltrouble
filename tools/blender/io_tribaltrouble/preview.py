@@ -9,7 +9,8 @@ from bpy.props import StringProperty, EnumProperty, FloatProperty, IntProperty
 from .textures import apply_team_preview, get_atlas_material, models_texture_path, short_labels
 from .mesh_io import active_armature, armature_actions, assign_action, clip_short_name, item_hidden_here, shown_bones
 from .registry import GEOMETRY_DIR, read_registry, REGISTRY_FILE, repo_root, rig_registry, set_clip_line
-from .scene import browsed_unit, has_low_detail, unit_meshes
+from .scene import has_low_detail, unit_meshes
+from .publish import borrowed_rig_problem
 from .forms import draw_confirm, form_title, name_problem, open_form
 
 
@@ -178,10 +179,9 @@ class DeleteClip(bpy.types.Operator):
                       if action.get("tt_clip") and os.path.basename(path) == action["tt_clip"]), None)
         label = clip_short_name(arm, action)
         if saved is not None:
-            body = browsed_unit(arm)
-            if body is not None and body["tt_sprite"] != base:
-                self.report({"ERROR"}, f"{body['tt_sprite']} borrows the {base} rig and its clips: load {base} to "
-                                       f"change them")
+            borrowed = borrowed_rig_problem(arm, base)
+            if borrowed is not None:
+                self.report({"ERROR"}, borrowed)
                 return {"CANCELLED"}
             if list(rig["clip_info"])[-1] != saved:
                 self.report({"ERROR"}, f"Only the last clip ({list(rig['clip_info'])[-1]}) can be deleted: the game "

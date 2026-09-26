@@ -174,6 +174,14 @@ def store_findings(context, findings):
     return sum(1 for level, _ in findings if level == "ERROR")
 
 
+def borrowed_rig_problem(arm, base):
+    """Why the loaded unit cannot change the clips of the base rig it borrows, or None."""
+    body = browsed_unit(arm)
+    if body is not None and body["tt_sprite"] != base:
+        return f"{body['tt_sprite']} borrows the {base} rig and its clips: load {base} to change them"
+    return None
+
+
 def publish_clip(context, arm, action, name, kind, wpc, report):
     """Write a clip into the unit's folder and list it in geometry.xml. An existing clip is replaced in place and the
     game plays it straight away; a brand new clip also needs code that asks for it. False when refused."""
@@ -186,9 +194,9 @@ def publish_clip(context, arm, action, name, kind, wpc, report):
     if rig is None:
         report({"ERROR"}, "Could not find this unit's sprite in geometry.xml")
         return False
-    body = browsed_unit(arm)
-    if body is not None and body["tt_sprite"] != base:
-        report({"ERROR"}, f"{body['tt_sprite']} borrows the {base} rig and its clips: load {base} to change them")
+    borrowed = borrowed_rig_problem(arm, base)
+    if borrowed is not None:
+        report({"ERROR"}, borrowed)
         return False
     start, end = action.frame_range
     if int(round(end)) - int(round(start)) < 1:
