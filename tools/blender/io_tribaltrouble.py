@@ -42,7 +42,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 39, 0),
+    "version": (1, 40, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -4565,17 +4565,22 @@ def pick_skin_row(skins, index):
 
 class TT_UL_skins(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_property, index):
-        # A button, not a label, so a click on the name picks the row.
-        row = layout.row()
-        name = row.row()
-        name.alignment = "LEFT"
-        pick = name.operator(PickSkin.bl_idname, text=item.name, icon="MATERIAL" if item.skin else "OBJECT_DATA",
-                             emboss=False)
-        pick.skin, pick.item = item.skin, item.item
+        row = layout.row(align=True)
+        on = index == getattr(data, active_property)
+        eye = row.operator(ShowSkin.bl_idname, text="", icon="HIDE_OFF" if on else "HIDE_ON", emboss=False)
+        eye.skin, eye.item = "" if on else item.skin, item.item
+        row.label(text=item.name)
         tag = row.row()
         tag.alignment = "RIGHT"
         tag.enabled = False
         tag.label(text=item.tag)
+        paint = row.operator(PaintSkin.bl_idname, text="", icon="BRUSH_DATA", emboss=False)
+        paint.skin, paint.item = item.skin, item.item
+        if item.skin:
+            remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH", emboss=False)
+            remove.group, remove.sprite = item.group, item.sprite
+        else:
+            row.label(text="", icon="BLANK1")
 
 
 class PickSkin(bpy.types.Operator):
@@ -4596,19 +4601,8 @@ class PickSkin(bpy.types.Operator):
 
 
 def draw_skin_list(layout, wm, item=""):
-    """The skins list, then Paint and remove for the picked one."""
     skins, index = ("tt_item_skins", "tt_item_skin_index") if item else ("tt_skins", "tt_skin_index")
     layout.template_list("TT_UL_skins", skins, wm, skins, wm, index, rows=4)
-    rows, at = getattr(wm, skins), getattr(wm, index)
-    if not 0 <= at < len(rows):
-        return
-    picked = rows[at]
-    row = layout.row(align=True)
-    paint = row.operator(PaintSkin.bl_idname, text="Paint", icon="BRUSH_DATA")
-    paint.skin, paint.item = picked.skin, picked.item
-    if picked.skin:
-        remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
-        remove.group, remove.sprite = picked.group, picked.sprite
 
 
 class VIEW3D_PT_tt_skins(bpy.types.Panel):

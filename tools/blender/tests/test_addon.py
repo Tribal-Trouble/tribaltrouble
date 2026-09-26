@@ -1705,7 +1705,7 @@ def the_items_panel_shows_the_list_or_one_item_with_its_skins():
     ops = [idname for idname, _ in detail]
     assert ops[0] == "object.tt_close_item" and "object.tt_paint_item" in ops and "object.tt_save_items" in ops, ops
     assert "object.tt_new_item" not in ops, detail
-    assert ("object.tt_new_skin", None) in detail and ("object.tt_paint_skin", "Paint") in detail, detail
+    assert ("object.tt_new_skin", None) in detail and ("list", "tt_item_skins") in detail, detail
     assert ("list", "tt_item_skins") in detail and "gold" in [row.name for row in wm.tt_item_skins], detail
     assert ("list", "tt_skins") in drawn(addon.VIEW3D_PT_tt_skins)
     assert ("gold (+ peon_hammer)", "Owned") in [(row.name, row.tag) for row in wm.tt_skins]
@@ -1761,14 +1761,14 @@ def the_skins_panel_on_a_building_says_who_gets_each_skin():
     assert addon.VIEW3D_PT_tt_skins.poll(bpy.context)
     drawn_rows = drawn(addon.VIEW3D_PT_tt_skins)
     assert ("list", "tt_skins") in drawn_rows and ("object.tt_new_skin", None) in drawn_rows, drawn_rows
-    assert ("object.tt_paint_skin", "Paint") in drawn_rows, drawn_rows
-    assert ("object.tt_remove_from_registry", "") not in drawn_rows, "Default can be removed"
     rows = [(row.name, row.tag) for row in wm.tt_skins]
     assert rows[0] == ("Default", "") and ("harvest", "Owned") in rows and ("halloween", "halloween") in rows, rows
-    for row in wm.tt_skins:
+    for index, row in enumerate(wm.tt_skins):
         layout = Recorder()
-        addon.TT_UL_skins.draw_item(None, bpy.context, layout, wm, row, 0, None, "", 0)
-        assert layout.log == [("object.tt_pick_skin", row.name), ("label", row.tag)], layout.log
+        addon.TT_UL_skins.draw_item(None, bpy.context, layout, wm, row, 0, wm, "tt_skin_index", index)
+        remove = [("object.tt_remove_from_registry", "")] if row.skin else [("label", "")]
+        assert layout.log == [("object.tt_show_skin", ""), ("label", row.name), ("label", row.tag),
+                              ("object.tt_paint_skin", "")] + remove, layout.log
 
 
 @test
@@ -1777,8 +1777,6 @@ def picking_a_skin_row_shows_it_and_paint_and_the_bin_act_on_it():
     assert wm.tt_skin_index == 0 and not body.get("tt_skin")
     wm.tt_skin_index = [row.skin for row in wm.tt_skins].index("harvest")
     assert body["tt_skin"] == "quarters_harvest" and wm.tt_skins[wm.tt_skin_index].skin == "harvest"
-    rows = drawn(addon.VIEW3D_PT_tt_skins)
-    assert ("object.tt_paint_skin", "Paint") in rows and ("object.tt_remove_from_registry", "") in rows, rows
     assert bpy.ops.object.tt_pick_skin(skin="") == {"FINISHED"}
     assert not body.get("tt_skin") and wm.tt_skin_index == 0
     assert bpy.ops.object.tt_pick_skin(skin="halloween") == {"FINISHED"}
