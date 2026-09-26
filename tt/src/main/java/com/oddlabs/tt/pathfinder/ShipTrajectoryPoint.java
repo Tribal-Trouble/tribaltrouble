@@ -24,6 +24,15 @@ public final class ShipTrajectoryPoint {
         directionY = 1.0f;
     }
 
+    public ShipTrajectoryPoint(float x, float y) {
+        positionX = x;
+        positionY = y;
+        gridX = UnitGrid.toGridCoordinate(positionX);
+        gridY = UnitGrid.toGridCoordinate(positionY);
+        directionX = 0.0f;
+        directionY = 1.0f;
+    }
+
     public ShipTrajectoryPoint(int x, int y, float dx, float dy) {
         gridX = x;
         gridY = y;

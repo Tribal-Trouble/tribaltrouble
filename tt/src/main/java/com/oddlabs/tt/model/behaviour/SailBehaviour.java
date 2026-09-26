@@ -14,7 +14,6 @@ public final class SailBehaviour implements Behaviour {
 
     private final Ship ship;
     private final Target target;
-    private float timer = 0.0f;
 
     private int prev_target_x = 0;
     private int prev_target_y = 0;
@@ -22,6 +21,7 @@ public final class SailBehaviour implements Behaviour {
     private ShipTrajectory trajectory = null;
 
     private boolean blocked = false;
+    private boolean stuck = false;
 
     public SailBehaviour(Ship ship, Target t) {
         this.ship = ship;
@@ -29,7 +29,10 @@ public final class SailBehaviour implements Behaviour {
     }
 
     public void replanIfNeeded() {
-        if (prev_target_x != target.getGridX() || prev_target_y != target.getGridY()) {
+        boolean no_traj = (trajectory == null || !trajectory.exists());
+        boolean ship_moved = (target instanceof Ship) && (prev_target_x != target.getGridX()
+                || prev_target_y != target.getGridY());
+        if (no_traj || ship_moved) {
             this.trajectory = new ShipTrajectory(ship, target);
             this.prev_target_x = target.getGridX();
             this.prev_target_y = target.getGridY();
@@ -38,6 +41,10 @@ public final class SailBehaviour implements Behaviour {
 
     public final boolean isBlocking() {
         return blocked;
+    }
+
+    public final boolean isStuck() {
+        return stuck;
     }
 
     public final ShipTrajectory getTrajectory() {
@@ -67,7 +74,7 @@ public final class SailBehaviour implements Behaviour {
 
         ship.setLayer(UnitGrid.SEA);
 
-        if (!trajectory.exists()) {
+        if (trajectory == null || !trajectory.exists()) {
             ship.endTrip();
             return State.INTERRUPTIBLE;
         }
@@ -75,7 +82,7 @@ public final class SailBehaviour implements Behaviour {
         int rowers = ship.getShipHR().countRowers() + 1;
 
         if (next_pose == null) {
-            float speed = rowers * SHIP_SPEED;
+            float speed = rowers * SHIP_SPEED * (ship.getShipHR().hasChieftain() ? 2 : 1);
             next_pose = trajectory.advance(speed * t);
         }
 
@@ -87,14 +94,23 @@ public final class SailBehaviour implements Behaviour {
         ShipTrajectoryPoint fromPoint = new ShipTrajectoryPoint(ship);
 
         var grid = ship.getUnitGrid();
-
-        if (fromPoint.distanceTo(next_pose) > 0.0001f && ShipTrajectory.checkShipsCollision(grid, ship, fromPoint,
-                next_pose.moved(8))) {
-            ship.endTrip();
-            return State.INTERRUPTIBLE;
+        if (fromPoint.distanceTo(next_pose) > 0.0001f) {
+            var blockingShip = ShipTrajectory.checkShipsCollision(grid, ship, fromPoint, next_pose.moved(8));
+            if (blockingShip != null) {
+                // If it's an enemy ship, stand your ground and fight! Do not escape!
+                // Otherwise if it's one of your own or an ally, let it pass.
+                if (blockingShip.getOwner().getPlayerInfo().getTeam() == ship.getOwner().getPlayerInfo().getTeam()) {
+                    stuck = true;
+                    ship.reportStuck();
+                }
+                return State.INTERRUPTIBLE;
+            }
+            if (ShipTrajectory.checkLandCollision(grid, fromPoint, next_pose)) {
+                stuck = true;
+                ship.reportStuck();
+                return State.INTERRUPTIBLE;
+            }
         }
-
-        timer = 0.0f;
 
         ship.free();
         ship.setPosition(next_pose.positionX, next_pose.positionY);

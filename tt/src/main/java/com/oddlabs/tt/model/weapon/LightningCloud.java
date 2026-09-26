@@ -115,7 +115,7 @@ public final class LightningCloud implements Magic {
                         position.y()), prev_target);
                 if (target == null) {
                     target = owner.findNearestEnemy(UnitGrid.toGridCoordinate(position.x()), UnitGrid.toGridCoordinate(
-                            position.y()), null);
+                            position.y()));
                     if (target == null) {
                         return;
                     }

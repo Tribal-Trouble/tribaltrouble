@@ -16,6 +16,7 @@ import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Army;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.ModelToolTip;
 import com.oddlabs.tt.model.SceneryModel;
@@ -252,20 +253,29 @@ public final class Picker implements Updatable<TimerAnimation> {
     private @NonNull Selectable<?> @NonNull [] createSinglePick(@NonNull CameraState camera, int clicks) {
         var nearest = (Selectable<?>) getNearestPick(element_pick_list, Selectable.class);
         if (nearest != null) {
-            if (clicks > 1) {
-                if (nearest.getAbilities().hasAbilities(Abilities.THROW)) {
-                    return pickAll(camera, Abilities.THROW, nearest.getIslandId());
-                } else if (nearest.getAbilities().hasAbilities(Abilities.HARVEST)) {
-                    return pickAll(camera, Abilities.HARVEST, nearest.getIslandId());
+            if (nearest instanceof Unit) {
+                if (clicks > 1) {
+                    if (nearest.getAbilities().hasAbilities(Abilities.THROW)) {
+                        return pickAll(camera, Abilities.THROW, nearest.getIslandId());
+                    } else if (nearest.getAbilities().hasAbilities(Abilities.HARVEST)) {
+                        return pickAll(camera, Abilities.HARVEST, nearest.getIslandId());
+                    } else {
+                        return Selectable.newArray(nearest);
+                    }
+                } else {
+                    return Selectable.newArray(nearest);
+                }
+            } else if (nearest instanceof Ship) {
+                if (clicks > 1) {
+                    return pickAll(camera, Abilities.SAIL, -1);
                 } else {
                     return Selectable.newArray(nearest);
                 }
             } else {
                 return Selectable.newArray(nearest);
             }
-        } else {
-            return Selectable.newArray(0);
         }
+        return Selectable.newArray(0);
     }
 
     private @NonNull Selectable<?> @NonNull [] createBoxedPick() {
@@ -278,7 +288,7 @@ public final class Picker implements Updatable<TimerAnimation> {
     private @NonNull Selectable<?> @NonNull [] pickAll(@NonNull CameraState camera, int ability_filter, int island) {
         Selectable<?>[] complete_list = pickBoxed(camera, 0, 0, gui_root.getWidth() - 1, gui_root.getHeight() - 1, 2);
         return Arrays.stream(complete_list).filter(s -> s.getAbilities().hasAbilities(ability_filter)
-                && s.getIslandId() == island).toArray(
+                && (s.getIslandId() == island || island == -1)).toArray(
                         Selectable::newArray);
     }
 

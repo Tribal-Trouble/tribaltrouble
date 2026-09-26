@@ -129,7 +129,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         supply_container = factory != null ? (UnitSupplyContainer) factory.createContainer(this) : null;
 
         if (!imaginary) {
-            findInitialPosition(x, y, grid_targets_only);
+            findInitialPosition(x, y, grid_targets_only, -1);
         }
 
         pushController(new IdleController(this, new AttackScanFilter(getOwner(), AttackScanFilter.UNIT_RANGE), true));
@@ -196,14 +196,14 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
             return super.toString();
     }
 
-    public void reposition() {
-        findInitialPosition(getPositionX(), getPositionY(), true);
+    public void reposition(Building building) {
+        findInitialPosition(getPositionX(), getPositionY(), true, building.getIslandId());
     }
 
-    private void findInitialPosition(float x, float y, boolean grid_targets_only) {
+    private void findInitialPosition(float x, float y, boolean grid_targets_only, int island) {
         UnitGrid unit_grid = getUnitGrid();
         Target reserved_target = unit_grid.findGridTargets(UnitGrid.toGridCoordinate(x), UnitGrid.toGridCoordinate(y),
-                1, grid_targets_only)[0];
+                1, grid_targets_only, island)[0];
         setGridPosition(reserved_target.getGridX(), reserved_target.getGridY());
         setPosition(reserved_target.getPositionX(), reserved_target.getPositionY());
 
@@ -282,7 +282,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         mount_offset = 0;
         enable();
         Building entrance = mounted_building.getEntrance();
-        findInitialPosition(entrance.getPositionX(), entrance.getPositionY(), true);
+        findInitialPosition(entrance.getPositionX(), entrance.getPositionY(), true, entrance.getIslandId());
         if (supply_container != null) {
             supply_container.resetSupply(LeftPaddle.class);
             supply_container.resetSupply(RightPaddle.class);
@@ -307,7 +307,6 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     public final void mount(Ship ship, ShipAllocation ship_allocation) {
         assert !isDead();
         mounted_building = ship;
-        mount_offset = ship_allocation.getOffset().z;
         if (!imaginary) {
             disable();
             free();
@@ -571,6 +570,10 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         return false;
     }
 
+    public final boolean isChieftain() {
+        return getAbilities().hasAbilities(Abilities.MAGIC);
+    }
+
     private @NonNull BalancedParametricEmitter createStunStar(float x, float y, float z, float time, float velocity) {
         int num_particles = 5;
         return new BalancedParametricEmitter(getOwner().getWorld(),
@@ -621,11 +624,16 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     public boolean canEnter(@NonNull Target target) {
-        return target instanceof Building building &&
-                !getAbilities().hasAbilities(Abilities.MAGIC) &&
-                building.getUnitContainer() != null &&
-                getOwner() == building.getOwner() &&
-                building.getUnitContainer().canEnter(this);
+        if (!(target instanceof Building building) || building.getUnitContainer() == null
+                || getOwner() != building.getOwner() || !building.getUnitContainer().canEnter(this)) {
+            return false;
+        }
+
+        if (target instanceof LandBuilding) {
+            return !isChieftain();
+        } else {
+            return true;
+        }
     }
 
     @Override
@@ -758,6 +766,10 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         return anim_time;
     }
 
+    public final void setMountOffset(float offset) {
+        mount_offset = offset;
+    }
+
     public final float getMountOffset() {
         assert !isDead();
         return mount_offset;
@@ -803,7 +815,15 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     public final float getHitError() {
-        return on_ship ? 2.2f : 0.0f;
+        if (on_ship && mounted_building instanceof Ship ship) {
+            if (ship.getShipHR().hasChieftain()) {
+                return 0.2f;
+            } else {
+                return 2.2f;
+            }
+        } else {
+            return 0.0f;
+        }
     }
 
     public final void debugRender() {
