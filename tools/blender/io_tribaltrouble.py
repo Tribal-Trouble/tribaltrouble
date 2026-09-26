@@ -42,7 +42,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 40, 1),
+    "version": (1, 41, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1450,10 +1450,8 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
                 layout.operator(DonePainting.bl_idname, icon="CHECKMARK", depress=True)
             draw_publish(context, layout)
             return
-        items = unit_items(props_holder(context))
-        if items:
-            layout.prop(wm, "tt_item_search", text="", icon="VIEWZOOM")
-            layout.template_list("TT_UL_items", "", bpy.data, "objects", wm, "tt_item_index", rows=6, maxrows=12)
+        layout.prop(wm, "tt_item_search", text="", icon="VIEWZOOM")
+        layout.template_list("TT_UL_items", "", bpy.data, "objects", wm, "tt_item_index", rows=2, maxrows=12)
         layout.operator(NewItem.bl_idname if arm is not None else NewProp.bl_idname, icon="ADD")
         if context.mode == "PAINT_TEXTURE":
             layout.operator(DonePainting.bl_idname, icon="CHECKMARK", depress=True)
@@ -2497,7 +2495,7 @@ def own_mesh_search(self, context, edit_text):
 class NewItem(bpy.types.Operator):
     """Hang one of your meshes on this unit: it follows that part straight away. Publish saves it"""
     bl_idname = "object.tt_new_item"
-    bl_label = "New Item..."
+    bl_label = "New Prop..."
     bl_options = {"REGISTER", "UNDO"}
     point: EnumProperty(name="Where", items=point_items, description="The part of the unit your new mesh follows")
     mesh: StringProperty(name="Mesh", search=own_mesh_search, options={"SKIP_SAVE"},
@@ -3629,13 +3627,17 @@ def mesh_names_sprite(self, context):
 
 class RegisterModel(bpy.types.Operator):
     """Export the picked mesh as a brand new model and add it to geometry.xml: a static building or prop, a unit on
-    the rig it is bound to, or a unit with its own new rig. Using it in game still needs code"""
+    the rig it is bound to, a unit with its own new rig, or map scenery the game scatters by itself. Using a model
+    that is not scattered still needs code"""
     bl_idname = "object.tt_register_model"
-    bl_label = "Register New Model"
+    bl_label = "New Model..."
     bl_options = {"REGISTER"}
     mesh: StringProperty(name="Mesh", search=own_mesh_search, options={"SKIP_SAVE"},
                          description="One of your own meshes in this scene", update=mesh_names_sprite)
-    sprite_name: StringProperty(name="Name", description="Sprite name in geometry.xml and the new folder's name")
+    sprite_name: StringProperty(name="Name", options={"SKIP_SAVE"},
+                                description="Sprite name in geometry.xml and the new folder's name")
+    scatter: BoolProperty(name="Scatter on map", options={"SKIP_SAVE"},
+                          description="Map scenery the game scatters over every map by itself, such as pumpkin patches")
     group: EnumProperty(name="Group", items=registry_group_items)
     low_detail: StringProperty(name="Low Detail", description="Optional mesh object shown at a distance")
     half_built: StringProperty(name="Half Built", description="Building only: mesh for the half built stage, "
@@ -3644,6 +3646,9 @@ class RegisterModel(bpy.types.Operator):
     start: StringProperty(name="Start", description="Building only: mesh for the construction site, registered "
                                                     "as <name>_start")
     start_low: StringProperty(name="Start Low Detail")
+    ground: EnumProperty(name="Terrain", items=DECORATION_GROUNDS, description="Ground the game scatters it on")
+    count: IntProperty(name="Count", default=20, min=1, max=1000, description="How many the game scatters over a map")
+    event: event_property()
 
     @classmethod
     def poll(cls, context):
@@ -3659,21 +3664,27 @@ class RegisterModel(bpy.types.Operator):
         layout = form_title(self)
         layout.prop(self, "mesh", icon="MESH_DATA")
         layout.prop(self, "sprite_name")
-        obj = bpy.data.objects.get(self.mesh)
-        arm = body_rig(obj) if obj is not None else None
-        group, base, _ = rig_registry(context, arm)
-        if base is not None:
-            layout.label(text=f"Unit on the {group} / {base} rig", icon="ARMATURE_DATA")
+        layout.prop(self, "scatter")
+        if self.scatter:
+            layout.prop(self, "ground")
+            layout.prop(self, "count")
+            draw_event(layout, self)
         else:
-            layout.prop(self, "group")
-            layout.label(text="Unit with its own new rig" if arm is not None else "Static model",
-                         icon="ARMATURE_DATA" if arm is not None else "MESH_CUBE")
-        layout.prop_search(self, "low_detail", bpy.data, "objects")
-        if arm is None:
-            box = layout.box()
-            box.label(text="Building stages (optional)")
-            for prop in ("half_built", "half_built_low", "start", "start_low"):
-                box.prop_search(self, prop, bpy.data, "objects")
+            obj = bpy.data.objects.get(self.mesh)
+            arm = body_rig(obj) if obj is not None else None
+            group, base, _ = rig_registry(context, arm)
+            if base is not None:
+                layout.label(text=f"Unit on the {group} / {base} rig", icon="ARMATURE_DATA")
+            else:
+                layout.prop(self, "group")
+                layout.label(text="Unit with its own new rig" if arm is not None else "Static model",
+                             icon="ARMATURE_DATA" if arm is not None else "MESH_CUBE")
+            layout.prop_search(self, "low_detail", bpy.data, "objects")
+            if arm is None:
+                box = layout.box()
+                box.label(text="Building stages (optional)")
+                for prop in ("half_built", "half_built_low", "start", "start_low"):
+                    box.prop_search(self, prop, bpy.data, "objects")
         problem = mesh_problem(self.mesh)
         draw_confirm(layout, self, name_problem(self.sprite_name) if problem is None else problem)
 
@@ -3687,13 +3698,16 @@ class RegisterModel(bpy.types.Operator):
         if not re.fullmatch(r"[A-Za-z0-9_]+", name):
             self.report({"ERROR"}, "Give the model a name made of letters, digits and underscores")
             return {"CANCELLED"}
-        arm = body_rig(obj)
-        group, base, _ = rig_registry(context, arm)
-        if base is None:
-            group = self.group
+        if self.scatter:
+            arm, group, base = None, SCENERY_GROUP, None
+        else:
+            arm = body_rig(obj)
+            group, base, _ = rig_registry(context, arm)
+            if base is None:
+                group = self.group
 
         def picked(prop):
-            return bpy.data.objects.get(getattr(self, prop)) if getattr(self, prop) else None
+            return bpy.data.objects.get(getattr(self, prop)) if getattr(self, prop) and not self.scatter else None
 
         stages = [("", obj, picked("low_detail"))]
         if arm is None:
@@ -3759,87 +3773,18 @@ class RegisterModel(bpy.types.Operator):
             arm["tt_skeleton"] = os.path.join(folder, name + "_skeleton.xml")
 
         extra = [("base", base)] if base is not None else []
+        if self.scatter:
+            event = chosen_event(self)
+            extra = [("decoration", self.ground), ("count", str(self.count))] + ([("event", event)] if event else [])
         entries = [(sprite, sprite_text([("name", sprite)] + extra, models, skeleton, clips))
                    for sprite, models in stage_models]
         append_registry_entries(os.path.join(root, REGISTRY_FILE), group, entries)
         refresh_units(context)
         note = f"; add {', '.join(m + '.png' for m in missing)} to assets/textures/models" if missing else ""
         sprites = ", ".join(sprite for sprite, _ in entries)
+        kind = "decoration " if self.scatter else ""
         self.report({"WARNING"} if missing else {"INFO"},
-                    f"Registered {group} / {sprites} under /geometry/{group}/ as .binsprite{note}")
-        return {"FINISHED"}
-
-
-class NewDecoration(bpy.types.Operator):
-    """Export the picked mesh as map scenery the game scatters over every map by itself, such as pumpkin patches,
-    and add it to geometry.xml. No code needed"""
-    bl_idname = "object.tt_new_decoration"
-    bl_label = "New Decoration..."
-    bl_options = {"REGISTER"}
-    mesh: StringProperty(name="Mesh", search=own_mesh_search, options={"SKIP_SAVE"},
-                         description="One of your own meshes in this scene", update=mesh_names_sprite)
-    sprite_name: StringProperty(name="Name", options={"SKIP_SAVE"},
-                                description="Sprite name in geometry.xml and the new folder's name")
-    ground: EnumProperty(name="Terrain", items=DECORATION_GROUNDS, description="Ground the game scatters it on")
-    count: IntProperty(name="Count", default=20, min=1, max=1000, description="How many the game scatters over a map")
-    event: event_property()
-
-    @classmethod
-    def poll(cls, context):
-        return bool(repo_root(context))
-
-    def invoke(self, context, event):
-        active = context.active_object
-        if active is not None and attachment_obj_poll(self, active):
-            self.mesh = active.name
-        return open_form(self, context)
-
-    def draw(self, context):
-        layout = form_title(self)
-        layout.prop(self, "mesh", icon="MESH_DATA")
-        layout.prop(self, "sprite_name")
-        layout.prop(self, "ground")
-        layout.prop(self, "count")
-        draw_event(layout, self)
-        problem = mesh_problem(self.mesh)
-        draw_confirm(layout, self, name_problem(self.sprite_name) if problem is None else problem)
-
-    def execute(self, context):
-        root = repo_root(context)
-        obj = bpy.data.objects.get(self.mesh)
-        if obj is None or not attachment_obj_poll(self, obj):
-            self.report({"ERROR"}, "Pick one of your own meshes")
-            return {"CANCELLED"}
-        name = self.sprite_name.strip()
-        if not re.fullmatch(r"[A-Za-z0-9_]+", name):
-            self.report({"ERROR"}, "Give the decoration a name made of letters, digits and underscores")
-            return {"CANCELLED"}
-        group = SCENERY_GROUP
-        if any(s["group"] == group and s["name"] == name for s in read_registry(root)):
-            self.report({"ERROR"}, f"{group} already has a sprite named {name}")
-            return {"CANCELLED"}
-        findings = [(level, f"{obj.name}: {text}") for level, text in check_mesh(obj, False, 0)]
-        errors = store_findings(context, findings)
-        if errors:
-            self.report({"ERROR"}, f"Not registered: {errors} problem(s): " +
-                        "; ".join(text for level, text in findings if level == "ERROR"))
-            return {"CANCELLED"}
-        geometry = os.path.join(root, GEOMETRY_DIR)
-        folder = os.path.join(geometry, group, name)
-        os.makedirs(folder, exist_ok=True)
-        texture = obj.get("tt_texture", "").split(",")[0].strip() or material_image_name([obj])
-        missing = not ensure_texture_in_repo(root, obj, texture)
-        path = os.path.join(folder, name + ".xml")
-        write_mesh_xml([obj], [None], path, texture, False, context.evaluated_depsgraph_get())
-        event = chosen_event(self)
-        attrs = [("name", name), ("decoration", self.ground), ("count", str(self.count))] + \
-                ([("event", event)] if event else [])
-        model = os.path.relpath(path, geometry).replace(os.sep, "/")
-        append_registry_entries(os.path.join(root, REGISTRY_FILE), group, [
-            (name, sprite_text(attrs, [(model, [(texture, team_attribute(root, texture, False))])]))])
-        refresh_units(context)
-        note = f"; add {texture}.png to assets/textures/models" if missing else ""
-        self.report({"WARNING"} if missing else {"INFO"}, f"Registered decoration {group} / {name}{note}")
+                    f"Registered {kind}{group} / {sprites} under /geometry/{group}/ as .binsprite{note}")
         return {"FINISHED"}
 
 
@@ -3875,9 +3820,7 @@ class VIEW3D_PT_tt_units(bpy.types.Panel):
         # Units show it under Preview.
         if has_low_detail() and not any(o.type == "ARMATURE" and o.get(BROWSER_TAG) for o in bpy.data.objects):
             layout.row(align=True).prop(wm, "tt_detail", expand=True)
-        row = layout.row(align=True)
-        row.operator(RegisterModel.bl_idname, icon="ADD")
-        row.operator(NewDecoration.bl_idname, icon="ADD")
+        layout.operator(RegisterModel.bl_idname, icon="ADD")
 
 
 PROP_SLOT = "prop"
@@ -4599,7 +4542,7 @@ class PickSkin(bpy.types.Operator):
 
 def draw_skin_list(layout, wm, item=""):
     skins, index = ("tt_item_skins", "tt_item_skin_index") if item else ("tt_skins", "tt_skin_index")
-    layout.template_list("TT_UL_skins", skins, wm, skins, wm, index, rows=4)
+    layout.template_list("TT_UL_skins", skins, wm, skins, wm, index, rows=2)
 
 
 class VIEW3D_PT_tt_skins(bpy.types.Panel):
@@ -4783,7 +4726,7 @@ def menu_object(self, context):
 
 
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
-           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, PickUnit, AddToScene, RemoveAdded, ShowItem, ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, NewDecoration, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
+           TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, PickUnit, AddToScene, RemoveAdded, ShowItem, ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
            RemoveFromRegistry, UpdateAddon, NewEvent, SaveProps, NewProp, ShowSkin, PaintSkin, TTSkinEntry, TT_UL_skins, PickSkin, NewSkin, CancelSkin, SaveSkin, CloseItem, NewClip, SaveClip, DeleteClip,
            SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, NewItem, OwnTexture, PutOnBone, PaintItem, DonePainting,
            TT_UL_items, VIEW3D_PT_tt_units, VIEW3D_PT_tt_skins,
