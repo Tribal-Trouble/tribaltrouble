@@ -45,10 +45,28 @@ A building is a static sprite, so a prop on it is simpler than a hat: it has no 
 ```
 
 - `base` is the building stage it belongs to: `quarters`, `quarters_halfbuilt` or `quarters_start`. A prop only shows on that stage.
-- Every prop registered on a stage is drawn with it. There is nothing to toggle, so the slot name only groups them; the add-on writes `prop`.
+- Every prop registered on a stage is drawn with it. There is nothing to toggle; the slot must be `prop`.
 - `event` is optional. Without it the prop shows all year. With it the prop only shows while that event is on.
 
 Which event is on comes from the `com.oddlabs.tt.event` system property, for example `-Dcom.oddlabs.tt.event=halloween`. It is render-only, so players in one game may differ. Turning an event on by calendar date is a follow-up. Event items on units obey the same attribute: outside their event they are not loaded at all. `attachments.txt` carries the event as its last column. To give something another look during an event, use an event skin (see Skins).
+
+## Props on anything else (implemented 2026-09-25)
+
+Trees, rocks, iron, plants, the chicken, treasures, decorations and thrown weapons take props the same way buildings do: a sprite with `slot="prop"` whose `base` is the sprite it sits on, in the same group. It is drawn at that sprite's position, rotation and scale, and follows it (a falling tree takes its props down with it).
+
+```xml
+<sprite name="oak_tree_trunk_lantern" base="oak_tree_trunk" slot="prop" event="halloween">
+<sprite name="rock_1_moss" base="rock_1" slot="prop">
+<sprite name="treasure_1_flag" base="treasure_1" slot="prop">
+<sprite name="chicken_hat" base="chicken" slot="prop" event="christmas">
+```
+
+- A tree is two sprites, `<kind>_trunk` and `<kind>_crown` (`jungle_tree_`, `palm_`, `oak_tree_`, `pine_tree_`); a prop may sit on either. Trees always draw their full mesh, and so do their props.
+- Rocks and iron are `rock_1` to `rock_5`; iron is the same mesh with the second texture. A prop with two textures follows that, one texture shows on both.
+- Other sprites draw their props at the sprite's own detail level and leave them out where the sprite is only a dot on the map. Props on plants and decorations fade out with them.
+- The chicken is animated, so its prop inherits the chicken's skeleton and clips and is skinned to its bones like a unit item.
+- `event` works as on buildings. Props are render-only: they are not picked, do not change the sprite's bounds, and never reach the simulation.
+- Skins: an event skin on the prop (`skin=`, `replaces=` the prop, `event=`, same `base` and `slot`) swaps it during the event, and an event skin on the base sprite brings the props whose `base` is the skin sprite. Owned skins do not apply, since nobody owns scenery.
 
 ## Carried items (moved into the registry 2026-09-19)
 

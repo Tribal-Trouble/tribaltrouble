@@ -46,7 +46,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,7 +68,8 @@ public final class RacesResources {
     private static final String CARRIED_SLOT = "carried";
     private static final String CARRIED_UNIT = "peon";
     private static final int IRON_TEXTURE = 1;
-    private static final Pattern BUILDING_GEOMETRY = Pattern.compile("/geometry/(\\w+)/(\\w+)\\.binsprite");
+    private static final String PROP_SLOT = "prop";
+    private static final Pattern SPRITE_PATH = Pattern.compile("/geometry/\\w+/\\w+\\.binsprite$");
     // Render-only, so it may differ between the players of one game.
     private static final String EVENT = System.getProperty("com.oddlabs.tt.event", NO_EVENT);
     private static List<AttachmentEntry> attachment_entries;
@@ -188,13 +188,13 @@ public final class RacesResources {
         SpriteFile building_start = new SpriteFile(start_name,
                 Globals.NO_MIPMAP_CUTOFF,
                 true, false, true, false);
-        List<AttachmentEntry> attachments = loadAttachments();
+        SpriteKey built_key = queues.register(building);
+        SpriteKey halfbuilt_key = queues.register(building_halfbuilt);
+        SpriteKey start_key = queues.register(building_start);
         Map<Building.BuildState, List<SpriteKey>> props = new EnumMap<>(Building.BuildState.class);
-        props.put(Building.BuildState.BUILT, buildingProps(queues, attachments, eventSkin(building).getLocation()));
-        props.put(Building.BuildState.HALFBUILT, buildingProps(queues, attachments, eventSkin(
-                building_halfbuilt).getLocation()));
-        props.put(Building.BuildState.START, buildingProps(queues, attachments, eventSkin(
-                building_start).getLocation()));
+        props.put(Building.BuildState.BUILT, queues.getProps(built_key));
+        props.put(Building.BuildState.HALFBUILT, queues.getProps(halfbuilt_key));
+        props.put(Building.BuildState.START, queues.getProps(start_key));
         return new BuildingTemplate(
                 template_id,
                 type,
@@ -204,13 +204,13 @@ public final class RacesResources {
                 num_fragments,
                 shadow_diameter,
                 shadow_renderer,
-                queues.register(building),
+                built_key,
                 built_selection_radius,
                 built_selection_height,
-                queues.register(building_halfbuilt),
+                halfbuilt_key,
                 halfbuilt_selection_radius,
                 halfbuilt_selection_height,
-                queues.register(building_start),
+                start_key,
                 start_selection_radius,
                 start_selection_height,
                 max_hit_points,
@@ -258,20 +258,17 @@ public final class RacesResources {
         }
     }
 
-    // Every prop registered on a building stage is drawn with it; there is nothing to toggle.
-    private static @NonNull List<SpriteKey> buildingProps(@NonNull RenderQueues queues,
-            @NonNull List<AttachmentEntry> entries, @NonNull String geometry) {
-        Matcher path = BUILDING_GEOMETRY.matcher(geometry);
-        if (!path.matches())
-            return List.of();
-        List<SpriteKey> props = new ArrayList<>();
-        for (AttachmentEntry entry : entries) {
-            if (!entry.group().equals(path.group(1)) || !entry.base().equals(path.group(2)))
-                continue;
-            String prop = spritePath(entry.group(), entry.name());
-            props.add(queues.register(new SpriteFile(prop, Globals.NO_MIPMAP_CUTOFF, true, false, true, false)));
-        }
-        return props;
+    /** The registry path of every prop drawn with the sprite at location; there is nothing to toggle. */
+    public static @NonNull List<String> getProps(@NonNull String location) {
+        String base = registryPath(location);
+        return loadAttachments().stream().filter(entry -> entry.slot().equals(PROP_SLOT) && spritePath(entry.group(),
+                entry.base()).equals(base)).map(entry -> spritePath(entry.group(), entry.name())).toList();
+    }
+
+    // Resource locations are URLs, while the registry names a sprite by its path under /geometry.
+    private static @Nullable String registryPath(@NonNull String location) {
+        Matcher path = SPRITE_PATH.matcher(location);
+        return path.find() ? path.group() : null;
     }
 
     // What a peon holds is decided by the simulation, so these never reach the unit's own slots.
@@ -364,14 +361,13 @@ public final class RacesResources {
             readSkins().stream().filter(entry -> !entry.event().equals(NO_EVENT)).forEach(entry -> event_skins.put(
                     spritePath(entry.group(), entry.replaces()), spritePath(entry.group(), entry.name())));
         }
-        String location = event_skins.get(sprite_file.getLocation());
+        String location = event_skins.get(registryPath(sprite_file.getLocation()));
         return location != null ? sprite_file.withLocation(location) : sprite_file;
     }
 
     // A skin sprite stands in wherever a template draws the sprite it replaces, and brings its own building props.
     private static @NonNull Map<String, PlayerSkins> skins(@NonNull RenderQueues queues,
-            @NonNull Race @NonNull [] races, @NonNull List<AttachmentEntry> attachments,
-            @NonNull Set<SpriteKey> carried) {
+            @NonNull Race @NonNull [] races, @NonNull Set<SpriteKey> carried) {
         Map<String, Map<UnitTemplate, SpriteKey>> units = new HashMap<>();
         Map<String, Map<BuildingTemplate, Map<Building.BuildState, SpriteKey>>> buildings = new HashMap<>();
         Map<String, Map<BuildingTemplate, Map<Building.BuildState, List<SpriteKey>>>> props = new HashMap<>();
@@ -405,9 +401,7 @@ public final class RacesResources {
                         buildings.computeIfAbsent(entry.skin(), _ -> new HashMap<>()).computeIfAbsent(building,
                                 _ -> new EnumMap<>(Building.BuildState.class)).put(stage, skin);
                         props.computeIfAbsent(entry.skin(), _ -> new HashMap<>()).computeIfAbsent(building,
-                                _ -> new EnumMap<>(Building.BuildState.class)).put(stage, buildingProps(queues,
-                                        attachments, spritePath(
-                                                entry.group(), entry.name())));
+                                _ -> new EnumMap<>(Building.BuildState.class)).put(stage, queues.getProps(skin));
                     }
                 }
             }
@@ -1073,7 +1067,7 @@ public final class RacesResources {
         races = new Race[]{natives_race, vikings_race};
         Set<SpriteKey> carried = new HashSet<>(native_supply_sprite_lists.values());
         carried.addAll(viking_supply_sprite_lists.values());
-        skins = skins(queues, races, attachments, carried);
+        skins = skins(queues, races, carried);
 
         wood_fragment_sprites[0] = queues.register(new SpriteFile("/geometry/misc/wood_2.binsprite",
                 Globals.NO_MIPMAP_CUTOFF,

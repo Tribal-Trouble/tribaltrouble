@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static com.oddlabs.tt.landscape.AbstractTreeGroup.TreeType;
 
@@ -50,40 +51,24 @@ class TreePicker implements TreeNodeVisitor {
     }
 
     private static @NonNull Map<@NonNull TreeType, @NonNull Tree> loadTrees() {
-        SpriteList jungle_crown = Resources.findResource(RacesResources.eventSkin(new SpriteFile(
-                "/geometry/misc/jungle_tree_crown.binsprite",
-                CROWN_MIPMAP_CUTOFF, false, false, true, false, true)));
-        SpriteList jungle_trunk = Resources.findResource(RacesResources.eventSkin(new SpriteFile(
-                "/geometry/misc/jungle_tree_trunk.binsprite",
-                CROWN_MIPMAP_CUTOFF, true, true, true, false)));
-
-        SpriteList palm_crown = Resources.findResource(RacesResources.eventSkin(new SpriteFile(
-                "/geometry/misc/palm_crown.binsprite",
-                CROWN_MIPMAP_CUTOFF, false, false, true, false, true)));
-        SpriteList palm_trunk = Resources.findResource(RacesResources.eventSkin(new SpriteFile(
-                "/geometry/misc/palm_trunk.binsprite",
-                CROWN_MIPMAP_CUTOFF, true, true, true, false)));
-
-        SpriteList oak_crown = Resources.findResource(RacesResources.eventSkin(new SpriteFile(
-                "/geometry/misc/oak_tree_crown.binsprite",
-                CROWN_MIPMAP_CUTOFF, false, false, true, false, true)));
-        SpriteList oak_trunk = Resources.findResource(RacesResources.eventSkin(new SpriteFile(
-                "/geometry/misc/oak_tree_trunk.binsprite",
-                CROWN_MIPMAP_CUTOFF, true, true, true, false)));
-
-        SpriteList pine_crown = Resources.findResource(RacesResources.eventSkin(new SpriteFile(
-                "/geometry/misc/pine_tree_crown.binsprite",
-                CROWN_MIPMAP_CUTOFF, false, false, true, false, true)));
-        SpriteList pine_trunk = Resources.findResource(RacesResources.eventSkin(new SpriteFile(
-                "/geometry/misc/pine_tree_trunk.binsprite",
-                CROWN_MIPMAP_CUTOFF, true, true, true, false)));
-
         var trees = new EnumMap<TreeType, @NonNull Tree>(TreeType.class);
-        trees.put(TreeType.JUNGLE, new Tree(jungle_trunk, jungle_crown));
-        trees.put(TreeType.PALM, new Tree(palm_trunk, palm_crown));
-        trees.put(TreeType.OAK, new Tree(oak_trunk, oak_crown));
-        trees.put(TreeType.PINE, new Tree(pine_trunk, pine_crown));
+        trees.put(TreeType.JUNGLE, loadTree("jungle_tree_trunk", "jungle_tree_crown"));
+        trees.put(TreeType.PALM, loadTree("palm_trunk", "palm_crown"));
+        trees.put(TreeType.OAK, loadTree("oak_tree_trunk", "oak_tree_crown"));
+        trees.put(TreeType.PINE, loadTree("pine_tree_trunk", "pine_tree_crown"));
         return Collections.unmodifiableMap(trees);
+    }
+
+    private static @NonNull Tree loadTree(@NonNull String trunk_name, @NonNull String crown_name) {
+        SpriteFile trunk = new SpriteFile("/geometry/misc/" + trunk_name + ".binsprite",
+                CROWN_MIPMAP_CUTOFF, true, true, true, false);
+        SpriteFile crown = new SpriteFile("/geometry/misc/" + crown_name + ".binsprite",
+                CROWN_MIPMAP_CUTOFF, false, false, true, false, true);
+        List<SpriteList> props = Stream.of(trunk, crown).flatMap(part -> RacesResources.getProps(
+                RacesResources.eventSkin(part).getLocation()).stream().map(part::withLocation)).map(
+                        prop -> Resources.findResource(RacesResources.eventSkin(prop))).toList();
+        return new Tree(Resources.findResource(RacesResources.eventSkin(trunk)), Resources.findResource(
+                RacesResources.eventSkin(crown)), props);
     }
 
     final @NonNull Map<@NonNull TreeType, @NonNull Tree> getTrees() {
