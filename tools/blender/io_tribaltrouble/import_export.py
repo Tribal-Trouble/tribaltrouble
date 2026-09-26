@@ -364,9 +364,8 @@ class SplitByBone(bpy.types.Operator):
         for modifier in o.modifiers:
             if modifier.type == "ARMATURE":
                 part.modifiers.new(modifier.name, "ARMATURE").object = modifier.object
-        for key in ("tt_texture",):
-            if key in o:
-                part[key] = o[key]
+        if "tt_texture" in o:
+            part["tt_texture"] = o["tt_texture"]
         set_vertex_groups(part, part_record.skins)
 
         replace_mesh_data(o, subset_record(record, rest_faces), o.data.name)
