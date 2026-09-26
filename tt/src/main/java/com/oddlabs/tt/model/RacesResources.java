@@ -63,7 +63,6 @@ import java.util.stream.IntStream;
 
 public final class RacesResources {
     private static final String ATTACHMENTS_FILE = "/geometry/attachments.txt";
-    private static final String EVENT_TEXTURES_FILE = "/geometry/event_textures.txt";
     private static final String SKINS_FILE = "/geometry/skins.txt";
     private static final int DEFAULT_TEXTURE = 0;
     private static final String NO_EVENT = "-";
@@ -74,7 +73,7 @@ public final class RacesResources {
     // Render-only, so it may differ between the players of one game.
     private static final String EVENT = System.getProperty("com.oddlabs.tt.event", NO_EVENT);
     private static List<AttachmentEntry> attachment_entries;
-    private static List<String[]> event_texture_lines;
+    private static Map<String, String> event_skins;
     public static final int QUARTERS_SIZE = 5;
     public static final int ARMORY_SIZE = 5;
     public static final int TOWER_SIZE = 3;
@@ -191,9 +190,11 @@ public final class RacesResources {
                 true, false, true, false);
         List<AttachmentEntry> attachments = loadAttachments();
         Map<Building.BuildState, List<SpriteKey>> props = new EnumMap<>(Building.BuildState.class);
-        props.put(Building.BuildState.BUILT, buildingProps(queues, attachments, built_name));
-        props.put(Building.BuildState.HALFBUILT, buildingProps(queues, attachments, halfbuilt_name));
-        props.put(Building.BuildState.START, buildingProps(queues, attachments, start_name));
+        props.put(Building.BuildState.BUILT, buildingProps(queues, attachments, eventSkin(building).getLocation()));
+        props.put(Building.BuildState.HALFBUILT, buildingProps(queues, attachments, eventSkin(
+                building_halfbuilt).getLocation()));
+        props.put(Building.BuildState.START, buildingProps(queues, attachments, eventSkin(
+                building_start).getLocation()));
         return new BuildingTemplate(
                 template_id,
                 type,
@@ -203,13 +204,13 @@ public final class RacesResources {
                 num_fragments,
                 shadow_diameter,
                 shadow_renderer,
-                queues.register(building, eventTexture(built_name)),
+                queues.register(building),
                 built_selection_radius,
                 built_selection_height,
-                queues.register(building_halfbuilt, eventTexture(halfbuilt_name)),
+                queues.register(building_halfbuilt),
                 halfbuilt_selection_radius,
                 halfbuilt_selection_height,
-                queues.register(building_start, eventTexture(start_name)),
+                queues.register(building_start),
                 start_selection_radius,
                 start_selection_height,
                 max_hit_points,
@@ -257,23 +258,6 @@ public final class RacesResources {
         }
     }
 
-    // Lines of "group sprite event index" written by the geometry converter.
-    private static int eventTexture(@NonNull String geometry) {
-        Matcher path = BUILDING_GEOMETRY.matcher(geometry);
-        if (!path.matches())
-            return DEFAULT_TEXTURE;
-        if (event_texture_lines == null) {
-            try (var reader = new BufferedReader(new InputStreamReader(
-                    com.oddlabs.util.Utils.makeURL(EVENT_TEXTURES_FILE).openStream(), StandardCharsets.UTF_8))) {
-                event_texture_lines = reader.lines().map(line -> line.split(" ")).toList();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-        return event_texture_lines.stream().filter(f -> f[0].equals(path.group(1)) && f[1].equals(path.group(2))
-                && f[2].equals(EVENT)).map(f -> Integer.parseInt(f[3])).findFirst().orElse(DEFAULT_TEXTURE);
-    }
-
     // Every prop registered on a building stage is drawn with it; there is nothing to toggle.
     private static @NonNull List<SpriteKey> buildingProps(@NonNull RenderQueues queues,
             @NonNull List<AttachmentEntry> entries, @NonNull String geometry) {
@@ -285,8 +269,7 @@ public final class RacesResources {
             if (!entry.group().equals(path.group(1)) || !entry.base().equals(path.group(2)))
                 continue;
             String prop = spritePath(entry.group(), entry.name());
-            props.add(queues.register(new SpriteFile(prop, Globals.NO_MIPMAP_CUTOFF, true, false, true, false),
-                    eventTexture(prop)));
+            props.add(queues.register(new SpriteFile(prop, Globals.NO_MIPMAP_CUTOFF, true, false, true, false)));
         }
         return props;
     }
@@ -330,13 +313,10 @@ public final class RacesResources {
             int tex_index) {
         String location = spritePath(entry.group(), entry.name());
         return queues.register(new SpriteFile(location, Globals.NO_MIPMAP_CUTOFF, true, true, true, false),
-                textureIndex(location, entry.textures(), tex_index));
+                textureIndex(entry.textures(), tex_index));
     }
 
-    // An event texture only stands in for the first texture, so tiers drawn with another one stay told apart.
-    private static int textureIndex(@NonNull String location, int textures, int tex_index) {
-        if (tex_index == DEFAULT_TEXTURE)
-            return eventTexture(location);
+    private static int textureIndex(int textures, int tex_index) {
         return tex_index < textures ? tex_index : DEFAULT_TEXTURE;
     }
 
@@ -363,18 +343,29 @@ public final class RacesResources {
     }
 
     private record SkinEntry(@NonNull String group, @NonNull String skin, @NonNull String replaces,
-                             @NonNull String name, int textures) {
+                             @NonNull String name, int textures, @NonNull String event) {
     }
 
-    // Lines of "group skin replaces name textures" written by the geometry converter.
+    // Lines of "group skin replaces name textures event" written by the geometry converter.
     private static @NonNull List<SkinEntry> readSkins() {
         try (var reader = new BufferedReader(new InputStreamReader(
                 com.oddlabs.util.Utils.makeURL(SKINS_FILE).openStream(), StandardCharsets.UTF_8))) {
             return reader.lines().map(line -> line.split(" ")).map(f -> new SkinEntry(f[0], f[1], f[2], f[3],
-                    Integer.parseInt(f[4]))).toList();
+                    Integer.parseInt(f[4]), f[5])).filter(entry -> isEventActive(entry.event())).toList();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    /** What the active event draws for everyone in place of sprite_file; owned skins still draw over it. */
+    public static @NonNull SpriteFile eventSkin(@NonNull SpriteFile sprite_file) {
+        if (event_skins == null) {
+            event_skins = new HashMap<>();
+            readSkins().stream().filter(entry -> !entry.event().equals(NO_EVENT)).forEach(entry -> event_skins.put(
+                    spritePath(entry.group(), entry.replaces()), spritePath(entry.group(), entry.name())));
+        }
+        String location = event_skins.get(sprite_file.getLocation());
+        return location != null ? sprite_file.withLocation(location) : sprite_file;
     }
 
     // A skin sprite stands in wherever a template draws the sprite it replaces, and brings its own building props.
@@ -391,6 +382,8 @@ public final class RacesResources {
                 race.getUnitTemplate(i).getAttachments().values().forEach(slot -> item_keys.addAll(slot.values()));
         }
         for (SkinEntry entry : readSkins()) {
+            if (!entry.event().equals(NO_EVENT))
+                continue;
             for (SpriteKey item : item_keys) {
                 SpriteKey skin = reskin(queues, item, entry);
                 if (skin != null)
@@ -437,12 +430,8 @@ public final class RacesResources {
         if (!stock_file.equals(stock_file.withLocation(replaced)))
             return null;
         String location = spritePath(entry.group(), entry.name());
-        // A stock building drawn with its event texture stands on its first texture as far as the skin is concerned.
-        int tex_index = queues.getRenderer(stock).getTexIndex();
-        if (tex_index == eventTexture(replaced))
-            tex_index = DEFAULT_TEXTURE;
         SpriteKey skin = queues.register(stock_file.withLocation(location),
-                textureIndex(location, entry.textures(), tex_index));
+                textureIndex(entry.textures(), queues.getTexIndex(stock)));
         if (queues.getRenderer(skin).getSpriteList().getAnimationTypes().length != queues.getRenderer(
                 stock).getSpriteList().getAnimationTypes().length)
             throw new IllegalStateException(

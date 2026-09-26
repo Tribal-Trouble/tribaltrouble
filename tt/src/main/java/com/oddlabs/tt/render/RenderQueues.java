@@ -2,6 +2,7 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.geometry.AnimationInfo;
 import com.oddlabs.tt.camera.CameraState;
+import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
@@ -15,12 +16,15 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public final class RenderQueues implements AutoCloseable {
+    private static final int FIRST_TEXTURE = 0;
+
     private final List<@NonNull SpriteRenderer> sprite_renderers = new ArrayList<>();
     private final List<@NonNull SpriteRenderer> blend_sprite_renderers = new ArrayList<>();
     private final List<@NonNull SpriteRenderer> plant_renderers = new ArrayList<>();
 
     private final List<@NonNull SpriteRenderer> sprite_list_lookup = new ArrayList<>();
     private final List<@NonNull SpriteFile> sprite_file_lookup = new ArrayList<>();
+    private final List<@NonNull Integer> tex_index_lookup = new ArrayList<>();
     private final List<@NonNull ShadowListRenderer> shadow_renderer_lookup = new ArrayList<>();
     private final Map<@NonNull Supplier<@NonNull Texture @NonNull []>, @NonNull ShadowListKey> desc_to_shadow_key = new HashMap<>();
     private final List<@NonNull Texture> texture_lookup = new ArrayList<>();
@@ -75,15 +79,22 @@ public final class RenderQueues implements AutoCloseable {
     }
 
     public @NonNull SpriteKey register(@NonNull SpriteFile sprite_file) {
-        return register(sprite_file, 0);
+        return register(sprite_file, FIRST_TEXTURE);
     }
 
     public @NonNull SpriteKey register(@NonNull SpriteFile sprite_file, int tex_index) {
         int index = sprite_list_lookup.size();
         SpriteList sprite_list = Resources.findResource(sprite_file);
-        SpriteRenderer sprite_renderer = new SpriteRenderer(sprite_list, tex_index, spriteRenderer);
+        // The key keeps the stock bounds and clips, so an event skin changes only what is drawn.
+        SpriteList drawn = Resources.findResource(RacesResources.eventSkin(sprite_file));
+        if (drawn.getAnimationTypes().length != sprite_list.getAnimationTypes().length)
+            throw new IllegalStateException(
+                    "Event skin of " + sprite_file.getLocation() + " has other clips than it; give it that sprite as its base");
+        SpriteRenderer sprite_renderer = new SpriteRenderer(drawn, tex_index < drawn.getSprite(
+                0).getNumTextures() ? tex_index : FIRST_TEXTURE, spriteRenderer);
         sprite_list_lookup.add(sprite_renderer);
         sprite_file_lookup.add(sprite_file);
+        tex_index_lookup.add(tex_index);
         registerSpriteRenderer(sprite_renderer, sprite_file.getLocation());
         AnimationInfo.AnimationType[] animation_types = sprite_list.getAnimationTypes();
         int[] type_array = new int[animation_types.length];
@@ -95,6 +106,11 @@ public final class RenderQueues implements AutoCloseable {
 
     public @NonNull SpriteRenderer getRenderer(@NonNull SpriteKey key) {
         return sprite_list_lookup.get(key.getKey());
+    }
+
+    /** The texture the sprite was registered with, before any event skin with fewer textures fell back to its first. */
+    public int getTexIndex(@NonNull SpriteKey key) {
+        return tex_index_lookup.get(key.getKey());
     }
 
     public @NonNull SpriteFile getSpriteFile(@NonNull SpriteKey key) {

@@ -36,7 +36,7 @@ The geometry converter writes every slotted sprite to `attachments.txt` next to 
 
 Items in a slot cycle in the order default first, then by name. In game, with cheats on (`/iamacheater` in chat), H cycles the `hat` slot on the selected units: bare, first item, second item, bare. It is a cheat, hidden from the key options, because the choice is local: other players do not see it until it travels on the wire. Every selected unit moves to the same item, taken from the first one in the selection. The choice is render-only and local until the wire change.
 
-## Buildings: props and event textures (implemented 2026-09-19)
+## Buildings: props (implemented 2026-09-19)
 
 A building is a static sprite, so a prop on it is simpler than a hat: it has no bone, it just sits where it was placed relative to the building.
 
@@ -48,19 +48,7 @@ A building is a static sprite, so a prop on it is simpler than a hat: it has no 
 - Every prop registered on a stage is drawn with it. There is nothing to toggle, so the slot name only groups them; the add-on writes `prop`.
 - `event` is optional. Without it the prop shows all year. With it the prop only shows while that event is on.
 
-A texture can carry the same attribute:
-
-```xml
-<model r="90" g="60" b="30">
-    vikings/quarters/viking_main_built.xml
-    <texture name="viking_buildings_hi" team="viking_buildings_hi_team"/>
-    <texture name="viking_buildings_hi_halloween" team="viking_buildings_hi_team" event="halloween"/>
-</model>
-```
-
-The game picks a texture by its place in the list, and that place is shared by every detail level of the sprite. So every model of the sprite needs an event texture in the same place; the converter refuses the registry otherwise. A model nobody painted for the event repeats its usual texture there. The converter writes `event_textures.txt` next to `attachments.txt`, and `attachments.txt` gained the event as a last column.
-
-Which event is on comes from the `com.oddlabs.tt.event` system property, for example `-Dcom.oddlabs.tt.event=halloween`. It is render-only, so players in one game may differ. Turning an event on by calendar date is a follow-up. Event items on units obey the same attribute: outside their event they are not loaded at all. An event texture only replaces a sprite's first texture, so iron rocks and iron or chicken warriors keep their tier texture during an event.
+Which event is on comes from the `com.oddlabs.tt.event` system property, for example `-Dcom.oddlabs.tt.event=halloween`. It is render-only, so players in one game may differ. Turning an event on by calendar date is a follow-up. Event items on units obey the same attribute: outside their event they are not loaded at all. `attachments.txt` carries the event as its last column. To give something another look during an event, use an event skin (see Skins).
 
 ## Carried items (moved into the registry 2026-09-19)
 
@@ -74,25 +62,32 @@ There are five per race: `wood_resource`, `rock_resource` (iron is its second te
 
 The difference from a hat is who switches it on. The simulation decides what a peon holds, so the game asks for these five by name and they never enter the unit's player-facing slots; H does not touch them. That is also why they cannot be removed from the registry.
 
-During an event a sprite named `<name>_<event>` in the same slot stands in for `<name>`, for example `wood_resource_christmas` with `event="christmas"`. An event texture on the item works too, as on buildings.
+During an event a sprite named `<name>_<event>` in the same slot stands in for `<name>`, for example `wood_resource_christmas` with `event="christmas"`. An event skin on the item works too (see Skins).
 
-## Player skins (registry side implemented 2026-09-23)
+## Skins (implemented 2026-09-23, event skins 2026-09-25)
 
-A skin redraws everything one player owns: every unit and building of a template, not one instance. A skin sprite names the skin it belongs to and the sprite of its group it stands in for:
+A skin is another look, a texture and/or a mesh, for a unit, building, item or any other registry sprite. A skin sprite names the skin it belongs to and the sprite of its group it stands in for. It also says who gets it: players who own it, or everyone during an event.
 
 ```xml
 <sprite name="warrior_gold" base="warrior" skin="gold" replaces="warrior">
 <sprite name="quarters_gold" skin="gold" replaces="quarters">
 <sprite name="quarters_gold_banner" base="quarters_gold" slot="prop">
 <sprite name="peon_hammer_gold" base="peon" slot="weapon" skin="gold" replaces="peon_hammer">
+<sprite name="quarters_halloween" skin="halloween" replaces="quarters" event="halloween">
+<sprite name="oak_tree_crown_halloween" skin="halloween" replaces="oak_tree_crown" event="halloween">
 ```
 
-- `replaces` is the stock sprite. Every template drawn with it uses the skin sprite instead, with the same texture slot (rock, iron and chicken warriors share one mesh), or the first texture when the skin has fewer.
+- `replaces` is the stock sprite. Everything drawn with it uses the skin sprite instead, with the same texture slot (rock, iron and chicken warriors share one mesh), or the first texture when the skin has fewer. A skin that only changes the texture repeats the stock mesh with its own texture.
 - A unit skin needs `base` on the unit it replaces so it has the same clips; the game refuses a skin whose clip list differs.
 - A building skin replaces one stage. Props whose `base` is the skin sprite are drawn with it; stages the skin leaves alone keep their stock props.
 - An item skin keeps the `base` and `slot` of the item it replaces (the converter refuses one that does not). It is listed in `skins.txt` only, never in `attachments.txt`, so nobody wears it as an extra item. Every unit drawing that item, held in a slot or carried, draws the skin sprite instead, with the item's tier texture rule and the same clip check. A skin may cover only items, only the body, or both.
-- The converter writes `skins.txt` (`group skin replaces name textures`). Nothing picks a player's skin yet; `RacesResources.getSkins(name)` hands one to `Player.setSkins`.
-- A skin belongs to a player and every client draws that player's units, buildings and items with it, so once skins are assigned everyone sees them. Skins are render-only: clip timing still comes from the template, and nothing a skin changes reaches the simulation or its checksums. Events are separate: an event is global, on for everyone at once, while a skin is one player's look all year.
+- The converter writes `skins.txt` (`group skin replaces name textures event`, the event `-` for an owned skin).
+
+**Owned skins** (no `event`) cover units, buildings and items. A skin belongs to a player and every client draws that player's units, buildings and items with it, so once skins are assigned everyone sees them. Nothing picks a player's skin yet; `RacesResources.getSkins(name)` hands one to `Player.setSkins`.
+
+**Event skins** (`event="halloween"`) belong to nobody. While that event is on, the skin replaces the Default look for every player, and it works on any sprite, including trees, rocks and other scenery nobody owns. Outside its event it is not loaded. Where a player owns a skin for the same sprite, the owned skin wins. Which event is on comes from `com.oddlabs.tt.event`, as for props.
+
+Both kinds are render-only: an event skin keeps the stock sprite's bounds and clips, clip timing still comes from the template, and nothing a skin changes reaches the simulation or its checksums. Textures cannot carry `event` any more; the converter refuses one and asks for an event skin instead.
 
 ## Map decorations (game side implemented 2026-09-25)
 
