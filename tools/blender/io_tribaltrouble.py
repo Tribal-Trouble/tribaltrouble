@@ -41,7 +41,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 36, 1),
+    "version": (1, 36, 2),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1304,6 +1304,8 @@ class TT_UL_items(bpy.types.UIList):
         hidden = not item_shown(item)
         row.operator(ShowItem.bl_idname, text="", icon="HIDE_ON" if hidden else "HIDE_OFF", emboss=False).item = item.name
         row.label(text=item["tt_sprite"])
+        if item.get("tt_skin"):
+            row.label(text=item.get("tt_skin_name", item["tt_skin"]), icon="BRUSH_DATA")
         tag = row.row()
         tag.alignment = "RIGHT"
         tag.enabled = False
@@ -4248,10 +4250,11 @@ def show_skin(context, body, entry, skin):
             o.data.materials.append(get_atlas_material(texture, models_texture_path(root, texture)))
         if skin is not None:
             o["tt_stock_texture"] = o.get("tt_stock_texture", o.get("tt_texture", ""))
-            o["tt_texture"], o["tt_skin"] = ",".join(textures), skin["name"]
+            o["tt_texture"], o["tt_skin"], o["tt_skin_name"] = ",".join(textures), skin["name"], skin["skin"]
         elif o.get("tt_skin"):
             o["tt_texture"] = o.pop("tt_stock_texture")
             del o["tt_skin"]
+            o.pop("tt_skin_name", None)
     if skin is None:
         for o, (_, digest) in export_texts(context, arm, levels).items():
             o["tt_export_hash"] = digest
