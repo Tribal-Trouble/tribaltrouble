@@ -49,7 +49,7 @@ public final class ShipSlideBehaviour implements Behaviour {
 
         ShipTrajectoryPoint next = curr.moved(-1.4f * t);
 
-        if (ShipTrajectory.checkShipsCollision(grid, ship, curr, next.moved(-8))) {
+        if (ShipTrajectory.checkShipsCollision(grid, ship, curr, next.moved(-8)) != null) {
             return State.UNINTERRUPTIBLE;
         }
 

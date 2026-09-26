@@ -2,8 +2,10 @@ package com.oddlabs.tt.pathfinder;
 
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.model.Ship;
+import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.DebugRender;
 import com.oddlabs.tt.util.Target;
+import com.oddlabs.tt.landscape.LandscapeTarget;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,13 +33,24 @@ public final class ShipTrajectory {
         ShipTrajectoryPoint p0 = new ShipTrajectoryPoint(ship);
         ShipTrajectoryPoint p1 = pickTargetPosition(grid, ship, t);
 
-        var regionPath = findRegionPath(p0, p1);
-
-        if (regionPath != null) {
-            optimizePath(regionPath);
-            trajectory = createTrajectory(regionPath);
+        boolean simple = !checkLandCollision(grid, p0, p1);
+        if (simple) {
+            var path = new ArrayList<ShipTrajectoryPoint>();
+            if (p0.gridX == p1.gridX && p0.gridY == p1.gridY) {
+                trajectory = null;
+            } else {
+                path.add(p0);
+                path.add(p1);
+                trajectory = createTrajectory(path);
+            }
         } else {
-            trajectory = null;
+            var regionPath = findRegionPath(p0, p1);
+            if (regionPath != null) {
+                optimizePath(regionPath);
+                trajectory = createTrajectory(regionPath);
+            } else {
+                trajectory = null;
+            }
         }
     }
 
@@ -251,8 +264,8 @@ public final class ShipTrajectory {
                 ShipTrajectoryPoint prev = path.get(i - 1);
                 ShipTrajectoryPoint next = path.get(i + 1);
 
-                if (!checkLandCollision(grid, prev, next) && !checkShipsCollision(grid, ship, prev.moved(-7),
-                        next.moved(7))) {
+                if (!checkLandCollision(grid, prev, next) && checkShipsCollision(grid, ship, prev.moved(-7),
+                        next.moved(7)) == null) {
                     path.remove(i);
                     changed = true;
                 } else {
@@ -279,6 +292,7 @@ public final class ShipTrajectory {
         }
 
         public boolean filter(int grid_x, int grid_y, Occupant occ) {
+            int size = grid.getGridSize();
             if (grid.isDeepWater(grid_x, grid_y) && grid.getRegion(grid_x, grid_y, UnitGrid.SEA) != null) {
                 pt = new ShipTrajectoryPoint(grid_x, grid_y);
                 return true;
@@ -291,32 +305,49 @@ public final class ShipTrajectory {
         }
     }
 
-    public static List<ShipTrajectoryPoint> pickTargetArray(UnitGrid grid, Target target, int numTargets) {
-        List<ShipTrajectoryPoint> targets = new ArrayList<ShipTrajectoryPoint>();
-        if (numTargets <= 0) {
-            return targets;
+    public static ShipTrajectoryPoint pickTargetPosition(UnitGrid grid, Ship self, Target target) {
+        int targetIsland = grid.getIslandId(target.getGridX(), target.getGridY());
+        if (targetIsland != 0) {
+            // Land target
+            var island = grid.getIslandInfo(targetIsland);
+            var pts = island.contourPoints();
+            int best_d2 = -1;
+            var best_pt = pts.get(0);
+            for (int i = 0; i < pts.size(); i++) {
+                var pt = pts.get(i);
+                boolean obstacle = false;
+                for (Player player : self.getOwner().getWorld().getPlayers()) {
+                    for (var s : player.getUnits().getSet()) {
+                        if (s instanceof Ship otherShip && otherShip != self) {
+                            int odx = s.getGridX() - pt[0];
+                            int ody = s.getGridY() - pt[1];
+                            int od2 = odx * odx + ody * ody;
+                            if (od2 < 400) {
+                                obstacle = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (obstacle) {
+                        break;
+                    }
+                }
+                if (!obstacle) {
+                    int dx = pt[0] - target.getGridX();
+                    int dy = pt[1] - target.getGridY();
+                    int d2 = dx * dx + dy * dy;
+                    if (best_d2 == -1 || d2 < best_d2) {
+                        best_d2 = d2;
+                        best_pt = pt;
+                    }
+                }
+            }
+            if (best_d2 != -1) {
+                target = new LandscapeTarget(best_pt[0], best_pt[1]);
+            }
         }
 
-        ShipTrajectoryPoint midPt = pickTargetPosition(grid, null, target);
-        if (midPt == null) {
-            return targets;
-        }
-        targets.add(midPt);
-
-        int numLeft = (numTargets - 1) / 2;
-        int numRight = numTargets - numLeft - 1;
-        for (int i = 1; i <= numLeft; i++) {
-            ShipTrajectoryPoint pt = midPt.moved(10 * i);
-            targets.add(pt);
-        }
-        for (int i = 1; i <= numRight; i++) {
-            ShipTrajectoryPoint pt = midPt.moved(10 * i);
-            targets.add(pt);
-        }
-        return targets;
-    }
-
-    public static ShipTrajectoryPoint pickTargetPosition(UnitGrid grid, Occupant self, Target target) {
+        // Sea target
         DeepWaterFinder finder = new DeepWaterFinder(grid);
         grid.scan(finder, target.getGridX(), target.getGridY(), UnitGrid.SEA);
         return finder.result();
@@ -379,10 +410,10 @@ public final class ShipTrajectory {
         ShipTrajectoryPoint[] poly = new ShipTrajectoryPoint[4];
 
         ShipTrajectoryPoint center = new ShipTrajectoryPoint(s);
-        poly[0] = center.moved(-7).rotated(90).moved(3);
-        poly[1] = poly[0].moved(-6);
-        poly[2] = center.moved(7).rotated(-90).moved(3);
-        poly[3] = poly[2].moved(-6);
+        poly[0] = center.moved(-6).rotated(90).moved(2);
+        poly[1] = poly[0].moved(-4);
+        poly[2] = center.moved(6).rotated(-90).moved(2);
+        poly[3] = poly[2].moved(-4);
 
         poly[0].setDirectionTo(poly[1]);
         poly[1].setDirectionTo(poly[2]);
@@ -422,7 +453,7 @@ public final class ShipTrajectory {
         }
     }
 
-    public static boolean checkShipsCollision(UnitGrid grid, Ship ship, ShipTrajectoryPoint p0,
+    public static Ship checkShipsCollision(UnitGrid grid, Ship ship, ShipTrajectoryPoint p0,
             ShipTrajectoryPoint p1) {
         ShipTrajectoryPoint[] poly = new ShipTrajectoryPoint[4];
         ShipTrajectoryPoint center0 = p0.clone();
@@ -441,20 +472,23 @@ public final class ShipTrajectory {
         int center_x = (p0.gridX + p1.gridX) / 2;
         int center_y = (p0.gridY + p1.gridY) / 2;
         int radius = (int) StrictMath.round(poly[0].gridDistanceTo(poly[2])) + 10;
-        ShipFinder finder = new ShipFinder(radius, ship);
-        grid.scan(finder, center_x, center_y, UnitGrid.SEA);
-        grid.scan(finder, center_x, center_y, UnitGrid.LAND);
-        for (Ship otherShip : finder.results()) {
-            int dist_dx = ship.getGridX() - otherShip.getGridX();
-            int dist_dy = ship.getGridY() - otherShip.getGridY();
-            if (dist_dx * dist_dx + dist_dy * dist_dy < 14 * 14) {
-                var otherPoly = shipToPolygon(otherShip);
-                if (polygonCollision(poly, otherPoly)) {
-                    return true;
+        int r2 = radius * radius;
+
+        for (Player player : ship.getOwner().getWorld().getPlayers()) {
+            for (var s : player.getUnits().getSet()) {
+                if (s instanceof Ship otherShip && otherShip != ship) {
+                    int dist_dx = center_x - otherShip.getGridX();
+                    int dist_dy = center_y - otherShip.getGridY();
+                    if (dist_dx * dist_dx + dist_dy * dist_dy < r2) {
+                        var otherPoly = shipToPolygon(otherShip);
+                        if (polygonCollision(poly, otherPoly)) {
+                            return otherShip;
+                        }
+                    }
                 }
             }
         }
 
-        return false;
+        return null;
     }
 }

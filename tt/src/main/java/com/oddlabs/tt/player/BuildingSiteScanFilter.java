@@ -15,6 +15,8 @@ public final class BuildingSiteScanFilter implements ScanFilter {
     private final UnitGrid unit_grid;
     private final BuildingTemplate template;
     private final int range;
+    private final int island;
+    private final boolean check_island;
     private final boolean one_target;
     private final List<LandscapeTarget> result = new ArrayList<>();
 
@@ -23,6 +25,18 @@ public final class BuildingSiteScanFilter implements ScanFilter {
         this.template = template;
         this.range = range;
         this.one_target = one_target;
+        this.island = 0;
+        this.check_island = false;
+    }
+
+    public BuildingSiteScanFilter(UnitGrid unit_grid, BuildingTemplate template, int range, boolean one_target,
+            int island) {
+        this.unit_grid = unit_grid;
+        this.template = template;
+        this.range = range;
+        this.one_target = one_target;
+        this.island = island;
+        this.check_island = true;
     }
 
     @Override
@@ -39,6 +53,12 @@ public final class BuildingSiteScanFilter implements ScanFilter {
     public boolean filter(int grid_x, int grid_y, Occupant occ) {
         boolean legal = template.isPlacingLegal(unit_grid, grid_x, grid_y);
         HeightMap map = unit_grid.getHeightMap();
+        if (check_island) {
+            int curr_island = map.getIslandId(grid_x, grid_y);
+            if (curr_island != island) {
+                return false;
+            }
+        }
         boolean can_build = map.canBuild(grid_x, grid_y, template.getPlacingSize())
                 && template.getType() == BuildingTemplate.TYPE_BUILDING;
         boolean can_dock = map.canDock(grid_x, grid_y) && (unit_grid.getRegion(grid_x, grid_y) != null)

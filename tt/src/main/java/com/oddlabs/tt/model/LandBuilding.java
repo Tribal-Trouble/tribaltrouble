@@ -703,7 +703,7 @@ public final class LandBuilding extends Building {
             }
         }
         for (Unit unit : trappedUnits) {
-            unit.reposition();
+            unit.reposition(this);
         }
     }
 

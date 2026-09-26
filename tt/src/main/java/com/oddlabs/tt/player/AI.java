@@ -1,5 +1,6 @@
 package com.oddlabs.tt.player;
 
+import com.oddlabs.matchmaking.Game;
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.BuildSpinner;
@@ -13,6 +14,7 @@ import com.oddlabs.tt.model.RockSupply;
 import com.oddlabs.tt.model.RubberSupply;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.model.behaviour.DefendController;
 import com.oddlabs.tt.model.behaviour.GatherController;
 import com.oddlabs.tt.model.behaviour.IdleController;
@@ -51,6 +53,7 @@ public abstract class AI implements Animated {
     private boolean quarters_under_construction = false;
     private boolean tower_under_construction = false;
     private boolean ship_under_construction = false;
+    private boolean found_island = false;
     private float sleep_time;
 
     public AI(@NonNull Player owner, @Nullable UnitInfo unit_info) {
@@ -61,49 +64,94 @@ public abstract class AI implements Animated {
         if (unit_info != null) {
             int grid_start_x = UnitGrid.toGridCoordinate(owner.getStartX());
             int grid_start_y = UnitGrid.toGridCoordinate(owner.getStartY());
-            if (unit_info.hasQuarters()) {
-                owner.buildBuilding(Race.BUILDING_QUARTERS, grid_start_x, grid_start_y);
+            if (isArchipelago()) {
+                Ship ship = new Ship(owner, owner.getRace().getBuildingTemplate(Race.BUILDING_SHIP), grid_start_x,
+                        grid_start_y);
+                ship.instantBuild();
+                for (int i = 0; i < unit_info.numPeons(); i++) {
+                    Unit unit = new Unit(owner, ship.getPositionX(), ship.getPositionY(), null,
+                            owner.getRace().getUnitTemplate(
+                                    Race.UNIT_PEON));
+                    ship.getUnitContainer().enter(unit);
+                }
+                for (int i = 0; i < unit_info.numRockWarriors(); i++) {
+                    Unit unit = new Unit(owner, ship.getPositionX(), ship.getPositionY(), null,
+                            owner.getRace().getUnitTemplate(
+                                    Race.UNIT_WARRIOR_ROCK));
+                    ship.getUnitContainer().enter(unit);
+                }
+                for (int i = 0; i < unit_info.numIronWarriors(); i++) {
+                    Unit unit = new Unit(owner, ship.getPositionX(), ship.getPositionY(), null,
+                            owner.getRace().getUnitTemplate(
+                                    Race.UNIT_WARRIOR_IRON));
+                    ship.getUnitContainer().enter(unit);
+                }
+                for (int i = 0; i < unit_info.numRubberWarriors(); i++) {
+                    Unit unit = new Unit(owner, ship.getPositionX(), ship.getPositionY(), null,
+                            owner.getRace().getUnitTemplate(
+                                    Race.UNIT_WARRIOR_RUBBER));
+                    ship.getUnitContainer().enter(unit);
+                }
+                found_island = false;
+            } else {
+                if (unit_info.hasQuarters()) {
+                    owner.buildBuilding(Race.BUILDING_QUARTERS, grid_start_x, grid_start_y);
+                }
+                if (unit_info.hasArmory()) {
+                    owner.buildBuilding(Race.BUILDING_ARMORY, grid_start_x, grid_start_y);
+                }
+                for (int i = 0; i < unit_info.numTowers(); i++) {
+                    int center = owner.getWorld().getHeightMap().getGridUnitsPerWorld() / 2;
+                    int dx = center - grid_start_x;
+                    int dy = center - grid_start_y;
+                    float inv_dist = 1f / (float) Math.sqrt(dx * dx + dy * dy);
+                    int tx = (int) (grid_start_x + 10f * dx * inv_dist);
+                    int ty = (int) (grid_start_y + 10f * dy * inv_dist);
+                    owner.buildBuilding(Race.BUILDING_TOWER, tx, ty);
+                }
+                Random random = new Random(42);
+                if (unit_info.hasChieftain()) {
+                    Target t = getTarget(random);
+                    Unit chieftain = new Unit(owner, t.getPositionX(), t.getPositionY(), null,
+                            owner.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN));
+                    owner.setActiveChieftain(chieftain);
+                }
+                for (int i = 0; i < unit_info.numPeons(); i++) {
+                    Target t = getTarget(random);
+                    new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
+                            Race.UNIT_PEON));
+                }
+                for (int i = 0; i < unit_info.numRockWarriors(); i++) {
+                    Target t = getTarget(random);
+                    new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
+                            Race.UNIT_WARRIOR_ROCK));
+                }
+                for (int i = 0; i < unit_info.numIronWarriors(); i++) {
+                    Target t = getTarget(random);
+                    new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
+                            Race.UNIT_WARRIOR_IRON));
+                }
+                for (int i = 0; i < unit_info.numRubberWarriors(); i++) {
+                    Target t = getTarget(random);
+                    new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
+                            Race.UNIT_WARRIOR_RUBBER));
+                }
+                found_island = true;
             }
-            if (unit_info.hasArmory()) {
-                owner.buildBuilding(Race.BUILDING_ARMORY, grid_start_x, grid_start_y);
-            }
-            for (int i = 0; i < unit_info.numTowers(); i++) {
-                int center = owner.getWorld().getHeightMap().getGridUnitsPerWorld() / 2;
-                int dx = center - grid_start_x;
-                int dy = center - grid_start_y;
-                float inv_dist = 1f / (float) Math.sqrt(dx * dx + dy * dy);
-                int tx = (int) (grid_start_x + 10f * dx * inv_dist);
-                int ty = (int) (grid_start_y + 10f * dy * inv_dist);
-                owner.buildBuilding(Race.BUILDING_TOWER, tx, ty);
-            }
-            Random random = new Random(42);
-            if (unit_info.hasChieftain()) {
-                Target t = getTarget(random);
-                Unit chieftain = new Unit(owner, t.getPositionX(), t.getPositionY(), null,
-                        owner.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN));
-                owner.setActiveChieftain(chieftain);
-            }
-            for (int i = 0; i < unit_info.numPeons(); i++) {
-                Target t = getTarget(random);
-                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
-                        Race.UNIT_PEON));
-            }
-            for (int i = 0; i < unit_info.numRockWarriors(); i++) {
-                Target t = getTarget(random);
-                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
-                        Race.UNIT_WARRIOR_ROCK));
-            }
-            for (int i = 0; i < unit_info.numIronWarriors(); i++) {
-                Target t = getTarget(random);
-                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
-                        Race.UNIT_WARRIOR_IRON));
-            }
-            for (int i = 0; i < unit_info.numRubberWarriors(); i++) {
-                Target t = getTarget(random);
-                new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(
-                        Race.UNIT_WARRIOR_RUBBER));
-            }
+
         }
+    }
+
+    protected boolean isArchipelago() {
+        return getOwner().getWorld().getMapSize() == Game.SIZE_ARCHIPELAGO;
+    }
+
+    protected boolean hasFoundIsland() {
+        return found_island;
+    }
+
+    protected void setFoundIsland() {
+        found_island = true;
     }
 
     protected final @NonNull UnitGrid getUnitGrid() {

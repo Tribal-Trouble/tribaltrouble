@@ -49,14 +49,15 @@ public final class UnitGrid {
 
     public Target @NonNull [] findGridTargets(int center_grid_x, int center_grid_y, int num_targets,
             boolean grid_targets_only) {
-        return findGridTargets(center_grid_x, center_grid_y, num_targets, grid_targets_only, LAND);
+        return findGridTargets(center_grid_x, center_grid_y, num_targets, grid_targets_only, -1);
     }
 
     public Target @NonNull [] findGridTargets(int center_grid_x, int center_grid_y, int num_targets,
-            boolean grid_targets_only, int layer) {
-        Occupant[][] occupants = layers[layer].occupants;
-        FindTargetsFilter filter = new FindTargetsFilter(num_targets, occupants.length, grid_targets_only);
-        scan(filter, center_grid_x, center_grid_y, layer);
+            boolean grid_targets_only, int island) {
+        Occupant[][] occupants = layers[LAND].occupants;
+        FindTargetsFilter filter = new FindTargetsFilter(this, num_targets, occupants.length, grid_targets_only,
+                island);
+        scan(filter, center_grid_x, center_grid_y, LAND);
         return filter.getTargets();
     }
 

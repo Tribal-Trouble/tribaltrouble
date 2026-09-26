@@ -39,8 +39,8 @@ public class Ship extends Building implements Movable {
     private static final float REMOVE_DELAY = 1f / 10f;
 
     private static final int MAX_SUPPLY_COUNT = 200;
-    private static final int OCCUPY_LENGTH_CELLS = 13;
-    private static final int OCCUPY_WIDTH_CELLS = 4;
+    private static final int OCCUPY_LENGTH_CELLS = 14;
+    private static final int OCCUPY_WIDTH_CELLS = 6;
 
     public static final Cost COST_ROCK_WEAPON = new Cost(new Class[]{TreeSupply.class, RockSupply.class},
             new int[]{2, 1});
@@ -100,6 +100,8 @@ public class Ship extends Building implements Movable {
 
     private ShipHR ship_hr = null;
 
+    private boolean deploy_chieftain = false;
+
     private float anim_time;
 
     public Ship(Player owner, BuildingTemplate template, int grid_x, int grid_y) {
@@ -148,13 +150,11 @@ public class Ship extends Building implements Movable {
         float alpha = .6f;
     }
 
-    public final void setInitialShipDirection() {
-        UnitGrid grid = getUnitGrid();
-        int cx = getGridX();
-        int x0 = cx - 8;
+    private static float[] getInitDirection(UnitGrid grid, int x, int y) {
+        float[] ret = new float[2];
+        int x0 = x - 8;
         int x1 = x0 + 16;
-        int cy = getGridY();
-        int y0 = cy - 8;
+        int y0 = y - 8;
         int y1 = y0 + 16;
         int samples = 20;
         int best_gap = 0;
@@ -167,11 +167,11 @@ public class Ship extends Building implements Movable {
             double sin = Math.sin(angle);
             int weight_a = 0;
             int weight_b = 0;
-            for (int y = y0; y < y1; y++) {
-                for (int x = x0; x < x1; x++) {
-                    int h = grid.isWater(x, y) ? 0 : 1;
-                    int dx = x - cx;
-                    int dy = y - cy;
+            for (int tmpy = y0; tmpy < y1; tmpy++) {
+                for (int tmpx = x0; tmpx < x1; tmpx++) {
+                    int h = grid.isWater(tmpx, tmpy) ? 0 : 1;
+                    int dx = tmpx - x;
+                    int dy = tmpy - y;
                     double cross = dx * sin - dy * cos;
                     if (cross > 0) {
                         weight_a += h;
@@ -187,7 +187,14 @@ public class Ship extends Building implements Movable {
                 best_gap_dy = sin;
             }
         }
-        setDirection((float) best_gap_dy, (float) -best_gap_dx);
+        ret[0] = (float) best_gap_dy;
+        ret[1] = (float) -best_gap_dx;
+        return ret;
+    }
+
+    private final void setInitialShipDirection() {
+        float[] dir = getInitDirection(getUnitGrid(), getGridX(), getGridY());
+        setDirection(dir[0], dir[1]);
     }
 
     public final float getOffsetZ() {
@@ -296,6 +303,11 @@ public class Ship extends Building implements Movable {
                         getOwner().getWorld().getRacesResources().getWoodFragments(),
                         getOwner().getWorld().getAnimationManagerRealTime());
             }
+        }
+
+        if (deploy_chieftain && proxy != null && ship_hr != null && !isMoving()) {
+            ship_hr.exitChieftain();
+            deploy_chieftain = false;
         }
     }
 
@@ -415,7 +427,10 @@ public class Ship extends Building implements Movable {
     }
 
     public final boolean canBuildChieftain() {
-        return false;
+        if (ship_hr == null) {
+            return false;
+        }
+        return ship_hr.hasChieftain();
     }
 
     public final boolean canStopChieftain() {
@@ -426,6 +441,9 @@ public class Ship extends Building implements Movable {
     }
 
     public final void deployChieftain() {
+        if (canBuildChieftain()) {
+            deploy_chieftain = true;
+        }
     }
 
     private Unit createUnit(Target rally_point, @NonNull UnitTemplate template) {
@@ -601,18 +619,43 @@ public class Ship extends Building implements Movable {
         if (!unit_grid.isDockable(grid_x, grid_y)) {
             return false;
         }
-        int half = size / 2;
-        for (int y = 0; y < size; y++) {
-            for (int x = 0; x < size; x++) {
-                int current_grid_x = grid_x + x - half;
-                int current_grid_y = grid_y + y - half;
-                if (current_grid_x >= unit_grid.getGridSize()
-                        || current_grid_y >= unit_grid.getGridSize()
-                        || current_grid_x < 0
-                        || current_grid_y < 0) return false;
-                Occupant occupant = unit_grid.getOccupant(current_grid_x, current_grid_y, UnitGrid.LAND);
-                if (occupant != null && !(occupant instanceof StaticOccupant)) {
-                    return false;
+        if (unit_grid.getRegion(grid_x, grid_y, UnitGrid.LAND) == null) {
+            return false;
+        }
+        float[] dir = getInitDirection(unit_grid, grid_x, grid_y);
+        float dir_x = dir[0];
+        float dir_y = dir[1];
+        int center_x = HeightMap.METERS_PER_UNIT_GRID * grid_x;
+        int center_y = HeightMap.METERS_PER_UNIT_GRID * grid_y;
+        float half_length_meters = OCCUPY_LENGTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
+        float half_width_meters = OCCUPY_WIDTH_CELLS * HeightMap.METERS_PER_UNIT_GRID * 0.5f;
+        float half_diagonal_meters = (float) StrictMath.sqrt(
+                half_length_meters * half_length_meters + half_width_meters * half_width_meters);
+        int radius_cells = (int) StrictMath.ceil(half_diagonal_meters / HeightMap.METERS_PER_UNIT_GRID) + 1;
+        int grid_size = unit_grid.getGridSize();
+        int start_x = StrictMath.max(0, grid_x - radius_cells);
+        int end_x = StrictMath.min(grid_size - 1, grid_x + radius_cells);
+        int start_y = StrictMath.max(0, grid_y - radius_cells);
+        int end_y = StrictMath.min(grid_size - 1, grid_y + radius_cells);
+        for (int y = start_y; y <= end_y; y++) {
+            for (int x = start_x; x <= end_x; x++) {
+                if (IsInsideShape(
+                        x,
+                        y,
+                        center_x,
+                        center_y,
+                        dir_x,
+                        dir_y,
+                        half_length_meters,
+                        half_width_meters)) {
+                    Occupant occ = unit_grid.getOccupant(x, y, UnitGrid.LAND);
+                    if (occ != null && !(occ instanceof StaticOccupant)) {
+                        return false;
+                    }
+                    occ = unit_grid.getOccupant(x, y, UnitGrid.SEA);
+                    if (occ != null && !(occ instanceof StaticOccupant)) {
+                        return false;
+                    }
                 }
             }
         }
@@ -632,6 +675,18 @@ public class Ship extends Building implements Movable {
         pushController(new SailController(this, target));
         free();
         occupy();
+    }
+
+    public final void instantBuild() {
+        setLayer(UnitGrid.SEA);
+        register();
+        occupy();
+        int result = getOwner().getBuildingCountContainer().increaseSupply(1);
+        assert (result == 1) : "Too many buildings";
+        reinsert();
+        build_points = 1;
+        repair(getTemplate().getMaxHitPoints());
+        slid = true;
     }
 
     public final void place() {
@@ -726,7 +781,7 @@ public class Ship extends Building implements Movable {
             rally_point = target;
         } else {
             rally_point = getUnitGrid().findGridTargets(
-                    target.getGridX(), target.getGridY(), 1, false, UnitGrid.LAND)[0];
+                    target.getGridX(), target.getGridY(), 1, false)[0];
         }
     }
 
@@ -841,8 +896,11 @@ public class Ship extends Building implements Movable {
                         dir_y,
                         half_length_meters,
                         half_width_meters)) {
-                    if (grid.getOccupant(x, y, getLayer()) == this) {
-                        grid.freeGrid(x, y, this, getLayer());
+                    if (grid.getOccupant(x, y, UnitGrid.LAND) == this) {
+                        grid.freeGrid(x, y, this, UnitGrid.LAND);
+                    }
+                    if (grid.getOccupant(x, y, UnitGrid.SEA) == this) {
+                        grid.freeGrid(x, y, this, UnitGrid.SEA);
                     }
                 }
             }
@@ -860,6 +918,8 @@ public class Ship extends Building implements Movable {
     }
 
     public final void hit(int damage, float dir_x, float dir_y, @NonNull Player owner) {
+        // Prolonging ship life a little bit more
+        damage = Math.max(damage * 2 / 3, 1);
         super.hit(damage, dir_x, dir_y, owner);
         if (!isDead()) {
             setHitPoints(hit_points - damage);
@@ -971,11 +1031,11 @@ public class Ship extends Building implements Movable {
     }
 
     public final void endSlide() {
+        slid = true;
         forceDecide();
         free();
         reinsert();
         occupy();
-        slid = true;
     }
 
     public final void setPosition(float x, float y) {

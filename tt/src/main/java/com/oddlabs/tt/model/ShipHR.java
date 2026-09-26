@@ -46,7 +46,11 @@ public final class ShipHR {
 
         public abstract boolean needRowers();
 
+        public abstract boolean canSparePeons();
+
         public abstract int countRowers();
+
+        public abstract boolean empty();
     }
 
     class Rudder implements Row {
@@ -98,8 +102,16 @@ public final class ShipHR {
             return false;
         }
 
+        public boolean canSparePeons() {
+            return false;
+        }
+
         public int countRowers() {
             return 0;
+        }
+
+        public boolean empty() {
+            return unit == null;
         }
     }
 
@@ -140,7 +152,7 @@ public final class ShipHR {
                 all_units.add(unit);
                 if (unit.isWarrior()) {
                     warriors.add(unit);
-                } else {
+                } else if (!unit.isChieftain()) {
                     peons.add(unit);
                 }
                 reassign();
@@ -194,6 +206,11 @@ public final class ShipHR {
         public boolean needRowers() {
             int required = (left_rower ? 1 : 0) + (right_rower ? 1 : 0);
             return peons.size() < required;
+        }
+
+        public boolean canSparePeons() {
+            int required = (left_rower ? 1 : 0) + (right_rower ? 1 : 0);
+            return peons.size() > required;
         }
 
         public int countRowers() {
@@ -266,6 +283,10 @@ public final class ShipHR {
                 }
             }
         }
+
+        public boolean empty() {
+            return all_units.size() == 0;
+        }
     }
 
     class UpperDeckRow implements Row {
@@ -273,6 +294,11 @@ public final class ShipHR {
         private Unit right = null;
         private ShipAllocation leftAlloc;
         private ShipAllocation rightAlloc;
+        private Row alt;
+
+        public void setAlt(Row row) {
+            alt = row;
+        }
 
         public UpperDeckRow(float x, float y, float z) {
             leftAlloc = new ShipAllocation(new Vector3f(x, y, z), new Vector2f(0.0f, 1.0f), ShipAllocation.FIGHTING);
@@ -280,11 +306,12 @@ public final class ShipHR {
         }
 
         public boolean canFit(Unit unit) {
-            return unit.isWarrior() && (left == null || right == null);
+            return unit.isWarrior() && !unit.isChieftain() && (left == null || right == null) && (alt == null
+                    || alt.empty());
         }
 
         public void seat(Unit unit) {
-            if (unit.isWarrior()) {
+            if (canFit(unit)) {
                 if (left == null) {
                     left = unit;
                 } else if (right == null) {
@@ -346,12 +373,94 @@ public final class ShipHR {
             return false;
         }
 
+        public boolean canSparePeons() {
+            return false;
+        }
+
         public int countRowers() {
             return 0;
+        }
+
+        public boolean empty() {
+            return left == null && right == null;
+        }
+    }
+
+    class ChieftainRow implements Row {
+        private Unit unit = null;
+        private ShipAllocation alloc;
+        private Row alt1 = null;
+        private Row alt2 = null;
+
+        public ChieftainRow(float x, float y, float z) {
+            alloc = new ShipAllocation(new Vector3f(x, y, z), new Vector2f(1.0f, 0.0f), ShipAllocation.FIGHTING);
+        }
+
+        public void setAlts(Row r1, Row r2) {
+            alt1 = r1;
+            alt2 = r2;
+        }
+
+        public boolean canFit(Unit unit) {
+            return unit.isChieftain() && alt1.empty() && alt2.empty();
+        }
+
+        public void seat(Unit unit) {
+            if (unit.isChieftain()) {
+                this.unit = unit;
+            }
+        }
+
+        public void exit(Unit unit) {
+            if (this.unit == unit) {
+                this.unit = null;
+            }
+        }
+
+        public void killAll() {
+            if (unit != null) {
+                unit.drown();
+            }
+        }
+
+        public ShipAllocation getAllocation(Unit unit) {
+            if (this.unit == unit) {
+                return alloc;
+            }
+            return null;
+        }
+
+        public List<Unit> allUnits() {
+            List<Unit> ret = new ArrayList<>();
+            if (unit != null) {
+                ret.add(unit);
+            }
+            return ret;
+        }
+
+        public Unit findUnit(UnitTemplate template) {
+            return null;
+        }
+
+        public boolean needRowers() {
+            return false;
+        }
+
+        public boolean canSparePeons() {
+            return false;
+        }
+
+        public int countRowers() {
+            return 0;
+        }
+
+        public boolean empty() {
+            return unit == null;
         }
     }
 
     private LinkedHashMap<Unit, Row> unit2row = new LinkedHashMap<>();
+    private ChieftainRow chieftainRow;
 
     private ArrayList<Row> rows = new ArrayList<>();
 
@@ -375,8 +484,15 @@ public final class ShipHR {
             rows.add(new LowerDeckRow(+7.31f, +0.18f, +2.45f, 0.66f, true, false));
             rows.add(new LowerDeckRow(+7.31f, -2.45f, -0.18f, 0.66f, false, true));
             rows.add(new LowerDeckRow(+8.80f, -2.19f, +2.19f, 0.68f, true, true));
-            rows.add(new UpperDeckRow(+9.64f, +1.17f, +3.29f));
-            rows.add(new UpperDeckRow(+7.89f, +1.36f, +3.29f));
+            var r1 = new UpperDeckRow(+9.64f, +1.17f, +3.29f);
+            var r2 = new UpperDeckRow(+7.89f, +1.36f, +3.29f);
+            rows.add(r1);
+            rows.add(r2);
+            chieftainRow = new ChieftainRow(+8.76f, +0.00f, +3.29f);
+            rows.add(chieftainRow);
+            chieftainRow.setAlts(r1, r2);
+            r1.setAlt(chieftainRow);
+            r2.setAlt(chieftainRow);
             rows.add(new UpperDeckRow(+6.53f, +1.60f, +3.29f));
             rows.add(new UpperDeckRow(+5.12f, +1.74f, +3.29f));
             rows.add(new UpperDeckRow(+3.78f, +1.80f, +3.29f));
@@ -403,6 +519,15 @@ public final class ShipHR {
             rows.add(new LowerDeckRow(+5.57f, -2.77f, +2.77f, +0.37f, true, true));
             rows.add(new LowerDeckRow(+7.01f, -2.42f, +2.42f, +0.37f, true, true));
             rows.add(new LowerDeckRow(+8.62f, -2.42f, +2.42f, +0.37f, true, true));
+            var r1 = new UpperDeckRow(+8.00f, +1.09f, +3.24f);
+            var r2 = new UpperDeckRow(+9.50f, +0.83f, +3.24f);
+            rows.add(r1);
+            rows.add(r2);
+            chieftainRow = new ChieftainRow(+8.75f, +0.00f, +3.24f);
+            rows.add(chieftainRow);
+            r1.setAlt(chieftainRow);
+            r2.setAlt(chieftainRow);
+            chieftainRow.setAlts(r1, r2);
             rows.add(new UpperDeckRow(-9.39f, +1.01f, +3.41f));
             rows.add(new UpperDeckRow(-7.75f, +1.22f, +3.41f));
             rows.add(new UpperDeckRow(-6.02f, +1.35f, +3.41f));
@@ -414,8 +539,6 @@ public final class ShipHR {
             rows.add(new UpperDeckRow(+3.50f, +1.22f, +3.24f));
             rows.add(new UpperDeckRow(+5.00f, +1.22f, +3.24f));
             rows.add(new UpperDeckRow(+6.50f, +1.22f, +3.24f));
-            rows.add(new UpperDeckRow(+8.00f, +1.09f, +3.24f));
-            rows.add(new UpperDeckRow(+9.50f, +0.83f, +3.24f));
         }
     }
 
@@ -429,7 +552,7 @@ public final class ShipHR {
     }
 
     public ShipAllocation tryAllocate(Unit unit) {
-        if (!unit.isWarrior()) {
+        if (!unit.isWarrior() && !unit.isChieftain()) {
             for (int i = 0; i < rows.size(); i++) {
                 Row row = rows.get(i);
                 if (row.needRowers()) {
@@ -480,7 +603,7 @@ public final class ShipHR {
     }
 
     public Unit exitUnit(UnitTemplate template) {
-        boolean warrior = (template.getWeaponFactory() != null);
+        boolean warrior = (template.getWeaponFactory().getType() != null);
         if (warrior) {
             for (int i = 0; i < rows.size(); i++) {
                 Row row = rows.get(i);
@@ -501,8 +624,18 @@ public final class ShipHR {
             for (int i = rows.size() - 1; i >= 0; i--) {
                 Row row = rows.get(i);
                 Unit unit = row.findUnit(template);
+                if (unit != null && row.canSparePeons()) {
+                    row.exit(unit);
+                    unit2row.remove(unit);
+                    unit.setReference(null);
+                    unit.unmount();
+                    return unit;
+                }
+            }
+            for (int i = rows.size() - 1; i >= 0; i--) {
+                Row row = rows.get(i);
+                Unit unit = row.findUnit(template);
                 if (unit != null) {
-                    ShipAllocation alloc = row.getAllocation(unit);
                     row.exit(unit);
                     unit2row.remove(unit);
                     unit.setReference(null);
@@ -570,7 +703,7 @@ public final class ShipHR {
     }
 
     public Unit pickVictim(float random) {
-        int index = StrictMath.round(random * 120);
+        int index = StrictMath.round(random * 200);
         if (index >= unit2row.size()) {
             return null;
         }
@@ -582,6 +715,22 @@ public final class ShipHR {
         Unit unit = victim.getKey();
         Row row = victim.getValue();
         return unit;
+    }
+
+    public Unit exitChieftain() {
+        if (hasChieftain()) {
+            Unit unit = chieftainRow.allUnits().get(0);
+            chieftainRow.exit(unit);
+            unit2row.remove(unit);
+            unit.setReference(null);
+            unit.unmount();
+            return unit;
+        }
+        return null;
+    }
+
+    public boolean hasChieftain() {
+        return !chieftainRow.empty();
     }
 
     public int countRowers() {

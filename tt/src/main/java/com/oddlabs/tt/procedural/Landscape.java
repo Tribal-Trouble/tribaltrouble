@@ -91,9 +91,9 @@ public final class Landscape {
     private Channel height;
     private Channel slope;
     private Channel water_map;
+    private Channel deep_water_map;
     private Channel dock_map;
     private Channel island_ids;
-    private Channel good_starts;
     private Channel access;
     private Channel access_exported;
     private Channel relheight;
@@ -121,6 +121,7 @@ public final class Landscape {
     private final float hills;
     private final float vegetation_amount;
     private final float supplies_amount;
+    private final int supplyshadow_size;
     private final int seed;
     private final float area;
     private final int max_trees;
@@ -163,24 +164,29 @@ public final class Landscape {
                 size_multiplier = 1;
                 height_scale = 32;
                 access_threshold = 0.05f;
+                supplyshadow_size = Math.max(unit_grids_per_world >> 5, 2);
             }
             case 512 -> {
                 size_multiplier = 4;
                 height_scale = 48;
                 access_threshold = 0.0375f;
+                supplyshadow_size = Math.max(unit_grids_per_world >> 6, 2);
             }
             case 1024 -> {
                 size_multiplier = 16;
                 height_scale = 64;
                 access_threshold = 0.025f;
+                supplyshadow_size = Math.max(unit_grids_per_world >> 7, 2);
             }
             case 2048 -> {
                 size_multiplier = 40;
                 height_scale = 56;
                 access_threshold = 0.0325f;
+                supplyshadow_size = Math.max(unit_grids_per_world >> 8, 2);
             }
             default -> {
                 size_multiplier = 0;
+                supplyshadow_size = 2;
                 assert false : "illegal meters_per_world";
             }
         }
@@ -257,18 +263,14 @@ public final class Landscape {
             int[] bounds = new int[4];
             island_ids.floodfill(pos[0], pos[1], (float) last_id, 0.01f, count, bounds);
             int area = count[0];
-            if (count[0] < MIN_ISLAND_AREA) {
-                // If not big enough, put it back
-                island_ids.floodfill(pos[0], pos[1], 0.0f, 0.01f, null, null);
-            }
-            IslandInfo info = new IslandInfo(last_id, area, bounds[0], bounds[1], bounds[2], bounds[3], pos[0], pos[1]);
+            IslandInfo info = new IslandInfo(last_id, area, bounds[0], bounds[1], bounds[2], bounds[3], pos[0], pos[1],
+                    dock, island_ids);
             island_info.put(last_id, info);
             last_id++;
         }
         if (DEBUG) {
             island_ids.copy().multiply(1.0f / last_id).toLayer().saveAsPNG("island_ids");
         }
-        good_starts = island_ids.copy().threshold(0.5f, last_id + 1.0f);
 
         this.structures = new GLIntImage[layers.length];
         this.structure_normals = new GLIntImage[layers.length];
@@ -1083,21 +1085,23 @@ public final class Landscape {
             IO.println("Number of iron ore placed: " + iron.count(1f));
         }
 
-        // place extra supplies around starting locations
-        int num_rock = 2;
-        int num_iron = 1;
-        for (int p = 0; p < num_players; p++) {
-            for (int r = 0; r < num_rock; r++) {
-                int[] location = access.find((unit_grids_per_world >> 1), supply_locations[p][0],
-                        supply_locations[p][1], 1f);
-                rock.putPixel(location[0], location[1], 1f);
-                access.putPixel(location[0], location[1], 0f);
-            }
-            for (int i = 0; i < num_iron; i++) {
-                int[] location = access.find((unit_grids_per_world >> 1), supply_locations[p][0],
-                        supply_locations[p][1], 1f);
-                iron.putPixel(location[0], location[1], 1f);
-                access.putPixel(location[0], location[1], 0f);
+        if (!archipelago) {
+            // place extra supplies around starting locations
+            int num_rock = 2;
+            int num_iron = 1;
+            for (int p = 0; p < num_players; p++) {
+                for (int r = 0; r < num_rock; r++) {
+                    int[] location = access.find((unit_grids_per_world >> 1), supply_locations[p][0],
+                            supply_locations[p][1], 1f);
+                    rock.putPixel(location[0], location[1], 1f);
+                    access.putPixel(location[0], location[1], 0f);
+                }
+                for (int i = 0; i < num_iron; i++) {
+                    int[] location = access.find((unit_grids_per_world >> 1), supply_locations[p][0],
+                            supply_locations[p][1], 1f);
+                    iron.putPixel(location[0], location[1], 1f);
+                    access.putPixel(location[0], location[1], 0f);
+                }
             }
         }
 
@@ -1136,7 +1140,6 @@ public final class Landscape {
         float interval_size = 1f / intervals;
         float upper_bound = 1f;
         float lower_bound = upper_bound - interval_size;
-        int supplyshadow_size = Math.max(unit_grids_per_world >> 7, 2);
         Channel supplyshadow_alpha = new Channel(supplyshadow_size << 1, supplyshadow_size << 1).place(new Channel(
                 supplyshadow_size, supplyshadow_size).fill(1f), supplyshadow_size >> 1,
                 supplyshadow_size >> 1).smoothFast();
@@ -1260,46 +1263,41 @@ public final class Landscape {
             int x = (int) (radius * (float) Math.cos(angle) + (unit_grids_per_world >> 1) + 0.5f);
             int y = (int) (radius * (float) Math.sin(angle) + (unit_grids_per_world >> 1) + 0.5f);
             angle += angle_step;
-            location_quarters = buildmap.findNoWrap((unit_grids_per_world >> 1), x, y, 1f);
-            for (int k = -(RacesResources.QUARTERS_SIZE/* - 1*/); k <= (RacesResources.QUARTERS_SIZE/* - 1*/); k++) {
-                for (int l = -(RacesResources.QUARTERS_SIZE/* - 1*/); l <= (RacesResources.QUARTERS_SIZE/* - 1*/); l++) {
-                    access.putPixelWrap(location_quarters[0] + k, location_quarters[1] + l, 0f);
-                    good_starts.putPixelWrap(location_quarters[0] + k, location_quarters[1] + l, 0f);
-                    buildmap.putPixelWrap(location_quarters[0] + k, location_quarters[1] + l, 0f);
-                }
-            }
-            location_armory = buildmap.find((unit_grids_per_world >> 1), location_quarters[0], location_quarters[1],
-                    1f);
-            for (int k = -(RacesResources.ARMORY_SIZE/* - 1*/); k <= (RacesResources.ARMORY_SIZE/* - 1*/); k++) {
-                for (int l = -(RacesResources.ARMORY_SIZE/* - 1*/); l <= (RacesResources.ARMORY_SIZE/* - 1*/); l++) {
-                    access.putPixelWrap(location_armory[0] + k, location_armory[1] + l, 0f);
-                    good_starts.putPixelWrap(location_armory[0] + k, location_armory[1] + l, 0f);
-                    buildmap.putPixelWrap(location_armory[0] + k, location_armory[1] + l, 0f);
-                }
-            }
-            int[] location_unit_start;
             if (archipelago) {
-                location_unit_start = good_starts.find((unit_grids_per_world >> 1), location_quarters[0],
-                        location_quarters[1], 1f);
+                var loc = deep_water_map.find(unit_grids_per_world >> 1, x, y, 1f);
+                for (int u = 0; u < initial_unit_count; u++) {
+                    player_locations[i][2 * u] = (loc[0] * scale);
+                    player_locations[i][2 * u + 1] = (loc[1] * scale);
+                }
             } else {
+                location_quarters = buildmap.findNoWrap((unit_grids_per_world >> 1), x, y, 1f);
+                for (int k = -(RacesResources.QUARTERS_SIZE/* - 1*/); k <= (RacesResources.QUARTERS_SIZE/* - 1*/); k++) {
+                    for (int l = -(RacesResources.QUARTERS_SIZE/* - 1*/); l <= (RacesResources.QUARTERS_SIZE/* - 1*/); l++) {
+                        access.putPixelWrap(location_quarters[0] + k, location_quarters[1] + l, 0f);
+                        buildmap.putPixelWrap(location_quarters[0] + k, location_quarters[1] + l, 0f);
+                    }
+                }
+                location_armory = buildmap.find((unit_grids_per_world >> 1), location_quarters[0], location_quarters[1],
+                        1f);
+                for (int k = -(RacesResources.ARMORY_SIZE/* - 1*/); k <= (RacesResources.ARMORY_SIZE/* - 1*/); k++) {
+                    for (int l = -(RacesResources.ARMORY_SIZE/* - 1*/); l <= (RacesResources.ARMORY_SIZE/* - 1*/); l++) {
+                        access.putPixelWrap(location_armory[0] + k, location_armory[1] + l, 0f);
+                        buildmap.putPixelWrap(location_armory[0] + k, location_armory[1] + l, 0f);
+                    }
+                }
+                int[] location_unit_start;
                 location_unit_start = access.find((unit_grids_per_world >> 1), location_quarters[0],
                         location_quarters[1], 1f);
-            }
-            supply_locations[i][0] = location_armory[0];
-            supply_locations[i][1] = location_armory[1];
-            int[] location_unit = new int[2];
-            for (int u = 0; u < initial_unit_count; u++) {
-                if (archipelago) {
-                    location_unit = good_starts.find((unit_grids_per_world >> 1), location_unit_start[0],
-                            location_unit_start[1], 1f);
-                } else {
+                supply_locations[i][0] = location_armory[0];
+                supply_locations[i][1] = location_armory[1];
+                int[] location_unit = new int[2];
+                for (int u = 0; u < initial_unit_count; u++) {
                     location_unit = access.find((unit_grids_per_world >> 1), location_unit_start[0],
                             location_unit_start[1], 1f);
+                    access.putPixelWrap(location_unit[0], location_unit[1], 0f);
+                    player_locations[i][2 * u] = (location_unit[0] * scale);
+                    player_locations[i][2 * u + 1] = (location_unit[1] * scale);
                 }
-                access.putPixelWrap(location_unit[0], location_unit[1], 0f);
-                good_starts.putPixelWrap(location_unit[0], location_unit[1], 0f);
-                player_locations[i][2 * u] = (location_unit[0] * scale);
-                player_locations[i][2 * u + 1] = (location_unit[1] * scale);
             }
         }
 
@@ -1335,9 +1333,9 @@ public final class Landscape {
         Channel beach = height.copy().threshold(
                 Globals.SEA_LEVEL - 0.1f / height_scale,
                 Globals.SEA_LEVEL + 0.1f / height_scale);
-        dock_map = water_map.copy().smooth(6).threshold(0.0f, 0.99f).channelMultiply(beach).channelMultiply(shore_line);
+        dock_map = water_map.copy().smooth(6).threshold(0.0f, 0.99f).channelMultiply(shore_line);
         Channel near_beach = dock_map.copy().smooth(8);
-        Channel deep_water_map = water_map.copy().smooth(4).threshold(0.99f, 1.0f);
+        deep_water_map = water_map.copy().smooth(4).threshold(0.99f, 1.0f);
         if (DEBUG) deep_water_map.toLayer().saveAsPNG("deep_water");
         if (DEBUG) beach.toLayer().saveAsPNG("beach");
         if (DEBUG) dock_map.toLayer().saveAsPNG("dock_map");
@@ -1346,9 +1344,8 @@ public final class Landscape {
                 byte water_val = 0;
                 water_val += water_map.getPixel(x, y) > 0.5f ? 1 : 0;
                 water_val += deep_water_map.getPixel(x, y) > 0.5f ? 1 : 0;
-                var dockf = dock_map.getPixel(x, y);
                 byte dock_val = 0;
-                if (dockf > 0.5f) {
+                if (dock_map.getPixel(x, y) > 0.5f) {
                     dock_val = 1;
                 } else if (water_val == 0 && near_beach.getPixel(x, y) > 0.0f) {
                     dock_val = 2;
