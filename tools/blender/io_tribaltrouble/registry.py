@@ -1,4 +1,4 @@
-"""The repo folder and geometry.xml: reading, editing entries, sprite text, events and skins."""
+"""The repo folder and geometry.xml: reading, editing entries, sprite text and skins."""
 
 import os
 import re
@@ -218,17 +218,6 @@ def append_registry_entries(registry_path, group, entries):
     return len(added)
 
 
-_new_events = []  # made with New Event this session; geometry.xml names an event only once something uses it
-
-
-def known_events(context, edit_text=""):
-    """Every event geometry.xml already names, and those made with New Event, for the event fields to offer."""
-    root = repo_root(context)
-    registry = read_registry(root) if root else []
-    events = {s["event"] for s in registry} | {e for s in registry for level in s["textures"] for _, e in level}
-    return sorted(e for e in events | set(_new_events) if e and edit_text.strip().lower() in e)
-
-
 def remove_registry_entry(registry_path, group, name):
     """Cut one sprite entry out of a group. The mesh files stay on disk."""
     with open(registry_path, "rb") as f:
@@ -307,11 +296,6 @@ def set_sprite_textures(root, group, name, textures):
 
 PROP_SLOT = "prop"
 TEXTURE_LINE = re.compile(r'([ \t]*)<texture\s+name="([^"]+)"([^>]*?)/>[ \t]*\r?\n')
-
-
-def valid_event(event):
-    """Blank means all year; a name ends up in geometry.xml."""
-    return not event or re.fullmatch(r"[a-z0-9_]+", event) is not None
 
 
 def sprite_blocks(text):

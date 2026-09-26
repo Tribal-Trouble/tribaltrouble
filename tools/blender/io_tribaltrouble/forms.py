@@ -6,7 +6,7 @@ import re
 import bpy
 from bpy.props import StringProperty, EnumProperty
 
-from .registry import _new_events, known_events, valid_event
+from .registry import read_registry, repo_root
 from .scene import attachment_obj_poll
 
 
@@ -16,6 +16,20 @@ def own_mesh_search(self, context, edit_text):
 
 NO_EVENT = "ALL_YEAR"
 _event_items = {True: [], False: []}
+_new_events = []  # made with New Event this session; geometry.xml names an event only once something uses it
+
+
+def known_events(context):
+    """Every event geometry.xml already names, and those made with New Event, for the event fields to offer."""
+    root = repo_root(context)
+    registry = read_registry(root) if root else []
+    events = {s["event"] for s in registry} | {e for s in registry for level in s["textures"] for _, e in level}
+    return sorted(e for e in events | set(_new_events) if e)
+
+
+def valid_event(event):
+    """Blank means all year; a name ends up in geometry.xml."""
+    return not event or re.fullmatch(r"[a-z0-9_]+", event) is not None
 
 
 def event_items(context, optional):

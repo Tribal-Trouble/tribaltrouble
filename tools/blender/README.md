@@ -59,10 +59,10 @@ The add-on is the package `tools/blender/io_tribaltrouble/`. Lower modules never
 
 - `textures.py`: materials, team color nodes, texture files and atlas crops.
 - `mesh_io.py`: mesh, skeleton and clip XML read and write, and the Blender meshes, armatures, actions and attachment points built from them.
-- `registry.py`: the repo folder and `geometry.xml`: reading it, adding and removing entries, sprite text, events, skins.
+- `registry.py`: the repo folder and `geometry.xml`: reading it, adding and removing entries, sprite text, skins.
 - `scene.py`: the models loaded in the scene: loading, which level and item shows, attachments on bones, added reference models, skin lookups.
 - `publish.py`: writing changed models, items, clips and textures to the repo, and the checks run before that.
-- `forms.py`: what the popup forms share: the OK row, reopening after New Event, the event dropdown, name and mesh checks.
+- `forms.py`: what the popup forms share: the OK row, reopening after New Event, the event dropdown and the events it offers, name and mesh checks.
 - `import_export.py`: File > Import and File > Export operators, and Split Mesh by Bone.
 - `models.py`: Models panel: the model list, Load, Publish, New Model, Check, Add To Scene, and the Update add-on button.
 - `preview.py`: Preview panel: clips, tiers, material preview, New Clip, Delete Clip.
