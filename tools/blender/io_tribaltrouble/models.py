@@ -194,7 +194,7 @@ class TTCheck(bpy.types.PropertyGroup):
 
 
 class Preflight(bpy.types.Operator):
-    """Check the visible attachments for what breaks in game: UVs, texture, naming, flipped faces, tint, weights"""
+    """Check the visible items for what breaks in game: UVs, texture, naming, tint, weights, size"""
     bl_idname = "object.tt_preflight"
     bl_label = "Check Before Export"
 

@@ -139,7 +139,7 @@ def check_mesh(obj, is_new, body_triangles):
 
 
 def preflight(context, arm):
-    """Findings for everything Export Visible To Repo would write."""
+    """Findings for the unit's visible items, new and loaded, as Publish writes them."""
     body = browsed_unit(arm) or next((o for o in unit_meshes(arm) if not o.get("tt_slot")), None)
     body_triangles = sum(len(p.vertices) - 2 for p in body.data.polygons) if body is not None else 0
     new = visible_attachments(arm)
@@ -159,7 +159,7 @@ def preflight(context, arm):
         names = {s["name"] for s in read_registry(root) if s["group"] == group}
         for obj in new:
             if f"{base}_{obj.name}" not in names:
-                findings.append(("INFO", f"{obj.name}: not in the registry yet, press Add To Registry after exporting"))
+                findings.append(("INFO", f"{obj.name}: new, Publish adds it to the registry"))
     return findings
 
 

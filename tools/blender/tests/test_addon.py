@@ -542,6 +542,7 @@ def one_press_saves_a_new_item_and_turns_it_into_a_button():
     crown = fixture_mesh("test_crown", fixture_image("test_crown_tex"))
     put_on_head(crown)
     assert save_items() == {"FINISHED"}
+    assert not any("Add To Registry" in check.name for check in wm.tt_checks), [check.name for check in wm.tt_checks]
     e = entry("natives", "peon_test_crown")
     assert e is not None and e["base"] == "peon" and e["slot"] == "hat", e
     assert os.path.isfile(os.path.join(GEOMETRY, "natives", "peon", "test_crown.xml"))
