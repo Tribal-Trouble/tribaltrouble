@@ -42,7 +42,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 41, 0),
+    "version": (1, 42, 0),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -912,6 +912,7 @@ class ImportTTSkeleton(bpy.types.Operator, ImportHelper):
                 self.report({"WARNING"}, f"{os.path.basename(path)}: skipped: {e}")
                 continue
             action["tt_clip"] = os.path.basename(path)
+            action["tt_keys"] = clip_keys(action)
             loaded += 1
 
         context.view_layer.objects.active = arm
@@ -953,6 +954,22 @@ def write_animation_xml(context, arm, action, filepath):
     if previous is not None:
         assign_action(arm, previous)
     context.scene.frame_set(previous_frame)
+
+
+def clip_keys(action):
+    """Hash of every key of the action, to tell a clip edited since loading or publishing."""
+    curves = getattr(action, "fcurves", None)
+    if curves is None:
+        curves = [c for layer in action.layers for strip in layer.strips for bag in strip.channelbags
+                  for c in bag.fcurves]
+    digest = hashlib.sha1()
+    for curve in sorted(curves, key=lambda c: (c.data_path, c.array_index)):
+        digest.update(f"{curve.data_path}[{curve.array_index}]".encode("utf-8"))
+        for field in ("co", "handle_left", "handle_right"):
+            values = np.empty(len(curve.keyframe_points) * 2, np.float32)
+            curve.keyframe_points.foreach_get(field, values)
+            digest.update(values.tobytes())
+    return digest.hexdigest()
 
 
 def armature_actions(arm):
@@ -1238,9 +1255,9 @@ def item_slot(point, group):
     return PROP_SLOT if group == SCENERY_GROUP else GAME_SLOTS.get(point, point.lower())
 
 
-def registry_entries(context, arm, base, extra=(), group=""):
-    """(sprite name, geometry.xml text) for every visible new attachment in the panel's point slots, extra
-    attributes last."""
+def registry_entries(context, arm, base, group=""):
+    """(sprite name, geometry.xml text) for every visible new attachment in the panel's point slots, with the event
+    and default its New Prop form picked."""
     root = repo_root(context)
     entries = []
     for slot in arm.tt_attachments:
@@ -1255,7 +1272,9 @@ def registry_entries(context, arm, base, extra=(), group=""):
             model = os.path.relpath(os.path.join(os.path.dirname(arm["tt_skeleton"]), obj.name + ".xml"),
                                     os.path.join(root, GEOMETRY_DIR)).replace(os.sep, "/")
         name = f"{base}_{obj.name}"
-        entries.append((name, sprite_text([("name", name), ("base", base), ("slot", game_slot)] + list(extra),
+        extra = ([("event", obj["tt_event"])] if obj.get("tt_event") else []) + (
+            [("default", "true")] if obj.get("tt_default") else [])
+        entries.append((name, sprite_text([("name", name), ("base", base), ("slot", game_slot)] + extra,
                                           [(model, textures)])))
     return entries
 
@@ -1448,7 +1467,6 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
             draw_item_detail(context, layout, arm, item)
             if context.mode == "PAINT_TEXTURE":
                 layout.operator(DonePainting.bl_idname, icon="CHECKMARK", depress=True)
-            draw_publish(context, layout)
             return
         layout.prop(wm, "tt_item_search", text="", icon="VIEWZOOM")
         layout.template_list("TT_UL_items", "", bpy.data, "objects", wm, "tt_item_index", rows=2, maxrows=12)
@@ -1469,18 +1487,9 @@ class VIEW3D_PT_tt_attachments(bpy.types.Panel):
                 row.operator(PaintItem.bl_idname, icon="BRUSH_DATA").target = slot.obj.name
             if shares_unit_texture(arm, slot.obj):
                 box.operator(OwnTexture.bl_idname, icon="IMAGE_DATA").target = slot.obj.name
-        draw_publish(context, layout)
 
 
-def draw_publish(context, layout):
-    wm = context.window_manager
-    row = layout.row(align=True)
-    row.scale_y = 1.4
-    if active_armature(context) is not None:
-        row.operator(SaveItems.bl_idname, icon="EXPORT")
-        row.operator(Preflight.bl_idname, text="", icon="CHECKMARK")
-    else:
-        row.operator(SaveProps.bl_idname, icon="EXPORT")
+def draw_checks(layout, wm):
     if wm.tt_checked:
         box = layout.box()
         if not wm.tt_checks:
@@ -1816,6 +1825,7 @@ def load_unit(context, group, name, report):
             frames = read_animation(os.path.join(geometry, clip))
             action = apply_clip(context, arm, clip_name, frames)
             action["tt_clip"] = os.path.basename(clip)
+            action["tt_keys"] = clip_keys(action)
             action["tt_shown_bones"] = shown_bones(frames)
             action[BROWSER_TAG] = True
             if idle is None or "idle" in clip_name:
@@ -1959,10 +1969,11 @@ def loaded_models():
 
 
 class PublishModel(bpy.types.Operator):
-    """Save the model loaded from the list back to its own files in the repo: every detail level and every item or
-    prop of it that you changed. Files you did not touch are left alone"""
+    """Save everything you changed on the model loaded from the list to the repo: every detail level, its items and
+    props (new ones are listed in geometry.xml), its clips and painted textures. Files you did not touch are left
+    alone"""
     bl_idname = "wm.tt_publish_model"
-    bl_label = "Publish Loaded Model"
+    bl_label = "Publish"
 
     @classmethod
     def poll(cls, context):
@@ -1970,13 +1981,17 @@ class PublishModel(bpy.types.Operator):
 
     def execute(self, context):
         arm = next((o for o in bpy.data.objects if o.type == "ARMATURE" and o.get(BROWSER_TAG)), None)
+        added = []
+        if arm is not None and any(x.obj is not None and x.visible for x in arm.tt_attachments):
+            added = publish_items(context, arm, self.report)
+            if added is None:
+                return {"CANCELLED"}
         written = write_changed(context, arm, {o: o["tt_source"] for o in loaded_models()})
         publish_own_textures(repo_root(context), loaded_models())
         painted = publish_skin_paint(repo_root(context))
-        if not written and not painted:
-            self.report({"INFO"}, "Nothing changed since loading")
-            return {"FINISHED"}
-        self.report({"INFO"}, f"Saved {', '.join([os.path.basename(o['tt_source']) for o in written] + painted)}")
+        clips = publish_changed_clips(context, arm, self.report) if arm is not None else []
+        saved = added + [os.path.basename(o["tt_source"]) for o in written] + painted + clips
+        self.report({"INFO"}, f"Saved {', '.join(saved)}" if saved else "Nothing changed since loading")
         return {"FINISHED"}
 
 
@@ -2492,6 +2507,41 @@ def own_mesh_search(self, context, edit_text):
     return [o.name for o in bpy.data.objects if attachment_obj_poll(self, o) and edit_text.lower() in o.name.lower()]
 
 
+_new_events = []  # made with New Event this session; geometry.xml names an event only once something uses it
+
+
+def known_events(context, edit_text=""):
+    """Every event geometry.xml already names, and those made with New Event, for the event fields to offer."""
+    root = repo_root(context)
+    registry = read_registry(root) if root else []
+    events = {s["event"] for s in registry} | {e for s in registry for level in s["textures"] for _, e in level}
+    return sorted(e for e in events | set(_new_events) if e and edit_text.strip().lower() in e)
+
+
+NO_EVENT = "ALL_YEAR"
+_event_items = {True: [], False: []}
+
+
+def event_items(context, optional):
+    """The Event dropdown: All year where an event is optional, then every known event."""
+    items = _event_items[optional]
+    items[:] = (([(NO_EVENT, "All year", "No event: shows all year")] if optional else []) +
+                [(e, e, f"Only during {e}") for e in known_events(context)])
+    return items
+
+
+def event_property(optional=True):
+    """optional may also be a function of the context."""
+    return EnumProperty(name="Event", items=lambda self, context: event_items(
+        context, optional(context) if callable(optional) else optional),
+                        options={"SKIP_SAVE"}, description="Pick an event, or + to name a new one")
+
+
+def chosen_event(op):
+    """The event an operator's form picked: '' for all year."""
+    return "" if op.event == NO_EVENT else op.event
+
+
 class NewItem(bpy.types.Operator):
     """Hang one of your meshes on this unit: it follows that part straight away. Publish saves it"""
     bl_idname = "object.tt_new_item"
@@ -2504,6 +2554,9 @@ class NewItem(bpy.types.Operator):
                        description="Move the mesh onto that part of the unit")
     make_texture: BoolProperty(name="Make a texture for it", default=True, options={"SKIP_SAVE"},
                                description="Give the mesh a UV map and an image named after it to paint")
+    event: event_property()
+    on_by_default: BoolProperty(name="On by default", options={"SKIP_SAVE"},
+                                description="Every unit wears it without a player choosing it")
 
     @classmethod
     def poll(cls, context):
@@ -2521,6 +2574,8 @@ class NewItem(bpy.types.Operator):
         layout.prop(self, "point")
         layout.prop(self, "mesh", icon="MESH_DATA")
         layout.prop(self, "snap", text=f"Snap to {POINT_LABELS.get(self.point, self.point).lower()}")
+        draw_event(layout, self)
+        layout.prop(self, "on_by_default")
         obj = bpy.data.objects.get(self.mesh)
         if obj is not None and obj.type == "MESH" and mesh_texture_image(obj) is None:
             layout.prop(self, "make_texture")
@@ -2534,6 +2589,7 @@ class NewItem(bpy.types.Operator):
             self.report({"ERROR"}, "Pick where it goes and one of your own meshes")
             return {"CANCELLED"}
         slot.obj = obj
+        obj["tt_event"], obj["tt_default"] = chosen_event(self), self.on_by_default
         context.view_layer.objects.active = arm
         if self.snap:
             bpy.ops.object.tt_put_on_bone(point=self.point)
@@ -2658,41 +2714,6 @@ class OwnTexture(bpy.types.Operator):
         return {"FINISHED"}
 
 
-_new_events = []  # made with New Event this session; geometry.xml names an event only once something uses it
-
-
-def known_events(context, edit_text=""):
-    """Every event geometry.xml already names, and those made with New Event, for the event fields to offer."""
-    root = repo_root(context)
-    registry = read_registry(root) if root else []
-    events = {s["event"] for s in registry} | {e for s in registry for level in s["textures"] for _, e in level}
-    return sorted(e for e in events | set(_new_events) if e and edit_text.strip().lower() in e)
-
-
-NO_EVENT = "ALL_YEAR"
-_event_items = {True: [], False: []}
-
-
-def event_items(context, optional):
-    """The Event dropdown: All year where an event is optional, then every known event."""
-    items = _event_items[optional]
-    items[:] = (([(NO_EVENT, "All year", "No event: shows all year")] if optional else []) +
-                [(e, e, f"Only during {e}") for e in known_events(context)])
-    return items
-
-
-def event_property(optional=True):
-    """optional may also be a function of the context."""
-    return EnumProperty(name="Event", items=lambda self, context: event_items(
-        context, optional(context) if callable(optional) else optional),
-                        options={"SKIP_SAVE"}, description="Pick an event, or + to name a new one")
-
-
-def chosen_event(op):
-    """The event an operator's form picked: '' for all year."""
-    return "" if op.event == NO_EVENT else op.event
-
-
 def form_values(op):
     return {key: getattr(op, key) for key in op.properties.bl_rna.properties.keys() if key != "rna_type"}
 
@@ -2786,15 +2807,48 @@ class NewEvent(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class SaveItems(bpy.types.Operator):
+def publish_items(context, arm, report):
     """Check, write every visible item into the unit's folder with its texture, and list the new ones in
-    geometry.xml. A new item then becomes one of the unit's buttons above; its file in the repo is the real copy
-    from here on"""
+    geometry.xml with the event and default their New Prop form picked. A new item then becomes one of the unit's
+    buttons; its file in the repo is the real copy from here on. The new sprite names, or None when refused."""
+    if not rig_in_repo(context, arm):
+        report({"ERROR"}, "Load the unit from the Models list of your repo folder")
+        return None
+    group, base = find_base_sprite(arm["tt_skeleton"])
+    if base is None:
+        report({"ERROR"}, "Could not find this unit's sprite in geometry.xml")
+        return None
+    taken = {x["name"] for x in read_registry(repo_root(context)) if x["group"] == group}
+    fresh = [x for x in arm.tt_attachments if x.obj is not None and x.visible]
+    clash = [f"{base}_{x.obj.name}" for x in fresh if f"{base}_{x.obj.name}" in taken]
+    if clash:
+        report({"ERROR"}, f"{group} already has {', '.join(clash)}: rename your mesh")
+        return None
+    entries = registry_entries(context, arm, base, group)
+    if not export_visible(context, arm, report):
+        return None
+    append_registry_entries(os.path.join(repo_root(context), REGISTRY_FILE), group, entries)
+    unit_dir = os.path.dirname(arm["tt_skeleton"])
+    for x in fresh:
+        obj = x.obj
+        obj["tt_group"] = group
+        obj["tt_slot"] = item_slot(x.point, group)
+        obj["tt_event"] = obj.get("tt_event", "")
+        obj["tt_sprite"] = f"{base}_{obj.name}"
+        obj["tt_source"] = os.path.join(unit_dir, obj.name + ".xml")
+        obj["tt_texture"] = object_texture(obj)
+        obj[BROWSER_TAG] = True
+        x.prev_name = ""  # hand the mesh over to the unit's buttons instead of letting it go
+        x.obj = None
+        for other in unit_items(arm).get(obj["tt_slot"], []):
+            set_item_visible(other, other == obj)
+    return [name for name, _ in entries]
+
+
+class SaveItems(bpy.types.Operator):
+    """Write the unit's visible items and list the new ones in geometry.xml, as Publish does"""
     bl_idname = "object.tt_save_items"
-    bl_label = "Publish"
-    event: event_property()
-    on_by_default: BoolProperty(name="On by default", options={"SKIP_SAVE"},
-                                description="Every unit wears the new items without a player choosing them")
+    bl_label = "Publish Items"
 
     @classmethod
     def poll(cls, context):
@@ -2803,52 +2857,11 @@ class SaveItems(bpy.types.Operator):
         cls.poll_message_set("Load the unit from the Models list of your repo folder")
         return False
 
-    def invoke(self, context, event):
-        # Only new items take an event; existing ones keep their attributes and need no form.
-        if any(x.obj is not None and x.visible for x in active_armature(context).tt_attachments):
-            return open_form(self, context)
-        return self.execute(context)
-
-    def draw(self, context):
-        layout = form_title(self)
-        draw_event(layout, self)
-        layout.prop(self, "on_by_default")
-        draw_confirm(layout, self)
-
     def execute(self, context):
-        event = chosen_event(self)
-        arm = active_armature(context)
-        group, base = find_base_sprite(arm["tt_skeleton"])
-        if base is None:
-            self.report({"ERROR"}, "Could not find this unit's sprite in geometry.xml")
+        added = publish_items(context, active_armature(context), self.report)
+        if added is None:
             return {"CANCELLED"}
-        taken = {x["name"] for x in read_registry(repo_root(context)) if x["group"] == group}
-        fresh = [x for x in arm.tt_attachments if x.obj is not None and x.visible]
-        clash = [f"{base}_{x.obj.name}" for x in fresh if f"{base}_{x.obj.name}" in taken]
-        if clash:
-            self.report({"ERROR"}, f"{group} already has {', '.join(clash)}: rename your mesh")
-            return {"CANCELLED"}
-        extra = ([("event", event)] if event else []) + ([("default", "true")] if self.on_by_default else [])
-        entries = registry_entries(context, arm, base, extra, group)
-        if not export_visible(context, arm, self.report):
-            return {"CANCELLED"}
-        append_registry_entries(os.path.join(repo_root(context), REGISTRY_FILE), group, entries)
-        unit_dir = os.path.dirname(arm["tt_skeleton"])
-        for x in fresh:
-            obj = x.obj
-            obj["tt_group"] = group
-            obj["tt_slot"] = item_slot(x.point, group)
-            obj["tt_event"] = event
-            obj["tt_sprite"] = f"{base}_{obj.name}"
-            obj["tt_source"] = os.path.join(unit_dir, obj.name + ".xml")
-            obj["tt_texture"] = object_texture(obj)
-            obj[BROWSER_TAG] = True
-            x.prev_name = ""  # hand the mesh over to the unit's buttons instead of letting it go
-            x.obj = None
-            for other in unit_items(arm).get(obj["tt_slot"], []):
-                set_item_visible(other, other == obj)
-        self.report({"INFO"}, f"Published {len(fresh)} new item(s) on {group} / {base}; the game shows them after the "
-                              f"next build")
+        self.report({"INFO"}, f"Published {len(added)} new item(s); the game shows them after the next build")
         return {"FINISHED"}
 
 
@@ -3165,7 +3178,6 @@ class VIEW3D_PT_tt_preview(bpy.types.Panel):
                             icon="PAUSE" if playing else "PLAY")
         row = layout.row(align=True)
         row.operator(NewClip.bl_idname, icon="ADD")
-        row.operator(SaveClip.bl_idname, text="Publish Clip", icon="EXPORT")
         row.operator(DeleteClip.bl_idname, text="", icon="TRASH")
         tiers = unit_tiers(arm)
         if len(tiers) > 1:
@@ -3299,6 +3311,12 @@ def clip_button_menu(self, context):
         self.layout.operator(DeleteClip.bl_idname, icon="TRASH").clip = op.clip
 
 
+CLIP_KINDS = (("loop", "Looping", "Repeats, like idle and run"),
+              ("plain", "Once", "Plays once and holds, like attack and die"))
+WPC_DESCRIPTION = ("For a walk or run: how far the unit travels in one loop, so feet do not slide. Leave at 1 for "
+                   "anything that stays in place")
+
+
 class NewClip(bpy.types.Operator):
     """Start a new clip for this unit. Game clips have a key on every frame for every bone, which is miserable to
     edit by hand, so the default starts from the pose on screen with only a first and a last key"""
@@ -3310,6 +3328,8 @@ class NewClip(bpy.types.Operator):
         ("POSE", "This pose", "The pose on screen, keyed on the first and last frame only: easy to animate by hand"),
         ("COPY", "Copy of this clip", "Every frame of the clip showing: good for small fixes, hard to re-animate")))
     length: IntProperty(name="Frames", default=25, min=2, max=500, description="Length of a clip started from a pose")
+    kind: EnumProperty(name="Plays", items=CLIP_KINDS)
+    wpc: FloatProperty(name="Distance Per Loop", default=1.0, min=0.0001, description=WPC_DESCRIPTION)
 
     @classmethod
     def poll(cls, context):
@@ -3320,7 +3340,7 @@ class NewClip(bpy.types.Operator):
 
     def draw(self, context):
         layout = form_title(self)
-        for prop in ("clip_name", "start", "length"):
+        for prop in ("clip_name", "start", "length", "kind", "wpc"):
             layout.prop(self, prop)
         draw_confirm(layout, self, name_problem(self.clip_name))
 
@@ -3344,6 +3364,7 @@ class NewClip(bpy.types.Operator):
         action["tt_armature"] = arm.name
         if "tt_clip" in action:
             del action["tt_clip"]
+        action["tt_kind"], action["tt_wpc"] = self.kind, self.wpc
         if arm.animation_data is not None:
             arm.animation_data.action = None  # a copied action brings its own slot; let assign_action bind it
         assign_action(arm, action)
@@ -3361,86 +3382,91 @@ class NewClip(bpy.types.Operator):
         return {"FINISHED"}
 
 
+def publish_clip(context, arm, action, name, kind, wpc, report):
+    """Write a clip into the unit's folder and list it in geometry.xml. An existing clip is replaced in place and the
+    game plays it straight away; a brand new clip also needs code that asks for it. False when refused."""
+    root = repo_root(context)
+    name = name.strip().lower()
+    if not re.fullmatch(r"[a-z0-9_]+", name):
+        report({"ERROR"}, "Name the clip with letters, digits and underscores")
+        return False
+    group, base, rig = rig_registry(context, arm)
+    if rig is None:
+        report({"ERROR"}, "Could not find this unit's sprite in geometry.xml")
+        return False
+    body = browsed_unit(arm)
+    if body is not None and body["tt_sprite"] != base:
+        report({"ERROR"}, f"{body['tt_sprite']} borrows the {base} rig and its clips: load {base} to change them")
+        return False
+    start, end = action.frame_range
+    if int(round(end)) - int(round(start)) < 1:
+        report({"ERROR"}, f"The clip {name} has fewer than two frames")
+        return False
+    geometry = os.path.join(root, GEOMETRY_DIR)
+    is_new = name not in rig["clip_info"]
+    if is_new:
+        prefix = os.path.basename(arm["tt_skeleton"]).replace("skeleton.xml", "")
+        path = os.path.join(os.path.dirname(arm["tt_skeleton"]), prefix + name + ".xml")
+        listed = {os.path.normcase(os.path.join(geometry, p)) for _, _, p in rig["clip_info"].values()}
+        if os.path.isfile(path) or os.path.normcase(path) in listed:
+            report({"ERROR"}, f"{os.path.basename(path)} already exists: give the clip another name")
+            return False
+    else:
+        path = os.path.join(geometry, rig["clip_info"][name][2])
+    write_animation_xml(context, arm, action, path)
+    relative = os.path.relpath(path, geometry).replace(os.sep, "/")
+    line = f'<animation name="{name}" wpc="{wpc:g}" type="{kind}">{escape(relative)}</animation>'
+    touched = set_clip_line(os.path.join(root, REGISTRY_FILE), group, rig["skeleton"].replace("\\", "/"), name, line)
+    action.name = os.path.splitext(os.path.basename(path))[0]
+    action["tt_clip"], action["tt_armature"], action[BROWSER_TAG] = os.path.basename(path), arm.name, True
+    action["tt_shown_bones"] = shown_bones(read_animation(path))
+    action["tt_keys"] = clip_keys(action)
+    action.use_fake_user = True
+    frames = int(round(end)) - int(round(start)) + 1
+    if is_new:
+        report({"WARNING"}, f"Published new clip {name} ({frames} frames) on {', '.join(touched)}. It shows in game "
+                            f"only once code asks for it")
+    else:
+        report({"INFO"}, f"Replaced clip {name} ({frames} frames); the game plays it after the next build")
+    return True
+
+
+def publish_changed_clips(context, arm, report):
+    """Publish every clip of the unit that is new or whose keys changed since loading; the clip files written."""
+    if not rig_in_repo(context, arm):
+        return []
+    rig = rig_registry(context, arm)[2]
+    listed = {os.path.basename(path): (name, kind, float(wpc))
+              for name, (wpc, kind, path) in (rig["clip_info"].items() if rig else [])}
+    written = []
+    for action in armature_actions(arm):
+        if action.get("tt_clip") and action.get("tt_keys") in (None, clip_keys(action)):
+            continue
+        name, kind, wpc = listed.get(action.get("tt_clip"), (clip_short_name(arm, action), action.get("tt_kind", "loop"),
+                                                             action.get("tt_wpc", 1.0)))
+        if publish_clip(context, arm, action, name, kind, wpc, report):
+            written.append(action["tt_clip"])
+    return written
+
+
 class SaveClip(bpy.types.Operator):
-    """Write the clip that is showing into the unit's folder and list it in geometry.xml. An existing clip is
-    replaced in place and the game plays it straight away; a brand new clip also needs code that asks for it"""
+    """Publish the clip that is showing, with how it plays"""
     bl_idname = "object.tt_save_clip"
     bl_label = "Publish Clip"
     clip_name: StringProperty(name="Name", description="The clip's name in geometry.xml, such as run or dance")
-    kind: EnumProperty(name="Plays", items=(("loop", "Looping", "Repeats, like idle and run"),
-                                            ("plain", "Once", "Plays once and holds, like attack and die")))
-    wpc: FloatProperty(name="Distance Per Loop", default=1.0, min=0.0001,
-                       description="For a walk or run: how far the unit travels in one loop, so feet do not slide. "
-                                   "Leave at 1 for anything that stays in place")
+    kind: EnumProperty(name="Plays", items=CLIP_KINDS)
+    wpc: FloatProperty(name="Distance Per Loop", default=1.0, min=0.0001, description=WPC_DESCRIPTION)
 
     @classmethod
     def poll(cls, context):
         arm = active_armature(context)
         return rig_in_repo(context, arm) and arm.animation_data is not None and arm.animation_data.action is not None
 
-    def invoke(self, context, event):
-        arm = active_armature(context)
-        self.clip_name = clip_short_name(arm, arm.animation_data.action)
-        rig = rig_registry(context, arm)[2]
-        file_name = arm.animation_data.action.get("tt_clip")
-        for name, (wpc, kind, path) in (rig["clip_info"].items() if rig else []):
-            if file_name and os.path.basename(path) == file_name:
-                self.clip_name, self.kind, self.wpc = name, kind, float(wpc)
-        return open_form(self, context)
-
-    def draw(self, context):
-        layout = form_title(self)
-        for prop in ("clip_name", "kind", "wpc"):
-            layout.prop(self, prop)
-        draw_confirm(layout, self, name_problem(self.clip_name))
-
     def execute(self, context):
         arm = active_armature(context)
-        root = repo_root(context)
-        action = arm.animation_data.action
-        name = self.clip_name.strip().lower()
-        if not re.fullmatch(r"[a-z0-9_]+", name):
-            self.report({"ERROR"}, "Name the clip with letters, digits and underscores")
-            return {"CANCELLED"}
-        group, base, rig = rig_registry(context, arm)
-        if rig is None:
-            self.report({"ERROR"}, "Could not find this unit's sprite in geometry.xml")
-            return {"CANCELLED"}
-        body = browsed_unit(arm)
-        if body is not None and body["tt_sprite"] != base:
-            self.report({"ERROR"}, f"{body['tt_sprite']} borrows the {base} rig and its clips: load {base} to "
-                                   f"change them")
-            return {"CANCELLED"}
-        start, end = action.frame_range
-        if int(round(end)) - int(round(start)) < 1:
-            self.report({"ERROR"}, "The clip has fewer than two frames")
-            return {"CANCELLED"}
-        geometry = os.path.join(root, GEOMETRY_DIR)
-        is_new = name not in rig["clip_info"]
-        if is_new:
-            prefix = os.path.basename(arm["tt_skeleton"]).replace("skeleton.xml", "")
-            path = os.path.join(os.path.dirname(arm["tt_skeleton"]), prefix + name + ".xml")
-            listed = {os.path.normcase(os.path.join(geometry, p)) for _, _, p in rig["clip_info"].values()}
-            if os.path.isfile(path) or os.path.normcase(path) in listed:
-                self.report({"ERROR"}, f"{os.path.basename(path)} already exists: give the clip another name")
-                return {"CANCELLED"}
-        else:
-            path = os.path.join(geometry, rig["clip_info"][name][2])
-        write_animation_xml(context, arm, action, path)
-        relative = os.path.relpath(path, geometry).replace(os.sep, "/")
-        line = f'<animation name="{name}" wpc="{self.wpc:g}" type="{self.kind}">{escape(relative)}</animation>'
-        touched = set_clip_line(os.path.join(root, REGISTRY_FILE), group, rig["skeleton"].replace("\\", "/"), name, line)
-        action.name = os.path.splitext(os.path.basename(path))[0]
-        action["tt_clip"], action["tt_armature"], action[BROWSER_TAG] = os.path.basename(path), arm.name, True
-        action["tt_shown_bones"] = shown_bones(read_animation(path))
-        action.use_fake_user = True
-        frames = int(round(end)) - int(round(start)) + 1
-        if is_new:
-            self.report({"WARNING"}, f"Published new clip {name} ({frames} frames) on {', '.join(touched)}. It shows "
-                                     f"in game only once code asks for it")
-        else:
-            self.report({"INFO"}, f"Replaced clip {name} ({frames} frames); the game plays it after the next build")
-        return {"FINISHED"}
+        published = publish_clip(context, arm, arm.animation_data.action, self.clip_name, self.kind, self.wpc,
+                                 self.report)
+        return {"FINISHED"} if published else {"CANCELLED"}
 
 
 ADDON_SOURCE = os.path.join("tools", "blender", "io_tribaltrouble.py")
@@ -3812,11 +3838,15 @@ class VIEW3D_PT_tt_units(bpy.types.Panel):
             layout.operator(RemoveAdded.bl_idname, icon="X")
         layout.operator(LoadUnit.bl_idname, icon="FILE_REFRESH")
         row = layout.row(align=True)
+        row.scale_y = 1.4
         row.operator(PublishModel.bl_idname, icon="EXPORT")
+        if active_armature(context) is not None:
+            row.operator(Preflight.bl_idname, text="", icon="CHECKMARK")
         body = loaded_body()
         if body is not None:
             remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
             remove.group, remove.sprite = body["tt_group"], body["tt_sprite"]
+        draw_checks(layout, wm)
         # Units show it under Preview.
         if has_low_detail() and not any(o.type == "ARMATURE" and o.get(BROWSER_TAG) for o in bpy.data.objects):
             layout.row(align=True).prop(wm, "tt_detail", expand=True)
@@ -3919,6 +3949,8 @@ def publish_props(op, context, fresh, event, base=None):
         o["tt_group"] = group
         o["tt_texture"] = texture
     append_registry_entries(os.path.join(root, REGISTRY_FILE), group, entries)
+    for o, (_, digest) in export_texts(context, None, fresh).items():
+        o["tt_export_hash"] = digest
     saved = write_changed(context, None, {o: o["tt_source"] for o in model_levels(body)})
     publish_skin_paint(root)
     note = f"; model mesh: {', '.join(os.path.basename(o['tt_source']) for o in saved)}" if saved else ""
@@ -3926,19 +3958,6 @@ def publish_props(op, context, fresh, event, base=None):
     op.report({"WARNING"} if missing else {"INFO"},
               f"Published {len(fresh)} new and {len(existing)} existing prop(s) on {group} / {base}{note}")
     return {"FINISHED"}
-
-
-class SaveProps(bpy.types.Operator):
-    """Write the loaded model's props back to their own files, and the model's own meshes when they changed"""
-    bl_idname = "object.tt_save_props"
-    bl_label = "Publish"
-
-    @classmethod
-    def poll(cls, context):
-        return prop_body(context) is not None and bool(repo_root(context))
-
-    def execute(self, context):
-        return publish_props(self, context, [], "")
 
 
 _prop_bases = []
@@ -4727,7 +4746,7 @@ def menu_object(self, context):
 
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SplitByBone, ImportTTSkeleton, ExportTTSkeleton,
            TTAttachmentSlot, TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, PickUnit, AddToScene, RemoveAdded, ShowItem, ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, TTCheck, SetClip, SetTier, MaterialPreview, Preflight,
-           RemoveFromRegistry, UpdateAddon, NewEvent, SaveProps, NewProp, ShowSkin, PaintSkin, TTSkinEntry, TT_UL_skins, PickSkin, NewSkin, CancelSkin, SaveSkin, CloseItem, NewClip, SaveClip, DeleteClip,
+           RemoveFromRegistry, UpdateAddon, NewEvent, NewProp, ShowSkin, PaintSkin, TTSkinEntry, TT_UL_skins, PickSkin, NewSkin, CancelSkin, SaveSkin, CloseItem, NewClip, SaveClip, DeleteClip,
            SetupAttachments, ExportAttachments, CopyRegistrySnippet, SaveItems, MakeTexture, NewItem, OwnTexture, PutOnBone, PaintItem, DonePainting,
            TT_UL_items, VIEW3D_PT_tt_units, VIEW3D_PT_tt_skins,
            VIEW3D_PT_tt_preview,

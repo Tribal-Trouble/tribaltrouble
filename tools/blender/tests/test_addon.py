@@ -535,10 +535,13 @@ def one_press_saves_a_new_item_and_turns_it_into_a_button():
 
 @test
 def a_new_item_can_belong_to_an_event_and_be_on_by_default():
-    load("natives", "peon")
-    put_on_head(fixture_mesh("test_pumpkin_hat", fixture_image("test_pumpkin_hat_tex")))
+    a = load("natives", "peon")
+    pumpkin = fixture_mesh("test_pumpkin_hat", fixture_image("test_pumpkin_hat_tex"))
     assert bpy.ops.object.tt_new_event(event_name="halloween") == {"FINISHED"}
-    assert bpy.ops.object.tt_save_items(event="halloween", on_by_default=True) == {"FINISHED"}
+    bpy.context.view_layer.objects.active = a
+    assert bpy.ops.object.tt_new_item(point="HEAD", mesh=pumpkin.name, event="halloween",
+                                      on_by_default=True) == {"FINISHED"}
+    assert bpy.ops.object.tt_save_items() == {"FINISHED"}
     put_on_head(fixture_mesh("test_plain_hat", fixture_image("test_plain_hat_tex")))
     assert bpy.ops.object.tt_save_items() == {"FINISHED"}
     text = open(registry_path, encoding="utf-8").read()
@@ -999,7 +1002,7 @@ def a_building_publishes_only_the_detail_level_that_changed():
     os.utime(body["tt_source"], (1, 1))
     os.utime(low["tt_source"], (1, 1))
     low.data.vertices[0].co.z += 0.1
-    assert bpy.ops.object.tt_save_props() == {"FINISHED"}
+    assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
     assert os.path.getmtime(body["tt_source"]) == 1 and os.path.getmtime(low["tt_source"]) != 1
 
 
@@ -1705,7 +1708,7 @@ def the_items_panel_shows_the_list_or_one_item_with_its_skins():
     open_hammer()
     detail = drawn(addon.VIEW3D_PT_tt_attachments)
     ops = [idname for idname, _ in detail]
-    assert ops[0] == "object.tt_close_item" and "object.tt_paint_item" in ops and "object.tt_save_items" in ops, ops
+    assert ops[0] == "object.tt_close_item" and "object.tt_paint_item" in ops and "object.tt_save_items" not in ops, ops
     assert "object.tt_new_item" not in ops, detail
     assert ("object.tt_new_skin", None) in detail and ("list", "tt_item_skins") in detail, detail
     assert ("list", "tt_item_skins") in detail and "gold" in [row.name for row in wm.tt_item_skins], detail
@@ -1956,7 +1959,7 @@ def a_building_has_no_panel_of_its_own_and_lists_its_props_in_the_props_panel():
     listed = sorted(o["tt_sprite"] for o, flag in zip(bpy.data.objects, flags) if flag)
     assert listed == ["quarters_test_flag", "quarters_test_lantern"], listed
     listed = [idname for idname, *_ in drawn(addon.VIEW3D_PT_tt_attachments)]
-    assert "object.tt_new_prop" in listed and "object.tt_save_props" in listed and "object.tt_new_item" not in listed
+    assert "object.tt_new_prop" in listed and "object.tt_new_item" not in listed and "object.tt_save_props" not in listed
     flag = next(o for o in addon.building_props(body) if o["tt_sprite"] == "quarters_test_flag")
     assert bpy.ops.object.tt_show_item(item=flag.name) == {"FINISHED"} and not addon.item_shown(flag)
     assert bpy.ops.object.tt_show_item(item=flag.name) == {"FINISHED"} and addon.item_shown(flag)
@@ -2009,6 +2012,49 @@ def the_models_panel_comes_first():
                                             "VIEW3D_PT_tt_attachments_more"], panels
     assert len({order for order, _ in panels}) == len(panels)
     return ", ".join(f"{order} {name}" for order, name in panels)
+
+@test
+def one_publish_writes_the_mesh_a_new_prop_and_the_clips_without_a_form():
+    a = load("natives", "peon")
+    bpy.context.view_layer.objects.active = a
+    listed = [idname for idname, *_ in drawn(addon.VIEW3D_PT_tt_units)]
+    assert "wm.tt_publish_model" in listed and "object.tt_preflight" in listed, listed
+    listed = [idname for idname, *_ in drawn(addon.VIEW3D_PT_tt_preview)]
+    assert "object.tt_new_clip" in listed and "object.tt_save_clip" not in listed, listed
+    assert "object.tt_save_items" not in [idname for idname, *_ in drawn(addon.VIEW3D_PT_tt_attachments)]
+    item_form = form(addon.NewItem, point="HEAD", mesh="", snap=True, make_texture=True, event="ALL_YEAR",
+                     on_by_default=False)
+    assert ("confirm", "object.tt_new_event", " ", True) in item_form, "no event in the New Prop form"
+    assert "invoke" not in vars(addon.PublishModel) and "draw" not in vars(addon.PublishModel)
+    body = addon.browsed_unit(a)
+    clips = {name: os.path.join(GEOMETRY, relative) for name, (_, _, relative) in entry("natives", "peon")["clip_info"].items()}
+    edited = next(iter(clips))
+    action = next(x for x in addon.armature_actions(a) if x["tt_clip"] == os.path.basename(clips[edited]))
+    assert bpy.ops.object.tt_set_clip(clip=action.name) == {"FINISHED"}
+    bone = a.pose.bones[0]
+    bone.rotation_mode = "QUATERNION"
+    bone.rotation_quaternion = (0.9, 0.0, 0.0, 0.43)
+    bone.keyframe_insert("rotation_quaternion", frame=2)
+    body.data.vertices[0].co.z += 0.1
+    hat = fixture_mesh("test_one_publish_hat", fixture_image("test_one_publish_hat_tex"))
+    bpy.context.view_layer.objects.active = a
+    assert bpy.ops.object.tt_new_item(point="HEAD", mesh=hat.name, event="halloween",
+                                      on_by_default=True) == {"FINISHED"}
+    assert bpy.ops.object.tt_new_clip(clip_name="bow", kind="plain", wpc=2.0) == {"FINISHED"}
+    for path in list(clips.values()) + [body["tt_source"]]:
+        os.utime(path, (1, 1))
+    assert bpy.ops.wm.tt_publish_model("INVOKE_DEFAULT") == {"FINISHED"}
+    text = open(registry_path, encoding="utf-8").read()
+    assert '<sprite name="peon_test_one_publish_hat" base="peon" slot="hat" event="halloween" default="true">' in text
+    assert os.path.getmtime(body["tt_source"]) != 1, "the changed mesh was not written"
+    assert [name for name, path in clips.items() if os.path.getmtime(path) != 1] == [edited]
+    assert entry("natives", "peon")["clip_info"]["bow"][:2] == ("2", "plain")
+    for path in list(clips.values()) + [body["tt_source"]]:
+        os.utime(path, (1, 1))
+    assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
+    assert all(os.path.getmtime(path) == 1 for path in list(clips.values()) + [body["tt_source"]]), "wrote again"
+    assert bpy.ops.object.tt_delete_clip(clip=a.animation_data.action.name) == {"FINISHED"}
+
 
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
