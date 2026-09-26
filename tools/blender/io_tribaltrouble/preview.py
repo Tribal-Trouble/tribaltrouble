@@ -7,7 +7,7 @@ import bpy
 from bpy.props import StringProperty, EnumProperty, FloatProperty, IntProperty
 
 from .textures import apply_team_preview, get_atlas_material, models_texture_path, short_labels
-from .mesh_io import active_armature, armature_actions, assign_action, clip_short_name, item_hidden_here, shown_bones
+from .rig import active_armature, armature_actions, assign_action, clip_short_name, item_hidden_here, shown_bones
 from .registry import GEOMETRY_DIR, read_registry, REGISTRY_FILE, repo_root, rig_registry, set_clip_line
 from .scene import has_low_detail, unit_meshes
 from .publish import borrowed_rig_problem

@@ -4,7 +4,7 @@ import os
 
 import bpy
 
-from .mesh_io import active_armature, setup_attachment_slots
+from .rig import active_armature, setup_attachment_slots
 from .registry import append_registry_entries, find_base_sprite, registry_entries, REGISTRY_FILE, repo_root, rig_in_repo
 from .scene import visible_attachments
 from .publish import export_visible

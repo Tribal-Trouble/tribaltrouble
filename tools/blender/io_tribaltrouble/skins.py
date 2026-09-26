@@ -9,7 +9,8 @@ from bpy.props import StringProperty, BoolProperty
 
 from .textures import (apply_team_preview, ensure_texture_in_repo, get_atlas_material, image_texture_name,
                        mesh_texture_image, models_texture_path, race_texture_name, save_png, short_labels)
-from .mesh_io import body_rig, item_point, mesh_record_from_xml, POINT_LABELS, replace_mesh_data, write_text
+from .mesh_io import mesh_record_from_xml, replace_mesh_data, write_text
+from .rig import body_rig, item_point, POINT_LABELS
 from .registry import (append_registry_entries, GEOMETRY_DIR, level_textures, read_registry, REGISTRY_FILE, repo_root,
                        SCENERY_GROUP, sprite_skins, sprite_text, team_attribute)
 from .scene import (attach_object, attachment_obj_poll, BROWSER_TAG, detach_object, export_texts, loaded_body,

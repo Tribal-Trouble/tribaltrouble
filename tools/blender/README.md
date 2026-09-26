@@ -58,7 +58,8 @@ Start Blender. The add-on keeps its name, so it is still enabled and still knows
 The add-on is the package `tools/blender/io_tribaltrouble/`. Lower modules never import higher ones, in this order:
 
 - `textures.py`: materials, team color nodes, texture files and atlas crops.
-- `mesh_io.py`: mesh, skeleton and clip XML read and write, and the Blender meshes, armatures, actions and attachment points built from them.
+- `mesh_io.py`: mesh XML read and write, and the Blender meshes built from it.
+- `rig.py`: skeleton and clip XML read and write, and the armatures, actions and attachment points built from them.
 - `registry.py`: the repo folder and `geometry.xml`: reading it, adding and removing entries, sprite text, skins.
 - `scene.py`: the models loaded in the scene: loading, which level and item shows, attachments on bones, added reference models, skin lookups.
 - `publish.py`: writing changed models, items, clips and textures to the repo, and the checks run before that.

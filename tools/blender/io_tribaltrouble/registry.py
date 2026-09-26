@@ -8,7 +8,7 @@ from xml.sax.saxutils import escape, quoteattr
 import bpy
 
 from .textures import decal_texture_path, find_up, texture_names
-from .mesh_io import GAME_SLOTS
+from .rig import GAME_SLOTS
 
 
 def find_base_sprite(skeleton_path):

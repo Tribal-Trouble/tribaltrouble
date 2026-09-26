@@ -10,7 +10,8 @@ from bpy.props import StringProperty, BoolProperty, EnumProperty
 from .textures import (apply_team_preview, crop_pixels, decal_texture_path, ensure_texture_in_repo, get_atlas_material,
                        material_image_name, mesh_texture_image, MIP_PAD, models_texture_path, race_texture_name,
                        short_labels, texture_names)
-from .mesh_io import active_armature, item_hidden_here, POINT_LABELS, write_mesh_xml
+from .mesh_io import write_mesh_xml
+from .rig import active_armature, item_hidden_here, POINT_LABELS
 from .registry import (append_registry_entries, CARRY_SLOT, GEOMETRY_DIR, PROP_SLOT, read_registry, REGISTRY_FILE,
                        repo_root, sprite_text, team_attribute)
 from .scene import (attachment_obj_poll, browsed_unit, BROWSER_TAG, export_texts, file_clashes, item_shown,

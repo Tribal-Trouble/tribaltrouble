@@ -8,7 +8,7 @@ import bpy
 
 from .textures import (ensure_texture_in_repo, image_texture_name, mesh_texture_image, models_texture_path,
                        object_texture, save_png, texture_names)
-from .mesh_io import armature_actions, clip_keys, clip_short_name, read_animation, shown_bones, write_animation_xml
+from .rig import armature_actions, clip_keys, clip_short_name, read_animation, shown_bones, write_animation_xml
 from .registry import (append_registry_entries, find_base_sprite, GEOMETRY_DIR, item_slot, read_registry,
                        registry_entries, REGISTRY_FILE, repo_root, rig_in_repo, rig_registry, set_clip_line,
                        set_sprite_textures)

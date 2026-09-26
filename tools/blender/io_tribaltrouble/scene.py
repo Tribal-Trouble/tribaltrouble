@@ -8,9 +8,9 @@ from bpy.props import StringProperty, BoolProperty, PointerProperty
 from mathutils import Vector
 
 from .textures import apply_team_preview, object_texture
-from .mesh_io import (apply_clip, armature_from_file, assign_action, bind_meshes, bone_tail_matrices, build_armature,
-                      clip_keys, import_mesh_file, mesh_xml_text, read_animation, read_skeleton, shown_bones,
-                      write_text)
+from .mesh_io import bone_tail_matrices, import_mesh_file, mesh_xml_text, write_text
+from .rig import (apply_clip, armature_from_file, assign_action, bind_meshes, build_armature, clip_keys, read_animation,
+                  read_skeleton, shown_bones)
 from .registry import GEOMETRY_DIR, level_textures, read_registry, repo_root, rig_entry, sprite_category, sprite_skins
 
 

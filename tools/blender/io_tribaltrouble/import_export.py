@@ -9,10 +9,11 @@ from bpy.props import StringProperty, BoolProperty, CollectionProperty, EnumProp
 from mathutils import Matrix
 
 from .textures import material_image_name, object_texture
-from .mesh_io import (active_armature, apply_clip, armature_actions, armature_from_file, ATTACHMENT_POINT_ITEMS,
-                      ATTACHMENT_POINTS, bind_meshes, build_mesh, clip_keys, import_mesh_file, mesh_record_from_mesh,
-                      read_animation, replace_mesh_data, rest_pose_armatures, set_vertex_groups, SKELETONS, STATIC_BONE,
-                      subset_record, write_animation_xml, write_mesh_xml, write_skeleton_xml)
+from .mesh_io import (build_mesh, import_mesh_file, mesh_record_from_mesh, replace_mesh_data, rest_pose_armatures,
+                      set_vertex_groups, STATIC_BONE, subset_record, write_mesh_xml)
+from .rig import (active_armature, apply_clip, armature_actions, armature_from_file, ATTACHMENT_POINT_ITEMS,
+                  ATTACHMENT_POINTS, bind_meshes, clip_keys, read_animation, SKELETONS, write_animation_xml,
+                  write_skeleton_xml)
 from .registry import remember_repo_root
 from .scene import REFERENCE_TAG
 

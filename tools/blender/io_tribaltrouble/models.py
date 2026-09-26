@@ -9,8 +9,8 @@ import bpy
 from bpy.props import StringProperty, BoolProperty, EnumProperty, IntProperty
 
 from .textures import ensure_texture_in_repo, material_image_name
-from .mesh_io import (active_armature, armature_actions, body_rig, write_animation_xml, write_mesh_xml,
-                      write_skeleton_xml)
+from .mesh_io import write_mesh_xml
+from .rig import active_armature, armature_actions, body_rig, write_animation_xml, write_skeleton_xml
 from .registry import (append_registry_entries, CATEGORY_ICONS, GEOMETRY_DIR, read_registry, REGISTRY_FILE,
                        remove_registry_entry, repo_root, rig_registry, root_holder, SCENERY_GROUP, sprite_text,
                        team_attribute)
