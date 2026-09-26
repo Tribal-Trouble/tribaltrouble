@@ -2123,6 +2123,18 @@ def publish_writes_paint_on_a_loaded_item_but_never_paint_a_skin_was_made_with()
         image.reload()
 
 
+@test
+def loading_another_model_clears_the_checks_of_the_last_one():
+    load("vikings", "warrior")
+    horn = fixture_mesh("test_stale_check_horn", None)
+    put_on_head(horn)
+    expect_error(lambda: bpy.ops.object.tt_preflight(), "problem(s) to fix")
+    assert len(wm.tt_checks)
+    load("vikings", "peon")
+    assert not wm.tt_checked and not len(wm.tt_checks), [c.name for c in wm.tt_checks]
+    bpy.data.objects.remove(horn)
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

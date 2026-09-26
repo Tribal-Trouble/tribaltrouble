@@ -231,7 +231,10 @@ def load_unit(context, group, name, report):
     if context.mode != "OBJECT" and context.view_layer.objects.active is not None:
         bpy.ops.object.mode_set(mode="OBJECT")
     clear_browser_objects()
-    context.window_manager.tt_open_item = ""
+    wm = context.window_manager
+    wm.tt_open_item = ""
+    wm.tt_checks.clear()  # they name the meshes of the model loaded before
+    wm.tt_checked = False
     for o in context.selected_objects:
         o.select_set(False)
     loaded = load_sprite_models(context, geometry, entry, quiet)
