@@ -306,7 +306,8 @@ public class Ship extends Building implements Movable {
         }
 
         if (deploy_chieftain && proxy != null && ship_hr != null && !isMoving()) {
-            ship_hr.exitChieftain();
+            if (hasExitCell())
+                ship_hr.exitChieftain();
             deploy_chieftain = false;
         }
     }
@@ -447,7 +448,7 @@ public class Ship extends Building implements Movable {
     }
 
     private Unit createUnit(Target rally_point, @NonNull UnitTemplate template) {
-        if (proxy != null && ship_hr != null) {
+        if (proxy != null && ship_hr != null && hasExitCell()) {
             Unit unit = ship_hr.exitUnit(template);
             if (unit != null && rally_point != null) {
                 unit.setTarget(rally_point, Action.MOVE, false);

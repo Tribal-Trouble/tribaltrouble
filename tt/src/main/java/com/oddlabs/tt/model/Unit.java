@@ -204,6 +204,9 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         UnitGrid unit_grid = getUnitGrid();
         Target reserved_target = unit_grid.findGridTargets(UnitGrid.toGridCoordinate(x), UnitGrid.toGridCoordinate(y),
                 1, grid_targets_only, island)[0];
+        if (reserved_target == null)
+            reserved_target = unit_grid.findGridTargets(UnitGrid.toGridCoordinate(x), UnitGrid.toGridCoordinate(y),
+                    1, grid_targets_only)[0];
         setGridPosition(reserved_target.getGridX(), reserved_target.getGridY());
         setPosition(reserved_target.getPositionX(), reserved_target.getPositionY());
 
