@@ -42,7 +42,7 @@ from mathutils import Matrix, Vector
 bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
-    "version": (1, 40, 0),
+    "version": (1, 40, 1),
     "blender": (4, 1, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
@@ -1394,18 +1394,15 @@ def draw_item_detail(context, layout, arm, item):
     tag.alignment = "RIGHT"
     tag.enabled = False
     tag.label(text=item_tag(item))
+    row.operator(PaintItem.bl_idname, text="", icon="BRUSH_DATA", emboss=False).target = item.name
+    if item["tt_slot"] != CARRY_SLOT:
+        remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH", emboss=False)
+        remove.group, remove.sprite = item.get("tt_group", ""), item["tt_sprite"]
     if item_hidden_here(arm, item):
         clip = box.operator(ShowItemClip.bl_idname, text="Hidden in this clip: show one it is in", icon="TIME")
         clip.item = item.name
-    column = box.column(align=True)
-    column.operator(PaintItem.bl_idname, icon="BRUSH_DATA").target = item.name
     if shares_unit_texture(arm, item):
-        column.operator(OwnTexture.bl_idname, icon="IMAGE_DATA").target = item.name
-    if item["tt_slot"] != CARRY_SLOT:
-        remove = column.operator(RemoveFromRegistry.bl_idname, icon="TRASH")
-        remove.group, remove.sprite = item.get("tt_group", ""), item["tt_sprite"]
-    else:
-        column.label(text="The game asks for carried items by name, so they stay", icon="LOCKED")
+        box.operator(OwnTexture.bl_idname, icon="IMAGE_DATA").target = item.name
     target, entry = skin_item(context, item.name)
     if target is None:
         return
