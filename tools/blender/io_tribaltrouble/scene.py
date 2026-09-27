@@ -169,9 +169,10 @@ def write_changed(context, arm, targets):
     """Write each {object: path} whose export differs from the one it was loaded or last written as; the objects
     written, so untouched files in the repo stay as they are."""
     written = []
+    editing = {level for o in bpy.data.objects if o.get("tt_skin_editing") for level in model_levels(o)}
     for o, (text, digest) in export_texts(context, arm, targets).items():
-        if o.get("tt_skin"):
-            continue  # showing a skin's look, which is not what its own file holds
+        if o.get("tt_skin") or o in editing:
+            continue  # showing a skin's look or being made into one, which is not what its own file holds
         if not o.get("tt_source") or o.get("tt_export_hash") != digest:
             write_text(targets[o], text)
             o["tt_export_hash"] = digest

@@ -2158,6 +2158,18 @@ def an_action_editor_copy_of_a_clip_publishes_and_deletes_as_a_clip_of_its_own()
     assert clip_lines("vikings", "peon") == before
 
 
+@test
+def publish_while_a_skin_is_being_made_leaves_the_default_model_alone():
+    a = load("vikings", "warrior")
+    body = addon.browsed_unit(a)
+    stock = file_bytes(WARRIOR_FILES)
+    assert bpy.ops.object.tt_new_skin(skin_name="lumpy") == {"FINISHED"}
+    body.data.vertices[0].co.z += 0.1
+    assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
+    assert file_bytes(WARRIOR_FILES) == stock, "Publish wrote a skin being made into the default body"
+    assert bpy.ops.object.tt_cancel_skin() == {"FINISHED"}
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
