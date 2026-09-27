@@ -98,6 +98,8 @@ def refresh_units(context):
 
 
 def clear_browser_objects():
+    for obj in [o for o in bpy.data.objects if not o.get(BROWSER_TAG) and o.parent and o.parent.get(BROWSER_TAG)]:
+        detach_object(obj)  # the artist's own mesh keeps its place when the model it sits on goes
     for obj in [o for o in bpy.data.objects if o.get(BROWSER_TAG)]:
         data = obj.data
         bpy.data.objects.remove(obj, do_unlink=True)

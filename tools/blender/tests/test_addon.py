@@ -2434,6 +2434,23 @@ def save_skin_gives_the_artists_mesh_back_its_own_texture_name():
     assert own.get("tt_texture") == "heavy_hammer_tex"
 
 
+@test
+def an_artists_mesh_on_the_rig_keeps_its_place_when_another_model_loads():
+    a = load("vikings", "peon")
+    run = next(x for x in addon.armature_actions(a) if x.name.endswith("run"))
+    assert bpy.ops.object.tt_set_clip(clip=run.name) == {"FINISHED"}
+    bpy.context.scene.frame_set(5)
+    horn = fixture_mesh("test_kept_horn", None)
+    put_on_head(horn)
+    bpy.context.view_layer.update()
+    world = horn.matrix_world.copy()
+    load("vikings", "warrior")
+    bpy.context.view_layer.update()
+    worst = max(abs(x - y) for r1, r2 in zip(horn.matrix_world, world) for x, y in zip(r1, r2))
+    assert horn.parent is None and worst < 1e-5, worst
+    bpy.data.objects.remove(horn)
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
