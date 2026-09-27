@@ -2339,6 +2339,15 @@ def an_image_made_in_blender_keeps_its_pixels_in_the_blend_file_once_saved():
         assert tuple(round(x, 2) for x in image.pixels[:4]) == colour, "the packed pixels are not the saved ones"
 
 
+@test
+def a_model_gone_from_geometry_xml_says_so_when_loaded_or_added():
+    row = wm.tt_units.add()  # a list filled before geometry.xml lost the model
+    row.name, row.group, row.sprite = "vikings / test_gone", "vikings", "test_gone"
+    expect_error(lambda: bpy.ops.wm.tt_load_unit(group="vikings", sprite="test_gone"), "no longer in geometry.xml")
+    expect_error(lambda: bpy.ops.wm.tt_add_to_scene(group="vikings", sprite="test_gone"), "no longer in geometry.xml")
+    addon.refresh_units(bpy.context)
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

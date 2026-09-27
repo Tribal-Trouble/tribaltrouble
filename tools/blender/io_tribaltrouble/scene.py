@@ -231,7 +231,10 @@ def load_unit(context, group, name, report):
     root = repo_root(context)
     geometry = os.path.join(root, GEOMETRY_DIR)
     registry = read_registry(root)
-    entry = next(s for s in registry if s["group"] == group and s["name"] == name)
+    entry = next((s for s in registry if s["group"] == group and s["name"] == name), None)
+    if entry is None:
+        report({"ERROR"}, f"{group} / {name} is no longer in geometry.xml: press Refresh")
+        return None
     quiet = lambda kind, message: report(kind, message) if kind != {"INFO"} else None
 
     # Deleting the object a paint or edit mode is working on leaves Blender's scene in a state it can crash on.
@@ -364,7 +367,10 @@ def add_reference(context, group, name, report):
     root = repo_root(context)
     geometry = os.path.join(root, GEOMETRY_DIR)
     registry = read_registry(root)
-    entry = next(s for s in registry if s["group"] == group and s["name"] == name)
+    entry = next((s for s in registry if s["group"] == group and s["name"] == name), None)
+    if entry is None:
+        report({"ERROR"}, f"{group} / {name} is no longer in geometry.xml: press Refresh")
+        return None
     shown = [o for o in bpy.data.objects if o.type == "MESH" and (o.get(BROWSER_TAG) or o.get(REFERENCE_TAG))
              and not o.hide_get()]
     before = x_extent(context, shown)
