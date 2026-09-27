@@ -2170,6 +2170,17 @@ def publish_while_a_skin_is_being_made_leaves_the_default_model_alone():
     assert bpy.ops.object.tt_cancel_skin() == {"FINISHED"}
 
 
+@test
+def a_new_prop_leaves_the_files_of_unchanged_props_alone():
+    body = load_building("vikings", "quarters")
+    shown = [o for o in addon.building_props(body) if addon.item_shown(o)]
+    assert shown, "needs the props saved by the earlier tests"
+    for o in shown:
+        os.utime(o["tt_source"], (1, 1))
+    assert publish_prop(fixture_mesh("test_bell", fixture_image("test_bell_tex"), z=6.0, kind="cube")) == {"FINISHED"}
+    assert all(os.path.getmtime(o["tt_source"]) == 1 for o in shown), "a new prop rewrote the ones already there"
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

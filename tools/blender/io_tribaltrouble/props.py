@@ -613,7 +613,7 @@ class OwnTexture(bpy.types.Operator):
 
 def publish_props(op, context, fresh, event, base=None):
     """Write the new props into the loaded model's folder, on base (the model showing unless given), and add them to
-    geometry.xml. Props already listed are written back to their own files, and the model's own meshes when they
+    geometry.xml. Props already listed, and the model's own meshes, are written back to their own files when they
     changed."""
     body = prop_body(context)
     root = repo_root(context)
@@ -636,14 +636,12 @@ def publish_props(op, context, fresh, event, base=None):
     geometry = os.path.join(root, GEOMETRY_DIR)
     depsgraph = context.evaluated_depsgraph_get()
     entries, missing = [], []
-    for o in fresh + existing:
+    for o in fresh:
         path = paths[o]
         texture = o.get("tt_texture", "").split(",")[0].strip() or material_image_name([o])
         write_mesh_xml([o], [None], path, texture, False, depsgraph, use_groups=False)
         if not ensure_texture_in_repo(root, o, texture):
             missing.append(texture)
-        if o in existing:
-            continue
         sprite = f"{base}_{o.name}"
         model = os.path.relpath(path, geometry).replace(os.sep, "/")
         entries.append((sprite, sprite_text([("name", sprite), ("base", base), ("slot", PROP_SLOT)] +
@@ -660,11 +658,12 @@ def publish_props(op, context, fresh, event, base=None):
     for o, (_, digest) in export_texts(context, None, fresh).items():
         o["tt_export_hash"] = digest
     saved = write_changed(context, None, {o: o["tt_source"] for o in model_levels(body)})
+    changed = write_changed(context, None, {o: o["tt_source"] for o in existing})
     publish_paint(root)
     note = f"; model mesh: {', '.join(os.path.basename(o['tt_source']) for o in saved)}" if saved else ""
     note += f"; no texture image for {', '.join(sorted(set(missing)))}" if missing else ""
     op.report({"WARNING"} if missing else {"INFO"},
-              f"Published {len(fresh)} new and {len(existing)} existing prop(s) on {group} / {base}{note}")
+              f"Published {len(fresh)} new and {len(changed)} changed prop(s) on {group} / {base}{note}")
     return {"FINISHED"}
 
 
