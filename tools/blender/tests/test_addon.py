@@ -2369,6 +2369,29 @@ def moving_the_loaded_rig_gives_publish_nothing_to_write():
     assert changed_files(before) == [], changed_files(before)
 
 
+@test
+def publishing_a_new_item_while_a_skin_is_painted_leaves_the_default_texture_alone():
+    a = load("vikings", "warrior")
+    body = addon.browsed_unit(a)
+    image = addon.mesh_texture_image(body)
+    cap = fixture_mesh("test_atlas_cap", None)
+    cap.data.materials.append(body.data.materials[0])  # an item painted on the unit's atlas
+    put_on_head(cap)
+    assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
+    assert addon.item_shown(cap) and addon.mesh_texture_image(cap) == image
+    png = os.path.join(MODELS, addon.image_texture_name(image) + ".png")
+    stock = file_bytes([png])
+    assert bpy.ops.object.tt_new_skin(skin_name="glossy") == {"FINISHED"}
+    image.pixels[0] = 0.25
+    assert image.is_dirty
+    put_on_head(fixture_mesh("test_glossy_hat", fixture_image("test_glossy_hat_tex")))
+    try:
+        assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
+        assert file_bytes([png]) == stock, "the skin's paint went into the default texture"
+    finally:
+        bpy.ops.object.tt_cancel_skin()
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

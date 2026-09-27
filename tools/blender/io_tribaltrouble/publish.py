@@ -41,7 +41,8 @@ def export_visible(context, arm, report):
         return False
     written = write_changed(context, arm, {**paths, **{o: o["tt_source"] for o in levels}})
     missing = []
-    for o in objs:
+    # Paint on loaded items is left to publish_paint, which knows what a skin being made may not write.
+    for o in [o for o in objs if not o.get("tt_source")]:
         for name in texture_names(o):
             if not ensure_texture_in_repo(repo_root(context), o, name):
                 missing.append(name)
