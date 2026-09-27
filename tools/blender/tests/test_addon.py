@@ -2564,6 +2564,16 @@ def a_new_rig_whose_actions_make_bad_or_doubled_clip_names_is_refused():
     assert entry("misc", "troll") is None and not os.path.exists(os.path.join(GEOMETRY, "misc", "troll"))
 
 
+@test
+def the_checks_look_at_the_uv_map_the_file_gets():
+    cube = fixture_mesh("test_two_maps", fixture_image("test_two_maps_tex"), kind="cube")
+    unwrapped = cube.data.uv_layers.new(name="unwrapped")  # a copy of the cube's own unwrap
+    cube.data.uv_layers[0].data.foreach_set("uv", [0.5] * (2 * len(cube.data.loops)))
+    cube.data.uv_layers.active = unwrapped
+    assert any("collapsed" in text for _, text in addon.check_mesh(cube, False, 0))
+    bpy.data.objects.remove(cube)
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

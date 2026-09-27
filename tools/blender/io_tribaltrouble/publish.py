@@ -106,7 +106,7 @@ def check_mesh(obj, is_new, body_triangles):
         return [("ERROR", "has no faces")]
     if is_new and not re.fullmatch(r"[A-Za-z0-9_]+", obj.name):
         found.append(("ERROR", "name becomes a file and sprite name: use only letters, digits and underscores"))
-    uv = me.uv_layers.active
+    uv = me.uv_layers[0] if me.uv_layers else None  # the one the file gets, whichever is active
     if uv is None:
         found.append(("ERROR", "has no UV map, so the texture cannot be placed"))
     else:
