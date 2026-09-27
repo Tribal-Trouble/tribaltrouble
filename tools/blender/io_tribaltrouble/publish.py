@@ -140,6 +140,22 @@ def check_mesh(obj, is_new, body_triangles):
     return found
 
 
+def texture_clashes(root, objs):
+    """Errors for new meshes whose image file is named like a repo texture that did not come from it: Publish would
+    save over another model's texture, or take it for theirs."""
+    found = []
+    for o in objs:
+        image = mesh_texture_image(o)
+        if image is None or not image.filepath or not root:
+            continue
+        texture = image_texture_name(image)
+        target = os.path.normcase(os.path.abspath(models_texture_path(root, texture)))
+        source = os.path.normcase(os.path.abspath(bpy.path.abspath(image.filepath)))
+        if os.path.isfile(target) and source != target and image.get("tt_repo_texture") != texture:
+            found.append(("ERROR", f"{o.name}: {texture}.png in the repo is another model's texture: rename the image"))
+    return found
+
+
 def preflight(context, arm):
     """Findings for the unit's visible items, new and loaded, as Publish writes them."""
     body = browsed_unit(arm) or next((o for o in unit_meshes(arm) if not o.get("tt_slot")), None)
@@ -156,6 +172,7 @@ def preflight(context, arm):
             findings.append(("WARNING", f"{obj.name}: is bigger than the unit itself ({max(high - low):.1f} against "
                                         f"{height:.1f} tall)"))
     root = repo_root(context)
+    findings += texture_clashes(root, new)
     group, base = find_base_sprite(arm.get("tt_skeleton", ""))
     if root and base is not None:
         names = {s["name"] for s in read_registry(root) if s["group"] == group}

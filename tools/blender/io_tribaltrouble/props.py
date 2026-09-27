@@ -16,7 +16,7 @@ from .registry import (append_registry_entries, CARRY_SLOT, GEOMETRY_DIR, PROP_S
                        repo_root, sprite_text, team_attribute)
 from .scene import (attachment_obj_poll, browsed_unit, BROWSER_TAG, export_texts, file_clashes, item_shown,
                     model_levels, refresh_skins, set_item_visible, skin_item, snap_to_bone, unit_items, write_changed)
-from .publish import check_mesh, publish_paint, store_findings
+from .publish import check_mesh, publish_paint, store_findings, texture_clashes
 from .forms import (chosen_event, draw_confirm, draw_event, event_property, form_title, mesh_problem, open_form,
                     own_mesh_search)
 from .models import RemoveFromRegistry
@@ -628,6 +628,7 @@ def publish_props(op, context, fresh, event, base=None):
     paths = {o: o.get("tt_source") or os.path.join(folder, o.name + ".xml") for o in fresh + existing}
     findings += [("ERROR", f"{name}: the model's folder already has a file with this name") for name in
                  file_clashes([(o, paths[o]) for o in fresh])]
+    findings += texture_clashes(root, fresh)
     errors = store_findings(context, findings)
     if errors:
         op.report({"ERROR"}, f"Not published: {errors} problem(s): " +

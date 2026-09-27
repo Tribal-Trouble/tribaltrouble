@@ -17,7 +17,7 @@ from .registry import (append_registry_entries, CATEGORY_ICONS, GEOMETRY_DIR, re
 from .scene import (add_reference, attachment_obj_poll, BROWSER_TAG, clear_references, has_low_detail, load_unit,
                     loaded_body, loaded_models, REFERENCE_TAG, references, refresh_units, root_update, write_changed)
 from .publish import (check_mesh, preflight, publish_changed_clips, publish_items, publish_own_textures,
-                      publish_paint, store_findings)
+                      publish_paint, store_findings, texture_clashes)
 from .forms import (chosen_event, draw_confirm, draw_event, event_property, form_title, mesh_problem, name_problem,
                     open_form, own_mesh_search)
 
@@ -466,6 +466,7 @@ class RegisterModel(bpy.types.Operator):
             self.report({"ERROR"}, f"{group} already has a sprite named {', '.join(clash)}")
             return {"CANCELLED"}
         findings = [(level, f"{m.name}: {text}") for m in meshes for level, text in check_mesh(m, False, 0)]
+        findings += texture_clashes(root, meshes)
         errors = store_findings(context, findings)
         if errors:
             self.report({"ERROR"}, f"Not registered: {errors} problem(s): " +

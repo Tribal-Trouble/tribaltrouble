@@ -203,8 +203,10 @@ def ensure_texture_in_repo(root, obj, texture, folder="models"):
         if not image.is_dirty and os.path.isfile(source) and source.lower().endswith(".png"):
             if os.path.normcase(os.path.abspath(source)) != os.path.normcase(os.path.abspath(target)):
                 shutil.copyfile(source, target)
+                image["tt_repo_texture"] = texture
             return True
         save_png(image, target)
+        image["tt_repo_texture"] = texture
         return True
     return os.path.isfile(target)
 

@@ -2451,6 +2451,21 @@ def an_artists_mesh_on_the_rig_keeps_its_place_when_another_model_loads():
     bpy.data.objects.remove(horn)
 
 
+@test
+def a_new_mesh_whose_image_is_named_like_another_models_texture_is_refused():
+    load("vikings", "peon")
+    image = fixture_image("test_clash_tex")
+    image.filepath_raw, image.file_format = os.path.join(TEMP, "viking_peon_hammer.png"), "PNG"
+    image.save()  # the artist's own file, named like the repo's hammer texture
+    stock = file_bytes([os.path.join(MODELS, "viking_peon_hammer.png")])
+    hat = fixture_mesh("test_clash_hat", image)
+    put_on_head(hat)
+    expect_error(lambda: bpy.ops.wm.tt_publish_model(), "problem(s)")
+    assert any("another model's texture" in c.name for c in wm.tt_checks), [c.name for c in wm.tt_checks]
+    assert file_bytes([os.path.join(MODELS, "viking_peon_hammer.png")]) == stock
+    bpy.data.objects.remove(hat)
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
