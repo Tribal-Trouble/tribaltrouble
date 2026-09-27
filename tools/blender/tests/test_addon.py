@@ -2242,6 +2242,12 @@ def split_by_bone_keeps_a_bone_parented_part_where_it_was():
     assert worst < 1e-5, worst
 
 
+@test
+def a_model_with_skins_cannot_leave_the_registry_before_them():
+    expect_error(lambda: bpy.ops.object.tt_remove_from_registry(group="vikings", sprite="peon_hammer"), "has the skins")
+    assert entry("vikings", "peon_hammer") is not None
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

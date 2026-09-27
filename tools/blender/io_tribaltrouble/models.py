@@ -12,8 +12,8 @@ from .textures import ensure_texture_in_repo, material_image_name
 from .mesh_io import STATIC_BONE, write_mesh_xml
 from .rig import active_armature, armature_actions, body_rig, write_animation_xml, write_skeleton_xml
 from .registry import (append_registry_entries, CATEGORY_ICONS, GEOMETRY_DIR, read_registry, REGISTRY_FILE,
-                       remove_registry_entry, repo_root, rig_registry, root_holder, SCENERY_GROUP, sprite_text,
-                       team_attribute)
+                       remove_registry_entry, repo_root, rig_registry, root_holder, SCENERY_GROUP, sprite_skins,
+                       sprite_text, team_attribute)
 from .scene import (add_reference, attachment_obj_poll, BROWSER_TAG, clear_references, has_low_detail, load_unit,
                     loaded_body, loaded_models, REFERENCE_TAG, references, refresh_units, root_update, write_changed)
 from .publish import (check_mesh, preflight, publish_changed_clips, publish_items, publish_own_textures,
@@ -211,7 +211,8 @@ class Preflight(bpy.types.Operator):
 
 
 class RemoveFromRegistry(bpy.types.Operator):
-    """Take this sprite out of geometry.xml. Its files stay on disk. Refused while another sprite is based on it"""
+    """Take this sprite out of geometry.xml. Its files stay on disk. Refused while another sprite is based on it or
+    is a skin of it"""
     bl_idname = "object.tt_remove_from_registry"
     bl_label = "Remove From Registry"
     bl_options = {"REGISTER"}
@@ -230,9 +231,14 @@ class RemoveFromRegistry(bpy.types.Operator):
 
     def execute(self, context):
         root = repo_root(context)
-        dependents = [s["name"] for s in read_registry(root) if s["group"] == self.group and s["base"] == self.sprite]
+        registry = read_registry(root)
+        dependents = [s["name"] for s in registry if s["group"] == self.group and s["base"] == self.sprite]
         if dependents:
             self.report({"ERROR"}, f"{self.sprite} is the base of {', '.join(dependents)}: remove those first")
+            return {"CANCELLED"}
+        skins = [s["name"] for s in sprite_skins(registry, {"group": self.group, "name": self.sprite})]
+        if skins:
+            self.report({"ERROR"}, f"{self.sprite} has the skins {', '.join(skins)}: remove those first")
             return {"CANCELLED"}
         if not remove_registry_entry(os.path.join(root, REGISTRY_FILE), self.group, self.sprite):
             self.report({"ERROR"}, f"No sprite named {self.sprite} in group {self.group}")
