@@ -15,7 +15,8 @@ from .registry import (append_registry_entries, CATEGORY_ICONS, GEOMETRY_DIR, re
                        remove_registry_entry, repo_root, rig_registry, root_holder, SCENERY_GROUP, sprite_skins,
                        sprite_text, team_attribute)
 from .scene import (add_reference, attachment_obj_poll, BROWSER_TAG, clear_references, has_low_detail, load_unit,
-                    loaded_body, loaded_models, REFERENCE_TAG, references, refresh_units, root_update, write_changed)
+                    loaded_body, loaded_models, REFERENCE_TAG, references, refresh_units, root_update,
+                    unpublished_changes, write_changed)
 from .publish import (check_mesh, preflight, publish_changed_clips, publish_items, publish_own_textures,
                       publish_paint, store_findings, texture_clashes)
 from .forms import (chosen_event, draw_confirm, draw_event, event_property, form_title, mesh_problem, name_problem,
@@ -66,13 +67,27 @@ class PickUnit(bpy.types.Operator):
     group: StringProperty(options={"SKIP_SAVE"})
     sprite: StringProperty(options={"SKIP_SAVE"})
 
+    def on_screen(self):
+        body = loaded_body()
+        return body is not None and (body["tt_group"], body["tt_sprite"]) == (self.group, self.sprite)
+
+    def invoke(self, context, event):
+        changes = [] if self.on_screen() else unpublished_changes(context)
+        if changes:
+            return context.window_manager.invoke_confirm(
+                self, event, title=f"Load {self.sprite}?", confirm_text="Load", icon="WARNING",
+                message=f"Not published on {loaded_body()['tt_sprite']}: {', '.join(changes)}")
+        return self.execute(context)
+
     def execute(self, context):
         wm = context.window_manager
         index = next((i for i, u in enumerate(wm.tt_units) if (u.group, u.sprite) == (self.group, self.sprite)), -1)
         if index < 0:
             return {"CANCELLED"}
-        if index != wm.tt_unit_index:
-            wm.tt_unit_index = index
+        if not self.on_screen() and load_unit(context, self.group, self.sprite, self.report) is None:
+            refresh_units(context)
+            return {"CANCELLED"}
+        wm.tt_unit_index = index  # the model is loaded already, so this only moves the highlight
         return {"FINISHED"}
 
 

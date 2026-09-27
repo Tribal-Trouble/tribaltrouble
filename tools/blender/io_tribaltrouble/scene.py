@@ -7,10 +7,10 @@ import bpy
 from bpy.props import StringProperty, BoolProperty, PointerProperty
 from mathutils import Vector
 
-from .textures import apply_team_preview, object_texture
+from .textures import apply_team_preview, mesh_texture_image, object_texture
 from .mesh_io import bone_tail_matrices, import_mesh_file, mesh_xml_text, rest_pose_armatures, STATIC_BONE, write_text
-from .rig import (apply_clip, armature_from_file, assign_action, bind_meshes, build_armature, clip_keys, read_animation,
-                  read_skeleton, shown_bones)
+from .rig import (apply_clip, armature_actions, armature_from_file, assign_action, bind_meshes, build_armature,
+                  clip_keys, read_animation, read_skeleton, shown_bones)
 from .registry import GEOMETRY_DIR, level_textures, read_registry, repo_root, rig_entry, sprite_category, sprite_skins
 
 
@@ -91,10 +91,15 @@ def refresh_units(context):
         item.group = sprite["group"]
         item.sprite = sprite["name"]
         item.category = category
+    wm.tt_unit_index = shown_row(wm)
+    return len(wm.tt_units)
+
+
+def shown_row(wm):
+    """The list row of the model on screen, or -1."""
     body = loaded_body()
     shown = (body["tt_group"], body["tt_sprite"]) if body is not None else None
-    wm.tt_unit_index = next((i for i, u in enumerate(wm.tt_units) if (u.group, u.sprite) == shown), -1)
-    return len(wm.tt_units)
+    return next((i for i, u in enumerate(wm.tt_units) if (u.group, u.sprite) == shown), -1)
 
 
 def clear_browser_objects():
@@ -318,11 +323,17 @@ def refresh_units_on_load(_file=None):
 def unit_index_update(self, context):
     wm = context.window_manager
     body = loaded_body()
-    if 0 <= wm.tt_unit_index < len(wm.tt_units):
-        item = wm.tt_units[wm.tt_unit_index]
-        if body is None or (body["tt_group"], body["tt_sprite"]) != (item.group, item.sprite):
-            if load_unit(context, item.group, item.sprite, lambda kind, message: None) is None:
-                refresh_units(context)  # the row is older than geometry.xml
+    if not 0 <= wm.tt_unit_index < len(wm.tt_units):
+        return
+    group, sprite = wm.tt_units[wm.tt_unit_index].group, wm.tt_units[wm.tt_unit_index].sprite
+    if body is not None and (body["tt_group"], body["tt_sprite"]) == (group, sprite):
+        return
+    if body is not None and unpublished_changes(context):
+        # Picked beside the row's button (or by key or wheel): ask as the button does, the shown model kept till then.
+        wm.tt_unit_index = shown_row(wm)
+        bpy.ops.wm.tt_pick_unit("INVOKE_DEFAULT", group=group, sprite=sprite)
+    elif load_unit(context, group, sprite, lambda kind, message: None) is None:
+        refresh_units(context)  # the row is older than geometry.xml
 
 
 def root_update(self, context):
@@ -332,6 +343,26 @@ def root_update(self, context):
 def loaded_models():
     return [o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.type == "MESH" and o.get("tt_source")
             and "tt_export_hash" in o]
+
+
+def unpublished_changes(context):
+    """What loading another model drops that Publish would have kept, in a few words each; empty when nothing."""
+    editing = [o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.get("tt_skin_editing")]
+    changes = [f"the skin '{o['tt_skin_editing']}'" for o in editing]
+    skin_levels = {level for o in editing for level in model_levels(o)}
+    arm = next((o for o in bpy.data.objects if o.type == "ARMATURE" and o.get(BROWSER_TAG)), None)
+    models = [o for o in loaded_models() if not o.get("tt_skin") and o not in skin_levels]
+    meshes = sum(1 for o, (_, digest) in export_texts(context, arm, models).items() if o["tt_export_hash"] != digest)
+    actions = armature_actions(arm) if arm is not None else []
+    clips = sum(1 for a in actions if not a.get("tt_clip") or a.get("tt_keys") not in (None, clip_keys(a)))
+    items = len(visible_attachments(arm)) if arm is not None else 0
+    changes += [f"{n} {one if n == 1 else many}" for n, one, many in
+                ((meshes, "mesh", "meshes"), (clips, "clip", "clips"), (items, "new item", "new items")) if n]
+    images = {mesh_texture_image(o) for o in bpy.data.objects
+              if o.get(BROWSER_TAG) and o.type == "MESH" and o not in skin_levels}
+    if any(image is not None and image.is_dirty for image in images):
+        changes.append("paint")
+    return changes
 
 
 DETAIL_ITEMS = (("HIGH", "High", "The mesh the game draws close up"),

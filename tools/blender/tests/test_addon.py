@@ -2574,6 +2574,26 @@ def the_checks_look_at_the_uv_map_the_file_gets():
     bpy.data.objects.remove(cube)
 
 
+@test
+def work_not_yet_published_is_listed_before_another_model_loads():
+    a = load("vikings", "warrior")
+    assert addon.unpublished_changes(bpy.context) == []
+    assert bpy.ops.object.tt_new_clip(clip_name="wave") == {"FINISHED"}
+    body = addon.browsed_unit(a)
+    body.data.vertices[0].co.z += 0.1
+    addon.mesh_texture_image(body).pixels[0] = 0.2
+    hat = fixture_mesh("test_pending_hat", fixture_image("test_pending_hat_tex"))
+    put_on_head(hat)
+    expected = ["1 mesh", "1 clip", "1 new item", "paint"]
+    assert addon.unpublished_changes(bpy.context) == expected, addon.unpublished_changes(bpy.context)
+    assert bpy.ops.wm.tt_pick_unit(group="vikings", sprite="warrior") == {"FINISHED"}
+    assert addon.unpublished_changes(bpy.context) == expected, "picking the model on screen loaded it again"
+    assert bpy.ops.object.tt_new_skin(skin_name="pending") == {"FINISHED"}
+    assert addon.unpublished_changes(bpy.context)[0] == "the skin 'pending'"
+    assert bpy.ops.object.tt_cancel_skin() == {"FINISHED"}
+    bpy.data.objects.remove(hat)
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
