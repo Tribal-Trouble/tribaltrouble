@@ -447,6 +447,14 @@ class RegisterModel(bpy.types.Operator):
             if arm is not None and base is None and not armature_actions(arm):
                 self.report({"ERROR"}, f"{arm.name} has no action: a new rig needs at least one clip")
                 return {"CANCELLED"}
+        new_clips = {a: a.name[len(name) + 1:] if a.name.startswith(name + "_") else a.name
+                     for a in armature_actions(arm)} if arm is not None and base is None else {}
+        names = list(new_clips.values())
+        bad = [a.name for a, c in new_clips.items() if not re.fullmatch(r"[a-z0-9_]+", c) or names.count(c) > 1]
+        if bad:
+            self.report({"ERROR"}, f"Rename the actions {', '.join(sorted(bad))}: each clip needs its own name of "
+                                   f"lowercase letters, digits and underscores")
+            return {"CANCELLED"}
 
         def picked(prop):
             return bpy.data.objects.get(getattr(self, prop)) if getattr(self, prop) and not self.scatter else None
@@ -508,10 +516,9 @@ class RegisterModel(bpy.types.Operator):
                 context.view_layer.update()
 
         if arm is not None and base is None:
-            for action in armature_actions(arm):
+            for action, clip in new_clips.items():
                 path = os.path.join(folder, action.name + ".xml")
                 write_animation_xml(context, arm, action, path)
-                clip = action.name[len(name) + 1:] if action.name.startswith(name + "_") else action.name
                 kind = "plain" if any(word in clip for word in PLAIN_CLIPS) else "loop"
                 clips.append((clip, kind, relative(path)))
             arm["tt_skeleton"] = os.path.join(folder, name + "_skeleton.xml")

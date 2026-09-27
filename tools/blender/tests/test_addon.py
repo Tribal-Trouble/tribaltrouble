@@ -2553,6 +2553,17 @@ def a_new_item_on_the_units_atlas_never_carries_a_skins_paint_into_it():
         bpy.ops.object.tt_cancel_skin()
 
 
+@test
+def a_new_rig_whose_actions_make_bad_or_doubled_clip_names_is_refused():
+    mesh, rig = own_rig("troll")
+    run = bpy.data.actions["troll_run"]
+    run.copy().name = "run"  # a second clip called run
+    run.copy().name = "Walk"
+    expect_error(lambda: bpy.ops.object.tt_register_model(mesh=mesh.name, sprite_name="troll", group="misc"),
+                 "Rename the actions Walk, run, troll_run")
+    assert entry("misc", "troll") is None and not os.path.exists(os.path.join(GEOMETRY, "misc", "troll"))
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
