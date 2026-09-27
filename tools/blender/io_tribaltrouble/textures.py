@@ -213,6 +213,11 @@ def save_png(image, target):
     previous = (image.filepath_raw, image.file_format)
     image.filepath_raw, image.file_format = target, "PNG"
     image.save()
+    if not previous[0]:
+        # Made in Blender, so packed: it must not point into the repo and has no other file.
+        if image.packed_file is not None:
+            image.unpack(method="REMOVE")
+        image.pack()
     image.filepath_raw, image.file_format = previous
 
 

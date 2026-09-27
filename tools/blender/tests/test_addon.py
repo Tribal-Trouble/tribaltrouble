@@ -2327,6 +2327,18 @@ def a_new_rig_without_any_action_is_refused():
     assert entry("misc", "wraith") is None
 
 
+@test
+def an_image_made_in_blender_keeps_its_pixels_in_the_blend_file_once_saved():
+    image = fixture_image("test_saved_here")
+    target = os.path.join(MODELS, "test_saved_here.png")
+    for colour in ((1.0, 0.5, 0.0, 1.0), (0.0, 0.5, 1.0, 1.0)):
+        image.pixels = colour * (64 * 64)
+        addon.save_png(image, target)
+        assert image.filepath_raw == "" and image.packed_file is not None and os.path.isfile(target)
+        image.reload()
+        assert tuple(round(x, 2) for x in image.pixels[:4]) == colour, "the packed pixels are not the saved ones"
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
