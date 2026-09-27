@@ -389,10 +389,15 @@ def clip_copy(arm, action):
     return next((a for a in sharing if a.name == os.path.splitext(clip)[0]), sharing[0]) != action
 
 
+def clip_prefix(arm):
+    """peon_ for the rig of peon_skeleton.xml: the start of its clip file names."""
+    return os.path.basename(arm.get("tt_skeleton", "")).replace("skeleton.xml", "")
+
+
 def clip_short_name(arm, action):
     """walk for an action called peon_walk on the peon rig; the action name otherwise."""
     stem = os.path.splitext(action["tt_clip"])[0] if action.get("tt_clip") else action.name
-    prefix = os.path.basename(arm.get("tt_skeleton", "")).replace("skeleton.xml", "")
+    prefix = clip_prefix(arm)
     return stem[len(prefix):] if prefix and stem.startswith(prefix) and len(stem) > len(prefix) else stem
 
 

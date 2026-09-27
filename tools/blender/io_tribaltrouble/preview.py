@@ -7,8 +7,8 @@ import bpy
 from bpy.props import StringProperty, EnumProperty, FloatProperty, IntProperty
 
 from .textures import apply_team_preview, get_atlas_material, models_texture_path, short_labels
-from .rig import (active_armature, armature_actions, assign_action, clip_copy, clip_short_name, item_hidden_here,
-                  shown_bones)
+from .rig import (active_armature, armature_actions, assign_action, clip_copy, clip_prefix, clip_short_name,
+                  item_hidden_here, shown_bones)
 from .registry import GEOMETRY_DIR, read_registry, REGISTRY_FILE, repo_root, rig_registry, set_clip_line
 from .scene import BROWSER_TAG, has_low_detail, unit_meshes
 from .publish import borrowed_rig_problem
@@ -262,7 +262,7 @@ class NewClip(bpy.types.Operator):
             self.report({"ERROR"}, f"This unit already has a clip called {name}")
             return {"CANCELLED"}
         current = arm.animation_data.action if arm.animation_data is not None else None
-        prefix = os.path.basename(arm.get("tt_skeleton", "")).replace("skeleton.xml", "")
+        prefix = clip_prefix(arm)
         from_pose = self.start == "POSE" or current is None
         action = bpy.data.actions.new(prefix + name) if from_pose else current.copy()
         action.name = prefix + name

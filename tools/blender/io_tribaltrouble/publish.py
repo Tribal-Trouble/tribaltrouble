@@ -8,7 +8,7 @@ import bpy
 
 from .textures import (ensure_texture_in_repo, image_texture_name, mesh_texture_image, models_texture_path,
                        object_texture, save_png, texture_names)
-from .rig import (armature_actions, clip_copy, clip_keys, clip_short_name, read_animation, shown_bones,
+from .rig import (armature_actions, clip_copy, clip_keys, clip_prefix, clip_short_name, read_animation, shown_bones,
                   write_animation_xml)
 from .registry import (append_registry_entries, find_base_sprite, GEOMETRY_DIR, item_slot, read_registry,
                        registry_entries, REGISTRY_FILE, repo_root, rig_in_repo, rig_registry, set_clip_line,
@@ -206,8 +206,7 @@ def publish_clip(context, arm, action, name, kind, wpc, report):
     geometry = os.path.join(root, GEOMETRY_DIR)
     is_new = name not in rig["clip_info"]
     if is_new:
-        prefix = os.path.basename(arm["tt_skeleton"]).replace("skeleton.xml", "")
-        path = os.path.join(os.path.dirname(arm["tt_skeleton"]), prefix + name + ".xml")
+        path = os.path.join(os.path.dirname(arm["tt_skeleton"]), clip_prefix(arm) + name + ".xml")
         listed = {os.path.normcase(os.path.join(geometry, p)) for _, _, p in rig["clip_info"].values()}
         if os.path.isfile(path) or os.path.normcase(path) in listed:
             report({"ERROR"}, f"{os.path.basename(path)} already exists: give the clip another name")
