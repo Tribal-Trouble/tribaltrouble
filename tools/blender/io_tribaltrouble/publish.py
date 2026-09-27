@@ -265,6 +265,9 @@ def publish_changed_clips(context, arm, report):
             del action["tt_clip"]  # edited since it was copied: a new clip under its own name
         name, kind, wpc = listed.get(action.get("tt_clip"), (clip_short_name(arm, action), action.get("tt_kind", "loop"),
                                                              action.get("tt_wpc", 1.0)))
+        if not action.get("tt_clip") and rig and name.strip().lower() in rig["clip_info"]:
+            report({"ERROR"}, f"{action.name}: the unit already has a clip called {name}; rename the action")
+            continue
         if publish_clip(context, arm, action, name, kind, wpc, report):
             written.append(action["tt_clip"])
     return written

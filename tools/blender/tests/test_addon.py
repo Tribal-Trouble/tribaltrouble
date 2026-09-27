@@ -2515,6 +2515,24 @@ def an_image_made_in_blender_and_named_like_another_models_texture_is_refused():
     bpy.data.images.remove(image)
 
 
+@test
+def a_new_action_named_like_a_clip_of_the_unit_is_refused_and_never_written_over_it():
+    a = load("vikings", "peon")
+    run = next(x for x in addon.armature_actions(a) if x.name.endswith("run"))
+    other, (_, _, relative) = next((n, info) for n, info in entry("vikings", "peon")["clip_info"].items() if n != "run")
+    stock = file_bytes([os.path.join(GEOMETRY, relative)])
+    copy = run.copy()
+    copy.name = other
+    assert bpy.ops.object.tt_set_clip(clip=copy.name) == {"FINISHED"}
+    head = a.pose.bones["peon Head"]
+    head.rotation_mode = "QUATERNION"
+    head.rotation_quaternion = (0.9, 0.0, 0.0, 0.43)
+    head.keyframe_insert("rotation_quaternion", frame=5)
+    expect_error(lambda: addon.publish_changed_clips(bpy.context, a, raise_errors),
+                 f"already has a clip called {other}")
+    assert file_bytes([os.path.join(GEOMETRY, relative)]) == stock
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
