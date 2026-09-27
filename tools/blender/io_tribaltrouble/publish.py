@@ -42,7 +42,8 @@ def export_visible(context, arm, report):
     written = write_changed(context, arm, {**paths, **{o: o["tt_source"] for o in levels}})
     missing = []
     # Paint on loaded items is left to publish_paint, which knows what a skin being made may not write.
-    for o in [o for o in objs if not o.get("tt_source")]:
+    editing = skin_edit_images()
+    for o in [o for o in objs if not o.get("tt_source") and mesh_texture_image(o) not in editing]:
         for name in texture_names(o):
             if not ensure_texture_in_repo(repo_root(context), o, name):
                 missing.append(name)
@@ -288,12 +289,17 @@ def publish_own_textures(root, objs):
         del o["tt_own_texture"]
 
 
+def skin_edit_images():
+    """The images of the models a skin is being made for: their paint belongs to the skin."""
+    return {mesh_texture_image(level) for o in bpy.data.objects if o.get("tt_skin_editing")
+            for level in model_levels(o)}
+
+
 def publish_paint(root):
     """Write paint on the textures of the loaded models and the skins showing. A texture a skin shares with the
     default look, and the textures of a model a skin is being made for, are never written this way. The file names
     written."""
-    editing = {mesh_texture_image(level) for o in bpy.data.objects if o.get("tt_skin_editing")
-               for level in model_levels(o)}
+    editing = skin_edit_images()
     written = []
     for o in bpy.data.objects:
         image = mesh_texture_image(o) if o.get(BROWSER_TAG) and o.type == "MESH" else None

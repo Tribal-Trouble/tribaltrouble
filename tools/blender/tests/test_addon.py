@@ -2533,6 +2533,26 @@ def a_new_action_named_like_a_clip_of_the_unit_is_refused_and_never_written_over
     assert file_bytes([os.path.join(GEOMETRY, relative)]) == stock
 
 
+@test
+def a_new_item_on_the_units_atlas_never_carries_a_skins_paint_into_it():
+    a = load("vikings", "warrior")
+    body = addon.browsed_unit(a)
+    image = addon.mesh_texture_image(body)
+    png = os.path.join(MODELS, addon.image_texture_name(image) + ".png")
+    stock = file_bytes([png])
+    assert bpy.ops.object.tt_new_skin(skin_name="matte") == {"FINISHED"}
+    image.pixels[0] = 0.3
+    assert image.is_dirty
+    visor = fixture_mesh("test_atlas_visor", None)
+    visor.data.materials.append(body.data.materials[0])  # a new item painted on the unit's atlas
+    put_on_head(visor)
+    try:
+        assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
+        assert file_bytes([png]) == stock, "the skin's paint went into the default texture"
+    finally:
+        bpy.ops.object.tt_cancel_skin()
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
