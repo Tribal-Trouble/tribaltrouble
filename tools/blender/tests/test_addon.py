@@ -2265,6 +2265,15 @@ def an_edited_copy_still_named_after_its_clip_is_refused_and_never_written_over_
     assert open(run_path, "rb").read() == stock and clip_lines("vikings", "peon") == before
 
 
+@test
+def a_body_skin_refuses_the_artists_own_mesh_with_a_reason():
+    a = load("vikings", "warrior")
+    own = fixture_mesh("test_new_body", None, kind="cube")
+    bpy.context.view_layer.objects.active = a
+    expect_error(lambda: bpy.ops.object.tt_new_skin(skin_name="blocky", mesh=own.name), "can only reshape it")
+    bpy.data.objects.remove(own)
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

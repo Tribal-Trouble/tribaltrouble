@@ -220,7 +220,7 @@ class NewSkin(bpy.types.Operator):
             if mesh is None or not attachment_obj_poll(self, mesh):
                 self.report({"ERROR"}, "Pick one of your own meshes, or leave Mesh blank")
                 return {"CANCELLED"}
-            if arm is not None and target.get("tt_bone") not in arm.data.bones:
+            if arm is not None and target.get("tt_bone", "") not in arm.data.bones:
                 self.report({"ERROR"}, f"{entry['name']} bends with the unit, so its skin can only reshape it")
                 return {"CANCELLED"}
         body, body_entry = skin_body(context)
