@@ -2210,6 +2210,18 @@ def picking_the_same_row_after_a_category_change_loads_the_model_in_it():
     wm.tt_category = "UNITS"
 
 
+@test
+def loading_another_model_ends_the_skin_an_artists_mesh_stood_in_for():
+    a = load("vikings", "peon")
+    own = fixture_mesh("stand_in_hammer", None, kind="cube")
+    bpy.context.view_layer.objects.active = a
+    assert bpy.ops.object.tt_new_skin(item=hammer().name, skin_name="stale", mesh=own.name) == {"FINISHED"}
+    assert own.get("tt_skin_mesh") == hammer().name
+    load("vikings", "peon")
+    assert "tt_skin_mesh" not in own and addon.skin_mesh(hammer()) is None
+    bpy.data.objects.remove(own)
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

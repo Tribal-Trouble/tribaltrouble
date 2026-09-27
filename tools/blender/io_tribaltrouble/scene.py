@@ -106,6 +106,8 @@ def clear_browser_objects():
     # Clips keep a fake user so they survive saving; that is the only user left once the browsed rig is gone.
     for action in [a for a in bpy.data.actions if a.get(BROWSER_TAG) and a.users <= int(a.use_fake_user)]:
         bpy.data.actions.remove(action)
+    for mesh in [o for o in bpy.data.objects if "tt_skin_mesh" in o]:
+        del mesh["tt_skin_mesh"]  # the skin it stood in for went with the model
 
 
 def unit_items(arm):
