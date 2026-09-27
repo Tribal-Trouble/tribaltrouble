@@ -141,16 +141,16 @@ def check_mesh(obj, is_new, body_triangles):
 
 
 def texture_clashes(root, objs):
-    """Errors for new meshes whose image file is named like a repo texture that did not come from it: Publish would
-    save over another model's texture, or take it for theirs."""
+    """Errors for new meshes whose image is named like a repo texture that did not come from it: Publish would save
+    over another model's texture, or take it for theirs."""
     found = []
     for o in objs:
         image = mesh_texture_image(o)
-        if image is None or not image.filepath or not root:
+        if image is None or not root:
             continue
         texture = image_texture_name(image)
         target = os.path.normcase(os.path.abspath(models_texture_path(root, texture)))
-        source = os.path.normcase(os.path.abspath(bpy.path.abspath(image.filepath)))
+        source = os.path.normcase(os.path.abspath(bpy.path.abspath(image.filepath))) if image.filepath else ""
         if os.path.isfile(target) and source != target and image.get("tt_repo_texture") != texture:
             found.append(("ERROR", f"{o.name}: {texture}.png in the repo is another model's texture: rename the image"))
     return found

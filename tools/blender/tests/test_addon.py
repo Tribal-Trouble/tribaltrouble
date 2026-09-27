@@ -2500,6 +2500,21 @@ def a_texture_made_for_one_mesh_leaves_a_mesh_sharing_its_material_alone():
         bpy.data.objects.remove(o)
 
 
+@test
+def an_image_made_in_blender_and_named_like_another_models_texture_is_refused():
+    load("vikings", "warrior")
+    image = fixture_image("viking_peon_hammer")
+    assert addon.image_texture_name(image) == "viking_peon_hammer", image.name
+    stock = file_bytes([os.path.join(MODELS, "viking_peon_hammer.png")])
+    hat = fixture_mesh("test_made_clash_hat", image)
+    put_on_head(hat)
+    expect_error(lambda: bpy.ops.wm.tt_publish_model(), "problem(s)")
+    assert any("another model's texture" in c.name for c in wm.tt_checks), [c.name for c in wm.tt_checks]
+    assert file_bytes([os.path.join(MODELS, "viking_peon_hammer.png")]) == stock
+    bpy.data.objects.remove(hat)
+    bpy.data.images.remove(image)
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
