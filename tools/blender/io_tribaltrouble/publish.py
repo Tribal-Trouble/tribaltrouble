@@ -162,7 +162,8 @@ def preflight(context, arm):
     body_triangles = sum(len(p.vertices) - 2 for p in body.data.polygons) if body is not None else 0
     new = visible_attachments(arm)
     existing = [o for items in unit_items(arm).values() for o in items if item_shown(o)]
-    findings = []
+    findings = [("ERROR", f"{name}: is on two points; one mesh can only go on one")
+                for name in sorted({o.name for o in new if new.count(o) > 1})]
     for obj in new + existing:
         findings += [(level, f"{obj.name}: {text}") for level, text in check_mesh(obj, obj in new, body_triangles)]
     height = unit_height(arm)

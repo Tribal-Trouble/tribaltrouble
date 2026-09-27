@@ -2476,6 +2476,17 @@ def a_mesh_bent_by_a_rig_it_is_not_parented_to_registers_as_a_unit():
     assert addon.STATIC_BONE not in bones and len(bones) > 1, bones
 
 
+@test
+def one_mesh_on_two_points_is_refused():
+    a = load("vikings", "peon")
+    horns = fixture_mesh("test_twice_horns", fixture_image("test_twice_horns_tex"))
+    put_on_head(horns)
+    next(s for s in a.tt_attachments if s.point != "HEAD").obj = horns
+    expect_error(lambda: bpy.ops.object.tt_preflight(), "problem(s) to fix")
+    assert any("is on two points" in c.name for c in wm.tt_checks), [c.name for c in wm.tt_checks]
+    bpy.data.objects.remove(horns)
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
