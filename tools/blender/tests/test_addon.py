@@ -2194,6 +2194,22 @@ def a_vertex_group_that_is_no_bone_is_never_written_as_one():
     assert set(re.findall(r'<skin bone="([^"]+)"', text)) == {addon.STATIC_BONE}
 
 
+@test
+def picking_the_same_row_after_a_category_change_loads_the_model_in_it():
+    wm.tt_category = "UNITS"
+    assert bpy.ops.wm.tt_pick_unit(group="vikings", sprite="peon") == {"FINISHED"}
+    row = wm.tt_unit_index
+    assert addon.loaded_body()["tt_sprite"] == "peon"
+    wm.tt_category = "BUILDINGS"
+    assert wm.tt_unit_index == -1 and addon.loaded_body()["tt_sprite"] == "peon"
+    group, sprite = wm.tt_units[row].group, wm.tt_units[row].sprite
+    assert bpy.ops.wm.tt_pick_unit(group=group, sprite=sprite) == {"FINISHED"}
+    assert addon.loaded_body()["tt_sprite"] == sprite, "the row showed a model that never loaded"
+    wm.tt_category = "ALL"
+    assert (wm.tt_units[wm.tt_unit_index].group, wm.tt_units[wm.tt_unit_index].sprite) == (group, sprite)
+    wm.tt_category = "UNITS"
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

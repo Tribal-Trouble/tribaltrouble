@@ -91,6 +91,9 @@ def refresh_units(context):
         item.group = sprite["group"]
         item.sprite = sprite["name"]
         item.category = category
+    body = loaded_body()
+    shown = (body["tt_group"], body["tt_sprite"]) if body is not None else None
+    wm.tt_unit_index = next((i for i, u in enumerate(wm.tt_units) if (u.group, u.sprite) == shown), -1)
     return len(wm.tt_units)
 
 
@@ -307,9 +310,11 @@ def refresh_units_on_load(_file=None):
 
 def unit_index_update(self, context):
     wm = context.window_manager
+    body = loaded_body()
     if 0 <= wm.tt_unit_index < len(wm.tt_units):
         item = wm.tt_units[wm.tt_unit_index]
-        load_unit(context, item.group, item.sprite, lambda kind, message: None)
+        if body is None or (body["tt_group"], body["tt_sprite"]) != (item.group, item.sprite):
+            load_unit(context, item.group, item.sprite, lambda kind, message: None)
 
 
 def root_update(self, context):
