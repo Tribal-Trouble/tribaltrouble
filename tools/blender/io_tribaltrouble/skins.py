@@ -332,8 +332,9 @@ class SaveSkin(bpy.types.Operator):
                 findings.append(("ERROR", f"{o.name}: {texture}.png is already in assets/textures/models"))
             images[texture] = (o, image, None if o == mesh else textures[o][at])
             textures[o][at] = texture
-        if not findings and all(paths[o] == o.get("tt_source") and textures[o] == level_textures(entry, level)
-                                for level, o in enumerate(levels)):
+        if all(level != "ERROR" for level, _ in findings) and \
+                all(paths[o] == o.get("tt_source") and textures[o] == level_textures(entry, level)
+                    for level, o in enumerate(levels)):
             findings.append(("ERROR", "nothing differs from the default model: change the mesh or its texture first"))
         errors = store_findings(context, findings)
         if errors:

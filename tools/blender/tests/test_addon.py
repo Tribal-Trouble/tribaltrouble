@@ -2402,6 +2402,20 @@ def clicking_a_row_whose_model_left_geometry_xml_refreshes_the_list():
     assert addon.loaded_body()["tt_sprite"] == "peon"
 
 
+@test
+def a_skin_that_changes_nothing_is_refused_even_when_the_model_has_warnings():
+    load("vikings", "warrior")
+    skins = sys.modules["io_tribaltrouble.skins"]
+    check_mesh = skins.check_mesh
+    skins.check_mesh = lambda obj, is_new, body_triangles: [("WARNING", "a warning the stock model has")]
+    try:
+        expect_error(lambda: save_skin("same"), "nothing differs from the default model")
+        assert entry("vikings", "warrior_same") is None
+    finally:
+        skins.check_mesh = check_mesh
+        bpy.ops.object.tt_cancel_skin()
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
