@@ -2,6 +2,7 @@
 
 import hashlib
 import os
+import re
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import quoteattr
 
@@ -269,14 +270,18 @@ def write_animation_xml(context, arm, action, filepath):
     context.scene.frame_set(previous_frame)
 
 
-def clip_keys(action):
-    """Hash of every key of the action, to tell a clip edited since loading or publishing."""
+def action_curves(action):
     curves = getattr(action, "fcurves", None)
     if curves is None:
         curves = [c for layer in action.layers for strip in layer.strips for bag in strip.channelbags
                   for c in bag.fcurves]
+    return curves
+
+
+def clip_keys(action):
+    """Hash of every key of the action, to tell a clip edited since loading or publishing."""
     digest = hashlib.sha1()
-    for curve in sorted(curves, key=lambda c: (c.data_path, c.array_index)):
+    for curve in sorted(action_curves(action), key=lambda c: (c.data_path, c.array_index)):
         digest.update(f"{curve.data_path}[{curve.array_index}]".encode("utf-8"))
         for field in ("co", "handle_left", "handle_right"):
             values = np.empty(len(curve.keyframe_points) * 2, np.float32)
@@ -286,10 +291,17 @@ def clip_keys(action):
 
 
 def armature_actions(arm):
-    """Actions imported for this armature, or failing that the one currently assigned."""
+    """Actions imported for this armature, or failing that the ones keyed on its bones alone and the one assigned."""
     actions = [a for a in bpy.data.actions if a.get("tt_armature") == arm.name]
-    if not actions and arm.animation_data is not None and arm.animation_data.action is not None:
-        actions = [arm.animation_data.action]
+    if not actions:
+        bones = {b.name for b in arm.data.bones}
+        for action in bpy.data.actions:
+            keyed = {m.group(1) for c in action_curves(action)
+                     if (m := re.match(r'pose\.bones\["(.+?)"\]', c.data_path))}
+            if not action.get("tt_armature") and keyed and keyed <= bones:
+                actions.append(action)
+        if arm.animation_data is not None and arm.animation_data.action not in actions + [None]:
+            actions.append(arm.animation_data.action)
     return actions
 
 

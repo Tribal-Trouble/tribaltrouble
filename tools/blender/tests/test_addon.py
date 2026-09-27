@@ -2307,6 +2307,18 @@ def a_new_rig_moved_in_the_scene_writes_its_mesh_where_its_skeleton_is():
     assert all(abs(a - b) < 1e-4 for w, s in zip(written, stock) for a, b in zip(w, s)), (written, stock)
 
 
+@test
+def a_new_rig_registers_every_action_keyed_on_its_bones():
+    mesh, rig = own_rig("ogre", ("run", "attack"))
+    for action in bpy.data.actions:
+        if action.name.startswith("ogre_"):
+            del action["tt_armature"]  # actions made in Blender carry no tag
+    assert bpy.ops.object.tt_register_model(mesh=mesh.name, sprite_name="ogre", group="misc") == {"FINISHED"}
+    assert sorted(entry("misc", "ogre")["clips"]) == ["misc/ogre/ogre_attack.xml", "misc/ogre/ogre_run.xml"]
+    for action in [a for a in bpy.data.actions if a.name.startswith("ogre_")]:
+        bpy.data.actions.remove(action)  # untagged, they would count for any later rig on the same bone names
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
