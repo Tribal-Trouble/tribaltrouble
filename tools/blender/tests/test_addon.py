@@ -2319,6 +2319,14 @@ def a_new_rig_registers_every_action_keyed_on_its_bones():
         bpy.data.actions.remove(action)  # untagged, they would count for any later rig on the same bone names
 
 
+@test
+def a_new_rig_without_any_action_is_refused():
+    mesh, rig = own_rig("wraith", ())
+    expect_error(lambda: bpy.ops.object.tt_register_model(mesh=mesh.name, sprite_name="wraith", group="misc"),
+                 "has no action")
+    assert entry("misc", "wraith") is None
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

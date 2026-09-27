@@ -444,6 +444,9 @@ class RegisterModel(bpy.types.Operator):
             group, base, _ = rig_registry(context, arm)
             if base is None:
                 group = self.group
+            if arm is not None and base is None and not armature_actions(arm):
+                self.report({"ERROR"}, f"{arm.name} has no action: a new rig needs at least one clip")
+                return {"CANCELLED"}
 
         def picked(prop):
             return bpy.data.objects.get(getattr(self, prop)) if getattr(self, prop) and not self.scatter else None
