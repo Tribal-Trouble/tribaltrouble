@@ -2466,6 +2466,16 @@ def a_new_mesh_whose_image_is_named_like_another_models_texture_is_refused():
     bpy.data.objects.remove(hat)
 
 
+@test
+def a_mesh_bent_by_a_rig_it_is_not_parented_to_registers_as_a_unit():
+    mesh, rig = own_rig("gnome")
+    mesh.parent = None  # an Armature modifier alone
+    assert bpy.ops.object.tt_register_model(mesh=mesh.name, sprite_name="gnome", group="misc") == {"FINISHED"}
+    assert entry("misc", "gnome")["skeleton"] == "misc/gnome/gnome_skeleton.xml"
+    bones = set(re.findall(r'<skin bone="([^"]+)"', open(os.path.join(GEOMETRY, "misc", "gnome", "gnome.xml")).read()))
+    assert addon.STATIC_BONE not in bones and len(bones) > 1, bones
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

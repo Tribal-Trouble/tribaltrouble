@@ -406,4 +406,7 @@ def item_point(arm, bone):
 
 
 def body_rig(body):
-    return body.parent if body.parent is not None and body.parent.type == "ARMATURE" else None
+    """The armature that carries the mesh, or failing that the one an Armature modifier bends it with."""
+    if body.parent is not None and body.parent.type == "ARMATURE":
+        return body.parent
+    return next((m.object for m in body.modifiers if m.type == "ARMATURE" and m.object is not None), None)
