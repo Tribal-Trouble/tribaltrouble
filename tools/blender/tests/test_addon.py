@@ -2487,6 +2487,19 @@ def one_mesh_on_two_points_is_refused():
     bpy.data.objects.remove(horns)
 
 
+@test
+def a_texture_made_for_one_mesh_leaves_a_mesh_sharing_its_material_alone():
+    first, second = fixture_mesh("test_twin_a", None), fixture_mesh("test_twin_b", None)
+    shared = bpy.data.materials.new("test_twin_mat")
+    first.data.materials.append(shared)
+    second.data.materials.append(shared)
+    assert bpy.ops.object.tt_make_texture(target=first.name) == {"FINISHED"}
+    assert addon.mesh_texture_image(first) is not None and addon.mesh_texture_image(second) is None
+    assert second.active_material == shared
+    for o in (first, second):
+        bpy.data.objects.remove(o)
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

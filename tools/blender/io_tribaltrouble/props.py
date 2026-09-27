@@ -442,6 +442,8 @@ class MakeTexture(bpy.types.Operator):
         if mat is None:
             mat = bpy.data.materials.new("tt_" + name)
             obj.data.materials.append(mat)
+        elif mat.users > 1:
+            mat = obj.active_material = mat.copy()  # the other meshes on it keep their own look
         mat.use_nodes = True
         nodes, links = mat.node_tree.nodes, mat.node_tree.links
         bsdf = next((n for n in nodes if n.type == "BSDF_PRINCIPLED"), None)
