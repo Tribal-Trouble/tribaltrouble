@@ -2392,6 +2392,16 @@ def publishing_a_new_item_while_a_skin_is_painted_leaves_the_default_texture_alo
         bpy.ops.object.tt_cancel_skin()
 
 
+@test
+def clicking_a_row_whose_model_left_geometry_xml_refreshes_the_list():
+    load("vikings", "peon")
+    row = wm.tt_units.add()
+    row.name, row.group, row.sprite = "vikings / test_gone", "vikings", "test_gone"
+    wm.tt_unit_index = len(wm.tt_units) - 1
+    assert "test_gone" not in [u.sprite for u in wm.tt_units], "the row out of date is still listed"
+    assert addon.loaded_body()["tt_sprite"] == "peon"
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

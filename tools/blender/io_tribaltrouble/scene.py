@@ -319,7 +319,8 @@ def unit_index_update(self, context):
     if 0 <= wm.tt_unit_index < len(wm.tt_units):
         item = wm.tt_units[wm.tt_unit_index]
         if body is None or (body["tt_group"], body["tt_sprite"]) != (item.group, item.sprite):
-            load_unit(context, item.group, item.sprite, lambda kind, message: None)
+            if load_unit(context, item.group, item.sprite, lambda kind, message: None) is None:
+                refresh_units(context)  # the row is older than geometry.xml
 
 
 def root_update(self, context):
