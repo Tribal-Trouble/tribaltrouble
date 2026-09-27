@@ -379,7 +379,7 @@ def clip_copy(arm, action):
 
 def clip_short_name(arm, action):
     """walk for an action called peon_walk on the peon rig; the action name otherwise."""
-    stem = os.path.splitext(action.get("tt_clip") or action.name)[0]
+    stem = os.path.splitext(action["tt_clip"])[0] if action.get("tt_clip") else action.name
     prefix = os.path.basename(arm.get("tt_skeleton", "")).replace("skeleton.xml", "")
     return stem[len(prefix):] if prefix and stem.startswith(prefix) and len(stem) > len(prefix) else stem
 

@@ -189,7 +189,7 @@ def publish_clip(context, arm, action, name, kind, wpc, report):
     root = repo_root(context)
     name = name.strip().lower()
     if not re.fullmatch(r"[a-z0-9_]+", name):
-        report({"ERROR"}, "Name the clip with letters, digits and underscores")
+        report({"ERROR"}, f"Rename the clip '{name}': use only letters, digits and underscores")
         return False
     group, base, rig = rig_registry(context, arm)
     if rig is None:

@@ -2248,6 +2248,23 @@ def a_model_with_skins_cannot_leave_the_registry_before_them():
     assert entry("vikings", "peon_hammer") is not None
 
 
+@test
+def an_edited_copy_still_named_after_its_clip_is_refused_and_never_written_over_it():
+    a = load("vikings", "peon")
+    run = next(x for x in addon.armature_actions(a) if x.name.endswith("run"))
+    run_path = os.path.join(GEOMETRY, "vikings", "peon", "peon_run.xml")
+    stock, before = open(run_path, "rb").read(), clip_lines("vikings", "peon")
+    copy = run.copy()
+    assert copy.name == "peon_run.001"
+    assert bpy.ops.object.tt_set_clip(clip=copy.name) == {"FINISHED"}
+    head = a.pose.bones["peon Head"]
+    head.rotation_mode = "QUATERNION"
+    head.rotation_quaternion = (0.9, 0.0, 0.0, 0.43)
+    head.keyframe_insert("rotation_quaternion", frame=5)
+    expect_error(lambda: addon.publish_changed_clips(bpy.context, a, raise_errors), "Rename the clip 'run.001'")
+    assert open(run_path, "rb").read() == stock and clip_lines("vikings", "peon") == before
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
