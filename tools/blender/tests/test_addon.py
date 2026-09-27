@@ -2274,6 +2274,39 @@ def a_body_skin_refuses_the_artists_own_mesh_with_a_reason():
     bpy.data.objects.remove(own)
 
 
+def file_bounds(path):
+    obj = addon.import_mesh_file(bpy.context, path, False, False, lambda k, m: None)
+    points = [v.co for v in obj.data.vertices]
+    bpy.data.objects.remove(obj)
+    return [(min(p[i] for p in points), max(p[i] for p in points)) for i in range(3)]
+
+
+def own_rig(name, clips=("run",)):
+    """The peon's mesh bound to a copy of its rig the registry never saw, with these clips."""
+    addon.clear_browser_objects()
+    src = os.path.join(GEOMETRY, "vikings", "peon")
+    mesh = addon.import_mesh_file(bpy.context, os.path.join(src, "peon_mesh.xml"), False, False, lambda k, m: None)
+    mesh.name = name
+    mesh["tt_texture"] = "native_warrior_rock"
+    parents, rest = addon.read_skeleton(os.path.join(src, "peon_skeleton.xml"))
+    rig = addon.build_armature(bpy.context, name, parents, rest)
+    addon.bind_meshes(rig, [mesh])
+    for clip in clips:
+        addon.apply_clip(bpy.context, rig, f"{name}_{clip}", addon.read_animation(os.path.join(src, f"peon_{clip}.xml")))
+    select_only(mesh)
+    return mesh, rig
+
+
+@test
+def a_new_rig_moved_in_the_scene_writes_its_mesh_where_its_skeleton_is():
+    mesh, rig = own_rig("imp")
+    rig.location.x = 5.0
+    assert bpy.ops.object.tt_register_model(mesh=mesh.name, sprite_name="imp", group="misc") == {"FINISHED"}
+    written = file_bounds(os.path.join(GEOMETRY, "misc", "imp", "imp.xml"))
+    stock = file_bounds(os.path.join(GEOMETRY, "vikings", "peon", "peon_mesh.xml"))
+    assert all(abs(a - b) < 1e-4 for w, s in zip(written, stock) for a, b in zip(w, s)), (written, stock)
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

@@ -352,13 +352,15 @@ def bone_tail_matrices(arm, bone_name):
 
 
 def export_matrix(o):
-    """World matrix with the armature at rest for bone-parented attachments, so scrubbing never leaks into a file."""
+    """Armature space, as skeletons and clips are written, with the armature at rest for bone-parented attachments
+    so scrubbing never leaks into a file; world space for a mesh without an armature."""
     parent = o.parent
     if parent is not None and parent.type == "ARMATURE" and o.parent_type == "BONE" \
             and o.parent_bone in parent.data.bones:
         rest_tail, _ = bone_tail_matrices(parent, o.parent_bone)
         return rest_tail @ o.matrix_parent_inverse @ o.matrix_basis
-    return o.matrix_world
+    arms = rest_pose_armatures([o])
+    return arms[0].matrix_world.inverted() @ o.matrix_world if arms else o.matrix_world
 
 
 def subset_record(record, face_indices):
