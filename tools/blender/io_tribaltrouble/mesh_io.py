@@ -180,12 +180,12 @@ def set_vertex_groups(obj, skins):
             groups[bone].add([idx], weight, "ADD")
 
 
-def mesh_record_from_mesh(me, obj, matrix, flip_v, rigid_bone, use_groups):
+def mesh_record_from_mesh(me, obj, matrix, flip_v, rigid_bone, use_groups, bones_only=False):
     """Triangulated record of a Mesh in the space given by matrix.
 
-    rigid_bone skins every vertex to that bone with weight 1. Otherwise, when use_groups is set, vertex groups named
-    after a bone of the object's armature are used, or every group when it has none; vertices without any fall back
-    to dummy_bone.
+    rigid_bone skins every vertex to that bone with weight 1. Otherwise vertex groups are used when use_groups is
+    set, with bones_only just those named after a bone of the object's armature when it has one; vertices without
+    any fall back to dummy_bone.
     """
     me.calc_loop_triangles()
     normal_matrix = matrix.to_3x3().inverted().transposed()
@@ -193,7 +193,7 @@ def mesh_record_from_mesh(me, obj, matrix, flip_v, rigid_bone, use_groups):
     uv_layer = uv_layers[0] if uv_layers else None
     uv2_layer = uv_layers[1] if len(uv_layers) > 1 else None
     col_layer = me.color_attributes.active_color if len(me.color_attributes) else None
-    arms = rest_pose_armatures([obj])
+    arms = rest_pose_armatures([obj]) if bones_only else []
     bones = {b.name for arm in arms for b in arm.data.bones} | {STATIC_BONE}
     group_names = [g.name if not arms or g.name in bones else None for g in obj.vertex_groups]
 
@@ -308,7 +308,8 @@ def mesh_xml_text(objs, bones, texture, flip_v, depsgraph, use_groups=True):
         eval_obj = o.evaluated_get(depsgraph)
         me = eval_obj.to_mesh()
         try:
-            append_record_polygons(lines, mesh_record_from_mesh(me, o, export_matrix(o), flip_v, bone, use_groups))
+            append_record_polygons(lines, mesh_record_from_mesh(me, o, export_matrix(o), flip_v, bone, use_groups,
+                                                                bones_only=True))
         finally:
             eval_obj.to_mesh_clear()
     lines.append("    </polygons>")

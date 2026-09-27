@@ -22,7 +22,6 @@ import xml.etree.ElementTree as ET
 
 import bpy
 import numpy as np
-from mathutils import Matrix
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 TEMP = tempfile.mkdtemp(prefix="tt_addon_test_")
@@ -2186,8 +2185,8 @@ def a_new_prop_leaves_the_files_of_unchanged_props_alone():
 def a_vertex_group_that_is_no_bone_is_never_written_as_one():
     body = addon.browsed_unit(load("vikings", "warrior"))
     body.vertex_groups.new(name="mask").add(list(range(len(body.data.vertices))), 1.0, "REPLACE")
-    record = addon.mesh_record_from_mesh(body.data, body, Matrix.Identity(4), False, None, True)
-    assert all(bone != "mask" for skin in record.skins for bone, _ in skin)
+    text, _ = addon.export_texts(bpy.context, arm(), [body])[body]
+    assert "mask" not in set(re.findall(r'<skin bone="([^"]+)"', text))
     hut = load_building("vikings", "quarters")
     hut.vertex_groups.new(name="mask").add([0, 1, 2], 1.0, "REPLACE")
     text, _ = addon.item_export(hut, bpy.context.evaluated_depsgraph_get())
@@ -2346,6 +2345,18 @@ def a_model_gone_from_geometry_xml_says_so_when_loaded_or_added():
     expect_error(lambda: bpy.ops.wm.tt_load_unit(group="vikings", sprite="test_gone"), "no longer in geometry.xml")
     expect_error(lambda: bpy.ops.wm.tt_add_to_scene(group="vikings", sprite="test_gone"), "no longer in geometry.xml")
     addon.refresh_units(bpy.context)
+
+
+@test
+def split_by_bone_keeps_the_groups_that_are_no_bone():
+    body = addon.browsed_unit(load("vikings", "warrior"))
+    weighted = [body.vertex_groups[g.group].name for v in body.data.vertices for g in v.groups if g.weight >= 0.5]
+    bone = max(set(weighted), key=weighted.count)  # earlier tests split some bones off for good
+    body.vertex_groups.new(name="mask").add(list(range(len(body.data.vertices))), 1.0, "REPLACE")
+    select_only(body)
+    assert bpy.ops.object.tt_split_by_bone(bone=bone, part_name="test_split_part") == {"FINISHED"}
+    part = bpy.data.objects["test_split_part"]
+    assert body.vertex_groups.get("mask") is not None and part.vertex_groups.get("mask") is not None
 
 
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
