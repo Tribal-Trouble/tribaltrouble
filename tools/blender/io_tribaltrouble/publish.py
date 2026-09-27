@@ -8,7 +8,8 @@ import bpy
 
 from .textures import (ensure_texture_in_repo, image_texture_name, mesh_texture_image, models_texture_path,
                        object_texture, save_png, texture_names)
-from .rig import armature_actions, clip_keys, clip_short_name, read_animation, shown_bones, write_animation_xml
+from .rig import (armature_actions, clip_copy, clip_keys, clip_short_name, read_animation, shown_bones,
+                  write_animation_xml)
 from .registry import (append_registry_entries, find_base_sprite, GEOMETRY_DIR, item_slot, read_registry,
                        registry_entries, REGISTRY_FILE, repo_root, rig_in_repo, rig_registry, set_clip_line,
                        set_sprite_textures)
@@ -242,6 +243,8 @@ def publish_changed_clips(context, arm, report):
     for action in armature_actions(arm):
         if action.get("tt_clip") and action.get("tt_keys") in (None, clip_keys(action)):
             continue
+        if clip_copy(arm, action):
+            del action["tt_clip"]  # edited since it was copied: a new clip under its own name
         name, kind, wpc = listed.get(action.get("tt_clip"), (clip_short_name(arm, action), action.get("tt_kind", "loop"),
                                                              action.get("tt_wpc", 1.0)))
         if publish_clip(context, arm, action, name, kind, wpc, report):

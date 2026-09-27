@@ -2135,6 +2135,29 @@ def loading_another_model_clears_the_checks_of_the_last_one():
     bpy.data.objects.remove(horn)
 
 
+@test
+def an_action_editor_copy_of_a_clip_publishes_and_deletes_as_a_clip_of_its_own():
+    a = load("vikings", "peon")
+    run = next(x for x in addon.armature_actions(a) if x.name.endswith("run"))
+    run_path = os.path.join(GEOMETRY, "vikings", "peon", "peon_run.xml")
+    stock, before = open(run_path, "rb").read(), clip_lines("vikings", "peon")
+    untouched, sprint = run.copy(), run.copy()
+    sprint.name = "peon_sprint"
+    assert sprint["tt_clip"] == "peon_run.xml"
+    assert bpy.ops.object.tt_set_clip(clip=sprint.name) == {"FINISHED"}
+    head = a.pose.bones["peon Head"]
+    head.rotation_mode = "QUATERNION"
+    head.rotation_quaternion = (0.9, 0.0, 0.0, 0.43)
+    head.keyframe_insert("rotation_quaternion", frame=5)
+    assert addon.publish_changed_clips(bpy.context, a, raise_errors) == ["peon_sprint.xml"]
+    assert open(run_path, "rb").read() == stock, "the copy was written over the clip it was copied from"
+    assert clip_lines("vikings", "peon") == before + [("sprint", ("1", "loop", "vikings/peon/peon_sprint.xml"))]
+    assert bpy.ops.object.tt_delete_clip(clip=untouched.name) == {"FINISHED"}
+    assert clip_lines("vikings", "peon")[:-1] == before and os.path.isfile(run_path), "deleting a copy took the original"
+    assert bpy.ops.object.tt_delete_clip(clip="peon_sprint") == {"FINISHED"}
+    assert clip_lines("vikings", "peon") == before
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

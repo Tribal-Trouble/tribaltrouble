@@ -7,7 +7,8 @@ import bpy
 from bpy.props import StringProperty, EnumProperty, FloatProperty, IntProperty
 
 from .textures import apply_team_preview, get_atlas_material, models_texture_path, short_labels
-from .rig import active_armature, armature_actions, assign_action, clip_short_name, item_hidden_here, shown_bones
+from .rig import (active_armature, armature_actions, assign_action, clip_copy, clip_short_name, item_hidden_here,
+                  shown_bones)
 from .registry import GEOMETRY_DIR, read_registry, REGISTRY_FILE, repo_root, rig_registry, set_clip_line
 from .scene import BROWSER_TAG, has_low_detail, unit_meshes
 from .publish import borrowed_rig_problem
@@ -175,6 +176,8 @@ class DeleteClip(bpy.types.Operator):
             return {"CANCELLED"}
         root = repo_root(context)
         group, base, rig = rig_registry(context, arm)
+        if clip_copy(arm, action):
+            del action["tt_clip"]  # a copy made in the Action editor was never saved itself
         saved = next((name for name, (_, _, path) in (rig["clip_info"].items() if rig else [])
                       if action.get("tt_clip") and os.path.basename(path) == action["tt_clip"]), None)
         label = clip_short_name(arm, action)

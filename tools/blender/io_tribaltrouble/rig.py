@@ -367,6 +367,16 @@ def setup_attachment_slots(arm):
     return added
 
 
+def clip_copy(arm, action):
+    """True for a copy made in the Action editor: it carries the original's tt_clip, which belongs to the action
+    named after the file, or failing that the first one."""
+    clip = action.get("tt_clip")
+    sharing = [a for a in armature_actions(arm) if clip and a.get("tt_clip") == clip]
+    if action not in sharing:
+        return False
+    return next((a for a in sharing if a.name == os.path.splitext(clip)[0]), sharing[0]) != action
+
+
 def clip_short_name(arm, action):
     """walk for an action called peon_walk on the peon rig; the action name otherwise."""
     stem = os.path.splitext(action.get("tt_clip") or action.name)[0]
