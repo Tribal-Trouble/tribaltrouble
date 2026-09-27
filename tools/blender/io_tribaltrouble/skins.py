@@ -346,6 +346,7 @@ class SaveSkin(bpy.types.Operator):
         stock_attributes = {o: o["tt_file_texture"] for o in changed if o.get("tt_file_texture")}
         for o in stock_attributes:
             o["tt_file_texture"] = ",".join(textures[o])
+        own_texture = mesh.get("tt_texture") if mesh is not None else None
         if mesh is not None:
             mesh["tt_texture"] = ",".join(textures[mesh])
         try:
@@ -354,8 +355,10 @@ class SaveSkin(bpy.types.Operator):
         finally:
             for o, attribute in stock_attributes.items():
                 o["tt_file_texture"] = attribute
-            if mesh is not None:
+            if mesh is not None and own_texture is None:
                 del mesh["tt_texture"]
+            elif mesh is not None:
+                mesh["tt_texture"] = own_texture
         for texture, (o, image, replaced) in images.items():
             if image_texture_name(image) == texture:
                 ensure_texture_in_repo(root, o, texture)

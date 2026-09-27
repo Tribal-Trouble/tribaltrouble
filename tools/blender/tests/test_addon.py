@@ -2423,6 +2423,17 @@ def the_folder_install_asks_for_the_same_blender_as_the_extension():
     assert addon.bl_info["blender"] == minimum, (addon.bl_info["blender"], minimum)
 
 
+@test
+def save_skin_gives_the_artists_mesh_back_its_own_texture_name():
+    a = load("vikings", "peon")
+    own = fixture_mesh("heavy_hammer", fixture_image("heavy_hammer_tex"), kind="cube")
+    own["tt_texture"] = "heavy_hammer_tex"
+    bpy.context.view_layer.objects.active = a
+    assert bpy.ops.object.tt_new_skin(item=hammer().name, skin_name="heavy", mesh=own.name) == {"FINISHED"}
+    assert bpy.ops.object.tt_save_skin() == {"FINISHED"}
+    assert own.get("tt_texture") == "heavy_hammer_tex"
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
