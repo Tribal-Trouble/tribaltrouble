@@ -2222,6 +2222,26 @@ def loading_another_model_ends_the_skin_an_artists_mesh_stood_in_for():
     bpy.data.objects.remove(own)
 
 
+@test
+def split_by_bone_keeps_a_bone_parented_part_where_it_was():
+    a = load("vikings", "peon")
+    run = next(x for x in addon.armature_actions(a) if x.name.endswith("run"))
+    assert bpy.ops.object.tt_set_clip(clip=run.name) == {"FINISHED"}
+    bpy.context.scene.frame_set(5)
+    cube = fixture_mesh("test_split_cube", None, kind="cube")
+    put_on_head(cube)
+    cube.vertex_groups.new(name="top").add([v.index for v in cube.data.vertices if v.co.z > 0], 1.0, "REPLACE")
+    select_only(cube)
+    bpy.context.view_layer.update()
+    world = cube.matrix_world.copy()
+    assert bpy.ops.object.tt_split_by_bone(bone="top", part_name="test_split_top") == {"FINISHED"}
+    part = bpy.data.objects["test_split_top"]
+    bpy.context.view_layer.update()
+    assert part.parent == cube.parent and part.parent_bone == cube.parent_bone
+    worst = max(abs(x - y) for r1, r2 in zip(part.matrix_world, world) for x, y in zip(r1, r2))
+    assert worst < 1e-5, worst
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))

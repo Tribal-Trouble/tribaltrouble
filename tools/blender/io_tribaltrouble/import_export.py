@@ -355,12 +355,12 @@ class SplitByBone(bpy.types.Operator):
         for m in o.data.materials:
             part.data.materials.append(m)
         context.collection.objects.link(part)
-        part.matrix_world = o.matrix_world.copy()
         if o.parent is not None:
             part.parent = o.parent
             part.parent_type = o.parent_type
             part.parent_bone = o.parent_bone
             part.matrix_parent_inverse = o.matrix_parent_inverse.copy()
+        part.matrix_basis = o.matrix_basis.copy()
         for modifier in o.modifiers:
             if modifier.type == "ARMATURE":
                 part.modifiers.new(modifier.name, "ARMATURE").object = modifier.object
