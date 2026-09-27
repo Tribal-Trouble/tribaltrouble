@@ -183,8 +183,9 @@ def set_vertex_groups(obj, skins):
 def mesh_record_from_mesh(me, obj, matrix, flip_v, rigid_bone, use_groups):
     """Triangulated record of a Mesh in the space given by matrix.
 
-    rigid_bone skins every vertex to that bone with weight 1. Otherwise vertex groups named after bones are used
-    (normalised) when use_groups is set; vertices without any fall back to dummy_bone.
+    rigid_bone skins every vertex to that bone with weight 1. Otherwise, when use_groups is set, vertex groups named
+    after a bone of the object's armature are used, or every group when it has none; vertices without any fall back
+    to dummy_bone.
     """
     me.calc_loop_triangles()
     normal_matrix = matrix.to_3x3().inverted().transposed()
@@ -192,7 +193,9 @@ def mesh_record_from_mesh(me, obj, matrix, flip_v, rigid_bone, use_groups):
     uv_layer = uv_layers[0] if uv_layers else None
     uv2_layer = uv_layers[1] if len(uv_layers) > 1 else None
     col_layer = me.color_attributes.active_color if len(me.color_attributes) else None
-    group_names = [g.name for g in obj.vertex_groups]
+    arms = rest_pose_armatures([obj])
+    bones = {b.name for arm in arms for b in arm.data.bones} | {STATIC_BONE}
+    group_names = [g.name if not arms or g.name in bones else None for g in obj.vertex_groups]
 
     record = MeshRecord()
     record.verts = [tuple(matrix @ v.co) for v in me.vertices]
@@ -201,7 +204,8 @@ def mesh_record_from_mesh(me, obj, matrix, flip_v, rigid_bone, use_groups):
             record.skins.append([(rigid_bone, 1.0)])
             continue
         # Raw group weights, as the source files store them; the game sums them as given.
-        weights = [(group_names[g.group], g.weight) for g in v.groups if use_groups and g.weight > 0.0]
+        weights = [(group_names[g.group], g.weight) for g in v.groups
+                   if use_groups and g.weight > 0.0 and group_names[g.group]]
         record.skins.append(weights if weights else [(STATIC_BONE, 1.0)])
     if uv2_layer is not None:
         record.loop_uv2s = []

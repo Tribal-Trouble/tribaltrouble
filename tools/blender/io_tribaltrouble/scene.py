@@ -8,7 +8,7 @@ from bpy.props import StringProperty, BoolProperty, PointerProperty
 from mathutils import Vector
 
 from .textures import apply_team_preview, object_texture
-from .mesh_io import bone_tail_matrices, import_mesh_file, mesh_xml_text, write_text
+from .mesh_io import bone_tail_matrices, import_mesh_file, mesh_xml_text, rest_pose_armatures, STATIC_BONE, write_text
 from .rig import (apply_clip, armature_from_file, assign_action, bind_meshes, build_armature, clip_keys, read_animation,
                   read_skeleton, shown_bones)
 from .registry import GEOMETRY_DIR, level_textures, read_registry, repo_root, rig_entry, sprite_category, sprite_skins
@@ -140,7 +140,8 @@ def item_export(o, depsgraph):
     """The file text Publish writes for one loaded or new model, and its hash."""
     # A model saved back keeps its file's own texture attribute, which the converter reads from the registry anyway.
     texture = o["tt_file_texture"] if o.get("tt_source") and "tt_file_texture" in o else object_texture(o)
-    text = mesh_xml_text([o], [o.get("tt_bone")], texture, False, depsgraph)
+    bone = o.get("tt_bone") or (None if rest_pose_armatures([o]) else STATIC_BONE)
+    text = mesh_xml_text([o], [bone], texture, False, depsgraph)
     return text, hashlib.sha1(text.encode("utf-8")).hexdigest()
 
 

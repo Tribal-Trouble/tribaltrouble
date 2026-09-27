@@ -22,6 +22,7 @@ import xml.etree.ElementTree as ET
 
 import bpy
 import numpy as np
+from mathutils import Matrix
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 TEMP = tempfile.mkdtemp(prefix="tt_addon_test_")
@@ -2179,6 +2180,18 @@ def a_new_prop_leaves_the_files_of_unchanged_props_alone():
         os.utime(o["tt_source"], (1, 1))
     assert publish_prop(fixture_mesh("test_bell", fixture_image("test_bell_tex"), z=6.0, kind="cube")) == {"FINISHED"}
     assert all(os.path.getmtime(o["tt_source"]) == 1 for o in shown), "a new prop rewrote the ones already there"
+
+
+@test
+def a_vertex_group_that_is_no_bone_is_never_written_as_one():
+    body = addon.browsed_unit(load("vikings", "warrior"))
+    body.vertex_groups.new(name="mask").add(list(range(len(body.data.vertices))), 1.0, "REPLACE")
+    record = addon.mesh_record_from_mesh(body.data, body, Matrix.Identity(4), False, None, True)
+    assert all(bone != "mask" for skin in record.skins for bone, _ in skin)
+    hut = load_building("vikings", "quarters")
+    hut.vertex_groups.new(name="mask").add([0, 1, 2], 1.0, "REPLACE")
+    text, _ = addon.item_export(hut, bpy.context.evaluated_depsgraph_get())
+    assert set(re.findall(r'<skin bone="([^"]+)"', text)) == {addon.STATIC_BONE}
 
 
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
