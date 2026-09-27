@@ -51,7 +51,7 @@ bl_info = {
     "name": "Tribal Trouble Mesh (.xml)",
     "author": "Tribal Trouble tooling",
     "version": (2, 0, 1),
-    "blender": (4, 1, 0),
+    "blender": (4, 2, 0),
     "location": "File > Import-Export",
     "description": "Import/export Tribal Trouble geometry XML meshes",
     "category": "Import-Export",

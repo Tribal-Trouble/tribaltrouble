@@ -2416,6 +2416,13 @@ def a_skin_that_changes_nothing_is_refused_even_when_the_model_has_warnings():
         bpy.ops.object.tt_cancel_skin()
 
 
+@test
+def the_folder_install_asks_for_the_same_blender_as_the_extension():
+    text = open(os.path.join(REPO, "tools", "blender", "build_extension.py"), encoding="utf-8").read()
+    minimum = tuple(int(x) for x in re.search(r'blender_version_min = "([\d.]+)"', text).group(1).split("."))
+    assert addon.bl_info["blender"] == minimum, (addon.bl_info["blender"], minimum)
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
