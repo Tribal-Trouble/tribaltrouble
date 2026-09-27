@@ -297,7 +297,7 @@ def append_record_polygons(lines, record):
 
 
 def mesh_xml_text(objs, bones, texture, flip_v, depsgraph, use_groups=True):
-    """objs, evaluated and in world space, as the text of one game mesh file.
+    """objs, evaluated and placed as export_matrix says, as the text of one game mesh file.
 
     bones[i] is a bone name to skin every vertex of objs[i] to rigidly, or None to use its vertex groups.
     """
@@ -354,12 +354,16 @@ def bone_tail_matrices(arm, bone_name):
 
 def export_matrix(o):
     """Armature space, as skeletons and clips are written, with the armature at rest for bone-parented attachments
-    so scrubbing never leaks into a file; world space for a mesh without an armature."""
+    so scrubbing never leaks into a file; world space for a mesh without an armature. Taken below the armature's own
+    transform rather than undoing it, which would leave rounding noise in the file once the rig is moved."""
     parent = o.parent
     if parent is not None and parent.type == "ARMATURE" and o.parent_type == "BONE" \
             and o.parent_bone in parent.data.bones:
-        rest_tail, _ = bone_tail_matrices(parent, o.parent_bone)
+        bone = parent.data.bones[o.parent_bone]
+        rest_tail = bone.matrix_local @ Matrix.Translation((0.0, bone.length, 0.0))
         return rest_tail @ o.matrix_parent_inverse @ o.matrix_basis
+    if parent is not None and parent.type == "ARMATURE" and o.parent_type in ("OBJECT", "ARMATURE"):
+        return o.matrix_parent_inverse @ o.matrix_basis
     arms = rest_pose_armatures([o])
     return arms[0].matrix_world.inverted() @ o.matrix_world if arms else o.matrix_world
 

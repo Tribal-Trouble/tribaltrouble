@@ -2359,6 +2359,16 @@ def split_by_bone_keeps_the_groups_that_are_no_bone():
     assert body.vertex_groups.get("mask") is not None and part.vertex_groups.get("mask") is not None
 
 
+@test
+def moving_the_loaded_rig_gives_publish_nothing_to_write():
+    a = load("vikings", "warrior")
+    assert any(o.parent_type == "BONE" for objs in addon.unit_items(a).values() for o in objs), "needs a bone item"
+    a.location.x = 5.0
+    before = mtimes()
+    assert bpy.ops.wm.tt_publish_model() == {"FINISHED"}
+    assert changed_files(before) == [], changed_files(before)
+
+
 print("\n==== ADDON TESTS (Blender %s, addon %s) ====" % (bpy.app.version_string, ".".join(map(str, addon.bl_info["version"]))))
 for name, status, detail in results:
     print(f"{status}  {name}" + (f": {detail}" if detail else ""))
