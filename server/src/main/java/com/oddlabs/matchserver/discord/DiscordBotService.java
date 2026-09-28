@@ -5,10 +5,13 @@ import com.oddlabs.matchserver.discord.commands.BannedWordsCommand;
 import com.oddlabs.matchserver.discord.commands.DiscordCommand;
 import com.oddlabs.matchserver.discord.commands.KickCommand;
 import com.oddlabs.matchserver.discord.commands.LeaderboardsCommand;
+import com.oddlabs.matchserver.discord.commands.MatchesCommand;
 import com.oddlabs.matchserver.discord.commands.MatchupCommand;
 import com.oddlabs.matchserver.discord.commands.OnlineCommand;
+import com.oddlabs.matchserver.discord.commands.ProfileCommand;
 import com.oddlabs.matchserver.discord.commands.RankCommand;
 import com.oddlabs.matchserver.discord.commands.RegisterProfileToDiscordUserCommand;
+import com.oddlabs.matchserver.discord.commands.StreaksCommand;
 import com.oddlabs.matchserver.discord.commands.UnbanCommand;
 import com.oddlabs.matchserver.discord.commands.WhoIsCommand;
 
@@ -70,7 +73,10 @@ public class DiscordBotService {
                     commands.add(new RegisterProfileToDiscordUserCommand());
                     commands.add(new WhoIsCommand());
                     commands.add(new OnlineCommand());
+                    commands.add(new MatchesCommand());
                     commands.add(new RankCommand());
+                    commands.add(new ProfileCommand());
+                    commands.add(new StreaksCommand());
                     commands.add(new KickCommand());
                     commands.add(new BanCommand());
                     commands.add(new UnbanCommand());
