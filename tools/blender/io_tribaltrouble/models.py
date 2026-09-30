@@ -13,14 +13,14 @@ from .mesh_io import STATIC_BONE, write_mesh_xml
 from .rig import active_armature, armature_actions, body_rig, write_animation_xml, write_skeleton_xml
 from .registry import (append_registry_entries, CATEGORY_ICONS, GEOMETRY_DIR, read_registry, REGISTRY_FILE,
                        remove_registry_entry, repo_root, rig_registry, root_holder, SCENERY_GROUP, sprite_skins,
-                       sprite_text, team_attribute, emissive_attribute)
+                       set_sprite_attributes, sprite_text, team_attribute, emissive_attribute)
 from .scene import (add_reference, attachment_obj_poll, BROWSER_TAG, clear_references, has_low_detail, load_unit,
                     loaded_body, loaded_models, REFERENCE_TAG, references, refresh_units, root_update,
                     unpublished_changes, write_changed)
 from .publish import (check_mesh, preflight, publish_changed_clips, publish_items, publish_own_textures,
                       publish_paint, store_findings, texture_clashes)
 from .forms import (chosen_event, draw_confirm, draw_event, event_property, form_title, mesh_problem, name_problem,
-                    open_form, own_mesh_search)
+                    NO_EVENT, open_form, own_mesh_search)
 
 
 def draw_checks(layout, wm):
@@ -582,6 +582,62 @@ class RegisterModel(bpy.types.Operator):
         return {"FINISHED"}
 
 
+def loaded_decoration(context, body):
+    """The registry entry of the loaded model when the game scatters it over maps, else None."""
+    root = repo_root(context)
+    entry = next((s for s in read_registry(root) if s["group"] == body.get("tt_group")
+                  and s["name"] == body.get("tt_sprite")), None) if root else None
+    return entry if entry is not None and entry["decoration"] else None
+
+
+class EditScatter(bpy.types.Operator):
+    """Change the ground the game scatters the loaded decoration on, how many it places and during which event"""
+    bl_idname = "object.tt_edit_scatter"
+    bl_label = "Scatter Settings..."
+    grass: BoolProperty(name="Grass", options={"SKIP_SAVE"})
+    dirt: BoolProperty(name="Dirt", options={"SKIP_SAVE"})
+    beach: BoolProperty(name="Beach", options={"SKIP_SAVE"}, description="Sand on native maps, gravel on viking maps")
+    snow: BoolProperty(name="Snow", options={"SKIP_SAVE"}, description="Viking maps only")
+    land: BoolProperty(name="Any land", options={"SKIP_SAVE"}, description="Any ground above the sea")
+    count: IntProperty(name="Count", default=20, min=1, max=1000, options={"SKIP_SAVE"},
+                       description="How many the game scatters over a map")
+    event: event_property()
+
+    @classmethod
+    def poll(cls, context):
+        body = loaded_body()
+        return body is not None and loaded_decoration(context, body) is not None
+
+    def invoke(self, context, event):
+        entry = loaded_decoration(context, loaded_body())
+        grounds = entry["decoration"].split(",")
+        for key, _, _ in DECORATION_GROUNDS:
+            setattr(self, key, key in grounds)
+        self.count = int(entry["count"] or 20)
+        self.event = entry["event"] or NO_EVENT
+        return open_form(self, context)
+
+    def draw(self, context):
+        layout = form_title(self)
+        draw_terrain(layout, self)
+        layout.prop(self, "count")
+        draw_event(layout, self)
+        draw_confirm(layout, self, None if chosen_terrain(self) else "Pick a terrain")
+
+    def execute(self, context):
+        body = loaded_body()
+        terrain = chosen_terrain(self)
+        if body is None or loaded_decoration(context, body) is None or not terrain:
+            self.report({"ERROR"}, "Load a decoration and pick a terrain")
+            return {"CANCELLED"}
+        set_sprite_attributes(os.path.join(repo_root(context), REGISTRY_FILE), body["tt_group"], body["tt_sprite"],
+                              [("decoration", terrain), ("count", str(self.count)), ("event", chosen_event(self))])
+        refresh_units(context)
+        self.report({"INFO"}, f"{body['tt_sprite']} scatters on {terrain.replace(',', ', ')}, {self.count} per map, "
+                              f"{chosen_event(self) or 'all year'}")
+        return {"FINISHED"}
+
+
 class VIEW3D_PT_tt_units(bpy.types.Panel):
     bl_label = "Models"
     bl_order = 0
@@ -615,6 +671,8 @@ class VIEW3D_PT_tt_units(bpy.types.Panel):
             remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
             remove.group, remove.sprite = body["tt_group"], body["tt_sprite"]
         draw_checks(layout, wm)
+        if body is not None and loaded_decoration(context, body) is not None:
+            layout.operator(EditScatter.bl_idname, icon="PREFERENCES")
         # Units show it under Preview.
         if has_low_detail() and not any(o.type == "ARMATURE" and o.get(BROWSER_TAG) for o in bpy.data.objects):
             layout.row(align=True).prop(wm, "tt_detail", expand=True)

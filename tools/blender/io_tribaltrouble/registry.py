@@ -120,7 +120,7 @@ def read_registry(root):
                 "group": group.get("name"), "name": sprite.get("name"), "base": sprite.get("base") or "",
                 "slot": sprite.get("slot") or "", "default": sprite.get("default") == "true",
                 "event": sprite.get("event") or "", "skin": sprite.get("skin") or "",
-                "decoration": sprite.get("decoration") or "",
+                "decoration": sprite.get("decoration") or "", "count": sprite.get("count") or "",
                 "replaces": sprite.get("replaces") or "",
                 "textures": [[(t.get("name"), t.get("event") or "") for t in m.findall("texture")]
                              for m in sprite.findall("model")],
@@ -296,6 +296,26 @@ def set_sprite_textures(root, group, name, textures):
             block = block[:lines[0].start()] + new + block[lines[-1].end():]
         with open(registry_path, "wb") as f:
             f.write((text[:start] + block + text[end:]).encode("utf-8"))
+        return True
+    return False
+
+
+def set_sprite_attributes(registry_path, group, name, attrs):
+    """Set attributes on one sprite's opening tag, dropping those given a blank value; the rest of the file stays as
+    it is."""
+    with open(registry_path, "rb") as f:
+        text = f.read().decode("utf-8")
+    for sprite_group, sprite, start, end in sprite_blocks(text):
+        if (sprite_group, sprite) != (group, name):
+            continue
+        tag_end = text.index(">", start)
+        tag = text[start:tag_end]
+        for key, value in attrs:
+            existing = re.search(r'\s%s="[^"]*"' % re.escape(key), tag)
+            new = f" {key}={quoteattr(value)}" if value else ""
+            tag = tag[:existing.start()] + new + tag[existing.end():] if existing else tag + new
+        with open(registry_path, "wb") as f:
+            f.write((text[:start] + tag + text[tag_end:]).encode("utf-8"))
         return True
     return False
 
