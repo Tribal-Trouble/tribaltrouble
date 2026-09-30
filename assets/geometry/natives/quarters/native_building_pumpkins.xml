@@ -47,7 +47,7 @@
         <!ATTLIST transform m33 CDATA #REQUIRED>
         ]>
 
-<mesh texture="Pumpkins-Test">
+<mesh texture="pumpkins">
     <polygons>
         <polygon>
             <vertex x="-1.70202" y="-5.00281" z="1.97124" r="1" g="1" b="1" a="1" nx="0.363944" ny="-0.893469" nz="-0.263168" u="0.463364" v="0.268351">

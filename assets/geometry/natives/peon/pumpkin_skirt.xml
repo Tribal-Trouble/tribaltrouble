@@ -1,0 +1,1615 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!DOCTYPE mesh [
+        <!ELEMENT mesh       (polygons, skeleton?)>
+        <!ELEMENT polygons   (polygon+)>
+        <!ELEMENT polygon    (vertex, vertex, vertex)>
+        <!ELEMENT vertex     (skin+)>
+        <!ELEMENT skin        EMPTY>
+        <!ELEMENT skeleton   (bones, init_pose)>
+        <!ELEMENT bones      (bone+)>
+        <!ELEMENT init_pose  (transform+)>
+        <!ELEMENT bone        EMPTY>
+        <!ELEMENT transform   EMPTY>
+        <!ATTLIST mesh texture CDATA #IMPLIED>
+        <!ATTLIST vertex x CDATA #REQUIRED>
+        <!ATTLIST vertex y CDATA #REQUIRED>
+        <!ATTLIST vertex z CDATA #REQUIRED>
+        <!ATTLIST vertex r CDATA #REQUIRED>
+        <!ATTLIST vertex g CDATA #REQUIRED>
+        <!ATTLIST vertex b CDATA #REQUIRED>
+        <!ATTLIST vertex a CDATA #REQUIRED>
+        <!ATTLIST vertex nx CDATA #REQUIRED>
+        <!ATTLIST vertex ny CDATA #REQUIRED>
+        <!ATTLIST vertex nz CDATA #REQUIRED>
+        <!ATTLIST vertex u CDATA #REQUIRED>
+        <!ATTLIST vertex v CDATA #REQUIRED>
+        <!ATTLIST vertex u2 CDATA #IMPLIED>
+        <!ATTLIST vertex v2 CDATA #IMPLIED>
+        <!ATTLIST skin bone CDATA #REQUIRED>
+        <!ATTLIST skin weight CDATA #REQUIRED>
+        <!ATTLIST transform name CDATA #REQUIRED>
+        <!ATTLIST transform m00 CDATA #REQUIRED>
+        <!ATTLIST transform m01 CDATA #REQUIRED>
+        <!ATTLIST transform m02 CDATA #REQUIRED>
+        <!ATTLIST transform m03 CDATA #REQUIRED>
+        <!ATTLIST transform m10 CDATA #REQUIRED>
+        <!ATTLIST transform m11 CDATA #REQUIRED>
+        <!ATTLIST transform m12 CDATA #REQUIRED>
+        <!ATTLIST transform m13 CDATA #REQUIRED>
+        <!ATTLIST transform m20 CDATA #REQUIRED>
+        <!ATTLIST transform m21 CDATA #REQUIRED>
+        <!ATTLIST transform m22 CDATA #REQUIRED>
+        <!ATTLIST transform m23 CDATA #REQUIRED>
+        <!ATTLIST transform m30 CDATA #REQUIRED>
+        <!ATTLIST transform m31 CDATA #REQUIRED>
+        <!ATTLIST transform m32 CDATA #REQUIRED>
+        <!ATTLIST transform m33 CDATA #REQUIRED>
+        ]>
+
+<mesh texture="pumpkins">
+    <polygons>
+        <polygon>
+            <vertex x="0.034646" y="0.0463178" z="0.58617" r="1" g="1" b="1" a="1" nx="0.00966745" ny="-0.222613" nz="0.974859" u="0.697465" v="0.240274">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.134437" y="0.0448676" z="0.581816" r="1" g="1" b="1" a="1" nx="0.293414" ny="-0.083162" nz="0.952362" u="0.674362" v="0.256178">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0950831" y="0.0936776" z="0.589011" r="1" g="1" b="1" a="1" nx="0.279569" ny="0.011936" nz="0.960051" u="0.675946" v="0.238577">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.184988" y="0.076357" z="0.55903" r="1" g="1" b="1" a="1" nx="0.568589" ny="0.0957408" nz="0.817031" u="0.494131" v="0.246647">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.223253" y="0.105501" z="0.522743" r="1" g="1" b="1" a="1" nx="0.790446" ny="0.260875" nz="0.554201" u="0.494585" v="0.23084">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.145092" y="0.168859" z="0.528845" r="1" g="1" b="1" a="1" nx="0.546885" ny="0.567087" nz="0.615897" u="0.466204" v="0.233522">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.184988" y="0.076357" z="0.55903" r="1" g="1" b="1" a="1" nx="0.568589" ny="0.0957408" nz="0.817031" u="0.494131" v="0.246647">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.145092" y="0.168859" z="0.528845" r="1" g="1" b="1" a="1" nx="0.546885" ny="0.567087" nz="0.615897" u="0.466204" v="0.233522">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.118057" y="0.125784" z="0.56806" r="1" g="1" b="1" a="1" nx="0.388965" ny="0.334501" nz="0.85838" u="0.470733" v="0.253093">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.134437" y="0.0448676" z="0.581816" r="1" g="1" b="1" a="1" nx="0.293414" ny="-0.083162" nz="0.952362" u="0.493605" v="0.265014">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.184988" y="0.076357" z="0.55903" r="1" g="1" b="1" a="1" nx="0.568589" ny="0.0957408" nz="0.817031" u="0.494131" v="0.246647">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.118057" y="0.125784" z="0.56806" r="1" g="1" b="1" a="1" nx="0.388965" ny="0.334501" nz="0.85838" u="0.470733" v="0.253093">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.134437" y="0.0448676" z="0.581816" r="1" g="1" b="1" a="1" nx="0.293414" ny="-0.083162" nz="0.952362" u="0.493605" v="0.265014">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.118057" y="0.125784" z="0.56806" r="1" g="1" b="1" a="1" nx="0.388965" ny="0.334501" nz="0.85838" u="0.470733" v="0.253093">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0950831" y="0.0936776" z="0.589011" r="1" g="1" b="1" a="1" nx="0.279569" ny="0.011936" nz="0.960051" u="0.474208" v="0.266421">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0585" y="0.119353" z="0.602266" r="1" g="1" b="1" a="1" nx="0.148322" ny="0.0358547" nz="0.988289" u="0.419917" v="0.266733">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0799488" y="0.179293" z="0.586077" r="1" g="1" b="1" a="1" nx="0.285529" ny="0.435935" nz="0.853483" u="0.41997" v="0.24882">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.00798548" y="0.170785" z="0.579753" r="1" g="1" b="1" a="1" nx="-0.0411756" ny="0.503908" nz="0.862775" u="0.401051" v="0.255058">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0585" y="0.119353" z="0.602266" r="1" g="1" b="1" a="1" nx="0.148322" ny="0.0358547" nz="0.988289" u="0.419917" v="0.266733">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.00798548" y="0.170785" z="0.579753" r="1" g="1" b="1" a="1" nx="-0.0411756" ny="0.503908" nz="0.862775" u="0.401051" v="0.255058">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0062243" y="0.129316" z="0.600663" r="1" g="1" b="1" a="1" nx="0.00491563" ny="0.128924" nz="0.991642" u="0.404356" v="0.268304">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.034646" y="0.0463178" z="0.58617" r="1" g="1" b="1" a="1" nx="0.00966745" ny="-0.222613" nz="0.974859" u="0.697465" v="0.240274">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0585" y="0.119353" z="0.602266" r="1" g="1" b="1" a="1" nx="0.148322" ny="0.0358547" nz="0.988289" u="0.680401" v="0.226301">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0062243" y="0.129316" z="0.600663" r="1" g="1" b="1" a="1" nx="0.00491563" ny="0.128924" nz="0.991642" u="0.691261" v="0.216076">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.102777" y="0.264645" z="0.466647" r="1" g="1" b="1" a="1" nx="0.26156" ny="0.79903" nz="0.541422" u="0.42112" v="0.209753">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.102857" y="0.265182" z="0.465817" r="1" g="1" b="1" a="1" nx="0.0746704" ny="0.833871" nz="0.546885" u="0.421113" v="0.209492">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.00669949" y="0.272699" z="0.467484" r="1" g="1" b="1" a="1" nx="0.0870851" ny="0.839252" nz="0.536724" u="0.394509" v="0.20937">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0799488" y="0.179293" z="0.586077" r="1" g="1" b="1" a="1" nx="0.285529" ny="0.435935" nz="0.853483" u="0.41997" v="0.24882">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0951849" y="0.213752" z="0.545301" r="1" g="1" b="1" a="1" nx="0.386765" ny="0.655796" nz="0.64834" u="0.421745" v="0.23447">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.00930461" y="0.224402" z="0.544767" r="1" g="1" b="1" a="1" nx="0.0352855" ny="0.76133" nz="0.647403" u="0.397343" v="0.236164">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0799488" y="0.179293" z="0.586077" r="1" g="1" b="1" a="1" nx="0.285529" ny="0.435935" nz="0.853483" u="0.41997" v="0.24882">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.00930461" y="0.224402" z="0.544767" r="1" g="1" b="1" a="1" nx="0.0352855" ny="0.76133" nz="0.647403" u="0.397343" v="0.236164">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.00798548" y="0.170785" z="0.579753" r="1" g="1" b="1" a="1" nx="-0.0411756" ny="0.503908" nz="0.862775" u="0.401051" v="0.255058">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0461118" y="0.122961" z="0.602587" r="1" g="1" b="1" a="1" nx="-0.14272" ny="0.075891" nz="0.986849" u="0.351457" v="0.263817">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0596155" y="0.180256" z="0.583913" r="1" g="1" b="1" a="1" nx="-0.206481" ny="0.398536" nz="0.893608" u="0.353172" v="0.246247">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.123595" y="0.121202" z="0.564151" r="1" g="1" b="1" a="1" nx="-0.495397" ny="0.262702" nz="0.827991" u="0.328408" v="0.252173">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0461118" y="0.122961" z="0.602587" r="1" g="1" b="1" a="1" nx="-0.14272" ny="0.075891" nz="0.986849" u="0.351457" v="0.263817">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.123595" y="0.121202" z="0.564151" r="1" g="1" b="1" a="1" nx="-0.495397" ny="0.262702" nz="0.827991" u="0.328408" v="0.252173">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.100486" y="0.0900494" z="0.585032" r="1" g="1" b="1" a="1" nx="-0.274094" ny="0.0459961" nz="0.960602" u="0.331803" v="0.264877">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0488666" y="0.0404058" z="0.581854" r="1" g="1" b="1" a="1" nx="-0.0500579" ny="-0.21575" nz="0.975165" u="0.71823" v="0.229028">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0461118" y="0.122961" z="0.602587" r="1" g="1" b="1" a="1" nx="-0.14272" ny="0.075891" nz="0.986849" u="0.704479" v="0.209455">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.100486" y="0.0900494" z="0.585032" r="1" g="1" b="1" a="1" nx="-0.274094" ny="0.0459961" nz="0.960602" u="0.722929" v="0.209438">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0596155" y="0.180256" z="0.583913" r="1" g="1" b="1" a="1" nx="-0.206481" ny="0.398536" nz="0.893608" u="0.353172" v="0.246247">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0772688" y="0.238241" z="0.549631" r="1" g="1" b="1" a="1" nx="-0.284664" ny="0.679838" nz="0.67586" u="0.353313" v="0.228134">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.15187" y="0.163622" z="0.525524" r="1" g="1" b="1" a="1" nx="-0.628853" ny="0.477381" nz="0.613719" u="0.324221" v="0.233446">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0596155" y="0.180256" z="0.583913" r="1" g="1" b="1" a="1" nx="-0.206481" ny="0.398536" nz="0.893608" u="0.353172" v="0.246247">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.15187" y="0.163622" z="0.525524" r="1" g="1" b="1" a="1" nx="-0.628853" ny="0.477381" nz="0.613719" u="0.324221" v="0.233446">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.123595" y="0.121202" z="0.564151" r="1" g="1" b="1" a="1" nx="-0.495397" ny="0.262702" nz="0.827991" u="0.328408" v="0.252173">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.191422" y="0.0720747" z="0.553537" r="1" g="1" b="1" a="1" nx="-0.60066" ny="0.0551537" nz="0.7976" u="0.272659" v="0.245711">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.231516" y="0.102298" z="0.50964" r="1" g="1" b="1" a="1" nx="-0.801804" ny="0.23115" nz="0.551072" u="0.271445" v="0.228698">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.23239" y="0.00513998" z="0.475966" r="1" g="1" b="1" a="1" nx="-0.892638" ny="-0.141814" nz="0.427885" u="0.244154" v="0.234311">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.191422" y="0.0720747" z="0.553537" r="1" g="1" b="1" a="1" nx="-0.60066" ny="0.0551537" nz="0.7976" u="0.272659" v="0.245711">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.23239" y="0.00513998" z="0.475966" r="1" g="1" b="1" a="1" nx="-0.892638" ny="-0.141814" nz="0.427885" u="0.244154" v="0.234311">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.180539" y="-0.00898528" z="0.527571" r="1" g="1" b="1" a="1" nx="-0.674723" ny="-0.264061" nz="0.689218" u="0.250996" v="0.255375">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.138638" y="0.0414522" z="0.579014" r="1" g="1" b="1" a="1" nx="-0.319874" ny="-0.109341" nz="0.94113" u="0.273992" v="0.264011">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.191422" y="0.0720747" z="0.553537" r="1" g="1" b="1" a="1" nx="-0.60066" ny="0.0551537" nz="0.7976" u="0.272659" v="0.245711">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.180539" y="-0.00898528" z="0.527571" r="1" g="1" b="1" a="1" nx="-0.674723" ny="-0.264061" nz="0.689218" u="0.250996" v="0.255375">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.138638" y="0.0414522" z="0.579014" r="1" g="1" b="1" a="1" nx="-0.319874" ny="-0.109341" nz="0.94113" u="0.273992" v="0.264011">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.180539" y="-0.00898528" z="0.527571" r="1" g="1" b="1" a="1" nx="-0.674723" ny="-0.264061" nz="0.689218" u="0.250996" v="0.255375">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.14645" y="-0.0155539" z="0.556677" r="1" g="1" b="1" a="1" nx="-0.417386" ny="-0.191739" nz="0.888271" u="0.256174" v="0.267683">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0750684" y="-0.00775075" z="0.572763" r="1" g="1" b="1" a="1" nx="-0.0339478" ny="-0.250414" nz="0.967543" u="0.731929" v="0.236577">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.138638" y="0.0414522" z="0.579014" r="1" g="1" b="1" a="1" nx="-0.319874" ny="-0.109341" nz="0.94113" u="0.739376" v="0.215191">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.14645" y="-0.0155539" z="0.556677" r="1" g="1" b="1" a="1" nx="-0.417386" ny="-0.191739" nz="0.888271" u="0.750813" v="0.228193">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0750684" y="-0.00775075" z="0.572763" r="1" g="1" b="1" a="1" nx="-0.0339478" ny="-0.250414" nz="0.967543" u="0.731929" v="0.236577">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.146033" y="-0.0571663" z="0.551142" r="1" g="1" b="1" a="1" nx="-0.337924" ny="-0.346924" nz="0.874901" u="0.756893" v="0.238278">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.116135" y="-0.0988121" z="0.53295" r="1" g="1" b="1" a="1" nx="-0.309252" ny="-0.46513" nz="0.829468" u="0.756893" v="0.253534">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.201654" y="-0.0637354" z="0.51516" r="1" g="1" b="1" a="1" nx="-0.627055" ny="-0.351052" nz="0.695388" u="0.199602" v="0.246365">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.243926" y="-0.0618575" z="0.463273" r="1" g="1" b="1" a="1" nx="-0.856643" ny="-0.3378" nz="0.389942" u="0.200238" v="0.228734">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.191246" y="-0.129818" z="0.436271" r="1" g="1" b="1" a="1" nx="-0.694124" ny="-0.678497" nz="0.240487" u="0.175244" v="0.229693">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.201654" y="-0.0637354" z="0.51516" r="1" g="1" b="1" a="1" nx="-0.627055" ny="-0.351052" nz="0.695388" u="0.199602" v="0.246365">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.191246" y="-0.129818" z="0.436271" r="1" g="1" b="1" a="1" nx="-0.694124" ny="-0.678497" nz="0.240487" u="0.175244" v="0.229693">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.143008" y="-0.111755" z="0.498307" r="1" g="1" b="1" a="1" nx="-0.456052" ny="-0.669799" nz="0.585992" u="0.1788" v="0.253881">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.146033" y="-0.0571663" z="0.551142" r="1" g="1" b="1" a="1" nx="-0.337924" ny="-0.346924" nz="0.874901" u="0.19873" v="0.265425">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.201654" y="-0.0637354" z="0.51516" r="1" g="1" b="1" a="1" nx="-0.627055" ny="-0.351052" nz="0.695388" u="0.199602" v="0.246365">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.143008" y="-0.111755" z="0.498307" r="1" g="1" b="1" a="1" nx="-0.456052" ny="-0.669799" nz="0.585992" u="0.1788" v="0.253881">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.146033" y="-0.0571663" z="0.551142" r="1" g="1" b="1" a="1" nx="-0.337924" ny="-0.346924" nz="0.874901" u="0.19873" v="0.265425">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.143008" y="-0.111755" z="0.498307" r="1" g="1" b="1" a="1" nx="-0.456052" ny="-0.669799" nz="0.585992" u="0.1788" v="0.253881">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.116135" y="-0.0988121" z="0.53295" r="1" g="1" b="1" a="1" nx="-0.309252" ny="-0.46513" nz="0.829468" u="0.182354" v="0.267266">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0309706" y="-0.0855519" z="0.549711" r="1" g="1" b="1" a="1" nx="-0.0433704" ny="-0.329408" nz="0.943191" u="0.73391" v="0.262489">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0832535" y="-0.138234" z="0.528418" r="1" g="1" b="1" a="1" nx="-0.205379" ny="-0.527043" nz="0.824648" u="0.75493" v="0.267835">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.036855" y="-0.1509" z="0.519505" r="1" g="1" b="1" a="1" nx="-0.0827004" ny="-0.613856" nz="0.785074" u="0.74635" v="0.278511">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0535515" y="-0.205441" z="0.421729" r="1" g="1" b="1" a="1" nx="-0.0521218" ny="-0.902307" nz="0.427931" u="0.104495" v="0.230176">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.112914" y="-0.200632" z="0.422188" r="1" g="1" b="1" a="1" nx="-0.043701" ny="-0.919102" nz="0.391589" u="0.121099" v="0.226355">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0546942" y="-0.209338" z="0.413869" r="1" g="1" b="1" a="1" nx="-0.0685834" ny="-0.889794" nz="0.451179" u="0.103913" v="0.227425">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0832535" y="-0.138234" z="0.528418" r="1" g="1" b="1" a="1" nx="-0.205379" ny="-0.527043" nz="0.824648" u="0.127813" v="0.263327">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.114943" y="-0.175319" z="0.483994" r="1" g="1" b="1" a="1" nx="-0.349977" ny="-0.729915" nz="0.587145" u="0.128377" v="0.243821">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0448908" y="-0.175904" z="0.481297" r="1" g="1" b="1" a="1" nx="-0.0333063" ny="-0.854142" nz="0.518972" u="0.108911" v="0.251029">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0832535" y="-0.138234" z="0.528418" r="1" g="1" b="1" a="1" nx="-0.205379" ny="-0.527043" nz="0.824648" u="0.127813" v="0.263327">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0448908" y="-0.175904" z="0.481297" r="1" g="1" b="1" a="1" nx="-0.0333063" ny="-0.854142" nz="0.518972" u="0.108911" v="0.251029">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.036855" y="-0.1509" z="0.519505" r="1" g="1" b="1" a="1" nx="-0.0827004" ny="-0.613856" nz="0.785074" u="0.112499" v="0.265206">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0243889" y="-0.163529" z="0.522287" r="1" g="1" b="1" a="1" nx="0.0516961" ny="-0.589848" nz="0.805858" u="0.0549911" v="0.262944">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0332025" y="-0.210415" z="0.475915" r="1" g="1" b="1" a="1" nx="0.0971193" ny="-0.817756" nz="0.567312" u="0.0546561" v="0.24471">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0864462" y="-0.160175" z="0.486875" r="1" g="1" b="1" a="1" nx="0.449693" ny="-0.681477" nz="0.577378" u="0.0362179" v="0.253424">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0243889" y="-0.163529" z="0.522287" r="1" g="1" b="1" a="1" nx="0.0516961" ny="-0.589848" nz="0.805858" u="0.0549911" v="0.262944">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0864462" y="-0.160175" z="0.486875" r="1" g="1" b="1" a="1" nx="0.449693" ny="-0.681477" nz="0.577378" u="0.0362179" v="0.253424">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.069645" y="-0.13835" z="0.52511" r="1" g="1" b="1" a="1" nx="0.143614" ny="-0.595549" nz="0.790378" u="0.0401994" v="0.266707">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.023611" y="-0.0904777" z="0.54946" r="1" g="1" b="1" a="1" nx="-0.00308702" ny="-0.328392" nz="0.944537" u="0.721773" v="0.271987">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0243889" y="-0.163529" z="0.522287" r="1" g="1" b="1" a="1" nx="0.0516961" ny="-0.589848" nz="0.805858" u="0.733515" v="0.290451">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.069645" y="-0.13835" z="0.52511" r="1" g="1" b="1" a="1" nx="0.143614" ny="-0.595549" nz="0.790378" u="0.71904" v="0.291654">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0633028" y="-0.223256" z="0.420027" r="1" g="1" b="1" a="1" nx="0.502266" ny="-0.720558" nz="0.478044" u="0.0468572" v="0.229574">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.111187" y="-0.19002" z="0.423202" r="1" g="1" b="1" a="1" nx="0.565476" ny="-0.821611" nz="0.0720507" u="0.0312412" v="0.231684">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.110817" y="-0.190053" z="0.425741" r="1" g="1" b="1" a="1" nx="0.545853" ny="-0.787685" nz="0.285651" u="0.0313382" v="0.232467">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0398992" y="-0.238856" z="0.418536" r="1" g="1" b="1" a="1" nx="0.104393" ny="-0.866423" nz="0.488276" u="0.054456" v="0.228527">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0400516" y="-0.239503" z="0.41723" r="1" g="1" b="1" a="1" nx="0.0970821" ny="-0.872261" nz="0.479308" u="0.0544515" v="0.228159">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0633028" y="-0.223256" z="0.420027" r="1" g="1" b="1" a="1" nx="0.502266" ny="-0.720558" nz="0.478044" u="0.0468572" v="0.229574">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.142871" y="-0.156849" z="0.492094" r="1" g="1" b="1" a="1" nx="0.410858" ny="-0.666427" nz="0.62215" u="0.620219" v="0.245452">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.172272" y="-0.175314" z="0.439491" r="1" g="1" b="1" a="1" nx="0.561241" ny="-0.777466" nz="0.283822" u="0.619346" v="0.228566">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.197276" y="-0.128846" z="0.443388" r="1" g="1" b="1" a="1" nx="0.838684" ny="-0.433008" nz="0.330322" u="0.60398" v="0.22925">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.142871" y="-0.156849" z="0.492094" r="1" g="1" b="1" a="1" nx="0.410858" ny="-0.666427" nz="0.62215" u="0.620219" v="0.245452">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.197276" y="-0.128846" z="0.443388" r="1" g="1" b="1" a="1" nx="0.838684" ny="-0.433008" nz="0.330322" u="0.60398" v="0.22925">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.150544" y="-0.110847" z="0.501912" r="1" g="1" b="1" a="1" nx="0.648374" ny="-0.33403" nz="0.684131" u="0.608141" v="0.252507">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.104176" y="-0.12459" z="0.533546" r="1" g="1" b="1" a="1" nx="0.243608" ny="-0.509568" nz="0.825225" u="0.621398" v="0.264654">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.142871" y="-0.156849" z="0.492094" r="1" g="1" b="1" a="1" nx="0.410858" ny="-0.666427" nz="0.62215" u="0.620219" v="0.245452">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.150544" y="-0.110847" z="0.501912" r="1" g="1" b="1" a="1" nx="0.648374" ny="-0.33403" nz="0.684131" u="0.608141" v="0.252507">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.104176" y="-0.12459" z="0.533546" r="1" g="1" b="1" a="1" nx="0.243608" ny="-0.509568" nz="0.825225" u="0.621398" v="0.264654">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.150544" y="-0.110847" z="0.501912" r="1" g="1" b="1" a="1" nx="0.648374" ny="-0.33403" nz="0.684131" u="0.608141" v="0.252507">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.121707" y="-0.0980717" z="0.535397" r="1" g="1" b="1" a="1" nx="0.369039" ny="-0.406099" nz="0.835999" u="0.611643" v="0.266384">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.069645" y="-0.13835" z="0.52511" r="1" g="1" b="1" a="1" nx="0.143614" ny="-0.595549" nz="0.790378" u="0.71904" v="0.291654">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.104176" y="-0.12459" z="0.533546" r="1" g="1" b="1" a="1" nx="0.243608" ny="-0.509568" nz="0.825225" u="0.708462" v="0.29309">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.023611" y="-0.0904777" z="0.54946" r="1" g="1" b="1" a="1" nx="-0.00308702" ny="-0.328392" nz="0.944537" u="0.721773" v="0.271987">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.204393" y="-0.0588776" z="0.521045" r="1" g="1" b="1" a="1" nx="0.608167" ny="-0.346235" nz="0.714321" u="0.559461" v="0.246233">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.246437" y="-0.0575522" z="0.476988" r="1" g="1" b="1" a="1" nx="0.863982" ny="-0.283611" nz="0.416054" u="0.559706" v="0.230243">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.227678" y="0.0113714" z="0.489983" r="1" g="1" b="1" a="1" nx="0.865144" ny="0.128195" nz="0.484862" u="0.539973" v="0.233565">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.204393" y="-0.0588776" z="0.521045" r="1" g="1" b="1" a="1" nx="0.608167" ny="-0.346235" nz="0.714321" u="0.559461" v="0.246233">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.227678" y="0.0113714" z="0.489983" r="1" g="1" b="1" a="1" nx="0.865144" ny="0.128195" nz="0.484862" u="0.539973" v="0.233565">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.189179" y="-0.00221035" z="0.533707" r="1" g="1" b="1" a="1" nx="0.643358" ny="-0.0319137" nz="0.7649" u="0.543078" v="0.251643">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.148769" y="-0.0534748" z="0.55419" r="1" g="1" b="1" a="1" nx="0.313202" ny="-0.354438" nz="0.881067" u="0.559109" v="0.264919">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.204393" y="-0.0588776" z="0.521045" r="1" g="1" b="1" a="1" nx="0.608167" ny="-0.346235" nz="0.714321" u="0.559461" v="0.246233">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.189179" y="-0.00221035" z="0.533707" r="1" g="1" b="1" a="1" nx="0.643358" ny="-0.0319137" nz="0.7649" u="0.543078" v="0.251643">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.148769" y="-0.0534748" z="0.55419" r="1" g="1" b="1" a="1" nx="0.313202" ny="-0.354438" nz="0.881067" u="0.559109" v="0.264919">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.189179" y="-0.00221035" z="0.533707" r="1" g="1" b="1" a="1" nx="0.643358" ny="-0.0319137" nz="0.7649" u="0.543078" v="0.251643">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.153108" y="-0.0116914" z="0.561947" r="1" g="1" b="1" a="1" nx="0.380637" ny="-0.193186" nz="0.90432" u="0.546128" v="0.265545">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0791804" y="-0.0323356" z="0.566237" r="1" g="1" b="1" a="1" nx="0.0493131" ny="-0.276604" nz="0.959718" u="0.699406" v="0.266239">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.148769" y="-0.0534748" z="0.55419" r="1" g="1" b="1" a="1" nx="0.313202" ny="-0.354438" nz="0.881067" u="0.686518" v="0.282421">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.153108" y="-0.0116914" z="0.561947" r="1" g="1" b="1" a="1" nx="0.380637" ny="-0.193186" nz="0.90432" u="0.678968" v="0.273142">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0309706" y="-0.0855519" z="0.549711" r="1" g="1" b="1" a="1" nx="-0.0433704" ny="-0.329408" nz="0.943191" u="0.73391" v="0.262489">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.116135" y="-0.0988121" z="0.53295" r="1" g="1" b="1" a="1" nx="-0.309252" ny="-0.46513" nz="0.829468" u="0.756893" v="0.253534">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0832535" y="-0.138234" z="0.528418" r="1" g="1" b="1" a="1" nx="-0.205379" ny="-0.527043" nz="0.824648" u="0.75493" v="0.267835">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.143008" y="-0.111755" z="0.498307" r="1" g="1" b="1" a="1" nx="-0.601241" ny="-0.481264" nz="0.637883" u="0.147596" v="0.252231">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.191246" y="-0.129818" z="0.436271" r="1" g="1" b="1" a="1" nx="-0.764737" ny="-0.591993" nz="0.254404" u="0.153546" v="0.22739">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.138953" y="-0.196739" z="0.425909" r="1" g="1" b="1" a="1" nx="-0.470729" ny="-0.853395" nz="0.223899" u="0.128786" v="0.225876">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.143008" y="-0.111755" z="0.498307" r="1" g="1" b="1" a="1" nx="-0.601241" ny="-0.481264" nz="0.637883" u="0.147596" v="0.252231">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.138953" y="-0.196739" z="0.425909" r="1" g="1" b="1" a="1" nx="-0.470729" ny="-0.853395" nz="0.223899" u="0.128786" v="0.225876">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.114943" y="-0.175319" z="0.483994" r="1" g="1" b="1" a="1" nx="-0.349977" ny="-0.729915" nz="0.587145" u="0.128377" v="0.243821">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.116135" y="-0.0988121" z="0.53295" r="1" g="1" b="1" a="1" nx="-0.309252" ny="-0.46513" nz="0.829468" u="0.143812" v="0.266135">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.143008" y="-0.111755" z="0.498307" r="1" g="1" b="1" a="1" nx="-0.601241" ny="-0.481264" nz="0.637883" u="0.147596" v="0.252231">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.114943" y="-0.175319" z="0.483994" r="1" g="1" b="1" a="1" nx="-0.349977" ny="-0.729915" nz="0.587145" u="0.128377" v="0.243821">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.116135" y="-0.0988121" z="0.53295" r="1" g="1" b="1" a="1" nx="-0.309252" ny="-0.46513" nz="0.829468" u="0.143812" v="0.266135">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.114943" y="-0.175319" z="0.483994" r="1" g="1" b="1" a="1" nx="-0.349977" ny="-0.729915" nz="0.587145" u="0.128377" v="0.243821">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0832535" y="-0.138234" z="0.528418" r="1" g="1" b="1" a="1" nx="-0.205379" ny="-0.527043" nz="0.824648" u="0.127813" v="0.263327">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0535515" y="-0.205441" z="0.421729" r="1" g="1" b="1" a="1" nx="-0.300943" ny="-0.847252" nz="0.437718" u="0.0803864" v="0.23359">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0546942" y="-0.209338" z="0.413869" r="1" g="1" b="1" a="1" nx="-0.286148" ny="-0.84579" nz="0.450288" u="0.0808921" v="0.231035">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0400516" y="-0.239503" z="0.41723" r="1" g="1" b="1" a="1" nx="0.0970821" ny="-0.872261" nz="0.479308" u="0.0544515" v="0.228159">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0535515" y="-0.205441" z="0.421729" r="1" g="1" b="1" a="1" nx="-0.300943" ny="-0.847252" nz="0.437718" u="0.0803864" v="0.23359">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0400516" y="-0.239503" z="0.41723" r="1" g="1" b="1" a="1" nx="0.0970821" ny="-0.872261" nz="0.479308" u="0.0544515" v="0.228159">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0398992" y="-0.238856" z="0.418536" r="1" g="1" b="1" a="1" nx="0.104393" ny="-0.866423" nz="0.488276" u="0.054456" v="0.228527">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0309706" y="-0.0855519" z="0.549711" r="1" g="1" b="1" a="1" nx="-0.0433704" ny="-0.329408" nz="0.943191" u="0.73391" v="0.262489">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.036855" y="-0.1509" z="0.519505" r="1" g="1" b="1" a="1" nx="-0.0827004" ny="-0.613856" nz="0.785074" u="0.74635" v="0.278511">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.023611" y="-0.0904777" z="0.54946" r="1" g="1" b="1" a="1" nx="-0.00308702" ny="-0.328392" nz="0.944537" u="0.721773" v="0.271987">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.036855" y="-0.1509" z="0.519505" r="1" g="1" b="1" a="1" nx="-0.0827004" ny="-0.613856" nz="0.785074" u="0.0729968" v="0.266006">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0448908" y="-0.175904" z="0.481297" r="1" g="1" b="1" a="1" nx="-0.276057" ny="-0.796514" nz="0.537919" u="0.0765533" v="0.252954">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0332025" y="-0.210415" z="0.475915" r="1" g="1" b="1" a="1" nx="0.0971193" ny="-0.817756" nz="0.567312" u="0.0546561" v="0.24471">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.036855" y="-0.1509" z="0.519505" r="1" g="1" b="1" a="1" nx="-0.0827004" ny="-0.613856" nz="0.785074" u="0.0729968" v="0.266006">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0332025" y="-0.210415" z="0.475915" r="1" g="1" b="1" a="1" nx="0.0971193" ny="-0.817756" nz="0.567312" u="0.0546561" v="0.24471">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0243889" y="-0.163529" z="0.522287" r="1" g="1" b="1" a="1" nx="0.0516961" ny="-0.589848" nz="0.805858" u="0.0549911" v="0.262944">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0864462" y="-0.160175" z="0.486875" r="1" g="1" b="1" a="1" nx="0.0666645" ny="-0.851505" nz="0.520092" u="0.635658" v="0.251881">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.110817" y="-0.190053" z="0.425741" r="1" g="1" b="1" a="1" nx="0.169057" ny="-0.970064" nz="0.174343" u="0.63802" v="0.229462">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.172272" y="-0.175314" z="0.439491" r="1" g="1" b="1" a="1" nx="0.561241" ny="-0.777466" nz="0.283822" u="0.619346" v="0.228566">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0864462" y="-0.160175" z="0.486875" r="1" g="1" b="1" a="1" nx="0.0666645" ny="-0.851505" nz="0.520092" u="0.635658" v="0.251881">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.172272" y="-0.175314" z="0.439491" r="1" g="1" b="1" a="1" nx="0.561241" ny="-0.777466" nz="0.283822" u="0.619346" v="0.228566">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.142871" y="-0.156849" z="0.492094" r="1" g="1" b="1" a="1" nx="0.410858" ny="-0.666427" nz="0.62215" u="0.620219" v="0.245452">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.069645" y="-0.13835" z="0.52511" r="1" g="1" b="1" a="1" nx="0.143614" ny="-0.595549" nz="0.790378" u="0.633173" v="0.266384">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0864462" y="-0.160175" z="0.486875" r="1" g="1" b="1" a="1" nx="0.0666645" ny="-0.851505" nz="0.520092" u="0.635658" v="0.251881">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.142871" y="-0.156849" z="0.492094" r="1" g="1" b="1" a="1" nx="0.410858" ny="-0.666427" nz="0.62215" u="0.620219" v="0.245452">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.069645" y="-0.13835" z="0.52511" r="1" g="1" b="1" a="1" nx="0.143614" ny="-0.595549" nz="0.790378" u="0.633173" v="0.266384">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.142871" y="-0.156849" z="0.492094" r="1" g="1" b="1" a="1" nx="0.410858" ny="-0.666427" nz="0.62215" u="0.620219" v="0.245452">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.104176" y="-0.12459" z="0.533546" r="1" g="1" b="1" a="1" nx="0.243608" ny="-0.509568" nz="0.825225" u="0.621398" v="0.264654">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.150544" y="-0.110847" z="0.501912" r="1" g="1" b="1" a="1" nx="0.457909" ny="-0.636219" nz="0.620923" u="0.580211" v="0.254258">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.197276" y="-0.128846" z="0.443388" r="1" g="1" b="1" a="1" nx="0.711206" ny="-0.64542" nz="0.278602" u="0.585982" v="0.231286">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.246437" y="-0.0575522" z="0.476988" r="1" g="1" b="1" a="1" nx="0.863982" ny="-0.283611" nz="0.416054" u="0.559706" v="0.230243">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.150544" y="-0.110847" z="0.501912" r="1" g="1" b="1" a="1" nx="0.457909" ny="-0.636219" nz="0.620923" u="0.580211" v="0.254258">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.246437" y="-0.0575522" z="0.476988" r="1" g="1" b="1" a="1" nx="0.863982" ny="-0.283611" nz="0.416054" u="0.559706" v="0.230243">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.204393" y="-0.0588776" z="0.521045" r="1" g="1" b="1" a="1" nx="0.608167" ny="-0.346235" nz="0.714321" u="0.559461" v="0.246233">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.121707" y="-0.0980717" z="0.535397" r="1" g="1" b="1" a="1" nx="0.369039" ny="-0.406099" nz="0.835999" u="0.575788" v="0.267549">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.150544" y="-0.110847" z="0.501912" r="1" g="1" b="1" a="1" nx="0.457909" ny="-0.636219" nz="0.620923" u="0.580211" v="0.254258">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.204393" y="-0.0588776" z="0.521045" r="1" g="1" b="1" a="1" nx="0.608167" ny="-0.346235" nz="0.714321" u="0.559461" v="0.246233">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.121707" y="-0.0980717" z="0.535397" r="1" g="1" b="1" a="1" nx="0.369039" ny="-0.406099" nz="0.835999" u="0.575788" v="0.267549">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.204393" y="-0.0588776" z="0.521045" r="1" g="1" b="1" a="1" nx="0.608167" ny="-0.346235" nz="0.714321" u="0.559461" v="0.246233">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.148769" y="-0.0534748" z="0.55419" r="1" g="1" b="1" a="1" nx="0.313202" ny="-0.354438" nz="0.881067" u="0.559109" v="0.264919">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0791804" y="-0.0323356" z="0.566237" r="1" g="1" b="1" a="1" nx="0.0493131" ny="-0.276604" nz="0.959718" u="0.699406" v="0.266239">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.134437" y="0.0448676" z="0.581816" r="1" g="1" b="1" a="1" nx="0.293414" ny="-0.083162" nz="0.952362" u="0.674362" v="0.256178">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.034646" y="0.0463178" z="0.58617" r="1" g="1" b="1" a="1" nx="0.00966745" ny="-0.222613" nz="0.974859" u="0.697465" v="0.240274">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.189179" y="-0.00221035" z="0.533707" r="1" g="1" b="1" a="1" nx="0.665841" ny="-0.176875" nz="0.724825" u="0.516974" v="0.252705">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.227678" y="0.0113714" z="0.489983" r="1" g="1" b="1" a="1" nx="0.901717" ny="-0.0911858" nz="0.422601" u="0.521727" v="0.235019">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.223253" y="0.105501" z="0.522743" r="1" g="1" b="1" a="1" nx="0.790446" ny="0.260875" nz="0.554201" u="0.494585" v="0.23084">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.189179" y="-0.00221035" z="0.533707" r="1" g="1" b="1" a="1" nx="0.665841" ny="-0.176875" nz="0.724825" u="0.516974" v="0.252705">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.223253" y="0.105501" z="0.522743" r="1" g="1" b="1" a="1" nx="0.790446" ny="0.260875" nz="0.554201" u="0.494585" v="0.23084">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.184988" y="0.076357" z="0.55903" r="1" g="1" b="1" a="1" nx="0.568589" ny="0.0957408" nz="0.817031" u="0.494131" v="0.246647">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.153108" y="-0.0116914" z="0.561947" r="1" g="1" b="1" a="1" nx="0.380637" ny="-0.193186" nz="0.90432" u="0.512677" v="0.266283">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.189179" y="-0.00221035" z="0.533707" r="1" g="1" b="1" a="1" nx="0.665841" ny="-0.176875" nz="0.724825" u="0.516974" v="0.252705">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.184988" y="0.076357" z="0.55903" r="1" g="1" b="1" a="1" nx="0.568589" ny="0.0957408" nz="0.817031" u="0.494131" v="0.246647">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.153108" y="-0.0116914" z="0.561947" r="1" g="1" b="1" a="1" nx="0.380637" ny="-0.193186" nz="0.90432" u="0.512677" v="0.266283">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.184988" y="0.076357" z="0.55903" r="1" g="1" b="1" a="1" nx="0.568589" ny="0.0957408" nz="0.817031" u="0.494131" v="0.246647">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.134437" y="0.0448676" z="0.581816" r="1" g="1" b="1" a="1" nx="0.293414" ny="-0.083162" nz="0.952362" u="0.493605" v="0.265014">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0950831" y="0.0936776" z="0.589011" r="1" g="1" b="1" a="1" nx="0.279569" ny="0.011936" nz="0.960051" u="0.433491" v="0.268563">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.118057" y="0.125784" z="0.56806" r="1" g="1" b="1" a="1" nx="0.568544" ny="0.222852" nz="0.791893" u="0.437063" v="0.255927">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0799488" y="0.179293" z="0.586077" r="1" g="1" b="1" a="1" nx="0.285529" ny="0.435935" nz="0.853483" u="0.41997" v="0.24882">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0950831" y="0.0936776" z="0.589011" r="1" g="1" b="1" a="1" nx="0.279569" ny="0.011936" nz="0.960051" u="0.433491" v="0.268563">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0799488" y="0.179293" z="0.586077" r="1" g="1" b="1" a="1" nx="0.285529" ny="0.435935" nz="0.853483" u="0.41997" v="0.24882">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0585" y="0.119353" z="0.602266" r="1" g="1" b="1" a="1" nx="0.148322" ny="0.0358547" nz="0.988289" u="0.419917" v="0.266733">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.118057" y="0.125784" z="0.56806" r="1" g="1" b="1" a="1" nx="0.568544" ny="0.222852" nz="0.791893" u="0.437063" v="0.255927">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.145092" y="0.168859" z="0.528845" r="1" g="1" b="1" a="1" nx="0.664823" ny="0.475722" nz="0.575933" u="0.440891" v="0.237281">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0951849" y="0.213752" z="0.545301" r="1" g="1" b="1" a="1" nx="0.386765" ny="0.655796" nz="0.64834" u="0.421745" v="0.23447">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.118057" y="0.125784" z="0.56806" r="1" g="1" b="1" a="1" nx="0.568544" ny="0.222852" nz="0.791893" u="0.437063" v="0.255927">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0951849" y="0.213752" z="0.545301" r="1" g="1" b="1" a="1" nx="0.386765" ny="0.655796" nz="0.64834" u="0.421745" v="0.23447">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0799488" y="0.179293" z="0.586077" r="1" g="1" b="1" a="1" nx="0.285529" ny="0.435935" nz="0.853483" u="0.41997" v="0.24882">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0062243" y="0.129316" z="0.600663" r="1" g="1" b="1" a="1" nx="0.00491563" ny="0.128924" nz="0.991642" u="0.367068" v="0.266392">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.00798548" y="0.170785" z="0.579753" r="1" g="1" b="1" a="1" nx="0.0923461" ny="0.456029" nz="0.885161" u="0.371528" v="0.253186">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0596155" y="0.180256" z="0.583913" r="1" g="1" b="1" a="1" nx="-0.206481" ny="0.398536" nz="0.893608" u="0.353172" v="0.246247">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0062243" y="0.129316" z="0.600663" r="1" g="1" b="1" a="1" nx="0.00491563" ny="0.128924" nz="0.991642" u="0.367068" v="0.266392">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0596155" y="0.180256" z="0.583913" r="1" g="1" b="1" a="1" nx="-0.206481" ny="0.398536" nz="0.893608" u="0.353172" v="0.246247">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0461118" y="0.122961" z="0.602587" r="1" g="1" b="1" a="1" nx="-0.14272" ny="0.075891" nz="0.986849" u="0.351457" v="0.263817">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.034646" y="0.0463178" z="0.58617" r="1" g="1" b="1" a="1" nx="0.00966745" ny="-0.222613" nz="0.974859" u="0.697465" v="0.240274">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0461118" y="0.122961" z="0.602587" r="1" g="1" b="1" a="1" nx="-0.14272" ny="0.075891" nz="0.986849" u="0.704479" v="0.209455">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0488666" y="0.0404058" z="0.581854" r="1" g="1" b="1" a="1" nx="-0.0500579" ny="-0.21575" nz="0.975165" u="0.71823" v="0.229028">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.00930461" y="0.224402" z="0.544767" r="1" g="1" b="1" a="1" nx="0.125392" ny="0.717064" nz="0.685635" u="0.376636" v="0.234416">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.00669949" y="0.272699" z="0.467484" r="1" g="1" b="1" a="1" nx="0.112534" ny="0.870031" nz="0.479982" u="0.379559" v="0.206116">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0821847" y="0.278364" z="0.468405" r="1" g="1" b="1" a="1" nx="-0.307591" ny="0.81532" nz="0.490551" u="0.353833" v="0.205613">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.00930461" y="0.224402" z="0.544767" r="1" g="1" b="1" a="1" nx="0.125392" ny="0.717064" nz="0.685635" u="0.376636" v="0.234416">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0821847" y="0.278364" z="0.468405" r="1" g="1" b="1" a="1" nx="-0.307591" ny="0.81532" nz="0.490551" u="0.353833" v="0.205613">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0772688" y="0.238241" z="0.549631" r="1" g="1" b="1" a="1" nx="-0.284664" ny="0.679838" nz="0.67586" u="0.353313" v="0.228134">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.00798548" y="0.170785" z="0.579753" r="1" g="1" b="1" a="1" nx="0.0923461" ny="0.456029" nz="0.885161" u="0.371528" v="0.253186">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.00930461" y="0.224402" z="0.544767" r="1" g="1" b="1" a="1" nx="0.125392" ny="0.717064" nz="0.685635" u="0.376636" v="0.234416">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0772688" y="0.238241" z="0.549631" r="1" g="1" b="1" a="1" nx="-0.284664" ny="0.679838" nz="0.67586" u="0.353313" v="0.228134">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.00798548" y="0.170785" z="0.579753" r="1" g="1" b="1" a="1" nx="0.0923461" ny="0.456029" nz="0.885161" u="0.371528" v="0.253186">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0772688" y="0.238241" z="0.549631" r="1" g="1" b="1" a="1" nx="-0.284664" ny="0.679838" nz="0.67586" u="0.353313" v="0.228134">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0596155" y="0.180256" z="0.583913" r="1" g="1" b="1" a="1" nx="-0.206481" ny="0.398536" nz="0.893608" u="0.353172" v="0.246247">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.123595" y="0.121202" z="0.564151" r="1" g="1" b="1" a="1" nx="-0.414032" ny="0.335633" nz="0.846125" u="0.295362" v="0.252042">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.15187" y="0.163622" z="0.525524" r="1" g="1" b="1" a="1" nx="-0.56163" ny="0.548877" nz="0.619117" u="0.299028" v="0.233093">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.231516" y="0.102298" z="0.50964" r="1" g="1" b="1" a="1" nx="-0.801804" ny="0.23115" nz="0.551072" u="0.271445" v="0.228698">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.123595" y="0.121202" z="0.564151" r="1" g="1" b="1" a="1" nx="-0.414032" ny="0.335633" nz="0.846125" u="0.295362" v="0.252042">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.231516" y="0.102298" z="0.50964" r="1" g="1" b="1" a="1" nx="-0.801804" ny="0.23115" nz="0.551072" u="0.271445" v="0.228698">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.191422" y="0.0720747" z="0.553537" r="1" g="1" b="1" a="1" nx="-0.60066" ny="0.0551537" nz="0.7976" u="0.272659" v="0.245711">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.100486" y="0.0900494" z="0.585032" r="1" g="1" b="1" a="1" nx="-0.274094" ny="0.0459961" nz="0.960602" u="0.292404" v="0.264781">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.123595" y="0.121202" z="0.564151" r="1" g="1" b="1" a="1" nx="-0.414032" ny="0.335633" nz="0.846125" u="0.295362" v="0.252042">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.191422" y="0.0720747" z="0.553537" r="1" g="1" b="1" a="1" nx="-0.60066" ny="0.0551537" nz="0.7976" u="0.272659" v="0.245711">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.100486" y="0.0900494" z="0.585032" r="1" g="1" b="1" a="1" nx="-0.274094" ny="0.0459961" nz="0.960602" u="0.292404" v="0.264781">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.191422" y="0.0720747" z="0.553537" r="1" g="1" b="1" a="1" nx="-0.60066" ny="0.0551537" nz="0.7976" u="0.272659" v="0.245711">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.138638" y="0.0414522" z="0.579014" r="1" g="1" b="1" a="1" nx="-0.319874" ny="-0.109341" nz="0.94113" u="0.273992" v="0.264011">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0488666" y="0.0404058" z="0.581854" r="1" g="1" b="1" a="1" nx="-0.0500579" ny="-0.21575" nz="0.975165" u="0.71823" v="0.229028">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.100486" y="0.0900494" z="0.585032" r="1" g="1" b="1" a="1" nx="-0.274094" ny="0.0459961" nz="0.960602" u="0.722929" v="0.209438">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0750684" y="-0.00775075" z="0.572763" r="1" g="1" b="1" a="1" nx="-0.0339478" ny="-0.250414" nz="0.967543" u="0.731929" v="0.236577">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0750684" y="-0.00775075" z="0.572763" r="1" g="1" b="1" a="1" nx="-0.0339478" ny="-0.250414" nz="0.967543" u="0.731929" v="0.236577">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.14645" y="-0.0155539" z="0.556677" r="1" g="1" b="1" a="1" nx="-0.417386" ny="-0.191739" nz="0.888271" u="0.750813" v="0.228193">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.146033" y="-0.0571663" z="0.551142" r="1" g="1" b="1" a="1" nx="-0.337924" ny="-0.346924" nz="0.874901" u="0.756893" v="0.238278">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.180539" y="-0.00898528" z="0.527571" r="1" g="1" b="1" a="1" nx="-0.653101" ny="0.0102176" nz="0.757202" u="0.214863" v="0.254494">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.23239" y="0.00513998" z="0.475966" r="1" g="1" b="1" a="1" nx="-0.866" ny="0.0663593" nz="0.495622" u="0.219857" v="0.23207">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.243926" y="-0.0618575" z="0.463273" r="1" g="1" b="1" a="1" nx="-0.856643" ny="-0.3378" nz="0.389942" u="0.200238" v="0.228734">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.180539" y="-0.00898528" z="0.527571" r="1" g="1" b="1" a="1" nx="-0.653101" ny="0.0102176" nz="0.757202" u="0.214863" v="0.254494">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.243926" y="-0.0618575" z="0.463273" r="1" g="1" b="1" a="1" nx="-0.856643" ny="-0.3378" nz="0.389942" u="0.200238" v="0.228734">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.201654" y="-0.0637354" z="0.51516" r="1" g="1" b="1" a="1" nx="-0.627055" ny="-0.351052" nz="0.695388" u="0.199602" v="0.246365">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.14645" y="-0.0155539" z="0.556677" r="1" g="1" b="1" a="1" nx="-0.417386" ny="-0.191739" nz="0.888271" u="0.211321" v="0.267876">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.180539" y="-0.00898528" z="0.527571" r="1" g="1" b="1" a="1" nx="-0.653101" ny="0.0102176" nz="0.757202" u="0.214863" v="0.254494">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.201654" y="-0.0637354" z="0.51516" r="1" g="1" b="1" a="1" nx="-0.627055" ny="-0.351052" nz="0.695388" u="0.199602" v="0.246365">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.14645" y="-0.0155539" z="0.556677" r="1" g="1" b="1" a="1" nx="-0.417386" ny="-0.191739" nz="0.888271" u="0.211321" v="0.267876">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.201654" y="-0.0637354" z="0.51516" r="1" g="1" b="1" a="1" nx="-0.627055" ny="-0.351052" nz="0.695388" u="0.199602" v="0.246365">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.146033" y="-0.0571663" z="0.551142" r="1" g="1" b="1" a="1" nx="-0.337924" ny="-0.346924" nz="0.874901" u="0.19873" v="0.265425">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0791804" y="-0.0323356" z="0.566237" r="1" g="1" b="1" a="1" nx="0.0493131" ny="-0.276604" nz="0.959718" u="0.699406" v="0.266239">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.034646" y="0.0463178" z="0.58617" r="1" g="1" b="1" a="1" nx="0.00966745" ny="-0.222613" nz="0.974859" u="0.697465" v="0.240274">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0488666" y="0.0404058" z="0.581854" r="1" g="1" b="1" a="1" nx="-0.0500579" ny="-0.21575" nz="0.975165" u="0.71823" v="0.229028">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.148769" y="-0.0534748" z="0.55419" r="1" g="1" b="1" a="1" nx="0.313202" ny="-0.354438" nz="0.881067" u="0.686518" v="0.282421">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0791804" y="-0.0323356" z="0.566237" r="1" g="1" b="1" a="1" nx="0.0493131" ny="-0.276604" nz="0.959718" u="0.699406" v="0.266239">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.121707" y="-0.0980717" z="0.535397" r="1" g="1" b="1" a="1" nx="0.369039" ny="-0.406099" nz="0.835999" u="0.700156" v="0.289837">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0488666" y="0.0404058" z="0.581854" r="1" g="1" b="1" a="1" nx="-0.0500579" ny="-0.21575" nz="0.975165" u="0.71823" v="0.229028">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0309706" y="-0.0855519" z="0.549711" r="1" g="1" b="1" a="1" nx="-0.0433704" ny="-0.329408" nz="0.943191" u="0.73391" v="0.262489">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.023611" y="-0.0904777" z="0.54946" r="1" g="1" b="1" a="1" nx="-0.00308702" ny="-0.328392" nz="0.944537" u="0.721773" v="0.271987">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0791804" y="-0.0323356" z="0.566237" r="1" g="1" b="1" a="1" nx="0.0493131" ny="-0.276604" nz="0.959718" u="0.699406" v="0.266239">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0488666" y="0.0404058" z="0.581854" r="1" g="1" b="1" a="1" nx="-0.0500579" ny="-0.21575" nz="0.975165" u="0.71823" v="0.229028">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.023611" y="-0.0904777" z="0.54946" r="1" g="1" b="1" a="1" nx="-0.00308702" ny="-0.328392" nz="0.944537" u="0.721773" v="0.271987">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0750684" y="-0.00775075" z="0.572763" r="1" g="1" b="1" a="1" nx="-0.0339478" ny="-0.250414" nz="0.967543" u="0.731929" v="0.236577">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.100486" y="0.0900494" z="0.585032" r="1" g="1" b="1" a="1" nx="-0.274094" ny="0.0459961" nz="0.960602" u="0.722929" v="0.209438">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.138638" y="0.0414522" z="0.579014" r="1" g="1" b="1" a="1" nx="-0.319874" ny="-0.109341" nz="0.94113" u="0.739376" v="0.215191">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0488666" y="0.0404058" z="0.581854" r="1" g="1" b="1" a="1" nx="-0.0500579" ny="-0.21575" nz="0.975165" u="0.71823" v="0.229028">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0750684" y="-0.00775075" z="0.572763" r="1" g="1" b="1" a="1" nx="-0.0339478" ny="-0.250414" nz="0.967543" u="0.731929" v="0.236577">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0309706" y="-0.0855519" z="0.549711" r="1" g="1" b="1" a="1" nx="-0.0433704" ny="-0.329408" nz="0.943191" u="0.73391" v="0.262489">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.116135" y="-0.0988121" z="0.53295" r="1" g="1" b="1" a="1" nx="-0.309252" ny="-0.46513" nz="0.829468" u="0.756893" v="0.253534">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0309706" y="-0.0855519" z="0.549711" r="1" g="1" b="1" a="1" nx="-0.0433704" ny="-0.329408" nz="0.943191" u="0.73391" v="0.262489">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0750684" y="-0.00775075" z="0.572763" r="1" g="1" b="1" a="1" nx="-0.0339478" ny="-0.250414" nz="0.967543" u="0.731929" v="0.236577">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.023611" y="-0.0904777" z="0.54946" r="1" g="1" b="1" a="1" nx="-0.00308702" ny="-0.328392" nz="0.944537" u="0.721773" v="0.271987">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.036855" y="-0.1509" z="0.519505" r="1" g="1" b="1" a="1" nx="-0.0827004" ny="-0.613856" nz="0.785074" u="0.74635" v="0.278511">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0243889" y="-0.163529" z="0.522287" r="1" g="1" b="1" a="1" nx="0.0516961" ny="-0.589848" nz="0.805858" u="0.733515" v="0.290451">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.134437" y="0.0448676" z="0.581816" r="1" g="1" b="1" a="1" nx="0.293414" ny="-0.083162" nz="0.952362" u="0.674362" v="0.256178">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0791804" y="-0.0323356" z="0.566237" r="1" g="1" b="1" a="1" nx="0.0493131" ny="-0.276604" nz="0.959718" u="0.699406" v="0.266239">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.153108" y="-0.0116914" z="0.561947" r="1" g="1" b="1" a="1" nx="0.380637" ny="-0.193186" nz="0.90432" u="0.678968" v="0.273142">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.034646" y="0.0463178" z="0.58617" r="1" g="1" b="1" a="1" nx="0.00966745" ny="-0.222613" nz="0.974859" u="0.697465" v="0.240274">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0950831" y="0.0936776" z="0.589011" r="1" g="1" b="1" a="1" nx="0.279569" ny="0.011936" nz="0.960051" u="0.675946" v="0.238577">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0585" y="0.119353" z="0.602266" r="1" g="1" b="1" a="1" nx="0.148322" ny="0.0358547" nz="0.988289" u="0.680401" v="0.226301">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0461118" y="0.122961" z="0.602587" r="1" g="1" b="1" a="1" nx="-0.14272" ny="0.075891" nz="0.986849" u="0.704479" v="0.209455">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.034646" y="0.0463178" z="0.58617" r="1" g="1" b="1" a="1" nx="0.00966745" ny="-0.222613" nz="0.974859" u="0.697465" v="0.240274">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0062243" y="0.129316" z="0.600663" r="1" g="1" b="1" a="1" nx="0.00491563" ny="0.128924" nz="0.991642" u="0.691261" v="0.216076">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0791804" y="-0.0323356" z="0.566237" r="1" g="1" b="1" a="1" nx="0.0493131" ny="-0.276604" nz="0.959718" u="0.699406" v="0.266239">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.104176" y="-0.12459" z="0.533546" r="1" g="1" b="1" a="1" nx="0.243608" ny="-0.509568" nz="0.825225" u="0.708462" v="0.29309">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.121707" y="-0.0980717" z="0.535397" r="1" g="1" b="1" a="1" nx="0.369039" ny="-0.406099" nz="0.835999" u="0.700156" v="0.289837">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.023611" y="-0.0904777" z="0.54946" r="1" g="1" b="1" a="1" nx="-0.00308702" ny="-0.328392" nz="0.944537" u="0.721773" v="0.271987">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.104176" y="-0.12459" z="0.533546" r="1" g="1" b="1" a="1" nx="0.243608" ny="-0.509568" nz="0.825225" u="0.708462" v="0.29309">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0791804" y="-0.0323356" z="0.566237" r="1" g="1" b="1" a="1" nx="0.0493131" ny="-0.276604" nz="0.959718" u="0.699406" v="0.266239">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0821847" y="0.278364" z="0.468405" r="1" g="1" b="1" a="1" nx="0.00800648" ny="0.265688" nz="-0.964026" u="0.617415" v="0.11644">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0813179" y="0.275842" z="0.467717" r="1" g="1" b="1" a="1" nx="0.00775487" ny="0.265608" nz="-0.96405" u="0.617415" v="0.11644">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0850401" y="0.276037" z="0.467735" r="1" g="1" b="1" a="1" nx="0.00908415" ny="0.266029" nz="-0.963922" u="0.617415" v="0.11644">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0864462" y="-0.160175" z="0.486875" r="1" g="1" b="1" a="1" nx="0.449693" ny="-0.681477" nz="0.577378" u="0.0362179" v="0.253424">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0332025" y="-0.210415" z="0.475915" r="1" g="1" b="1" a="1" nx="0.0971193" ny="-0.817756" nz="0.567312" u="0.0546561" v="0.24471">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0398992" y="-0.238856" z="0.418536" r="1" g="1" b="1" a="1" nx="0.104393" ny="-0.866423" nz="0.488276" u="0.054456" v="0.228527">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0398992" y="-0.238856" z="0.418536" r="1" g="1" b="1" a="1" nx="0.104393" ny="-0.866423" nz="0.488276" u="0.054456" v="0.228527">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0633028" y="-0.223256" z="0.420027" r="1" g="1" b="1" a="1" nx="0.502266" ny="-0.720558" nz="0.478044" u="0.0468572" v="0.229574">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.110817" y="-0.190053" z="0.425741" r="1" g="1" b="1" a="1" nx="0.545853" ny="-0.787685" nz="0.285651" u="0.0313382" v="0.232467">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0398992" y="-0.238856" z="0.418536" r="1" g="1" b="1" a="1" nx="0.104393" ny="-0.866423" nz="0.488276" u="0.054456" v="0.228527">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.110817" y="-0.190053" z="0.425741" r="1" g="1" b="1" a="1" nx="0.545853" ny="-0.787685" nz="0.285651" u="0.0313382" v="0.232467">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0864462" y="-0.160175" z="0.486875" r="1" g="1" b="1" a="1" nx="0.449693" ny="-0.681477" nz="0.577378" u="0.0362179" v="0.253424">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0448908" y="-0.175904" z="0.481297" r="1" g="1" b="1" a="1" nx="-0.276057" ny="-0.796514" nz="0.537919" u="0.0765533" v="0.252954">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0535515" y="-0.205441" z="0.421729" r="1" g="1" b="1" a="1" nx="-0.300943" ny="-0.847252" nz="0.437718" u="0.0803864" v="0.23359">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0398992" y="-0.238856" z="0.418536" r="1" g="1" b="1" a="1" nx="0.104393" ny="-0.866423" nz="0.488276" u="0.054456" v="0.228527">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0448908" y="-0.175904" z="0.481297" r="1" g="1" b="1" a="1" nx="-0.276057" ny="-0.796514" nz="0.537919" u="0.0765533" v="0.252954">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0398992" y="-0.238856" z="0.418536" r="1" g="1" b="1" a="1" nx="0.104393" ny="-0.866423" nz="0.488276" u="0.054456" v="0.228527">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0332025" y="-0.210415" z="0.475915" r="1" g="1" b="1" a="1" nx="0.0971193" ny="-0.817756" nz="0.567312" u="0.0546561" v="0.24471">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.138953" y="-0.196739" z="0.425909" r="1" g="1" b="1" a="1" nx="-0.470729" ny="-0.853395" nz="0.223899" u="0.128786" v="0.225876">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.13929" y="-0.196373" z="0.422595" r="1" g="1" b="1" a="1" nx="-0.530414" ny="-0.845092" nz="-0.0669433" u="0.128786" v="0.225013">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.112914" y="-0.200632" z="0.422188" r="1" g="1" b="1" a="1" nx="-0.043701" ny="-0.919102" nz="0.391589" u="0.121099" v="0.226355">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0448908" y="-0.175904" z="0.481297" r="1" g="1" b="1" a="1" nx="-0.0333063" ny="-0.854142" nz="0.518972" u="0.108911" v="0.251029">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.114943" y="-0.175319" z="0.483994" r="1" g="1" b="1" a="1" nx="-0.349977" ny="-0.729915" nz="0.587145" u="0.128377" v="0.243821">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.138953" y="-0.196739" z="0.425909" r="1" g="1" b="1" a="1" nx="-0.470729" ny="-0.853395" nz="0.223899" u="0.128786" v="0.225876">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.138953" y="-0.196739" z="0.425909" r="1" g="1" b="1" a="1" nx="-0.470729" ny="-0.853395" nz="0.223899" u="0.128786" v="0.225876">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.112914" y="-0.200632" z="0.422188" r="1" g="1" b="1" a="1" nx="-0.043701" ny="-0.919102" nz="0.391589" u="0.121099" v="0.226355">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0535515" y="-0.205441" z="0.421729" r="1" g="1" b="1" a="1" nx="-0.0521218" ny="-0.902307" nz="0.427931" u="0.104495" v="0.230176">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.138953" y="-0.196739" z="0.425909" r="1" g="1" b="1" a="1" nx="-0.470729" ny="-0.853395" nz="0.223899" u="0.128786" v="0.225876">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0535515" y="-0.205441" z="0.421729" r="1" g="1" b="1" a="1" nx="-0.0521218" ny="-0.902307" nz="0.427931" u="0.104495" v="0.230176">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0448908" y="-0.175904" z="0.481297" r="1" g="1" b="1" a="1" nx="-0.0333063" ny="-0.854142" nz="0.518972" u="0.108911" v="0.251029">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.172272" y="-0.175314" z="0.439491" r="1" g="1" b="1" a="1" nx="0.561241" ny="-0.777466" nz="0.283822" u="0.619346" v="0.228566">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.174278" y="-0.173313" z="0.424799" r="1" g="1" b="1" a="1" nx="0.642797" ny="-0.76601" nz="-0.00635097" u="0.619279" v="0.224565">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.199563" y="-0.12638" z="0.429283" r="1" g="1" b="1" a="1" nx="0.876935" ny="-0.477248" nz="0.0567369" u="0.603762" v="0.224875">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.172272" y="-0.175314" z="0.439491" r="1" g="1" b="1" a="1" nx="0.561241" ny="-0.777466" nz="0.283822" u="0.619346" v="0.228566">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.199563" y="-0.12638" z="0.429283" r="1" g="1" b="1" a="1" nx="0.876935" ny="-0.477248" nz="0.0567369" u="0.603762" v="0.224875">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.197276" y="-0.128846" z="0.443388" r="1" g="1" b="1" a="1" nx="0.838684" ny="-0.433008" nz="0.330322" u="0.60398" v="0.22925">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.197276" y="-0.128846" z="0.443388" r="1" g="1" b="1" a="1" nx="0.711206" ny="-0.64542" nz="0.278602" u="0.585982" v="0.231286">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.199563" y="-0.12638" z="0.429283" r="1" g="1" b="1" a="1" nx="0.817604" ny="-0.575172" nz="0.0264882" u="0.586278" v="0.226857">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.254172" y="-0.0482749" z="0.436746" r="1" g="1" b="1" a="1" nx="0.971243" ny="-0.168561" nz="0.16815" u="0.559981" v="0.219567">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.197276" y="-0.128846" z="0.443388" r="1" g="1" b="1" a="1" nx="0.711206" ny="-0.64542" nz="0.278602" u="0.585982" v="0.231286">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.254172" y="-0.0482749" z="0.436746" r="1" g="1" b="1" a="1" nx="0.971243" ny="-0.168561" nz="0.16815" u="0.559981" v="0.219567">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.246437" y="-0.0575522" z="0.476988" r="1" g="1" b="1" a="1" nx="0.863982" ny="-0.283611" nz="0.416054" u="0.559706" v="0.230243">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.110817" y="-0.190053" z="0.425741" r="1" g="1" b="1" a="1" nx="0.169057" ny="-0.970064" nz="0.174343" u="0.63802" v="0.229462">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.111187" y="-0.19002" z="0.423202" r="1" g="1" b="1" a="1" nx="0.253162" ny="-0.964208" nz="-0.0788154" u="0.638024" v="0.228684">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.174278" y="-0.173313" z="0.424799" r="1" g="1" b="1" a="1" nx="0.642797" ny="-0.76601" nz="-0.00635097" u="0.619279" v="0.224565">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.110817" y="-0.190053" z="0.425741" r="1" g="1" b="1" a="1" nx="0.169057" ny="-0.970064" nz="0.174343" u="0.63802" v="0.229462">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.174278" y="-0.173313" z="0.424799" r="1" g="1" b="1" a="1" nx="0.642797" ny="-0.76601" nz="-0.00635097" u="0.619279" v="0.224565">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.172272" y="-0.175314" z="0.439491" r="1" g="1" b="1" a="1" nx="0.561241" ny="-0.777466" nz="0.283822" u="0.619346" v="0.228566">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.243926" y="-0.0618575" z="0.463273" r="1" g="1" b="1" a="1" nx="-0.856643" ny="-0.3378" nz="0.389942" u="0.200238" v="0.228734">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.248839" y="-0.0543208" z="0.436169" r="1" g="1" b="1" a="1" nx="-0.957282" ny="-0.24014" nz="0.161071" u="0.200769" v="0.221704">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.191989" y="-0.128169" z="0.429112" r="1" g="1" b="1" a="1" nx="-0.794657" ny="-0.606249" nz="-0.0313457" u="0.175193" v="0.227413">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.243926" y="-0.0618575" z="0.463273" r="1" g="1" b="1" a="1" nx="-0.856643" ny="-0.3378" nz="0.389942" u="0.200238" v="0.228734">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.191989" y="-0.128169" z="0.429112" r="1" g="1" b="1" a="1" nx="-0.794657" ny="-0.606249" nz="-0.0313457" u="0.175193" v="0.227413">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.191246" y="-0.129818" z="0.436271" r="1" g="1" b="1" a="1" nx="-0.694124" ny="-0.678497" nz="0.240487" u="0.175244" v="0.229693">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.191246" y="-0.129818" z="0.436271" r="1" g="1" b="1" a="1" nx="-0.764737" ny="-0.591993" nz="0.254404" u="0.153546" v="0.22739">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.191989" y="-0.128169" z="0.429112" r="1" g="1" b="1" a="1" nx="-0.791304" ny="-0.610377" nz="-0.035739" u="0.15369" v="0.225099">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.13929" y="-0.196373" z="0.422595" r="1" g="1" b="1" a="1" nx="-0.530414" ny="-0.845092" nz="-0.0669433" u="0.128786" v="0.225013">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.191246" y="-0.129818" z="0.436271" r="1" g="1" b="1" a="1" nx="-0.764737" ny="-0.591993" nz="0.254404" u="0.153546" v="0.22739">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.13929" y="-0.196373" z="0.422595" r="1" g="1" b="1" a="1" nx="-0.530414" ny="-0.845092" nz="-0.0669433" u="0.128786" v="0.225013">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.138953" y="-0.196739" z="0.425909" r="1" g="1" b="1" a="1" nx="-0.470729" ny="-0.853395" nz="0.223899" u="0.128786" v="0.225876">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.231516" y="0.102298" z="0.50964" r="1" g="1" b="1" a="1" nx="-0.801804" ny="0.23115" nz="0.551072" u="0.271445" v="0.228698">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.242124" y="0.123214" z="0.453133" r="1" g="1" b="1" a="1" nx="-0.852452" ny="0.36613" nz="0.373195" u="0.27046" v="0.213406">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.244287" y="0.0149822" z="0.442791" r="1" g="1" b="1" a="1" nx="-0.972114" ny="-0.0353069" nz="0.231836" u="0.242234" v="0.223373">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.231516" y="0.102298" z="0.50964" r="1" g="1" b="1" a="1" nx="-0.801804" ny="0.23115" nz="0.551072" u="0.271445" v="0.228698">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.244287" y="0.0149822" z="0.442791" r="1" g="1" b="1" a="1" nx="-0.972114" ny="-0.0353069" nz="0.231836" u="0.242234" v="0.223373">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.23239" y="0.00513998" z="0.475966" r="1" g="1" b="1" a="1" nx="-0.892638" ny="-0.141814" nz="0.427885" u="0.244154" v="0.234311">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.23239" y="0.00513998" z="0.475966" r="1" g="1" b="1" a="1" nx="-0.866" ny="0.0663593" nz="0.495622" u="0.219857" v="0.23207">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.244287" y="0.0149822" z="0.442791" r="1" g="1" b="1" a="1" nx="-0.955175" ny="0.0720539" nz="0.287139" u="0.221131" v="0.221025">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.248839" y="-0.0543208" z="0.436169" r="1" g="1" b="1" a="1" nx="-0.957282" ny="-0.24014" nz="0.161071" u="0.200769" v="0.221704">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.23239" y="0.00513998" z="0.475966" r="1" g="1" b="1" a="1" nx="-0.866" ny="0.0663593" nz="0.495622" u="0.219857" v="0.23207">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.248839" y="-0.0543208" z="0.436169" r="1" g="1" b="1" a="1" nx="-0.957282" ny="-0.24014" nz="0.161071" u="0.200769" v="0.221704">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.243926" y="-0.0618575" z="0.463273" r="1" g="1" b="1" a="1" nx="-0.856643" ny="-0.3378" nz="0.389942" u="0.200238" v="0.228734">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.15187" y="0.163622" z="0.525524" r="1" g="1" b="1" a="1" nx="-0.628853" ny="0.477381" nz="0.613719" u="0.324221" v="0.233446">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0772688" y="0.238241" z="0.549631" r="1" g="1" b="1" a="1" nx="-0.284664" ny="0.679838" nz="0.67586" u="0.353313" v="0.228134">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0821847" y="0.278364" z="0.468405" r="1" g="1" b="1" a="1" nx="-0.307591" ny="0.81532" nz="0.490551" u="0.353833" v="0.205613">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0821847" y="0.278364" z="0.468405" r="1" g="1" b="1" a="1" nx="-0.307591" ny="0.81532" nz="0.490551" u="0.353833" v="0.205613">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0850401" y="0.276037" z="0.467735" r="1" g="1" b="1" a="1" nx="-0.672603" ny="0.614059" nz="0.412961" u="0.352775" v="0.205606">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.167361" y="0.199497" z="0.460422" r="1" g="1" b="1" a="1" nx="-0.672603" ny="0.614059" nz="0.412961" u="0.321663" v="0.209991">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0821847" y="0.278364" z="0.468405" r="1" g="1" b="1" a="1" nx="-0.307591" ny="0.81532" nz="0.490551" u="0.353833" v="0.205613">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.167361" y="0.199497" z="0.460422" r="1" g="1" b="1" a="1" nx="-0.672603" ny="0.614059" nz="0.412961" u="0.321663" v="0.209991">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.15187" y="0.163622" z="0.525524" r="1" g="1" b="1" a="1" nx="-0.628853" ny="0.477381" nz="0.613719" u="0.324221" v="0.233446">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.15187" y="0.163622" z="0.525524" r="1" g="1" b="1" a="1" nx="-0.56163" ny="0.548877" nz="0.619117" u="0.299028" v="0.233093">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.167361" y="0.199497" z="0.460422" r="1" g="1" b="1" a="1" nx="-0.634675" ny="0.638982" nz="0.434614" u="0.300864" v="0.209577">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.242124" y="0.123214" z="0.453133" r="1" g="1" b="1" a="1" nx="-0.852452" ny="0.36613" nz="0.373195" u="0.27046" v="0.213406">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.15187" y="0.163622" z="0.525524" r="1" g="1" b="1" a="1" nx="-0.56163" ny="0.548877" nz="0.619117" u="0.299028" v="0.233093">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.242124" y="0.123214" z="0.453133" r="1" g="1" b="1" a="1" nx="-0.852452" ny="0.36613" nz="0.373195" u="0.27046" v="0.213406">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.231516" y="0.102298" z="0.50964" r="1" g="1" b="1" a="1" nx="-0.801804" ny="0.23115" nz="0.551072" u="0.271445" v="0.228698">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0951849" y="0.213752" z="0.545301" r="1" g="1" b="1" a="1" nx="0.386765" ny="0.655796" nz="0.64834" u="0.421745" v="0.23447">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.102777" y="0.264645" z="0.466647" r="1" g="1" b="1" a="1" nx="0.26156" ny="0.79903" nz="0.541422" u="0.42112" v="0.209753">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.00669949" y="0.272699" z="0.467484" r="1" g="1" b="1" a="1" nx="0.0870851" ny="0.839252" nz="0.536724" u="0.394509" v="0.20937">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.0951849" y="0.213752" z="0.545301" r="1" g="1" b="1" a="1" nx="0.386765" ny="0.655796" nz="0.64834" u="0.421745" v="0.23447">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.00669949" y="0.272699" z="0.467484" r="1" g="1" b="1" a="1" nx="0.0870851" ny="0.839252" nz="0.536724" u="0.394509" v="0.20937">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.00930461" y="0.224402" z="0.544767" r="1" g="1" b="1" a="1" nx="0.0352855" ny="0.76133" nz="0.647403" u="0.397343" v="0.236164">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.0821847" y="0.278364" z="0.468405" r="1" g="1" b="1" a="1" nx="0.00800648" ny="0.265688" nz="-0.964026" u="0.617415" v="0.11644">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.00669949" y="0.272699" z="0.467484" r="1" g="1" b="1" a="1" nx="0.00692755" ny="0.265346" nz="-0.964128" u="0.617415" v="0.11644">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="-0.0813179" y="0.275842" z="0.467717" r="1" g="1" b="1" a="1" nx="0.00775487" ny="0.265608" nz="-0.96405" u="0.617415" v="0.11644">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.223253" y="0.105501" z="0.522743" r="1" g="1" b="1" a="1" nx="0.790446" ny="0.260875" nz="0.554201" u="0.494585" v="0.23084">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.235567" y="0.130842" z="0.453862" r="1" g="1" b="1" a="1" nx="0.852384" ny="0.387418" nz="0.351209" u="0.494002" v="0.212192">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.159573" y="0.207365" z="0.461174" r="1" g="1" b="1" a="1" nx="0.627637" ny="0.650695" nz="0.427396" u="0.463718" v="0.209267">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.223253" y="0.105501" z="0.522743" r="1" g="1" b="1" a="1" nx="0.790446" ny="0.260875" nz="0.554201" u="0.494585" v="0.23084">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.159573" y="0.207365" z="0.461174" r="1" g="1" b="1" a="1" nx="0.627637" ny="0.650695" nz="0.427396" u="0.463718" v="0.209267">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.145092" y="0.168859" z="0.528845" r="1" g="1" b="1" a="1" nx="0.546885" ny="0.567087" nz="0.615897" u="0.466204" v="0.233522">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.145092" y="0.168859" z="0.528845" r="1" g="1" b="1" a="1" nx="0.664823" ny="0.475722" nz="0.575933" u="0.440891" v="0.237281">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.159573" y="0.207365" z="0.461174" r="1" g="1" b="1" a="1" nx="0.66128" ny="0.591611" nz="0.461201" u="0.443275" v="0.214054">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.102777" y="0.264645" z="0.466647" r="1" g="1" b="1" a="1" nx="0.26156" ny="0.79903" nz="0.541422" u="0.42112" v="0.209753">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.145092" y="0.168859" z="0.528845" r="1" g="1" b="1" a="1" nx="0.664823" ny="0.475722" nz="0.575933" u="0.440891" v="0.237281">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.102777" y="0.264645" z="0.466647" r="1" g="1" b="1" a="1" nx="0.26156" ny="0.79903" nz="0.541422" u="0.42112" v="0.209753">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.0951849" y="0.213752" z="0.545301" r="1" g="1" b="1" a="1" nx="0.386765" ny="0.655796" nz="0.64834" u="0.421745" v="0.23447">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.246437" y="-0.0575522" z="0.476988" r="1" g="1" b="1" a="1" nx="0.863982" ny="-0.283611" nz="0.416054" u="0.559706" v="0.230243">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.254172" y="-0.0482749" z="0.436746" r="1" g="1" b="1" a="1" nx="0.971243" ny="-0.168561" nz="0.16815" u="0.559981" v="0.219567">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.238523" y="0.0267117" z="0.443912" r="1" g="1" b="1" a="1" nx="0.947173" ny="0.190291" nz="0.258171" u="0.538223" v="0.218374">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.246437" y="-0.0575522" z="0.476988" r="1" g="1" b="1" a="1" nx="0.863982" ny="-0.283611" nz="0.416054" u="0.559706" v="0.230243">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.238523" y="0.0267117" z="0.443912" r="1" g="1" b="1" a="1" nx="0.947173" ny="0.190291" nz="0.258171" u="0.538223" v="0.218374">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.227678" y="0.0113714" z="0.489983" r="1" g="1" b="1" a="1" nx="0.865144" ny="0.128195" nz="0.484862" u="0.539973" v="0.233565">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.227678" y="0.0113714" z="0.489983" r="1" g="1" b="1" a="1" nx="0.901717" ny="-0.0911858" nz="0.422601" u="0.521727" v="0.235019">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.238523" y="0.0267117" z="0.443912" r="1" g="1" b="1" a="1" nx="0.98067" ny="-0.0056217" nz="0.19559" u="0.522847" v="0.219447">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.235567" y="0.130842" z="0.453862" r="1" g="1" b="1" a="1" nx="0.852384" ny="0.387418" nz="0.351209" u="0.494002" v="0.212192">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="0.227678" y="0.0113714" z="0.489983" r="1" g="1" b="1" a="1" nx="0.901717" ny="-0.0911858" nz="0.422601" u="0.521727" v="0.235019">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.235567" y="0.130842" z="0.453862" r="1" g="1" b="1" a="1" nx="0.852384" ny="0.387418" nz="0.351209" u="0.494002" v="0.212192">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+            <vertex x="0.223253" y="0.105501" z="0.522743" r="1" g="1" b="1" a="1" nx="0.790446" ny="0.260875" nz="0.554201" u="0.494585" v="0.23084">
+                <skin bone="peon Pelvis" weight="1"/>
+            </vertex>
+        </polygon>
+    </polygons>
+</mesh>
