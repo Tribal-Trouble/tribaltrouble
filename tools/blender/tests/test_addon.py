@@ -409,12 +409,13 @@ def new_decoration_writes_its_terrain_count_and_event():
     patch = fixture_mesh("pumpkin_patch", fixture_image("test_patch_tex"), 0, "cube")
     plain = fixture_mesh("test_stones", fixture_image("test_stones_tex"), 3, "cube")
     assert bpy.ops.object.tt_new_event(event_name=" Halloween") == {"FINISHED"}
-    assert bpy.ops.object.tt_register_model(mesh=patch.name, sprite_name="test_patch", scatter=True, ground="grass",
-                                            count=12, event="halloween") == {"FINISHED"}
+    assert bpy.ops.object.tt_register_model(mesh=patch.name, sprite_name="test_patch", scatter=True, grass=True,
+                                            dirt=True, beach=False, snow=False, land=False, count=12,
+                                            event="halloween") == {"FINISHED"}
     assert bpy.ops.object.tt_register_model(mesh=plain.name, sprite_name="test_stones", scatter=True,
-                                            ground="land") == {"FINISHED"}
+                                            land=True) == {"FINISHED"}
     text = open(registry_path, encoding="utf-8").read()
-    assert '<sprite name="test_patch" decoration="grass" count="12" event="halloween">' in text
+    assert '<sprite name="test_patch" decoration="grass,dirt" count="12" event="halloween">' in text
     assert '<sprite name="test_stones" decoration="land" count="20">' in text
     assert entry("misc", "test_patch")["models"] == ["misc/test_patch/test_patch.xml"]
     assert os.path.isfile(os.path.join(MODELS, "test_patch_tex.png"))
@@ -1952,7 +1953,8 @@ def the_skin_and_decoration_forms_and_the_list_rows_offer_what_they_should():
     assert ("confirm", "object.tt_new_skin", "OK", True) in form(addon.NewSkin, **{**skin, "skin_name": "red",
                                                                                     "event": "halloween"})
     decoration = dict(mesh="", sprite_name="", scatter=True, group="misc", low_detail="", half_built="",
-                      half_built_low="", start="", start_low="", ground="grass", count=20, event="ALL_YEAR")
+                      half_built_low="", start="", start_low="", grass=True, dirt=False, beach=False, snow=False, land=False, count=20,
+                      event="ALL_YEAR")
     assert ("confirm", "object.tt_register_model", "OK", False) in form(addon.RegisterModel, **decoration)
     own = fixture_mesh("test_form_patch", fixture_image("test_form_patch_tex"), kind="cube")
     picked = form(addon.RegisterModel, **{**decoration, "mesh": own.name, "sprite_name": own.name})
@@ -2035,9 +2037,10 @@ def new_model_scatters_a_decoration_only_when_asked():
     assert addon.RegisterModel.bl_label == "New Model..." and not hasattr(addon, "NewDecoration")
     assert addon.NewItem.bl_label == addon.NewProp.bl_label == "New Prop..."
     assert bpy.ops.object.tt_register_model(mesh=mesh.name, sprite_name="test_either_model", group="misc",
-                                            ground="snow", count=5) == {"FINISHED"}
+                                            snow=True, count=5) == {"FINISHED"}
     assert bpy.ops.object.tt_register_model(mesh=mesh.name, sprite_name="test_either_scatter", scatter=True,
-                                            ground="snow", count=5) == {"FINISHED"}
+                                            grass=False, dirt=False, beach=False, snow=True, land=False,
+                                            count=5) == {"FINISHED"}
     text = open(registry_path, encoding="utf-8").read()
     assert '<sprite name="test_either_model">' in text, "a model that is not scattered got a decoration"
     assert '<sprite name="test_either_scatter" decoration="snow" count="5">' in text

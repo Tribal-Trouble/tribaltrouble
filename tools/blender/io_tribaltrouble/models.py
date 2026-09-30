@@ -365,7 +365,7 @@ def registry_group_items(self, context):
     return _group_items
 
 
-# Landscape.Ground names the game scatters decorations on; land is any of them.
+# Landscape.Ground names the game scatters decorations on, one checkbox each; land is any of them.
 DECORATION_GROUNDS = (
     ("grass", "Grass", ""),
     ("dirt", "Dirt", ""),
@@ -373,6 +373,23 @@ DECORATION_GROUNDS = (
     ("snow", "Snow", "Viking maps only"),
     ("land", "Any land", "Any ground above the sea"),
 )
+
+
+def chosen_terrain(op):
+    """The decoration= value a form's terrain checkboxes pick: the ticked grounds, comma separated."""
+    if op.land:
+        return "land"
+    return ",".join(key for key, _, _ in DECORATION_GROUNDS if key != "land" and getattr(op, key))
+
+
+def draw_terrain(layout, op):
+    split = layout.split(factor=0.4)
+    split.label(text="Terrain:")
+    column = split.column(align=True)
+    for key, _, _ in DECORATION_GROUNDS:
+        cell = column.row()
+        cell.enabled = key == "land" or not op.land
+        cell.prop(op, key)
 
 
 def mesh_names_sprite(self, context):
@@ -400,7 +417,11 @@ class RegisterModel(bpy.types.Operator):
     start: StringProperty(name="Start", description="Building only: mesh for the construction site, registered "
                                                     "as <name>_start")
     start_low: StringProperty(name="Start Low Detail")
-    ground: EnumProperty(name="Terrain", items=DECORATION_GROUNDS, description="Ground the game scatters it on")
+    grass: BoolProperty(name="Grass", default=True)
+    dirt: BoolProperty(name="Dirt")
+    beach: BoolProperty(name="Beach", description="Sand on native maps, gravel on viking maps")
+    snow: BoolProperty(name="Snow", description="Viking maps only")
+    land: BoolProperty(name="Any land", description="Any ground above the sea")
     count: IntProperty(name="Count", default=20, min=1, max=1000, description="How many the game scatters over a map")
     event: event_property()
 
@@ -420,7 +441,7 @@ class RegisterModel(bpy.types.Operator):
         layout.prop(self, "sprite_name")
         layout.prop(self, "scatter")
         if self.scatter:
-            layout.prop(self, "ground")
+            draw_terrain(layout, self)
             layout.prop(self, "count")
             draw_event(layout, self)
         else:
@@ -440,6 +461,8 @@ class RegisterModel(bpy.types.Operator):
                 for prop in ("half_built", "half_built_low", "start", "start_low"):
                     box.prop_search(self, prop, bpy.data, "objects")
         problem = mesh_problem(self.mesh)
+        if problem is None and self.scatter and not chosen_terrain(self):
+            problem = "Pick a terrain"
         draw_confirm(layout, self, name_problem(self.sprite_name) if problem is None else problem)
 
     def execute(self, context):
@@ -451,6 +474,9 @@ class RegisterModel(bpy.types.Operator):
         name = self.sprite_name.strip()
         if not re.fullmatch(r"[A-Za-z0-9_]+", name):
             self.report({"ERROR"}, "Give the model a name made of letters, digits and underscores")
+            return {"CANCELLED"}
+        if self.scatter and not chosen_terrain(self):
+            self.report({"ERROR"}, "Pick a terrain")
             return {"CANCELLED"}
         if self.scatter:
             arm, group, base = None, SCENERY_GROUP, None
@@ -543,7 +569,7 @@ class RegisterModel(bpy.types.Operator):
         extra = [("base", base)] if base is not None else []
         if self.scatter:
             event = chosen_event(self)
-            extra = [("decoration", self.ground), ("count", str(self.count))] + ([("event", event)] if event else [])
+            extra = [("decoration", chosen_terrain(self)), ("count", str(self.count))] + ([("event", event)] if event else [])
         entries = [(sprite, sprite_text([("name", sprite)] + extra, models, skeleton, clips))
                    for sprite, models in stage_models]
         append_registry_entries(os.path.join(root, REGISTRY_FILE), group, entries)
