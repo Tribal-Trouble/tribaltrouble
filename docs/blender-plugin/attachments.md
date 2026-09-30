@@ -112,11 +112,11 @@ Both kinds are render-only: an event skin keeps the stock sprite's bounds and cl
 A decoration is a static sprite the game scatters over every generated map, for example pumpkin patches during Halloween. It is scenery only: units walk through it, it never enters the simulation, and players in one game may see different decorations.
 
 ```xml
-<sprite name="pumpkin_patch" decoration="grass" count="12" event="halloween">
+<sprite name="pumpkin_patch" decoration="grass,dirt" count="12" event="halloween">
 <sprite name="pumpkin" decoration="land">
 ```
 
-- `decoration` is the ground it stands on:
+- `decoration` is the ground it stands on, one or more comma separated:
   - `grass`: the grass layer.
   - `dirt`: dirt on native maps, soil on viking maps.
   - `beach`: the base layer near the water, sand on native maps and gravel on viking maps.

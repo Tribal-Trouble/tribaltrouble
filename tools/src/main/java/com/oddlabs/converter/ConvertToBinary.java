@@ -152,10 +152,10 @@ public final class ConvertToBinary {
 
     // group name ground count event: one line per sprite the game scatters over the map as scenery.
     private static @NonNull String decorationLine(@NonNull String group, @NonNull Node sprite, @NonNull String ground) {
-        if (!DECORATION_GROUNDS.contains(ground))
+        if (!DECORATION_GROUNDS.containsAll(List.of(ground.split(",", -1))))
             throw new RuntimeException("Sprite " + getName(
-                    sprite) + " has decoration=\"" + ground + "\"; use one of " + String.join(", ",
-                            DECORATION_GROUNDS.stream().sorted().toList()));
+                    sprite) + " has decoration=\"" + ground + "\"; use one or more of " + String.join(", ",
+                            DECORATION_GROUNDS.stream().sorted().toList()) + ", comma separated");
         if (sprite.getAttributes().getNamedItem("slot") != null || sprite.getAttributes().getNamedItem("skin") != null)
             throw new RuntimeException("Sprite " + getName(
                     sprite) + " cannot be a decoration and an attachment or skin");

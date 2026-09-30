@@ -9,7 +9,6 @@ import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.resource.SpriteFile;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,16 +16,18 @@ import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 
 // Render-only scenery scattered by its own random, so it never touches the simulation or its checksum.
 public final class Decorations {
     private static final String DECORATIONS_FILE = "/geometry/decorations.txt";
     private static final String ANY_GROUND = "land";
 
-    private record Decoration(@NonNull SpriteKey sprite, Landscape.@Nullable Ground ground, int count) {
+    private record Decoration(@NonNull SpriteKey sprite, @NonNull Set<Landscape.Ground> grounds, int count) {
     }
 
     private final @NonNull List<Decoration> decorations = new ArrayList<>();
@@ -39,14 +40,21 @@ public final class Decorations {
                     f -> decorations.add(new Decoration(queues.register(new SpriteFile(
                             "/geometry/" + f[0] + "/" + f[1] + ".binsprite", Globals.NO_MIPMAP_CUTOFF, true, false,
                             true, true, true)),
-                            ground(f[2]), Integer.parseInt(f[3]))));
+                            grounds(f[2]), Integer.parseInt(f[3]))));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private static Landscape.@Nullable Ground ground(@NonNull String name) {
-        return name.equals(ANY_GROUND) ? null : Landscape.Ground.valueOf(name.toUpperCase(Locale.ROOT));
+    // Comma separated ground names; empty means any land.
+    private static @NonNull Set<Landscape.Ground> grounds(@NonNull String names) {
+        Set<Landscape.Ground> grounds = EnumSet.noneOf(Landscape.Ground.class);
+        for (String name : names.split(",")) {
+            if (name.equals(ANY_GROUND))
+                return EnumSet.noneOf(Landscape.Ground.class);
+            grounds.add(Landscape.Ground.valueOf(name.toUpperCase(Locale.ROOT)));
+        }
+        return grounds;
     }
 
     public void place(@NonNull World world, byte @NonNull [] @NonNull [] ground, int seed) {
@@ -63,7 +71,7 @@ public final class Decorations {
         }
         Random random = new Random(seed);
         for (Decoration decoration : decorations) {
-            for (float[] spot : scatter(random, ground, open, decoration.ground(), decoration.count()))
+            for (float[] spot : scatter(random, ground, open, decoration.grounds(), decoration.count()))
                 new Plants(world, spot[0], spot[1], spot[2], spot[3], decoration.sprite());
         }
     }
@@ -71,13 +79,13 @@ public final class Decorations {
     // Each spot is x, y, dir_x, dir_y; the cells it takes are closed in open.
     static @NonNull List<float @NonNull []> scatter(@NonNull Random random,
             byte @NonNull [] @NonNull [] ground, boolean @NonNull [] @NonNull [] open,
-            Landscape.@Nullable Ground wanted, int count) {
+            @NonNull Set<Landscape.Ground> wanted, int count) {
         int size = open.length;
         int[] cells = new int[size * size];
         int num_cells = 0;
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
-                if (open[y][x] && (wanted == null || ground[y][x] == wanted.ordinal()))
+                if (open[y][x] && onGround(wanted, ground[y][x]))
                     cells[num_cells++] = y * size + x;
             }
         }
@@ -95,5 +103,9 @@ public final class Decorations {
             spots.add(new float[]{x, y, (float) Math.cos(angle), (float) Math.sin(angle)});
         }
         return spots;
+    }
+
+    private static boolean onGround(@NonNull Set<Landscape.Ground> wanted, byte cell) {
+        return wanted.isEmpty() || wanted.stream().anyMatch(g -> g.ordinal() == cell);
     }
 }
