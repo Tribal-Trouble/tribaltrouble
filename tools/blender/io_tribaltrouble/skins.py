@@ -159,7 +159,7 @@ class NewSkin(bpy.types.Operator):
                               description="Letters, digits and underscores. Pick a name other models already use "
                                           "to add this model to that skin")
     item: StringProperty(options={"SKIP_SAVE"}, description="The item to make the skin for; blank for the model")
-    mesh: StringProperty(name="Mesh", search=own_mesh_search, options={"SKIP_SAVE"},
+    mesh: StringProperty(name="Different mesh (optional)", search=own_mesh_search, options={"SKIP_SAVE"},
                          description="Blank to reshape or repaint the model itself. One of your own meshes to use "
                                      "as the skin's shape instead")
     snap: BoolProperty(name="Snap", default=True, options={"SKIP_SAVE"},
