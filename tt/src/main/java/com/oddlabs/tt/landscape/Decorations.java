@@ -39,7 +39,7 @@ public final class Decorations {
             reader.lines().map(line -> line.split(" ")).filter(f -> RacesResources.isEventActive(f[4])).forEach(
                     f -> decorations.add(new Decoration(queues.register(new SpriteFile(
                             "/geometry/" + f[0] + "/" + f[1] + ".binsprite", Globals.NO_MIPMAP_CUTOFF, true, false,
-                            true, true, true)),
+                            true, false, true)),
                             grounds(f[2]), Integer.parseInt(f[3]))));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
