@@ -330,6 +330,14 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             } else {
                 shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_NORMAL_MAP, false);
             }
+
+            if (sprite.hasEmissive(key.texIndex)) {
+                shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_EMISSIVE, true);
+                context.setTexture(3, sprite.textures[key.texIndex][Sprite.TEXTURE_EMISSIVE]);
+                shader.setUniform(InstancedSpriteShader.Uniforms.EMISSIVE_MAP, 3);
+            } else {
+                shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_EMISSIVE, false);
+            }
         }
 
         void clear() {

@@ -11,10 +11,12 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
         String TEXTURE_0 = "u_texture0";
         String TEXTURE_1 = "u_texture1";
         String NORMAL_MAP = "u_normalMap";
+        String EMISSIVE_MAP = "u_emissiveMap";
         String VERT_BUFFER = "u_VertBuffer";
         String ENABLE_LIGHTING = "u_enableLighting";
         String ENABLE_TEAM_COLOR = "u_enableTeamColor";
         String ENABLE_NORMAL_MAP = "u_enableNormalMap";
+        String ENABLE_EMISSIVE = "u_enableEmissive";
         String MODULATE_COLOR = "u_modulateColor";
         String REPLACE_MODE = "u_replaceMode";
         String DESATURATE = "u_desaturate";
@@ -116,8 +118,10 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
             uniform sampler2D u_texture0;
             uniform sampler2D u_texture1;
             uniform sampler2D u_normalMap;
+            uniform sampler2D u_emissiveMap;
             uniform bool u_enableTeamColor;
             uniform bool u_enableNormalMap;
+            uniform bool u_enableEmissive;
             uniform bool u_enableLighting;
             uniform bool u_modulateColor;
             uniform bool u_replaceMode;
@@ -186,6 +190,12 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
                         if (base.a > 0.1) {
                             out_MaskColor = v_decalColor;
                         }
+                    }
+
+                    // Glow ignores the light; see-through pixels add nothing, as in Blender.
+                    if (u_enableEmissive) {
+                        vec4 glow = texture(u_emissiveMap, v_texCoord0);
+                        finalColor.rgb += glow.rgb * glow.a;
                     }
 
                     if (finalColor.a <= u_alphaTestValue) discard;

@@ -26,6 +26,8 @@ public final class Sprite {
     static final int TEXTURE_NORMAL = 0;
     static final int TEXTURE_TEAM = 1;
     static final int TEXTURE_BUMP = 2;
+    static final int TEXTURE_EMISSIVE = 3;
+    private static final int EMISSIVE_NAME = 2; // texture names are name, team, emissive
     private static final String GENERATOR_STRING = "Generator:";
 
     final Texture @NonNull [] @NonNull [] textures;
@@ -108,7 +110,7 @@ public final class Sprite {
         int color_format = alpha ? Globals.COMPRESSED_RGBA_FORMAT : Globals.COMPRESSED_RGB_FORMAT;
 
         String[][] texture_names = sprite_info.getTextures();
-        textures = new Texture[texture_names.length][3];
+        textures = new Texture[texture_names.length][4];
         for (int i = 0; i < texture_names.length; i++) {
             Texture[] diffuseAndBump = getTextureForName(texture_names[i][0], color_format, mipmap_cutoff, max_alpha);
             textures[i][TEXTURE_NORMAL] = diffuseAndBump[0];
@@ -118,6 +120,9 @@ public final class Sprite {
 
             textures[i][TEXTURE_TEAM] = texture_names[i][TEXTURE_TEAM] != null ? getTextureForName(texture_names[i][1],
                     Globals.COMPRESSED_RGB_FORMAT, mipmap_cutoff, max_alpha)[0] : null;
+            textures[i][TEXTURE_EMISSIVE] = texture_names[i].length > EMISSIVE_NAME ? getTextureForName(
+                    texture_names[i][EMISSIVE_NAME], Globals.COMPRESSED_RGBA_FORMAT, mipmap_cutoff,
+                    max_alpha)[0] : null;
         }
         this.respond_texture = Resources.findResource(new GeneratorRespond())[0];
     }
@@ -254,6 +259,11 @@ public final class Sprite {
     public boolean hasBumpMap(int tex_index) {
         return textures.length > tex_index && textures[tex_index].length > TEXTURE_BUMP
                 && textures[tex_index][TEXTURE_BUMP] != null;
+    }
+
+    public boolean hasEmissive(int tex_index) {
+        return textures.length > tex_index && textures[tex_index].length > TEXTURE_EMISSIVE
+                && textures[tex_index][TEXTURE_EMISSIVE] != null;
     }
 
     public int getNumTextures() {

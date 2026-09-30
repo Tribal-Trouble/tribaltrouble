@@ -240,7 +240,11 @@ public final class ConvertToBinary {
                     team_name = team_node.getNodeValue();
                 else
                     team_name = null;
-                object_infos.add(new String[]{name, team_name});
+                Node emissive_node = item.getAttributes().getNamedItem("emissive");
+                if (emissive_node != null)
+                    object_infos.add(new String[]{name, team_name, emissive_node.getNodeValue()});
+                else
+                    object_infos.add(new String[]{name, team_name});
             }
         }
         String[][] infos = new String[object_infos.size()][];

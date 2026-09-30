@@ -28,6 +28,7 @@
         <!ATTLIST animation type CDATA #REQUIRED>
         <!ATTLIST texture name CDATA #REQUIRED>
         <!ATTLIST texture team CDATA #IMPLIED>
+        <!ATTLIST texture emissive CDATA #IMPLIED>
         <!ATTLIST texture event CDATA #IMPLIED>
         ]>
 
