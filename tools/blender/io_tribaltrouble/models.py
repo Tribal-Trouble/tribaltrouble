@@ -393,7 +393,7 @@ def draw_terrain(layout, op):
 
 
 def mesh_names_sprite(self, context):
-    self.sprite_name = self.mesh
+    self.sprite_name = re.sub(r"[^A-Za-z0-9_]+", "_", self.mesh).strip("_").lower()
 
 
 class RegisterModel(bpy.types.Operator):
