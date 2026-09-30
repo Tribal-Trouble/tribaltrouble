@@ -7,7 +7,7 @@ import bpy
 from bpy.props import StringProperty, BoolProperty, PointerProperty
 from mathutils import Vector
 
-from .textures import apply_team_preview, mesh_texture_image, object_texture
+from .textures import apply_team_preview, mesh_texture_image, models_texture_path, object_texture, show_emission
 from .mesh_io import bone_tail_matrices, import_mesh_file, mesh_xml_text, rest_pose_armatures, STATIC_BONE, write_text
 from .rig import (apply_clip, armature_actions, armature_from_file, assign_action, bind_meshes, build_armature,
                   clip_keys, read_animation, read_skeleton, shown_bones)
@@ -213,7 +213,8 @@ def file_clashes(targets):
 def load_sprite_models(context, geometry, sprite, report):
     """Every model of a registry sprite as browser objects, high detail first; the lower levels start hidden."""
     levels = []
-    for model, textures in zip(sprite["models"], sprite["textures"]):
+    for model, textures, glow in zip(sprite["models"], sprite["textures"],
+                                     sprite.get("emissive") or [""] * len(sprite["models"])):
         path = os.path.join(geometry, model)
         registry_texture = ",".join(name for name, event in textures if not event)
         obj = import_mesh_file(context, path, False, True, report, registry_texture)
@@ -221,6 +222,8 @@ def load_sprite_models(context, geometry, sprite, report):
             if not levels:
                 return []
             continue
+        if glow:
+            show_emission(obj, models_texture_path(os.path.dirname(os.path.dirname(geometry)), glow))
         if levels:
             obj.name = f"{levels[0].name}_lod{len(levels)}"
         obj[BROWSER_TAG] = True

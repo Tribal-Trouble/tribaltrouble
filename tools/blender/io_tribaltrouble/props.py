@@ -7,13 +7,14 @@ import bpy
 import numpy as np
 from bpy.props import StringProperty, BoolProperty, EnumProperty
 
-from .textures import (apply_team_preview, crop_pixels, decal_texture_path, ensure_texture_in_repo, get_atlas_material,
+from .textures import (apply_team_preview, crop_pixels, decal_texture_path, ensure_emission_in_repo, ensure_texture_in_repo,
+                       get_atlas_material,
                        material_image_name, mesh_texture_image, MIP_PAD, models_texture_path, race_texture_name,
                        short_labels, texture_names)
 from .mesh_io import write_mesh_xml
 from .rig import active_armature, item_hidden_here, POINT_LABELS
 from .registry import (append_registry_entries, CARRY_SLOT, GEOMETRY_DIR, PROP_SLOT, read_registry, REGISTRY_FILE,
-                       repo_root, sprite_text, team_attribute)
+                       repo_root, sprite_text, team_attribute, emissive_attribute)
 from .scene import (attachment_obj_poll, browsed_unit, BROWSER_TAG, export_texts, file_clashes, item_shown,
                     model_levels, refresh_skins, set_item_visible, skin_item, snap_to_bone, unit_items, write_changed)
 from .publish import check_mesh, publish_paint, store_findings, texture_clashes
@@ -645,11 +646,13 @@ def publish_props(op, context, fresh, event, base=None):
         write_mesh_xml([o], [None], path, texture, False, depsgraph, use_groups=False)
         if not ensure_texture_in_repo(root, o, texture):
             missing.append(texture)
+        ensure_emission_in_repo(root, o)
         sprite = f"{base}_{o.name}"
         model = os.path.relpath(path, geometry).replace(os.sep, "/")
         entries.append((sprite, sprite_text([("name", sprite), ("base", base), ("slot", PROP_SLOT)] +
                                             ([("event", event)] if event else []),
-                                            [(model, [(texture, team_attribute(root, texture, False))])])))
+                                            [(model, [(texture, team_attribute(root, texture, False) +
+                                                                emissive_attribute(o))])])))
         world = o.matrix_world.copy()
         o.parent = body
         o.matrix_world = world

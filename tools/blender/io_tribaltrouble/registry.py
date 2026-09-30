@@ -7,7 +7,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 import bpy
 
-from .textures import decal_texture_path, find_up, texture_names
+from .textures import decal_texture_path, emission_image, find_up, image_texture_name, texture_names
 from .rig import GAME_SLOTS
 
 
@@ -61,7 +61,7 @@ def registry_entries(context, arm, base, group=""):
             continue
         obj = slot.obj
         game_slot = item_slot(slot.point, group)
-        textures = [(t, team_attribute(root, t, bool(obj.get("tt_texture"))))
+        textures = [(t, team_attribute(root, t, bool(obj.get("tt_texture"))) + emissive_attribute(obj))
                     for t in texture_names(obj) or ["TEXTURE"]]
         model = f"misc/{obj.name}.xml"
         if root and arm.get("tt_skeleton"):
@@ -123,6 +123,8 @@ def read_registry(root):
                 "decoration": sprite.get("decoration") or "",
                 "replaces": sprite.get("replaces") or "",
                 "textures": [[(t.get("name"), t.get("event") or "") for t in m.findall("texture")]
+                             for m in sprite.findall("model")],
+                "emissive": [next((t.get("emissive") for t in m.findall("texture") if t.get("emissive")), "")
                              for m in sprite.findall("model")],
                 "skeleton": skeleton.text.strip() if skeleton is not None and skeleton.text else "",
                 "models": [(m.text or "").strip() for m in sprite.findall("model")],
@@ -197,6 +199,11 @@ def team_attribute(root, texture, fallback):
     if root:
         fallback = os.path.isfile(decal_texture_path(root, texture)) or texture + "_team" in bpy.data.images
     return f' team="{texture}_team"' if fallback else ""
+
+
+def emissive_attribute(obj):
+    image = emission_image(obj)
+    return f" emissive={quoteattr(image_texture_name(image))}" if image is not None else ""
 
 
 def append_registry_entries(registry_path, group, entries):

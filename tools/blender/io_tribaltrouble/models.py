@@ -8,12 +8,12 @@ import sys
 import bpy
 from bpy.props import StringProperty, BoolProperty, EnumProperty, IntProperty
 
-from .textures import ensure_texture_in_repo, material_image_name
+from .textures import ensure_emission_in_repo, ensure_texture_in_repo, material_image_name
 from .mesh_io import STATIC_BONE, write_mesh_xml
 from .rig import active_armature, armature_actions, body_rig, write_animation_xml, write_skeleton_xml
 from .registry import (append_registry_entries, CATEGORY_ICONS, GEOMETRY_DIR, read_registry, REGISTRY_FILE,
                        remove_registry_entry, repo_root, rig_registry, root_holder, SCENERY_GROUP, sprite_skins,
-                       sprite_text, team_attribute)
+                       sprite_text, team_attribute, emissive_attribute)
 from .scene import (add_reference, attachment_obj_poll, BROWSER_TAG, clear_references, has_low_detail, load_unit,
                     loaded_body, loaded_models, REFERENCE_TAG, references, refresh_units, root_update,
                     unpublished_changes, write_changed)
@@ -520,10 +520,12 @@ class RegisterModel(bpy.types.Operator):
                     texture = mesh_obj.get("tt_texture", "").split(",")[0].strip() or material_image_name([mesh_obj])
                     if not ensure_texture_in_repo(root, mesh_obj, texture):
                         missing.append(texture)
+                    ensure_emission_in_repo(root, mesh_obj)
                     path = os.path.join(folder, name + suffix + lod + ".xml")
                     write_mesh_xml([mesh_obj], [None if arm is not None else STATIC_BONE], path, texture, False,
                                    depsgraph)
-                    models.append((relative(path), [(texture, team_attribute(root, texture, False))]))
+                    models.append((relative(path), [(texture, team_attribute(root, texture, False) +
+                                                                emissive_attribute(mesh_obj))]))
                 stage_models.append((name + suffix, models))
         finally:
             if arm is not None:

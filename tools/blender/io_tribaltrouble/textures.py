@@ -187,6 +187,43 @@ def mesh_texture_image(obj):
     return None
 
 
+def emission_image(obj):
+    """The image wired into a material's Emission Color: the game adds it on top of the lit texture."""
+    for slot in obj.material_slots:
+        nodes = slot.material.node_tree.nodes if slot.material is not None and slot.material.use_nodes else []
+        for node in nodes:
+            socket = node.inputs.get("Emission Color") if node.type == "BSDF_PRINCIPLED" else None
+            source = socket.links[0].from_node if socket is not None and socket.is_linked else None
+            if source is not None and source.type == "TEX_IMAGE" and source.image is not None:
+                return source.image
+    return None
+
+
+def ensure_emission_in_repo(root, obj):
+    image = emission_image(obj)
+    return image is None or ensure_texture_in_repo(root, obj, image_texture_name(image))
+
+
+def show_emission(obj, image_path):
+    """Glow obj in Blender the way the game will, on a copy of its material so others using the texture stay plain."""
+    mat = obj.active_material
+    if mat is None or not mat.use_nodes or not os.path.isfile(image_path):
+        return
+    name = f"{mat.name}+{os.path.splitext(os.path.basename(image_path))[0]}"
+    glow = bpy.data.materials.get(name)
+    if glow is None:
+        glow = mat.copy()
+        glow.name = name
+        bsdf = glow.node_tree.nodes.get("Principled BSDF")
+        if bsdf is not None:
+            node = glow.node_tree.nodes.new("ShaderNodeTexImage")
+            node.image = bpy.data.images.load(image_path, check_existing=True)
+            node.location = (-350, -300)
+            glow.node_tree.links.new(bsdf.inputs["Emission Color"], node.outputs["Color"])
+            bsdf.inputs["Emission Strength"].default_value = 1.0
+    obj.active_material = glow
+
+
 def ensure_texture_in_repo(root, obj, texture, folder="models"):
     """Put the material's image, or the image of that name, at assets/textures/<folder>/<texture>.png: written when
     the repo lacks it or the image has unsaved paint, so a texture made inside Blender travels with the mesh. False

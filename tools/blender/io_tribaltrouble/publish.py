@@ -6,8 +6,8 @@ from xml.sax.saxutils import escape
 
 import bpy
 
-from .textures import (ensure_texture_in_repo, image_texture_name, mesh_texture_image, models_texture_path,
-                       object_texture, save_png, texture_names)
+from .textures import (emission_image, ensure_emission_in_repo, ensure_texture_in_repo, image_texture_name,
+                       mesh_texture_image, models_texture_path, object_texture, save_png, texture_names)
 from .rig import (armature_actions, clip_copy, clip_keys, clip_prefix, clip_short_name, read_animation, shown_bones,
                   write_animation_xml)
 from .registry import (append_registry_entries, find_base_sprite, GEOMETRY_DIR, item_slot, read_registry,
@@ -47,6 +47,7 @@ def export_visible(context, arm, report):
         for name in texture_names(o):
             if not ensure_texture_in_repo(repo_root(context), o, name):
                 missing.append(name)
+        ensure_emission_in_repo(repo_root(context), o)
     publish_own_textures(repo_root(context), objs)
     publish_paint(repo_root(context))
     saved = [os.path.basename(o["tt_source"]) for o in written if o in bodies]
@@ -126,6 +127,10 @@ def check_mesh(obj, is_new, body_triangles):
         if not re.fullmatch(r"[A-Za-z0-9_-]+", image_texture_name(image)):
             found.append(("ERROR", f"image name '{image.name}' becomes the texture name: letters, digits, underscores, "
                                    f"hyphens"))
+    glow = emission_image(obj)
+    if glow is not None and not re.fullmatch(r"[A-Za-z0-9_-]+", image_texture_name(glow)):
+        found.append(("ERROR", f"emission image name '{glow.name}' becomes a texture name: letters, digits, "
+                               f"underscores, hyphens"))
     colors = me.color_attributes.active_color if len(me.color_attributes) else None
     if colors is not None and colors.domain == "CORNER" and colors.data_type in ("FLOAT_COLOR", "BYTE_COLOR"):
         values = [0.0] * (4 * len(colors.data))
