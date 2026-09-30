@@ -645,6 +645,16 @@
                 <texture name="native_warrior_rubber" team="native_warrior_rubber_team"/>
             </model>
         </sprite>
+        <sprite name="quarters_pumpkin" skin="pumpkin" replaces="quarters" event="halloween">
+            <model r="90" g="60" b="30">
+                natives/quarters/quarters_pumpkin.xml
+                <texture name="native_building_hi" team="native_building_hi_team"/>
+            </model>
+            <model r="90" g="60" b="30">
+                natives/quarters/native_built_lo.xml
+                <texture name="native_building_lo" team="native_building_lo_team"/>
+            </model>
+        </sprite>
     </group>
     <group name="misc">
         <sprite name="jungle_tree_crown">
