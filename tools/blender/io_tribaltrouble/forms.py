@@ -140,6 +140,7 @@ class NewEvent(bpy.types.Operator):
             _new_events.append(event)
         if self.form and context.window is not None:
             _reopen[self.form] = {**json.loads(self.values or "{}"), "event": event}
-            module, _, name = self.form.partition(".")
-            getattr(getattr(bpy.ops, module), name)("INVOKE_DEFAULT")
+            # A running operator's bl_idname reads OBJECT_OT_tt_new_prop, not object.tt_new_prop.
+            module, _, name = self.form.partition("_OT_") if "_OT_" in self.form else self.form.partition(".")
+            getattr(getattr(bpy.ops, module.lower()), name)("INVOKE_DEFAULT")
         return {"FINISHED"}
