@@ -555,6 +555,12 @@
 				<texture name="native_ship" team="native_ship_team"/>
 			</model>
 		</sprite>
+        <sprite name="quarters_native_building_pumpkins" base="quarters" slot="prop" event="halloween">
+            <model r="90" g="60" b="30">
+                natives/quarters/native_building_pumpkins.xml
+                <texture name="Pumpkins-Test" emissive="Pumpkins-Test-Emissive"/>
+            </model>
+        </sprite>
     </group>
     <group name="misc">
         <sprite name="jungle_tree_crown">
@@ -766,6 +772,18 @@
             <animation name="die" wpc="1" type="plain">misc/chicken/chicken_die.xml</animation>
             <animation name="run" wpc="4" type="loop">misc/chicken/chicken_run.xml</animation>
             <animation name="fly" wpc="8" type="loop">misc/chicken/chicken_fly.xml</animation>
+        </sprite>
+        <sprite name="pumpkin_plant_3x3" decoration="grass,dirt,snow" count="20" event="halloween">
+            <model r="90" g="60" b="30">
+                misc/pumpkin_plant_3x3/pumpkin_plant_3x3.xml
+                <texture name="Pumpkins-Test" emissive="Pumpkins-Test-Emissive"/>
+            </model>
+        </sprite>
+        <sprite name="pumpkin_plant_2x2" decoration="grass,dirt,snow" count="20" event="halloween">
+            <model r="90" g="60" b="30">
+                misc/pumpkin_plant_2x2/pumpkin_plant_2x2.xml
+                <texture name="Pumpkins-Test" emissive="Pumpkins-Test-Emissive"/>
+            </model>
         </sprite>
     </group>
 </geometry>
