@@ -1,5 +1,6 @@
 """Writing changed models, items, clips and textures to the repo, and the checks before that."""
 
+import filecmp
 import os
 import re
 from xml.sax.saxutils import escape
@@ -148,17 +149,20 @@ def check_mesh(obj, is_new, body_triangles):
 
 
 def texture_clashes(root, objs):
-    """Errors for new meshes whose image is named like a repo texture that did not come from it: Publish would save
-    over another model's texture, or take it for theirs."""
+    """Errors for new meshes whose image or emission image is named like a repo texture that did not come from it and
+    holds another picture: Publish would save over another model's texture, or take it for theirs."""
     found = []
     for o in objs:
-        image = mesh_texture_image(o)
-        if image is None or not root:
-            continue
-        texture = image_texture_name(image)
-        target = os.path.normcase(os.path.abspath(models_texture_path(root, texture)))
-        source = os.path.normcase(os.path.abspath(bpy.path.abspath(image.filepath))) if image.filepath else ""
-        if os.path.isfile(target) and source != target and image.get("tt_repo_texture") != texture:
+        for image in (mesh_texture_image(o), emission_image(o)):
+            if image is None or not root:
+                continue
+            texture = image_texture_name(image)
+            target = os.path.normcase(os.path.abspath(models_texture_path(root, texture)))
+            source = os.path.normcase(os.path.abspath(bpy.path.abspath(image.filepath))) if image.filepath else ""
+            if not os.path.isfile(target) or source == target or image.get("tt_repo_texture") == texture:
+                continue
+            if not image.is_dirty and os.path.isfile(source) and filecmp.cmp(source, target, shallow=False):
+                continue  # the same picture, shared by several models
             found.append(("ERROR", f"{o.name}: {texture}.png in the repo is another model's texture: rename the image"))
     return found
 
