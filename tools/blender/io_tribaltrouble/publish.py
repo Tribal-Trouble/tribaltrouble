@@ -123,8 +123,9 @@ def check_mesh(obj, is_new, body_triangles):
         w, h = image.size
         if w != h or w & (w - 1):
             found.append(("WARNING", f"texture {image.name} is {w}x{h}: use a square power of two such as 256 or 512"))
-        if not re.fullmatch(r"[A-Za-z0-9_]+", image_texture_name(image)):
-            found.append(("ERROR", f"image name '{image.name}' becomes the texture name: letters, digits, underscores"))
+        if not re.fullmatch(r"[A-Za-z0-9_-]+", image_texture_name(image)):
+            found.append(("ERROR", f"image name '{image.name}' becomes the texture name: letters, digits, underscores, "
+                                   f"hyphens"))
     colors = me.color_attributes.active_color if len(me.color_attributes) else None
     if colors is not None and colors.domain == "CORNER" and colors.data_type in ("FLOAT_COLOR", "BYTE_COLOR"):
         values = [0.0] * (4 * len(colors.data))
