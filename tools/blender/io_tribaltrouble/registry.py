@@ -321,6 +321,25 @@ def set_sprite_attributes(registry_path, group, name, attrs):
     return False
 
 
+def set_model_path(registry_path, group, name, level, path):
+    """Point one model (detail level) of one sprite at another mesh file, given relative to assets/geometry."""
+    with open(registry_path, "rb") as f:
+        text = f.read().decode("utf-8")
+    for sprite_group, sprite, start, end in sprite_blocks(text):
+        if (sprite_group, sprite) != (group, name):
+            continue
+        block = text[start:end]
+        models = list(re.finditer(r"(<model\b[^>]*>\s*)([^<\s][^<]*?)(\s*<)", block))
+        if level >= len(models):
+            return False
+        model = models[level]
+        block = block[:model.start(2)] + escape(path) + block[model.end(2):]
+        with open(registry_path, "wb") as f:
+            f.write((text[:start] + block + text[end:]).encode("utf-8"))
+        return True
+    return False
+
+
 def set_model_emissive(registry_path, group, name, level, glow):
     """Set emissive= on the texture lines of one model (detail level) of one sprite, or drop it for a blank glow."""
     with open(registry_path, "rb") as f:

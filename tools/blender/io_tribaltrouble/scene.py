@@ -11,8 +11,8 @@ from .textures import apply_team_preview, mesh_texture_image, models_texture_pat
 from .mesh_io import bone_tail_matrices, import_mesh_file, mesh_xml_text, rest_pose_armatures, STATIC_BONE, write_text
 from .rig import (apply_clip, armature_actions, armature_from_file, assign_action, bind_meshes, build_armature,
                   clip_keys, read_animation, read_skeleton, shown_bones)
-from .registry import (GEOMETRY_DIR, glow_changes, level_textures, read_registry, repo_root, rig_entry, sprite_category,
-                       sprite_skins)
+from .registry import (GEOMETRY_DIR, glow_changes, level_textures, read_registry, REGISTRY_FILE, repo_root, rig_entry,
+                       set_model_path, sprite_category, sprite_skins)
 
 
 def attach_object(arm, obj, bone_name, visible):
@@ -152,7 +152,12 @@ def item_shown(obj):
 def item_export(o, depsgraph):
     """The file text Publish writes for one loaded or new model, and its hash."""
     # A model saved back keeps its file's own texture attribute, which the converter reads from the registry anyway.
-    texture = o["tt_file_texture"] if o.get("tt_source") and "tt_file_texture" in o else object_texture(o)
+    if o.get("tt_skin_source"):
+        texture = o["tt_skin_file_texture"]
+    elif o.get("tt_source") and "tt_file_texture" in o:
+        texture = o["tt_file_texture"]
+    else:
+        texture = object_texture(o)
     bone = o.get("tt_bone") or (None if rest_pose_armatures([o]) else STATIC_BONE)
     text = mesh_xml_text([o], [bone], texture, False, depsgraph)
     return text, hashlib.sha1(text.encode("utf-8")).hexdigest()
@@ -179,14 +184,45 @@ def export_texts(context, arm, objs):
         context.view_layer.update()
 
 
+def saved_hash(o):
+    """The export a loaded mesh was loaded or last written as: the shown skin's file while a skin shows."""
+    return o.get("tt_skin_hash") if o.get("tt_skin") else o.get("tt_export_hash")
+
+
+def skin_file(context, o):
+    """The file a shown skin keeps this detail level in. A level the skin borrows from the default look gets a copy of
+    its own first, listed for the skin, so the default file never changes."""
+    path = o["tt_skin_source"]
+    if os.path.normcase(os.path.abspath(path)) != os.path.normcase(os.path.abspath(o["tt_source"])):
+        return path
+    level = o.get("tt_detail", 0)
+    folder = os.path.dirname(path)
+    base = o["tt_skin"] + ("" if not level else "_lo" if level == 1 else f"_lo{level}")
+    own = os.path.join(folder, base + ".xml")
+    n = 2
+    while os.path.exists(own):
+        own, n = os.path.join(folder, f"{base}_{n}.xml"), n + 1
+    root = repo_root(context)
+    set_model_path(os.path.join(root, REGISTRY_FILE), o["tt_group"], o["tt_skin"], level,
+                   os.path.relpath(own, os.path.join(root, GEOMETRY_DIR)).replace(os.sep, "/"))
+    o["tt_skin_source"] = own
+    return own
+
+
 def write_changed(context, arm, targets):
     """Write each {object: path} whose export differs from the one it was loaded or last written as; the objects
-    written, so untouched files in the repo stay as they are."""
+    written, so untouched files in the repo stay as they are. A mesh showing a saved skin is written to that skin."""
     written = []
     editing = {level for o in bpy.data.objects if o.get("tt_skin_editing") for level in model_levels(o)}
     for o, (text, digest) in export_texts(context, arm, targets).items():
-        if o.get("tt_skin") or o in editing:
-            continue  # showing a skin's look or being made into one, which is not what its own file holds
+        if o in editing or o.get("tt_skin") and not o.get("tt_skin_source"):
+            continue  # being made into a skin, which Save Skin writes, or a skin level with no file of its own
+        if o.get("tt_skin"):
+            if saved_hash(o) != digest:
+                write_text(skin_file(context, o), text)
+                o["tt_skin_hash"] = digest
+                written.append(o)
+            continue
         if not o.get("tt_source") or o.get("tt_export_hash") != digest:
             write_text(targets[o], text)
             o["tt_export_hash"] = digest
@@ -363,8 +399,8 @@ def unpublished_changes(context):
     changes = [f"the skin '{o['tt_skin_editing']}'" for o in editing]
     skin_levels = {level for o in editing for level in model_levels(o)}
     arm = next((o for o in bpy.data.objects if o.type == "ARMATURE" and o.get(BROWSER_TAG)), None)
-    models = [o for o in loaded_models() if not o.get("tt_skin") and o not in skin_levels]
-    meshes = sum(1 for o, (_, digest) in export_texts(context, arm, models).items() if o["tt_export_hash"] != digest)
+    models = [o for o in loaded_models() if o not in skin_levels and (not o.get("tt_skin") or o.get("tt_skin_source"))]
+    meshes = sum(1 for o, (_, digest) in export_texts(context, arm, models).items() if saved_hash(o) != digest)
     actions = armature_actions(arm) if arm is not None else []
     clips = sum(1 for a in actions if not a.get("tt_clip") or a.get("tt_keys") not in (None, clip_keys(a)))
     items = len(visible_attachments(arm)) if arm is not None else 0

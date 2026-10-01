@@ -45,8 +45,8 @@ def skin_mesh(target):
 
 
 def show_skin(context, body, entry, skin):
-    """Put a skin sprite's meshes and textures on every detail level of the loaded model; with no skin, put the
-    stock files back and let Publish save the model again."""
+    """Put a skin sprite's meshes and textures on every detail level of the loaded model, where Publish then saves
+    edits to the skin's own files; with no skin, put the stock files back and let Publish save the model again."""
     root = repo_root(context)
     shown = skin or entry
     arm = body_rig(body)
@@ -55,7 +55,8 @@ def show_skin(context, body, entry, skin):
     for level, o in enumerate(levels):
         path = os.path.join(root, GEOMETRY_DIR, shown["models"][min(level, len(shown["models"]) - 1)]) if skin \
             else o["tt_source"]
-        replace_mesh_data(o, mesh_record_from_xml(ET.parse(path).getroot(), False), o.data.name)
+        root_element = ET.parse(path).getroot()
+        replace_mesh_data(o, mesh_record_from_xml(root_element, False), o.data.name)
         textures = level_textures(shown, level)
         texture = textures[min(tier, len(textures) - 1)] if textures else ""
         if os.path.isfile(models_texture_path(root, texture)):
@@ -64,13 +65,17 @@ def show_skin(context, body, entry, skin):
         if skin is not None:
             o["tt_stock_texture"] = o.get("tt_stock_texture", o.get("tt_texture", ""))
             o["tt_texture"], o["tt_skin"], o["tt_skin_name"] = ",".join(textures), skin["name"], skin["skin"]
+            o.pop("tt_skin_source", None)
+            if level < len(skin["models"]):
+                o["tt_skin_source"] = path
+                o["tt_skin_file_texture"] = root_element.get("texture") or ",".join(textures)
         elif o.get("tt_skin"):
             o["tt_texture"] = o.pop("tt_stock_texture")
             del o["tt_skin"]
-            o.pop("tt_skin_name", None)
-    if skin is None:
-        for o, (_, digest) in export_texts(context, arm, levels).items():
-            o["tt_export_hash"] = digest
+            for key in ("tt_skin_name", "tt_skin_source", "tt_skin_file_texture", "tt_skin_hash"):
+                o.pop(key, None)
+    for o, (_, digest) in export_texts(context, arm, levels).items():
+        o["tt_skin_hash" if skin is not None else "tt_export_hash"] = digest
     active = context.view_layer.objects.active
     if active in levels and mesh_texture_image(active) is not None:
         context.scene.tool_settings.image_paint.canvas = mesh_texture_image(active)
