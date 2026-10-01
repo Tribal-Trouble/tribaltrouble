@@ -51,6 +51,8 @@ for tier in ("rock", "iron", "rubber"):
     registry_text = registry_text.replace(f'name="viking_warrior_axe_held_{tier}" team="viking_warrior_axe_held_{tier}_team"',
                                           f'name="viking_warrior_{tier}" team="viking_warrior_{tier}_team"')
 registry_text = re.sub(r'[ \t]*<sprite name="[^"]*_dev_[^"]*".*?</sprite>\r?\n', "", registry_text, flags=re.S)
+# Seasonal content in the repo (hats, props, skins, decorations with an event) must not change the results either.
+registry_text = re.sub(r'[ \t]*<sprite [^>]*\bevent="[^"]*"[^>]*>.*?</sprite>\r?\n', "", registry_text, flags=re.S)
 with open(registry_path, "wb") as f:
     f.write(registry_text.encode("utf-8"))
 PRISTINE = registry_text
