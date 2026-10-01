@@ -331,6 +331,24 @@
                 <texture name="pumpkins"/>
             </model>
         </sprite>
+        <sprite name="armory_pumpkins" base="armory" slot="prop" event="halloween">
+            <model r="90" g="60" b="30">
+                vikings/armory/pumpkins.xml
+                <texture name="pumpkins" emissive="pumpkins_emissive"/>
+            </model>
+        </sprite>
+        <sprite name="quarters_pumpkins" base="quarters" slot="prop" event="halloween">
+            <model r="90" g="60" b="30">
+                vikings/quarters/pumpkins.xml
+                <texture name="pumpkins" emissive="pumpkins_emissive"/>
+            </model>
+        </sprite>
+        <sprite name="tower_pumpkins" base="tower" slot="prop" event="halloween">
+            <model r="90" g="60" b="30">
+                vikings/tower/pumpkins.xml
+                <texture name="pumpkins" emissive="pumpkins_emissive"/>
+            </model>
+        </sprite>
     </group>
     <group name="natives">
         <sprite name="chieftain">
@@ -653,6 +671,18 @@
             <model r="90" g="60" b="30">
                 natives/quarters/native_built_lo.xml
                 <texture name="native_building_lo" team="native_building_lo_team"/>
+            </model>
+        </sprite>
+        <sprite name="tower_pumpkins" base="tower" slot="prop" event="halloween">
+            <model r="90" g="60" b="30">
+                natives/tower/pumpkins.xml
+                <texture name="pumpkins" emissive="pumpkins_emissive"/>
+            </model>
+        </sprite>
+        <sprite name="armory_pumpkins" base="armory" slot="prop" event="halloween">
+            <model r="90" g="60" b="30">
+                natives/armory/pumpkins.xml
+                <texture name="pumpkins" emissive="pumpkins_emissive"/>
             </model>
         </sprite>
     </group>
