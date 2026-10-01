@@ -42,7 +42,7 @@ public final class PlayerSkins {
         return skin != null ? skin : template.getRenderer(stage);
     }
 
-    /** Props follow the mesh: a stage the skin replaces draws the skin's props, any other stage the stock ones. */
+    /** A stage the skin replaces draws the building's own props plus the skin's; any other stage the stock ones. */
     public @NonNull List<SpriteKey> propsFor(@NonNull BuildingTemplate template, Building.@NonNull BuildState stage) {
         List<SpriteKey> skin = props.getOrDefault(template, Map.of()).get(stage);
         return skin != null ? skin : template.getProps(stage);

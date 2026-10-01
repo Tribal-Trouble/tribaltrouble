@@ -59,6 +59,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public final class RacesResources {
     private static final String ATTACHMENTS_FILE = "/geometry/attachments.txt";
@@ -401,7 +402,8 @@ public final class RacesResources {
                         buildings.computeIfAbsent(entry.skin(), _ -> new HashMap<>()).computeIfAbsent(building,
                                 _ -> new EnumMap<>(Building.BuildState.class)).put(stage, skin);
                         props.computeIfAbsent(entry.skin(), _ -> new HashMap<>()).computeIfAbsent(building,
-                                _ -> new EnumMap<>(Building.BuildState.class)).put(stage, queues.getProps(skin));
+                                _ -> new EnumMap<>(Building.BuildState.class)).put(stage, Stream.concat(
+                                        building.getProps(stage).stream(), queues.getProps(skin).stream()).toList());
                     }
                 }
             }

@@ -104,8 +104,12 @@ public final class RenderQueues implements AutoCloseable {
         for (int i = 0; i < animation_types.length; i++) {
             type_array[i] = animation_types[i].ordinal();
         }
-        props_lookup.set(index, RacesResources.getProps(drawn_file.getLocation()).stream().map(
-                prop -> register(sprite_file.withLocation(prop), tex_index)).toList());
+        // A skin only changes the look: the sprite keeps its own props and the skin adds its own.
+        List<String> props = new ArrayList<>(RacesResources.getProps(sprite_file.getLocation()));
+        if (!drawn_file.getLocation().equals(sprite_file.getLocation()))
+            props.addAll(RacesResources.getProps(drawn_file.getLocation()));
+        props_lookup.set(index, props.stream().map(prop -> register(sprite_file.withLocation(prop),
+                tex_index)).toList());
         return new SpriteKey(index, sprite_list.getBounds(), type_array);
     }
 

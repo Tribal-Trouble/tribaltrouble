@@ -66,7 +66,7 @@ Trees, rocks, iron, plants, the chicken, treasures, decorations and thrown weapo
 - Other sprites draw their props at the sprite's own detail level and leave them out where the sprite is only a dot on the map. Props on plants and decorations fade out with them.
 - The chicken is animated, so its prop inherits the chicken's skeleton and clips and is skinned to its bones like a unit item.
 - `event` works as on buildings. Props are render-only: they are not picked, do not change the sprite's bounds, and never reach the simulation.
-- Skins: an event skin on the prop (`skin=`, `replaces=` the prop, `event=`, same `base` and `slot`) swaps it during the event, and an event skin on the base sprite brings the props whose `base` is the skin sprite. Owned skins do not apply, since nobody owns scenery.
+- Skins: an event skin on the prop (`skin=`, `replaces=` the prop, `event=`, same `base` and `slot`) swaps it during the event, and an event skin on the base sprite keeps the base sprite's props and adds those whose `base` is the skin sprite. Owned skins do not apply, since nobody owns scenery.
 
 ## Carried items (moved into the registry 2026-09-19)
 
@@ -97,7 +97,7 @@ A skin is another look, a texture and/or a mesh, for a unit, building, item or a
 
 - `replaces` is the stock sprite. Everything drawn with it uses the skin sprite instead, with the same texture slot (rock, iron and chicken warriors share one mesh), or the first texture when the skin has fewer. A skin that only changes the texture repeats the stock mesh with its own texture.
 - A unit skin needs `base` on the unit it replaces so it has the same clips; the game refuses a skin whose clip list differs.
-- A building skin replaces one stage. Props whose `base` is the skin sprite are drawn with it; stages the skin leaves alone keep their stock props.
+- A building skin replaces one stage. The building's own props stay, and props whose `base` is the skin sprite are drawn with them; stages the skin leaves alone keep only their stock props.
 - An item skin keeps the `base` and `slot` of the item it replaces (the converter refuses one that does not). It is listed in `skins.txt` only, never in `attachments.txt`, so nobody wears it as an extra item. Every unit drawing that item, held in a slot or carried, draws the skin sprite instead, with the item's tier texture rule and the same clip check. A skin may cover only items, only the body, or both.
 - The converter writes `skins.txt` (`group skin replaces name textures event`, the event `-` for an owned skin).
 
