@@ -14,8 +14,8 @@ from .rig import (armature_actions, clip_copy, clip_keys, clip_prefix, clip_shor
 from .registry import (append_registry_entries, find_base_sprite, GEOMETRY_DIR, glow_changes, item_slot, read_registry,
                        registry_entries, REGISTRY_FILE, repo_root, rig_in_repo, rig_registry, set_clip_line,
                        set_model_emissive, set_sprite_textures)
-from .scene import (browsed_unit, BROWSER_TAG, file_clashes, glow_models, item_shown, loaded_models, model_levels,
-                    set_item_visible, unit_height, unit_items, unit_meshes, visible_attachments, world_box, write_changed)
+from .scene import (browsed_unit, BROWSER_TAG, file_clashes, glow_models, item_shown, model_levels, set_item_visible,
+                    unit_height, unit_items, unit_meshes, visible_attachments, world_box, write_changed)
 
 
 def export_visible(context, arm, report):
@@ -60,23 +60,6 @@ def export_visible(context, arm, report):
         report({"INFO"}, f"Exported {len(written)} changed file(s) of {len(objs) + len(levels)} with their textures "
                          f"into {unit_dir}{note}")
     return True
-
-
-def publish_all(context, report, stop_on_refused=False):
-    """Write everything changed on the loaded model: new items, meshes, own textures, paint, glow and clips. The
-    names of what was written, or None when new items were refused and stop_on_refused is set."""
-    root = repo_root(context)
-    arm = next((o for o in bpy.data.objects if o.type == "ARMATURE" and o.get(BROWSER_TAG)), None)
-    added = []
-    if arm is not None and any(x.obj is not None and x.visible for x in arm.tt_attachments):
-        added = publish_items(context, arm, report)
-        if added is None and stop_on_refused:
-            return None
-    written = write_changed(context, arm, {o: o["tt_source"] for o in loaded_models()})
-    publish_own_textures(root, loaded_models())
-    painted = publish_paint(root) + publish_glow(root)
-    clips = publish_changed_clips(context, arm, report) if arm is not None else []
-    return (added or []) + [os.path.basename(o["tt_source"]) for o in written] + painted + clips
 
 
 def publish_items(context, arm, report):
@@ -207,7 +190,7 @@ def preflight(context, arm):
         names = {s["name"] for s in read_registry(root) if s["group"] == group}
         for obj in new:
             if f"{base}_{obj.name}" not in names:
-                findings.append(("INFO", f"{obj.name}: new, saving adds it to the registry"))
+                findings.append(("INFO", f"{obj.name}: new, Publish adds it to the registry"))
     return findings
 
 
@@ -271,7 +254,7 @@ def publish_clip(context, arm, action, name, kind, wpc, report):
     action.use_fake_user = True
     frames = int(round(end)) - int(round(start)) + 1
     if is_new:
-        report({"WARNING"}, f"Saved new clip {name} ({frames} frames) on {', '.join(touched)}. It shows in game "
+        report({"WARNING"}, f"Published new clip {name} ({frames} frames) on {', '.join(touched)}. It shows in game "
                             f"only once code asks for it")
     else:
         report({"INFO"}, f"Replaced clip {name} ({frames} frames); the game plays it after the next build")

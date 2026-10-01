@@ -16,10 +16,10 @@ from .registry import (append_registry_entries, CATEGORY_ICONS, GEOMETRY_DIR, re
                        set_sprite_attributes, sprite_text, team_attribute, emissive_attribute)
 from .scene import (add_reference, attachment_obj_poll, BROWSER_TAG, clear_references, has_low_detail, load_unit,
                     loaded_body, loaded_models, REFERENCE_TAG, references, refresh_units, root_update,
-                    unpublished_changes)
-from .publish import check_mesh, preflight, publish_all, store_findings, texture_clashes
+                    unpublished_changes, write_changed)
+from .publish import (check_mesh, preflight, publish_changed_clips, publish_items, publish_own_textures,
+                      publish_glow, publish_paint, store_findings, texture_clashes)
 from .glow import draw_glow
-from .autosave import draw_saved, save_now
 from .forms import (chosen_event, draw_confirm, draw_event, event_property, form_title, mesh_problem, name_problem,
                     NO_EVENT, open_form, own_mesh_search)
 
@@ -73,13 +73,11 @@ class PickUnit(bpy.types.Operator):
         return body is not None and (body["tt_group"], body["tt_sprite"]) == (self.group, self.sprite)
 
     def invoke(self, context, event):
-        if not self.on_screen():
-            save_now(context)
         changes = [] if self.on_screen() else unpublished_changes(context)
         if changes:
             return context.window_manager.invoke_confirm(
                 self, event, title=f"Load {self.sprite}?", confirm_text="Load", icon="WARNING",
-                message=f"Not saved on {loaded_body()['tt_sprite']}: {', '.join(changes)}")
+                message=f"Not published on {loaded_body()['tt_sprite']}: {', '.join(changes)}")
         return self.execute(context)
 
     def execute(self, context):
@@ -87,11 +85,9 @@ class PickUnit(bpy.types.Operator):
         index = next((i for i, u in enumerate(wm.tt_units) if (u.group, u.sprite) == (self.group, self.sprite)), -1)
         if index < 0:
             return {"CANCELLED"}
-        if not self.on_screen():
-            if load_unit(context, self.group, self.sprite, self.report) is None:
-                refresh_units(context)
-                return {"CANCELLED"}
-            wm.tt_saved = ""
+        if not self.on_screen() and load_unit(context, self.group, self.sprite, self.report) is None:
+            refresh_units(context)
+            return {"CANCELLED"}
         wm.tt_unit_index = index  # the model is loaded already, so this only moves the highlight
         return {"FINISHED"}
 
@@ -131,8 +127,9 @@ class LoadUnit(bpy.types.Operator):
 
 
 class PublishModel(bpy.types.Operator):
-    """Save everything changed on the loaded model now. It also saves by itself a moment after each change, so this
-    is for scripts"""
+    """Save everything you changed on the model loaded from the list to the repo: every detail level, its items and
+    props (new ones are listed in geometry.xml), its clips and painted textures. Files you did not touch are left
+    alone"""
     bl_idname = "wm.tt_publish_model"
     bl_label = "Publish"
 
@@ -141,10 +138,18 @@ class PublishModel(bpy.types.Operator):
         return bool(repo_root(context)) and bool(loaded_models())
 
     def execute(self, context):
-        saved = publish_all(context, self.report, stop_on_refused=True)
-        if saved is None:
-            return {"CANCELLED"}
-        self.report({"INFO"}, f"Saved {', '.join(saved)}" if saved else "Nothing to save")
+        arm = next((o for o in bpy.data.objects if o.type == "ARMATURE" and o.get(BROWSER_TAG)), None)
+        added = []
+        if arm is not None and any(x.obj is not None and x.visible for x in arm.tt_attachments):
+            added = publish_items(context, arm, self.report)
+            if added is None:
+                return {"CANCELLED"}
+        written = write_changed(context, arm, {o: o["tt_source"] for o in loaded_models()})
+        publish_own_textures(repo_root(context), loaded_models())
+        painted = publish_paint(repo_root(context)) + publish_glow(repo_root(context))
+        clips = publish_changed_clips(context, arm, self.report) if arm is not None else []
+        saved = added + [os.path.basename(o["tt_source"]) for o in written] + painted + clips
+        self.report({"INFO"}, f"Saved {', '.join(saved)}" if saved else "Nothing changed since loading")
         return {"FINISHED"}
 
 
@@ -656,15 +661,16 @@ class VIEW3D_PT_tt_units(bpy.types.Panel):
         layout.template_list("TT_UL_units", "", wm, "tt_units", wm, "tt_unit_index", rows=10)
         if references():
             layout.operator(RemoveAdded.bl_idname, icon="X")
+        layout.operator(LoadUnit.bl_idname, icon="FILE_REFRESH")
         row = layout.row(align=True)
-        row.operator(LoadUnit.bl_idname, icon="FILE_REFRESH")
+        row.scale_y = 1.4
+        row.operator(PublishModel.bl_idname, icon="EXPORT")
         if active_armature(context) is not None:
             row.operator(Preflight.bl_idname, text="", icon="CHECKMARK")
         body = loaded_body()
         if body is not None:
             remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
             remove.group, remove.sprite = body["tt_group"], body["tt_sprite"]
-        draw_saved(layout, wm)
         draw_checks(layout, wm)
         if body is not None:
             draw_glow(layout, context, body)

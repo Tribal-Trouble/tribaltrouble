@@ -401,7 +401,7 @@ def draw_skin_banner(layout, target, entry):
 
 
 class PaintSkin(bpy.types.Operator):
-    """Show this skin and start painting its texture; the paint saves by itself. A texture the skin shares with the
+    """Show this skin and start painting its texture; Publish writes the paint. A texture the skin shares with the
     default look cannot be painted here: make a New Skin with its own"""
     bl_idname = "object.tt_paint_skin"
     bl_label = "Paint Skin"
