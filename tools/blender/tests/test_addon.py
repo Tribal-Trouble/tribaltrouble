@@ -2062,7 +2062,7 @@ def one_publish_writes_the_mesh_a_new_prop_and_the_clips_without_a_form():
     a = load("natives", "peon")
     bpy.context.view_layer.objects.active = a
     listed = [idname for idname, *_ in drawn(addon.VIEW3D_PT_tt_units)]
-    assert "wm.tt_publish_model" in listed and "object.tt_preflight" in listed, listed
+    assert "wm.tt_publish_model" not in listed and "object.tt_preflight" in listed, "nothing to publish yet"
     listed = [idname for idname, *_ in drawn(addon.VIEW3D_PT_tt_preview)]
     assert "object.tt_new_clip" in listed, listed
     item_form = form(addon.NewItem, point="HEAD", mesh="", snap=True, make_texture=True, event="ALL_YEAR",
@@ -2084,9 +2084,12 @@ def one_publish_writes_the_mesh_a_new_prop_and_the_clips_without_a_form():
     assert bpy.ops.object.tt_new_item(point="HEAD", mesh=hat.name, event="halloween",
                                       on_by_default=True) == {"FINISHED"}
     assert bpy.ops.object.tt_new_clip(clip_name="bow", kind="plain", wpc=2.0) == {"FINISHED"}
+    addon.unsaved.refresh(bpy.context)
+    assert "wm.tt_publish_model" in [idname for idname, *_ in drawn(addon.VIEW3D_PT_tt_units)], "Publish hidden"
     for path in list(clips.values()) + [body["tt_source"]]:
         os.utime(path, (1, 1))
     assert bpy.ops.wm.tt_publish_model("INVOKE_DEFAULT") == {"FINISHED"}
+    assert "wm.tt_publish_model" not in [idname for idname, *_ in drawn(addon.VIEW3D_PT_tt_units)], "still showing"
     text = open(registry_path, encoding="utf-8").read()
     assert '<sprite name="peon_test_one_publish_hat" base="peon" slot="hat" event="halloween" default="true">' in text
     assert os.path.getmtime(body["tt_source"]) != 1, "the changed mesh was not written"
