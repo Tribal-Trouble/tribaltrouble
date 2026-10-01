@@ -24,6 +24,7 @@ from .preview import ShowItemClip
 from .by_hand import SetupAttachments
 from .skins import draw_skin_banner, draw_skin_list, NewSkin
 from .glow import draw_glow
+from .autosave import save_now
 
 
 PROP_CATEGORIES = ("BUILDINGS", "RESOURCES", "NATURE", "DECORATIONS", "OTHER")  # take props, besides units
@@ -387,7 +388,7 @@ class PaintItem(bpy.types.Operator):
 
 
 class DonePainting(bpy.types.Operator):
-    """Leave Texture Paint and go back to the unit. The paint is kept; Publish writes it"""
+    """Leave Texture Paint and go back to the unit; the paint saves now"""
     bl_idname = "object.tt_done_painting"
     bl_label = "Done Painting"
 
@@ -395,6 +396,7 @@ class DonePainting(bpy.types.Operator):
         if context.mode != "OBJECT":
             bpy.ops.object.mode_set(mode="OBJECT")
         switch_workspace(context, "Layout")
+        save_now(context)
         return {"FINISHED"}
 
 
@@ -464,7 +466,7 @@ class MakeTexture(bpy.types.Operator):
             bsdf.inputs["Roughness"].default_value = 1.0
         nodes.active = tex  # Texture Paint paints the active image node
         self.report({"INFO"}, f"{obj.name} now has the texture {image_name} ({size}x{size}). Paint it in the Texture "
-                              f"Paint tab; Publish writes it into the repo")
+                              f"Paint tab; it saves by itself")
         return {"FINISHED"}
 
 
@@ -521,8 +523,7 @@ class NewItem(bpy.types.Operator):
             bpy.ops.object.tt_put_on_bone(point=self.point)
         if self.make_texture and mesh_texture_image(obj) is None:
             bpy.ops.object.tt_make_texture(target=obj.name)
-        self.report({"INFO"}, f"{obj.name} follows the {POINT_LABELS.get(self.point, self.point).lower()}. "
-                              f"Publish to save it")
+        self.report({"INFO"}, f"{obj.name} follows the {POINT_LABELS.get(self.point, self.point).lower()}")
         return {"FINISHED"}
 
 
@@ -536,8 +537,8 @@ def shares_unit_texture(arm, obj):
 
 class OwnTexture(bpy.types.Operator):
     """Copy the part of the unit's texture this item uses into textures of its own, one per tier with its team
-    decal, and move its UVs onto them. The unit and its texture are not changed; Publish writes the new images and
-    lists them for the item"""
+    decal, and move its UVs onto them. The unit and its texture are not changed; the new images save by themselves
+    and are listed for the item"""
     bl_idname = "object.tt_own_texture"
     bl_label = "Give It Its Own Texture"
     bl_options = {"REGISTER", "UNDO"}
@@ -613,8 +614,7 @@ class OwnTexture(bpy.types.Operator):
             o["tt_file_texture"] = ",".join(renamed.get(t, t) for t in file_textures) or fresh[0]
         obj["tt_own_texture"] = True
         apply_team_preview(context)
-        self.report({"INFO"}, f"{obj.name} now has its own texture: {', '.join(fresh)} ({size}x{size}). Publish "
-                              f"writes it into the repo")
+        self.report({"INFO"}, f"{obj.name} now has its own texture: {', '.join(fresh)} ({size}x{size})")
         return {"FINISHED"}
 
 
@@ -673,7 +673,7 @@ def publish_props(op, context, fresh, event, base=None):
     note = f"; model mesh: {', '.join(os.path.basename(o['tt_source']) for o in saved)}" if saved else ""
     note += f"; no texture image for {', '.join(sorted(set(missing)))}" if missing else ""
     op.report({"WARNING"} if missing else {"INFO"},
-              f"Published {len(fresh)} new and {len(changed)} changed prop(s) on {group} / {base}{note}")
+              f"Saved {len(fresh)} new and {len(changed)} changed prop(s) on {group} / {base}{note}")
     return {"FINISHED"}
 
 
@@ -693,7 +693,7 @@ def prop_base_items(self, context):
 
 
 class NewProp(bpy.types.Operator):
-    """Publish one of your meshes as a prop of the loaded model (the building stage showing): it is written into the
+    """Add one of your meshes as a prop of the loaded model (the building stage showing): it is written into the
     model's folder, in place around it as you arranged it, and added to geometry.xml"""
     bl_idname = "object.tt_new_prop"
     bl_label = "New Prop..."

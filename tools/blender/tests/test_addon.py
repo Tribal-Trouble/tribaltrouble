@@ -2062,7 +2062,7 @@ def one_publish_writes_the_mesh_a_new_prop_and_the_clips_without_a_form():
     a = load("natives", "peon")
     bpy.context.view_layer.objects.active = a
     listed = [idname for idname, *_ in drawn(addon.VIEW3D_PT_tt_units)]
-    assert "wm.tt_publish_model" in listed and "object.tt_preflight" in listed, listed
+    assert "wm.tt_publish_model" not in listed and "object.tt_preflight" in listed, listed
     listed = [idname for idname, *_ in drawn(addon.VIEW3D_PT_tt_preview)]
     assert "object.tt_new_clip" in listed, listed
     item_form = form(addon.NewItem, point="HEAD", mesh="", snap=True, make_texture=True, event="ALL_YEAR",

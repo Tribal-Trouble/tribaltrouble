@@ -34,6 +34,7 @@ from .scene import (DETAIL_ITEMS, detail_update, loaded_body, refresh_units_on_l
 from .forms import NewEvent
 from .import_export import (ExportTTMesh, ExportTTSkeleton, ImportTTMesh, ImportTTSkeleton, menu_export, menu_import,
                             menu_object, SplitByBone)
+from . import autosave
 from .glow import AddGlow, RemoveGlow
 from .models import (AddToScene, EditScatter, LoadUnit, PickUnit, Preflight, PublishModel, RefreshUnits,
                      RegisterModel, RemoveAdded, RemoveFromRegistry, TT_UL_units, TTCheck, TTPreferences, TTUnitEntry,
@@ -101,6 +102,7 @@ def register():
                                        description="Show only the items whose name contains this")
     bpy.app.handlers.load_post.append(refresh_units_on_load)
     bpy.app.timers.register(refresh_units_on_load, first_interval=0.5)
+    autosave.register()
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_export)
     bpy.types.VIEW3D_MT_object.append(menu_object)
@@ -117,6 +119,7 @@ def unregister():
     bpy.types.TOPBAR_MT_file_import.remove(menu_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_export)
     bpy.app.handlers.load_post.remove(refresh_units_on_load)
+    autosave.unregister()
     del bpy.types.Object.tt_attachments
     for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_category", "tt_checks",
                  "tt_checked", "tt_team_preview", "tt_team_color",
