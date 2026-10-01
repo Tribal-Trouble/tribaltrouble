@@ -205,23 +205,51 @@ def ensure_emission_in_repo(root, obj):
 
 
 def show_emission(obj, image_path):
-    """Glow obj in Blender the way the game will, on a copy of its material so others using the texture stay plain."""
+    if os.path.isfile(image_path):
+        wire_emission(obj, bpy.data.images.load(image_path, check_existing=True))
+
+
+def glow_material(obj, suffix):
+    """A copy of obj's material named for its glow, so other meshes using the same texture keep theirs."""
     mat = obj.active_material
-    if mat is None or not mat.use_nodes or not os.path.isfile(image_path):
-        return
-    name = f"{mat.name}+{os.path.splitext(os.path.basename(image_path))[0]}"
-    glow = bpy.data.materials.get(name)
+    if mat is None or not mat.use_nodes:
+        return None
+    base = mat.name.split("+")[0]
+    glow = bpy.data.materials.get(f"{base}+{suffix}")
     if glow is None:
         glow = mat.copy()
-        glow.name = name
-        bsdf = glow.node_tree.nodes.get("Principled BSDF")
-        if bsdf is not None:
-            node = glow.node_tree.nodes.new("ShaderNodeTexImage")
-            node.image = bpy.data.images.load(image_path, check_existing=True)
-            node.location = (-350, -300)
-            glow.node_tree.links.new(bsdf.inputs["Emission Color"], node.outputs["Color"])
-            bsdf.inputs["Emission Strength"].default_value = 1.0
+        glow.name = f"{base}+{suffix}"
     obj.active_material = glow
+    return glow
+
+
+def wire_emission(obj, image):
+    """Glow obj in Blender the way the game will: image into the Principled BSDF's Emission Color."""
+    mat = glow_material(obj, image_texture_name(image))
+    bsdf = next((n for n in mat.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None) if mat is not None else None
+    if bsdf is None:
+        return
+    socket = bsdf.inputs["Emission Color"]
+    node = socket.links[0].from_node if socket.is_linked and socket.links[0].from_node.type == "TEX_IMAGE" else None
+    if node is None:
+        node = mat.node_tree.nodes.new("ShaderNodeTexImage")
+        node.location = (-350, -300)
+        mat.node_tree.links.new(socket, node.outputs["Color"])
+    node.image = image
+    bsdf.inputs["Emission Strength"].default_value = 1.0
+
+
+def remove_emission(obj):
+    mat = glow_material(obj, "no_glow")
+    bsdf = next((n for n in mat.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None) if mat is not None else None
+    if bsdf is None:
+        return
+    for link in list(bsdf.inputs["Emission Color"].links):
+        node = link.from_node
+        mat.node_tree.links.remove(link)
+        if node.type == "TEX_IMAGE" and not any(output.is_linked for output in node.outputs):
+            mat.node_tree.nodes.remove(node)
+    bsdf.inputs["Emission Strength"].default_value = 0.0
 
 
 def ensure_texture_in_repo(root, obj, texture, folder="models"):

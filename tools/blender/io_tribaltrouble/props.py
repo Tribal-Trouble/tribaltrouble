@@ -7,10 +7,9 @@ import bpy
 import numpy as np
 from bpy.props import StringProperty, BoolProperty, EnumProperty
 
-from .textures import (apply_team_preview, crop_pixels, decal_texture_path, ensure_emission_in_repo, ensure_texture_in_repo,
-                       get_atlas_material,
-                       material_image_name, mesh_texture_image, MIP_PAD, models_texture_path, race_texture_name,
-                       short_labels, texture_names)
+from .textures import (apply_team_preview, crop_pixels, decal_texture_path, emission_image, ensure_emission_in_repo,
+                       ensure_texture_in_repo, get_atlas_material, material_image_name, mesh_texture_image, MIP_PAD,
+                       models_texture_path, race_texture_name, short_labels, texture_names)
 from .mesh_io import write_mesh_xml
 from .rig import active_armature, item_hidden_here, POINT_LABELS
 from .registry import (append_registry_entries, CARRY_SLOT, GEOMETRY_DIR, PROP_SLOT, read_registry, REGISTRY_FILE,
@@ -24,6 +23,7 @@ from .models import RemoveFromRegistry
 from .preview import ShowItemClip
 from .by_hand import SetupAttachments
 from .skins import draw_skin_banner, draw_skin_list, NewSkin
+from .glow import draw_glow
 
 
 PROP_CATEGORIES = ("BUILDINGS", "RESOURCES", "NATURE", "DECORATIONS", "OTHER")  # take props, besides units
@@ -175,6 +175,7 @@ def draw_item_detail(context, layout, arm, item):
         clip.item = item.name
     if shares_unit_texture(arm, item):
         box.operator(OwnTexture.bl_idname, icon="IMAGE_DATA").target = item.name
+    draw_glow(box, context, item)
     target, entry = skin_item(context, item.name)
     if target is None:
         return
@@ -356,12 +357,15 @@ class PaintItem(bpy.types.Operator):
     bl_idname = "object.tt_paint_item"
     bl_label = "Paint It"
     target: StringProperty(options={"SKIP_SAVE"})
+    glow: BoolProperty(options={"SKIP_SAVE"}, description="Paint the glow picture instead of the texture")
 
     def execute(self, context):
         obj = bpy.data.objects.get(self.target) or context.active_object
-        image = mesh_texture_image(obj) if obj is not None and obj.type == "MESH" else None
+        mesh = obj is not None and obj.type == "MESH"
+        image = (emission_image(obj) if self.glow else mesh_texture_image(obj)) if mesh else None
         if image is None:
-            self.report({"ERROR"}, "This mesh has no texture yet: press Make A Texture For It")
+            self.report({"ERROR"}, "This mesh has no glow yet: press Add Glow" if self.glow else
+                        "This mesh has no texture yet: press Make A Texture For It")
             return {"CANCELLED"}
         if context.mode != "OBJECT":
             bpy.ops.object.mode_set(mode="OBJECT")

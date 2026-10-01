@@ -34,6 +34,7 @@ from .scene import (DETAIL_ITEMS, detail_update, loaded_body, refresh_units_on_l
 from .forms import NewEvent
 from .import_export import (ExportTTMesh, ExportTTSkeleton, ImportTTMesh, ImportTTSkeleton, menu_export, menu_import,
                             menu_object, SplitByBone)
+from .glow import AddGlow, RemoveGlow
 from .models import (AddToScene, EditScatter, LoadUnit, PickUnit, Preflight, PublishModel, RefreshUnits,
                      RegisterModel, RemoveAdded, RemoveFromRegistry, TT_UL_units, TTCheck, TTPreferences, TTUnitEntry,
                      units_list_menu, UpdateAddon, VIEW3D_PT_tt_units)
@@ -60,12 +61,12 @@ bl_info = {
 
 classes = (TTPreferences, ImportTTMesh, ExportTTMesh, SplitByBone, ImportTTSkeleton, ExportTTSkeleton, TTAttachmentSlot,
            TTUnitEntry, TT_UL_units, RefreshUnits, LoadUnit, PublishModel, PickUnit, AddToScene, RemoveAdded, ShowItem,
-           ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, EditScatter, TTCheck, SetClip, SetTier, MaterialPreview,
-           Preflight, RemoveFromRegistry, UpdateAddon, NewEvent, NewProp, ShowSkin, PaintSkin, TTSkinEntry, TT_UL_skins,
-           PickSkin, NewSkin, CancelSkin, SaveSkin, CloseItem, NewClip, DeleteClip, SetupAttachments, ExportAttachments,
-           CopyRegistrySnippet, MakeTexture, NewItem, OwnTexture, PutOnBone, PaintItem, DonePainting, TT_UL_items,
-           VIEW3D_PT_tt_units, VIEW3D_PT_tt_skins, VIEW3D_PT_tt_preview, VIEW3D_PT_tt_attachments,
-           VIEW3D_PT_tt_attachments_more)
+           ShowItemClip, ExportToRepo, AddToRegistry, RegisterModel, EditScatter, AddGlow, RemoveGlow, TTCheck, SetClip,
+           SetTier, MaterialPreview, Preflight, RemoveFromRegistry, UpdateAddon, NewEvent, NewProp, ShowSkin, PaintSkin,
+           TTSkinEntry, TT_UL_skins, PickSkin, NewSkin, CancelSkin, SaveSkin, CloseItem, NewClip, DeleteClip,
+           SetupAttachments, ExportAttachments, CopyRegistrySnippet, MakeTexture, NewItem, OwnTexture, PutOnBone,
+           PaintItem, DonePainting, TT_UL_items, VIEW3D_PT_tt_units, VIEW3D_PT_tt_skins, VIEW3D_PT_tt_preview,
+           VIEW3D_PT_tt_attachments, VIEW3D_PT_tt_attachments_more)
 
 
 def register():

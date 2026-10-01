@@ -7,12 +7,13 @@ import xml.etree.ElementTree as ET
 import bpy
 from bpy.props import StringProperty, BoolProperty
 
-from .textures import (apply_team_preview, ensure_texture_in_repo, get_atlas_material, image_texture_name,
-                       mesh_texture_image, models_texture_path, race_texture_name, save_png, short_labels)
+from .textures import (apply_team_preview, ensure_emission_in_repo, ensure_texture_in_repo, get_atlas_material,
+                       image_texture_name, mesh_texture_image, models_texture_path, race_texture_name, save_png,
+                       short_labels)
 from .mesh_io import mesh_record_from_xml, replace_mesh_data, write_text
 from .rig import body_rig, item_point, POINT_LABELS
 from .registry import (append_registry_entries, GEOMETRY_DIR, level_textures, read_registry, REGISTRY_FILE, repo_root,
-                       SCENERY_GROUP, sprite_skins, sprite_text, team_attribute)
+                       SCENERY_GROUP, sprite_skins, sprite_text, team_attribute, emissive_attribute)
 from .scene import (attach_object, attachment_obj_poll, BROWSER_TAG, detach_object, export_texts, loaded_body,
                     model_levels, refresh_units, set_item_visible, skin_body, skin_item, skin_parts, snap_to_bone)
 from .publish import check_mesh, store_findings
@@ -366,12 +367,14 @@ class SaveSkin(bpy.types.Operator):
                 save_png(image, models_texture_path(root, texture))
                 if replaced is not None:
                     image.reload()
+        for o in levels:
+            ensure_emission_in_repo(root, o)
         # A new texture on a stock tier keeps that tier's team decal unless it has its own.
         stock = {texture: replaced for texture, (_, _, replaced) in images.items() if replaced is not None}
         geometry = os.path.join(root, GEOMETRY_DIR)
         models = [(os.path.relpath(paths[o], geometry).replace(os.sep, "/"),
-                   [(t, team_attribute(root, t, False) or team_attribute(root, stock.get(t, t), False))
-                    for t in textures[o]]) for o in levels]
+                   [(t, (team_attribute(root, t, False) or team_attribute(root, stock.get(t, t), False)) +
+                     emissive_attribute(o)) for t in textures[o]]) for o in levels]
         if entry["slot"]:
             attrs = [("name", name), ("base", entry["base"]), ("slot", entry["slot"]), ("skin", skin),
                      ("replaces", sprite)]

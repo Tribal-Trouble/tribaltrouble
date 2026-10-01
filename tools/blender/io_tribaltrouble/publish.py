@@ -11,11 +11,11 @@ from .textures import (emission_image, ensure_emission_in_repo, ensure_texture_i
                        mesh_texture_image, models_texture_path, object_texture, save_png, texture_names)
 from .rig import (armature_actions, clip_copy, clip_keys, clip_prefix, clip_short_name, read_animation, shown_bones,
                   write_animation_xml)
-from .registry import (append_registry_entries, find_base_sprite, GEOMETRY_DIR, item_slot, read_registry,
+from .registry import (append_registry_entries, find_base_sprite, GEOMETRY_DIR, glow_changes, item_slot, read_registry,
                        registry_entries, REGISTRY_FILE, repo_root, rig_in_repo, rig_registry, set_clip_line,
-                       set_sprite_textures)
-from .scene import (browsed_unit, BROWSER_TAG, file_clashes, item_shown, model_levels, set_item_visible, unit_height,
-                    unit_items, unit_meshes, visible_attachments, world_box, write_changed)
+                       set_model_emissive, set_sprite_textures)
+from .scene import (browsed_unit, BROWSER_TAG, file_clashes, glow_models, item_shown, model_levels, set_item_visible,
+                    unit_height, unit_items, unit_meshes, visible_attachments, world_box, write_changed)
 
 
 def export_visible(context, arm, report):
@@ -303,6 +303,21 @@ def skin_edit_images():
     """The images of the models a skin is being made for: their paint belongs to the skin."""
     return {mesh_texture_image(level) for o in bpy.data.objects if o.get("tt_skin_editing")
             for level in model_levels(o)}
+
+
+def publish_glow(root):
+    """Write glow changes on the loaded models and props: their glow pictures and emissive= on their texture lines.
+    The names of what was written."""
+    written = []
+    for o, entry, level, glow in glow_changes(root, glow_models()):
+        image = emission_image(o)
+        if image is not None and (image.is_dirty or not os.path.isfile(models_texture_path(root, glow))):
+            ensure_texture_in_repo(root, o, glow)
+            written.append(glow + ".png")
+        if glow != (entry["emissive"][level] if level < len(entry["emissive"]) else ""):
+            set_model_emissive(os.path.join(root, REGISTRY_FILE), entry["group"], entry["name"], level, glow)
+            written.append(f"{entry['name']} glow")
+    return written
 
 
 def publish_paint(root):

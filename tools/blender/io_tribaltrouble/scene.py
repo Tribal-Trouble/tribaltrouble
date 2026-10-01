@@ -11,7 +11,8 @@ from .textures import apply_team_preview, mesh_texture_image, models_texture_pat
 from .mesh_io import bone_tail_matrices, import_mesh_file, mesh_xml_text, rest_pose_armatures, STATIC_BONE, write_text
 from .rig import (apply_clip, armature_actions, armature_from_file, assign_action, bind_meshes, build_armature,
                   clip_keys, read_animation, read_skeleton, shown_bones)
-from .registry import GEOMETRY_DIR, level_textures, read_registry, repo_root, rig_entry, sprite_category, sprite_skins
+from .registry import (GEOMETRY_DIR, glow_changes, level_textures, read_registry, repo_root, rig_entry, sprite_category,
+                       sprite_skins)
 
 
 def attach_object(arm, obj, bone_name, visible):
@@ -348,6 +349,14 @@ def loaded_models():
             and "tt_export_hash" in o]
 
 
+def glow_models():
+    """Loaded meshes whose glow Publish writes to their own registry entry: not a skin on show or being made."""
+    editing = [o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.get("tt_skin_editing")]
+    skin_levels = {level for o in editing for level in model_levels(o)}
+    return [o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.type == "MESH" and o.get("tt_source")
+            and not o.get(REFERENCE_TAG) and not o.get("tt_skin") and o not in skin_levels]
+
+
 def unpublished_changes(context):
     """What loading another model drops that Publish would have kept, in a few words each; empty when nothing."""
     editing = [o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.get("tt_skin_editing")]
@@ -365,6 +374,9 @@ def unpublished_changes(context):
               if o.get(BROWSER_TAG) and o.type == "MESH" and o not in skin_levels}
     if any(image is not None and image.is_dirty for image in images):
         changes.append("paint")
+    root = repo_root(context)
+    if root and glow_changes(root, glow_models()):
+        changes.append("glow")
     return changes
 
 

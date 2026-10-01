@@ -291,8 +291,9 @@ def set_sprite_textures(root, group, name, textures):
                 continue
             first = lines[0].group(0)
             ending = first[len(first.rstrip("\r\n")):]
-            new = "".join(f"{lines[0].group(1)}<texture name={quoteattr(t)}{team_attribute(root, t, False)}/>{ending}"
-                          for t in textures)
+            glow = re.search(r'\semissive="[^"]*"', lines[0].group(3))
+            new = "".join(f"{lines[0].group(1)}<texture name={quoteattr(t)}{team_attribute(root, t, False)}"
+                          f"{glow.group(0) if glow else ''}/>{ending}" for t in textures)
             block = block[:lines[0].start()] + new + block[lines[-1].end():]
         with open(registry_path, "wb") as f:
             f.write((text[:start] + block + text[end:]).encode("utf-8"))
@@ -318,6 +319,48 @@ def set_sprite_attributes(registry_path, group, name, attrs):
             f.write((text[:start] + tag + text[tag_end:]).encode("utf-8"))
         return True
     return False
+
+
+def set_model_emissive(registry_path, group, name, level, glow):
+    """Set emissive= on the texture lines of one model (detail level) of one sprite, or drop it for a blank glow."""
+    with open(registry_path, "rb") as f:
+        text = f.read().decode("utf-8")
+    for sprite_group, sprite, start, end in sprite_blocks(text):
+        if (sprite_group, sprite) != (group, name):
+            continue
+        block = text[start:end]
+        models = list(re.finditer(r"<model\b[^>]*>.*?</model>", block, re.S))
+        if level >= len(models):
+            return False
+
+        def retag(match):
+            tag = re.sub(r'\s+emissive="[^"]*"', "", match.group(0))[:-2].rstrip()
+            return tag + (f" emissive={quoteattr(glow)}" if glow else "") + "/>"
+
+        model = models[level]
+        block = block[:model.start()] + re.sub(r"<texture\b[^>]*/>", retag, model.group(0)) + block[model.end():]
+        with open(registry_path, "wb") as f:
+            f.write((text[:start] + block + text[end:]).encode("utf-8"))
+        return True
+    return False
+
+
+def glow_changes(root, objs):
+    """(object, registry entry, detail level, glow name) for each loaded model whose glow picture is not the one
+    geometry.xml lists for it, or has unsaved paint."""
+    entries = {(s["group"], s["name"]): s for s in read_registry(root)}
+    found = []
+    for o in objs:
+        entry = entries.get((o.get("tt_group"), o.get("tt_sprite")))
+        if entry is None:
+            continue
+        level = o.get("tt_detail", 0)
+        image = emission_image(o)
+        glow = image_texture_name(image) if image is not None else ""
+        listed = entry["emissive"][level] if level < len(entry["emissive"]) else ""
+        if glow != listed or image is not None and image.is_dirty:
+            found.append((o, entry, level, glow))
+    return found
 
 
 PROP_SLOT = "prop"

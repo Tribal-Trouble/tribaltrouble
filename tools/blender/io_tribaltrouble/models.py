@@ -18,7 +18,8 @@ from .scene import (add_reference, attachment_obj_poll, BROWSER_TAG, clear_refer
                     loaded_body, loaded_models, REFERENCE_TAG, references, refresh_units, root_update,
                     unpublished_changes, write_changed)
 from .publish import (check_mesh, preflight, publish_changed_clips, publish_items, publish_own_textures,
-                      publish_paint, store_findings, texture_clashes)
+                      publish_glow, publish_paint, store_findings, texture_clashes)
+from .glow import draw_glow
 from .forms import (chosen_event, draw_confirm, draw_event, event_property, form_title, mesh_problem, name_problem,
                     NO_EVENT, open_form, own_mesh_search)
 
@@ -145,7 +146,7 @@ class PublishModel(bpy.types.Operator):
                 return {"CANCELLED"}
         written = write_changed(context, arm, {o: o["tt_source"] for o in loaded_models()})
         publish_own_textures(repo_root(context), loaded_models())
-        painted = publish_paint(repo_root(context))
+        painted = publish_paint(repo_root(context)) + publish_glow(repo_root(context))
         clips = publish_changed_clips(context, arm, self.report) if arm is not None else []
         saved = added + [os.path.basename(o["tt_source"]) for o in written] + painted + clips
         self.report({"INFO"}, f"Saved {', '.join(saved)}" if saved else "Nothing changed since loading")
@@ -671,6 +672,8 @@ class VIEW3D_PT_tt_units(bpy.types.Panel):
             remove = row.operator(RemoveFromRegistry.bl_idname, text="", icon="TRASH")
             remove.group, remove.sprite = body["tt_group"], body["tt_sprite"]
         draw_checks(layout, wm)
+        if body is not None:
+            draw_glow(layout, context, body)
         if body is not None and loaded_decoration(context, body) is not None:
             layout.operator(EditScatter.bl_idname, icon="PREFERENCES")
         # Units show it under Preview.
