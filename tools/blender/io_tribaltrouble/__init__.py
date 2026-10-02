@@ -25,7 +25,8 @@ and also check it on export.
 """
 
 import bpy
-from bpy.props import StringProperty, BoolProperty, CollectionProperty, EnumProperty, IntProperty, FloatVectorProperty
+from bpy.props import (StringProperty, BoolProperty, CollectionProperty, EnumProperty, FloatProperty,
+                       FloatVectorProperty, IntProperty)
 
 from .textures import team_preview_update
 from .registry import CATEGORY_ITEMS
@@ -35,7 +36,7 @@ from .forms import NewEvent
 from .import_export import (ExportTTMesh, ExportTTSkeleton, ImportTTMesh, ImportTTSkeleton, menu_export, menu_import,
                             menu_object, SplitByBone)
 from . import unsaved
-from .glow import AddGlow, RemoveGlow
+from .glow import AddGlow, LIGHT_COLOR, light_switched, RemoveGlow
 from .models import (AddToScene, EditScatter, LoadUnit, PickUnit, Preflight, PublishModel, RefreshUnits,
                      RegisterModel, RemoveAdded, RemoveFromRegistry, TT_UL_units, TTCheck, TTPreferences, TTUnitEntry,
                      units_list_menu, UpdateAddon, VIEW3D_PT_tt_units)
@@ -74,6 +75,18 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.types.Object.tt_attachments = CollectionProperty(type=TTAttachmentSlot)
+    bpy.types.Object.tt_light = BoolProperty(name="Casts light", update=light_switched,
+                                             description="Light the ground and models around it at night")
+    bpy.types.Object.tt_light_color = FloatVectorProperty(name="Light Color", subtype="COLOR_GAMMA", size=3, min=0.0,
+                                                          max=1.0, default=LIGHT_COLOR,
+                                                          update=lambda obj, context: unsaved.schedule())
+    bpy.types.Object.tt_light_radius = FloatProperty(name="Reach", min=1.0, max=30.0, default=8.0, precision=1,
+                                                     update=lambda obj, context: unsaved.schedule(),
+                                                     description="How far the light reaches, in meters")
+    bpy.types.Object.tt_light_strength = FloatProperty(name="Strength", min=0.1, max=5.0, default=1.0, precision=2,
+                                                       update=lambda obj, context: unsaved.schedule(),
+                                                       description="How bright the light is; 1 is as bright as a "
+                                                                   "torch")
     wm = bpy.types.WindowManager
     wm.tt_repo_root = StringProperty(name="Repo Folder", subtype="DIR_PATH", update=root_update)
     wm.tt_units = CollectionProperty(type=TTUnitEntry)
@@ -121,6 +134,10 @@ def unregister():
     bpy.app.handlers.load_post.remove(refresh_units_on_load)
     unsaved.unregister()
     del bpy.types.Object.tt_attachments
+    del bpy.types.Object.tt_light
+    del bpy.types.Object.tt_light_color
+    del bpy.types.Object.tt_light_radius
+    del bpy.types.Object.tt_light_strength
     for name in ("tt_repo_root", "tt_units", "tt_unit_index", "tt_category", "tt_checks",
                  "tt_checked", "tt_team_preview", "tt_team_color",
                  "tt_item_index", "tt_detail", "tt_item_search",

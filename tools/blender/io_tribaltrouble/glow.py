@@ -1,15 +1,18 @@
 """The Glow row: the picture wired into a mesh's Emission Color, which the game adds on top of the lit texture."""
 
 import bpy
+import numpy as np
 from bpy.props import StringProperty, EnumProperty
 
 from .textures import emission_image, image_texture_name, mesh_texture_image, remove_emission, wire_emission
 from .registry import read_registry, repo_root
 from .forms import draw_confirm, form_title, open_form
+from .unsaved import schedule
 
 PAINT_IT = "object.tt_paint_item"  # props.PaintItem, which imports this module
 
 NEW_GLOW = "__NEW__"
+LIGHT_COLOR = (1.0, 0.55, 0.15)
 _glow_items = []
 
 
@@ -40,11 +43,40 @@ def draw_glow(layout, context, obj):
     paint.target, paint.glow = obj.name, True
     row.operator(AddGlow.bl_idname, text="", icon="FILE_REFRESH", emboss=False).target = obj.name
     row.operator(RemoveGlow.bl_idname, text="", icon="TRASH", emboss=False).target = obj.name
+    light = layout.split(factor=0.3)
+    light.prop(obj, "tt_light", text="Light")
+    if obj.tt_light:
+        light.prop(obj, "tt_light_color", text="")
+        for prop, label in (("tt_light_strength", "Strength"), ("tt_light_radius", "Reach")):
+            value = layout.split(factor=0.3)
+            value.label(text=label)
+            value.prop(obj, prop, text="")
     others = glow_users(context, name, obj.get("tt_sprite"))
     if others:
         note = layout.row()
         note.enabled = False
         note.label(text="Also used by " + ", ".join(others[:3]) + (" ..." if len(others) > 3 else ""), icon="INFO")
+
+
+def glow_color(image):
+    """The color the glowing pixels of image average to, brightest pixels counting most."""
+    pixels = np.empty(len(image.pixels), dtype=np.float32)
+    image.pixels.foreach_get(pixels)
+    pixels = pixels.reshape(-1, 4)
+    weight = pixels[:, :3].max(axis=1) * pixels[:, 3]
+    if weight.sum() <= 0:
+        return LIGHT_COLOR
+    color = (pixels[:, :3] * weight[:, None]).sum(axis=0) / weight.sum()
+    return tuple(float(c) for c in color / max(color.max(), 1e-6))
+
+
+def light_switched(obj, context):
+    """A light still in the default color takes the color of its glow when turned on."""
+    image = emission_image(obj)
+    default = all(abs(c - d) < 1e-4 for c, d in zip(obj.tt_light_color, LIGHT_COLOR))
+    if obj.tt_light and image is not None and default:
+        obj.tt_light_color = glow_color(image)
+    schedule()
 
 
 class AddGlow(bpy.types.Operator):

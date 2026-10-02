@@ -13,7 +13,7 @@ from .textures import (apply_team_preview, crop_pixels, decal_texture_path, emis
 from .mesh_io import write_mesh_xml
 from .rig import active_armature, item_hidden_here, POINT_LABELS
 from .registry import (append_registry_entries, CARRY_SLOT, GEOMETRY_DIR, PROP_SLOT, read_registry, REGISTRY_FILE,
-                       repo_root, sprite_text, team_attribute, emissive_attribute)
+                       repo_root, sprite_text, team_attribute, glow_attributes)
 from .scene import (attachment_obj_poll, browsed_unit, BROWSER_TAG, export_texts, file_clashes, item_shown,
                     model_levels, refresh_skins, set_item_visible, skin_item, snap_to_bone, unit_items, write_changed)
 from .publish import check_mesh, publish_paint, store_findings, texture_clashes
@@ -656,7 +656,7 @@ def publish_props(op, context, fresh, event, base=None):
         entries.append((sprite, sprite_text([("name", sprite), ("base", base), ("slot", PROP_SLOT)] +
                                             ([("event", event)] if event else []),
                                             [(model, [(texture, team_attribute(root, texture, False) +
-                                                                emissive_attribute(o))])])))
+                                                                glow_attributes(o))])])))
         world = o.matrix_world.copy()
         o.parent = body
         o.matrix_world = world

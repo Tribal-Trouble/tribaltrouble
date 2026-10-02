@@ -209,6 +209,17 @@ def show_emission(obj, image_path):
         wire_emission(obj, bpy.data.images.load(image_path, check_existing=True))
 
 
+def show_light(obj, light):
+    """Set obj's light from its light_color, light_strength and light_reach; none turns it off. The color goes first,
+    so turning the light on keeps it."""
+    if light:
+        color, strength, reach = light
+        obj.tt_light_color = [int(color[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+        obj.tt_light_strength = float(strength)
+        obj.tt_light_radius = float(reach)
+    obj.tt_light = bool(light)
+
+
 def glow_material(obj, suffix):
     """A copy of obj's material named for its glow, so other meshes using the same texture keep theirs."""
     mat = obj.active_material

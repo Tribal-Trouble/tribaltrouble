@@ -9,12 +9,12 @@ from bpy.props import StringProperty, BoolProperty
 
 from .textures import (apply_team_preview, ensure_emission_in_repo, ensure_texture_in_repo, get_atlas_material,
                        image_texture_name, mesh_texture_image, models_texture_path, race_texture_name, save_png,
-                       short_labels, show_emission)
+                       short_labels, show_emission, show_light)
 from .mesh_io import mesh_record_from_xml, replace_mesh_data, write_text
 from .rig import body_rig, item_point, POINT_LABELS
 from .registry import (append_registry_entries, GEOMETRY_DIR, glow_changes, level_textures, read_registry,
                        REGISTRY_FILE, repo_root, SCENERY_GROUP, sprite_skins, sprite_text, team_attribute,
-                       emissive_attribute)
+                       glow_attributes)
 from .scene import (attach_object, attachment_obj_poll, BROWSER_TAG, detach_object, export_texts, loaded_body,
                     model_levels, refresh_units, saved_hash, set_item_visible, skin_body, skin_item, skin_parts,
                     snap_to_bone)
@@ -67,6 +67,8 @@ def show_skin(context, body, entry, skin):
         glows = shown.get("emissive") or [""]
         if glows[min(level, len(glows) - 1)]:
             show_emission(o, models_texture_path(root, glows[min(level, len(glows) - 1)]))
+        lights = shown.get("light") or [()]
+        show_light(o, lights[min(level, len(lights) - 1)])
         if skin is not None:
             o["tt_stock_texture"] = o.get("tt_stock_texture", o.get("tt_texture", ""))
             o["tt_texture"], o["tt_skin"], o["tt_skin_name"] = ",".join(textures), skin["name"], skin["skin"]
@@ -419,7 +421,7 @@ class SaveSkin(bpy.types.Operator):
         geometry = os.path.join(root, GEOMETRY_DIR)
         models = [(os.path.relpath(paths[o], geometry).replace(os.sep, "/"),
                    [(t, (team_attribute(root, t, False) or team_attribute(root, stock.get(t, t), False)) +
-                     emissive_attribute(o)) for t in textures[o]]) for o in levels]
+                     glow_attributes(o)) for t in textures[o]]) for o in levels]
         if entry["slot"]:
             attrs = [("name", name), ("base", entry["base"]), ("slot", entry["slot"]), ("skin", skin),
                      ("replaces", sprite)]

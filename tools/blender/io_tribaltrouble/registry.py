@@ -61,7 +61,7 @@ def registry_entries(context, arm, base, group=""):
             continue
         obj = slot.obj
         game_slot = item_slot(slot.point, group)
-        textures = [(t, team_attribute(root, t, bool(obj.get("tt_texture"))) + emissive_attribute(obj))
+        textures = [(t, team_attribute(root, t, bool(obj.get("tt_texture"))) + glow_attributes(obj))
                     for t in texture_names(obj) or ["TEXTURE"]]
         model = f"misc/{obj.name}.xml"
         if root and arm.get("tt_skeleton"):
@@ -77,6 +77,7 @@ def registry_entries(context, arm, base, group=""):
 
 GEOMETRY_DIR = os.path.join("assets", "geometry")
 REGISTRY_FILE = os.path.join(GEOMETRY_DIR, "geometry.xml")
+LIGHT_ATTRIBUTES = ("light_color", "light_strength", "light_reach")
 
 
 def resolve_repo_root(path):
@@ -126,6 +127,8 @@ def read_registry(root):
                              for m in sprite.findall("model")],
                 "emissive": [next((t.get("emissive") for t in m.findall("texture") if t.get("emissive")), "")
                              for m in sprite.findall("model")],
+                "light": [next((tuple(t.get(a) for a in LIGHT_ATTRIBUTES) for t in m.findall("texture")
+                                if all(t.get(a) for a in LIGHT_ATTRIBUTES)), ()) for m in sprite.findall("model")],
                 "skeleton": skeleton.text.strip() if skeleton is not None and skeleton.text else "",
                 "models": [(m.text or "").strip() for m in sprite.findall("model")],
                 "clips": [(a.text or "").strip() for a in sprite.findall("animation")],
@@ -201,9 +204,25 @@ def team_attribute(root, texture, fallback):
     return f' team="{texture}_team"' if fallback else ""
 
 
-def emissive_attribute(obj):
+def glow_attributes(obj):
     image = emission_image(obj)
-    return f" emissive={quoteattr(image_texture_name(image))}" if image is not None else ""
+    return f" emissive={quoteattr(image_texture_name(image))}{light_attributes(obj)}" if image is not None else ""
+
+
+def light_value(obj):
+    """obj's light_color, light_strength and light_reach as geometry.xml writes them; empty when it casts no light."""
+    if not obj.tt_light or emission_image(obj) is None:
+        return ()
+    color = "".join(f"{round(c * 255):02x}" for c in obj.tt_light_color)
+    return light_spelling(f"#{color}", obj.tt_light_strength, obj.tt_light_radius)
+
+
+def light_spelling(color, strength, reach):
+    return color.lower(), f"{round(float(strength), 2):g}", f"{round(float(reach), 1):g}"
+
+
+def light_attributes(obj):
+    return "".join(f" {name}={quoteattr(value)}" for name, value in zip(LIGHT_ATTRIBUTES, light_value(obj)))
 
 
 def append_registry_entries(registry_path, group, entries):
@@ -291,9 +310,10 @@ def set_sprite_textures(root, group, name, textures):
                 continue
             first = lines[0].group(0)
             ending = first[len(first.rstrip("\r\n")):]
-            glow = re.search(r'\semissive="[^"]*"', lines[0].group(3))
+            glow = "".join(re.findall(r'\s(?:emissive|light_color|light_strength|light_reach)="[^"]*"',
+                                      lines[0].group(3)))
             new = "".join(f"{lines[0].group(1)}<texture name={quoteattr(t)}{team_attribute(root, t, False)}"
-                          f"{glow.group(0) if glow else ''}/>{ending}" for t in textures)
+                          f"{glow}/>{ending}" for t in textures)
             block = block[:lines[0].start()] + new + block[lines[-1].end():]
         with open(registry_path, "wb") as f:
             f.write((text[:start] + block + text[end:]).encode("utf-8"))
@@ -340,8 +360,9 @@ def set_model_path(registry_path, group, name, level, path):
     return False
 
 
-def set_model_emissive(registry_path, group, name, level, glow):
-    """Set emissive= on the texture lines of one model (detail level) of one sprite, or drop it for a blank glow."""
+def set_model_glow(registry_path, group, name, level, glow, light):
+    """Set emissive= and the light attributes on the texture lines of one model (detail level) of one sprite, dropping
+    them for a blank glow or an empty light."""
     with open(registry_path, "rb") as f:
         text = f.read().decode("utf-8")
     for sprite_group, sprite, start, end in sprite_blocks(text):
@@ -353,8 +374,10 @@ def set_model_emissive(registry_path, group, name, level, glow):
             return False
 
         def retag(match):
-            tag = re.sub(r'\s+emissive="[^"]*"', "", match.group(0))[:-2].rstrip()
-            return tag + (f" emissive={quoteattr(glow)}" if glow else "") + "/>"
+            tag = re.sub(r'\s+(?:emissive|light_color|light_strength|light_reach)="[^"]*"', "",
+                         match.group(0))[:-2].rstrip()
+            light_tags = "".join(f" {a}={quoteattr(v)}" for a, v in zip(LIGHT_ATTRIBUTES, light)) if glow else ""
+            return tag + (f" emissive={quoteattr(glow)}" if glow else "") + light_tags + "/>"
 
         model = models[level]
         block = block[:model.start()] + re.sub(r"<texture\b[^>]*/>", retag, model.group(0)) + block[model.end():]
@@ -365,8 +388,8 @@ def set_model_emissive(registry_path, group, name, level, glow):
 
 
 def glow_changes(root, objs):
-    """(object, registry entry, detail level, glow name) for each loaded model whose glow picture is not the one
-    geometry.xml lists for it, or has unsaved paint."""
+    """(object, registry entry, detail level, glow name, light) for each loaded model whose glow picture or light is
+    not the one geometry.xml lists for it, or whose glow has unsaved paint."""
     entries = {(s["group"], s["name"]): s for s in read_registry(root)}
     found = []
     for o in objs:
@@ -377,9 +400,16 @@ def glow_changes(root, objs):
         image = emission_image(o)
         glow = image_texture_name(image) if image is not None else ""
         listed = entry["emissive"][level] if level < len(entry["emissive"]) else ""
-        if glow != listed or image is not None and image.is_dirty:
-            found.append((o, entry, level, glow))
+        light = light_value(o)
+        if glow != listed or image is not None and image.is_dirty or light != listed_light(entry, level):
+            found.append((o, entry, level, glow, light))
     return found
+
+
+def listed_light(entry, level):
+    """The light geometry.xml lists for one detail level, spelled as light_value spells it, so "1.0" is no change."""
+    light = entry["light"][level] if level < len(entry["light"]) else ()
+    return light_spelling(*light) if light else ()
 
 
 PROP_SLOT = "prop"

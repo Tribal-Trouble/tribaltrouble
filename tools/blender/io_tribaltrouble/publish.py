@@ -13,7 +13,7 @@ from .rig import (armature_actions, clip_copy, clip_keys, clip_prefix, clip_shor
                   write_animation_xml)
 from .registry import (append_registry_entries, find_base_sprite, GEOMETRY_DIR, glow_changes, item_slot, read_registry,
                        registry_entries, REGISTRY_FILE, repo_root, rig_in_repo, rig_registry, set_clip_line,
-                       set_model_emissive, set_sprite_textures)
+                       listed_light, set_model_glow, set_sprite_textures)
 from .scene import (browsed_unit, BROWSER_TAG, file_clashes, glow_models, item_shown, model_levels, set_item_visible,
                     unit_height, unit_items, unit_meshes, visible_attachments, world_box, write_changed)
 
@@ -306,16 +306,17 @@ def skin_edit_images():
 
 
 def publish_glow(root):
-    """Write glow changes on the loaded models and props: their glow pictures and emissive= on their texture lines.
-    The names of what was written."""
+    """Write glow changes on the loaded models and props: their glow pictures, and emissive= and the light attributes
+    on their texture lines. The names of what was written."""
     written = []
-    for o, entry, level, glow in glow_changes(root, glow_models()):
+    for o, entry, level, glow, light in glow_changes(root, glow_models()):
         image = emission_image(o)
         if image is not None and (image.is_dirty or not os.path.isfile(models_texture_path(root, glow))):
             ensure_texture_in_repo(root, o, glow)
             written.append(glow + ".png")
-        if glow != (entry["emissive"][level] if level < len(entry["emissive"]) else ""):
-            set_model_emissive(os.path.join(root, REGISTRY_FILE), entry["group"], entry["name"], level, glow)
+        listed = entry["emissive"][level] if level < len(entry["emissive"]) else ""
+        if glow != listed or light != listed_light(entry, level):
+            set_model_glow(os.path.join(root, REGISTRY_FILE), entry["group"], entry["name"], level, glow, light)
             written.append(f"{entry['name']} glow")
     return written
 
