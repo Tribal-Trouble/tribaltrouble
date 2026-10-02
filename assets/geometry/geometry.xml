@@ -700,6 +700,26 @@
                 <texture name="pumpkins" emissive="pumpkins_emissive"/>
             </model>
         </sprite>
+        <sprite name="armory_pumpkin" skin="pumpkin" replaces="armory" event="halloween">
+            <model r="90" g="60" b="30">
+                natives/armory/armory_pumpkin.xml
+                <texture name="native_building_hi" team="native_building_hi_team"/>
+            </model>
+            <model r="90" g="60" b="30">
+                natives/armory/build_armoury_built_lo.xml
+                <texture name="native_armoury_lo" team="native_armoury_lo_team"/>
+            </model>
+        </sprite>
+        <sprite name="tower_pumpkin" skin="pumpkin" replaces="tower" event="halloween">
+            <model r="90" g="60" b="30">
+                natives/tower/tower_pumpkin.xml
+                <texture name="native_tower" team="native_tower_team"/>
+            </model>
+            <model r="90" g="60" b="30">
+                natives/tower/native_tower_built_lo.xml
+                <texture name="native_tower" team="native_tower_team"/>
+            </model>
+        </sprite>
     </group>
     <group name="misc">
         <sprite name="jungle_tree_crown">
