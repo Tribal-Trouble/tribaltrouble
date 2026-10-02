@@ -28,6 +28,7 @@ import com.oddlabs.tt.procedural.GeneratorHalos;
 import com.oddlabs.tt.procedural.GeneratorLightning;
 import com.oddlabs.tt.procedural.GeneratorPoison;
 import com.oddlabs.tt.procedural.GeneratorSmoke;
+import com.oddlabs.tt.render.GlowLights;
 import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.render.ShadowListKey;
 import com.oddlabs.tt.render.SpriteKey;
@@ -46,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,6 +66,7 @@ import java.util.stream.Stream;
 public final class RacesResources {
     private static final String ATTACHMENTS_FILE = "/geometry/attachments.txt";
     private static final String SKINS_FILE = "/geometry/skins.txt";
+    private static final String LIGHTS_FILE = "/geometry/lights.txt";
     private static final int DEFAULT_TEXTURE = 0;
     private static final String NO_EVENT = "-";
     private static final String CARRIED_SLOT = "carried";
@@ -75,6 +78,7 @@ public final class RacesResources {
     private static final String EVENT = System.getProperty("com.oddlabs.tt.event", NO_EVENT);
     private static List<AttachmentEntry> attachment_entries;
     private static Map<String, String> event_skins;
+    private static Map<String, List<GlowLights.Light>> lights;
     public static final int QUARTERS_SIZE = 5;
     public static final int ARMORY_SIZE = 5;
     public static final int TOWER_SIZE = 3;
@@ -265,6 +269,32 @@ public final class RacesResources {
         String base = registryPath(location);
         return loadAttachments().stream().filter(entry -> entry.slot().equals(PROP_SLOT) && spritePath(entry.group(),
                 entry.base()).equals(base)).map(entry -> spritePath(entry.group(), entry.name())).toList();
+    }
+
+    /** Where the glow of the sprite at location drawn with texture tex_index lights from, in the sprite's space. */
+    public static @NonNull List<GlowLights.Light> getLights(@NonNull String location, int tex_index) {
+        if (lights == null)
+            lights = readLights();
+        return lights.getOrDefault(registryPath(location) + " " + tex_index, List.of());
+    }
+
+    // Lines of "group name texture #rrggbb radius strength x y z" written by the geometry converter.
+    private static @NonNull Map<String, List<GlowLights.Light>> readLights() {
+        try (var reader = new BufferedReader(new InputStreamReader(
+                com.oddlabs.util.Utils.makeURL(LIGHTS_FILE).openStream(), StandardCharsets.UTF_8))) {
+            Map<String, List<GlowLights.Light>> found = new HashMap<>();
+            reader.lines().map(line -> line.split(" ")).forEach(f -> {
+                int rgb = Integer.parseInt(f[3].substring(1), 16);
+                float strength = Float.parseFloat(f[5]) / 255f;
+                found.computeIfAbsent(spritePath(f[0], f[1]) + " " + f[2], key -> new ArrayList<>()).add(
+                        new GlowLights.Light(Float.parseFloat(f[6]), Float.parseFloat(f[7]), Float.parseFloat(f[8]),
+                                Float.parseFloat(f[4]), (rgb >> 16 & 0xff) * strength, (rgb >> 8 & 0xff) * strength,
+                                (rgb & 0xff) * strength));
+            });
+            return found;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     // Resource locations are URLs, while the registry names a sprite by its path under /geometry.

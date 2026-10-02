@@ -26,6 +26,7 @@ public final class RenderQueues implements AutoCloseable {
     private final List<@NonNull SpriteFile> sprite_file_lookup = new ArrayList<>();
     private final List<@NonNull Integer> tex_index_lookup = new ArrayList<>();
     private final List<@NonNull List<@NonNull SpriteKey>> props_lookup = new ArrayList<>();
+    private final @NonNull GlowLights glow_lights = new GlowLights();
     private final List<@NonNull ShadowListRenderer> shadow_renderer_lookup = new ArrayList<>();
     private final Map<@NonNull Supplier<@NonNull Texture @NonNull []>, @NonNull ShadowListKey> desc_to_shadow_key = new HashMap<>();
     private final List<@NonNull Texture> texture_lookup = new ArrayList<>();
@@ -92,8 +93,9 @@ public final class RenderQueues implements AutoCloseable {
         if (drawn.getAnimationTypes().length != sprite_list.getAnimationTypes().length)
             throw new IllegalStateException(
                     "Event skin of " + sprite_file.getLocation() + " has other clips than it; give it that sprite as its base");
-        SpriteRenderer sprite_renderer = new SpriteRenderer(drawn, tex_index < drawn.getSprite(
-                0).getNumTextures() ? tex_index : FIRST_TEXTURE, spriteRenderer);
+        int drawn_index = tex_index < drawn.getSprite(0).getNumTextures() ? tex_index : FIRST_TEXTURE;
+        SpriteRenderer sprite_renderer = new SpriteRenderer(drawn, drawn_index, spriteRenderer,
+                RacesResources.getLights(drawn_file.getLocation(), drawn_index), glow_lights);
         sprite_list_lookup.add(sprite_renderer);
         sprite_file_lookup.add(sprite_file);
         tex_index_lookup.add(tex_index);
@@ -111,6 +113,10 @@ public final class RenderQueues implements AutoCloseable {
         props_lookup.set(index, props.stream().map(prop -> register(sprite_file.withLocation(prop),
                 tex_index)).toList());
         return new SpriteKey(index, sprite_list.getBounds(), type_array);
+    }
+
+    public @NonNull GlowLights getGlowLights() {
+        return glow_lights;
     }
 
     /** Extra meshes drawn at the sprite's transform, never part of its bounds or clips. */

@@ -389,32 +389,39 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         }
     }
 
-    /** Packs the burning torches nearest the camera into the point light array; returns the light count. */
+    /**
+     * Packs the burning torches and glowing models nearest the camera into the point light array; returns the light
+     * count.
+     */
     private int collectPointLights(@NonNull CameraState camera, float time) {
-        java.util.List<com.oddlabs.tt.particle.TorchEmitter> torches = new java.util.ArrayList<>();
+        java.util.List<GlowLights.Light> lights = new java.util.ArrayList<>();
         for (com.oddlabs.tt.particle.TorchEmitter torch : com.oddlabs.tt.particle.TorchEmitter.getActiveTorches()) {
-            if (torch.isStarted() && torch.getWorld() == world)
-                torches.add(torch);
+            if (torch.isStarted() && torch.getWorld() == world) {
+                Vector3f pos = torch.getPosition();
+                float flicker = 0.8f + 0.2f * (float) Math.sin(time * 11f + pos.x * 13.7f + pos.y * 7.3f);
+                lights.add(new GlowLights.Light(pos.x, pos.y, pos.z + 0.5f, torch.getLightRadius(),
+                        TORCH_LIGHT_COLOR.x * flicker, TORCH_LIGHT_COLOR.y * flicker, TORCH_LIGHT_COLOR.z * flicker));
+            }
         }
+        lights.addAll(render_queues.getGlowLights().takeDrawn());
         float cx = camera.getCurrentX();
         float cy = camera.getCurrentY();
         float cz = camera.getCurrentZ();
-        if (torches.size() > GlobalUniforms.MAX_POINT_LIGHTS) {
-            torches.sort(java.util.Comparator.comparingDouble(
-                    torch -> torch.getPosition().distanceSquared(cx, cy, cz)));
+        if (lights.size() > GlobalUniforms.MAX_POINT_LIGHTS) {
+            lights.sort(java.util.Comparator.comparingDouble(
+                    light -> Vector3f.distanceSquared(light.x(), light.y(), light.z(), cx, cy, cz)));
         }
-        int count = Math.min(torches.size(), GlobalUniforms.MAX_POINT_LIGHTS);
+        int count = Math.min(lights.size(), GlobalUniforms.MAX_POINT_LIGHTS);
         for (int i = 0; i < count; i++) {
-            Vector3f pos = torches.get(i).getPosition();
-            float flicker = 0.8f + 0.2f * (float) Math.sin(time * 11f + pos.x * 13.7f + pos.y * 7.3f);
+            GlowLights.Light light = lights.get(i);
             int base = i * 8;
-            pointLights[base] = pos.x;
-            pointLights[base + 1] = pos.y;
-            pointLights[base + 2] = pos.z + 0.5f;
-            pointLights[base + 3] = torches.get(i).getLightRadius();
-            pointLights[base + 4] = TORCH_LIGHT_COLOR.x * flicker;
-            pointLights[base + 5] = TORCH_LIGHT_COLOR.y * flicker;
-            pointLights[base + 6] = TORCH_LIGHT_COLOR.z * flicker;
+            pointLights[base] = light.x();
+            pointLights[base + 1] = light.y();
+            pointLights[base + 2] = light.z();
+            pointLights[base + 3] = light.radius();
+            pointLights[base + 4] = light.r();
+            pointLights[base + 5] = light.g();
+            pointLights[base + 6] = light.b();
             pointLights[base + 7] = 0f;
         }
         return count;

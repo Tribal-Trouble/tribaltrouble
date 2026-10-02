@@ -29,6 +29,9 @@
         <!ATTLIST texture name CDATA #REQUIRED>
         <!ATTLIST texture team CDATA #IMPLIED>
         <!ATTLIST texture emissive CDATA #IMPLIED>
+        <!ATTLIST texture light_color CDATA #IMPLIED>
+        <!ATTLIST texture light_strength CDATA #IMPLIED>
+        <!ATTLIST texture light_reach CDATA #IMPLIED>
         <!ATTLIST texture event CDATA #IMPLIED>
         ]>
 

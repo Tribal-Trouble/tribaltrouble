@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -28,6 +29,10 @@ public final class ConvertToBinary {
     private static final String ATTACHMENTS_FILE = "attachments.txt";
     private static final String SKINS_FILE = "skins.txt";
     private static final String DECORATIONS_FILE = "decorations.txt";
+    private static final String LIGHTS_FILE = "lights.txt";
+    private static final String LIGHT_COLOR_FORMAT = "#[0-9a-fA-F]{6}";
+    private static final String LIGHT_NUMBER_FORMAT = "[0-9]+(\\.[0-9]+)?";
+    private static final String LIGHT_EXAMPLE = "light_color=\"#ff8c26\" light_strength=\"1\" light_reach=\"8\"";
     private static final Set<String> DECORATION_GROUNDS = Set.of("beach", "dirt", "grass", "snow", "land");
     private static final int DEFAULT_DECORATION_COUNT = 20;
     private static final int MAX_DECORATION_COUNT = 1000;
@@ -62,18 +67,21 @@ public final class ConvertToBinary {
             List<String> attachments = new ArrayList<>();
             List<String> skins = new ArrayList<>();
             List<String> decorations = new ArrayList<>();
+            List<String> lights = new ArrayList<>();
             for (int i = 0; i < nl.getLength(); i++) {
                 if (nl.item(i).getNodeType() == Node.ELEMENT_NODE)
-                    parseGroup(nl.item(i), registry, src_dir, build_dir, attachments, skins, decorations);
+                    parseGroup(nl.item(i), registry, src_dir, build_dir, attachments, skins, decorations, lights);
             }
             Collections.sort(attachments);
             Collections.sort(skins);
             Collections.sort(decorations);
+            Collections.sort(lights);
             try {
                 Files.createDirectories(build_dir);
                 Files.write(build_dir.resolve(ATTACHMENTS_FILE), attachments);
                 Files.write(build_dir.resolve(SKINS_FILE), skins);
                 Files.write(build_dir.resolve(DECORATIONS_FILE), decorations);
+                Files.write(build_dir.resolve(LIGHTS_FILE), lights);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -82,7 +90,8 @@ public final class ConvertToBinary {
 
     private static void parseGroup(@NonNull Node n, @NonNull Path registry, @NonNull Path src_dir,
             @NonNull Path build_dir,
-            @NonNull List<String> attachments, @NonNull List<String> skins, @NonNull List<String> decorations) {
+            @NonNull List<String> attachments, @NonNull List<String> skins, @NonNull List<String> decorations,
+            @NonNull List<String> lights) {
         if (n.hasChildNodes()) {
             Path new_build_dir = build_dir.resolve(getName(n));
             NodeList nl = n.getChildNodes();
@@ -107,6 +116,7 @@ public final class ConvertToBinary {
                     decorations.add(decorationLine(getName(n), sprite, decoration.getNodeValue()));
                 else if (sprite.getAttributes().getNamedItem("count") != null)
                     throw new RuntimeException("Sprite " + getName(sprite) + " has a count but no decoration");
+                lights.addAll(lightLines(getName(n), sprite, src_dir));
             }
         }
     }
@@ -143,6 +153,43 @@ public final class ConvertToBinary {
         Node event = sprite.getAttributes().getNamedItem("event");
         return String.join(" ", group, skin, replaces.getNodeValue(), getName(sprite), Integer.toString(textures),
                 event != null ? event.getNodeValue() : NO_EVENT);
+    }
+
+    // group name texture color radius strength x y z: one line per spot where the glow of a texture of the sprite lights
+    // its surroundings at night.
+    private static @NonNull List<String> lightLines(@NonNull String group, @NonNull Node sprite,
+            @NonNull Path src_dir) {
+        List<String> lines = new ArrayList<>();
+        NodeList models = ((org.w3c.dom.Element) sprite).getElementsByTagName("model");
+        if (models.getLength() == 0)
+            return lines;
+        NodeList textures = ((org.w3c.dom.Element) models.item(0)).getElementsByTagName("texture");
+        for (int i = 0; i < textures.getLength(); i++) {
+            Node texture = textures.item(i);
+            String emissive = attribute(texture, "emissive");
+            String color = attribute(texture, "light_color");
+            String strength = attribute(texture, "light_strength");
+            String reach = attribute(texture, "light_reach");
+            if (color == null && strength == null && reach == null)
+                continue;
+            if (emissive == null || color == null || !color.matches(LIGHT_COLOR_FORMAT) || strength == null
+                    || !strength.matches(LIGHT_NUMBER_FORMAT) || reach == null || !reach.matches(LIGHT_NUMBER_FORMAT))
+                throw new RuntimeException("Sprite " + getName(
+                        sprite) + " needs a glow (emissive=) and all three of " + LIGHT_EXAMPLE + " to cast light");
+            String scale = attribute(sprite, "scale");
+            Path mesh = src_dir.resolve(models.item(0).getTextContent().trim());
+            Path glow = src_dir.toAbsolutePath().resolveSibling("textures").resolve("models").resolve(
+                    emissive + ".png");
+            try {
+                for (float[] spot : LightSpots.find(mesh, glow, scale != null ? Float.parseFloat(scale) : 1f)) {
+                    lines.add(String.join(" ", group, getName(sprite), Integer.toString(i), color, reach, strength,
+                            String.format(Locale.ROOT, "%.2f %.2f %.2f", spot[0], spot[1], spot[2])));
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Sprite " + getName(sprite) + " has a light but its glow cannot be read", e);
+            }
+        }
+        return lines;
     }
 
     private static @Nullable String attribute(@NonNull Node n, @NonNull String name) {
