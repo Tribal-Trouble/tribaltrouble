@@ -2,6 +2,7 @@
 
 import hashlib
 import os
+import xml.etree.ElementTree as ET
 
 import bpy
 from bpy.props import StringProperty, BoolProperty, PointerProperty
@@ -207,6 +208,33 @@ def skin_file(context, o):
                    os.path.relpath(own, os.path.join(root, GEOMETRY_DIR)).replace(os.sep, "/"))
     o["tt_skin_source"] = own
     return own
+
+
+def adopt_shown_skins(context):
+    """Meshes showing a skin without a record of that skin's files (a .blend saved with the skin on show, or a skin
+    shown by an older add-on): record them as they are now, so edits from here on publish to the skin."""
+    root = repo_root(context)
+    if not root:
+        return []
+    skins = {(s["group"], s["name"]): s for s in read_registry(root)}
+    adopted = []
+    for o in bpy.data.objects:
+        if not o.get(BROWSER_TAG) or o.type != "MESH" or not o.get("tt_skin") or o.get("tt_skin_source"):
+            continue
+        skin, level = skins.get((o.get("tt_group"), o["tt_skin"])), o.get("tt_detail", 0)
+        if skin is None or level >= len(skin["models"]):
+            continue
+        path = os.path.join(root, GEOMETRY_DIR, skin["models"][level])
+        if not os.path.isfile(path):
+            continue
+        o["tt_skin_source"] = path
+        o["tt_skin_file_texture"] = ET.parse(path).getroot().get("texture") or o.get("tt_texture", "")
+        adopted.append(o)
+    if adopted:
+        arm = next((o for o in bpy.data.objects if o.type == "ARMATURE" and o.get(BROWSER_TAG)), None)
+        for o, (_, digest) in export_texts(context, arm, adopted).items():
+            o["tt_skin_hash"] = digest
+    return adopted
 
 
 def write_changed(context, arm, targets):

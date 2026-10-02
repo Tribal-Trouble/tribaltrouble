@@ -6,7 +6,7 @@ from bpy.app.handlers import persistent
 from bpy.props import StringProperty
 
 from .registry import repo_root
-from .scene import BROWSER_TAG, unpublished_changes
+from .scene import adopt_shown_skins, BROWSER_TAG, unpublished_changes
 from .textures import mesh_texture_image
 
 QUIET_SECONDS = 0.5
@@ -68,12 +68,23 @@ def refresh(context, paint_only=False):
 @persistent
 def on_load(_file=None):
     bpy.context.window_manager.tt_unpublished = ""
+    if not bpy.app.timers.is_registered(adopt_later):
+        bpy.app.timers.register(adopt_later, first_interval=0.2)
+
+
+def adopt_later():
+    windows = bpy.context.window_manager.windows
+    with bpy.context.temp_override(window=windows[0]) if windows else bpy.context.temp_override():
+        adopt_shown_skins(bpy.context)
+        refresh(bpy.context)  # a reopened .blend may hold work that was never published
+    return None
 
 
 def register():
     bpy.types.WindowManager.tt_unpublished = StringProperty(options={"SKIP_SAVE"})
     bpy.app.handlers.depsgraph_update_post.append(on_depsgraph_update)
     bpy.app.handlers.load_post.append(on_load)
+    bpy.app.timers.register(adopt_later, first_interval=0.5)  # a skin already on show when the add-on is (re)loaded
 
 
 def unregister():
@@ -81,6 +92,7 @@ def unregister():
                               (bpy.app.handlers.load_post, on_load)):
         if handler in handlers:
             handlers.remove(handler)
-    if bpy.app.timers.is_registered(refresh_later):
-        bpy.app.timers.unregister(refresh_later)
+    for timer in (refresh_later, adopt_later):
+        if bpy.app.timers.is_registered(timer):
+            bpy.app.timers.unregister(timer)
     del bpy.types.WindowManager.tt_unpublished
