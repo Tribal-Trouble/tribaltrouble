@@ -633,7 +633,7 @@
         <sprite name="quarters_native_building_pumpkins" base="quarters" slot="prop" event="halloween">
             <model r="90" g="60" b="30">
                 natives/quarters/native_building_pumpkins.xml
-                <texture name="pumpkins" emissive="pumpkins_emissive"/>
+                <texture name="pumpkins" emissive="pumpkins_emissive" light_color="#ff8a3b" light_strength="1" light_reach="8"/>
             </model>
         </sprite>
         <sprite name="peon_pumpkin_hat" base="peon" slot="hat" event="halloween" default="true">
