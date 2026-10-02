@@ -12,10 +12,12 @@ from .textures import (apply_team_preview, ensure_emission_in_repo, ensure_textu
                        short_labels, show_emission)
 from .mesh_io import mesh_record_from_xml, replace_mesh_data, write_text
 from .rig import body_rig, item_point, POINT_LABELS
-from .registry import (append_registry_entries, GEOMETRY_DIR, level_textures, read_registry, REGISTRY_FILE, repo_root,
-                       SCENERY_GROUP, sprite_skins, sprite_text, team_attribute, emissive_attribute)
+from .registry import (append_registry_entries, GEOMETRY_DIR, glow_changes, level_textures, read_registry,
+                       REGISTRY_FILE, repo_root, SCENERY_GROUP, sprite_skins, sprite_text, team_attribute,
+                       emissive_attribute)
 from .scene import (attach_object, attachment_obj_poll, BROWSER_TAG, detach_object, export_texts, loaded_body,
-                    model_levels, refresh_units, set_item_visible, skin_body, skin_item, skin_parts, snap_to_bone)
+                    model_levels, refresh_units, saved_hash, set_item_visible, skin_body, skin_item, skin_parts,
+                    snap_to_bone)
 from .publish import check_mesh, store_findings
 from .forms import (chosen_event, draw_confirm, draw_event, event_property, form_title, mesh_problem, name_problem,
                     open_form, own_mesh_search)
@@ -109,6 +111,38 @@ def end_skin_edit(context, target, entry, mesh_shown):
     show_skin(context, target, entry, None)
 
 
+def switch_drops(context, item=""):
+    """What switching the look of the loaded model (or of one item) throws away: unpublished mesh edits, paint and
+    glow on what switches, and a skin being made. Empty when nothing."""
+    body, entry = skin_body(context)
+    if body is None:
+        return []
+    root = repo_root(context)
+    parts = [o for o, _ in skin_parts(body, entry, read_registry(root)) if not item or o.name == item]
+    objs = [level for o in parts for level in model_levels(o)]
+    changes = [f"the skin '{o['tt_skin_editing']}' being made" for o in parts if o.get("tt_skin_editing")]
+    tracked = [o for o in objs if not o.get("tt_skin") or o.get("tt_skin_source")]
+    arm = next((o for o in bpy.data.objects if o.type == "ARMATURE" and o.get(BROWSER_TAG)), None)
+    meshes = sum(1 for o, (_, digest) in export_texts(context, arm, tracked).items() if saved_hash(o) != digest)
+    if meshes:
+        changes.append(f"{meshes} {'mesh' if meshes == 1 else 'meshes'}")
+    if any(image is not None and image.is_dirty for image in (mesh_texture_image(o) for o in objs)):
+        changes.append("paint")
+    if glow_changes(root, tracked):
+        changes.append("glow")
+    return changes
+
+
+def confirm_switch(op, context, event, item):
+    changes = switch_drops(context, item)
+    if not changes:
+        return op.execute(context)
+    name = item or skin_body(context)[1]["name"]
+    return context.window_manager.invoke_confirm(op, event, title="Switch the look?", confirm_text="Switch",
+                                                 icon="WARNING",
+                                                 message=f"Not published on {name}: {', '.join(changes)}")
+
+
 class ShowSkin(bpy.types.Operator):
     """Show the loaded model and its items in this skin, every detail level. Default shows their own files again
     and drops edits"""
@@ -117,6 +151,9 @@ class ShowSkin(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
     skin: StringProperty(options={"SKIP_SAVE"})
     item: StringProperty(options={"SKIP_SAVE"}, description="Only this item; blank for the model and its items")
+
+    def invoke(self, context, event):
+        return confirm_switch(self, context, event, self.item)
 
     def execute(self, context):
         body, entry = skin_body(context)
@@ -445,7 +482,7 @@ def shown_skin_index(skins, target):
 
 def pick_skin_row(skins, index):
     if 0 <= index < len(skins):
-        bpy.ops.object.tt_pick_skin(skin=skins[index].skin, item=skins[index].item)
+        bpy.ops.object.tt_pick_skin("INVOKE_DEFAULT", skin=skins[index].skin, item=skins[index].item)
 
 
 class TT_UL_skins(bpy.types.UIList):
@@ -475,6 +512,12 @@ class PickSkin(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
     skin: StringProperty(options={"SKIP_SAVE"})
     item: StringProperty(options={"SKIP_SAVE"})
+
+    def invoke(self, context, event):
+        target = skin_item(context, self.item)[0] if self.item else skin_body(context)[0]
+        if target is None or target.get("tt_skin_name", "") == self.skin:
+            return self.execute(context)
+        return confirm_switch(self, context, event, self.item)
 
     def execute(self, context):
         target = skin_item(context, self.item)[0] if self.item else skin_body(context)[0]
