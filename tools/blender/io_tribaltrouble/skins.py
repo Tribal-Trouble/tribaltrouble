@@ -9,7 +9,7 @@ from bpy.props import StringProperty, BoolProperty
 
 from .textures import (apply_team_preview, ensure_emission_in_repo, ensure_texture_in_repo, get_atlas_material,
                        image_texture_name, mesh_texture_image, models_texture_path, race_texture_name, save_png,
-                       short_labels)
+                       short_labels, show_emission)
 from .mesh_io import mesh_record_from_xml, replace_mesh_data, write_text
 from .rig import body_rig, item_point, POINT_LABELS
 from .registry import (append_registry_entries, GEOMETRY_DIR, level_textures, read_registry, REGISTRY_FILE, repo_root,
@@ -62,6 +62,9 @@ def show_skin(context, body, entry, skin):
         if os.path.isfile(models_texture_path(root, texture)):
             o.data.materials.clear()
             o.data.materials.append(get_atlas_material(texture, models_texture_path(root, texture)))
+        glows = shown.get("emissive") or [""]
+        if glows[min(level, len(glows) - 1)]:
+            show_emission(o, models_texture_path(root, glows[min(level, len(glows) - 1)]))
         if skin is not None:
             o["tt_stock_texture"] = o.get("tt_stock_texture", o.get("tt_texture", ""))
             o["tt_texture"], o["tt_skin"], o["tt_skin_name"] = ",".join(textures), skin["name"], skin["skin"]

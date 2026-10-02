@@ -370,7 +370,7 @@ def glow_changes(root, objs):
     entries = {(s["group"], s["name"]): s for s in read_registry(root)}
     found = []
     for o in objs:
-        entry = entries.get((o.get("tt_group"), o.get("tt_sprite")))
+        entry = entries.get((o.get("tt_group"), o.get("tt_skin") or o.get("tt_sprite")))
         if entry is None:
             continue
         level = o.get("tt_detail", 0)

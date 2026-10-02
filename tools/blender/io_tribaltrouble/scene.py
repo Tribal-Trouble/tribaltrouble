@@ -414,11 +414,12 @@ def loaded_models():
 
 
 def glow_models():
-    """Loaded meshes whose glow Publish writes to their own registry entry: not a skin on show or being made."""
+    """Loaded meshes whose glow Publish writes: to their own registry entry, or to the skin on show; not a skin
+    being made."""
     editing = [o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.get("tt_skin_editing")]
     skin_levels = {level for o in editing for level in model_levels(o)}
     return [o for o in bpy.data.objects if o.get(BROWSER_TAG) and o.type == "MESH" and o.get("tt_source")
-            and not o.get(REFERENCE_TAG) and not o.get("tt_skin") and o not in skin_levels]
+            and not o.get(REFERENCE_TAG) and (o.get("tt_skin_source") or not o.get("tt_skin")) and o not in skin_levels]
 
 
 def unpublished_changes(context):
