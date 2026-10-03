@@ -352,6 +352,12 @@
                 <texture name="pumpkins" emissive="pumpkins_emissive"/>
             </model>
         </sprite>
+        <sprite name="rally_point_pumpkin" base="rally_point" slot="prop" event="halloween">
+            <model r="90" g="60" b="30">
+                vikings/misc/pumpkin.xml
+                <texture name="pumpkins" emissive="pumpkins_emissive" light_color="#ff8a3b" light_strength="1.5" light_reach="16"/>
+            </model>
+        </sprite>
     </group>
     <group name="natives">
         <sprite name="torch_a">
@@ -718,6 +724,12 @@
             <model r="90" g="60" b="30">
                 natives/tower/native_tower_built_lo.xml
                 <texture name="native_tower" team="native_tower_team"/>
+            </model>
+        </sprite>
+        <sprite name="rally_point_pumpkin" base="rally_point" slot="prop" event="halloween">
+            <model r="90" g="60" b="30">
+                natives/misc/pumpkin.xml
+                <texture name="pumpkins" emissive="pumpkins_emissive" light_color="#ff8a3b" light_strength="1.5" light_reach="16"/>
             </model>
         </sprite>
     </group>
