@@ -17,11 +17,14 @@ import com.oddlabs.tt.render.state.BlendMode;
 import com.oddlabs.tt.render.state.CullMode;
 import com.oddlabs.tt.render.state.DepthMode;
 import com.oddlabs.tt.render.state.RenderContext;
+import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.util.Stitcher;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
@@ -68,6 +71,8 @@ public final class Sky implements SceneRenderer, AutoCloseable {
     private static final float SKYDOME_INNER_UTILING = 8f;
     private static final float SKYDOME_INNER_VTILING = 8f;
 
+    private static final Vector3fc MOON_DIRECTION = new Vector3f(-0.9f, 0.7f, 0.2f).normalize();
+
     private static final int NUM_WATER_RINGS = 6;
 
     private static final float START_ANGLE = -(float) Math.PI / 4f;
@@ -81,6 +86,7 @@ public final class Sky implements SceneRenderer, AutoCloseable {
     private final @NonNull FloatVBO sky_vbo;
 
     private final @NonNull Texture @NonNull [] clouds;
+    private final @NonNull Texture moon;
     private final int subdiv_axis;
     private final int subdiv_height;
     private final Landscape.@NonNull TerrainType terrain;
@@ -136,12 +142,17 @@ public final class Sky implements SceneRenderer, AutoCloseable {
             skyShader.setUniformMatrix4(SkyShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
             skyShader.setUniform(SkyShader.Uniforms.SKY_COLOR, color.get(0), color.get(1), color.get(2), color.get(3));
             skyShader.setUniform(SkyShader.Uniforms.NIGHT_FACTOR, Globals.night_mode ? 1f : 0f);
+            skyShader.setUniform(SkyShader.Uniforms.MOON_DIRECTION, MOON_DIRECTION.x(), MOON_DIRECTION.y(),
+                    MOON_DIRECTION.z());
 
             context.setTexture(0, clouds[GeneratorClouds.INNER]);
             skyShader.setUniform(SkyShader.Uniforms.TEXTURE_0, 0);
 
             context.setTexture(1, clouds[GeneratorClouds.OUTER]);
             skyShader.setUniform(SkyShader.Uniforms.TEXTURE_1, 1);
+
+            context.setTexture(2, moon);
+            skyShader.setUniform(SkyShader.Uniforms.MOON_TEXTURE, 2);
 
             updateAnimation();
 
@@ -254,6 +265,8 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         this.color = tex_env_color[terrain.ordinal()].get(BufferUtils.createFloatBuffer(4)).rewind();
         TextureGenerator clouds_desc = new GeneratorClouds(terrain);
         clouds = Resources.findResource(clouds_desc);
+        moon = Resources.findResource(new TextureFile("/textures/models/moon", GL11.GL_RGBA, GL11.GL_LINEAR,
+                GL11.GL_LINEAR, GL15.GL_CLAMP_TO_EDGE, GL15.GL_CLAMP_TO_EDGE));
 
         // Create interleaved VBO for the sky
         int num_vertices_sky = subdiv_axis * (subdiv_height - 1) + 1;

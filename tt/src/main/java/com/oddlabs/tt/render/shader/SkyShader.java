@@ -10,10 +10,12 @@ public final class SkyShader extends ShaderProgram {
         String PROJECTION_MATRIX = Shader.PROJECTION_MATRIX;
         String TEXTURE_0 = "u_texture0"; // Inner clouds
         String TEXTURE_1 = "u_texture1"; // Outer clouds
+        String MOON_TEXTURE = "u_moonTexture";
         String INNER_OFFSET = "u_innerOffset";
         String OUTER_OFFSET = "u_outerOffset";
         String SKY_COLOR = "u_skyColor";
         String NIGHT_FACTOR = "u_nightFactor";
+        String MOON_DIRECTION = "u_moonDirection";
         String INNER_CLOUD_DENSITY = "u_innerCloudDensity";
         String OUTER_CLOUD_DENSITY = "u_outerCloudDensity";
 
@@ -49,10 +51,12 @@ public final class SkyShader extends ShaderProgram {
             out vec2 v_texCoord0;
             out vec2 v_texCoord1;
             out vec4 v_color;
+            out vec3 v_direction;
 
             void main() {
                 gl_Position = u_projectionMatrix * u_modelViewMatrix * vec4(in_Position, 1.0);
 
+                v_direction = in_Normal;
                 v_texCoord0 = in_TexCoord0 + u_innerOffset;
                 v_texCoord1 = in_TexCoord1 + u_outerOffset;
                 v_color = vec4(in_Color, 1.0);
@@ -64,23 +68,37 @@ public final class SkyShader extends ShaderProgram {
             """ + GLOBAL_STATE_BLOCK + """
             uniform sampler2D u_texture0;
             uniform sampler2D u_texture1;
+            uniform sampler2D u_moonTexture;
             uniform vec4 u_skyColor;
             uniform float u_nightFactor;
+            uniform vec3 u_moonDirection;
 
             in vec2 v_texCoord0;
             in vec2 v_texCoord1;
             in vec4 v_color; // Vertex color (gradient for sky)
+            in vec3 v_direction;
 
             layout(location = 0) out vec4 out_FragColor;
+
+            const float MOON_SIN_RADIUS = 0.0323;
 
             void main() {
                 vec4 tex0 = texture(u_texture0, v_texCoord0);
                 vec4 tex1 = texture(u_texture1, v_texCoord1);
 
+                vec3 dir = normalize(v_direction);
+                vec3 moonRight = normalize(cross(u_moonDirection, vec3(0.0, 0.0, 1.0)));
+                vec3 moonUp = cross(moonRight, u_moonDirection);
+                vec2 moonCoord = vec2(dot(dir, moonRight), dot(dir, moonUp)) / MOON_SIN_RADIUS;
+                vec3 moon = vec3(0.0);
+                if (u_nightFactor > 0.5 && dot(dir, u_moonDirection) > 0.0 && all(lessThanEqual(abs(moonCoord), vec2(1.0)))) {
+                    moon = texture(u_moonTexture, moonCoord * 0.5 + 0.5).rgb;
+                }
+
                 // Match original fixed-function GL_BLEND using single-channel cloud textures
                 // Cloud textures are luminance stored as R-only in modern GL
                 vec3 vc = clamp(v_color.rgb, 0.0, 1.0);
-                vec3 sc = clamp(u_skyColor.rgb, 0.0, 1.0);
+                vec3 sc = clamp(u_skyColor.rgb, 0.0, 1.0) + moon * 10.0;
                 float c0 = tex0.r;
                 float c1 = tex1.r;
                 vec3 color0 = vc * (1.0 - c0) + sc * c0;
