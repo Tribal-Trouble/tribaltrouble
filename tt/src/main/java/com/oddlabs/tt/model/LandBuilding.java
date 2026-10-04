@@ -266,7 +266,7 @@ public final class LandBuilding extends Building {
     public void exitTower() {
         assert !isDead();
         UnitContainer container = getUnitContainer();
-        if (canExitTower()) {
+        if (canExitTower() && hasExitCell()) {
 //			Army selection = Selection.singleton.getCurrentSelection();
             Unit unit = container.exit();
             /*			if (getOwner().isControllable()) {
