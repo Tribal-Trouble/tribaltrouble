@@ -99,7 +99,7 @@ public final class SkyShader extends ShaderProgram {
                 // Match original fixed-function GL_BLEND using single-channel cloud textures
                 // Cloud textures are luminance stored as R-only in modern GL
                 vec3 vc = clamp(v_color.rgb, 0.0, 1.0);
-                vec3 sc = clamp(u_skyColor.rgb, 0.0, 1.0) + moon * 10.0;
+                vec3 sc = clamp(u_skyColor.rgb, 0.0, 1.0) + moon * 3.0;
                 float c0 = tex0.r;
                 float c1 = tex1.r;
                 vec3 color0 = vc * (1.0 - c0) + sc * c0;
@@ -109,7 +109,15 @@ public final class SkyShader extends ShaderProgram {
                 // sunset) by remapping sky luminance onto a deep night blue.
                 float lum = dot(color1, vec3(0.299, 0.587, 0.114)) * (1.0 + moonLum);
                 vec3 nightSky = lum * vec3(0.20, 0.26, 0.48);
-                out_FragColor = vec4(mix(color1, nightSky, u_nightFactor), 1.0);
+                vec3 sky = mix(color1, nightSky, u_nightFactor);
+
+                float moonDist = acos(clamp(dot(dir, u_moonDirection), -1.0, 1.0)) / asin(MOON_SIN_RADIUS);
+                float corona = 0.35 * exp(-max(moonDist - 1.0, 0.0) * 0.15);
+                float halo = 0.19 * exp(-moonDist * 0.15);
+                float cloudCover = max(c0, c1);
+                vec3 glow = vec3(0.75, 0.82, 1.0) * (corona + halo) * (1.0 + cloudCover) * u_nightFactor;
+
+                out_FragColor = vec4(sky + glow, 1.0);
             }
             """;
 
