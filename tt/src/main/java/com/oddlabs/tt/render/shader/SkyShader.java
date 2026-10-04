@@ -94,6 +94,7 @@ public final class SkyShader extends ShaderProgram {
                 if (u_nightFactor > 0.5 && dot(dir, u_moonDirection) > 0.0 && all(lessThanEqual(abs(moonCoord), vec2(1.0)))) {
                     moon = texture(u_moonTexture, moonCoord * 0.5 + 0.5).rgb;
                 }
+                float moonLum = 0.2126 * moon.r + 0.7152 * moon.g + moon.b;
 
                 // Match original fixed-function GL_BLEND using single-channel cloud textures
                 // Cloud textures are luminance stored as R-only in modern GL
@@ -106,7 +107,7 @@ public final class SkyShader extends ShaderProgram {
 
                 // Night replaces the day palette's hue entirely (the day horizon can be a warm
                 // sunset) by remapping sky luminance onto a deep night blue.
-                float lum = dot(color1, vec3(0.299, 0.587, 0.114));
+                float lum = dot(color1, vec3(0.299, 0.587, 0.114)) * (1.0 + moonLum);
                 vec3 nightSky = lum * vec3(0.20, 0.26, 0.48);
                 out_FragColor = vec4(mix(color1, nightSky, u_nightFactor), 1.0);
             }
