@@ -46,6 +46,12 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
     private final @NonNull Picker picker;
     private final @NonNull Water water;
+
+    /** The sea, for the map editor to keep in step with height edits. */
+    public @NonNull Water getWater() {
+        return water;
+    }
+
     private final @NonNull Sky sky;
     private final @NonNull LandscapeRenderer landscape_renderer;
     private final @NonNull World world;

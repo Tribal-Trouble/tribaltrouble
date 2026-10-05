@@ -41,7 +41,10 @@ public final class RegionBuilder {
         RegionBuilderNode start_node = dir_finder_grid[start_y][start_x];
         QueueArray start_nodes = new QueueArray(grid_size * grid_size);
         PocketList<RegionBuilderNode> region_nodes = new PocketList<>(grid_size);
-        start_nodes.addLast(start_node);
+        // A map from the editor can leave the start on ground nobody can walk, when there is no walkable ground at
+        // all; then there are no regions to build.
+        if (!unit_grid.isGridOccupied(start_x, start_y))
+            start_nodes.addLast(start_node);
         int actual_num_regions = 0;
         while ((start_node = findStartNode(unit_grid, region_nodes, start_nodes)) != null) {
             assert !unit_grid.isGridOccupied(start_node.getGridX(),

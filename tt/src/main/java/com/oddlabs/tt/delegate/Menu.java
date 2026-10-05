@@ -341,9 +341,18 @@ public abstract class Menu extends CameraDelegate<Camera> {
             float hills, float vegetation_amount, float supplies_amount, int seed, boolean archipelago,
             String[] ai_names,
             int player_count) {
-        boolean multiplayer = ingame_info.isMultiplayer();
         WorldGenerator generator = new IslandGenerator(meters_per_world, terrain, hills, vegetation_amount,
                 supplies_amount, seed, archipelago);
+        return startNewGame(network, gui_root, owner, world_params, ingame_info, init_action, game, generator,
+                ai_names, player_count);
+    }
+
+    /** Starts a game on the island a generator builds, such as one from a saved map. */
+    public static @NonNull GameNetwork startNewGame(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root,
+            SelectGameMenu owner, WorldParameters world_params, @NonNull InGameInfo ingame_info,
+            WorldInitAction init_action, Game game, @NonNull WorldGenerator generator, String[] ai_names,
+            int player_count) {
+        boolean multiplayer = ingame_info.isMultiplayer();
         InetAddress address = multiplayer ? null : com.oddlabs.util.Utils.getLoopbackAddress();
         final Server server = new Server(network, game, address, generator, multiplayer, ai_names, player_count);
         Client client = new Client(server::close, network, gui_root.getGUI(), -1, world_params, ingame_info,

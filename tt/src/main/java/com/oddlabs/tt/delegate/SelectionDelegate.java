@@ -2,6 +2,7 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.camera.MapCamera;
+import com.oddlabs.tt.camera.MapCameraOwner;
 import com.oddlabs.tt.form.InGameChatForm;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.ActionButtonPanel;
@@ -46,7 +47,7 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.ResourceBundle;
 
-public final class SelectionDelegate extends ControllableCameraDelegate {
+public final class SelectionDelegate extends ControllableCameraDelegate implements MapCameraOwner {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(SelectionDelegate.class.getName());
     private static final Vector4fc SELECTION_COLOR = Color.argb4v(0xFF_4C_FF_00);
     private static final GameAction[] ARMY_CREATES = new GameAction[]{GameAction.ARMY_CREATE_0, GameAction.ARMY_CREATE_1, GameAction.ARMY_CREATE_2, GameAction.ARMY_CREATE_3, GameAction.ARMY_CREATE_4, GameAction.ARMY_CREATE_5, GameAction.ARMY_CREATE_6, GameAction.ARMY_CREATE_7, GameAction.ARMY_CREATE_8, GameAction.ARMY_CREATE_9,

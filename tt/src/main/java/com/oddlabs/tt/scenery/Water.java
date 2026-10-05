@@ -167,30 +167,40 @@ public final class Water implements AutoCloseable {
         this.inlandInstanceVBO = new FloatVBO(GL15.GL_STREAM_DRAW, 1024 * 3 * Float.BYTES);
         this.inlandInstanceBuffer = BufferUtils.createFloatBuffer(1024 * 3);
 
-        // Flood fill from the map border to distinguish ocean patches from enclosed inland water
         int patchesPerWorld = heightmap.getPatchesPerWorld();
         this.oceanPatches = new BitSet(patchesPerWorld * patchesPerWorld);
+        updateOceanPatches();
+    }
+
+    /**
+     * Sorts the water patches into open ocean, which has waves, and enclosed inland water, which lies still, by
+     * flood filling from the map border. Call it again after the heights changed, or the two kinds meet with a seam
+     * where water was opened up to the sea or cut off from it.
+     */
+    public void updateOceanPatches() {
+        int patchesPerWorld = heightMap.getPatchesPerWorld();
+        oceanPatches.clear();
         Queue<int[]> queue = new ArrayDeque<>();
 
         for (int x = 0; x < patchesPerWorld; x++) {
-            if (heightmap.isBelowSeaLevel(x, 0)) {
+            if (heightMap.isBelowSeaLevel(x, 0)) {
                 int index = x; // y is 0
                 oceanPatches.set(index);
                 queue.add(new int[]{x, 0});
             }
-            if (heightmap.isBelowSeaLevel(x, patchesPerWorld - 1)) {
+            if (heightMap.isBelowSeaLevel(x, patchesPerWorld - 1)) {
                 int index = (patchesPerWorld - 1) * patchesPerWorld + x;
                 oceanPatches.set(index);
                 queue.add(new int[]{x, patchesPerWorld - 1});
             }
         }
         for (int y = 1; y < patchesPerWorld - 1; y++) {
-            if (heightmap.isBelowSeaLevel(0, y)) {
+            if (heightMap.isBelowSeaLevel(0, y)) {
                 int index = y * patchesPerWorld; // x is 0
                 oceanPatches.set(index);
                 queue.add(new int[]{0, y});
             }
-            if (heightmap.isBelowSeaLevel(patchesPerWorld - 1, y)) {
+            if (heightMap.isBelowSeaLevel(patchesPerWorld - 1, y)) {
                 int index = y * patchesPerWorld + (patchesPerWorld - 1);
                 oceanPatches.set(index);
                 queue.add(new int[]{patchesPerWorld - 1, y});
@@ -211,7 +221,7 @@ public final class Water implements AutoCloseable {
                     int ny = currY + dy;
                     if (nx >= 0 && nx < patchesPerWorld && ny >= 0 && ny < patchesPerWorld) {
                         int index = ny * patchesPerWorld + nx;
-                        if (!oceanPatches.get(index) && heightmap.isBelowSeaLevel(nx, ny)) {
+                        if (!oceanPatches.get(index) && heightMap.isBelowSeaLevel(nx, ny)) {
                             oceanPatches.set(index);
                             queue.add(new int[]{nx, ny});
                         }

@@ -31,7 +31,33 @@ public class TextBox extends TextField implements Scrollable, Clipped {
         Box edit_box = Skin.getSkin().getEditBox();
         int wrapWidth = getWidth() - edit_box.getLeftOffset() - edit_box.getRightOffset() - scroll_bar.getWidth();
         textLayout = new TextLayout(getFont(), getText(), wrapWidth);
-        scroll_bar.update();
+        // Shorter text may no longer reach as far as the box was scrolled.
+        setOffsetY(offset_y);
+    }
+
+    /** Lays the text out again after it was changed in place, through {@link #getText()}. */
+    protected final void textEdited() {
+        updateLayout();
+    }
+
+    @Override
+    protected boolean insert(int index, char key) {
+        boolean inserted = super.insert(index, key);
+        if (inserted)
+            updateLayout();
+        return inserted;
+    }
+
+    @Override
+    protected void delete(int index) {
+        super.delete(index);
+        updateLayout();
+    }
+
+    @Override
+    public void clear() {
+        super.clear();
+        updateLayout();
     }
 
     @Override

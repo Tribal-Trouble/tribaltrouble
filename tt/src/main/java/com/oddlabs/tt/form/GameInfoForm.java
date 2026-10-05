@@ -11,10 +11,13 @@ import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.OKListener;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.mapeditor.MapEditor;
+import com.oddlabs.tt.mapeditor.SharedMapView;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Compatibility;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ResourceBundle;
 
@@ -31,10 +34,15 @@ public final class GameInfoForm extends Form {
     private final @NonNull HorizButton ok_button;
 
     public GameInfoForm(@NonNull Game game) {
-        this(game, Compatibility.SIM_VERSION);
+        this(game, Compatibility.SIM_VERSION, null);
     }
 
     public GameInfoForm(@NonNull Game game, int sim_version) {
+        this(game, sim_version, null);
+    }
+
+    /** @param starts where the players start on a custom map, or null when not known */
+    public GameInfoForm(@NonNull Game game, int sim_version, @Nullable String starts) {
         Label label_headline = new Label(i18n("game_info"), Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
 
@@ -88,6 +96,21 @@ public final class GameInfoForm extends Form {
         types.addChild(label_gamespeed);
         values.addChild(label_gamespeed_value);
 
+        String map_name = game.getCustomMapName();
+        Label label_map = new Label(MapEditor.i18n("map"), Skin.getSkin().getEditFont());
+        Label label_map_value = new Label(map_name != null ? map_name : "", Skin.getSkin().getEditFont());
+        if (game.isCustomMap()) {
+            types.addChild(label_map);
+            values.addChild(label_map_value);
+        }
+        Label label_starts = new Label(MapEditor.i18n("players_start"), Skin.getSkin().getEditFont());
+        Label label_starts_value = new Label(starts != null ? starts : "", Skin.getSkin().getEditFont());
+        boolean show_starts = game.isCustomMap() && starts != null;
+        if (show_starts) {
+            types.addChild(label_starts);
+            values.addChild(label_starts_value);
+        }
+
         Label label_mapcode = new Label(i18n("mapcode"), Skin.getSkin().getEditFont());
         Label label_mapcode_value = new Label(game.getMapcode(), Skin.getSkin().getEditFont());
         types.addChild(label_mapcode);
@@ -128,7 +151,16 @@ public final class GameInfoForm extends Form {
         label_name.place();
         label_rated.place(label_name, BOTTOM_LEFT);
         label_gamespeed.place(label_rated, BOTTOM_LEFT);
-        label_terrain_type.place(label_gamespeed, BOTTOM_LEFT);
+        Label above_terrain_type = label_gamespeed;
+        if (game.isCustomMap()) {
+            label_map.place(label_gamespeed, BOTTOM_LEFT);
+            above_terrain_type = label_map;
+        }
+        if (show_starts) {
+            label_starts.place(above_terrain_type, BOTTOM_LEFT);
+            above_terrain_type = label_starts;
+        }
+        label_terrain_type.place(above_terrain_type, BOTTOM_LEFT);
         label_size.place(label_terrain_type, BOTTOM_LEFT);
         label_hills.place(label_size, BOTTOM_LEFT);
         label_trees.place(label_hills, BOTTOM_LEFT);
@@ -149,7 +181,16 @@ public final class GameInfoForm extends Form {
         label_name_value.place();
         label_rated_value.place(label_name_value, BOTTOM_LEFT);
         label_gamespeed_value.place(label_rated_value, BOTTOM_LEFT);
-        label_terrain_type_value.place(label_gamespeed_value, BOTTOM_LEFT);
+        Label above_terrain_type_value = label_gamespeed_value;
+        if (game.isCustomMap()) {
+            label_map_value.place(label_gamespeed_value, BOTTOM_LEFT);
+            above_terrain_type_value = label_map_value;
+        }
+        if (show_starts) {
+            label_starts_value.place(above_terrain_type_value, BOTTOM_LEFT);
+            above_terrain_type_value = label_starts_value;
+        }
+        label_terrain_type_value.place(above_terrain_type_value, BOTTOM_LEFT);
         label_size_value.place(label_terrain_type_value, BOTTOM_LEFT);
         label_hills_value.place(label_size_value, BOTTOM_LEFT);
         label_trees_value.place(label_hills_value, BOTTOM_LEFT);
@@ -174,6 +215,13 @@ public final class GameInfoForm extends Form {
         label_headline.place();
         types.place(label_headline, BOTTOM_LEFT);
         values.place(types, RIGHT_TOP);
+        String map_hash = game.getCustomMapHash();
+        if (map_hash != null) {
+            SharedMapView map_view = new SharedMapView(SharedMapView.previewSizeFor(types.getHeight()));
+            addChild(map_view);
+            map_view.place(values, RIGHT_TOP, Skin.getSkin().getFormData().sectionSpacing());
+            map_view.show(map_hash, map_name != null ? map_name : "", game.getSize(), game.getTerrainType());
+        }
 
         ok_button.place(Origin.AT_END);
         compileCanvas();

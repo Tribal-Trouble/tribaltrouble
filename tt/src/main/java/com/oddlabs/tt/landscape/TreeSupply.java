@@ -129,6 +129,12 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
         grid.freeGrid(grid_x, grid_y, this);
     }
 
+    /** Frees the tree's ground, unless it was felled and freed it already. */
+    void leaveWorld() {
+        if (!isEmpty())
+            unoccupyTree();
+    }
+
     @Override
     public float getSize() {
         return size;

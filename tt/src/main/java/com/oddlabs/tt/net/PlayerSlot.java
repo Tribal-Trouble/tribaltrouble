@@ -62,7 +62,8 @@ public final class PlayerSlot implements Serializable {
         this.ready = ready;
     }
 
-    int getSlot() {
+    /** The slot's place in the lobby, from 0. */
+    public int getSlot() {
         return slot;
     }
 

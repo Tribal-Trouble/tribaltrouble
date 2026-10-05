@@ -38,7 +38,7 @@ public final class TextLayout {
     }
 
     public int getCursorLine(int index) {
-        if (index < 0 || index > text.length()) {
+        if (lines.isEmpty() || index < 0 || index > text.length()) {
             return 0;
         }
         for (int i = 0; i < lines.size(); i++) {
@@ -49,6 +49,41 @@ public final class TextLayout {
             }
         }
         return lines.size() - 1;
+    }
+
+    /**
+     * How far along its line the insertion point before a character is, as text is drawn: each character advances
+     * by its width less the font's border.
+     */
+    public int getCursorAdvance(int index) {
+        if (lines.isEmpty() || index < 0 || index > text.length()) {
+            return 0;
+        }
+        Line line = lines.get(getCursorLine(index));
+        return advance(line.content(), Math.clamp(index - line.startIndex(), 0, line.content().length()));
+    }
+
+    private int advance(@NonNull CharSequence content, int length) {
+        return length == 0 ? 0 : font.getWidth(content.subSequence(0, length)) - font.getXBorder();
+    }
+
+    /** The insertion point on a line nearest to an advance along it, as an index into the whole text. */
+    public int getIndexInLine(int lineIndex, float x) {
+        if (lines.isEmpty()) {
+            return 0;
+        }
+        Line line = lines.get(Math.clamp(lineIndex, 0, lines.size() - 1));
+        CharSequence content = line.content();
+        int best = 0;
+        float best_distance = Float.MAX_VALUE;
+        for (int i = 0; i <= content.length(); i++) {
+            float distance = Math.abs(x - advance(content, i));
+            if (distance < best_distance) {
+                best_distance = distance;
+                best = i;
+            }
+        }
+        return line.startIndex() + best;
     }
 
     public int getCursorX(int index) {
@@ -138,8 +173,12 @@ public final class TextLayout {
             lineStart = lineEnd;
 
             // Skip the newline or space that caused the break
-            if (lineStart < text.length() && (text.charAt(lineStart) == '\n' || text.charAt(lineStart) == ' ')) {
+            if (lineStart < text.length() && Character.isWhitespace(text.charAt(lineStart))) {
                 lineStart++;
+                // A break at the very end still starts a line, empty for now, for the cursor to stand on.
+                if (lineStart == text.length()) {
+                    calculatedLines.add(new Line("", lineStart));
+                }
             }
         }
 
@@ -163,7 +202,8 @@ public final class TextLayout {
             int currentWidth = font.getWidth(text.subSequence(lineStart, i + 1));
             if (currentWidth > wrapWidth) {
                 // Word is longer than the line, break mid-word
-                return lastSpace != -1 ? lastSpace : i; // Break at the last known space
+                // Break at the last known space; a single character wider than the line still gets one.
+                return lastSpace != -1 ? lastSpace : Math.max(i, lineStart + 1);
             }
             i++;
         }

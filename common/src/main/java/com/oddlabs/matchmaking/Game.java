@@ -1,6 +1,7 @@
 package com.oddlabs.matchmaking;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -47,6 +48,9 @@ public final class Game implements Serializable {
     private final int initial_unit_count;
     private final int max_building_count;
     private final boolean ships;
+    // A shared map to play instead of a generated island: the hash it is downloaded by and its name to show.
+    private final @Nullable String custom_map_hash;
+    private final @Nullable String custom_map_name;
 
     private int database_id;
 
@@ -65,6 +69,8 @@ public final class Game implements Serializable {
         this.initial_unit_count = b.initial_unit_count;
         this.max_building_count = b.max_building_count;
         this.ships = b.ships;
+        this.custom_map_hash = b.custom_map_hash;
+        this.custom_map_name = b.custom_map_name;
         assert isValid() : game_name.length();
     }
 
@@ -136,6 +142,20 @@ public final class Game implements Serializable {
         return ships;
     }
 
+    /** The hash of the shared map the game is played on, or null when it plays a generated island. */
+    public @Nullable String getCustomMapHash() {
+        return custom_map_hash;
+    }
+
+    /** The name of the shared map the game is played on, or null when it plays a generated island. */
+    public @Nullable String getCustomMapName() {
+        return custom_map_name;
+    }
+
+    public boolean isCustomMap() {
+        return custom_map_hash != null;
+    }
+
     public void setDatabaseID(int database_id) {
         this.database_id = database_id;
     }
@@ -159,6 +179,8 @@ public final class Game implements Serializable {
         private int initial_unit_count = DEFAULT_INITIAL_UNIT_COUNT;
         private int max_building_count = DEFAULT_MAX_BUILDING_COUNT;
         private boolean ships;
+        private @Nullable String custom_map_hash;
+        private @Nullable String custom_map_name;
 
         private Builder() {
         }
@@ -230,6 +252,13 @@ public final class Game implements Serializable {
 
         public @NonNull Builder ships(boolean ships) {
             this.ships = ships;
+            return this;
+        }
+
+        /** Plays a shared map, known by the hash of its file, instead of a generated island. */
+        public @NonNull Builder customMap(@NonNull String hash, @NonNull String name) {
+            this.custom_map_hash = hash;
+            this.custom_map_name = name;
             return this;
         }
 

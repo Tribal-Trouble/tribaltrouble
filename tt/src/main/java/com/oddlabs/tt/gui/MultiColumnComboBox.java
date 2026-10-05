@@ -63,6 +63,14 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
         return rows.getSize();
     }
 
+    /**
+     * Whether the rows show in their sorted order from the top, rather than reversed: the sort direction the
+     * column buttons last chose.
+     */
+    public boolean isSortedDescending() {
+        return rows.isSortedDescending();
+    }
+
     public void selectFirst() {
         rows.selectFirst();
         clickedRow();
@@ -192,6 +200,16 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 
     public void selectRow(@NonNull Row<T, ?> row) {
         rows.selectRow(row);
+    }
+
+    /** Puts the keyboard focus on the rows themselves, rather than on the column buttons above them. */
+    public void focusRows() {
+        rows.setFocus();
+    }
+
+    /** Scrolls the list so a row shows. */
+    public void showRow(@NonNull Row<T, ?> row) {
+        rows.ensureVisible(row);
     }
 
     @Override
