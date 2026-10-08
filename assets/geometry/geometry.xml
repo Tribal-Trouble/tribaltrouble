@@ -337,19 +337,19 @@
         <sprite name="armory_pumpkins" base="armory" slot="prop" event="halloween">
             <model r="90" g="60" b="30">
                 vikings/armory/pumpkins.xml
-                <texture name="pumpkins" emissive="pumpkins_emissive"/>
+                <texture name="pumpkins" emissive="pumpkins_emissive" light_color="#ff7029" light_strength="1" light_reach="8"/>
             </model>
         </sprite>
         <sprite name="quarters_pumpkins" base="quarters" slot="prop" event="halloween">
             <model r="90" g="60" b="30">
                 vikings/quarters/pumpkins.xml
-                <texture name="pumpkins" emissive="pumpkins_emissive"/>
+                <texture name="pumpkins" emissive="pumpkins_emissive" light_color="#ff5810" light_strength="1" light_reach="8"/>
             </model>
         </sprite>
         <sprite name="tower_pumpkins" base="tower" slot="prop" event="halloween">
             <model r="90" g="60" b="30">
                 vikings/tower/pumpkins.xml
-                <texture name="pumpkins" emissive="pumpkins_emissive"/>
+                <texture name="pumpkins" emissive="pumpkins_emissive" light_color="#ff7029" light_strength="0.5" light_reach="4"/>
             </model>
         </sprite>
         <sprite name="rally_point_pumpkin" base="rally_point" slot="prop" event="halloween">
@@ -697,13 +697,13 @@
         <sprite name="tower_pumpkins" base="tower" slot="prop" event="halloween">
             <model r="90" g="60" b="30">
                 natives/tower/pumpkins.xml
-                <texture name="pumpkins" emissive="pumpkins_emissive"/>
+                <texture name="pumpkins" emissive="pumpkins_emissive" light_color="#ff712a" light_strength="1" light_reach="8"/>
             </model>
         </sprite>
         <sprite name="armory_pumpkins" base="armory" slot="prop" event="halloween">
             <model r="90" g="60" b="30">
                 natives/armory/pumpkins.xml
-                <texture name="pumpkins" emissive="pumpkins_emissive"/>
+                <texture name="pumpkins" emissive="pumpkins_emissive" light_color="#ff712a" light_strength="1" light_reach="8"/>
             </model>
         </sprite>
         <sprite name="armory_pumpkin" skin="pumpkin" replaces="armory" event="halloween">
@@ -953,13 +953,19 @@
         <sprite name="pumpkin_plant_2x2" decoration="grass,dirt,snow" count="20" event="halloween">
             <model r="90" g="60" b="30">
                 misc/pumpkin_plant_2x2/pumpkin_plant_2x2.xml
-                <texture name="pumpkins" emissive="pumpkins_emissive"/>
+                <texture name="pumpkins" emissive="pumpkins_emissive" light_color="#ffa98a" light_strength="1" light_reach="8"/>
             </model>
         </sprite>
         <sprite name="oak_tree_crown_pumpkin" skin="pumpkin" replaces="oak_tree_crown" event="halloween">
             <model r="90" g="60" b="30">
                 misc/oak_flat.xml
                 <texture name="viking_autumn_trees"/>
+            </model>
+        </sprite>
+        <sprite name="mushroom" decoration="grass,dirt,snow" count="20" event="halloween">
+            <model r="90" g="60" b="30">
+                misc/mushroom/mushroom.xml
+                <texture name="pumpkins" emissive="pumpkins_emissive"/>
             </model>
         </sprite>
     </group>
