@@ -72,7 +72,7 @@ public final class Decorations {
         Random random = new Random(seed);
         for (Decoration decoration : decorations) {
             for (float[] spot : scatter(random, ground, open, decoration.grounds(), decoration.count()))
-                new Plants(world, spot[0], spot[1], spot[2], spot[3], decoration.sprite());
+                new Plants(world, spot[0], spot[1], spot[2], spot[3], decoration.sprite(), 5, 0.25f);
         }
     }
 
