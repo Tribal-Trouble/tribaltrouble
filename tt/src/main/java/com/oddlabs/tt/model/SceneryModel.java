@@ -41,12 +41,13 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
     }
 
     public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
-            @NonNull SpriteKey sprite_renderer, float shadow_diameter, float shadow_fade, boolean occupy, @Nullable String name,
+            @NonNull SpriteKey sprite_renderer, float shadow_diameter, float shadow_fade, boolean occupy,
+            @Nullable String name,
             int animation, float seconds_per_animation_cycle, float anim_offset) {
         super(world);
         this.sprite_renderer = sprite_renderer;
         this.shadow_diameter = shadow_diameter;
-        this.shadow_fade = shadow_fade; 
+        this.shadow_fade = shadow_fade;
         this.occupy = occupy;
         this.name = name;
         this.animation = animation;

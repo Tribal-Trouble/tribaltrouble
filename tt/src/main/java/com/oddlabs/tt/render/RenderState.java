@@ -359,9 +359,9 @@ final class RenderState implements ElementVisitor {
         if (!picking && Globals.draw_plants) {
             float camera_dist_sqr = RenderTools.getEyeDistanceSquared(plants, camera.getCurrentX(),
                     camera.getCurrentY(), camera.getCurrentZ());
-            if (camera_dist_sqr <= PLANTS_CUT_DIST * PLANTS_CUT_DIST){
+            if (camera_dist_sqr <= PLANTS_CUT_DIST * PLANTS_CUT_DIST) {
                 addToRenderList(getCachedState(plants_model_visitor, plants, camera_dist_sqr));
-                if (plants.getShadowDiameter() > 0f){
+                if (plants.getShadowDiameter() > 0f) {
                     ModelState<SceneryModel> state = getCachedState(scenery_model_visitor, plants);
                     default_shadow_renderer.addToShadowList(state);
                 }
