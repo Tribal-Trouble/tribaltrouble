@@ -71,8 +71,8 @@ public final class Sky implements SceneRenderer, AutoCloseable {
     private static final float SKYDOME_INNER_UTILING = 8f;
     private static final float SKYDOME_INNER_VTILING = 8f;
 
-    private static final Vector3fc MOON_DIRECTION_NORTHERN = new Vector3f(-0.3631f, -0.9318f, 0.1262f).normalize();
-    private static final Vector3fc MOON_DIRECTION_TROPICAL = new Vector3f(-0.9840f, -0.1783f, 0.1514f).normalize();
+    private static final Vector3fc SKY_BODY_DIRECTION_NORTHERN = new Vector3f(-0.3631f, -0.9318f, 0.1262f).normalize();
+    private static final Vector3fc SKY_BODY_DIRECTION_TROPICAL = new Vector3f(-0.9840f, -0.1783f, 0.1514f).normalize();
 
     private static final int NUM_WATER_RINGS = 6;
 
@@ -142,12 +142,12 @@ public final class Sky implements SceneRenderer, AutoCloseable {
 
             skyShader.setUniformMatrix4(SkyShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
             skyShader.setUniform(SkyShader.Uniforms.SKY_COLOR, color.get(0), color.get(1), color.get(2), color.get(3));
-            skyShader.setUniform(SkyShader.Uniforms.NIGHT_FACTOR, Globals.night_mode ? 1f : 0f);
-            var moonDir = switch (terrain) {
-                case NATIVE -> MOON_DIRECTION_TROPICAL;
-                case VIKING -> MOON_DIRECTION_NORTHERN;
+            skyShader.setUniform(SkyShader.Uniforms.NIGHT_FACTOR, world.isNight() ? 1f : 0f);
+            var skyBodyDir = switch (terrain) {
+                case NATIVE -> SKY_BODY_DIRECTION_TROPICAL;
+                case VIKING -> SKY_BODY_DIRECTION_NORTHERN;
             };
-            skyShader.setUniform(SkyShader.Uniforms.MOON_DIRECTION, moonDir.x(), moonDir.y(), moonDir.z());
+            skyShader.setUniform(SkyShader.Uniforms.SKY_BODY_DIRECTION, skyBodyDir.x(), skyBodyDir.y(), skyBodyDir.z());
 
             context.setTexture(0, clouds[GeneratorClouds.INNER]);
             skyShader.setUniform(SkyShader.Uniforms.TEXTURE_0, 0);

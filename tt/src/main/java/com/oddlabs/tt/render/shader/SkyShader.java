@@ -15,7 +15,7 @@ public final class SkyShader extends ShaderProgram {
         String OUTER_OFFSET = "u_outerOffset";
         String SKY_COLOR = "u_skyColor";
         String NIGHT_FACTOR = "u_nightFactor";
-        String MOON_DIRECTION = "u_moonDirection";
+        String SKY_BODY_DIRECTION = "u_skyBodyDirection";
         String INNER_CLOUD_DENSITY = "u_innerCloudDensity";
         String OUTER_CLOUD_DENSITY = "u_outerCloudDensity";
 
@@ -71,7 +71,7 @@ public final class SkyShader extends ShaderProgram {
             uniform sampler2D u_moonTexture;
             uniform vec4 u_skyColor;
             uniform float u_nightFactor;
-            uniform vec3 u_moonDirection;
+            uniform vec3 u_skyBodyDirection;
 
             in vec2 v_texCoord0;
             in vec2 v_texCoord1;
@@ -80,26 +80,30 @@ public final class SkyShader extends ShaderProgram {
 
             layout(location = 0) out vec4 out_FragColor;
 
-            const float MOON_SIN_RADIUS = 0.0323;
+            const float SKY_BODY_SIN_RADIUS = 0.0323;
 
             void main() {
                 vec4 tex0 = texture(u_texture0, v_texCoord0);
                 vec4 tex1 = texture(u_texture1, v_texCoord1);
 
                 vec3 dir = normalize(v_direction);
-                vec3 moonRight = normalize(cross(u_moonDirection, vec3(0.0, 0.0, 1.0)));
-                vec3 moonUp = cross(moonRight, u_moonDirection);
-                vec2 moonCoord = vec2(dot(dir, moonRight), dot(dir, moonUp)) / MOON_SIN_RADIUS;
-                vec3 moon = vec3(0.0);
-                if (u_nightFactor > 0.5 && dot(dir, u_moonDirection) > 0.0 && all(lessThanEqual(abs(moonCoord), vec2(1.0)))) {
-                    moon = texture(u_moonTexture, moonCoord * 0.5 + 0.5).rgb;
+                vec3 skyBodyRight = normalize(cross(u_skyBodyDirection, vec3(0.0, 0.0, 1.0)));
+                vec3 skyBodyUp = cross(skyBodyRight, u_skyBodyDirection);
+                vec2 skyBodyCoord = vec2(dot(dir, skyBodyRight), dot(dir, skyBodyUp)) / SKY_BODY_SIN_RADIUS;
+                vec3 skyBodyColor = vec3(0.0);
+                vec3 moonColor = vec3(0.0);
+                vec3 sunColor = vec3(0.0);
+                if (dot(dir, u_skyBodyDirection) > 0.0 && all(lessThanEqual(abs(skyBodyCoord), vec2(1.0)))) {
+                    moonColor = texture(u_moonTexture, skyBodyCoord * 0.5 + 0.5).rgb;
+                    sunColor = 0.5 * (1.0 - tanh((length(skyBodyCoord) - 0.95) / 0.0465)) * vec3(1.0, 1.0, 1.0);
                 }
-                float moonLum = 0.2126 * moon.r + 0.7152 * moon.g + moon.b;
+                skyBodyColor = moonColor * u_nightFactor + (1.0 - u_nightFactor) * sunColor;
+                float skyBodyLum = 0.2126 * skyBodyColor.r + 0.7152 * skyBodyColor.g + skyBodyColor.b;
 
                 // Match original fixed-function GL_BLEND using single-channel cloud textures
                 // Cloud textures are luminance stored as R-only in modern GL
                 vec3 vc = clamp(v_color.rgb, 0.0, 1.0);
-                vec3 sc = clamp(u_skyColor.rgb, 0.0, 1.0) + moon * 3.0;
+                vec3 sc = clamp(u_skyColor.rgb, 0.0, 1.0) + skyBodyColor * 3.0;
                 float c0 = tex0.r;
                 float c1 = tex1.r;
                 vec3 color0 = vc * (1.0 - c0) + sc * c0;
@@ -107,15 +111,16 @@ public final class SkyShader extends ShaderProgram {
 
                 // Night replaces the day palette's hue entirely (the day horizon can be a warm
                 // sunset) by remapping sky luminance onto a deep night blue.
-                float lum = dot(color1, vec3(0.299, 0.587, 0.114)) * (1.0 + moonLum);
+                float lum = dot(color1, vec3(0.299, 0.587, 0.114)) * (1.0 + skyBodyLum);
                 vec3 nightSky = lum * vec3(0.20, 0.26, 0.48);
-                vec3 sky = mix(color1, nightSky, u_nightFactor);
+                vec3 sky = mix(color1 * (1.0 + skyBodyLum), nightSky, u_nightFactor);
 
-                float moonDist = acos(clamp(dot(dir, u_moonDirection), -1.0, 1.0)) / asin(MOON_SIN_RADIUS);
-                float corona = 0.35 * exp(-max(moonDist - 1.0, 0.0) * 0.15);
-                float halo = 0.19 * exp(-moonDist * 0.15);
+                float skyBodyDist = acos(clamp(dot(dir, u_skyBodyDirection), -1.0, 1.0)) / asin(SKY_BODY_SIN_RADIUS);
+                float coronaIntensity = 0.35 * u_nightFactor + (1.0 - u_nightFactor) * 0.2;
+                float corona = coronaIntensity * exp(-max(skyBodyDist - 1.0, 0.0) * 0.15);
+                float halo = 0.19 * exp(-skyBodyDist * 0.15);
                 float cloudCover = max(c0, c1);
-                vec3 glow = vec3(0.75, 0.82, 1.0) * (corona + halo) * (1.0 + cloudCover) * u_nightFactor;
+                vec3 glow = vec3(0.75, 0.82, 1.0) * (corona + halo) * (1.0 + cloudCover);
 
                 out_FragColor = vec4(sky + glow, 1.0);
             }
