@@ -143,6 +143,7 @@ public final class Sky implements SceneRenderer, AutoCloseable {
             skyShader.setUniformMatrix4(SkyShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
             skyShader.setUniform(SkyShader.Uniforms.SKY_COLOR, color.get(0), color.get(1), color.get(2), color.get(3));
             skyShader.setUniform(SkyShader.Uniforms.NIGHT_FACTOR, Globals.night_mode ? 1f : 0f);
+            skyShader.setUniform(SkyShader.Uniforms.RAYS_INTENSITY, state.getCurrentZ() < 0.0f ? 0.0f : 1.0f);
             var skyBodyDir = switch (terrain) {
                 case NATIVE -> SKY_BODY_DIRECTION_TROPICAL;
                 case VIKING -> SKY_BODY_DIRECTION_NORTHERN;

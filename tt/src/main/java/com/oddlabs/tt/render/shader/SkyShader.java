@@ -15,6 +15,7 @@ public final class SkyShader extends ShaderProgram {
         String OUTER_OFFSET = "u_outerOffset";
         String SKY_COLOR = "u_skyColor";
         String NIGHT_FACTOR = "u_nightFactor";
+        String RAYS_INTENSITY = "u_raysIntensity";
         String SKY_BODY_DIRECTION = "u_skyBodyDirection";
         String INNER_CLOUD_DENSITY = "u_innerCloudDensity";
         String OUTER_CLOUD_DENSITY = "u_outerCloudDensity";
@@ -72,6 +73,7 @@ public final class SkyShader extends ShaderProgram {
             uniform vec4 u_skyColor;
             uniform float u_nightFactor;
             uniform vec3 u_skyBodyDirection;
+            uniform float u_raysIntensity;
 
             in vec2 v_texCoord0;
             in vec2 v_texCoord1;
@@ -123,7 +125,7 @@ public final class SkyShader extends ShaderProgram {
                 vec3 glow = vec3(0.75, 0.82, 1.0) * (corona + halo) * (1.0 + cloudCover);
 
                 float sunRayAngle = atan(skyBodyCoord.y, skyBodyCoord.x);
-                vec3 sunRayColor = vec3(1.0, 1.0, 1.0) * max((sin(sunRayAngle * 15.0) + sin(sunRayAngle * 34.0 + 0.5) + sin(sunRayAngle * 60.0 - 1.7)) * 0.4 - 0.25, 0.0) * 4.0 * (1.0 - u_nightFactor) / exp(skyBodyDist + 1.0);
+                vec3 sunRayColor = vec3(1.0, 1.0, 1.0) * max((sin(sunRayAngle * 15.0) + sin(sunRayAngle * 34.0 + 0.5) + sin(sunRayAngle * 60.0 - 1.7)) * 0.4 - 0.25, 0.0) * 4.0 * (1.0 - u_nightFactor) / exp(skyBodyDist + 1.0) * u_raysIntensity;
 
                 out_FragColor = vec4(sky + glow + sunRayColor, 1.0);
             }
