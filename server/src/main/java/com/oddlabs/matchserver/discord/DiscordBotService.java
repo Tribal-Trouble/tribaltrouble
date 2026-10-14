@@ -25,6 +25,8 @@ import discord4j.core.object.entity.channel.Channel;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.discordjson.json.ApplicationCommandData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
+import discord4j.gateway.intent.Intent;
+import discord4j.gateway.intent.IntentSet;
 
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
@@ -62,7 +64,11 @@ public class DiscordBotService {
         this.serverId = serverId;
         DiscordClient client = DiscordClient.create(token);
 
-        Mono<Void> login = client.withGateway(
+        // Gateway v10 sends message text only to bots that ask for it; the chatroom relay needs it.
+        var gateway_bootstrap = client.gateway().setEnabledIntents(IntentSet.nonPrivileged().or(IntentSet.of(
+                Intent.MESSAGE_CONTENT)));
+
+        Mono<Void> login = gateway_bootstrap.withGateway(
                 (GatewayDiscordClient gateway) -> {
                     this.gateway = gateway;
                     // Extra discord things that can be done

@@ -1266,12 +1266,13 @@ public final class DBInterface {
      */
     public static Map<Integer, Integer> getRaceGameCounts(String nick) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "SELECT race, COUNT(*) AS games FROM game_players WHERE nick = ? GROUP BY race ORDER BY games DESC")) {
+                // Older games stored the race as N or V instead of its number.
+                "SELECT CASE race WHEN 'N' THEN '0' WHEN 'V' THEN '1' ELSE race END AS race_id, COUNT(*) AS games FROM game_players WHERE nick = ? GROUP BY race_id ORDER BY games DESC")) {
             stmt.setString(1, nick);
             try (ResultSet result = stmt.executeQuery()) {
                 Map<Integer, Integer> counts = new LinkedHashMap<>();
                 while (result.next()) {
-                    counts.put(result.getInt("race"), result.getInt("games"));
+                    counts.put(result.getInt("race_id"), result.getInt("games"));
                 }
                 return counts;
             }
