@@ -81,21 +81,33 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
             return false;
     }
 
+    /** Takes the supply out of the world for good, without it growing back the way a mined out supply does. */
+    public final void removeFromWorld() {
+        if (!isEmpty()) {
+            num_supplies = 0;
+            leaveWorld();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void leaveWorld() {
+        UnitGrid unit_grid = getWorld().getUnitGrid();
+        unit_grid.freeGrid(grid_x, grid_y, this);
+        getWorld().getNotificationListener().unregisterTarget(this);
+        Region region = unit_grid.getRegion(grid_x, grid_y);
+        region.unregisterObject((Class<SupplyModel>) getClass(), this);
+        remove();
+    }
+
     @Override
     public final boolean isDead() {
         return isEmpty();
     }
 
-    @SuppressWarnings("unchecked")
     private void decreaseSupply() {
         num_supplies--;
         if (isEmpty()) {
-            UnitGrid unit_grid = getWorld().getUnitGrid();
-            unit_grid.freeGrid(grid_x, grid_y, this);
-            getWorld().getNotificationListener().unregisterTarget(this);
-            Region region = unit_grid.getRegion(grid_x, grid_y);
-            region.unregisterObject((Class<SupplyModel>) getClass(), this);
-            remove();
+            leaveWorld();
             getWorld().getSupplyManager(getClass()).emptySupply(this);
         }
     }

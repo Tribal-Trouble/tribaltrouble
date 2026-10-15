@@ -18,6 +18,7 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
                         int @NonNull [] @NonNull [] island_ids,
                         @NonNull List<IslandInfo> island_infos,
                         float @NonNull [] @NonNull [] starting_locations,
+                        float @Nullable [] @NonNull [] ship_starts,
                         @NonNull BlendInfo @NonNull [] blend_infos) {
     public record Maps(Texture diffuse, Texture normal) {
     }
@@ -31,7 +32,8 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
             byte @NonNull [] @NonNull [] build_grid,
             int @NonNull [] @NonNull [] island_ids,
             @NonNull List<IslandInfo> island_infos,
-            float @NonNull [] @NonNull [] starting_locations, BlendInfo @NonNull [] blend_infos) {
+            float @NonNull [] @NonNull [] starting_locations, float @Nullable [] @NonNull [] ship_starts,
+            BlendInfo @NonNull [] blend_infos) {
         this.texels_per_colormap = texels_per_colormap;
         this.chunks_per_colormap = chunks_per_colormap;
         this.sea_level_meters = sea_level_meters;
@@ -52,6 +54,7 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
         this.island_infos = island_infos;
         this.build_grid = build_grid;
         this.starting_locations = starting_locations;
+        this.ship_starts = ship_starts;
         this.blend_infos = blend_infos;
     }
 }

@@ -106,7 +106,14 @@ public final class DecalRenderer implements AutoCloseable {
 
     public @NonNull ScopedState setup(@NonNull RenderContext context, @NonNull LandscapeRenderer landscape,
             @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+        return setup(context, landscape, modelViewStack, projectionStack, -Float.MAX_VALUE);
+    }
+
+    /** @param min_height the lowest the decals lie, in meters, as the sea's surface keeps them above its floor */
+    public @NonNull ScopedState setup(@NonNull RenderContext context, @NonNull LandscapeRenderer landscape,
+            @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack, float min_height) {
         var shaderUseState = shader.use();
+        shader.setUniform(DecalShader.Uniforms.MIN_HEIGHT, min_height);
 
         shader.setUniformMatrix4(DecalShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
 

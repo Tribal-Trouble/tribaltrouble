@@ -16,6 +16,16 @@ public final class TreeLeaf extends AbstractTreeGroup {
         infos = new_infos;
     }
 
+    void takeOut(TreeSupply tree) {
+        TreeSupply[] new_infos = new TreeSupply[infos.length - 1];
+        int j = 0;
+        for (TreeSupply info : infos) {
+            if (info != tree)
+                new_infos[j++] = info;
+        }
+        infos = new_infos;
+    }
+
     @Override
     protected boolean initBounds() {
         if (infos.length != 0) {

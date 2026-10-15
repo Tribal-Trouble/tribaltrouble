@@ -49,6 +49,9 @@ import com.oddlabs.tt.guievent.FocusListener;
 import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.RowListener;
+import com.oddlabs.tt.mapeditor.EditorSessionsForm;
+import com.oddlabs.tt.mapeditor.MapBrowserPanel;
+import com.oddlabs.tt.mapeditor.MapEditorForm;
 import com.oddlabs.tt.net.ChatCommand;
 import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.MatchmakingListener;
@@ -68,10 +71,13 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
     private static final int PANEL_INDEX_GAME = 0;
     private static final int PANEL_INDEX_CHAT = 1;
     private static final int PANEL_INDEX_HIGHSCORE = 2;
+    private static final int PANEL_INDEX_MAPS = 3;
+    // Whether to open with the shared map editor sessions showing next time, as when coming back from one.
+    private static boolean open_editor_sessions_next;
 
     private final @NonNull Menu main_menu;
     private final @NonNull ProfilesForm profiles_form;
-    private final Panel[] panels = new Panel[3];
+    private final Panel[] panels = new Panel[4];
 
     // List of games
     private final @NonNull Panel game_list_panel;
@@ -87,6 +93,9 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 
     private final @NonNull MultiColumnComboBox<RankingEntry> ranking_list_box;
     private final @NonNull OpenSkillLeaderboard openskill_leaderboard;
+    private final @NonNull MapBrowserPanel map_browser;
+    // The window of shared map editor sessions, while it is open.
+    private @Nullable EditorSessionsForm editor_sessions;
 
     private final int game_name_size;
     private final int user_name_size;
@@ -106,11 +115,22 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
     private final Panel openskill_list_panel;
 
     public SelectGameMenu(NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Menu main_menu) {
-        this(network, gui_root, main_menu, 0);
+        this(network, gui_root, main_menu, takeOpenEditorSessionsNext());
     }
 
-    public SelectGameMenu(NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Menu main_menu,
-            int panel_index) {
+    private static boolean takeOpenEditorSessionsNext() {
+        boolean open = open_editor_sessions_next;
+        open_editor_sessions_next = false;
+        return open;
+    }
+
+    /** Opens the menu with the shared map editor sessions showing next time, as after leaving one. */
+    public static void openEditorSessionsNext() {
+        open_editor_sessions_next = true;
+    }
+
+    private SelectGameMenu(NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Menu main_menu,
+            boolean open_editor_sessions) {
         this.main_menu = main_menu;
         this.gui_root = gui_root;
         this.network = network;
@@ -249,6 +269,10 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         join_button.place(create_button, RIGHT_MID);
         chat_room_list_panel.compileCanvas();
 
+        // Shared maps panel
+        map_browser = new MapBrowserPanel(gui_root, 350, this::openEditorSessions);
+        panels[PANEL_INDEX_MAPS] = map_browser;
+
         // Common
         ChatRoomInfo info = Network.getMatchmakingClient().getChatRoomInfo();
         if (info != null) {
@@ -257,7 +281,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         } else {
             panels[PANEL_INDEX_CHAT] = chat_room_list_panel;
         }
-        panel_group = new PanelGroup(panel_index, panels);
+        panel_group = new PanelGroup(PANEL_INDEX_GAME, panels);
         addChild(panel_group);
 
         HorizButton logout_button = new HorizButton(i18n("logout"), BUTTON_WIDTH);
@@ -281,7 +305,21 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
             Network.getMatchmakingClient().requestProfiles();
         } else {
             main_menu.setMenuCentered(this);
+            if (open_editor_sessions)
+                openEditorSessions();
         }
+    }
+
+    private void openEditorSessions() {
+        EditorSessionsForm form = new EditorSessionsForm(gui_root, network, () -> main_menu.setMenuCentered(
+                MapEditorForm.forHosting(network, gui_root, () -> new SelectGameMenu(network, gui_root, main_menu,
+                        true))));
+        form.addCloseListener(() -> {
+            if (editor_sessions == form)
+                editor_sessions = null;
+        });
+        editor_sessions = form;
+        gui_root.addModalForm(form);
     }
 
     private void setPanel(int index, @NonNull Panel panel) {
@@ -423,6 +461,13 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
                 }
                 openskill_leaderboard.setPersonalEntry(entry);
                 break;
+            case MatchmakingServerInterface.TYPE_MAP_LIST:
+                map_browser.add(names);
+                break;
+            case MatchmakingServerInterface.TYPE_EDITOR_SESSION_LIST:
+                if (editor_sessions != null)
+                    editor_sessions.add(names);
+                break;
             default:
                 throw new IllegalArgumentException("Unexpected list type " + type);
         }
@@ -447,6 +492,13 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
                 break;
             case MatchmakingServerInterface.TYPE_OPENSKILL_PERSONAL_RANKING:
                 openskill_leaderboard.setPersonalEntry(null);
+                break;
+            case MatchmakingServerInterface.TYPE_MAP_LIST:
+                map_browser.clear();
+                break;
+            case MatchmakingServerInterface.TYPE_EDITOR_SESSION_LIST:
+                if (editor_sessions != null)
+                    editor_sessions.clear();
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected list type " + type);

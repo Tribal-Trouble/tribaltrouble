@@ -7,6 +7,7 @@ import com.oddlabs.matchmaking.MatchmakingClientInterface;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.matchmaking.MatchmakingServerLoginInterface;
 import com.oddlabs.matchmaking.Profile;
+import com.oddlabs.matchmaking.SharedMap;
 import com.oddlabs.matchmaking.TunnelAddress;
 import com.oddlabs.net.ARMIEvent;
 import com.oddlabs.net.ARMIInterfaceMethods;
@@ -22,6 +23,7 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.form.InfoForm;
 import com.oddlabs.tt.gui.ChatRoomInfo;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.mapeditor.SharedMaps;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.util.Utils;
@@ -31,6 +33,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -66,6 +69,8 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
     private int update_key = 0;
     private @Nullable ProfileListener create_profile_listener;
     private @Nullable ChatRoomInfo chat_room_info;
+    private @Nullable MapTransferListener map_transfer_listener;
+    private @Nullable EditorSessionListener editor_session_listener;
 
     private Login login;
     private LoginDetails login_details;
@@ -363,12 +368,32 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
             }
 
             var gui = chat_gui_root.getGUI();
-            com.oddlabs.tt.form.ProgressForm.setProgressForm(network, gui,
-                    new ReplayWorldStarter(network, session_id, generator, world_params,
+            NetworkSelector selector = network;
+            int slot = followed_slot;
+            Runnable start = () -> com.oddlabs.tt.form.ProgressForm.setProgressForm(selector, gui,
+                    new ReplayWorldStarter(selector, session_id, generator, world_params,
                             player_slots, unit_infos, (short) 0,
                             new com.oddlabs.tt.viewer.SpectatorInGameInfo(random_start_position),
-                            new SpectatorWorldInitAction(followed_slot)));
-            chat_gui_root = null;
+                            new SpectatorWorldInitAction(slot)));
+            // A game on a shared map can only be watched with the map, so it is downloaded first.
+            String map_hash = SharedMaps.sharedMapOf(generator);
+            if (map_hash == null || SharedMaps.isCached(map_hash)) {
+                start.run();
+                chat_gui_root = null;
+            } else {
+                SharedMaps.get().download(map_hash, new SharedMaps.DownloadListener() {
+                    @Override
+                    public void downloaded(@NonNull Path path) {
+                        start.run();
+                        chat_gui_root = null;
+                    }
+
+                    @Override
+                    public void failed(@NonNull String reason) {
+                        error(MatchmakingClientInterface.CHAT_ERROR_SPECTATE_FAILED);
+                    }
+                });
+            }
         } catch (Exception e) {
             IO.println("Failed to deserialize spectator data: " + e);
             error(MatchmakingClientInterface.CHAT_ERROR_SPECTATE_FAILED);
@@ -393,6 +418,112 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
             if (controller == null) return;
             controller.fastForward(full, current_tick);
         }
+    }
+
+    public void setMapTransferListener(@Nullable MapTransferListener listener) {
+        map_transfer_listener = listener;
+    }
+
+    @Override
+    public void mapUploadProgress(String hash, int chunks_received) {
+        if (map_transfer_listener != null && hash != null)
+            map_transfer_listener.mapUploadProgress(hash, chunks_received);
+    }
+
+    @Override
+    public void mapUploaded(SharedMap map) {
+        if (map_transfer_listener != null && map != null)
+            map_transfer_listener.mapUploaded(map);
+    }
+
+    @Override
+    public void mapUploadFailed(String hash, int error_code) {
+        if (map_transfer_listener != null && hash != null)
+            map_transfer_listener.mapUploadFailed(hash, error_code);
+    }
+
+    @Override
+    public void receiveMapChunk(String hash, int chunk_index, int total_chunks, byte[] data) {
+        if (map_transfer_listener != null && hash != null && data != null)
+            map_transfer_listener.receiveMapChunk(hash, chunk_index, total_chunks, data);
+    }
+
+    @Override
+    public void mapDownloadFailed(String hash) {
+        if (map_transfer_listener != null && hash != null)
+            map_transfer_listener.mapDownloadFailed(hash);
+    }
+
+    @Override
+    public void receiveMapPreview(String hash, int size, int chunk_index, int total_chunks, byte[] gzipped_rgb) {
+        if (map_transfer_listener != null && hash != null && gzipped_rgb != null)
+            map_transfer_listener.receiveMapPreview(hash, size, chunk_index, total_chunks, gzipped_rgb);
+    }
+
+    public void setEditorSessionListener(@Nullable EditorSessionListener listener) {
+        editor_session_listener = listener;
+    }
+
+    @Override
+    public void editorSessionJoined(int session_id, String name, int slot) {
+        if (editor_session_listener != null && name != null)
+            editor_session_listener.editorSessionJoined(session_id, name, slot);
+    }
+
+    @Override
+    public void editorSessionFailed(int error_code) {
+        if (editor_session_listener != null)
+            editor_session_listener.editorSessionFailed(error_code);
+    }
+
+    @Override
+    public void editorMemberJoined(int slot, String nick) {
+        if (editor_session_listener != null && nick != null)
+            editor_session_listener.editorMemberJoined(slot, nick);
+    }
+
+    @Override
+    public void editorMemberLeft(int slot) {
+        if (editor_session_listener != null)
+            editor_session_listener.editorMemberLeft(slot);
+    }
+
+    @Override
+    public void editorSnapshotRequested(String nick) {
+        if (editor_session_listener != null && nick != null)
+            editor_session_listener.editorSnapshotRequested(nick);
+    }
+
+    @Override
+    public void receiveEditorSnapshot(int total_size, int offset, byte[] data) {
+        if (editor_session_listener != null && data != null)
+            editor_session_listener.receiveEditorSnapshot(total_size, offset, data);
+    }
+
+    @Override
+    public void receiveEditorEdit(int slot, byte[] data, boolean last) {
+        if (editor_session_listener != null && data != null)
+            editor_session_listener.receiveEditorEdit(slot, data, last);
+    }
+
+    @Override
+    public void editorEditAcknowledged() {
+        if (editor_session_listener != null)
+            editor_session_listener.editorEditAcknowledged();
+    }
+
+    @Override
+    public void receiveEditorPresence(int slot, float x, float y, float z, float horiz_angle, float vert_angle,
+            float cursor_x, float cursor_y, float radius, int brush) {
+        if (editor_session_listener != null)
+            editor_session_listener.receiveEditorPresence(slot, x, y, z, horiz_angle, vert_angle, cursor_x, cursor_y,
+                    radius, brush);
+    }
+
+    @Override
+    public void receiveEditorChat(int slot, String message) {
+        if (editor_session_listener != null && message != null)
+            editor_session_listener.receiveEditorChat(slot, message);
     }
 
     public @Nullable MatchmakingServerLoginInterface getLoginInterface() {
@@ -571,6 +702,12 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 
         state = STATE_NOT_CONNECTED;
         matchmaking_interface = null;
+        if (map_transfer_listener != null)
+            map_transfer_listener.connectionClosed();
+        EditorSessionListener session_listener = editor_session_listener;
+        editor_session_listener = null;
+        if (session_listener != null)
+            session_listener.connectionClosed();
         active_profile = null;
         chat_room_info = null;
         SteamManager.clearRichPresence();

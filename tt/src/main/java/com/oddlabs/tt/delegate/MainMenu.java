@@ -11,6 +11,8 @@ import com.oddlabs.tt.form.TutorialForm;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.MenuButton;
+import com.oddlabs.tt.mapeditor.MapEditor;
+import com.oddlabs.tt.mapeditor.MapEditorForm;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.steam.SteamManager;
 import org.jspecify.annotations.NonNull;
@@ -40,6 +42,10 @@ public final class MainMenu extends Menu {
         single_player.addMouseClickListener((_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(),
                 MainMenu.this)));
         addChild(single_player);
+
+        MenuButton map_editor = new MenuButton(MapEditor.i18n("map_editor"), COLOR_NORMAL, COLOR_ACTIVE);
+        map_editor.addMouseClickListener((_, _, _, _) -> setMenu(new MapEditorForm(getNetwork(), getGUIRoot())));
+        addChild(map_editor);
 
         if (!Settings.getSettings().hide_multiplayer) {
             MenuButton multi_player = new MenuButton(Menu.i18n("multiplayer"), COLOR_NORMAL, COLOR_ACTIVE);

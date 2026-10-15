@@ -1,6 +1,5 @@
 package com.oddlabs.tt.camera;
 
-import com.oddlabs.tt.delegate.SelectionDelegate;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Skin;
@@ -49,7 +48,7 @@ public final class MapCamera extends Camera {
         FROM_MAP
     }
 
-    private final @NonNull SelectionDelegate delegate;
+    private final @NonNull MapCameraOwner delegate;
     private final @NonNull CameraState original_camera_state;
     private final Label label = new Label(Utils.getBundleString(ResourceBundle.getBundle(MapCamera.class.getName()),
             "map_mode"), Skin.getSkin().getHeadlineFont());
@@ -57,7 +56,7 @@ public final class MapCamera extends Camera {
     private @NonNull MapMode map_mode = MapMode.TO_MAP;
     private float fogTime = 0f;
 
-    public MapCamera(@NonNull SelectionDelegate delegate, @NonNull GameCamera old_camera) {
+    public MapCamera(@NonNull MapCameraOwner delegate, @NonNull GameCamera old_camera) {
         original_camera_state = old_camera.getState();
         FogInfo radialFog = new RadialFogInfo(Color.WHITE, 0.25f);
         CameraState mapCameraState = new CameraState(radialFog);
@@ -195,7 +194,7 @@ public final class MapCamera extends Camera {
             float minEyeZ = clickGroundZ + MIN_LANDING_DISTANCE * sinDown;
             float landingEyeZ = Math.min(
                     Math.max(minEyeZ, original_camera_state.getTargetZ()),
-                    GameCamera.MAX_Z);
+                    delegate.getMaxCameraZ());
             float landing_distance = Math.max(MIN_LANDING_DISTANCE, (landingEyeZ - clickGroundZ) / sinDown);
             float radius = (float) Math.cos(LANDING_ANGLE);
             float old_dir_x = (float) Math.cos(getState().getHorizAngle()) * radius;

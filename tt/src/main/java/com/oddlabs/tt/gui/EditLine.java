@@ -242,6 +242,16 @@ public class EditLine extends TextField implements Clipped {
         this.index = index;
     }
 
+    /** Replaces the text, with the insertion point at its end. */
+    @Override
+    public @NonNull EditLine setText(@NonNull CharSequence text) {
+        super.setText(text);
+        index = getText().length();
+        clearSelection();
+        correctOffsetX();
+        return this;
+    }
+
     @Override
     public final void clear() {
         super.clear();
