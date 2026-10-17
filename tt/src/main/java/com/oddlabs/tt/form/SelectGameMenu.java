@@ -297,7 +297,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
     private @NonNull ChatPanel createChatRoomPanel(@NonNull ChatRoomInfo info) {
         ChatPanel panel = new ChatPanel(gui_root, info, chat_room_list_panel.getWidth(),
                 chat_room_list_panel.getHeight(), BUTTON_WIDTH_SHORT, new SendChatListener(), (_, _, _,
-                        _) -> leaveChatRoom());
+                        _) -> leaveChatRoom(), this::leaveGameMenu);
         Network.getChatHub().addListener(panel);
         return panel;
     }
@@ -361,7 +361,13 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
     }
 
     public void removeGameMenu() {
+        game_panel = null;
         setPanel(PANEL_INDEX_GAME, game_list_panel);
+    }
+
+    private void leaveGameMenu() {
+        if (game_panel != null)
+            game_panel.cancel();
     }
 
     @Override
@@ -504,8 +510,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
     @Override
     protected void doCancel() {
         leaveChatRoom();
-        if (game_panel != null)
-            game_panel.cancel();
+        leaveGameMenu();
         Network.getMatchmakingClient().close();
     }
 

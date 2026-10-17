@@ -12,6 +12,10 @@ release is cut.
 
 ## [Unreleased]
 
+### Fixed
+
+- Spectating from the chat panel while in a game lobby now leaves the lobby first, so you no longer appear twice when you rejoin it.
+
 ## [2.1.96] - 2026-10-15
 
 Everything since the original Oddlabs source was released on 2014-09-01. Builds before 2.1 were prereleases and are not listed separately.
