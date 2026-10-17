@@ -51,5 +51,7 @@ generate art or sound for a feature: see the creative work policy in the root
   stays on the classpath as the unnamed module via an `--add-reads` compiler flag.
 - Assertions are on in the run configuration (`-ea -esa`), so an `assert` that fires in
   development is a real failure, not a warning.
-- `./gradlew :tt:compileJava` is the fast feedback loop. Compiling is not the same as
-  working; say which one you did.
+- `./gradlew :tt:compileJava` is the fast feedback loop and `./gradlew :tt:test` runs the headless
+  simulation scenarios in a few seconds. Compiling is not the same as working; say which one you did.
+- `headless/` holds `HeadlessWorld` and `HeadlessPeers`, the no-window entry points the tests use.
+  `input/ScriptedInputProvider` is the loopback driver for play-testing the windowed client.
