@@ -12,8 +12,14 @@ public final class AudioFile extends File<Audio> {
         super(location);
     }
 
+    private static final Audio SILENT = new Audio() {
+    };
+
     @Override
     public @NonNull Audio get() throws UncheckedIOException {
+        if (!AudioManager.isAvailable()) {
+            return SILENT;
+        }
         try {
             return AudioManager.getManager().createAudio(getURL());
         } catch (IOException ex) {

@@ -8,6 +8,7 @@ import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,9 +28,14 @@ public final class RenderQueues implements AutoCloseable {
     private final List<@NonNull Integer> tex_index_lookup = new ArrayList<>();
     private final List<@NonNull List<@NonNull SpriteKey>> props_lookup = new ArrayList<>();
     private final @NonNull GlowLights glow_lights = new GlowLights();
-    private final List<@NonNull ShadowListRenderer> shadow_renderer_lookup = new ArrayList<>();
+    // Shadow renderers own shaders and buffers, so they are described at registration and created on first use.
+    private final List<@NonNull Supplier<@NonNull ShadowListRenderer>> shadow_renderer_lookup = new ArrayList<>();
+    private final List<@Nullable ShadowListRenderer> shadow_renderer_cache = new ArrayList<>();
     private final Map<@NonNull Supplier<@NonNull Texture @NonNull []>, @NonNull ShadowListKey> desc_to_shadow_key = new HashMap<>();
-    private final List<@NonNull Texture> texture_lookup = new ArrayList<>();
+    // Textures are described at registration and created on first lookup, so resources can be registered
+    // without a GL context.
+    private final List<@NonNull Supplier<@NonNull Texture>> texture_lookup = new ArrayList<>();
+    private final List<@Nullable Texture> texture_cache = new ArrayList<>();
     private final InstancedSpriteRenderer spriteRenderer = new InstancedSpriteRenderer();
 
     public RenderQueues() {
@@ -37,34 +43,40 @@ public final class RenderQueues implements AutoCloseable {
 
     public @NonNull TextureKey registerTexture(@NonNull Supplier<Texture[]> desc, int index) {
         TextureKey key = new TextureKey(texture_lookup.size());
-        Texture[] textures = Resources.findResource(desc);
-        texture_lookup.add(textures[index]);
+        texture_lookup.add(() -> Resources.findResource(desc)[index]);
+        texture_cache.add(null);
         return key;
     }
 
     public @NonNull TextureKey registerTexture(@NonNull Supplier<Texture> desc) {
         TextureKey key = new TextureKey(texture_lookup.size());
-        texture_lookup.add(Resources.findResource(desc));
+        texture_lookup.add(() -> Resources.findResource(desc));
+        texture_cache.add(null);
         return key;
     }
 
     @NonNull
     Texture getTexture(@NonNull TextureKey key) {
-        return texture_lookup.get(key.getKey());
+        Texture texture = texture_cache.get(key.getKey());
+        if (texture == null) {
+            texture = texture_lookup.get(key.getKey()).get();
+            texture_cache.set(key.getKey(), texture);
+        }
+        return texture;
     }
 
     public @NonNull ShadowListKey registerRespondRenderer(@NonNull Supplier<@NonNull Texture @NonNull []> desc) {
         ShadowListKey key = desc_to_shadow_key.get(desc);
         if (key != null)
             return key;
-        ShadowListRenderer renderer = new TargetRespondRenderer(desc);
-        return register(desc, renderer);
+        return register(desc, () -> new TargetRespondRenderer(desc));
     }
 
     private @NonNull ShadowListKey register(@NonNull Supplier<@NonNull Texture @NonNull []> desc,
-            @NonNull ShadowListRenderer renderer) {
+            @NonNull Supplier<@NonNull ShadowListRenderer> renderer) {
         int index = shadow_renderer_lookup.size();
         shadow_renderer_lookup.add(renderer);
+        shadow_renderer_cache.add(null);
         ShadowListKey key = new ShadowListKey(index);
         desc_to_shadow_key.put(desc, key);
         return key;
@@ -72,12 +84,21 @@ public final class RenderQueues implements AutoCloseable {
 
     public @NonNull ShadowListKey registerSelectableShadowList(@NonNull Supplier<@NonNull Texture @NonNull []> desc) {
         ShadowListKey key = desc_to_shadow_key.get(desc);
-        return key != null ? key : register(desc, new SelectableShadowRenderer(desc));
+        return key != null ? key : register(desc, () -> new SelectableShadowRenderer(desc));
+    }
+
+    private @NonNull ShadowListRenderer shadowRenderer(int index) {
+        ShadowListRenderer renderer = shadow_renderer_cache.get(index);
+        if (renderer == null) {
+            renderer = shadow_renderer_lookup.get(index).get();
+            shadow_renderer_cache.set(index, renderer);
+        }
+        return renderer;
     }
 
     @NonNull
     ShadowListRenderer getShadowRenderer(@NonNull ShadowListKey key) {
-        return shadow_renderer_lookup.get(key.getKey());
+        return shadowRenderer(key.getKey());
     }
 
     public @NonNull SpriteKey register(@NonNull SpriteFile sprite_file) {
@@ -208,8 +229,8 @@ public final class RenderQueues implements AutoCloseable {
 
     void renderShadows(@NonNull RenderContext context, @NonNull LandscapeRenderer renderer,
             @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
-        for (ShadowListRenderer shadowListRenderer : shadow_renderer_lookup) {
-            shadowListRenderer.renderShadows(context, renderer, modelViewStack, projectionStack);
+        for (int i = 0; i < shadow_renderer_lookup.size(); i++) {
+            shadowRenderer(i).renderShadows(context, renderer, modelViewStack, projectionStack);
         }
     }
 
@@ -220,8 +241,10 @@ public final class RenderQueues implements AutoCloseable {
                 SpriteRenderer::getSpriteList).distinct().toList()) {
             spriteList.close();
         }
-        for (ShadowListRenderer shadowListRenderer : shadow_renderer_lookup) {
-            shadowListRenderer.close();
+        for (ShadowListRenderer shadowListRenderer : shadow_renderer_cache) {
+            if (shadowListRenderer != null) {
+                shadowListRenderer.close();
+            }
         }
     }
 }

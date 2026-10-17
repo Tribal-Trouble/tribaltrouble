@@ -52,6 +52,11 @@ public abstract class AudioManager implements AudioImplementation, AutoCloseable
      * @return The singleton AudioManager instance.
      * @throws IllegalStateException if the audio manager could not be initialized.
      */
+    /** False when no audio device was initialised, as in a headless run. */
+    public static boolean isAvailable() {
+        return SINGLETON.manager != null;
+    }
+
     public static @NonNull AudioManager getManager() throws IllegalStateException {
         if (SINGLETON.manager == null) {
             throw new IllegalStateException("Audio manager is not available. Check logs for initialization errors.");
