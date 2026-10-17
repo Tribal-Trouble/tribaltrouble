@@ -99,7 +99,7 @@ works because it looks right. Two ways to run it without a person at the keyboar
   checksum only in a commit that bumps `SIM_VERSION`, and only when the maintainer agreed to the
   change. New gameplay rules get a scenario here, in `tt/src/test/java/com/oddlabs/tt/headless/`.
 - **Scripted play-testing**: start the game with `-Dcom.oddlabs.tt.input.port=7777` and drive it
-  over a loopback socket with `tools/ttinput.py`: press buttons by label, read the GUI tree and the
+  over a loopback socket with `tools/scripts/ttinput.py`: press buttons by label, read the GUI tree and the
   game state, fast-forward, take screenshots. [docs/llm-play-testing.md](docs/llm-play-testing.md)
   is the guide, including a local two-client multiplayer recipe. This is how UI, menu and rendering
   changes are verified. It needs a display, so it does not run on hosted CI.

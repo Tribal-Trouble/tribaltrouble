@@ -54,4 +54,4 @@ generate art or sound for a feature: see the creative work policy in the root
 - `./gradlew :tt:compileJava` is the fast feedback loop and `./gradlew :tt:test` runs the headless
   simulation scenarios in a few seconds. Compiling is not the same as working; say which one you did.
 - `headless/` holds `HeadlessWorld` and `HeadlessPeers`, the no-window entry points the tests use.
-  `input/ScriptedInputProvider` is the loopback driver for play-testing the windowed client.
+  `input/scripted/ScriptedInputProvider` is the loopback driver for play-testing the windowed client.
