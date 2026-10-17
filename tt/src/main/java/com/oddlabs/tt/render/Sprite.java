@@ -33,7 +33,13 @@ public final class Sprite {
     private static final int EMISSIVE_NAME_INDEX = 2;
     private static final String GENERATOR_STRING = "Generator:";
 
-    final Texture @NonNull [] @NonNull [] textures;
+    // Resolved on first render so sprite data loads without a GL context.
+    private @Nullable Texture @NonNull [] @NonNull [] textures;
+    private final @NonNull String @NonNull [] @NonNull [] texture_names;
+    private final int color_format;
+    private final int mipmap_cutoff;
+    private final boolean max_alpha;
+    private final boolean has_respond;
     private final int num_triangles;
     private final int num_vertices;
     private final float @Nullable [] clear_color;
@@ -45,7 +51,7 @@ public final class Sprite {
     private final float @Nullable [] cpw_array;
     private final int @Nullable [] animation_length_array;
     private final AnimationInfo.AnimationType @NonNull [] type_array;
-    final @Nullable Texture respond_texture;
+    private @Nullable Texture respond_texture;
     final int indices_offset;
     final int texcoords_offset;
 
@@ -54,6 +60,11 @@ public final class Sprite {
      */
     Sprite(int num_vertices, int num_triangles, int indices_offset, boolean modulate_color) {
         this.textures = new Texture[0][0];
+        this.texture_names = new String[0][0];
+        this.color_format = 0;
+        this.mipmap_cutoff = 0;
+        this.max_alpha = false;
+        this.has_respond = false;
         this.num_vertices = num_vertices;
         this.num_triangles = num_triangles;
         this.indices_offset = indices_offset;
@@ -110,26 +121,43 @@ public final class Sprite {
             }
         }
 
-        int color_format = alpha ? Globals.COMPRESSED_RGBA_FORMAT : Globals.COMPRESSED_RGB_FORMAT;
+        this.color_format = alpha ? Globals.COMPRESSED_RGBA_FORMAT : Globals.COMPRESSED_RGB_FORMAT;
+        this.texture_names = sprite_info.getTextures();
+        this.mipmap_cutoff = mipmap_cutoff;
+        this.max_alpha = max_alpha;
+        this.has_respond = true;
+    }
 
-        String[][] texture_names = sprite_info.getTextures();
-        textures = new Texture[texture_names.length][4];
-        for (int i = 0; i < texture_names.length; i++) {
-            Texture[] diffuseAndBump = getTextureForName(texture_names[i][DIFFUSE_NAME_INDEX], color_format,
-                    mipmap_cutoff, max_alpha);
-            textures[i][TEXTURE_NORMAL] = diffuseAndBump[0];
-            if (diffuseAndBump.length > 1) {
-                textures[i][TEXTURE_BUMP] = diffuseAndBump[1];
+    /** The diffuse, team, bump and emissive textures per texture set, loaded on first request. Needs a GL context. */
+    @NonNull
+    Texture @NonNull [] @NonNull [] textures() {
+        if (textures == null) {
+            Texture[][] loaded = new Texture[texture_names.length][4];
+            for (int i = 0; i < texture_names.length; i++) {
+                Texture[] diffuseAndBump = getTextureForName(texture_names[i][DIFFUSE_NAME_INDEX], color_format,
+                        mipmap_cutoff, max_alpha);
+                loaded[i][TEXTURE_NORMAL] = diffuseAndBump[0];
+                if (diffuseAndBump.length > 1) {
+                    loaded[i][TEXTURE_BUMP] = diffuseAndBump[1];
+                }
+                loaded[i][TEXTURE_TEAM] = texture_names[i][TEAM_NAME_INDEX] != null ? getTextureForName(
+                        texture_names[i][TEAM_NAME_INDEX], Globals.COMPRESSED_RGB_FORMAT, mipmap_cutoff,
+                        max_alpha)[0] : null;
+                loaded[i][TEXTURE_EMISSIVE] = texture_names[i].length > EMISSIVE_NAME_INDEX ? getTextureForName(
+                        texture_names[i][EMISSIVE_NAME_INDEX], Globals.COMPRESSED_RGBA_FORMAT, mipmap_cutoff,
+                        max_alpha)[0] : null;
             }
-
-            textures[i][TEXTURE_TEAM] = texture_names[i][TEAM_NAME_INDEX] != null ? getTextureForName(
-                    texture_names[i][TEAM_NAME_INDEX],
-                    Globals.COMPRESSED_RGB_FORMAT, mipmap_cutoff, max_alpha)[0] : null;
-            textures[i][TEXTURE_EMISSIVE] = texture_names[i].length > EMISSIVE_NAME_INDEX ? getTextureForName(
-                    texture_names[i][EMISSIVE_NAME_INDEX], Globals.COMPRESSED_RGBA_FORMAT, mipmap_cutoff,
-                    max_alpha)[0] : null;
+            textures = loaded;
         }
-        this.respond_texture = Resources.findResource(new GeneratorRespond())[0];
+        return textures;
+    }
+
+    @Nullable
+    Texture respondTexture() {
+        if (respond_texture == null && has_respond) {
+            respond_texture = Resources.findResource(new GeneratorRespond())[0];
+        }
+        return respond_texture;
     }
 
     public boolean modulateColor() {
@@ -258,26 +286,27 @@ public final class Sprite {
     }
 
     public boolean hasTeamDecal() {
-        return textures.length > 0 && textures[0].length > TEXTURE_TEAM && textures[0][TEXTURE_TEAM] != null;
+        return texture_names.length > 0 && texture_names[0].length > TEXTURE_TEAM
+                && texture_names[0][TEXTURE_TEAM] != null;
     }
 
     public boolean hasBumpMap(int tex_index) {
-        return textures.length > tex_index && textures[tex_index].length > TEXTURE_BUMP
-                && textures[tex_index][TEXTURE_BUMP] != null;
+        return texture_names.length > tex_index && textures()[tex_index].length > TEXTURE_BUMP
+                && textures()[tex_index][TEXTURE_BUMP] != null;
     }
 
     public boolean hasEmissive(int tex_index) {
-        return textures.length > tex_index && textures[tex_index].length > TEXTURE_EMISSIVE
-                && textures[tex_index][TEXTURE_EMISSIVE] != null;
+        return textures().length > tex_index && textures()[tex_index].length > TEXTURE_EMISSIVE
+                && textures()[tex_index][TEXTURE_EMISSIVE] != null;
     }
 
     public int getNumTextures() {
-        return textures.length;
+        return texture_names.length;
     }
 
     public void setupShaderUniforms(@NonNull RenderContext context, @NonNull SpriteShader shader, int tex_index,
             boolean respond) {
-        context.setTexture(0, textures[tex_index][TEXTURE_NORMAL]);
+        context.setTexture(0, textures()[tex_index][TEXTURE_NORMAL]);
         shader.setUniform(SpriteShader.Uniforms.TEXTURE_0, 0);
 
         boolean useLighting = Globals.draw_light && lighted;
@@ -294,7 +323,7 @@ public final class Sprite {
             shader.setUniform(SpriteShader.Uniforms.ALPHA_TEST_VALUE, 0.3f);
             if (hasTeamDecal() || respond) {
                 shader.setUniform(SpriteShader.Uniforms.ENABLE_TEAM_COLOR, true);
-                context.setTexture(1, respond ? respond_texture : textures[tex_index][TEXTURE_TEAM]);
+                context.setTexture(1, respond ? respondTexture() : textures()[tex_index][TEXTURE_TEAM]);
                 shader.setUniform(SpriteShader.Uniforms.TEXTURE_1, 1);
             } else {
                 shader.setUniform(SpriteShader.Uniforms.ENABLE_TEAM_COLOR, false);
@@ -303,7 +332,7 @@ public final class Sprite {
 
         if (hasBumpMap(tex_index)) {
             shader.setUniform(SpriteShader.Uniforms.ENABLE_NORMAL_MAP, true);
-            context.setTexture(2, textures[tex_index][TEXTURE_BUMP]);
+            context.setTexture(2, textures()[tex_index][TEXTURE_BUMP]);
             shader.setUniform(SpriteShader.Uniforms.NORMAL_MAP, 2);
         } else {
             shader.setUniform(SpriteShader.Uniforms.ENABLE_NORMAL_MAP, false);

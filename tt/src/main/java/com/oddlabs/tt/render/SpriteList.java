@@ -33,9 +33,14 @@ public final class SpriteList implements AutoCloseable {
     private final AnimationInfo.@NonNull AnimationType @NonNull [] type_array;
     private final @NonNull String @NonNull [] animation_names;
 
-    private final @NonNull ShortVBO indices;
-    private final @NonNull FloatVBO vertices_and_normals;
-    private final @NonNull FloatVBO texcoords;
+    // Geometry stays in these buffers; the VBOs and texture buffer are uploaded on first renderer request so
+    // sprite data can be loaded without a GL context.
+    private final @NonNull ShortBuffer index_data;
+    private final @NonNull FloatBuffer vertex_and_normal_data;
+    private final @NonNull FloatBuffer texcoord_data;
+    private @Nullable ShortVBO indices;
+    private @Nullable FloatVBO vertices_and_normals;
+    private @Nullable FloatVBO texcoords;
     private @Nullable VertexArray vao;
     private int tboTextureHandle;
 
@@ -58,19 +63,17 @@ public final class SpriteList implements AutoCloseable {
         vertAndNormBuf.put(quad_vertices);
         vertAndNormBuf.put(quad_normals);
         vertAndNormBuf.flip();
-        this.vertices_and_normals = new FloatVBO(GL15.GL_STATIC_DRAW, vertAndNormBuf);
+        this.vertex_and_normal_data = vertAndNormBuf;
 
         FloatBuffer texCoordBuf = BufferUtils.createFloatBuffer(quad_texcoords.length).put(quad_texcoords);
         texCoordBuf.flip();
-        this.texcoords = new FloatVBO(GL15.GL_STATIC_DRAW, texCoordBuf);
+        this.texcoord_data = texCoordBuf;
 
         ShortBuffer indexBuf = BufferUtils.createShortBuffer(quad_indices.length).put(quad_indices);
         indexBuf.flip();
-        this.indices = new ShortVBO(GL15.GL_STATIC_DRAW, indexBuf);
+        this.index_data = indexBuf;
 
         this.sprites = new Sprite[]{new Sprite(4, 2, 0, true)};
-
-        initTBO();
     }
 
     // Items name the sprite whose clips they use ("vikings/peon"); each unit's clips are then read once.
@@ -136,21 +139,32 @@ public final class SpriteList implements AutoCloseable {
         ).toArray(Sprite[]::new);
 
         all_indices.flip();
-        indices = new ShortVBO(GL15.GL_STATIC_DRAW, all_indices.remaining());
-        indices.put(all_indices);
-
+        index_data = all_indices;
         all_texcoords.flip();
-        texcoords = new FloatVBO(GL15.GL_STATIC_DRAW, all_texcoords.remaining());
-        texcoords.put(all_texcoords);
-
+        texcoord_data = all_texcoords;
         all_vertices_and_normals.flip();
-        vertices_and_normals = new FloatVBO(GL15.GL_STATIC_DRAW, all_vertices_and_normals.remaining());
-        vertices_and_normals.put(all_vertices_and_normals);
+        vertex_and_normal_data = all_vertices_and_normals;
 
         for (BoundingBox bound : bounds) {
             bound.maximizeXYPlane();
         }
 
+    }
+
+    /** Creates the VBOs and texture buffer from the retained geometry. Needs a GL context; idempotent. */
+    private void upload() {
+        if (indices != null) {
+            return;
+        }
+        ShortVBO index_vbo = new ShortVBO(GL15.GL_STATIC_DRAW, index_data.remaining());
+        index_vbo.put(index_data.duplicate());
+        FloatVBO texcoord_vbo = new FloatVBO(GL15.GL_STATIC_DRAW, texcoord_data.remaining());
+        texcoord_vbo.put(texcoord_data.duplicate());
+        FloatVBO vertex_vbo = new FloatVBO(GL15.GL_STATIC_DRAW, vertex_and_normal_data.remaining());
+        vertex_vbo.put(vertex_and_normal_data.duplicate());
+        texcoords = texcoord_vbo;
+        vertices_and_normals = vertex_vbo;
+        indices = index_vbo;
         initTBO();
     }
 
@@ -165,11 +179,13 @@ public final class SpriteList implements AutoCloseable {
     }
 
     public int getTBOTextureHandle() {
+        upload();
         return tboTextureHandle;
     }
 
     public void initVAO(@NonNull SpriteShader shader) {
         if (vao != null) return;
+        upload();
 
         vao = new VertexArray();
         vao.bind();
@@ -232,14 +248,17 @@ public final class SpriteList implements AutoCloseable {
     }
 
     public @NonNull ShortVBO getIndices() {
+        upload();
         return indices;
     }
 
     public @NonNull FloatVBO getVerticesAndNormals() {
+        upload();
         return vertices_and_normals;
     }
 
     public @NonNull FloatVBO getTexcoords() {
+        upload();
         return texcoords;
     }
 
@@ -252,8 +271,13 @@ public final class SpriteList implements AutoCloseable {
             vao.close();
             vao = null;
         }
-        indices.close();
-        vertices_and_normals.close();
-        texcoords.close();
+        if (indices != null) {
+            indices.close();
+            vertices_and_normals.close();
+            texcoords.close();
+            indices = null;
+            vertices_and_normals = null;
+            texcoords = null;
+        }
     }
 }

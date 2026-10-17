@@ -7,6 +7,8 @@ import com.oddlabs.tt.player.ChieftainAI;
 import com.oddlabs.tt.render.SpriteKey;
 import org.jspecify.annotations.NonNull;
 
+import java.util.function.Supplier;
+
 public final class Race {
     public static final int BUILDING_QUARTERS = 0;
     public static final int BUILDING_ARMORY = 1;
@@ -24,7 +26,8 @@ public final class Race {
     private final @NonNull BuildingTemplate[] buildings = new BuildingTemplate[NUM_BUILDINGS];
     private final @NonNull UnitTemplate[] units = new UnitTemplate[NUM_UNITS];
     private final @NonNull SpriteKey rally_point;
-    private final @NonNull RaceIcons icons;
+    // GUI icons resolve on first request so races can be built without a GL context.
+    private final @NonNull Supplier<@NonNull RaceIcons> icons;
     private final @NonNull Audio attack_notification;
     private final @NonNull Audio building_notification;
     private final @NonNull MagicFactory @NonNull [] magic_factory;
@@ -42,7 +45,7 @@ public final class Race {
             @NonNull UnitTemplate peon,
             @NonNull UnitTemplate chieftain,
             @NonNull SpriteKey rally_point,
-            @NonNull RaceIcons icons,
+            @NonNull Supplier<@NonNull RaceIcons> icons,
             @NonNull Audio attack_notification,
             @NonNull Audio building_notification,
             @NonNull MagicFactory @NonNull [] magic_factory,
@@ -82,7 +85,7 @@ public final class Race {
     }
 
     public @NonNull RaceIcons getIcons() {
-        return icons;
+        return icons.get();
     }
 
     public @NonNull Audio getAttackNotificationAudio() {
