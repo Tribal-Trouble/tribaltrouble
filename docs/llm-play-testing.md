@@ -285,6 +285,52 @@ Loopback networking already runs in-process for single player, so a headless tes
 than rewritten, and one to two weeks including the replay verification after each step. The risk
 sits in steps 1 and 2, which is exactly what the replay checksums guard.
 
+## Headless simulation tests
+
+The simulation also runs as a library, with no window, GL context or audio device. `HeadlessWorld`
+in `com.oddlabs.tt.headless` builds a world from a seed, places each player's starting peons, and
+ticks it; orders go straight to `Player`, which is the same interface the network hands them to.
+
+```
+./gradlew :tt:test
+```
+
+`HeadlessWorldTest` is the pattern for a scenario:
+
+1. `HeadlessWorld.create(seed, players, params)` for a world with peons at the start positions.
+2. `HeadlessWorld.builders(player)` for the units that can build, `nearestSite(...)` for a legal
+   cell, then `player.placeBuilding(...)`, `unit.setTarget(...)` and so on, exactly as the game does.
+3. `HeadlessWorld.tick(world, ticks)`: 3000 ticks is one minute of game time and takes well under
+   a second.
+4. Assert on counters and positions, then assert `world.getChecksum()` against a stored value.
+
+The stored checksum is the gate. Any change to simulation behaviour flips it, including a change
+that every other assertion in the test would miss. Change a stored checksum only in a commit that
+bumps `SIM_VERSION`; the failure message says so. Verified: changing the starting unit count by one
+fails the checksum test and nothing else.
+
+### Multiplayer without a window
+
+`HeadlessPeers` builds several worlds in one JVM, each with its own `PeerHub`, all joined to one
+in-process `Router` over loopback. The hubs and the router read a fake clock that the test
+advances one tick per pump, so a game minute takes a couple of seconds of wall time and nothing
+waits on real time. Orders go through `peer.orders()`, which is the hub's `PlayerInterface`: the
+same lockstep path a real match uses, including the checksum exchange between peers.
+
+`HeadlessPeersTest` is the pattern:
+
+1. `new HeadlessPeers(seed, players, params)` in a try-with-resources.
+2. `peers.runUntilTick(tick, max_pumps)` to bring every world to a tick.
+3. `peers.peer(0).orders().placeBuilding(...)` on one peer, then run again.
+4. Assert on each peer's copy of the world, then assert the two checksums are equal.
+
+The hub joins the router by port through a constructor that takes no GUI and no notification
+manager. The Steam peer-to-peer branch swaps the transport under the same seam, so a headless
+Steam test would plug in the same way.
+
+What is not headless yet: AI players and the `Client` and `Server` layers above the hub, so a
+headless match starts with the worlds already built and the slots already filled.
+
 ## Cleanup
 
 Kill the client processes, then the servers, then `mysqld`. Portable clients leave nothing behind

@@ -90,10 +90,14 @@ On Windows use `gradlew.bat`. Platform packaging tasks (`tt:packageWindows`,
 `tt:packageLinux`, `tt:packageMacArm64`, `tt:packageMacX86`) only run on their matching host
 OS.
 
-There are no test sources yet; JUnit 6 is wired up in `common` if you add some. Compiling proves
-the code builds. Running it is what catches the bugs. Never claim a change works because it looks
-right. To run it without a person at the keyboard:
+Compiling proves the code builds. Running it is what catches the bugs. Never claim a change
+works because it looks right. Two ways to run it without a person at the keyboard:
 
+- **Headless simulation tests**: `./gradlew :tt:test` builds a world with no window, no GL and no
+  audio and runs scenarios against it, single world and two peers in lockstep. Each scenario ends
+  by asserting the world checksum, so any simulation change fails it. Re-baseline a stored
+  checksum only in a commit that bumps `SIM_VERSION`, and only when the maintainer agreed to the
+  change. New gameplay rules get a scenario here, in `tt/src/test/java/com/oddlabs/tt/headless/`.
 - **Scripted play-testing**: start the game with `-Dcom.oddlabs.tt.input.port=7777` and drive it
   over a loopback socket with `tools/scripts/ttinput.py`: press buttons by label, read the GUI tree
   and the game state, fast-forward, take screenshots. [docs/llm-play-testing.md](docs/llm-play-testing.md)
@@ -110,8 +114,9 @@ Before reporting a change as finished:
 2. `./gradlew spotlessApply` has been run, so `spotlessCheck` in CI will pass.
 3. Player-visible changes get a line under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md),
    written for players, in English, following the rules at the top of that file.
-4. Gameplay and UI changes are described honestly: say whether you played them through the
-   scripted driver or did not run the game at all.
+4. Simulation changes come with a headless scenario, and `./gradlew :tt:test` passes.
+5. Gameplay and UI changes are described honestly: say whether you played them through the
+   scripted driver, ran only the headless tests, or did not run the game at all.
 
 Do not say "done", "ready", or "working" for code that has not compiled.
 

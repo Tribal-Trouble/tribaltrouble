@@ -14,6 +14,7 @@ import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.HeightMap;
@@ -121,6 +122,23 @@ public final class PeerHub implements Animated, RouterHandler {
             @NonNull Player local_player, PlayerSlot[] player_slots, @NonNull NetworkSelector network, GUIRoot gui_root,
             NotificationManager notification_manager, DistributableTable distributable_table, SessionID session_id,
             StallHandler stall_handler) {
+        this(manager, is_multiplayer, is_rated, is_spectator, local_player, player_slots, network, gui_root, notification_manager, distributable_table, session_id, stall_handler, 0);
+    }
+
+    /**
+     * A hub that joins an existing router on the loopback interface instead of the configured router server or
+     * its own private one. Used by headless multi-peer runs, which have no GUI and no notifications.
+     */
+    public PeerHub(@NonNull AnimationManager manager, @NonNull Player local_player, PlayerSlot[] player_slots,
+            @NonNull NetworkSelector network, DistributableTable distributable_table, SessionID session_id,
+            StallHandler stall_handler, int router_port) {
+        this(manager, true, false, false, local_player, player_slots, network, null, null, distributable_table, session_id, stall_handler, router_port);
+    }
+
+    private PeerHub(@NonNull AnimationManager manager, boolean is_multiplayer, boolean is_rated, boolean is_spectator,
+            @NonNull Player local_player, PlayerSlot[] player_slots, @NonNull NetworkSelector network, GUIRoot gui_root,
+            NotificationManager notification_manager, DistributableTable distributable_table, SessionID session_id,
+            StallHandler stall_handler, int router_port) {
         this.stall_handler = stall_handler;
         this.is_rated = is_rated;
         this.is_spectator = is_spectator;
@@ -134,7 +152,10 @@ public final class PeerHub implements Animated, RouterHandler {
         List<Peer> peer_index_to_peer_list = new ArrayList<>();
         Player[] players = local_player.getWorld().getPlayers();
         this.local_peer_index = -1;
-        if (!is_multiplayer) {
+        if (router_port > 0) {
+            this.router = null;
+            this.router_client = new RouterClient(network, this, router_port);
+        } else if (!is_multiplayer) {
             this.router = new Router(network, com.oddlabs.util.Utils.getLoopbackAddress(), 0,
                     Logger.getAnonymousLogger(), (IOException e) -> {
                         //					PeerHub.this.routerFailed(e);
@@ -419,7 +440,13 @@ public final class PeerHub implements Animated, RouterHandler {
         checksum.update(local_player.getWorld().getChecksum());
         local_player.getWorld().getAnimationManagerGameTime().updateChecksum(checksum);
         local_player.getWorld().getAnimationManagerRealTime().updateChecksum(checksum);
-        router_client.getInterface().checksum(checksum.getValue());
+        int value = checksum.getValue();
+        // Logged so a replay compares the world checksum, not only the animation one, against the recording.
+        int logged = LocalEventQueue.getQueue().getDeterministic().log(value);
+        if (logged != value) {
+            Renderer.failReplay("world checksum mismatch at tick " + getTick());
+        }
+        router_client.getInterface().checksum(value);
     }
 
     private void sendMap() {
@@ -622,7 +649,9 @@ public final class PeerHub implements Animated, RouterHandler {
 
     public void receiveBeacon(float x, float y, @NonNull String owner) {
         if (!ChatCommand.isIgnoring(owner))
-            notification_manager.newBeacon(manager, local_player, x, y);
+            if (notification_manager != null) {
+                notification_manager.newBeacon(manager, local_player, x, y);
+            }
     }
 
     private void closeNetwork() {

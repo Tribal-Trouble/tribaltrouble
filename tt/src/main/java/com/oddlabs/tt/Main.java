@@ -126,7 +126,7 @@ public final class Main {
             SteamManager.init();
             logger.info("Starting game....");
             Renderer.getRenderer().run(args);
-            status = 0;
+            status = Renderer.getExitStatus();
         } catch (Throwable t) {
             failFatal(t);
         } finally {
