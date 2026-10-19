@@ -17,6 +17,7 @@ import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -33,17 +34,38 @@ import java.util.Map;
 
 public final class InstancedSpriteRenderer implements AutoCloseable {
 
-    private final InstancedSpriteShader shader = new InstancedSpriteShader();
-    private final InstancedSpriteShadowShader shadowShader = new InstancedSpriteShadowShader();
+    // Shaders and fallback texture are created on first render so the renderer can exist without a GL context.
+    private @Nullable InstancedSpriteShader shader;
+    private @Nullable InstancedSpriteShadowShader shadowShader;
     private final Map<@NonNull BatchKey, @NonNull RenderBatch> batches = new HashMap<>();
-    private final @NonNull Texture whiteTexture;
+    private @Nullable Texture whiteTexture;
     private float seaLevel = -100.0f;
 
     public InstancedSpriteRenderer() {
-        GLImage whiteImage = new GLIntImage(1, 1, GL11.GL_RGBA);
-        whiteImage.putPixel(0, 0, Color.WHITE_INT);
-        whiteTexture = new Texture(new GLImage[]{whiteImage}, GL11.GL_RGBA8, GL11.GL_NEAREST, GL11.GL_NEAREST,
-                GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
+    }
+
+    private @NonNull InstancedSpriteShader shader() {
+        if (shader == null) {
+            shader = new InstancedSpriteShader();
+        }
+        return shader;
+    }
+
+    private @NonNull InstancedSpriteShadowShader shadowShader() {
+        if (shadowShader == null) {
+            shadowShader = new InstancedSpriteShadowShader();
+        }
+        return shadowShader;
+    }
+
+    private @NonNull Texture whiteTexture() {
+        if (whiteTexture == null) {
+            GLImage whiteImage = new GLIntImage(1, 1, GL11.GL_RGBA);
+            whiteImage.putPixel(0, 0, Color.WHITE_INT);
+            whiteTexture = new Texture(new GLImage[]{whiteImage}, GL11.GL_RGBA8, GL11.GL_NEAREST, GL11.GL_NEAREST,
+                    GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
+        }
+        return whiteTexture;
     }
 
     public void setSeaLevel(float seaLevel) {
@@ -66,9 +88,11 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             @NonNull MatrixStack projectionStack) {
         if (batches.isEmpty()) return;
 
+        Texture whiteTexture = whiteTexture();
         try {
             RenderState state = new RenderState();
             if (context.isShadowPass()) {
+                InstancedSpriteShadowShader shadowShader = shadowShader();
                 try (var _ = shadowShader.use()) {
                     shadowShader.setUniform(InstancedSpriteShadowShader.Uniforms.VERT_BUFFER, 5);
                     for (RenderBatch batch : batches.values()) {
@@ -76,6 +100,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                     }
                 }
             } else {
+                InstancedSpriteShader shader = shader();
                 try (var _ = shader.use()) {
                     shader.setUniform(InstancedSpriteShader.Uniforms.VERT_BUFFER, 5);
                     shader.setUniform(InstancedSpriteShader.Uniforms.SEA_LEVEL, seaLevel);
@@ -107,9 +132,18 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             batch.close();
         }
         batches.clear();
-        shader.close();
-        shadowShader.close();
-        whiteTexture.close();
+        if (shader != null) {
+            shader.close();
+            shader = null;
+        }
+        if (shadowShader != null) {
+            shadowShader.close();
+            shadowShader = null;
+        }
+        if (whiteTexture != null) {
+            whiteTexture.close();
+            whiteTexture = null;
+        }
     }
 
     private record BatchKey(@NonNull SpriteList spriteList, int spriteIndex, int texIndex, boolean respond,
@@ -320,8 +354,8 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
         }
 
         private @NonNull Texture getBaseTexture(@NonNull Sprite sprite, Texture whiteTexture) {
-            return (sprite.textures.length > key.texIndex && sprite.textures[key.texIndex].length > 0
-                    && sprite.textures[key.texIndex][0] != null) ? sprite.textures[key.texIndex][0] : whiteTexture;
+            return (sprite.textures().length > key.texIndex && sprite.textures()[key.texIndex].length > 0
+                    && sprite.textures()[key.texIndex][0] != null) ? sprite.textures()[key.texIndex][0] : whiteTexture;
         }
 
         private void draw(Sprite sprite) {
@@ -350,7 +384,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                 shader.setUniform(InstancedSpriteShader.Uniforms.ALPHA_TEST_VALUE, key.respond ? 0.5f : 0.1f);
                 if (sprite.hasTeamDecal() || key.respond) {
                     shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_TEAM_COLOR, true);
-                    Texture teamTexture = key.respond ? sprite.respond_texture : sprite.textures[key.texIndex][Sprite.TEXTURE_TEAM];
+                    Texture teamTexture = key.respond ? sprite.respondTexture() : sprite.textures()[key.texIndex][Sprite.TEXTURE_TEAM];
                     context.setTexture(1, teamTexture);
                     shader.setUniform(InstancedSpriteShader.Uniforms.TEXTURE_1, 1);
                 } else {
@@ -360,7 +394,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
 
             if (sprite.hasBumpMap(key.texIndex)) {
                 shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_NORMAL_MAP, true);
-                context.setTexture(2, sprite.textures[key.texIndex][Sprite.TEXTURE_BUMP]);
+                context.setTexture(2, sprite.textures()[key.texIndex][Sprite.TEXTURE_BUMP]);
                 shader.setUniform(InstancedSpriteShader.Uniforms.NORMAL_MAP, 2);
             } else {
                 shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_NORMAL_MAP, false);
@@ -368,7 +402,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
 
             if (sprite.hasEmissive(key.texIndex)) {
                 shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_EMISSIVE, true);
-                context.setTexture(3, sprite.textures[key.texIndex][Sprite.TEXTURE_EMISSIVE]);
+                context.setTexture(3, sprite.textures()[key.texIndex][Sprite.TEXTURE_EMISSIVE]);
                 shader.setUniform(InstancedSpriteShader.Uniforms.EMISSIVE_MAP, 3);
             } else {
                 shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_EMISSIVE, false);
