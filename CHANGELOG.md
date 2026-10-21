@@ -16,6 +16,8 @@ section when a release is cut.
 
 - Chieftain magic activation now starts immediately and takes priority over walking or attacking.
 - Peons rallied into a damaged quarters now enter it instead of repair it.
+- Units displaced by a new building are moved into nearest cell positions instead of into nearest checkerboard cell positions.
+- You can now build on cells your units are walking over.
 - Armories no longer reset weapon production to zero when their stock is full. Production pauses instead, an infinite order stays set, and it resumes when there is room again.
 - A unit exiting a tower now comes out in the direction it entered.
 - A unit dismounted from a tower is now selected.
