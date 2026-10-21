@@ -233,10 +233,12 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     public void reposition(Building building) {
-        findInitialPosition(getPositionX(), getPositionY(), true, building.getIslandId());
+        findInitialPosition(getPositionX(), getPositionY(), false, building.getIslandId());
     }
 
     private void findInitialPosition(float x, float y, boolean grid_targets_only, int island) {
+        getTracker().clearPath();
+
         UnitGrid unit_grid = getUnitGrid();
         Target reserved_target = unit_grid.findGridTargets(UnitGrid.toGridCoordinate(x), UnitGrid.toGridCoordinate(y),
                 1, grid_targets_only, island)[0];

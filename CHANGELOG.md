@@ -12,6 +12,15 @@ section when a release is cut.
 
 ## [Unreleased]
 
+### Changed
+
+- Chieftain magic activation now starts immediately and takes priority over walking or attacking.
+- Peons rallied into a damaged quarters now enter it instead of repair it.
+- Units displaced by a new building are moved into nearest cell positions instead of into nearest checkerboard cell positions.
+- You can now build on cells your units are walking over.
+- Armories no longer reset weapon production to zero when their stock is full. Production pauses instead, an infinite order stays set, and it resumes when there is room again.
+- A unit dismounted from a tower is now selected.
+
 ### Fixed
 
 - Fixed a crash at startup on some graphics cards, right after the game window opened.
@@ -29,10 +38,6 @@ section when a release is cut.
 
 - Anything you type as a map code now gives you an island, and typing the same thing again gives the same island. The map code box then shows that island's word code, which you can share with friends.
 - Patch notes now open after every update, not only after big ones. Press "Don't show again" in the patch notes window to stop them opening. To turn them back on, open Patch notes in Options and press OK.
-- Chieftain magic activation now starts immediately and takes priority over walking or attacking.
-- Peons rallied into a damaged quarters now enter it instead of repair it.
-- Armories no longer reset weapon production to zero when their stock is full. Production pauses instead, an infinite order stays set, and it resumes when there is room again.
-- A unit dismounted from a tower is now selected.
 
 ### Fixed
 
