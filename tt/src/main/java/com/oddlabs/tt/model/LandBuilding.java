@@ -28,6 +28,7 @@ import com.oddlabs.tt.util.Target;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
@@ -471,14 +472,14 @@ public final class LandBuilding extends Building {
         }
     }
 
-    public static boolean isPlacingLegal(@NonNull UnitGrid unit_grid, @NonNull BuildingTemplate template, int grid_x,
-            int grid_y) {
-        return doIsPlacingLegal(unit_grid, grid_x, grid_y, template.getPlacingSize());
+    @NullMarked
+    public static boolean isPlacingLegal(Player owner, BuildingTemplate template, int grid_x, int grid_y) {
+        return doIsPlacingLegal(owner, grid_x, grid_y, template.getPlacingSize());
     }
 
     public boolean isPlacingLegal() {
         return !isDead() && getOwner().canBuild(getTemplate().getTemplateID()) &&
-                doIsPlacingLegal(getUnitGrid(), getGridX(), getGridY(),
+                doIsPlacingLegal(getOwner(), getGridX(), getGridY(),
                         getTemplate().getPlacingSize() - PLACING_BORDER);
     }
 
@@ -496,7 +497,9 @@ public final class LandBuilding extends Building {
         return getTemplate().getHitOffsetZ(getRenderLevel().ordinal());
     }
 
-    public static boolean doIsPlacingLegal(@NonNull UnitGrid unit_grid, int grid_x, int grid_y, int size) {
+    @NullMarked
+    public static boolean doIsPlacingLegal(Player owner, int grid_x, int grid_y, int size) {
+        UnitGrid unit_grid = owner.getWorld().getUnitGrid();
         if (!unit_grid.getHeightMap().canBuild(grid_x, grid_y, size))
             return false;
 
@@ -510,7 +513,7 @@ public final class LandBuilding extends Building {
                     return false;
                 }
                 var occ = unit_grid.getOccupant(cx, cy);
-                if (occ != null && !(occ instanceof Unit)) {
+                if (occ != null && !(occ instanceof Unit unit && unit.getOwner() == owner)) {
                     return false;
                 }
             }

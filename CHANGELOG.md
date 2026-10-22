@@ -18,6 +18,7 @@ section when a release is cut.
 - Peons rallied into a damaged quarters now enter it instead of repair it.
 - Units displaced by a new building are moved into nearest cell positions instead of into nearest checkerboard cell positions.
 - You can now build on cells your units are walking over.
+- Only own units can be displaced by your own buildings; other players' units block the site instead of being pushed aside.
 - Armories no longer reset weapon production to zero when their stock is full. Production pauses instead, an infinite order stays set, and it resumes when there is room again.
 - A unit dismounted from a tower is now selected.
 
