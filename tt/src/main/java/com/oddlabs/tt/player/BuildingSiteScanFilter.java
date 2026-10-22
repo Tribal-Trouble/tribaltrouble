@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class BuildingSiteScanFilter implements ScanFilter {
+    private final Player owner;
     private final UnitGrid unit_grid;
     private final BuildingTemplate template;
     private final int range;
@@ -20,8 +21,9 @@ public final class BuildingSiteScanFilter implements ScanFilter {
     private final boolean one_target;
     private final List<LandscapeTarget> result = new ArrayList<>();
 
-    public BuildingSiteScanFilter(UnitGrid unit_grid, BuildingTemplate template, int range, boolean one_target) {
-        this.unit_grid = unit_grid;
+    public BuildingSiteScanFilter(Player owner, BuildingTemplate template, int range, boolean one_target) {
+        this.owner = owner;
+        this.unit_grid = owner.getWorld().getUnitGrid();
         this.template = template;
         this.range = range;
         this.one_target = one_target;
@@ -29,9 +31,9 @@ public final class BuildingSiteScanFilter implements ScanFilter {
         this.check_island = false;
     }
 
-    public BuildingSiteScanFilter(UnitGrid unit_grid, BuildingTemplate template, int range, boolean one_target,
-            int island) {
-        this.unit_grid = unit_grid;
+    public BuildingSiteScanFilter(Player owner, BuildingTemplate template, int range, boolean one_target, int island) {
+        this.owner = owner;
+        this.unit_grid = owner.getWorld().getUnitGrid();
         this.template = template;
         this.range = range;
         this.one_target = one_target;
@@ -51,7 +53,7 @@ public final class BuildingSiteScanFilter implements ScanFilter {
 
     @Override
     public boolean filter(int grid_x, int grid_y, Occupant occ) {
-        boolean legal = template.isPlacingLegal(unit_grid, grid_x, grid_y);
+        boolean legal = template.isPlacingLegal(owner, grid_x, grid_y);
         HeightMap map = unit_grid.getHeightMap();
         if (check_island) {
             int curr_island = map.getIslandId(grid_x, grid_y);
