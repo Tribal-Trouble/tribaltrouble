@@ -9,16 +9,17 @@ public final class FindTargetsFilter implements ScanFilter {
 
     private final UnitGrid grid;
     private final int max_radius;
-    private final Target @NonNull [] result;
-    private final boolean grid_targets_only;
+    private final @Nullable Target @NonNull [] result;
+    private final boolean checkerboard_positions_only;
     private int index;
     private int island;
 
-    public FindTargetsFilter(UnitGrid grid, int num_targets, int max_radius, boolean grid_targets_only, int island) {
+    public FindTargetsFilter(UnitGrid grid, int num_targets, int max_radius, boolean checkerboard_positions_only,
+            int island) {
         this.grid = grid;
-        result = new Target[num_targets];
+        result = new @Nullable Target[num_targets];
         this.max_radius = max_radius;
-        this.grid_targets_only = grid_targets_only;
+        this.checkerboard_positions_only = checkerboard_positions_only;
         index = 0;
         this.island = island;
     }
@@ -35,7 +36,7 @@ public final class FindTargetsFilter implements ScanFilter {
 
     @Override
     public boolean filter(int grid_x, int grid_y, @Nullable Occupant occupant) {
-        if ((!grid_targets_only || ((grid_x + grid_y) & 1) == 0) && occupant == null && (island == -1
+        if ((!checkerboard_positions_only || ((grid_x + grid_y) & 1) == 0) && occupant == null && (island == -1
                 || grid.getIslandId(grid_x, grid_y) == island)) {
             result[index] = new LandscapeTarget(grid_x, grid_y);
             index++;
@@ -43,7 +44,7 @@ public final class FindTargetsFilter implements ScanFilter {
         return index == result.length;
     }
 
-    public Target @NonNull [] getTargets() {
+    public @Nullable Target @NonNull [] getTargets() {
         return result;
     }
 }

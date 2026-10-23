@@ -325,7 +325,9 @@ public final class Player implements PlayerInterface {
         if (!target_list.isEmpty()) {
             Target t = target_list.getFirst();
             b = getRace().getBuildingTemplate(building_type).create(this, t.getGridX(), t.getGridY());
-            b.place();
+            if (!b.place()) {
+                return null;
+            }
             b.repair(1000);
         }
         return b;

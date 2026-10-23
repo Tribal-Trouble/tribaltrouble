@@ -24,6 +24,7 @@ import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
+import com.oddlabs.tt.util.Point;
 import com.oddlabs.tt.util.Target;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -32,10 +33,13 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public final class LandBuilding extends Building {
@@ -521,6 +525,138 @@ public final class LandBuilding extends Building {
         return true;
     }
 
+    private int getFootprintSize() {
+        return getTemplate().getPlacingSize() * 2 - 1;
+    }
+
+    // The footprint is the placing area inset by `PLACING_BORDER`.
+    private int getFootprintMinX() {
+        return getGridX() - getFootprintSize() / 2 + PLACING_BORDER;
+    }
+
+    private int getFootprintMaxX() {
+        return getGridX() + getFootprintSize() / 2 - PLACING_BORDER;
+    }
+
+    private int getFootprintMinY() {
+        return getGridY() - getFootprintSize() / 2 + PLACING_BORDER;
+    }
+
+    private int getFootprintMaxY() {
+        return getGridY() + getFootprintSize() / 2 - PLACING_BORDER;
+    }
+
+    private boolean isInFootprint(Point p) {
+        return (getFootprintMinX() <= p.x() && p.x() <= getFootprintMaxX()
+                && getFootprintMinY() <= p.y() && p.y() <= getFootprintMaxY());
+    }
+
+    @NullMarked
+    private record FootprintContents(List<Unit> ownUnits, int vacantCellCount) {
+    }
+
+    /// Other players' units may not be displaced; returns null if the footprint contains one.
+    private @Nullable FootprintContents scanFootprint() {
+        UnitGrid unitGrid = getUnitGrid();
+        List<Unit> ownUnits = new ArrayList<>();
+        int vacantCellCount = 0;
+        int minX = getFootprintMinX();
+        int maxX = getFootprintMaxX();
+        int minY = getFootprintMinY();
+        int maxY = getFootprintMaxY();
+        for (int gridY = minY; gridY <= maxY; gridY++) {
+            for (int gridX = minX; gridX <= maxX; gridX++) {
+                var occ = unitGrid.getOccupant(gridX, gridY);
+                if (occ instanceof Unit unit) {
+                    if (unit.getOwner() != getOwner()) {
+                        return null;
+                    }
+                    ownUnits.add(unit);
+                } else if (occ == null) {
+                    vacantCellCount++;
+                }
+            }
+        }
+        return new FootprintContents(ownUnits, vacantCellCount);
+    }
+
+    /// Keys every unit standing in the footprint to a vacant cell outside it, without altering
+    /// the grid. Returns null if any unit has nowhere to go.
+    @NullMarked
+    private @Nullable Map<Unit, Point> makeDisplacementPlan(FootprintContents footprint) {
+        UnitGrid unitGrid = getUnitGrid();
+        int island = unitGrid.getIslandId(getGridX(), getGridY());
+        Map<Unit, Point> displacementPlan = new HashMap<>();
+        Set<Point> claimedCells = new HashSet<>();
+        List<Unit> ownUnits = footprint.ownUnits();
+        for (int i = 0; i < ownUnits.size(); i++) {
+            Unit unit = ownUnits.get(i);
+            int budget = footprint.vacantCellCount() + i + 1;
+            @Nullable Target[] targets = unitGrid.findGridTargets(
+                    UnitGrid.toGridCoordinate(unit.getPositionX()),
+                    UnitGrid.toGridCoordinate(unit.getPositionY()),
+                    budget,
+                    false,
+                    island
+            );
+            Point cell = findVacantCellOutsideFootprint(targets, claimedCells);
+            if (cell == null) {
+                return null;
+            }
+            displacementPlan.put(unit, cell);
+            claimedCells.add(cell);
+        }
+        return displacementPlan;
+    }
+
+    @NullMarked
+    private @Nullable Point findVacantCellOutsideFootprint(
+            @Nullable Target[] targets,
+            Set<Point> claimedCells
+    ) {
+        for (Target target : targets) {
+            if (target == null) {
+                return null;
+            }
+            Point cell = new Point(target.getGridX(), target.getGridY());
+            if (isInFootprint(cell) || claimedCells.contains(cell)) {
+                continue;
+            }
+            return cell;
+        }
+        return null;
+    }
+
+    public boolean place() {
+        assert !isDead();
+        assert isPlacingLegal();
+
+        FootprintContents footprint = scanFootprint();
+        if (footprint == null) {
+            return false;
+        }
+        Map<Unit, Point> displacementPlan = makeDisplacementPlan(footprint);
+        if (displacementPlan == null) {
+            return false;
+        }
+
+        register();
+
+        for (Unit unit : footprint.ownUnits()) {
+            Point cell = Objects.requireNonNull(displacementPlan.get(unit));
+            unit.teleportToCell(cell.x(), cell.y());
+        }
+
+        occupy();
+        flattenLandscape();
+        int result = getOwner().getBuildingCountContainer().increaseSupply(1);
+        assert (result == 1) : "Too many buildings";
+        build_points = 1;
+        reinsert();
+
+        return true;
+    }
+
     @Override
     public AttackScanFilter.@NonNull Priority getAttackPriority() {
         return getAbilities().hasAbilities(
@@ -540,18 +676,6 @@ public final class LandBuilding extends Building {
         } else {
             setRallyPoint(target);
         }
-    }
-
-    public void place() {
-        assert !isDead();
-        assert isPlacingLegal();
-        register();
-        occupy();
-        flattenLandscape();
-        int result = getOwner().getBuildingCountContainer().increaseSupply(1);
-        assert (result == 1) : "Too many buildings";
-        build_points = 1;
-        reinsert();
     }
 
     @Override
@@ -677,22 +801,14 @@ public final class LandBuilding extends Building {
     private void occupy() {
         UnitGrid grid = getUnitGrid();
         grid.getRegion(getGridX(), getGridY()).registerObject(Building.class, this);
-        int size = getTemplate().getPlacingSize() * 2 - 1;
-        Set<Unit> trappedUnits = new LinkedHashSet<>();
-        for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
-            for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
-                int cx = getGridX() - size / 2 + x;
-                int cy = getGridY() - size / 2 + y;
-                var occ = grid.getOccupant(cx, cy);
-                if (occ instanceof Unit unit) {
-                    trappedUnits.add(unit);
-                    unit.free();
-                }
-                grid.occupyGrid(cx, cy, this);
+        int minX = getFootprintMinX();
+        int maxX = getFootprintMaxX();
+        int minY = getFootprintMinY();
+        int maxY = getFootprintMaxY();
+        for (int gridY = minY; gridY <= maxY; gridY++) {
+            for (int gridX = minX; gridX <= maxX; gridX++) {
+                grid.occupyGrid(gridX, gridY, this);
             }
-        }
-        for (Unit unit : trappedUnits) {
-            unit.reposition(this);
         }
     }
 
@@ -700,10 +816,13 @@ public final class LandBuilding extends Building {
     private void free() {
         UnitGrid grid = getUnitGrid();
         grid.getRegion(getGridX(), getGridY()).unregisterObject(Building.class, this);
-        int size = getTemplate().getPlacingSize() * 2 - 1;
-        for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
-            for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
-                grid.freeGrid(getGridX() - size / 2 + x, getGridY() - size / 2 + y, this);
+        int minX = getFootprintMinX();
+        int maxX = getFootprintMaxX();
+        int minY = getFootprintMinY();
+        int maxY = getFootprintMaxY();
+        for (int gridY = minY; gridY <= maxY; gridY++) {
+            for (int gridX = minX; gridX <= maxX; gridX++) {
+                grid.freeGrid(gridX, gridY, this);
             }
         }
     }

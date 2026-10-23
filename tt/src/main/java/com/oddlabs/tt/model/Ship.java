@@ -729,7 +729,7 @@ public class Ship extends Building implements Movable {
         }
     }
 
-    public final void place() {
+    public final boolean place() {
         assert !isDead();
         assert isPlacingLegal();
         register();
@@ -742,6 +742,7 @@ public class Ship extends Building implements Movable {
             flattenLandscape();
             flattened = true;
         }
+        return true;
     }
 
     public final float getSize() {

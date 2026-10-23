@@ -84,7 +84,15 @@ public abstract class Building extends Selectable<BuildingTemplate> implements O
 
     public abstract boolean isComplete();
 
-    public abstract void place();
+    /**
+     * Places the building and moves the owner's units off its footprint.
+     *
+     * @return false if the units cannot all be moved to free cells outside the footprint, in which
+     *         case the building is left unregistered and the caller should discard the site.
+     *
+     *         Ships and ship proxies always return true.
+     */
+    public abstract boolean place();
 
     public abstract boolean isValidRallyPoint(Target t);
 
