@@ -27,6 +27,7 @@ section when a release is cut.
 - Fixed a crash at startup on some graphics cards, right after the game window opened.
 - Properly calculating the archipelago islands contour points using edges instead of the dock map so that no island no matter how small or steep would have no contour points. All while still guarding against any potential corner case where no contour points are calculated.
 - On Archipelago maps, land connected to an island only diagonally now counts as part of that island, since units can walk across diagonal connections. Ships and computer players no longer treat it as a separate island.
+- Placing a building on a full island no longer crashes the game when not all units can be displaced; the order is ignored.
 
 ## [2.2.207] - 2026-10-31
 
