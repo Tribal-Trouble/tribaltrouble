@@ -60,6 +60,14 @@ public interface RenderContext {
     // Custom State
     void setBlendFunc(int src, int dst);
 
+    void setShadowPass(boolean shadowPass);
+
+    boolean isShadowPass();
+
+    void setReflectionPass(boolean reflectionPass);
+
+    boolean isReflectionPass();
+
     // Lifecycle & Debug
     void init();
 

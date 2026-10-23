@@ -1,6 +1,7 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.procedural.GeneratorHalos;
 import com.oddlabs.tt.render.state.RenderContext;
@@ -48,12 +49,19 @@ final class SelectableShadowRenderer extends ShadowListRenderer {
     @Override
     protected void renderShadows(@NonNull RenderContext context, @NonNull LandscapeRenderer renderer,
             @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+        int shadowMode = Settings.getSettings().shadow_mode;
         try (var _ = setupShadows(context, renderer, modelViewStack, projectionStack)) {
-            setShadowColor(1f, 1f, 1f, 1f);
-            bindShadowTexture(halos[GeneratorHalos.SHADOWED]);
-            while (!shadowed_list.isEmpty()) {
-                var model = shadowed_list.pop();
-                renderShadow(context, renderer, model.getShadowDiameter(), model.getPositionX(), model.getPositionY());
+            if (shadowMode == Globals.SHADOWS_STATIC) {
+                setShadowColor(1f, 1f, 1f, 1f);
+                bindShadowTexture(halos[GeneratorHalos.SHADOWED]);
+                while (!shadowed_list.isEmpty()) {
+                    var model = shadowed_list.pop();
+                    setShadowColor(1f, 1f, 1f, 1f - model.getShadowFade());
+                    renderShadow(context, renderer, model.getShadowDiameter(), model.getPositionX(),
+                            model.getPositionY());
+                }
+            } else {
+                shadowed_list.clear();
             }
 
             bindShadowTexture(halos[GeneratorHalos.SELECTED]);

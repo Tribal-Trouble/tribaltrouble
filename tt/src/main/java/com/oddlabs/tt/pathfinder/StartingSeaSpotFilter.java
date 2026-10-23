@@ -26,7 +26,8 @@ public final class StartingSeaSpotFilter implements ScanFilter {
 
     @Override
     public boolean filter(int grid_x, int grid_y, @Nullable Occupant occupant) {
-        if (!grid.isDeepWater(grid_x, grid_y)) {
+
+        if (!grid.isDeepWater(grid_x, grid_y) || grid.getRegion(grid_x, grid_y, UnitGrid.SEA) == null) {
             return false;
         }
         for (int y = grid_y - clearance; y <= grid_y + clearance; y++) {

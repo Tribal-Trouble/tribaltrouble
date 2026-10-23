@@ -7,7 +7,8 @@ import xml.etree.ElementTree as ET
 ATTR_ORDER = {
     'sprite': ['name', 'scale'],
     'group': ['name'],
-    'model': ['r', 'g', 'b'],
+    'model': ['path', 'r', 'g', 'b'],
+    'skeleton': ['path'],
     'texture': ['name', 'team', 'normal'],
     'mesh': ['texture'],
     'vertex': ['x', 'y', 'z', 'r', 'g', 'b', 'a', 'nx', 'ny', 'nz', 'u', 'v', 'u2', 'v2'],
@@ -15,7 +16,7 @@ ATTR_ORDER = {
     'transform': ['name', 'm00', 'm01', 'm02', 'm03', 'm10', 'm11', 'm12', 'm13', 'm20', 'm21', 'm22', 'm23', 'm30', 'm31', 'm32', 'm33'],
     'bone': ['name', 'parent'],
     'frame': ['index'],
-    'animation': ['wpc', 'type']
+    'animation': ['wpc', 'type', 'path']
 }
 
 def check_attribute_order(filepath):
@@ -115,7 +116,7 @@ def validate_manifest_links(filepath):
     errors = []
     
     for node in root.findall(".//skeleton") + root.findall(".//model") + root.findall(".//animation"):
-        path = node.text.strip() if node.text else ""
+        path = (node.get("path") or "").strip()
         if path and not os.path.exists(os.path.join(base_dir, path)):
             errors.append(f"Broken link: '{path}' referenced by <{node.tag}>")
     return errors

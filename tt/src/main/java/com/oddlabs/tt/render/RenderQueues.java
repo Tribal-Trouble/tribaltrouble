@@ -2,6 +2,7 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.geometry.AnimationInfo;
 import com.oddlabs.tt.camera.CameraState;
+import com.oddlabs.tt.model.GeometryRegistry;
 import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
@@ -15,11 +16,17 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public final class RenderQueues implements AutoCloseable {
+    private static final int FIRST_TEXTURE = 0;
+
     private final List<@NonNull SpriteRenderer> sprite_renderers = new ArrayList<>();
     private final List<@NonNull SpriteRenderer> blend_sprite_renderers = new ArrayList<>();
     private final List<@NonNull SpriteRenderer> plant_renderers = new ArrayList<>();
 
     private final List<@NonNull SpriteRenderer> sprite_list_lookup = new ArrayList<>();
+    private final List<@NonNull SpriteFile> sprite_file_lookup = new ArrayList<>();
+    private final List<@NonNull Integer> tex_index_lookup = new ArrayList<>();
+    private final List<@NonNull List<@NonNull SpriteKey>> props_lookup = new ArrayList<>();
+    private final @NonNull GlowLights glow_lights = new GlowLights();
     private final List<@NonNull ShadowListRenderer> shadow_renderer_lookup = new ArrayList<>();
     private final Map<@NonNull Supplier<@NonNull Texture @NonNull []>, @NonNull ShadowListKey> desc_to_shadow_key = new HashMap<>();
     private final List<@NonNull Texture> texture_lookup = new ArrayList<>();
@@ -74,25 +81,60 @@ public final class RenderQueues implements AutoCloseable {
     }
 
     public @NonNull SpriteKey register(@NonNull SpriteFile sprite_file) {
-        return register(sprite_file, 0);
+        return register(sprite_file, FIRST_TEXTURE);
     }
 
     public @NonNull SpriteKey register(@NonNull SpriteFile sprite_file, int tex_index) {
         int index = sprite_list_lookup.size();
         SpriteList sprite_list = Resources.findResource(sprite_file);
-        SpriteRenderer sprite_renderer = new SpriteRenderer(sprite_list, tex_index, spriteRenderer);
+        // The key keeps the stock bounds and clips, so an event skin changes only what is drawn.
+        SpriteFile drawn_file = GeometryRegistry.eventSkin(sprite_file);
+        SpriteList drawn = Resources.findResource(drawn_file);
+        if (drawn.getAnimationTypes().length != sprite_list.getAnimationTypes().length)
+            throw new IllegalStateException(
+                    "Event skin of " + sprite_file.getLocation() + " has other clips than it; give it that sprite as its base");
+        int drawn_index = tex_index < drawn.getSprite(0).getNumTextures() ? tex_index : FIRST_TEXTURE;
+        SpriteRenderer sprite_renderer = new SpriteRenderer(drawn, drawn_index, spriteRenderer,
+                GeometryRegistry.getLights(drawn_file.getLocation(), drawn_index), glow_lights);
         sprite_list_lookup.add(sprite_renderer);
+        sprite_file_lookup.add(sprite_file);
+        tex_index_lookup.add(tex_index);
+        props_lookup.add(List.of());
         registerSpriteRenderer(sprite_renderer, sprite_file.getLocation());
         AnimationInfo.AnimationType[] animation_types = sprite_list.getAnimationTypes();
         int[] type_array = new int[animation_types.length];
         for (int i = 0; i < animation_types.length; i++) {
             type_array[i] = animation_types[i].ordinal();
         }
+        // A skin only changes the look: the sprite keeps its own props and the skin adds its own.
+        List<String> props = new ArrayList<>(GeometryRegistry.getProps(sprite_file.getLocation()));
+        if (!drawn_file.getLocation().equals(sprite_file.getLocation()))
+            props.addAll(GeometryRegistry.getProps(drawn_file.getLocation()));
+        props_lookup.set(index, props.stream().map(prop -> register(sprite_file.withLocation(prop),
+                tex_index)).toList());
         return new SpriteKey(index, sprite_list.getBounds(), type_array);
+    }
+
+    public @NonNull GlowLights getGlowLights() {
+        return glow_lights;
+    }
+
+    /** Extra meshes drawn at the sprite's transform, never part of its bounds or clips. */
+    public @NonNull List<@NonNull SpriteKey> getProps(@NonNull SpriteKey key) {
+        return props_lookup.get(key.getKey());
     }
 
     public @NonNull SpriteRenderer getRenderer(@NonNull SpriteKey key) {
         return sprite_list_lookup.get(key.getKey());
+    }
+
+    /** The texture the sprite was registered with, before any event skin with fewer textures fell back to its first. */
+    public int getTexIndex(@NonNull SpriteKey key) {
+        return tex_index_lookup.get(key.getKey());
+    }
+
+    public @NonNull SpriteFile getSpriteFile(@NonNull SpriteKey key) {
+        return sprite_file_lookup.get(key.getKey());
     }
 
     public @NonNull InstancedSpriteRenderer getInstancedRenderer() {

@@ -44,6 +44,7 @@ public final class World {
     private final int max_unit_count;
     private final int max_building_count;
     private final boolean ships;
+    private boolean night;
     private final @NonNull NotificationListener notification_listener;
 
     private final @NonNull Player @NonNull [] players;
@@ -191,6 +192,7 @@ public final class World {
         this.max_unit_count = world_params.getMaxUnitCount();
         this.max_building_count = world_params.getMaxBuildingCount();
         this.ships = world_params.isShipsEnabled();
+        this.night = world_params.isNight();
         this.notification_listener = notification_listener;
         this.gamespeed = world_params.getInitialGameSpeed();
         this.map_size = world_params.getMapSize();
@@ -230,6 +232,7 @@ public final class World {
         this.tree_root = AbstractTreeGroup.newRoot(this, world_info.trees(), world_info.palm_trees(), terrain);
         this.element_root = AbstractElementNode.newRoot(world);
         AbstractElementNode.buildSupplies(this, world_info.iron(), world_info.rocks(), world_info.plants(), terrain);
+        landscape_resources.getDecorations().place(this, world_info.ground(), world_info.seed());
     }
 
     public @NonNull AbstractElementNode getElementRoot() {
@@ -270,6 +273,14 @@ public final class World {
 
     public boolean isShipsEnabled() {
         return ships;
+    }
+
+    public boolean isNight() {
+        return night;
+    }
+
+    public void toggleNight() {
+        night = !night;
     }
 
     public @NonNull NotificationListener getNotificationListener() {

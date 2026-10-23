@@ -180,6 +180,8 @@ See something you want or could improve upon? Make a PR or an issue! Don't have 
 
 > PRs should target `main`; that's where all work lands before being merged into `release` to ship. See [docs/releasing.md](./docs/releasing.md) for the full flow.
 
+Using an AI coding assistant? [AGENTS.md](./AGENTS.md) is the house brief: build commands, code style, and the two hard rules (wire compatibility and simulation determinism) that a well-meaning agent will otherwise break.
+
 There are ways to contribute besides developing. If you have screenshots of the game from back in the day those are welcome.
 
 > For example a screenshot of the old the leaderboards.

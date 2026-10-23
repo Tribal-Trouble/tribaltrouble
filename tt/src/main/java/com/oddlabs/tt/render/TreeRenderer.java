@@ -87,6 +87,10 @@ public final class TreeRenderer extends TreePicker implements SceneRenderer {
             // Render Trunk (Sprite 0). Blend = false, DepthWrite = true.
             instancedSpriteRenderer.add(trunkList, 0, 0, 0f, 0, respond, false, true, true, tempMatrix, Color.WHITE,
                     Color.WHITE);
+            for (SpriteList prop : tree.props()) {
+                instancedSpriteRenderer.add(prop, 0, 0, 0f, 0, false, false, true, true, tempMatrix, Color.WHITE,
+                        Color.WHITE);
+            }
         }
         render_list.clear();
     }

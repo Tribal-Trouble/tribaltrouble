@@ -6,10 +6,17 @@ import com.oddlabs.tt.render.ShadowListKey;
 import com.oddlabs.tt.render.SpriteKey;
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 public final class UnitTemplate extends Template {
     private final float meters_per_second;
     private final @NonNull WeaponFactory weapon_factory;
     private final @NonNull SpriteKey sprite_renderer;
+    private final @NonNull Map<String, Map<String, SpriteKey>> attachments;
+    private final @NonNull Set<String> default_attachments;
     private final UnitSupplyContainerFactory supply_container_factory;
     private final @NonNull Audio death_sound;
     private final float death_pitch;
@@ -40,8 +47,12 @@ public final class UnitTemplate extends Template {
             float stun_x,
             float stun_y,
             float stun_z,
-            int status_value) {
+            int status_value,
+            @NonNull Map<String, Map<String, SpriteKey>> attachments,
+            @NonNull Set<String> default_attachments) {
         super(abilities, shadow_diameter, shadow_renderer, hit_offset_z, no_detail_size, defense_chance, name);
+        this.attachments = attachments;
+        this.default_attachments = default_attachments;
         this.selection_radius = selection_radius;
         this.selection_height = selection_height;
         this.meters_per_second = meters_per_second;
@@ -75,6 +86,29 @@ public final class UnitTemplate extends Template {
 
     public @NonNull SpriteKey getSpriteRenderer() {
         return sprite_renderer;
+    }
+
+    /**
+     * Optional render-only sprites that share this unit's skeleton and clips: slot, then item name in cycle order.
+     */
+    public @NonNull Map<String, Map<String, SpriteKey>> getAttachments() {
+        return attachments;
+    }
+
+    /**
+     * Slots from {@link #getAttachments()} whose first item every new unit starts with (a held weapon, say).
+     */
+    public @NonNull Set<String> getDefaultAttachments() {
+        return default_attachments;
+    }
+
+    /** The items a new unit starts with: the first item of every slot in {@link #getDefaultAttachments()}. */
+    public @NonNull List<SpriteKey> getStartingAttachments() {
+        List<SpriteKey> keys = new ArrayList<>();
+        for (String slot : default_attachments) {
+            attachments.getOrDefault(slot, Map.of()).values().stream().findFirst().ifPresent(keys::add);
+        }
+        return List.copyOf(keys);
     }
 
     public UnitSupplyContainerFactory getUnitSupplyContainerFactory() {

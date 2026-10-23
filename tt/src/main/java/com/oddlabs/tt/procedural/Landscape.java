@@ -16,6 +16,7 @@ import com.oddlabs.tt.resource.GLIntImage;
 import com.oddlabs.tt.resource.StructureBlend;
 import com.oddlabs.util.Color;
 import com.oddlabs.util.Utils;
+import org.joml.Vector3f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
@@ -36,6 +37,7 @@ public final class Landscape {
     private static final int STRUCTURE_SEED = 42; // must be constant; otherwise distinct repeating patterns might appear
 
     private static final int NUM_PLANT_TYPES = 4;
+    private static final float VISIBLE_GROUND_ALPHA = .5f;
 
     /** Depth (in meters below sea level) where the sea bottom color starts blending in. */
     private static final float SEABOTTOM_DEPTH_OFFSET_METERS = 3f;
@@ -75,10 +77,23 @@ public final class Landscape {
         VIKING
     }
 
+    // BEACH is the base layer: sand on native maps, gravel on viking maps.
+    public enum Ground {
+        BEACH,
+        DIRT,
+        ROCK,
+        GRASS,
+        SNOW
+    }
+
     private static final int MIN_ISLAND_AREA = 2000;
 
     private final @NonNull Random random;
     private final @NonNull BlendInfo @NonNull [] blend_infos;
+    // A separate layer for static shadows of trees, rocks, irons, ... etc.
+    private final @NonNull StructureBlend supply_shadows;
+    // Anothere separate layer for the landscape shadows (hills, mountains, .. etc).
+    private final @NonNull StructureBlend terrain_shadows;
 
     private record StructureLayers(Layer diffuse, Layer normal) {
     }
@@ -99,6 +114,7 @@ public final class Landscape {
     private Channel relheight;
     private Channel highlight;
     private Channel shadow;
+    private Channel supply_shadow;
     private Channel trees;
     private Channel palmtrees;
     private Channel rock;
@@ -140,6 +156,7 @@ public final class Landscape {
     private float @NonNull [] @NonNull [] player_locations;
     private int @NonNull [] @NonNull [] supply_locations;
     private float @NonNull [] @NonNull [] plants;
+    private byte @NonNull [] @NonNull [] ground;
 
     public Landscape(int num_players, int meters_per_world, @NonNull TerrainType terrain, float detail_alpha_value,
             float hills, float vegetation_amount, float supplies_amount, int seed, int initial_unit_count,
@@ -302,10 +319,11 @@ public final class Landscape {
                                 alpha_maps[1]), new StructureBlend(structures[3], structure_normals[3],
                                         alpha_maps[2]), new StructureBlend(structures[4], structure_normals[4],
                                                 alpha_maps[3]), new BlendLighting(alpha_maps[4], 1f, 0.9f,
-                                                        0.6f), new StructureBlend(structures[5], structure_normals[5],
-                                                                alpha_maps[5]), new StructureBlend(structures[6],
-                                                                        structure_normals[6], alpha_maps[6])
+                                                        0.6f), new StructureBlend(structures[6],
+                                                                structure_normals[6], alpha_maps[6])
         };
+        terrain_shadows = new StructureBlend(structures[5], structure_normals[5], alpha_maps[5]);
+        supply_shadows = new StructureBlend(structures[5], structure_normals[5], alpha_maps[7]);
     }
 
     // **************
@@ -597,7 +615,7 @@ public final class Landscape {
     // * TERRAIN *
     // ***********
     private void generateTerrainNative() {
-        alpha_maps = new GLByteImage[7];
+        alpha_maps = new GLByteImage[8];
 
         // generate height map
         height = new Mountain(unit_grids_per_world, Utils.powerOf2Log2(unit_grids_per_world) - 6, 0.5f,
@@ -660,7 +678,7 @@ public final class Landscape {
     }
 
     private void generateTerrainViking() {
-        alpha_maps = new GLByteImage[7];
+        alpha_maps = new GLByteImage[8];
 
         // generate height map
         height = new Mountain(unit_grids_per_world, Utils.powerOf2Log2(unit_grids_per_world) - 6, 0.5f,
@@ -832,6 +850,8 @@ public final class Landscape {
                 alpha_maps[1] = new GLByteImage(alpha1, GL11.GL_RED);
                 alpha_maps[2] = new GLByteImage(alpha2, GL11.GL_RED);
                 alpha_maps[3] = new GLByteImage(alpha3, GL11.GL_RED);
+                ground = groundGrid(new Ground[]{Ground.DIRT, Ground.ROCK, Ground.ROCK, Ground.GRASS}, alpha0,
+                        alpha1, alpha2, alpha3);
                 yield alpha3;
             }
             case VIKING -> {
@@ -847,6 +867,8 @@ public final class Landscape {
                 alpha_maps[1] = new GLByteImage(alpha1, GL11.GL_RED);
                 alpha_maps[2] = new GLByteImage(alpha2, GL11.GL_RED);
                 alpha_maps[3] = new GLByteImage(alpha3, GL11.GL_RED);
+                ground = groundGrid(new Ground[]{Ground.DIRT, Ground.ROCK, Ground.GRASS, Ground.SNOW}, alpha0,
+                        alpha1, alpha2, alpha3);
                 yield alpha2;
             }
         };
@@ -856,13 +878,15 @@ public final class Landscape {
 
         // generate shadow and highlight alpha
         shadow = new Channel(unit_grids_per_world, unit_grids_per_world);
+        supply_shadow = new Channel(unit_grids_per_world, unit_grids_per_world);
         highlight = new Channel(unit_grids_per_world, unit_grids_per_world);
-        float lx = 1;
-        float lz = 1;
-        float lnorm = 1f / (float) Math.sqrt(lx * lx + lz * lz);
-        lx = lx * lnorm;
-        lz = lz * lnorm;
-        float threshold = (float) Math.sqrt(0.5f);
+
+        Vector3f light_direction = Globals.REAL_SKY_BODY_DIRECTION;
+        float lx = light_direction.x;
+        float ly = light_direction.y;
+        float lz = light_direction.z;
+
+        float threshold = lz;
         float nz = 2f * meters_per_height_unit / height_scale;
         float nzlz = nz * lz;
         float nz2 = nz * nz;
@@ -870,7 +894,7 @@ public final class Landscape {
             for (int x = 0; x < unit_grids_per_world; x++) {
                 float nx = height.getPixelWrap(x + 1, y) - height.getPixelWrap(x - 1, y);
                 float ny = height.getPixelWrap(x, y + 1) - height.getPixelWrap(x, y - 1);
-                float light = (nx * lx + nzlz) / ((float) Math.sqrt(nx * nx + ny * ny + nz2)); // Can use Math here - calculation is not game state affecting
+                float light = (-nx * lx - ny * ly + nzlz) / ((float) Math.sqrt(nx * nx + ny * ny + nz2)); // Can use Math here - calculation is not game state affecting
                 if (light > threshold) {
                     highlight.putPixel(x, y, light);
                     shadow.putPixel(x, y, threshold);
@@ -885,22 +909,7 @@ public final class Landscape {
         ProgressForm.progress(1 / 14f);
 
         // generate shadowcasting
-        Channel shadowcast = new Channel(unit_grids_per_world, unit_grids_per_world);
-        float val = 0;
-        float peak = 0;
-        float descent = 8f / unit_grids_per_world;
-        for (int y = 0; y < unit_grids_per_world; y++) {
-            for (int x = 0; x < unit_grids_per_world; x++) {
-                val = height.getPixel(x, y);
-                peak = peak - descent;
-                if (peak > val) {
-                    shadowcast.putPixel(x, y, 1f);
-                } else {
-                    peak = val;
-                }
-            }
-            peak = 0;
-        }
+        Channel shadowcast = generateShadowcast(light_direction);
         shadow.channelBrightest(shadowcast.smooth(1).brightness(0.67f));
 
         // Submerged terrain lit like dry land reads as shadowed cliffs through clear water; fade the bake out
@@ -916,12 +925,30 @@ public final class Landscape {
                 }
             }
         }
+        shadow.channelMultiply(seabottom_alpha.copy().invert());
         if (DEBUG) shadow.toLayer().saveAsPNG("alpha_shadow");
         ProgressForm.progress(1 / 14f);
 
         alpha_maps[6] = new GLByteImage(seabottom_alpha, GL11.GL_RED);
 
         return grass_alpha;
+    }
+
+    // A cell shows the topmost layer painted over it at least half opaque; layers blend in alpha_maps order.
+    private byte @NonNull [] @NonNull [] groundGrid(@NonNull Ground @NonNull [] layer_grounds,
+            @NonNull Channel @NonNull... alphas) {
+        byte[][] grid = new byte[unit_grids_per_world][unit_grids_per_world];
+        for (int y = 0; y < unit_grids_per_world; y++) {
+            for (int x = 0; x < unit_grids_per_world; x++) {
+                Ground cell = Ground.BEACH;
+                for (int i = 0; i < alphas.length; i++) {
+                    if (alphas[i].getPixel(x, y) >= VISIBLE_GROUND_ALPHA)
+                        cell = layer_grounds[i];
+                }
+                grid[y][x] = (byte) cell.ordinal();
+            }
+        }
+        return grid;
     }
 
     // generate dirt alpha
@@ -1069,13 +1096,13 @@ public final class Landscape {
         // place rock
         rock = placeSupplies(rock_channel, supplies, 64, (int) (supplies_amount * max_rock), 0f);
         access.channelSubtract(rock);
-        shadow.channelBrightest(rock.copy().multiply(0.5f));
+        supply_shadow.channelBrightest(rock.copy().multiply(0.5f));
         if (DEBUG) rock.toLayer().saveAsPNG("supplies_rock_placed");
 
         // place iron
         iron = placeSupplies(iron_channel, supplies, 64, (int) (supplies_amount * max_iron), 0f);
         access.channelSubtract(iron);
-        shadow.channelBrightest(iron.copy().multiply(0.5f));
+        supply_shadow.channelBrightest(iron.copy().multiply(0.5f));
         if (DEBUG) iron.toLayer().saveAsPNG("supplies_iron_placed");
 
         if (DEBUG) {
@@ -1105,9 +1132,10 @@ public final class Landscape {
             }
         }
 
-        // shadow and highlight are changed by supply placement
         alpha_maps[4] = new GLByteImage(highlight, GL11.GL_RED);
         alpha_maps[5] = new GLByteImage(shadow, GL11.GL_RED);
+        if (DEBUG) supply_shadow.toLayer().saveAsPNG("alpha_supply_shadow");
+        alpha_maps[7] = new GLByteImage(supply_shadow, GL11.GL_RED);
         ProgressForm.progress(1 / 14f);
 
         // generate plant maps
@@ -1131,6 +1159,42 @@ public final class Landscape {
         place = placePlants(plants4, place, 64, max_plants >> 2, 3);
     }
 
+    private @NonNull Channel generateShadowcast(@NonNull Vector3f light_direction) {
+        int size = unit_grids_per_world;
+        Channel shadowcast = new Channel(size, size);
+
+        float travel_x = -light_direction.x;
+        float travel_y = -light_direction.y;
+        boolean along_x = Math.abs(travel_x) >= Math.abs(travel_y);
+        float travel_main = along_x ? travel_x : travel_y;
+        if (Math.abs(travel_main) < 1e-4f) {
+            return shadowcast;
+        }
+        float side_step = (along_x ? travel_y : travel_x) / Math.abs(travel_main);
+        float descent = light_direction.z / Math.abs(travel_main) * meters_per_height_unit / height_scale;
+        int extra = (int) Math.ceil(Math.abs(side_step) * size);
+        for (int start = -extra; start < size + extra; start++) {
+            float peak = Float.NEGATIVE_INFINITY;
+            for (int i = 0; i < size; i++) {
+                int main = travel_main > 0 ? i : size - 1 - i;
+                int side = Math.round(start + i * side_step);
+                peak -= descent;
+                if (side < 0 || side >= size) {
+                    continue;
+                }
+                int x = along_x ? main : side;
+                int y = along_x ? side : main;
+                float val = height.getPixel(x, y);
+                if (peak > val) {
+                    shadowcast.putPixel(x, y, 1f);
+                } else {
+                    peak = val;
+                }
+            }
+        }
+        return shadowcast;
+    }
+
     // place supplies on map
     private @NonNull Channel placeSupplies(@NonNull Channel probability, @NonNull Channel supplies, int intervals,
             int max_count, float shadow_alpha_val) {
@@ -1143,7 +1207,6 @@ public final class Landscape {
         Channel supplyshadow_alpha = new Channel(supplyshadow_size << 1, supplyshadow_size << 1).place(new Channel(
                 supplyshadow_size, supplyshadow_size).fill(1f), supplyshadow_size >> 1,
                 supplyshadow_size >> 1).smoothFast();
-        Channel supplyshadow = new Channel(supplyshadow_size << 1, supplyshadow_size << 1);
         Channel supplyshadow_alpha2 = supplyshadow_alpha.copy().brightness(shadow_alpha_val);
         Channel place = new Channel(probability.width, probability.height);
 
@@ -1166,8 +1229,7 @@ public final class Landscape {
                             if (shadow_alpha_val > 0f) {
                                 int x_pixel = (x - supplyshadow_size + 1) >> scaleshift;
                                 int y_pixel = (y - supplyshadow_size + 1) >> scaleshift;
-                                highlight.place(supplyshadow, supplyshadow_alpha, x_pixel, y_pixel);
-                                shadow.placeBrightest(supplyshadow_alpha2, x_pixel, y_pixel);
+                                supply_shadow.placeBrightest(supplyshadow_alpha2, x_pixel, y_pixel);
                             }
                             // make node neighbourhood inaccessible
                             for (int k = -1; k <= 1; k++) {
@@ -1360,12 +1422,24 @@ public final class Landscape {
         return blend_infos;
     }
 
+    public @NonNull StructureBlend getSupplyShadows() {
+        return supply_shadows;
+    }
+
+    public @NonNull StructureBlend getTerrainShadows() {
+        return terrain_shadows;
+    }
+
     public GLIntImage getDetail() {
         return detail;
     }
 
     public float @NonNull [] @NonNull [] getHeight() {
         return height.getPixels();
+    }
+
+    public byte @NonNull [] @NonNull [] getGround() {
+        return ground;
     }
 
     public boolean[][] getAccessGrid() {

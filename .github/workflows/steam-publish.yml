@@ -9,9 +9,6 @@ name: Steam Publish
 # The regular release pipeline is untouched: `prerelease` and `default` are
 # refused here; pushes to the git release branch remain the only way to publish
 # to Steam prerelease, and promoting to default stays manual on the dashboard.
-#
-# The demo app is intentionally not uploaded here; add a second steam-deploy
-# step with STEAM_DEMO_APP_ID if a matching branch is created on the demo too.
 
 on:
   workflow_dispatch:

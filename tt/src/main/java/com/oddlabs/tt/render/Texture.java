@@ -134,7 +134,7 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
         int format = GL11.GL_RGBA;
         int type = GL11.GL_UNSIGNED_BYTE;
 
-        if (internal_format == GL30.GL_DEPTH_COMPONENT24) {
+        if (internal_format == GL30.GL_DEPTH_COMPONENT24 || internal_format == GL30.GL_DEPTH_COMPONENT32F) {
             format = GL11.GL_DEPTH_COMPONENT;
             type = GL11.GL_FLOAT;
         } else if (internal_format == GL30.GL_RGBA16F) {
@@ -291,7 +291,7 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
                             GL13.GL_COMPRESSED_ALPHA, GL11.GL_RED, GL30.GL_R8 -> width * height;
                     case GL30.GL_R32F -> width * height * 4;
                     case GL30.GL_RGBA16F -> width * height * 8; // 4 channels * 2 bytes (half float)
-                    case GL30.GL_DEPTH_COMPONENT24 -> width * height * 4; // Treated as 32-bit for alignment/estimation
+                    case GL30.GL_DEPTH_COMPONENT24, GL30.GL_DEPTH_COMPONENT32F -> width * height * 4; // Treated as 32-bit for alignment/estimation
                     default -> {
                         String msg = "Unknown internal format: 0x" + Integer.toHexString(internal_format);
                         logger.severe(msg);

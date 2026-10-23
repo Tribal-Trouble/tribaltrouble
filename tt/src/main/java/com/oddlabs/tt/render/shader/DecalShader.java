@@ -44,10 +44,19 @@ public final class DecalShader extends ShaderProgram {
                 vec2 localPos = in_Position * in_InstanceSize;
                 vec2 worldPos = in_InstancePos + localPos;
 
-                // Map world position to heightmap UV
-                // Add half-texel offset to align vertex-centered heightmap (1 grid unit = 2 meters)
-                vec2 mapUV = (worldPos + 1.0) / u_WorldSize;
-                float h = texture(u_HeightMap, mapUV).r;
+                // The terrain is planar per triangle, so interpolate the same two triangles per grid cell
+                // instead of sampling bilinearly, or the decal sinks below the terrain between vertices
+                ivec2 texels = textureSize(u_HeightMap, 0);
+                vec2 grid = clamp(worldPos * float(texels.x) / u_WorldSize, vec2(0.0), vec2(texels) - 1.0);
+                ivec2 cell = min(ivec2(floor(grid)), texels - 2);
+                vec2 f = grid - vec2(cell);
+                float h0 = texelFetch(u_HeightMap, cell, 0).r;
+                float h1 = texelFetch(u_HeightMap, cell + ivec2(1, 0), 0).r;
+                float h2 = texelFetch(u_HeightMap, cell + ivec2(0, 1), 0).r;
+                float h3 = texelFetch(u_HeightMap, cell + ivec2(1, 1), 0).r;
+                float h = f.x + f.y <= 1.0
+                        ? h0 + (h1 - h0) * f.x + (h2 - h0) * f.y
+                        : h3 + (h2 - h3) * (1.0 - f.x) + (h1 - h3) * (1.0 - f.y);
 
                 vec4 viewPosition = u_modelViewMatrix * vec4(worldPos, h, 1.0);
                 viewPosition.z += u_DepthBias;

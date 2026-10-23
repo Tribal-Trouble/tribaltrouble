@@ -17,12 +17,17 @@ public final class SpriteRenderer {
     private final List<@NonNull ModelState<?>> no_detail_render_list = new ArrayList<>();
     private final @NonNull InstancedSpriteRenderer instancedSpriteRenderer;
     private final Matrix4f tempMatrix = new Matrix4f();
+    private final @NonNull List<GlowLights.@NonNull Light> lights;
+    private final @NonNull GlowLights glow_lights;
 
     public SpriteRenderer(@NonNull SpriteList sprite_list, int tex_index,
-            @NonNull InstancedSpriteRenderer spriteRenderer) {
+            @NonNull InstancedSpriteRenderer spriteRenderer, @NonNull List<GlowLights.@NonNull Light> lights,
+            @NonNull GlowLights glow_lights) {
         this.sprite_list = sprite_list;
         this.tex_index = tex_index;
         this.instancedSpriteRenderer = spriteRenderer;
+        this.lights = lights;
+        this.glow_lights = glow_lights;
         sprite_list_renderer = new SpriteListRenderer(sprite_list, spriteRenderer);
     }
 
@@ -30,11 +35,17 @@ public final class SpriteRenderer {
         return sprite_list;
     }
 
+    public int getTexIndex() {
+        return tex_index;
+    }
+
     void addToNoDetailList(@NonNull ModelState<?> model) {
         no_detail_render_list.add(model);
     }
 
     void addToRenderList(@NonNull PolyDetail detail, ModelState<?> model, boolean respond) {
+        for (GlowLights.Light light : lights)
+            glow_lights.add(model, light);
         int index = detail.ordinal();
         index = Math.min(sprite_list.getNumSprites() - 1, index);
         if (respond) {

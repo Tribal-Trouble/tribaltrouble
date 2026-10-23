@@ -43,6 +43,7 @@ public final class Settings implements Serializable {
     public boolean remember_login = false;
 
     public int graphic_detail = Globals.DETAIL_NORMAL;
+    public int shadow_mode = Globals.SHADOWS_STATIC;
 
     // sound
     public boolean play_music = true;
@@ -215,6 +216,7 @@ public final class Settings implements Serializable {
         setProperty(props, "pw_digest", pw_digest, defaults.pw_digest);
         setProperty(props, "remember_login", remember_login, defaults.remember_login);
         setProperty(props, "graphic_detail", graphic_detail, defaults.graphic_detail);
+        setProperty(props, "shadow_mode", shadow_mode, defaults.shadow_mode);
         setProperty(props, "play_music", play_music, defaults.play_music);
         setProperty(props, "play_sfx", play_sfx, defaults.play_sfx);
         setProperty(props, "headphone_mode", headphone_mode, defaults.headphone_mode);
@@ -288,6 +290,7 @@ public final class Settings implements Serializable {
         pw_digest = props.getProperty("pw_digest", pw_digest);
         remember_login = getBoolean(props, "remember_login", remember_login);
         graphic_detail = getInt(props, "graphic_detail", graphic_detail);
+        shadow_mode = getInt(props, "shadow_mode", shadow_mode);
         play_music = getBoolean(props, "play_music", play_music);
         play_sfx = getBoolean(props, "play_sfx", play_sfx);
         headphone_mode = getBoolean(props, "headphone_mode", headphone_mode);

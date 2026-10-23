@@ -189,12 +189,17 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Build Server Distribution
-        run: ./gradlew :server:installDist
+        run: ./gradlew :server:installDist :bugserver:installDist
       - name: Upload server
         uses: actions/upload-artifact@v4
         with:
           name: tribal-trouble-server_${{ needs.version.outputs.full }}
           path: server/build/install/server/
+      - name: Upload bug server
+        uses: actions/upload-artifact@v4
+        with:
+          name: tribal-trouble-bugserver_${{ needs.version.outputs.full }}
+          path: bugserver/build/install/bugserver/
 
   build-windows:
     needs: [version]
@@ -299,21 +304,6 @@ jobs:
           appId: ${{ vars.STEAM_APP_ID }}
           buildDescription: ${{ needs.version.outputs.full }}.${{ github.run_number }}
           firstDepotIdOverride: 3945722
-          rootPath: tt/build/dist/
-          depot1Path: windows
-          depot2Path: macosx-arm64-app
-          depot3Path: macosx-x86-app
-          depot4Path: linux
-          releaseBranch: prerelease
-      - name: Reset BuildOutput between Steam uploads
-        run: sudo rm -rf BuildOutput
-      - name: Upload to steam (demo)
-        uses: game-ci/steam-deploy@8bd9baca6407f9abd210bd1eef3c45f56e12d8d9  # v3
-        with:
-          username: ${{ vars.STEAM_USER }}
-          configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
-          appId: ${{ vars.STEAM_DEMO_APP_ID }}
-          buildDescription: ${{ needs.version.outputs.full }}.${{ github.run_number }}
           rootPath: tt/build/dist/
           depot1Path: windows
           depot2Path: macosx-arm64-app

@@ -64,7 +64,7 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
                 if (u_enableLighting) {
                     vec3 lightDir = normalize(u_lightDirection);
                     float diff = max(dot(v_viewNormal, lightDir), 0.0);
-                    v_lightIntensity = u_globalAmbient + vec3(diff);
+                    v_lightIntensity = u_globalAmbient + u_sunColor * diff;
                 } else {
                     v_lightIntensity = vec3(1.0);
                 }
@@ -73,7 +73,7 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
 
     private static final String FRAGMENT_SHADER = """
             #version 410 core
-            """ + GLOBAL_STATE_BLOCK + FOG_FUNCTION + PERTURB_NORMAL_FUNC + FRAGMENT_LIGHTING_FUNCTION + """
+            """ + GLOBAL_STATE_BLOCK + FOG_FUNCTION + PERTURB_NORMAL_FUNC + POINT_LIGHTS_FUNCTION + FRAGMENT_LIGHTING_FUNCTION + """
             uniform sampler2D u_texture0;
             uniform sampler2D u_texture1;
             uniform sampler2D u_normalMap;
@@ -105,15 +105,19 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
                     base.rgb = mix(base.rgb, vec3(1.0), u_desaturate);
                 }
 
+                vec3 torchLight = calculatePointLights(v_viewPosition, normalize(v_viewNormal));
+
                 vec4 finalColor;
                 if (u_replaceMode) {
-                    finalColor = base;
+                    // Unlit sprites have daylight baked into the texture; the scene tint darkens them at night.
+                    finalColor = vec4(base.rgb * (u_sceneTint + torchLight), base.a);
                 } else if (u_modulateColor) {
                     finalColor = v_color * base;
+                    finalColor.rgb *= u_sceneTint + torchLight;
                 } else {
                     vec3 lightIntensity;
                     if (u_classicLighting) {
-                        lightIntensity = clamp(v_lightIntensity, 0.0, 1.0);
+                        lightIntensity = clamp(v_lightIntensity, 0.0, 1.0) + torchLight;
                     } else {
                         vec3 normal = normalize(v_viewNormal);
                         float specularStrength = 0.0;
@@ -123,7 +127,7 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
                             specularStrength = normalMapVal.a;
                         }
                         if (u_enableLighting) {
-                            lightIntensity = calculateLighting(normal, v_viewPosition, specularStrength);
+                            lightIntensity = calculateLighting(normal, v_viewPosition, specularStrength) + torchLight;
                         } else {
                             lightIntensity = vec3(1.0);
                         }

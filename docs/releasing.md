@@ -75,8 +75,7 @@ The workflow:
 
 CI can push to Steam but **cannot** move a build to the `default` branch (Valve restriction). Do this yourself:
 
-- **Main game**: <https://partner.steamgames.com/apps/builds/3945720>
-- **Demo**: <https://partner.steamgames.com/apps/builds/3945722>
+- <https://partner.steamgames.com/apps/builds/3945720>
 
 Find the build matching the tag you promoted, change its branch from `prerelease` to `default`, and save. Players on the default branch will get the update on next launch.
 
@@ -95,7 +94,7 @@ The promote workflow always pulls from GitHub Release assets, so any past releas
 
 ## Publishing feature betas to Steam
 
-Dispatch **Steam Publish** (`steam-publish.yml`) with a git ref and a target Steam branch to put a feature preview (archipelago, p2p, ...) on Steam without touching the release pipeline. The feature's configuration (flag flips, `SIM_VERSION` bump) lives as commits on the ref being built, not as pipeline options. The Steam branch must already exist on the partner dashboard, `prerelease` and `default` are refused, and the upload waits on the same `release` environment approval as everything else. Main game only; the demo needs its own steam-deploy step if ever wanted.
+Dispatch **Steam Publish** (`steam-publish.yml`) with a git ref and a target Steam branch to put a feature preview (archipelago, p2p, ...) on Steam without touching the release pipeline. The feature's configuration (flag flips, `SIM_VERSION` bump) lives as commits on the ref being built, not as pipeline options. The Steam branch must already exist on the partner dashboard, `prerelease` and `default` are refused, and the upload waits on the same `release` environment approval as everything else.
 
 ## Versioning
 
@@ -128,7 +127,6 @@ Set under **Settings → Secrets and variables → Actions**.
 |---|---|---|
 | `STEAM_USER` | `steam-release` | Steam build account username |
 | `STEAM_APP_ID` | `steam-release`, promote summary | Main game Steam app ID (`3945720`) |
-| `STEAM_DEMO_APP_ID` | `steam-release`, promote summary | Demo Steam app ID (find under Steamworks → App admin) |
 | `ITCH_PROJECT` | `itch-release`, promote | itch project slug (e.g., `rcubdev/tribal-trouble-resurrected`) |
 | `DEPLOY_HOST_PROD` | `website-prerelease`, promote | `tribaltrouble.org` |
 | `DEPLOY_USER_PROD` | `website-prerelease`, promote | SSH user on the prod box (typically `deploy`) |

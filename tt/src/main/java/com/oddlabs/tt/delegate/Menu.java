@@ -313,6 +313,7 @@ public abstract class Menu extends CameraDelegate<Camera> {
                 .mapSize(game.getSize())
                 .maxBuildingCount(game.getMaxBuildingCount())
                 .ships(game.isShips())
+                .night(game.isNight())
                 .build();
         // spotless:on
         Client client = new Client(null, network, gui, host_id, world_params,

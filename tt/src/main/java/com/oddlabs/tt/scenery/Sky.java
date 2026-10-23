@@ -4,6 +4,7 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.HeightMap;
+import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.procedural.GeneratorClouds;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.procedural.TextureGenerator;
@@ -17,6 +18,7 @@ import com.oddlabs.tt.render.state.BlendMode;
 import com.oddlabs.tt.render.state.CullMode;
 import com.oddlabs.tt.render.state.DepthMode;
 import com.oddlabs.tt.render.state.RenderContext;
+import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.util.Stitcher;
 import com.oddlabs.tt.vbo.FloatVBO;
@@ -81,8 +83,10 @@ public final class Sky implements SceneRenderer, AutoCloseable {
     private final @NonNull FloatVBO sky_vbo;
 
     private final @NonNull Texture @NonNull [] clouds;
+    private final @NonNull Texture moon;
     private final int subdiv_axis;
     private final int subdiv_height;
+    private final @NonNull World world;
     private final Landscape.@NonNull TerrainType terrain;
 
     private final SkyShader skyShader = new SkyShader();
@@ -122,8 +126,9 @@ public final class Sky implements SceneRenderer, AutoCloseable {
     private float lastTime = 0f;
     private final Random random = new Random();
 
-    public Sky(@NonNull LandscapeRenderer renderer, Landscape.@NonNull TerrainType terrain, @NonNull Texture detail) {
-        this(renderer, terrain, (float) (renderer.getHeightMap().getMetersPerWorld() * Math.sqrt(
+    public Sky(@NonNull World world, @NonNull LandscapeRenderer renderer, Landscape.@NonNull TerrainType terrain,
+            @NonNull Texture detail) {
+        this(world, renderer, terrain, (float) (renderer.getHeightMap().getMetersPerWorld() * Math.sqrt(
                 2) / 2), 6000f, 20, 20, SKYDOME_OUTER_UTILING, SKYDOME_OUTER_VTILING, SKYDOME_INNER_UTILING, SKYDOME_INNER_VTILING, renderer.getHeightMap().getMetersPerWorld() / 2f, renderer.getHeightMap().getMetersPerWorld() / 2f, SKYDOME_HEIGHT, detail);
     }
 
@@ -135,12 +140,19 @@ public final class Sky implements SceneRenderer, AutoCloseable {
 
             skyShader.setUniformMatrix4(SkyShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
             skyShader.setUniform(SkyShader.Uniforms.SKY_COLOR, color.get(0), color.get(1), color.get(2), color.get(3));
+            skyShader.setUniform(SkyShader.Uniforms.NIGHT_FACTOR, world.isNight() ? 1.0f : 0.0f);
+            skyShader.setUniform(SkyShader.Uniforms.RAYS_INTENSITY, context.isReflectionPass() ? 0.0f : 0.1f);
+            var skyBodyDir = Globals.FAKE_SKY_BODY_DIRECTION;
+            skyShader.setUniform(SkyShader.Uniforms.SKY_BODY_DIRECTION, skyBodyDir.x(), skyBodyDir.y(), skyBodyDir.z());
 
             context.setTexture(0, clouds[GeneratorClouds.INNER]);
             skyShader.setUniform(SkyShader.Uniforms.TEXTURE_0, 0);
 
             context.setTexture(1, clouds[GeneratorClouds.OUTER]);
             skyShader.setUniform(SkyShader.Uniforms.TEXTURE_1, 1);
+
+            context.setTexture(2, moon);
+            skyShader.setUniform(SkyShader.Uniforms.MOON_TEXTURE, 2);
 
             updateAnimation();
 
@@ -242,10 +254,12 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         }
     }
 
-    private Sky(@NonNull LandscapeRenderer landscape_renderer, Landscape.@NonNull TerrainType terrain,
-            float inner_radius, float radius, int subdiv_axis, int subdiv_height, float outer_utile, float outer_vtile,
+    private Sky(@NonNull World world, @NonNull LandscapeRenderer landscape_renderer,
+            Landscape.@NonNull TerrainType terrain, float inner_radius, float radius, int subdiv_axis,
+            int subdiv_height, float outer_utile, float outer_vtile,
             float inner_utile, float inner_vtile, float origin_x, float origin_y, float origin_z,
             @NonNull Texture detail) {
+        this.world = world;
         this.terrain = terrain;
         this.detail = detail;
         this.subdiv_axis = subdiv_axis;
@@ -253,6 +267,8 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         this.color = tex_env_color[terrain.ordinal()].get(BufferUtils.createFloatBuffer(4)).rewind();
         TextureGenerator clouds_desc = new GeneratorClouds(terrain);
         clouds = Resources.findResource(clouds_desc);
+        moon = Resources.findResource(new TextureFile("/textures/models/moon", GL11.GL_RGBA, GL11.GL_LINEAR,
+                GL11.GL_LINEAR, GL15.GL_CLAMP_TO_EDGE, GL15.GL_CLAMP_TO_EDGE));
 
         // Create interleaved VBO for the sky
         int num_vertices_sky = subdiv_axis * (subdiv_height - 1) + 1;

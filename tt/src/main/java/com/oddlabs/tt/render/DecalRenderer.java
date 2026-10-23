@@ -121,9 +121,9 @@ public final class DecalRenderer implements AutoCloseable {
         var depth = context.withDepthMode(DepthMode.READ_ONLY);
         var cull = context.withCullMode(CullMode.NONE);
 
-        // Bias to prevent Z-fighting with terrain
+        // The decal follows the terrain triangles exactly, so a large offset only pulls it over low objects
         GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
-        GL11.glPolygonOffset(-16.0f, -32.0f);
+        GL11.glPolygonOffset(-1.0f, -2.0f);
 
         // Disable writing to Mask Buffer (Attachment 1) since DecalShader doesn't output to it
         GL11.glDrawBuffer(GL30.GL_COLOR_ATTACHMENT0);

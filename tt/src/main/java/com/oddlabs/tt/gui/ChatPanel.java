@@ -37,6 +37,7 @@ public class ChatPanel extends Panel implements ChatListener {
     private final @NonNull TextBox chat_box;
     private final @NonNull EditLine chat_line;
     private final @NonNull GUIRoot gui_root;
+    private final @NonNull Runnable leave_game_listener;
 
     private final int user_list_width;
 
@@ -51,9 +52,11 @@ public class ChatPanel extends Panel implements ChatListener {
     }
 
     public ChatPanel(@NonNull GUIRoot gui_root, @NonNull ChatRoomInfo info, int compare_width, int compare_height,
-            int button_width, @NonNull EnterListener chat_listener, @NonNull MouseClickListener leave_listener) {
+            int button_width, @NonNull EnterListener chat_listener, @NonNull MouseClickListener leave_listener,
+            @NonNull Runnable leave_game_listener) {
         super(getI18N("chat"));
         this.gui_root = gui_root;
+        this.leave_game_listener = leave_game_listener;
         FormData fdata = Skin.getSkin().getFormData();
         Box pdata = Skin.getSkin().getPanelData().box();
         Box edata = Skin.getSkin().getEditBox();
@@ -233,6 +236,7 @@ public class ChatPanel extends Panel implements ChatListener {
                     Network.getMatchmakingClient().requestInfo(gui_root, nick);
                     break;
                 case PULLDOWN_INDEX_PLAYING_SPECTATE:
+                    leave_game_listener.run();
                     Network.getMatchmakingClient().requestSpectate(gui_root, nick);
                     break;
                 case PULLDOWN_INDEX_PLAYING_IGNORE:

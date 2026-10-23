@@ -12,6 +12,25 @@ release is cut.
 
 ## [Unreleased]
 
+### Added
+
+- Night games: pick Day or Night when creating a game
+- Dynamic shadows that follow the sun, with a static or dynamic shadows choice in the graphics settings (default is still static shadows)
+- Seasonal looks by date: autumn leaves on the oak trees through October, and Halloween from October 16 to 31 with pumpkins on native quarters and rally points, pumpkin patches, pumpkin hats and viking pumpkin pants.
+- Adds framework for adding new assets to the game
+- Polish translation, chosen under Options > Language.
+
+### Changed
+
+- Server: simulation version 1010, so this build only plays multiplayer games with players on the same version.
+
+### Fixed
+
+- Spectating from the chat panel while in a game lobby now leaves the lobby first, so you no longer appear twice when you rejoin it.
+- Starting ships no longer spawn on water the pathfinder cannot reach, which left them stuck at the start of the game.
+
+## [2.1.96] - 2026-10-15
+
 Everything since the original Oddlabs source was released on 2014-09-01. Builds before 2.1 were prereleases and are not listed separately.
 
 ### Added
@@ -79,4 +98,5 @@ Everything since the original Oddlabs source was released on 2014-09-01. Builds 
 - The server guards against malformed client data.
 - Steam auth tickets are validated through the Steam Web API.
 
-[Unreleased]: https://github.com/Tribal-Trouble/tribaltrouble/commits/main
+[Unreleased]: https://github.com/Tribal-Trouble/tribaltrouble/compare/v2.1.96-103.1009...main
+[2.1.96]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.1.96-103.1009

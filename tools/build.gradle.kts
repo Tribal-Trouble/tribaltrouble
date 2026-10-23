@@ -18,4 +18,5 @@ lwjgl {
 
 dependencies {
     implementation(project(":common"))
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.18.3")
 }

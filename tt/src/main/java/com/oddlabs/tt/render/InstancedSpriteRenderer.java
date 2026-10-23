@@ -3,6 +3,7 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.render.shader.InstancedSpriteShader;
+import com.oddlabs.tt.render.shader.InstancedSpriteShadowShader;
 import com.oddlabs.tt.render.state.BlendMode;
 import com.oddlabs.tt.render.state.CullMode;
 import com.oddlabs.tt.render.state.DepthMode;
@@ -33,6 +34,7 @@ import java.util.Map;
 public final class InstancedSpriteRenderer implements AutoCloseable {
 
     private final InstancedSpriteShader shader = new InstancedSpriteShader();
+    private final InstancedSpriteShadowShader shadowShader = new InstancedSpriteShadowShader();
     private final Map<@NonNull BatchKey, @NonNull RenderBatch> batches = new HashMap<>();
     private final @NonNull Texture whiteTexture;
     private float seaLevel = -100.0f;
@@ -64,14 +66,23 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             @NonNull MatrixStack projectionStack) {
         if (batches.isEmpty()) return;
 
-        try (var _ = shader.use()) {
-            // Set TBO texture unit
-            shader.setUniform(InstancedSpriteShader.Uniforms.VERT_BUFFER, 5);
-            shader.setUniform(InstancedSpriteShader.Uniforms.SEA_LEVEL, seaLevel);
-
+        try {
             RenderState state = new RenderState();
-            for (RenderBatch batch : batches.values()) {
-                batch.render(context, shader, whiteTexture, state);
+            if (context.isShadowPass()) {
+                try (var _ = shadowShader.use()) {
+                    shadowShader.setUniform(InstancedSpriteShadowShader.Uniforms.VERT_BUFFER, 5);
+                    for (RenderBatch batch : batches.values()) {
+                        batch.renderShadow(context, shadowShader, whiteTexture, state);
+                    }
+                }
+            } else {
+                try (var _ = shader.use()) {
+                    shader.setUniform(InstancedSpriteShader.Uniforms.VERT_BUFFER, 5);
+                    shader.setUniform(InstancedSpriteShader.Uniforms.SEA_LEVEL, seaLevel);
+                    for (RenderBatch batch : batches.values()) {
+                        batch.render(context, shader, whiteTexture, state);
+                    }
+                }
             }
         } finally {
             // Restore default state to prevent leakage to other renderers (Sky, Landscape)
@@ -97,6 +108,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
         }
         batches.clear();
         shader.close();
+        shadowShader.close();
         whiteTexture.close();
     }
 
@@ -236,20 +248,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             Sprite sprite = key.spriteList.getSprite(key.spriteIndex);
 
             setupTextures(context, shader, sprite, whiteTexture, state);
-
-            // Upload data
-            vbo.makeCurrent();
-            instanceBuffer.flip();
-            GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, instanceBuffer);
-
-            // Bind TBO
-            if (state.boundTBO != key.spriteList.getTBOTextureHandle()) {
-                context.setActiveTexture(5);
-                GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, key.spriteList.getTBOTextureHandle());
-                state.boundTBO = key.spriteList.getTBOTextureHandle();
-            }
-
-            vao.bind();
+            bindInstances(context, state);
 
             if (key.respond) {
                 // Two-pass technique to avoid alpha accumulation (like building placement ghosts)
@@ -286,6 +285,45 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             vao.unbind();
         }
 
+        void renderShadow(@NonNull RenderContext context, @NonNull InstancedSpriteShadowShader shader,
+                Texture whiteTexture, @NonNull RenderState state) {
+            if (totalInstances == 0) return;
+
+            Sprite sprite = key.spriteList.getSprite(key.spriteIndex);
+            context.setTexture(0, getBaseTexture(sprite, whiteTexture));
+            shader.setUniform(InstancedSpriteShadowShader.Uniforms.TEXTURE_0, 0);
+            bindInstances(context, state);
+
+            context.setDepthMode(DepthMode.READ_WRITE);
+            context.setCullMode(sprite.culled ? CullMode.BACK : CullMode.NONE);
+            context.setBlendMode(BlendMode.NONE);
+            GL11.glDisable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
+            draw(sprite);
+
+            vao.unbind();
+        }
+
+        private void bindInstances(@NonNull RenderContext context, @NonNull RenderState state) {
+            // Upload data
+            vbo.makeCurrent();
+            instanceBuffer.flip();
+            GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, instanceBuffer);
+
+            // Bind TBO
+            if (state.boundTBO != key.spriteList.getTBOTextureHandle()) {
+                context.setActiveTexture(5);
+                GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, key.spriteList.getTBOTextureHandle());
+                state.boundTBO = key.spriteList.getTBOTextureHandle();
+            }
+
+            vao.bind();
+        }
+
+        private @NonNull Texture getBaseTexture(@NonNull Sprite sprite, Texture whiteTexture) {
+            return (sprite.textures.length > key.texIndex && sprite.textures[key.texIndex].length > 0
+                    && sprite.textures[key.texIndex][0] != null) ? sprite.textures[key.texIndex][0] : whiteTexture;
+        }
+
         private void draw(Sprite sprite) {
             // Use glDrawElementsInstanced
             GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, sprite.getTriangleCount() * 3, GL11.GL_UNSIGNED_SHORT,
@@ -294,10 +332,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
 
         private void setupTextures(@NonNull RenderContext context, @NonNull InstancedSpriteShader shader,
                 @NonNull Sprite sprite, Texture whiteTexture, @NonNull RenderState state) {
-            Texture texture = (sprite.textures.length > key.texIndex && sprite.textures[key.texIndex].length > 0
-                    && sprite.textures[key.texIndex][0] != null) ? sprite.textures[key.texIndex][0] : whiteTexture;
-
-            context.setTexture(0, texture);
+            context.setTexture(0, getBaseTexture(sprite, whiteTexture));
             shader.setUniform(InstancedSpriteShader.Uniforms.TEXTURE_0, 0);
 
             boolean useLighting = Globals.draw_light && sprite.lighted;
@@ -329,6 +364,14 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                 shader.setUniform(InstancedSpriteShader.Uniforms.NORMAL_MAP, 2);
             } else {
                 shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_NORMAL_MAP, false);
+            }
+
+            if (sprite.hasEmissive(key.texIndex)) {
+                shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_EMISSIVE, true);
+                context.setTexture(3, sprite.textures[key.texIndex][Sprite.TEXTURE_EMISSIVE]);
+                shader.setUniform(InstancedSpriteShader.Uniforms.EMISSIVE_MAP, 3);
+            } else {
+                shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_EMISSIVE, false);
             }
         }
 

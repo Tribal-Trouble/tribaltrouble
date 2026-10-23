@@ -121,14 +121,20 @@ final class RenderState implements ElementVisitor {
         public void markDetailPolygon(@NonNull ElementRenderState<Unit> render_state, @NonNull PolyDetail detail) {
             Unit unit = render_state.model;
             super.markDetailPolygon(render_state, detail);
+            if (render_state.render_state.isPicking())
+                return;
             UnitSupplyContainer supply_container = unit.getSupplyContainer();
-            if (!render_state.render_state.isPicking() && unit.getAbilities().hasAbilities(Abilities.BUILD)
-                    && supply_container.getSupplyType() != null) {
+            if (unit.getAbilities().hasAbilities(Abilities.BUILD) && supply_container.getSupplyType() != null) {
                 if (supply_container.getNumSupplies() > 0) {
-                    SpriteRenderer supply_sprite = render_state.getRenderer(supply_container.getSupplySpriteRenderer(
-                            supply_container.getSupplyType()));
+                    SpriteRenderer supply_sprite = render_state.getRenderer(unit.getOwner().getSkins().itemFor(
+                            supply_container.getSupplySpriteRenderer(supply_container.getSupplyType())));
                     supply_sprite.addToRenderList(detail, render_state, false);
                 }
+            }
+            // Attachments share the unit's skeleton and clips, so the same state drives them in lockstep.
+            for (SpriteKey attachment : unit.getAttachments()) {
+                render_state.getRenderer(unit.getOwner().getSkins().itemFor(attachment)).addToRenderList(detail,
+                        render_state, false);
             }
         }
     };
@@ -232,7 +238,18 @@ final class RenderState implements ElementVisitor {
         };
     }
 
-    private static final ModelVisitor<Building> building_visitor = new SelectableVisitor<>();
+    private static final ModelVisitor<Building> building_visitor = new SelectableVisitor<>() {
+        @Override
+        public void markDetailPolygon(@NonNull ElementRenderState<Building> render_state, @NonNull PolyDetail detail) {
+            Building building = render_state.model;
+            super.markDetailPolygon(render_state, detail);
+            if (render_state.render_state.isPicking())
+                return;
+            for (SpriteKey prop : building.getProps(building.getRenderLevel())) {
+                render_state.getRenderer(prop).addToRenderList(detail, render_state, false);
+            }
+        }
+    };
 
     @Override
     public void visitBuilding(final @NonNull Building building) {
@@ -305,6 +322,16 @@ final class RenderState implements ElementVisitor {
     }
 
     private static final ModelVisitor<SceneryModel> scenery_model_visitor = new WhiteModelVisitor<>() {
+        @Override
+        public void markDetailPolygon(@NonNull ElementRenderState<SceneryModel> render_state,
+                @NonNull PolyDetail detail) {
+            super.markDetailPolygon(render_state, detail);
+            if (render_state.render_state.isPicking())
+                return;
+            for (SpriteKey attachment : render_state.model.getAttachments()) {
+                render_state.getRenderer(attachment).addToRenderList(detail, render_state, false);
+            }
+        }
     };
 
     @Override
@@ -340,10 +367,15 @@ final class RenderState implements ElementVisitor {
     @Override
     public void visitPlants(final @NonNull Plants plants) {
         if (!picking && Globals.draw_plants) {
-            float camera_dist_sqr = RenderTools.getEyeDistanceSquared(plants, camera.getCurrentX(),
-                    camera.getCurrentY(), camera.getCurrentZ());
-            if (camera_dist_sqr <= PLANTS_CUT_DIST * PLANTS_CUT_DIST)
+            float camera_dist_sqr = plants.fades() ? RenderTools.getEyeDistanceSquared(plants, camera.getCurrentX(),
+                    camera.getCurrentY(), camera.getCurrentZ()) : 0f;
+            if (camera_dist_sqr <= PLANTS_CUT_DIST * PLANTS_CUT_DIST) {
                 addToRenderList(getCachedState(plants_model_visitor, plants, camera_dist_sqr));
+                if (plants.getShadowDiameter() > 0f) {
+                    ModelState<SceneryModel> state = getCachedState(scenery_model_visitor, plants);
+                    default_shadow_renderer.addToShadowList(state);
+                }
+            }
         }
     }
 

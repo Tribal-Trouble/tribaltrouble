@@ -10,6 +10,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL32;
+import org.lwjgl.opengl.GL41;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;
@@ -57,6 +58,11 @@ public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program
             GL20.glLinkProgram(programId);
             if (GL20.glGetProgrami(programId, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
                 throw new IllegalArgumentException("Shader link failed: " + GL20.glGetProgramInfoLog(programId, 1024));
+            }
+
+            int shadowMapLocation = GL20.glGetUniformLocation(programId, SHADOW_MAP);
+            if (shadowMapLocation >= 0) {
+                GL41.glProgramUniform1i(programId, shadowMapLocation, SHADOW_MAP_TEXTURE_UNIT);
             }
         }
 

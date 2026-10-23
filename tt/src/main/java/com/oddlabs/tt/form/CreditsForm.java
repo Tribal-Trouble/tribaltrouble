@@ -72,7 +72,11 @@ public final class CreditsForm extends Form {
         credits_box.append(i18n("audio") + "\n");
         credits_box.append("Michael Huang\n");
         credits_box.append("Nicklas Schmidt\n");
-        credits_box.append("Herman Witkam");
+        credits_box.append("Herman Witkam\n");
+        credits_box.append("\n");
+        credits_box.append(i18n("moon_texture") + "\n");
+        credits_box.append("Image courtesy of the Earth Science and Remote Sensing Unit, NASA Johnson Space Center\n");
+        credits_box.append("ISS030-E-275770, eol.jsc.nasa.gov");
         credits_box.place();
         credits.compileCanvas();
         return credits;
@@ -94,7 +98,7 @@ public final class CreditsForm extends Form {
         contributors_box.append("Pyprohly\n");
         contributors_box.append("TimmyTonkaBuilder\n");
         contributors_box.append("Xzf\n");
-        contributors_box.append("Rafal Okuniewski\n");
+        contributors_box.append("Rafal Okuniewski (Goliat)\n");
         contributors_box.append("\n");
         contributors_box.append(i18n("3d_artwork_and_animation") + "\n");
         contributors_box.append("Chaz Willets\n");
@@ -102,7 +106,8 @@ public final class CreditsForm extends Form {
         contributors_box.append("\n");
         contributors_box.append(i18n("translations") + "\n");
         contributors_box.append("Daniel Araújo Nacarini (Piratax10)\n");
-        contributors_box.append("Rafal Okuniewski\n");
+        contributors_box.append("Rafal Okuniewski (Goliat)\n");
+        contributors_box.append("Seriton\n");
         contributors_box.append("\n");
         contributors_box.append(i18n("community") + "\n");
         contributors_box.append("Ian Andrew Moore (Dapianokid)\n");

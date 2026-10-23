@@ -47,6 +47,7 @@ public final class Game implements Serializable {
     private final int initial_unit_count;
     private final int max_building_count;
     private final boolean ships;
+    private final boolean night;
 
     private int database_id;
 
@@ -65,6 +66,7 @@ public final class Game implements Serializable {
         this.initial_unit_count = b.initial_unit_count;
         this.max_building_count = b.max_building_count;
         this.ships = b.ships;
+        this.night = b.night;
         assert isValid() : game_name.length();
     }
 
@@ -136,6 +138,10 @@ public final class Game implements Serializable {
         return ships;
     }
 
+    public boolean isNight() {
+        return night;
+    }
+
     public void setDatabaseID(int database_id) {
         this.database_id = database_id;
     }
@@ -159,6 +165,7 @@ public final class Game implements Serializable {
         private int initial_unit_count = DEFAULT_INITIAL_UNIT_COUNT;
         private int max_building_count = DEFAULT_MAX_BUILDING_COUNT;
         private boolean ships;
+        private boolean night;
 
         private Builder() {
         }
@@ -230,6 +237,11 @@ public final class Game implements Serializable {
 
         public @NonNull Builder ships(boolean ships) {
             this.ships = ships;
+            return this;
+        }
+
+        public @NonNull Builder night(boolean night) {
+            this.night = night;
             return this;
         }
 

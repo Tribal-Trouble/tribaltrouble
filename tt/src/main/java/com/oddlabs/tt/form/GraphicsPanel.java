@@ -97,8 +97,8 @@ public class GraphicsPanel extends Panel {
             updateScaleLabel();
         });
 
-        slider_ui_scale.addReleaseListener(() -> gui_root.displayChanged(Renderer.getRenderer().getWindow().getWidth(),
-                Renderer.getRenderer().getWindow().getHeight())
+        slider_ui_scale.addReleaseListener(() -> gui_root.displayChanged(Renderer.getRenderer().getDisplayWidth(),
+                Renderer.getRenderer().getDisplayHeight())
         );
 
         label_ui_scale.place();
@@ -131,6 +131,24 @@ public class GraphicsPanel extends Panel {
         label_detail.place();
         pb_detail.place(label_detail, BOTTOM_LEFT);
         group_detail.compileCanvas();
+
+        Group group_shadows = new Group();
+        addChild(group_shadows);
+
+        Label label_shadows = new Label(AbstractOptionsMenu.i18n("shadows"), labelFont);
+        group_shadows.addChild(label_shadows);
+
+        PulldownMenu<Void> pm_shadows = new PulldownMenu<>();
+        pm_shadows.addItem(new PulldownItem<>(AbstractOptionsMenu.i18n("shadows_static")));
+        pm_shadows.addItem(new PulldownItem<>(AbstractOptionsMenu.i18n("shadows_dynamic")));
+        pm_shadows.addItemChosenListener((menu, index) -> Settings.getSettings().shadow_mode = index);
+        PulldownButton<Void> pb_shadows = new PulldownButton<>(gui_root, pm_shadows,
+                Settings.getSettings().shadow_mode, 150);
+        group_shadows.addChild(pb_shadows);
+
+        label_shadows.place();
+        pb_shadows.place(label_shadows, BOTTOM_LEFT);
+        group_shadows.compileCanvas();
 
         // Display mode (disabled in fullscreen — borderless fullscreen uses native resolution)
         Group mode_group = new Group();
@@ -186,7 +204,8 @@ public class GraphicsPanel extends Panel {
         // Placement
         mode_group.place();
         group_detail.place(mode_group, RIGHT_TOP);
-        group_ui_scale.place(group_detail, BOTTOM_LEFT);
+        group_shadows.place(group_detail, BOTTOM_LEFT);
+        group_ui_scale.place(group_shadows, BOTTOM_LEFT);
         if (group_fullscreen != null) {
             group_fullscreen.place(group_ui_scale, BOTTOM_LEFT);
         }
@@ -198,8 +217,8 @@ public class GraphicsPanel extends Panel {
     }
 
     public void updateScaleLabel() {
-        int w = Renderer.getRenderer().getWindow().getWidth();
-        int h = Renderer.getRenderer().getWindow().getHeight();
+        int w = Renderer.getRenderer().getDisplayWidth();
+        int h = Renderer.getRenderer().getDisplayHeight();
 
         float scale = GUIRoot.calculateEffectiveScale(w, h);
         label_pct.setText(String.format("%d%%", (int) (scale * 100)));
