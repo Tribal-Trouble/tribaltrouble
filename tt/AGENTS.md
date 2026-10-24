@@ -53,3 +53,5 @@ generate art or sound for a feature: see the creative work policy in the root
   development is a real failure, not a warning.
 - `./gradlew :tt:compileJava` is the fast feedback loop. Compiling is not the same as
   working; say which one you did.
+- `input/scripted/ScriptedInputProvider` is the loopback driver for play-testing the windowed
+  client; see [docs/llm-play-testing.md](../docs/llm-play-testing.md).

@@ -90,9 +90,17 @@ On Windows use `gradlew.bat`. Platform packaging tasks (`tt:packageWindows`,
 `tt:packageLinux`, `tt:packageMacArm64`, `tt:packageMacX86`) only run on their matching host
 OS.
 
-There are no test sources yet; JUnit 6 is wired up in `common` if you add some. That means
-compilation plus a manual run is the only safety net. Never claim a change works because it
-looks right.
+There are no test sources yet; JUnit 6 is wired up in `common` if you add some. Compiling proves
+the code builds. Running it is what catches the bugs. Never claim a change works because it looks
+right. To run it without a person at the keyboard:
+
+- **Scripted play-testing**: start the game with `-Dcom.oddlabs.tt.input.port=7777` and drive it
+  over a loopback socket with `tools/scripts/ttinput.py`: press buttons by label, read the GUI tree
+  and the game state, fast-forward, take screenshots. [docs/llm-play-testing.md](docs/llm-play-testing.md)
+  is the guide, including a local two-client multiplayer recipe. This is how UI, menu and rendering
+  changes are verified. It needs a display, so it does not run on hosted CI.
+
+The socket is off unless that property is set, so shipped builds do not change.
 
 ## Definition of done
 
@@ -102,7 +110,8 @@ Before reporting a change as finished:
 2. `./gradlew spotlessApply` has been run, so `spotlessCheck` in CI will pass.
 3. Player-visible changes get a line under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md),
    written for players, in English, following the rules at the top of that file.
-4. Gameplay changes are described honestly: say whether you ran the game or not.
+4. Gameplay and UI changes are described honestly: say whether you played them through the
+   scripted driver or did not run the game at all.
 
 Do not say "done", "ready", or "working" for code that has not compiled.
 
@@ -249,6 +258,7 @@ database is migrated by hand, so a merged migration is not a deployed migration.
 
 - [docs/development-workflow.md](docs/development-workflow.md): branch model, who merges where
 - [docs/releasing.md](docs/releasing.md): release cut, promotion, Steam and itch publishing
+- [docs/llm-play-testing.md](docs/llm-play-testing.md): driving the game from a script or an agent
 - [docs/event-logs.md](docs/event-logs.md): per-run logs and `--eventload` replay. A crash report
   carries the run's event log, so a filed bug is reproduced by replaying it on the reported commit
 - [bugserver/deploy/README.md](bugserver/deploy/README.md): running the bug server locally and deploying it

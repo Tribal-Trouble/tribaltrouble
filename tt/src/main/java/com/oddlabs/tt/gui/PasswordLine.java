@@ -58,6 +58,12 @@ public class PasswordLine extends EditLine {
         return password_digest;
     }
 
+    /** Replaces the text the way typing it would, so the digest follows. */
+    public final void setPassword(@NonNull String text) {
+        set(text);
+        updatePassword();
+    }
+
     public final void setPasswordDigest(@Nullable String password_digest) {
         this.password_digest = password_digest;
     }
