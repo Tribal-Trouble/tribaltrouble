@@ -36,7 +36,7 @@ public final class AdvancedSettingsForm extends Form {
 
     private static final int BUTTON_WIDTH = 100;
     private static final int RESET_BUTTON_WIDTH = 160;
-    private static final int LABEL_WIDTH = 150;
+    private static final int LABEL_WIDTH = 160;
     private static final int SLIDER_LENGTH = 250;
     private static final int VALUE_WIDTH = 60;
     private static final int WARNING_WIDTH = 470;
