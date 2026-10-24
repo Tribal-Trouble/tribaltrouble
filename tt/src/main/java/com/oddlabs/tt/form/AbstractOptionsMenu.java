@@ -18,7 +18,7 @@ import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 
 public abstract class AbstractOptionsMenu extends Form {
-    private static final int BUTTON_WIDTH = 100;
+    private static final int BUTTON_WIDTH = 110;
     public static final ResourceBundle bundle = ResourceBundle.getBundle(OptionsMenu.class.getName());
 
     static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {

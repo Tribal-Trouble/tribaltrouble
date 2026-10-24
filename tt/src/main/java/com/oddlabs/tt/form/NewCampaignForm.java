@@ -42,6 +42,7 @@ import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 
 public final class NewCampaignForm extends Form implements DeterministicSerializerLoopbackInterface<CampaignState[]> {
     private static final int BUTTON_WIDTH = 100;
+    private static final int PULLDOWNBUTTON_WIDTH = 110;
     private static final int EDITLINE_WIDTH = 240;
 
     private static final int INDEX_VIKINGS = 0;
@@ -86,7 +87,8 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
         race_pulldown.addItem(new PulldownItem<>(i18n("vikings")));
         race_pulldown.addItem(new PulldownItem<>(i18n("natives")));
         race_pulldown.addItemChosenListener(new RaceListener());
-        PulldownButton<Void> race_pb = new PulldownButton<>(gui_root, race_pulldown, INDEX_VIKINGS, 100);
+        PulldownButton<Void> race_pb = new PulldownButton<>(gui_root, race_pulldown, INDEX_VIKINGS,
+                PULLDOWNBUTTON_WIDTH);
         group.addChild(race_label);
         group.addChild(race_pb);
 
@@ -96,7 +98,8 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
         difficulty_pulldown.addItem(new PulldownItem<>(i18n("easy")));
         difficulty_pulldown.addItem(new PulldownItem<>(i18n("normal")));
         difficulty_pulldown.addItem(new PulldownItem<>(i18n("hard")));
-        PulldownButton<Void> difficulty_pb = new PulldownButton<>(gui_root, difficulty_pulldown, 1, 100);
+        PulldownButton<Void> difficulty_pb = new PulldownButton<>(gui_root, difficulty_pulldown, 1,
+                PULLDOWNBUTTON_WIDTH);
         group.addChild(difficulty_label);
         group.addChild(difficulty_pb);
 

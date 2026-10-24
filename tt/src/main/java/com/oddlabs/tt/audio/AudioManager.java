@@ -28,15 +28,15 @@ public abstract class AudioManager implements AudioImplementation, AutoCloseable
     private static final Holder SINGLETON = new Holder();
 
     private static class Holder {
-        @Nullable
         final AudioManager manager;
 
         Holder() {
-            AudioManager instance = null;
+            AudioManager instance;
             try {
                 instance = new OpenALManager();
             } catch (Exception e) {
-                logger.log(Level.SEVERE, "Failed to create audio manager", e);
+                logger.log(Level.SEVERE, "Failed to create audio manager, running without sound", e);
+                instance = new SilentAudioManager();
             }
             manager = instance;
         }
@@ -49,14 +49,17 @@ public abstract class AudioManager implements AudioImplementation, AutoCloseable
     private int sound_play_counter = Settings.getSettings().play_sfx ? 1 : 0;
 
     /**
-     * @return The singleton AudioManager instance.
-     * @throws IllegalStateException if the audio manager could not be initialized.
+     * @return The singleton AudioManager instance; silent when no audio device could be opened.
      */
-    public static @NonNull AudioManager getManager() throws IllegalStateException {
-        if (SINGLETON.manager == null) {
-            throw new IllegalStateException("Audio manager is not available. Check logs for initialization errors.");
-        }
+    public static @NonNull AudioManager getManager() {
         return SINGLETON.manager;
+    }
+
+    /**
+     * {@return whether an audio device was opened, so sound can actually be heard}
+     */
+    public boolean hasDevice() {
+        return true;
     }
 
     protected AudioManager(@NonNull AudioSource @NonNull [] sources) {

@@ -132,7 +132,7 @@ public final class LocalInput implements AutoCloseable {
     }
 
     public boolean audioIsCreated() {
-        return LocalEventQueue.getQueue().getDeterministic().log(AudioManager.getManager() != null);
+        return LocalEventQueue.getQueue().getDeterministic().log(AudioManager.getManager().hasDevice());
     }
 
     public @Nullable Path getGameDir() {

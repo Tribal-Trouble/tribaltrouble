@@ -319,7 +319,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         if (direction == FocusDirection.BACKWARD) {
             super.setFocus(direction);
         } else {
-            game_list_panel.setFocus(direction);
+            panel_group.setFocus(direction);
         }
     }
 
