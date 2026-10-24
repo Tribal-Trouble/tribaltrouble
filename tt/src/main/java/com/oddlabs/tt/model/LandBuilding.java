@@ -65,8 +65,9 @@ public final class LandBuilding extends Building {
     private final Map<@NonNull Class<?>, @NonNull BuildProductionContainer> build_containers = new HashMap<>();
     private final Map<@NonNull DeployType, @NonNull DeployContainer> deploy_containers = new EnumMap<>(
             DeployType.class);
-    private final @NonNull LinearEmitter damaged_emitter;
-    private final @NonNull LinearEmitter production_emitter;
+
+    private @Nullable LinearEmitter damaged_emitter = null;
+    private @Nullable LinearEmitter production_emitter = null;
 
     private @Nullable ChieftainContainer chieftain_container = null;
     private @Nullable WeaponsProducer weapons_producer = null;
@@ -86,6 +87,11 @@ public final class LandBuilding extends Building {
         float y = UnitGrid.coordinateFromGrid(grid_y);
         setPosition(x, y);
         pushController(new NullController(this));
+    }
+
+    // Emitters register with the world in their constructors and read the building's `z`, so
+    // create them only after `reinsert()` has picked up the flattened height in `place()`.
+    private void createEmitters() {
         /*
            Vector3f position, float offset_z, float uv_angle,
            float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
@@ -104,8 +110,8 @@ public final class LandBuilding extends Building {
                 new Vector4f(.3f, .3f, .3f, DAMAGED_PARTICLE_ALPHA), new Vector4f(0f, 0f, 0f, 0f),
                 new Vector3f(1.5f, 1.5f, 1.5f), new Vector3f(.6f, .6f, .6f), 1.5f, .75f,
                 GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
-                owner.getWorld().getRacesResources().getDamageSmokeTextures(),
-                owner.getWorld().getAnimationManagerRealTime());
+                getOwner().getWorld().getRacesResources().getDamageSmokeTextures(),
+                getOwner().getWorld().getAnimationManagerRealTime());
         damaged_emitter.stop();
 
         float xc = getPositionX() + getTemplate().getChimneyX();
@@ -114,15 +120,15 @@ public final class LandBuilding extends Building {
 
         float energy = 4f;
         float alpha = .6f;
-        production_emitter = new RandomAccelerationEmitter(owner.getWorld(), new Vector3f(xc, yc, zc), 0f,
+        production_emitter = new RandomAccelerationEmitter(getOwner().getWorld(), new Vector3f(xc, yc, zc), 0f,
                 0.01f, 0.01f, 1.5f, 0.1f,
                 -1, 6f,
                 new Vector3f(0f, 0f, 1.3f), new Vector3f(0f, 0f, .25f), .7f,
                 new Vector4f(.35f, .35f, .35f, alpha), new Vector4f(0f, 0f, 0f, -alpha / energy),
                 new Vector3f(.3f, .3f, .3f), new Vector3f(.5f, .5f, .5f), energy, 1f,
                 GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
-                owner.getWorld().getRacesResources().getSmokeTextures(),
-                owner.getWorld().getAnimationManagerRealTime());
+                getOwner().getWorld().getRacesResources().getSmokeTextures(),
+                getOwner().getWorld().getAnimationManagerRealTime());
         production_emitter.stop();
     }
 
@@ -137,15 +143,6 @@ public final class LandBuilding extends Building {
 
     public Target getRallyPoint() {
         return rally_point;
-    }
-
-    @Override
-    protected void onReinsert() {
-        super.onReinsert();
-        float xc = getPositionX() + getTemplate().getChimneyX();
-        float yc = getPositionY() + getTemplate().getChimneyY();
-        float zc = getPositionZ() + getTemplate().getChimneyZ();
-        production_emitter.setPosition(new Vector3f(xc, yc, zc));
     }
 
     @Override
@@ -178,8 +175,8 @@ public final class LandBuilding extends Building {
             remove_delay -= t;
             if (remove_delay <= 0) {
                 remove();
-                damaged_emitter.done();
-                production_emitter.done();
+                Objects.requireNonNull(damaged_emitter).done();
+                Objects.requireNonNull(production_emitter).done();
                 if (weapons_producer != null)
                     weapons_producer.stopSound();
                 float energy = 3f;
@@ -378,13 +375,15 @@ public final class LandBuilding extends Building {
         final float MAX_ENERGY = 5f;
         final int START_SMOKE = getTemplate().getMaxHitPoints() / 2;
         hit_points = Math.max(Math.min(new_hit_points, getTemplate().getMaxHitPoints()), 0);
+        Objects.requireNonNull(damaged_emitter);
         if (build_points == getTemplate().getMaxHitPoints() && hit_points < START_SMOKE) {
             float energy = MIN_ENERGY + ((1 - (float) hit_points / (START_SMOKE)) * (MAX_ENERGY - MIN_ENERGY));
             damaged_emitter.start();
             damaged_emitter.setDeltaColor(new Vector4f(0f, 0f, 0f, -DAMAGED_PARTICLE_ALPHA / energy));
             damaged_emitter.setEnergy(energy);
-        } else
+        } else {
             damaged_emitter.stop();
+        }
     }
 
     public void repair(int amount) {
@@ -443,7 +442,7 @@ public final class LandBuilding extends Building {
                     BuildProductionContainer[] production_containers = new BuildProductionContainer[]{rock_axe_weapon, iron_axe_weapon, rubber_axe_weapon};
 
                     weapons_producer = new WeaponsProducer(this, (WorkerUnitContainer) getUnitContainer(),
-                            production_containers, production_emitter);
+                            production_containers, Objects.requireNonNull(production_emitter));
 
                     deploy_containers.put(DeployType.ROCK_WARRIOR, new DeployContainer(this, 1f,
                             DeployType.ROCK_WARRIOR, RockAxeWeapon.class));
@@ -627,10 +626,7 @@ public final class LandBuilding extends Building {
         return null;
     }
 
-    public boolean place() {
-        assert !isDead();
-        assert isPlacingLegal();
-
+    private boolean displaceUnitsInFootprint() {
         FootprintContents footprint = scanFootprint();
         if (footprint == null) {
             return false;
@@ -639,20 +635,30 @@ public final class LandBuilding extends Building {
         if (displacementPlan == null) {
             return false;
         }
-
-        register();
-
         for (Unit unit : footprint.ownUnits()) {
             Point cell = Objects.requireNonNull(displacementPlan.get(unit));
             unit.teleportToCell(cell.x(), cell.y());
         }
+        return true;
+    }
 
+    public boolean place() {
+        assert !isDead();
+        assert isPlacingLegal();
+
+        if (!displaceUnitsInFootprint()) {
+            return false;
+        }
+
+        register();
         occupy();
         flattenLandscape();
         int result = getOwner().getBuildingCountContainer().increaseSupply(1);
         assert (result == 1) : "Too many buildings";
         build_points = 1;
         reinsert();
+
+        createEmitters();
 
         return true;
     }
