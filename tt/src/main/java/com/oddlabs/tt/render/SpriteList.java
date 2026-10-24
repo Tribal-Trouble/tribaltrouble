@@ -27,14 +27,15 @@ import java.util.stream.Stream;
 
 public final class SpriteList implements AutoCloseable {
     private static final @NonNull SpriteList QUAD_INSTANCE = new SpriteList();
+    private static final String NOT_CREATED = "Sprite buffers were not created while loading";
 
     private final @NonNull BoundingBox @NonNull [] bounds;
     private final @NonNull Sprite @NonNull [] sprites;
     private final AnimationInfo.@NonNull AnimationType @NonNull [] type_array;
     private final @NonNull String @NonNull [] animation_names;
 
-    // Geometry stays in these buffers; the VBOs and texture buffer are uploaded on first renderer request so
-    // sprite data can be loaded without a GL context.
+    // Geometry stays in these buffers; a windowed load uploads the VBOs and texture buffer so sprite data can be
+    // loaded without a GL context.
     private final @NonNull ShortBuffer index_data;
     private final @NonNull FloatBuffer vertex_and_normal_data;
     private final @NonNull FloatBuffer texcoord_data;
@@ -151,8 +152,11 @@ public final class SpriteList implements AutoCloseable {
 
     }
 
-    /** Creates the VBOs and texture buffer from the retained geometry. Needs a GL context; idempotent. */
-    private void upload() {
+    /**
+     * Creates the VBOs and texture buffer from the retained geometry, and the sprites' textures. Needs a GL context;
+     * idempotent, since sprite lists are cached and shared between worlds.
+     */
+    public void createGLResources() {
         if (indices != null) {
             return;
         }
@@ -166,6 +170,9 @@ public final class SpriteList implements AutoCloseable {
         vertices_and_normals = vertex_vbo;
         indices = index_vbo;
         initTBO();
+        for (Sprite sprite : sprites) {
+            sprite.createTextures();
+        }
     }
 
     private void initTBO() {
@@ -179,13 +186,11 @@ public final class SpriteList implements AutoCloseable {
     }
 
     public int getTBOTextureHandle() {
-        upload();
         return tboTextureHandle;
     }
 
     public void initVAO(@NonNull SpriteShader shader) {
         if (vao != null) return;
-        upload();
 
         vao = new VertexArray();
         vao.bind();
@@ -194,7 +199,7 @@ public final class SpriteList implements AutoCloseable {
         int posLoc = shader.getAttributeLocation(SpriteShader.Attributes.POSITION);
         int normLoc = shader.getAttributeLocation(SpriteShader.Attributes.NORMAL);
 
-        indices.makeCurrent();
+        getIndices().makeCurrent();
 
         if (texCoordLoc >= 0) {
             GL20.glEnableVertexAttribArray(texCoordLoc);
@@ -248,18 +253,15 @@ public final class SpriteList implements AutoCloseable {
     }
 
     public @NonNull ShortVBO getIndices() {
-        upload();
-        return indices;
+        return Objects.requireNonNull(indices, NOT_CREATED);
     }
 
     public @NonNull FloatVBO getVerticesAndNormals() {
-        upload();
-        return vertices_and_normals;
+        return Objects.requireNonNull(vertices_and_normals, NOT_CREATED);
     }
 
     public @NonNull FloatVBO getTexcoords() {
-        upload();
-        return texcoords;
+        return Objects.requireNonNull(texcoords, NOT_CREATED);
     }
 
     public void close() {

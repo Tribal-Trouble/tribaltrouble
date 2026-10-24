@@ -778,6 +778,8 @@ public final class Renderer implements AutoCloseable {
         LandscapeResources landscape_resources = World.loadCommon(render_queues);
         World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, new NotificationListener() {
         }, world_params, world_info, generator.getTerrainType(), players, fog_info);
+        world.getHeightMap().createHeightTexture();
+        render_queues.createGLResources();
         AnimationManager manager = new AnimationManager();
         LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, manager);
         Player local_player = world.getPlayers()[0];

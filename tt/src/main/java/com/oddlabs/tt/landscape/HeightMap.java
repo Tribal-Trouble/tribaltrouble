@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public final class HeightMap {
     public static final int METERS_PER_UNIT_GRID = 2;
@@ -41,7 +42,7 @@ public final class HeightMap {
     private final float meters_per_chunk_border;
     private final float chunk_tex_scale;
     private final World world_instance;
-    // Created by the renderer on first request so the map itself never needs a GL context.
+    // Created by a windowed load so the map itself never needs a GL context.
     private com.oddlabs.tt.render.@Nullable Texture heightTexture;
 
     public HeightMap(
@@ -89,7 +90,8 @@ public final class HeightMap {
         landscape_leaves = new LandscapeLeaf[getPatchesPerWorld()][getPatchesPerWorld()];
     }
 
-    private com.oddlabs.tt.render.@NonNull Texture createHeightTexture() {
+    /** Uploads the heights as a GL texture. Needs a GL context. */
+    public void createHeightTexture() {
         java.nio.FloatBuffer buffer = org.lwjgl.BufferUtils.createFloatBuffer(
                 grid_units_per_world * grid_units_per_world);
         for (int y = 0; y < grid_units_per_world; y++) {
@@ -108,15 +110,11 @@ public final class HeightMap {
         GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_ALIGNMENT, 1);
         GL11.glTexSubImage2D(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, 0, 0, 0, grid_units_per_world, grid_units_per_world,
                 GL11.GL_RED, GL11.GL_FLOAT, buffer);
-        return texture;
+        heightTexture = texture;
     }
 
-    /** The heights as a GL texture, uploaded on first request. Only the renderer should call this. */
     public com.oddlabs.tt.render.@NonNull Texture getHeightTexture() {
-        if (heightTexture == null) {
-            heightTexture = createHeightTexture();
-        }
-        return heightTexture;
+        return Objects.requireNonNull(heightTexture, "Height texture was not created while loading");
     }
 
     public @NonNull World getWorld() {

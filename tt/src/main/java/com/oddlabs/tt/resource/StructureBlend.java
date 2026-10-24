@@ -7,8 +7,12 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
+import java.util.Objects;
+
 public final class StructureBlend extends BlendInfo {
-    // Uploaded on first request so terrain generation never needs a GL context.
+    private static final String NOT_CREATED = "Structure textures were not created by the texture bake";
+
+    // Uploaded by the texture bake so terrain generation never needs a GL context.
     private final @NonNull GLIntImage structure_image;
     private final @NonNull GLIntImage normal_image;
     private @Nullable Texture structure_map;
@@ -25,18 +29,19 @@ public final class StructureBlend extends BlendInfo {
         this.normal_image = normal_image;
     }
 
+    @Override
+    public void createTextures() {
+        super.createTextures();
+        structure_map = createStructureMap(structure_image);
+        normal_map = createStructureMap(normal_image);
+    }
+
     public @NonNull Texture getStructureMap() {
-        if (structure_map == null) {
-            structure_map = createStructureMap(structure_image);
-        }
-        return structure_map;
+        return Objects.requireNonNull(structure_map, NOT_CREATED);
     }
 
     public @NonNull Texture getNormalMap() {
-        if (normal_map == null) {
-            normal_map = createStructureMap(normal_image);
-        }
-        return normal_map;
+        return Objects.requireNonNull(normal_map, NOT_CREATED);
     }
 
     private void bindStructure() {

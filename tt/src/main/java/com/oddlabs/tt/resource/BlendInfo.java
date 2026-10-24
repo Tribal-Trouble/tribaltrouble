@@ -5,8 +5,10 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
+import java.util.Objects;
+
 public abstract class BlendInfo {
-    // Uploaded on first request so terrain generation never needs a GL context.
+    // Uploaded by the texture bake so terrain generation never needs a GL context.
     private @Nullable Texture alpha_map;
     private final int format;
     private final @NonNull GLByteImage sourceImage;
@@ -22,11 +24,13 @@ public abstract class BlendInfo {
         this.format = format;
     }
 
+    /** Uploads the blend textures. Needs a GL context. */
+    public void createTextures() {
+        alpha_map = createAlphaMap(sourceImage, format);
+    }
+
     public @NonNull Texture getAlphaMap() {
-        if (alpha_map == null) {
-            alpha_map = createAlphaMap(sourceImage, format);
-        }
-        return alpha_map;
+        return Objects.requireNonNull(alpha_map, "Blend textures were not created by the texture bake");
     }
 
     public @NonNull GLByteImage getSourceImage() {

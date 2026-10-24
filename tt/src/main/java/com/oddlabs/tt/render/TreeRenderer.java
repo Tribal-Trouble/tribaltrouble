@@ -28,6 +28,11 @@ public final class TreeRenderer extends TreePicker implements SceneRenderer {
         super(sprite_sorter, respond_manager);
         this.cheat = cheat;
         this.instancedSpriteRenderer = instancedSpriteRenderer;
+        for (Tree tree : getTrees().values()) {
+            tree.trunk().createGLResources();
+            tree.crown().createGLResources();
+            tree.props().forEach(SpriteList::createGLResources);
+        }
     }
 
     @Override

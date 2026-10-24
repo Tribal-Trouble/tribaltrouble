@@ -31,10 +31,12 @@ import org.lwjgl.opengl.GL33;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class InstancedSpriteRenderer implements AutoCloseable {
+    private static final String NOT_CREATED = "Instanced sprite shaders were not created while loading";
 
-    // Shaders and fallback texture are created on first render so the renderer can exist without a GL context.
+    // A windowed load creates the shaders and fallback texture so the renderer can exist without a GL context.
     private @Nullable InstancedSpriteShader shader;
     private @Nullable InstancedSpriteShadowShader shadowShader;
     private final Map<@NonNull BatchKey, @NonNull RenderBatch> batches = new HashMap<>();
@@ -44,28 +46,14 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
     public InstancedSpriteRenderer() {
     }
 
-    private @NonNull InstancedSpriteShader shader() {
-        if (shader == null) {
-            shader = new InstancedSpriteShader();
-        }
-        return shader;
-    }
-
-    private @NonNull InstancedSpriteShadowShader shadowShader() {
-        if (shadowShader == null) {
-            shadowShader = new InstancedSpriteShadowShader();
-        }
-        return shadowShader;
-    }
-
-    private @NonNull Texture whiteTexture() {
-        if (whiteTexture == null) {
-            GLImage whiteImage = new GLIntImage(1, 1, GL11.GL_RGBA);
-            whiteImage.putPixel(0, 0, Color.WHITE_INT);
-            whiteTexture = new Texture(new GLImage[]{whiteImage}, GL11.GL_RGBA8, GL11.GL_NEAREST, GL11.GL_NEAREST,
-                    GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
-        }
-        return whiteTexture;
+    /** Creates the shaders and fallback texture. Needs a GL context. */
+    public void createGLResources() {
+        shader = new InstancedSpriteShader();
+        shadowShader = new InstancedSpriteShadowShader();
+        GLImage whiteImage = new GLIntImage(1, 1, GL11.GL_RGBA);
+        whiteImage.putPixel(0, 0, Color.WHITE_INT);
+        whiteTexture = new Texture(new GLImage[]{whiteImage}, GL11.GL_RGBA8, GL11.GL_NEAREST, GL11.GL_NEAREST,
+                GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
     }
 
     public void setSeaLevel(float seaLevel) {
@@ -88,11 +76,11 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             @NonNull MatrixStack projectionStack) {
         if (batches.isEmpty()) return;
 
-        Texture whiteTexture = whiteTexture();
+        Texture whiteTexture = Objects.requireNonNull(this.whiteTexture, NOT_CREATED);
         try {
             RenderState state = new RenderState();
             if (context.isShadowPass()) {
-                InstancedSpriteShadowShader shadowShader = shadowShader();
+                InstancedSpriteShadowShader shadowShader = Objects.requireNonNull(this.shadowShader, NOT_CREATED);
                 try (var _ = shadowShader.use()) {
                     shadowShader.setUniform(InstancedSpriteShadowShader.Uniforms.VERT_BUFFER, 5);
                     for (RenderBatch batch : batches.values()) {
@@ -100,7 +88,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                     }
                 }
             } else {
-                InstancedSpriteShader shader = shader();
+                InstancedSpriteShader shader = Objects.requireNonNull(this.shader, NOT_CREATED);
                 try (var _ = shader.use()) {
                     shader.setUniform(InstancedSpriteShader.Uniforms.VERT_BUFFER, 5);
                     shader.setUniform(InstancedSpriteShader.Uniforms.SEA_LEVEL, seaLevel);
@@ -384,7 +372,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                 shader.setUniform(InstancedSpriteShader.Uniforms.ALPHA_TEST_VALUE, key.respond ? 0.5f : 0.1f);
                 if (sprite.hasTeamDecal() || key.respond) {
                     shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_TEAM_COLOR, true);
-                    Texture teamTexture = key.respond ? sprite.respondTexture() : sprite.textures()[key.texIndex][Sprite.TEXTURE_TEAM];
+                    Texture teamTexture = key.respond ? sprite.respond_texture : sprite.textures()[key.texIndex][Sprite.TEXTURE_TEAM];
                     context.setTexture(1, teamTexture);
                     shader.setUniform(InstancedSpriteShader.Uniforms.TEXTURE_1, 1);
                 } else {

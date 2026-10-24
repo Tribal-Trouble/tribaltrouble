@@ -114,6 +114,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         this.picker = picker;
         this.selection = selection;
         this.spectator_view = spectator_view;
+        treeSpriteRenderer.createGLResources();
         this.element_renderer = new ElementRenderer<>(local_player, render_queues, picker, false, sprite_sorter,
                 selection, spectator_view);
         this.tree_renderer = new TreeRenderer(cheat, sprite_sorter, picker.getRespondManager(), treeSpriteRenderer);

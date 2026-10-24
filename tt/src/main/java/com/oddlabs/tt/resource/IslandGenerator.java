@@ -108,6 +108,11 @@ public final class IslandGenerator implements WorldGenerator {
 
     @Override
     public @NonNull WorldInfo bakeTextures(@NonNull WorldInfo terrain) {
+        for (BlendInfo blend_info : terrain.blend_infos()) {
+            blend_info.createTextures();
+        }
+        terrain.terrain_shadows().createTextures();
+        terrain.supply_shadows().createTextures();
         Texture detail = createDetail(terrain.detail_image(), detailBaseLevel());
         com.oddlabs.tt.landscape.LandscapeBaker baker = new com.oddlabs.tt.landscape.LandscapeBaker();
         // Original tiled structure textures at colormap_size/STRUCTURE_SIZE repeats.

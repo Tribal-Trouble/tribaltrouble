@@ -20,6 +20,7 @@ import org.lwjgl.opengl.GL12;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class Sprite {
@@ -33,13 +34,12 @@ public final class Sprite {
     private static final int EMISSIVE_NAME_INDEX = 2;
     private static final String GENERATOR_STRING = "Generator:";
 
-    // Resolved on first render so sprite data loads without a GL context.
-    private @Nullable Texture @NonNull [] @NonNull [] textures;
+    // Created by a windowed load so sprite data loads without a GL context.
+    private @Nullable Texture @Nullable [] @NonNull [] textures;
     private final @NonNull String @NonNull [] @NonNull [] texture_names;
     private final int color_format;
     private final int mipmap_cutoff;
     private final boolean max_alpha;
-    private final boolean has_respond;
     private final int num_triangles;
     private final int num_vertices;
     private final float @Nullable [] clear_color;
@@ -51,7 +51,8 @@ public final class Sprite {
     private final float @Nullable [] cpw_array;
     private final int @Nullable [] animation_length_array;
     private final AnimationInfo.AnimationType @NonNull [] type_array;
-    private @Nullable Texture respond_texture;
+    @Nullable
+    Texture respond_texture;
     final int indices_offset;
     final int texcoords_offset;
 
@@ -64,7 +65,6 @@ public final class Sprite {
         this.color_format = 0;
         this.mipmap_cutoff = 0;
         this.max_alpha = false;
-        this.has_respond = false;
         this.num_vertices = num_vertices;
         this.num_triangles = num_triangles;
         this.indices_offset = indices_offset;
@@ -125,39 +125,35 @@ public final class Sprite {
         this.texture_names = sprite_info.getTextures();
         this.mipmap_cutoff = mipmap_cutoff;
         this.max_alpha = max_alpha;
-        this.has_respond = true;
     }
 
-    /** The diffuse, team, bump and emissive textures per texture set, loaded on first request. Needs a GL context. */
+    /** Loads the diffuse, team, bump and emissive textures per texture set. Needs a GL context; idempotent. */
+    void createTextures() {
+        if (textures != null) {
+            return;
+        }
+        Texture[][] loaded = new Texture[texture_names.length][4];
+        for (int i = 0; i < texture_names.length; i++) {
+            Texture[] diffuseAndBump = getTextureForName(texture_names[i][DIFFUSE_NAME_INDEX], color_format,
+                    mipmap_cutoff, max_alpha);
+            loaded[i][TEXTURE_NORMAL] = diffuseAndBump[0];
+            if (diffuseAndBump.length > 1) {
+                loaded[i][TEXTURE_BUMP] = diffuseAndBump[1];
+            }
+            loaded[i][TEXTURE_TEAM] = texture_names[i][TEAM_NAME_INDEX] != null ? getTextureForName(
+                    texture_names[i][TEAM_NAME_INDEX], Globals.COMPRESSED_RGB_FORMAT, mipmap_cutoff,
+                    max_alpha)[0] : null;
+            loaded[i][TEXTURE_EMISSIVE] = texture_names[i].length > EMISSIVE_NAME_INDEX ? getTextureForName(
+                    texture_names[i][EMISSIVE_NAME_INDEX], Globals.COMPRESSED_RGBA_FORMAT, mipmap_cutoff,
+                    max_alpha)[0] : null;
+        }
+        textures = loaded;
+        respond_texture = Resources.findResource(new GeneratorRespond())[0];
+    }
+
     @NonNull
     Texture @NonNull [] @NonNull [] textures() {
-        if (textures == null) {
-            Texture[][] loaded = new Texture[texture_names.length][4];
-            for (int i = 0; i < texture_names.length; i++) {
-                Texture[] diffuseAndBump = getTextureForName(texture_names[i][DIFFUSE_NAME_INDEX], color_format,
-                        mipmap_cutoff, max_alpha);
-                loaded[i][TEXTURE_NORMAL] = diffuseAndBump[0];
-                if (diffuseAndBump.length > 1) {
-                    loaded[i][TEXTURE_BUMP] = diffuseAndBump[1];
-                }
-                loaded[i][TEXTURE_TEAM] = texture_names[i][TEAM_NAME_INDEX] != null ? getTextureForName(
-                        texture_names[i][TEAM_NAME_INDEX], Globals.COMPRESSED_RGB_FORMAT, mipmap_cutoff,
-                        max_alpha)[0] : null;
-                loaded[i][TEXTURE_EMISSIVE] = texture_names[i].length > EMISSIVE_NAME_INDEX ? getTextureForName(
-                        texture_names[i][EMISSIVE_NAME_INDEX], Globals.COMPRESSED_RGBA_FORMAT, mipmap_cutoff,
-                        max_alpha)[0] : null;
-            }
-            textures = loaded;
-        }
-        return textures;
-    }
-
-    @Nullable
-    Texture respondTexture() {
-        if (respond_texture == null && has_respond) {
-            respond_texture = Resources.findResource(new GeneratorRespond())[0];
-        }
-        return respond_texture;
+        return Objects.requireNonNull(textures, "Sprite textures were not created while loading");
     }
 
     public boolean modulateColor() {
@@ -323,7 +319,7 @@ public final class Sprite {
             shader.setUniform(SpriteShader.Uniforms.ALPHA_TEST_VALUE, 0.3f);
             if (hasTeamDecal() || respond) {
                 shader.setUniform(SpriteShader.Uniforms.ENABLE_TEAM_COLOR, true);
-                context.setTexture(1, respond ? respondTexture() : textures()[tex_index][TEXTURE_TEAM]);
+                context.setTexture(1, respond ? respond_texture : textures()[tex_index][TEXTURE_TEAM]);
                 shader.setUniform(SpriteShader.Uniforms.TEXTURE_1, 1);
             } else {
                 shader.setUniform(SpriteShader.Uniforms.ENABLE_TEAM_COLOR, false);
