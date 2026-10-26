@@ -103,7 +103,7 @@ public abstract class Building extends Selectable<BuildingTemplate> implements O
     public final boolean hasExitCell() {
         Building entrance = getEntrance();
         return getUnitGrid().findGridTargets(UnitGrid.toGridCoordinate(entrance.getPositionX()),
-                UnitGrid.toGridCoordinate(entrance.getPositionY()), 1, true, entrance.getIslandId())[0] != null;
+                UnitGrid.toGridCoordinate(entrance.getPositionY()), 1, false, entrance.getIslandId())[0] != null;
     }
 
     public Building getBase() {

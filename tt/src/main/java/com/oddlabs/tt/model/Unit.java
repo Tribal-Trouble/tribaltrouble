@@ -136,7 +136,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         }
 
         if (!imaginary) {
-            findInitialPosition(x, y, grid_targets_only, -1);
+            findInitialPosition(UnitGrid.toGridCoordinate(x), UnitGrid.toGridCoordinate(y), grid_targets_only, -1);
         }
 
         pushController(new IdleController(this, new AttackScanFilter(getOwner(), AttackScanFilter.UNIT_RANGE), true));
@@ -233,13 +233,13 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     public void reposition(Building building) {
-        findInitialPosition(getPositionX(), getPositionY(), true, building.getIslandId());
+        findInitialPosition(UnitGrid.toGridCoordinate(getPositionX()), UnitGrid.toGridCoordinate(getPositionY()), true,
+                building.getIslandId());
     }
 
-    private void findInitialPosition(float x, float y, boolean grid_targets_only, int island) {
+    private void findInitialPosition(int grid_x, int grid_y, boolean grid_targets_only, int island) {
         UnitGrid unit_grid = getUnitGrid();
-        Target reserved_target = unit_grid.findGridTargets(UnitGrid.toGridCoordinate(x), UnitGrid.toGridCoordinate(y),
-                1, grid_targets_only, island)[0];
+        Target reserved_target = unit_grid.findGridTargets(grid_x, grid_y, 1, grid_targets_only, island)[0];
         setGridPosition(reserved_target.getGridX(), reserved_target.getGridY());
         setPosition(reserved_target.getPositionX(), reserved_target.getPositionY());
 
@@ -318,7 +318,16 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         mount_offset = 0;
         enable();
         Building entrance = mounted_building.getEntrance();
-        findInitialPosition(entrance.getPositionX(), entrance.getPositionY(), true, entrance.getIslandId());
+        int gridX;
+        int gridY;
+        if (mounted_building.getUnitContainer() instanceof MountUnitContainer) {
+            gridX = getGridX();
+            gridY = getGridY();
+        } else {
+            gridX = UnitGrid.toGridCoordinate(entrance.getPositionX());
+            gridY = UnitGrid.toGridCoordinate(entrance.getPositionY());
+        }
+        findInitialPosition(gridX, gridY, false, entrance.getIslandId());
         if (supply_container != null) {
             supply_container.resetSupply(LeftPaddle.class);
             supply_container.resetSupply(RightPaddle.class);
