@@ -12,6 +12,8 @@ section when a release is cut.
 
 ## [Unreleased]
 
+## [2.2.206] - 2026-10-28
+
 ### Added
 
 - Moderators can rename a profile from Discord and lock it so it cannot be deleted.
@@ -125,7 +127,8 @@ Everything since the original Oddlabs source was released on 2014-09-01. Builds 
 - The server guards against malformed client data.
 - Steam auth tickets are validated through the Steam Web API.
 
-[Unreleased]: https://github.com/Tribal-Trouble/tribaltrouble/compare/v2.2.155-103.1010...main
+[Unreleased]: https://github.com/Tribal-Trouble/tribaltrouble/compare/v2.2.206-103.1010...main
+[2.2.206]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.206-103.1010
 [2.2.155]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.155-103.1010
 [2.2.139]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.139-103.1010
 [2.1.96]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.1.96-103.1009
