@@ -30,7 +30,7 @@ public class RechargeButton extends NonFocusIconButton {
 
     @Override
     public final void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
-        if (unit.canDoMagic(magic_index))
+        if (unit != null && unit.canDoMagic(magic_index))
             player_interface.doMagic(unit, magic_index);
     }
 

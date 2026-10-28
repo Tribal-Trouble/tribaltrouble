@@ -1,5 +1,6 @@
 package com.oddlabs.tt.form;
 
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
@@ -18,6 +19,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 
 public final class PatchNotesForm extends Form {
     private static final ResourceBundle bundle = ResourceBundle.getBundle(PatchNotesForm.class.getName());
@@ -28,7 +30,7 @@ public final class PatchNotesForm extends Form {
     private static final int BOX_WIDTH = 500;
     private static final int BOX_HEIGHT = 350;
     private static final int MAX_CHARS = 200000;
-    private static final int BUTTON_WIDTH = 100;
+    private static final int BUTTON_WIDTH = 160;
 
     private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
         return Utils.getBundleString(bundle, key, args);
@@ -46,10 +48,21 @@ public final class PatchNotesForm extends Form {
 
         HorizButton ok_button = new OKButton(BUTTON_WIDTH);
         addChild(ok_button);
-        ok_button.addMouseClickListener((_, _, _, _) -> this.cancel());
+        ok_button.addMouseClickListener((_, _, _, _) -> close(true));
         ok_button.place(Origin.AT_END);
+
+        HorizButton dont_show_button = new HorizButton(i18n("dont_show_again"), BUTTON_WIDTH);
+        addChild(dont_show_button);
+        dont_show_button.addMouseClickListener((_, _, _, _) -> close(false));
+        dont_show_button.place(ok_button, LEFT_MID);
         compileCanvas();
         centerPos();
+    }
+
+    private void close(boolean show_on_update) {
+        Settings.getSettings().show_patch_notes_on_update = show_on_update;
+        Settings.getSettings().save();
+        cancel();
     }
 
     private static @NonNull String loadNotes() {

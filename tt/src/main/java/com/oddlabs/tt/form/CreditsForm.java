@@ -107,7 +107,7 @@ public final class CreditsForm extends Form {
         contributors_box.append(i18n("translations") + "\n");
         contributors_box.append("Daniel Araújo Nacarini (Piratax10)\n");
         contributors_box.append("Rafal Okuniewski (Goliat)\n");
-        contributors_box.append("Seriton\n");
+        contributors_box.append("Kornel Zimniak (Seriton)\n");
         contributors_box.append("\n");
         contributors_box.append(i18n("community") + "\n");
         contributors_box.append("Ian Andrew Moore (Dapianokid)\n");

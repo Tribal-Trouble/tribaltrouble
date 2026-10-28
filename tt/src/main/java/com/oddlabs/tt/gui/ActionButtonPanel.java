@@ -167,6 +167,8 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
     private boolean current_unit = false;
     private boolean current_peon = false;
     private @Nullable Unit current_chieftain;
+    private boolean current_magic1 = false;
+    private boolean current_magic2 = false;
     private boolean current_tower = false;
 //	private boolean[] magic_disabled = new boolean[2];
 
@@ -593,9 +595,12 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
         boolean new_unit = current_num_units > 0;
         boolean new_peon = current_num_peons > 0;
         boolean new_tower = current_building != null && current_building.getAbilities().hasAbilities(Abilities.ATTACK);
+        boolean new_magic1 = player.canDoMagic(0);
+        boolean new_magic2 = player.canDoMagic(1);
         update = update || different_building || different_chieftain || new_quarters != current_quarters
                 || new_armory != current_armory || new_ship != current_ship || new_unit != current_unit
-                || new_peon != current_peon || new_tower != current_tower;
+                || new_peon != current_peon || new_tower != current_tower || new_magic1 != current_magic1
+                || new_magic2 != current_magic2;
         if (update) {
             current_quarters = new_quarters;
             current_armory = new_armory;
@@ -603,6 +608,8 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
             current_tower = new_tower;
             current_unit = new_unit;
             current_peon = new_peon;
+            current_magic1 = new_magic1;
+            current_magic2 = new_magic2;
             update = false;
 
             removeGroups();

@@ -11,6 +11,7 @@ import com.oddlabs.tt.input.KeyboardInput;
 import com.oddlabs.tt.input.LWJGL3InputProvider;
 import com.oddlabs.tt.input.Modifier;
 import com.oddlabs.tt.input.PointerInput;
+import com.oddlabs.tt.input.scripted.ScriptedInputProvider;
 import com.oddlabs.tt.window.LWJGL3Window;
 import com.oddlabs.tt.window.Window;
 import org.jspecify.annotations.NonNull;
@@ -31,6 +32,7 @@ public final class LocalInput implements AutoCloseable {
     private int mouse_y;
 
     private final @NonNull InputProvider<?> inputProvider;
+    private final @NonNull LWJGL3InputProvider glfwProvider;
     private final InputManager inputManager = new InputManager();
     private final KeyboardInput keyboardInput = new KeyboardInput();
     private final @NonNull PointerInput pointerInput;
@@ -43,7 +45,9 @@ public final class LocalInput implements AutoCloseable {
 
     public LocalInput(@NonNull Window lwjglWindow) {
         if (lwjglWindow instanceof LWJGL3Window win) {
-            inputProvider = new LWJGL3InputProvider(win);
+            glfwProvider = new LWJGL3InputProvider(win);
+            int port = Integer.getInteger("com.oddlabs.tt.input.port", 0);
+            inputProvider = port > 0 ? new ScriptedInputProvider(glfwProvider, win, port) : glfwProvider;
         } else {
             throw new IllegalStateException("Window is not LWJGL3Window");
         }
@@ -51,6 +55,9 @@ public final class LocalInput implements AutoCloseable {
     }
 
     public void poll(@NonNull GUIRoot root) {
+        if (inputProvider instanceof ScriptedInputProvider scripted) {
+            scripted.setGuiRoot(root);
+        }
         pointerInput.poll(root);
         keyboardInput.poll(inputProvider, this, root);
     }
@@ -160,9 +167,7 @@ public final class LocalInput implements AutoCloseable {
     }
 
     public void init() {
-        if (inputProvider instanceof LWJGL3InputProvider lwjgl3InputProvider) {
-            lwjgl3InputProvider.initCallbacks();
-        }
+        glfwProvider.initCallbacks();
         pointerInput.loadCursors();
         Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
         mouse_x = deterministic.log(inputProvider.getMouseX());

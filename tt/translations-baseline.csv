@@ -554,6 +554,7 @@ form/OptionsMenu,category.cheats,Cheats,Snydekoder,Cheats,Trucos,Trucchi,Trapaç
 form/OptionsMenu,category.debug,Debug,Fejlfinding,Debuggen,Depurar,Debug,Depurar,Debugowanie
 form/PatchNotesForm,patch_notes,Patch notes,Programrettelsesnoter,Patch-Hinweise,Notas del parche,Patch Masters,Notas de atualização,Lista zmian
 form/PatchNotesForm,unavailable,Patch notes are not included in this build.,Patchnoter er ikke inkluderet i denne build.,Die Patchnotes sind in diesem Build nicht enthalten.,Las notas de la actualización no están incluidas en esta versión.,Le note sulla patch non sono incluse in questa build.,As notas de atualização não estão incluídas nesta versão.,Informacje o zmianach nie są zawarte w tej wersji.
+form/PatchNotesForm,dont_show_again,Don''t show again,Vis ikke igen,Nicht wieder anzeigen,No volver a mostrarlo,Non presentarti più,Não mostrar novamente,Nie pokazuj ponownie
 form/PrivateMessageForm,private_message_caption,Private message,Privat besked,Private Nachricht,Mensaje privado,Messaggio privato,Mensagem privada,Prywatna wiadomość
 form/PrivateMessageForm,to,To {0}:,Til {0}:,an {0}:,Para {0}:,A {0}:,Para {0}:,Do {0}:
 form/ProfilesForm,profiles_caption,Profiles,Profiler,Profile,Perfiles,Profili,Perfis,Profile

@@ -7,10 +7,29 @@ and this project uses the versioning described in [docs/releasing.md](docs/relea
 Entries are written in English only and are not translated.
 Write entries for players first and put engine, build and server work last.
 The game shows this file under Patch notes in Options and opens it once after
-a new major or minor version. GitHub release notes are taken from the Unreleased section when a
-release is cut.
+each update unless the player turned that off. GitHub release notes are taken from the Unreleased
+section when a release is cut.
 
 ## [Unreleased]
+
+### Added
+
+- Moderators can rename a profile from Discord and lock it so it cannot be deleted.
+- Players from before the Steam release can ask a moderator on Discord to merge their old account into their Steam account, bringing their old profiles along.
+
+### Changed
+
+- Anything you type as a map code now gives you an island, and typing the same thing again gives the same island. The map code box then shows that island's word code, which you can share with friends.
+- Patch notes now open after every update, not only after big ones. Press "Don't show again" in the patch notes window to stop them opening. To turn them back on, open Patch notes in Options and press OK.
+
+### Fixed
+
+- Pressing a chieftain magic hotkey right after the campaign unlocks that magic no longer crashes the game, and the new magic button now appears without reselecting the chieftain.
+- Fixed a crash that could occur when certain letter codes were used as a map code.
+- Replay island keeps the time of day and the advanced settings of the game you just played. During Halloween it used to switch a daytime game to night.
+- Linking a profile to Discord now accepts a plain "yes" whispered to yourself, and the in-game message explains how to send it.
+
+## [2.2.155] - 2026-10-24
 
 ### Fixed
 
@@ -106,6 +125,7 @@ Everything since the original Oddlabs source was released on 2014-09-01. Builds 
 - The server guards against malformed client data.
 - Steam auth tickets are validated through the Steam Web API.
 
-[Unreleased]: https://github.com/Tribal-Trouble/tribaltrouble/compare/v2.2.139-103.1010...main
+[Unreleased]: https://github.com/Tribal-Trouble/tribaltrouble/compare/v2.2.155-103.1010...main
+[2.2.155]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.155-103.1010
 [2.2.139]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.139-103.1010
 [2.1.96]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.1.96-103.1009

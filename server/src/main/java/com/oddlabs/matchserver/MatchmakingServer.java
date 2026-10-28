@@ -124,6 +124,10 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
         return client_map.get(host_id);
     }
 
+    public static Map<String, Client> getOnlineUsers() {
+        return online_users;
+    }
+
     public void error(AbstractConnectionListener conn_id, IOException e) {
         logger.severe("Server socket failed!");
         throw new RuntimeException(e);

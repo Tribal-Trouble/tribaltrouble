@@ -32,6 +32,8 @@ import com.oddlabs.util.DBUtils;
 
 public final class DBInterface {
 
+    public static final String STEAM_USERNAME_PREFIX = "steam_";
+
     public static boolean usernameExists(String username) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
                 "SELECT username FROM registrations R WHERE lower(R.username) = lower(?)")) {
@@ -234,6 +236,78 @@ public final class DBInterface {
         }
     }
 
+    public static boolean setNameLocked(String nick, boolean locked) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE profiles P SET P.name_locked = ? WHERE lower(P.nick) = lower(?)")) {
+            stmt.setBoolean(1, locked);
+            stmt.setString(2, nick);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Exception: " + e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "setNameLocked", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Fails open (not locked) so a missing name_locked column does not block profile deletion.
+     */
+    public static boolean isNameLocked(String nick) {
+        try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT name_locked FROM profiles P WHERE lower(P.nick) = lower(?)")) {
+            stmt.setString(1, nick);
+            try (ResultSet result = stmt.executeQuery()) {
+                return result.next() && result.getBoolean("name_locked");
+            }
+        } catch (SQLException e) {
+            System.out.println("Exception: " + e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "isNameLocked", e);
+            return false;
+        }
+    }
+
+    /**
+     * Renames and name locks a profile in every table that keys on its nick, in one transaction.
+     * Returns false when no profile has the old nick.
+     */
+    public static boolean renameAndLockProfile(String nick, String new_nick) {
+        // spotless:off
+        String[] updates = {
+            "UPDATE profiles SET nick = ?, name_locked = 1 WHERE lower(nick) = lower(?)",
+            "UPDATE openskill_rating SET nick = ? WHERE lower(nick) = lower(?)",
+            "UPDATE game_players SET nick = ? WHERE lower(nick) = lower(?)",
+            "UPDATE discord_to_profiles SET nick = ? WHERE lower(nick) = lower(?)",
+            "UPDATE registrations SET last_used_profile = ? WHERE lower(last_used_profile) = lower(?)"};
+        // spotless:on
+        try (Connection conn = DBUtils.createDatabaseConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                for (int i = 0; i < updates.length; i++) {
+                    try (PreparedStatement stmt = conn.prepareStatement(updates[i])) {
+                        stmt.setString(1, new_nick);
+                        stmt.setString(2, nick);
+                        int row_count = stmt.executeUpdate();
+                        if (i == 0 && row_count == 0) {
+                            conn.rollback();
+                            return false;
+                        }
+                    }
+                }
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            System.out.println("Exception: " + e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "renameAndLockProfile", e);
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void saveGameReport(int game_id, int tick, int[] team_score) {
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
                 "INSERT INTO game_report_teams (game_id, tick, team_index, score) VALUES (?, ?, ?, ?)")) {
@@ -351,7 +425,7 @@ public final class DBInterface {
 
         // No registration yet — create one. Profile is left unset; the client will
         // be routed to the profile-creation screen so the player picks their own nick.
-        String username = "steam_" + steamId;
+        String username = STEAM_USERNAME_PREFIX + steamId;
         String email = "steam_" + steamId + "@steam.internal";
 
         try (Connection conn = DBUtils.createDatabaseConnection(); PreparedStatement stmt = conn.prepareStatement(
@@ -406,6 +480,133 @@ public final class DBInterface {
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getSteamIdByNick", e);
             return null;
         }
+    }
+
+    public enum SteamLinkStatus {
+        LINKED,
+        NO_ACCOUNT,
+        SEVERAL_ACCOUNTS,
+        ALREADY_LINKED,
+        ACCOUNT_HAS_OTHER_STEAM,
+        STEAM_ON_OTHER_ACCOUNT,
+        BLOCKED
+    }
+
+    /**
+     * Fields other than status are only set when the status is LINKED. nicks are the profiles the
+     * linked registration already had. dropped_username is null when the Steam account never logged
+     * in, so it had no registration to drop.
+     */
+    public record SteamLinkResult(SteamLinkStatus status, String username, List<String> nicks,
+                                  String dropped_username, List<String> moved_nicks) {
+        SteamLinkResult(SteamLinkStatus status) {
+            this(status, null, List.of(), null, List.of());
+        }
+    }
+
+    /**
+     * Links a Steam account ID to the registration with the given email, in one transaction. The
+     * profiles of the registration auto-created at Steam login move over and that registration is
+     * deleted. A dry run rolls the transaction back, so its result previews the real one.
+     */
+    public static SteamLinkResult linkSteamAccount(long steam_account_id, String email, boolean dry_run) {
+        try (Connection conn = DBUtils.createDatabaseConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                SteamLinkResult result = linkSteamAccount(conn, steam_account_id, email);
+                if (result.status() == SteamLinkStatus.LINKED && !dry_run)
+                    conn.commit();
+                else
+                    conn.rollback();
+                return result;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            System.out.println("Exception: " + e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "linkSteamAccount", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static SteamLinkResult linkSteamAccount(Connection conn, long steam_account_id,
+            String email) throws SQLException {
+        int target_id;
+        String target_username;
+        try (PreparedStatement stmt = conn.prepareStatement(
+                "SELECT id, username, steam_id, banned, disabled FROM registrations WHERE lower(email) = lower(?)")) {
+            stmt.setString(1, email);
+            try (ResultSet result = stmt.executeQuery()) {
+                if (!result.next())
+                    return new SteamLinkResult(SteamLinkStatus.NO_ACCOUNT);
+                target_id = result.getInt("id");
+                target_username = result.getString("username").trim();
+                long target_steam_id = result.getLong("steam_id");
+                boolean target_has_steam = !result.wasNull();
+                boolean target_blocked = result.getBoolean("banned") || result.getBoolean("disabled");
+                if (result.next())
+                    return new SteamLinkResult(SteamLinkStatus.SEVERAL_ACCOUNTS);
+                if (target_has_steam && target_steam_id == steam_account_id)
+                    return new SteamLinkResult(SteamLinkStatus.ALREADY_LINKED);
+                if (target_has_steam)
+                    return new SteamLinkResult(SteamLinkStatus.ACCOUNT_HAS_OTHER_STEAM);
+                if (target_blocked)
+                    return new SteamLinkResult(SteamLinkStatus.BLOCKED);
+            }
+        }
+        List<String> nicks = getNicksByRegId(conn, target_id);
+        String dropped_username = null;
+        List<String> moved_nicks = List.of();
+        try (PreparedStatement stmt = conn.prepareStatement(
+                "SELECT id, username, banned, disabled FROM registrations WHERE steam_id = ?")) {
+            stmt.setLong(1, steam_account_id);
+            try (ResultSet result = stmt.executeQuery()) {
+                if (result.next()) {
+                    dropped_username = result.getString("username").trim();
+                    if (!dropped_username.equals(STEAM_USERNAME_PREFIX + steam_account_id))
+                        return new SteamLinkResult(SteamLinkStatus.STEAM_ON_OTHER_ACCOUNT);
+                    if (result.getBoolean("banned") || result.getBoolean("disabled"))
+                        return new SteamLinkResult(SteamLinkStatus.BLOCKED);
+                    int source_id = result.getInt("id");
+                    moved_nicks = getNicksByRegId(conn, source_id);
+                    try (PreparedStatement move = conn.prepareStatement(
+                            "UPDATE profiles SET reg_id = ? WHERE reg_id = ?")) {
+                        move.setInt(1, target_id);
+                        move.setInt(2, source_id);
+                        move.executeUpdate();
+                    }
+                    // steam_id is unique, so the old registration goes before the target takes it
+                    try (PreparedStatement delete = conn.prepareStatement(
+                            "DELETE FROM registrations WHERE id = ?")) {
+                        delete.setInt(1, source_id);
+                        delete.executeUpdate();
+                    }
+                }
+            }
+        }
+        try (PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE registrations SET steam_id = ? WHERE id = ?")) {
+            stmt.setLong(1, steam_account_id);
+            stmt.setInt(2, target_id);
+            stmt.executeUpdate();
+        }
+        return new SteamLinkResult(SteamLinkStatus.LINKED, target_username, nicks, dropped_username, moved_nicks);
+    }
+
+    private static List<String> getNicksByRegId(Connection conn, int reg_id) throws SQLException {
+        List<String> nicks = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement(
+                "SELECT nick FROM profiles WHERE reg_id = ? ORDER BY nick")) {
+            stmt.setInt(1, reg_id);
+            try (ResultSet result = stmt.executeQuery()) {
+                while (result.next())
+                    nicks.add(result.getString("nick").trim());
+            }
+        }
+        return nicks;
     }
 
     public static void updateStreaks(String nick, int currentStreak, int bestStreak) {

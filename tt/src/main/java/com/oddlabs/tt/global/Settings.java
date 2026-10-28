@@ -99,6 +99,7 @@ public final class Settings implements Serializable {
 
     public boolean warning_no_sound = true;
     public String patch_notes_seen_version = "";
+    public boolean show_patch_notes_on_update = true;
 
     public boolean hide_multiplayer = false;
 
@@ -251,6 +252,8 @@ public final class Settings implements Serializable {
         setProperty(props, "first_run", first_run, defaults.first_run);
         setProperty(props, "warning_no_sound", warning_no_sound, defaults.warning_no_sound);
         setProperty(props, "patch_notes_seen_version", patch_notes_seen_version, defaults.patch_notes_seen_version);
+        setProperty(props, "show_patch_notes_on_update", show_patch_notes_on_update,
+                defaults.show_patch_notes_on_update);
         setProperty(props, "domain_name", domain_name, defaults.domain_name);
 
         setProperty(props, "cvd_mode", cvd_mode, defaults.cvd_mode);
@@ -325,6 +328,7 @@ public final class Settings implements Serializable {
         first_run = getBoolean(props, "first_run", first_run);
         warning_no_sound = getBoolean(props, "warning_no_sound", warning_no_sound);
         patch_notes_seen_version = props.getProperty("patch_notes_seen_version", patch_notes_seen_version);
+        show_patch_notes_on_update = getBoolean(props, "show_patch_notes_on_update", show_patch_notes_on_update);
         domain_name = props.getProperty("domain_name", domain_name);
 
         cvd_mode = getInt(props, "cvd_mode", cvd_mode);

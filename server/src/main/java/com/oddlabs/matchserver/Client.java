@@ -35,6 +35,8 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
     private static final int CHUNK_SIZE = 10;
     private static final Set<@NonNull Client> game_hosts = new HashSet<>();
     private static final Map<@NonNull String, @NonNull Client> active_clients = new HashMap<>();
+    // The slash forms are what the old prompt asked for.
+    private static final Set<String> DISCORD_LINK_ANSWERS = Set.of("y", "yes", "/y", "/yes");
 
     private static int current_random_seed = 1;
 
@@ -141,7 +143,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
     }
 
     public void deleteProfile(String nick) {
-        if (!guest) {
+        if (!guest && !DBInterface.isNameLocked(nick)) {
             DBInterface.deleteProfile(username, nick);
         }
     }
@@ -686,7 +688,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
     private void checkForRegisterProfileToDiscordResponse(String nick, String msg) {
         if (RegisterProfileToDiscordUserCommand.processingProfiles.containsKey(nick.toLowerCase())) {
             String trimmed = msg.trim().toLowerCase();
-            if (trimmed.equals("/y") || trimmed.equals("/yes")) {
+            if (DISCORD_LINK_ANSWERS.contains(trimmed)) {
                 RegisterProfileToDiscordUserCommand.processingProfiles.get(nick.toLowerCase()).run();
             }
         }

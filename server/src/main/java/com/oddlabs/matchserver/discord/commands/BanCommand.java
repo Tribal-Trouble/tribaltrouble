@@ -36,7 +36,7 @@ public class BanCommand extends DiscordCommand {
                             true);
         MatchmakingServer.getLogger().info(
                 "Account owning nick " + nick + " banned by Discord moderator " + moderator + (reason != null ? " (" + reason + ")" : ""));
-        boolean was_online = KickCommand.kickOnlineClient(nick, reason, moderator, "banned");
+        boolean was_online = KickCommand.kickOnlineClient(nick, reason, moderator, "banned", null);
         return event.reply(
                 "Banned the account owning '" + nick + "'" + (was_online ? " and disconnected the player." : ". Player was not online.")).withEphemeral(
                         true);
