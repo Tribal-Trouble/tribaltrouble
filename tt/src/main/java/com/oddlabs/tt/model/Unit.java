@@ -16,6 +16,7 @@ import com.oddlabs.tt.model.behaviour.PlaceBuildingController;
 import com.oddlabs.tt.model.behaviour.RepairController;
 import com.oddlabs.tt.model.behaviour.ShipAttackController;
 import com.oddlabs.tt.model.behaviour.SittingController;
+import com.oddlabs.tt.model.behaviour.StunBehaviour;
 import com.oddlabs.tt.model.behaviour.StunController;
 import com.oddlabs.tt.model.behaviour.WalkBehaviour;
 import com.oddlabs.tt.model.behaviour.WalkController;
@@ -758,7 +759,13 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         if (canDoMagic(magic_index)) {
             if (clear_stack)
                 clearControllerStack();
-            pushController(new MagicController(this, getOwner().getRace().getMagicFactory(magic_index)));
+            var ctlr = new MagicController(this, getOwner().getRace().getMagicFactory(magic_index));
+            getControllerStack().add(ctlr);
+            if (getCurrentBehaviour() instanceof StunBehaviour) {
+                setShouldDecide(true);
+            } else {
+                forceDecide();
+            }
             Arrays.fill(magic_energy, 0f);
             last_magic_index = magic_index;
 
