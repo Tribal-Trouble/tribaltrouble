@@ -31,8 +31,7 @@ public final class PlaceBuildingController extends Controller {
             else
                 unit.popController();
         } else if (canPlaceBuilding()) {
-            if (building.isPlacingLegal()) {
-                building.place();
+            if (building.isPlacingLegal() && building.place()) {
 //				unit.removeNow();
                 unit.swapController(new RepairController(unit, building));
             } else

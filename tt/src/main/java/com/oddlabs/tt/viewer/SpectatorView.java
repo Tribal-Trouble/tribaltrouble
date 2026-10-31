@@ -121,7 +121,8 @@ public final class SpectatorView {
             return;
         if (ghost == null)
             ghost = new BuildingGhostRenderer();
-        ghost.render(viewer.getWorld(), followed.getRace().getBuildingTemplate(view.getPlacingBuildingIndex()),
+        ghost.render(viewer.getWorld(), followed, followed.getRace().getBuildingTemplate(
+                view.getPlacingBuildingIndex()),
                 view.getPlacingGridX(), view.getPlacingGridY(), renderer, queues, modelViewStack, projectionStack);
     }
 

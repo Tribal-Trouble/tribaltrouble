@@ -1,10 +1,10 @@
 package com.oddlabs.tt.model;
 
-import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.ShadowListKey;
 import com.oddlabs.tt.render.SpriteKey;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.List;
 import java.util.Map;
@@ -112,11 +112,12 @@ public final class BuildingTemplate extends Template {
         return new LandBuilding(owner, this, grid_x, grid_y);
     }
 
-    public final boolean isPlacingLegal(UnitGrid unit_grid, int grid_x, int grid_y) {
+    @NullMarked
+    public final boolean isPlacingLegal(Player owner, int grid_x, int grid_y) {
         if (type == TYPE_SHIP) {
-            return Ship.isPlacingLegal(unit_grid, this, grid_x, grid_y);
+            return Ship.isPlacingLegal(owner.getWorld().getUnitGrid(), this, grid_x, grid_y);
         }
-        return LandBuilding.isPlacingLegal(unit_grid, this, grid_x, grid_y);
+        return LandBuilding.isPlacingLegal(owner, this, grid_x, grid_y);
     }
 
     public float getBuiltSelectionRadius() {

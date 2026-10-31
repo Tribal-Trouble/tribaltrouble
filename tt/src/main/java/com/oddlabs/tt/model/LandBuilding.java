@@ -24,17 +24,22 @@ import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
+import com.oddlabs.tt.util.Point;
 import com.oddlabs.tt.util.Target;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public final class LandBuilding extends Building {
@@ -60,8 +65,9 @@ public final class LandBuilding extends Building {
     private final Map<@NonNull Class<?>, @NonNull BuildProductionContainer> build_containers = new HashMap<>();
     private final Map<@NonNull DeployType, @NonNull DeployContainer> deploy_containers = new EnumMap<>(
             DeployType.class);
-    private final @NonNull LinearEmitter damaged_emitter;
-    private final @NonNull LinearEmitter production_emitter;
+
+    private @Nullable LinearEmitter damaged_emitter = null;
+    private @Nullable LinearEmitter production_emitter = null;
 
     private @Nullable ChieftainContainer chieftain_container = null;
     private @Nullable WeaponsProducer weapons_producer = null;
@@ -81,6 +87,11 @@ public final class LandBuilding extends Building {
         float y = UnitGrid.coordinateFromGrid(grid_y);
         setPosition(x, y);
         pushController(new NullController(this));
+    }
+
+    // Emitters register with the world in their constructors and read the building's `z`, so
+    // create them only after `reinsert()` has picked up the flattened height in `place()`.
+    private void createEmitters() {
         /*
            Vector3f position, float offset_z, float uv_angle,
            float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
@@ -99,8 +110,8 @@ public final class LandBuilding extends Building {
                 new Vector4f(.3f, .3f, .3f, DAMAGED_PARTICLE_ALPHA), new Vector4f(0f, 0f, 0f, 0f),
                 new Vector3f(1.5f, 1.5f, 1.5f), new Vector3f(.6f, .6f, .6f), 1.5f, .75f,
                 GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
-                owner.getWorld().getRacesResources().getDamageSmokeTextures(),
-                owner.getWorld().getAnimationManagerRealTime());
+                getOwner().getWorld().getRacesResources().getDamageSmokeTextures(),
+                getOwner().getWorld().getAnimationManagerRealTime());
         damaged_emitter.stop();
 
         float xc = getPositionX() + getTemplate().getChimneyX();
@@ -109,15 +120,15 @@ public final class LandBuilding extends Building {
 
         float energy = 4f;
         float alpha = .6f;
-        production_emitter = new RandomAccelerationEmitter(owner.getWorld(), new Vector3f(xc, yc, zc), 0f,
+        production_emitter = new RandomAccelerationEmitter(getOwner().getWorld(), new Vector3f(xc, yc, zc), 0f,
                 0.01f, 0.01f, 1.5f, 0.1f,
                 -1, 6f,
                 new Vector3f(0f, 0f, 1.3f), new Vector3f(0f, 0f, .25f), .7f,
                 new Vector4f(.35f, .35f, .35f, alpha), new Vector4f(0f, 0f, 0f, -alpha / energy),
                 new Vector3f(.3f, .3f, .3f), new Vector3f(.5f, .5f, .5f), energy, 1f,
                 GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
-                owner.getWorld().getRacesResources().getSmokeTextures(),
-                owner.getWorld().getAnimationManagerRealTime());
+                getOwner().getWorld().getRacesResources().getSmokeTextures(),
+                getOwner().getWorld().getAnimationManagerRealTime());
         production_emitter.stop();
     }
 
@@ -132,15 +143,6 @@ public final class LandBuilding extends Building {
 
     public Target getRallyPoint() {
         return rally_point;
-    }
-
-    @Override
-    protected void onReinsert() {
-        super.onReinsert();
-        float xc = getPositionX() + getTemplate().getChimneyX();
-        float yc = getPositionY() + getTemplate().getChimneyY();
-        float zc = getPositionZ() + getTemplate().getChimneyZ();
-        production_emitter.setPosition(new Vector3f(xc, yc, zc));
     }
 
     @Override
@@ -173,8 +175,8 @@ public final class LandBuilding extends Building {
             remove_delay -= t;
             if (remove_delay <= 0) {
                 remove();
-                damaged_emitter.done();
-                production_emitter.done();
+                Objects.requireNonNull(damaged_emitter).done();
+                Objects.requireNonNull(production_emitter).done();
                 if (weapons_producer != null)
                     weapons_producer.stopSound();
                 float energy = 3f;
@@ -376,13 +378,15 @@ public final class LandBuilding extends Building {
         final float MAX_ENERGY = 5f;
         final int START_SMOKE = getTemplate().getMaxHitPoints() / 2;
         hit_points = Math.max(Math.min(new_hit_points, getTemplate().getMaxHitPoints()), 0);
+        Objects.requireNonNull(damaged_emitter);
         if (build_points == getTemplate().getMaxHitPoints() && hit_points < START_SMOKE) {
             float energy = MIN_ENERGY + ((1 - (float) hit_points / (START_SMOKE)) * (MAX_ENERGY - MIN_ENERGY));
             damaged_emitter.start();
             damaged_emitter.setDeltaColor(new Vector4f(0f, 0f, 0f, -DAMAGED_PARTICLE_ALPHA / energy));
             damaged_emitter.setEnergy(energy);
-        } else
+        } else {
             damaged_emitter.stop();
+        }
     }
 
     public void repair(int amount) {
@@ -441,7 +445,7 @@ public final class LandBuilding extends Building {
                     BuildProductionContainer[] production_containers = new BuildProductionContainer[]{rock_axe_weapon, iron_axe_weapon, rubber_axe_weapon};
 
                     weapons_producer = new WeaponsProducer(this, (WorkerUnitContainer) getUnitContainer(),
-                            production_containers, production_emitter);
+                            production_containers, Objects.requireNonNull(production_emitter));
 
                     deploy_containers.put(DeployType.ROCK_WARRIOR, new DeployContainer(this, 1f,
                             DeployType.ROCK_WARRIOR, RockAxeWeapon.class));
@@ -474,14 +478,14 @@ public final class LandBuilding extends Building {
         }
     }
 
-    public static boolean isPlacingLegal(@NonNull UnitGrid unit_grid, @NonNull BuildingTemplate template, int grid_x,
-            int grid_y) {
-        return doIsPlacingLegal(unit_grid, grid_x, grid_y, template.getPlacingSize());
+    @NullMarked
+    public static boolean isPlacingLegal(Player owner, BuildingTemplate template, int grid_x, int grid_y) {
+        return doIsPlacingLegal(owner, grid_x, grid_y, template.getPlacingSize());
     }
 
     public boolean isPlacingLegal() {
         return !isDead() && getOwner().canBuild(getTemplate().getTemplateID()) &&
-                doIsPlacingLegal(getUnitGrid(), getGridX(), getGridY(),
+                doIsPlacingLegal(getOwner(), getGridX(), getGridY(),
                         getTemplate().getPlacingSize() - PLACING_BORDER);
     }
 
@@ -499,7 +503,9 @@ public final class LandBuilding extends Building {
         return getTemplate().getHitOffsetZ(getRenderLevel().ordinal());
     }
 
-    public static boolean doIsPlacingLegal(@NonNull UnitGrid unit_grid, int grid_x, int grid_y, int size) {
+    @NullMarked
+    public static boolean doIsPlacingLegal(Player owner, int grid_x, int grid_y, int size) {
+        UnitGrid unit_grid = owner.getWorld().getUnitGrid();
         if (!unit_grid.getHeightMap().canBuild(grid_x, grid_y, size))
             return false;
 
@@ -513,17 +519,150 @@ public final class LandBuilding extends Building {
                     return false;
                 }
                 var occ = unit_grid.getOccupant(cx, cy);
-                if (occ != null) {
-                    if (occ instanceof Unit unit) {
-                        if (unit.isMoving()) {
-                            return false;
-                        }
-                    } else {
-                        return false;
-                    }
+                if (occ != null && !(occ instanceof Unit unit && unit.getOwner() == owner)) {
+                    return false;
                 }
             }
         }
+        return true;
+    }
+
+    private int getFootprintSize() {
+        return getTemplate().getPlacingSize() * 2 - 1;
+    }
+
+    // The footprint is the placing area inset by `PLACING_BORDER`.
+    private int getFootprintMinX() {
+        return getGridX() - getFootprintSize() / 2 + PLACING_BORDER;
+    }
+
+    private int getFootprintMaxX() {
+        return getGridX() + getFootprintSize() / 2 - PLACING_BORDER;
+    }
+
+    private int getFootprintMinY() {
+        return getGridY() - getFootprintSize() / 2 + PLACING_BORDER;
+    }
+
+    private int getFootprintMaxY() {
+        return getGridY() + getFootprintSize() / 2 - PLACING_BORDER;
+    }
+
+    private boolean isInFootprint(Point p) {
+        return (getFootprintMinX() <= p.x() && p.x() <= getFootprintMaxX()
+                && getFootprintMinY() <= p.y() && p.y() <= getFootprintMaxY());
+    }
+
+    @NullMarked
+    private record FootprintContents(List<Unit> ownUnits, int vacantCellCount) {
+    }
+
+    /// Other players' units may not be displaced; returns null if the footprint contains one.
+    private @Nullable FootprintContents scanFootprint() {
+        UnitGrid unitGrid = getUnitGrid();
+        List<Unit> ownUnits = new ArrayList<>();
+        int vacantCellCount = 0;
+        int minX = getFootprintMinX();
+        int maxX = getFootprintMaxX();
+        int minY = getFootprintMinY();
+        int maxY = getFootprintMaxY();
+        for (int gridY = minY; gridY <= maxY; gridY++) {
+            for (int gridX = minX; gridX <= maxX; gridX++) {
+                var occ = unitGrid.getOccupant(gridX, gridY);
+                if (occ instanceof Unit unit) {
+                    if (unit.getOwner() != getOwner()) {
+                        return null;
+                    }
+                    ownUnits.add(unit);
+                } else if (occ == null) {
+                    vacantCellCount++;
+                }
+            }
+        }
+        return new FootprintContents(ownUnits, vacantCellCount);
+    }
+
+    /// Keys every unit standing in the footprint to a vacant cell outside it, without altering
+    /// the grid. Returns null if any unit has nowhere to go.
+    @NullMarked
+    private @Nullable Map<Unit, Point> makeDisplacementPlan(FootprintContents footprint) {
+        UnitGrid unitGrid = getUnitGrid();
+        int island = unitGrid.getIslandId(getGridX(), getGridY());
+        Map<Unit, Point> displacementPlan = new HashMap<>();
+        Set<Point> claimedCells = new HashSet<>();
+        List<Unit> ownUnits = footprint.ownUnits();
+        for (int i = 0; i < ownUnits.size(); i++) {
+            Unit unit = ownUnits.get(i);
+            int budget = footprint.vacantCellCount() + i + 1;
+            @Nullable Target[] targets = unitGrid.findGridTargets(
+                    UnitGrid.toGridCoordinate(unit.getPositionX()),
+                    UnitGrid.toGridCoordinate(unit.getPositionY()),
+                    budget,
+                    false,
+                    island
+            );
+            Point cell = findVacantCellOutsideFootprint(targets, claimedCells);
+            if (cell == null) {
+                return null;
+            }
+            displacementPlan.put(unit, cell);
+            claimedCells.add(cell);
+        }
+        return displacementPlan;
+    }
+
+    @NullMarked
+    private @Nullable Point findVacantCellOutsideFootprint(
+            @Nullable Target[] targets,
+            Set<Point> claimedCells
+    ) {
+        for (Target target : targets) {
+            if (target == null) {
+                return null;
+            }
+            Point cell = new Point(target.getGridX(), target.getGridY());
+            if (isInFootprint(cell) || claimedCells.contains(cell)) {
+                continue;
+            }
+            return cell;
+        }
+        return null;
+    }
+
+    private boolean displaceUnitsInFootprint() {
+        FootprintContents footprint = scanFootprint();
+        if (footprint == null) {
+            return false;
+        }
+        Map<Unit, Point> displacementPlan = makeDisplacementPlan(footprint);
+        if (displacementPlan == null) {
+            return false;
+        }
+        for (Unit unit : footprint.ownUnits()) {
+            Point cell = Objects.requireNonNull(displacementPlan.get(unit));
+            unit.teleportToCell(cell.x(), cell.y());
+        }
+        return true;
+    }
+
+    public boolean place() {
+        assert !isDead();
+        assert isPlacingLegal();
+
+        if (!displaceUnitsInFootprint()) {
+            return false;
+        }
+
+        register();
+        occupy();
+        flattenLandscape();
+        int result = getOwner().getBuildingCountContainer().increaseSupply(1);
+        assert (result == 1) : "Too many buildings";
+        build_points = 1;
+        reinsert();
+
+        createEmitters();
+
         return true;
     }
 
@@ -546,18 +685,6 @@ public final class LandBuilding extends Building {
         } else {
             setRallyPoint(target);
         }
-    }
-
-    public void place() {
-        assert !isDead();
-        assert isPlacingLegal();
-        register();
-        occupy();
-        flattenLandscape();
-        int result = getOwner().getBuildingCountContainer().increaseSupply(1);
-        assert (result == 1) : "Too many buildings";
-        build_points = 1;
-        reinsert();
     }
 
     @Override
@@ -683,22 +810,14 @@ public final class LandBuilding extends Building {
     private void occupy() {
         UnitGrid grid = getUnitGrid();
         grid.getRegion(getGridX(), getGridY()).registerObject(Building.class, this);
-        int size = getTemplate().getPlacingSize() * 2 - 1;
-        Set<Unit> trappedUnits = new LinkedHashSet<>();
-        for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
-            for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
-                int cx = getGridX() - size / 2 + x;
-                int cy = getGridY() - size / 2 + y;
-                var occ = grid.getOccupant(cx, cy);
-                if (occ instanceof Unit unit) {
-                    trappedUnits.add(unit);
-                    unit.free();
-                }
-                grid.occupyGrid(cx, cy, this);
+        int minX = getFootprintMinX();
+        int maxX = getFootprintMaxX();
+        int minY = getFootprintMinY();
+        int maxY = getFootprintMaxY();
+        for (int gridY = minY; gridY <= maxY; gridY++) {
+            for (int gridX = minX; gridX <= maxX; gridX++) {
+                grid.occupyGrid(gridX, gridY, this);
             }
-        }
-        for (Unit unit : trappedUnits) {
-            unit.reposition(this);
         }
     }
 
@@ -706,10 +825,13 @@ public final class LandBuilding extends Building {
     private void free() {
         UnitGrid grid = getUnitGrid();
         grid.getRegion(getGridX(), getGridY()).unregisterObject(Building.class, this);
-        int size = getTemplate().getPlacingSize() * 2 - 1;
-        for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
-            for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
-                grid.freeGrid(getGridX() - size / 2 + x, getGridY() - size / 2 + y, this);
+        int minX = getFootprintMinX();
+        int maxX = getFootprintMaxX();
+        int minY = getFootprintMinY();
+        int maxY = getFootprintMaxY();
+        for (int gridY = minY; gridY <= maxY; gridY++) {
+            for (int gridX = minX; gridX <= maxX; gridX++) {
+                grid.freeGrid(gridX, gridY, this);
             }
         }
     }

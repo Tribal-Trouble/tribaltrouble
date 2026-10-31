@@ -278,6 +278,18 @@ public final class PathTracker {
 
     public void setTarget(@NonNull TrackerAlgorithm tracker_algorithm) {
         this.tracker_algorithm = tracker_algorithm;
+        resetPathState();
+    }
+
+    /// Drop the computed path but keep the target so the walk re-initialises from the unit's new cell.
+    public void clearPath() {
+        resetPathState();
+        current_blocker = null;
+        state = State.DONE;
+        bezier_path.finish();
+    }
+
+    private void resetPathState() {
         initial_path = true;
         region_path = null;
         grid_path = null;

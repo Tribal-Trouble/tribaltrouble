@@ -24,6 +24,9 @@ section when a release is cut.
 - Anything you type as a map code now gives you an island, and typing the same thing again gives the same island. The map code box then shows that island's word code, which you can share with friends.
 - Patch notes now open after every update, not only after big ones. Press "Don't show again" in the patch notes window to stop them opening. To turn them back on, open Patch notes in Options and press OK.
 - Peons rallied into a damaged quarters now enter it instead of repair it.
+- Units displaced by a new building are moved into nearest cell positions instead of into nearest checkerboard cell positions.
+- You can now build on cells your units are walking over.
+- Only own units can be displaced by your own buildings; other players' units block the site instead of being pushed aside.
 - Armories no longer reset weapon production to zero when their stock is full. Production pauses instead, an infinite order stays set, and it resumes when there is room again.
 
 ### Fixed
@@ -32,6 +35,7 @@ section when a release is cut.
 - Fixed a crash that could occur when certain letter codes were used as a map code.
 - Replay island keeps the time of day and the advanced settings of the game you just played. During Halloween it used to switch a daytime game to night.
 - Linking a profile to Discord now accepts a plain "yes" whispered to yourself, and the in-game message explains how to send it.
+- Placing a building no longer crashes the game when not all units can be displaced.
 
 ## [2.2.155] - 2026-10-24
 

@@ -41,6 +41,7 @@ import com.oddlabs.tt.util.Target;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
@@ -83,7 +84,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
 
     private @Nullable BalancedParametricEmitter stun_marker;
     private int hit_points;
-    private @NonNull int animation = Animation.IDLING;
+    private int animation = Animation.IDLING;
     private float anim_speed;
     private float anim_time;
     private int path_penalty;
@@ -114,13 +115,13 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
 
     public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point,
             @NonNull UnitTemplate unit_template, @Nullable String name, boolean notify_by_chieftain,
-            boolean grid_targets_only) {
-        this(owner, x, y, rally_point, unit_template, name, notify_by_chieftain, grid_targets_only, false);
+            boolean checkerboard_positions_only) {
+        this(owner, x, y, rally_point, unit_template, name, notify_by_chieftain, checkerboard_positions_only, false);
     }
 
     public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point,
             @NonNull UnitTemplate unit_template, @Nullable String name, boolean notify_by_chieftain,
-            boolean grid_targets_only, boolean imaginary) {
+            boolean checkerboard_positions_only, boolean imaginary) {
         super(owner, unit_template);
         this.name = name;
         this.imaginary = imaginary;
@@ -135,7 +136,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         }
 
         if (!imaginary) {
-            findInitialPosition(x, y, grid_targets_only, -1);
+            findInitialPosition(x, y, checkerboard_positions_only, -1);
         }
 
         pushController(new IdleController(this, new AttackScanFilter(getOwner(), AttackScanFilter.UNIT_RANGE), true));
@@ -231,28 +232,35 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
             return super.toString();
     }
 
-    public void reposition(Building building) {
-        findInitialPosition(getPositionX(), getPositionY(), true, building.getIslandId());
-    }
+    /// Callers must ensure passed cell is vacant.
+    @NullMarked
+    public void teleportToCell(int gridX, int gridY) {
+        free();
 
-    private void findInitialPosition(float x, float y, boolean grid_targets_only, int island) {
-        UnitGrid unit_grid = getUnitGrid();
-        Target reserved_target = unit_grid.findGridTargets(UnitGrid.toGridCoordinate(x), UnitGrid.toGridCoordinate(y),
-                1, grid_targets_only, island)[0];
-        setGridPosition(reserved_target.getGridX(), reserved_target.getGridY());
-        setPosition(reserved_target.getPositionX(), reserved_target.getPositionY());
+        getTracker().clearPath();
+
+        float posX = UnitGrid.coordinateFromGrid(gridX);
+        float posY = UnitGrid.coordinateFromGrid(gridY);
+        setGridPosition(gridX, gridY);
+        setPosition(posX, posY);
 
         // Orient initially towards world center
         float center = getOwner().getWorld().getHeightMap().getMetersPerWorld() / 2f;
-        float dx = center - reserved_target.getPositionX();
-        float dy = center - reserved_target.getPositionY();
+        float dx = center - posX;
+        float dy = center - posY;
         float len = (float) Math.sqrt(dx * dx + dy * dy);
         if (len > 0) {
             setDirection(dx / len, dy / len);
         }
 
         occupy();
-        reinsert();
+    }
+
+    private void findInitialPosition(float x, float y, boolean checkerboard_positions_only, int island) {
+        UnitGrid unit_grid = getUnitGrid();
+        Target target = unit_grid.findGridTargets(UnitGrid.toGridCoordinate(x), UnitGrid.toGridCoordinate(y),
+                1, checkerboard_positions_only, island)[0];
+        teleportToCell(target.getGridX(), target.getGridY());
     }
 
     @Override

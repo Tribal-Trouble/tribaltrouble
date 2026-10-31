@@ -47,15 +47,16 @@ public final class UnitGrid {
         return filter.filter(x, y, occupants[y][x]);
     }
 
-    public Target @NonNull [] findGridTargets(int center_grid_x, int center_grid_y, int num_targets,
-            boolean grid_targets_only) {
-        return findGridTargets(center_grid_x, center_grid_y, num_targets, grid_targets_only, -1);
+    public @Nullable Target @NonNull [] findGridTargets(int center_grid_x, int center_grid_y, int num_targets,
+            boolean checkerboard_positions_only) {
+        return findGridTargets(center_grid_x, center_grid_y, num_targets, checkerboard_positions_only, -1);
     }
 
-    public Target @NonNull [] findGridTargets(int center_grid_x, int center_grid_y, int num_targets,
-            boolean grid_targets_only, int island) {
+    public @Nullable Target @NonNull [] findGridTargets(int center_grid_x, int center_grid_y, int num_targets,
+            boolean checkerboard_positions_only, int island) {
         Occupant[][] occupants = layers[LAND].occupants;
-        FindTargetsFilter filter = new FindTargetsFilter(this, num_targets, occupants.length, grid_targets_only,
+        FindTargetsFilter filter = new FindTargetsFilter(this, num_targets, occupants.length,
+                checkerboard_positions_only,
                 island);
         scan(filter, center_grid_x, center_grid_y, LAND);
         return filter.getTargets();
@@ -146,7 +147,11 @@ public final class UnitGrid {
     }
 
     public void occupyGrid(int grid_x, int grid_y, Occupant occupant, int layer) {
-        assert !isGridOccupied(grid_x, grid_y, layer);
+        Occupant existing = layers[layer].occupants[grid_y][grid_x];
+        if (existing != null) {
+            throw new IllegalStateException(
+                    "Cell (" + grid_x + ", " + grid_y + ") is already occupied by " + existing);
+        }
         layers[layer].occupants[grid_y][grid_x] = occupant;
     }
 

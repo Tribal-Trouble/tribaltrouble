@@ -31,12 +31,14 @@ import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class Ship extends Building implements Movable {
     private static final float REMOVE_DELAY = 1f / 10f;
@@ -90,7 +92,8 @@ public class Ship extends Building implements Movable {
     private final Map<@NonNull Class<?>, @NonNull BuildProductionContainer> build_containers = new HashMap<>();
     private final Map<@NonNull DeployType, @NonNull ShipDeployContainer> deploy_containers = new EnumMap<>(
             DeployType.class);
-    private final LinearEmitter damaged_emitter;
+
+    private @Nullable LinearEmitter damaged_emitter = null;
 
     private float remove_delay = 0;
     private int hit_points = 1;
@@ -124,7 +127,9 @@ public class Ship extends Building implements Movable {
         setInitialShipDirection();
 
         pushController(new NullController(this));
+    }
 
+    private void createEmitters() {
         /*
            Vector3f position, float offset_z, float uv_angle,
            float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
@@ -143,16 +148,9 @@ public class Ship extends Building implements Movable {
                 new Vector4f(.3f, .3f, .3f, DAMAGED_PARTICLE_ALPHA), new Vector4f(0f, 0f, 0f, 0f),
                 new Vector3f(1.5f, 1.5f, 1.5f), new Vector3f(.6f, .6f, .6f), 1.5f, .75f,
                 GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
-                owner.getWorld().getRacesResources().getDamageSmokeTextures(),
-                owner.getWorld().getAnimationManagerRealTime());
+                getOwner().getWorld().getRacesResources().getDamageSmokeTextures(),
+                getOwner().getWorld().getAnimationManagerRealTime());
         damaged_emitter.stop();
-
-        float xc = getPositionX() + getTemplate().getChimneyX();
-        float yc = getPositionY() + getTemplate().getChimneyY();
-        float zc = getPositionZ() + getTemplate().getChimneyZ();
-
-        float energy = 4f;
-        float alpha = .6f;
     }
 
     private static float[] getInitDirection(UnitGrid grid, int x, int y) {
@@ -294,7 +292,7 @@ public class Ship extends Building implements Movable {
             remove_delay -= t;
             if (remove_delay <= 0) {
                 remove();
-                damaged_emitter.done();
+                Objects.requireNonNull(damaged_emitter).done();
                 float energy = 3f;
                 float fade_speed = 2.5f;
 
@@ -524,6 +522,7 @@ public class Ship extends Building implements Movable {
         final int START_SMOKE = getBuildingTemplate().getMaxHitPoints() / 2;
         hit_points = StrictMath.max(
                 StrictMath.min(new_hit_points, getBuildingTemplate().getMaxHitPoints()), 0);
+        Objects.requireNonNull(damaged_emitter);
         if (build_points == getBuildingTemplate().getMaxHitPoints() && hit_points < START_SMOKE) {
             float energy = MIN_ENERGY + ((1 - (float) hit_points / (START_SMOKE)) * (MAX_ENERGY - MIN_ENERGY));
             damaged_emitter.start();
@@ -685,6 +684,7 @@ public class Ship extends Building implements Movable {
 
     public final void instantBuild() {
         setLayer(UnitGrid.SEA);
+        createEmitters();
         register();
         occupy();
         int result = getOwner().getBuildingCountContainer().increaseSupply(1);
@@ -729,9 +729,10 @@ public class Ship extends Building implements Movable {
         }
     }
 
-    public final void place() {
+    public final boolean place() {
         assert !isDead();
         assert isPlacingLegal();
+        createEmitters();
         register();
         occupy();
         int result = getOwner().getBuildingCountContainer().increaseSupply(1);
@@ -742,6 +743,7 @@ public class Ship extends Building implements Movable {
             flattenLandscape();
             flattened = true;
         }
+        return true;
     }
 
     public final float getSize() {
@@ -1076,7 +1078,7 @@ public class Ship extends Building implements Movable {
     public final void setPosition(float x, float y) {
         if (isDead()) return;
         super.setPosition(x, y);
-        damaged_emitter.setPosition(new Vector3f(getPositionX(), getPositionY(),
+        Objects.requireNonNull(damaged_emitter).setPosition(new Vector3f(getPositionX(), getPositionY(),
                 getPositionZ() + getHitOffsetZ()));
         float xc = x + getBuildingTemplate().getChimneyX();
         float yc = y + getBuildingTemplate().getChimneyY();
