@@ -15,6 +15,8 @@ section when a release is cut.
 ### Fixed
 
 - Fixed a crash at startup on some graphics cards, right after the game window opened.
+- Sending a ship to an undockable island on Archipelago maps no longer crashes the game for everyone in it. Islands with no shoreline for ships to dock at are no longer walkable, so units can no longer be deployed there and stranded.
+- On Archipelago maps, land connected to an island only diagonally now counts as part of that island, since units can walk across diagonal connections. Ships and computer players no longer treat it as a separate island.
 
 ## [2.2.207] - 2026-10-31
 

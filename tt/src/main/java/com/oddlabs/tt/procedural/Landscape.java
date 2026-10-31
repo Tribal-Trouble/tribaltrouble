@@ -278,10 +278,24 @@ public final class Landscape {
             }
             int[] count = new int[1];
             int[] bounds = new int[4];
-            island_ids.floodfill(pos[0], pos[1], (float) last_id, 0.01f, count, bounds);
+            island_ids.floodfill(pos[0], pos[1], (float) last_id, 0.01f, count, bounds, true);
             int area = count[0];
             IslandInfo info = new IslandInfo(last_id, area, bounds[0], bounds[1], bounds[2], bounds[3], pos[0], pos[1],
                     dock, island_ids);
+            if (archipelago && info.contourPoints().isEmpty()) {
+                // Make non-dockable archipelago islands unwalkable
+                for (int y = bounds[1]; y <= bounds[3]; y++) {
+                    for (int x = bounds[0]; x <= bounds[2]; x++) {
+                        if (island_ids.getPixel(x, y) == last_id) {
+                            island_ids.putPixel(x, y, 0f);
+                            access.putPixel(x, y, 0f);
+                            access_exported.putPixel(x, y, 0f);
+                            build[y][x] = 0;
+                        }
+                    }
+                }
+                continue;
+            }
             island_info.put(last_id, info);
             last_id++;
         }
@@ -1388,7 +1402,7 @@ public final class Landscape {
         this.dock = new byte[unit_grids_per_world][unit_grids_per_world];
         this.water = new byte[unit_grids_per_world][unit_grids_per_world];
         water_map = height.copy().threshold(Globals.SEA_LEVEL - 10.0f, Globals.SEA_LEVEL).floodfill(0, 0, -1.0f, 0.1f,
-                null, null).threshold(-1.01f, -0.99f);
+                null, null, false).threshold(-1.01f, -0.99f);
         if (DEBUG) water_map.toLayer().saveAsPNG("water_map");
         Channel shore_line = water_map.copy().smooth(2).threshold(0.4f, 0.6f);
         if (DEBUG) shore_line.toLayer().saveAsPNG("shore_line");
