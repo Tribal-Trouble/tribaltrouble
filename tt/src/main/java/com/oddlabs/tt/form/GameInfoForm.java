@@ -66,6 +66,12 @@ public final class GameInfoForm extends Form {
         types.addChild(label_terrain_type);
         values.addChild(label_terrain_type_value);
 
+        Label label_time_of_day = new Label(i18n("time_of_day"), Skin.getSkin().getEditFont());
+        Label label_time_of_day_value = new Label(i18n(game.isNight() ? "night" : "day"),
+                Skin.getSkin().getEditFont());
+        types.addChild(label_time_of_day);
+        values.addChild(label_time_of_day_value);
+
         Label label_hills = new Label(i18n("hills"), Skin.getSkin().getEditFont());
         Label label_hills_value = new Label(ServerMessageBundler.getHillsString(game.getHills()),
                 Skin.getSkin().getEditFont());
@@ -161,7 +167,8 @@ public final class GameInfoForm extends Form {
             above_terrain_type = label_starts;
         }
         label_terrain_type.place(above_terrain_type, BOTTOM_LEFT);
-        label_size.place(label_terrain_type, BOTTOM_LEFT);
+        label_time_of_day.place(label_terrain_type, BOTTOM_LEFT);
+        label_size.place(label_time_of_day, BOTTOM_LEFT);
         label_hills.place(label_size, BOTTOM_LEFT);
         label_trees.place(label_hills, BOTTOM_LEFT);
         label_supplies.place(label_trees, BOTTOM_LEFT);
@@ -191,7 +198,8 @@ public final class GameInfoForm extends Form {
             above_terrain_type_value = label_starts_value;
         }
         label_terrain_type_value.place(above_terrain_type_value, BOTTOM_LEFT);
-        label_size_value.place(label_terrain_type_value, BOTTOM_LEFT);
+        label_time_of_day_value.place(label_terrain_type_value, BOTTOM_LEFT);
+        label_size_value.place(label_time_of_day_value, BOTTOM_LEFT);
         label_hills_value.place(label_size_value, BOTTOM_LEFT);
         label_trees_value.place(label_hills_value, BOTTOM_LEFT);
         label_supplies_value.place(label_trees_value, BOTTOM_LEFT);

@@ -29,6 +29,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -63,6 +64,8 @@ public final class PeerHub implements Animated, RouterHandler {
     // other spectators only.
     private final @NonNull PeerHubInterface everyone;
     private static final int TICKS_PER_CHECKSUM = (int) (10 / AnimationManager.ANIMATION_SECONDS_PER_TICK);
+    private static final int RECENT_CHECKSUMS = 8;
+    private final @NonNull ArrayDeque<int[]> recent_checksums = new ArrayDeque<>();
     // Spectator controller is non-null only for spectator instances
 
     private static boolean waiting_for_ack = false;
@@ -343,7 +346,7 @@ public final class PeerHub implements Animated, RouterHandler {
         }
     }
 
-    int getTick() {
+    public int getTick() {
         return local_player.getWorld().getTick();
     }
 
@@ -392,8 +395,23 @@ public final class PeerHub implements Animated, RouterHandler {
             }
         }
         local_player.getWorld().tick(t);
-        if (!is_spectator && getTick() % TICKS_PER_CHECKSUM == 0)
-            sendChecksum();
+        if (getTick() % TICKS_PER_CHECKSUM == 0) {
+            recordChecksum();
+            if (!is_spectator)
+                sendChecksum();
+        }
+    }
+
+    // World checksums at the last few checksum ticks, for spectators too, so a tool can compare two clients at
+    // the same simulation tick without either of them talking to the router.
+    private void recordChecksum() {
+        recent_checksums.addLast(new int[]{getTick(), local_player.getWorld().getChecksum()});
+        if (recent_checksums.size() > RECENT_CHECKSUMS)
+            recent_checksums.removeFirst();
+    }
+
+    public @NonNull List<int[]> getRecentChecksums() {
+        return new ArrayList<>(recent_checksums);
     }
 
     private void sendChecksum() {

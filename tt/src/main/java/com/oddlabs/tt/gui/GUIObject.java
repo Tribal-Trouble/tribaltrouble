@@ -308,11 +308,11 @@ public abstract class GUIObject extends Renderable<GUIObject> implements ToolTip
         } else if (bubble && !focus_cycle) {
             GUIObject parent = getParent();
             if (parent != null)
-                parent.switchFocusToNextChild(dirEnum);
+                parent.switchFocusToNextChild(dirEnum, true);
         }
     }
 
-    private void switchFocusToNextChild(@NonNull FocusDirection dirEnum) {
+    private void switchFocusToNextChild(@NonNull FocusDirection dirEnum, boolean bubble) {
         GUIObject bestCandidate = findNextFocusable(focused_child, dirEnum);
 
         if (bestCandidate != null) {
@@ -324,10 +324,10 @@ public abstract class GUIObject extends Renderable<GUIObject> implements ToolTip
                 switchFocusToObject(first, dirEnum);
             } else {
             }
-        } else {
+        } else if (bubble) {
             GUIObject parent = getParent();
             if (parent != null) {
-                parent.switchFocusToNextChild(dirEnum);
+                parent.switchFocusToNextChild(dirEnum, true);
             } else {
                 // We are at the root (or detached) and not a cycle, but we should wrap if the global cycle is desired
                 // or just stay put. GUIRoot usually has focus_cycle=true so this else-block is for detached items.
@@ -445,7 +445,7 @@ public abstract class GUIObject extends Renderable<GUIObject> implements ToolTip
             return;
         }
         // Find next GUIObject in tab_order
-        switchFocusToNextChild(direction);
+        switchFocusToNextChild(direction, bubble);
     }
 
     protected final void focusNext() {

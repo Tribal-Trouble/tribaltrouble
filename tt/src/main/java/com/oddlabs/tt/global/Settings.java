@@ -43,6 +43,7 @@ public final class Settings implements Serializable {
     public boolean remember_login = false;
 
     public int graphic_detail = Globals.DETAIL_NORMAL;
+    public int shadow_mode = Globals.SHADOWS_STATIC;
 
     // sound
     public boolean play_music = true;
@@ -97,6 +98,8 @@ public final class Settings implements Serializable {
     public boolean first_run = true;
 
     public boolean warning_no_sound = true;
+    public String patch_notes_seen_version = "";
+    public boolean show_patch_notes_on_update = true;
 
     public boolean hide_multiplayer = false;
 
@@ -214,6 +217,7 @@ public final class Settings implements Serializable {
         setProperty(props, "pw_digest", pw_digest, defaults.pw_digest);
         setProperty(props, "remember_login", remember_login, defaults.remember_login);
         setProperty(props, "graphic_detail", graphic_detail, defaults.graphic_detail);
+        setProperty(props, "shadow_mode", shadow_mode, defaults.shadow_mode);
         setProperty(props, "play_music", play_music, defaults.play_music);
         setProperty(props, "play_sfx", play_sfx, defaults.play_sfx);
         setProperty(props, "headphone_mode", headphone_mode, defaults.headphone_mode);
@@ -247,6 +251,9 @@ public final class Settings implements Serializable {
         setProperty(props, "ui_scale", ui_scale, defaults.ui_scale);
         setProperty(props, "first_run", first_run, defaults.first_run);
         setProperty(props, "warning_no_sound", warning_no_sound, defaults.warning_no_sound);
+        setProperty(props, "patch_notes_seen_version", patch_notes_seen_version, defaults.patch_notes_seen_version);
+        setProperty(props, "show_patch_notes_on_update", show_patch_notes_on_update,
+                defaults.show_patch_notes_on_update);
         setProperty(props, "domain_name", domain_name, defaults.domain_name);
 
         setProperty(props, "cvd_mode", cvd_mode, defaults.cvd_mode);
@@ -286,6 +293,7 @@ public final class Settings implements Serializable {
         pw_digest = props.getProperty("pw_digest", pw_digest);
         remember_login = getBoolean(props, "remember_login", remember_login);
         graphic_detail = getInt(props, "graphic_detail", graphic_detail);
+        shadow_mode = getInt(props, "shadow_mode", shadow_mode);
         play_music = getBoolean(props, "play_music", play_music);
         play_sfx = getBoolean(props, "play_sfx", play_sfx);
         headphone_mode = getBoolean(props, "headphone_mode", headphone_mode);
@@ -319,6 +327,8 @@ public final class Settings implements Serializable {
         ui_scale = getFloat(props, "ui_scale", ui_scale);
         first_run = getBoolean(props, "first_run", first_run);
         warning_no_sound = getBoolean(props, "warning_no_sound", warning_no_sound);
+        patch_notes_seen_version = props.getProperty("patch_notes_seen_version", patch_notes_seen_version);
+        show_patch_notes_on_update = getBoolean(props, "show_patch_notes_on_update", show_patch_notes_on_update);
         domain_name = props.getProperty("domain_name", domain_name);
 
         cvd_mode = getInt(props, "cvd_mode", cvd_mode);

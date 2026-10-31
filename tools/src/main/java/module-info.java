@@ -1,5 +1,6 @@
 module com.oddlabs.tools {
     requires com.oddlabs.common;
+    requires com.fasterxml.jackson.dataformat.xml;
     requires org.joml;
     requires static org.jspecify;
     requires java.desktop;

@@ -30,6 +30,10 @@ public final class MenuButton extends ButtonObject {
         this.color_active = color_active;
     }
 
+    public @NonNull CharSequence getText() {
+        return text;
+    }
+
     private void scaleHovered(@NonNull GUIRenderer renderer) {
         float time = (LocalEventQueue.getQueue().getTime() - start_hover_time) % SECONDS_PER_HOVER_CYCLE;
         float cycle_position = time / SECONDS_PER_HOVER_CYCLE;

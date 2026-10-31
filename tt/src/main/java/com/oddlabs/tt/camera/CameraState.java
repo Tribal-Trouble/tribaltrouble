@@ -1,6 +1,7 @@
 package com.oddlabs.tt.camera;
 
 import com.oddlabs.tt.resource.FogInfo;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
@@ -12,6 +13,7 @@ public final class CameraState {
     //  private static final float MAX_ANGLE = (float)Math.PI/2f;// - 0.0001f;
     static final float MAX_ANGLE = -0.0001f;
     static final float MAX_ANGLE_UNLOCKED = (float) Math.PI / 6f;
+    private static final float HORIZON_EPSILON = 0.01f;
 
     private final Matrix4f modl = new Matrix4f();
     private final Matrix4f proj = new Matrix4f();
@@ -226,6 +228,114 @@ public final class CameraState {
         m.horiz_angle = horiz_angle;
         m.target_horiz_angle = target_horiz_angle;
         m.doSetView(m.camera_x, m.camera_y, m.camera_z, m.horiz_angle, m.vert_angle, new Matrix4f(proj));
+        return m;
+    }
+
+    private Vector3f solveForZ(Vector3f p0, Vector3f p1, float z) {
+        float dz = p1.z() - p0.z();
+        float t = (z - p0.z()) / dz;
+        return new Vector3f(
+                p0.x() + t * (p1.x() - p0.x()),
+                p0.y() + t * (p1.y() - p0.y()),
+                z);
+    }
+
+    public CameraState sunCamera(Vector3f lightDirection, float minZ, float maxZ, float size, float seaLevel, int width,
+            int height) {
+        CameraState m = new CameraState();
+        m.width = width;
+        m.height = height;
+
+        assert (lightDirection.y() < 0.0f);
+        assert (lightDirection.x() == 0.0f);
+
+        // The camera is the sun (or the moon).
+        // It's located South at X=0 and Y=-1
+        // The Y range is always from 0 to the max Y the player's camera can see.
+        // The X range is bound by the min and max X the player's camera can see.
+        // The Z range is always the minimum and maximum height in the map.
+
+        float halfFov = (float) Math.toRadians(Globals.FOV) * 0.5f;
+        var maxVertAngle = vert_angle + halfFov;
+        boolean belowHorizon = Math.sin(maxVertAngle) < 0.0f;
+
+        float upperPtRatio = belowHorizon ? 1.0f : (float) (Math.tan(-vert_angle) / Math.tan(
+                halfFov)) - HORIZON_EPSILON;
+
+        float maxX = size;
+        float minX = 0.0f;
+        float maxY = size;
+
+        if (upperPtRatio > -1.0f) {
+
+            Matrix4f invMat = new Matrix4f();
+            getProjectionModelView().invert(invMat);
+
+            Vector3f lowerLeft0 = new Vector3f();
+            Vector3f lowerLeft1 = new Vector3f();
+            Vector3f lowerRight0 = new Vector3f();
+            Vector3f lowerRight1 = new Vector3f();
+            Vector3f upperLeft0 = new Vector3f();
+            Vector3f upperLeft1 = new Vector3f();
+            Vector3f upperRight0 = new Vector3f();
+            Vector3f upperRight1 = new Vector3f();
+
+            invMat.transformProject(-1.0f, -1.0f, -1.0f, lowerLeft0);
+            invMat.transformProject(-1.0f, -1.0f, +1.0f, lowerLeft1);
+            invMat.transformProject(+1.0f, -1.0f, -1.0f, lowerRight0);
+            invMat.transformProject(+1.0f, -1.0f, +1.0f, lowerRight1);
+            invMat.transformProject(-1.0f, upperPtRatio, -1.0f, upperLeft0);
+            invMat.transformProject(-1.0f, upperPtRatio, +1.0f, upperLeft1);
+            invMat.transformProject(+1.0f, upperPtRatio, -1.0f, upperRight0);
+            invMat.transformProject(+1.0f, upperPtRatio, +1.0f, upperRight1);
+
+            Vector3f[] pts = new Vector3f[8];
+            pts[0] = solveForZ(lowerLeft0, lowerLeft1, seaLevel);
+            pts[1] = solveForZ(lowerRight0, lowerRight1, seaLevel);
+            pts[2] = solveForZ(upperLeft0, upperLeft1, seaLevel);
+            pts[3] = solveForZ(upperRight0, upperRight1, seaLevel);
+            pts[4] = solveForZ(lowerLeft0, lowerLeft1, maxZ);
+            pts[5] = solveForZ(lowerRight0, lowerRight1, maxZ);
+            pts[6] = solveForZ(upperLeft0, upperLeft1, maxZ);
+            pts[7] = solveForZ(upperRight0, upperRight1, maxZ);
+
+            maxX = pts[0].x();
+            minX = pts[0].x();
+            maxY = pts[0].y();
+            for (int i = 1; i < pts.length; i++) {
+                maxX = Math.max(maxX, pts[i].x());
+                minX = Math.min(minX, pts[i].x());
+                maxY = Math.max(maxY, pts[i].y());
+            }
+
+            minX = (float) Math.floor(minX / 32.0f) * 32.0f;
+            maxX = (float) Math.ceil(maxX / 32.0f) * 32.0f;
+            maxY = (float) Math.ceil(maxY / 32.0f) * 32.0f;
+            maxX = Math.clamp(maxX, 0.0f, size);
+            minX = Math.clamp(minX, 0.0f, size);
+            maxY = Math.clamp(maxY, 0.0f, size);
+        }
+
+        m.camera_x = m.target_camera_x = (maxX + minX) * 0.5f;
+        m.camera_y = m.target_camera_y = 0.0f;
+        m.camera_z = m.target_camera_z = maxZ;
+
+        float sin = lightDirection.z();
+        float lightAngle = (float) Math.asin(sin);
+        float cos = (float) Math.cos(lightAngle);
+
+        m.horiz_angle = m.target_horiz_angle = (float) Math.PI * 0.5f;
+        m.vert_angle = m.target_vert_angle = -lightAngle;
+
+        float rangeZ = maxZ - minZ;
+        float opp = sin * rangeZ;
+        float lowerY = (float) Math.sqrt(rangeZ * rangeZ - opp * opp);
+        float upperY = sin * maxY;
+        float halfRangeX = (maxX - minX) * 0.5f;
+        float far = maxY / cos;
+        Matrix4f ortho = new Matrix4f().ortho(-halfRangeX, halfRangeX, -lowerY, upperY, +0.0f, far);
+        m.doSetView(m.camera_x, m.camera_y, m.camera_z, m.horiz_angle, m.vert_angle, ortho);
+
         return m;
     }
 

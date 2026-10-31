@@ -11,7 +11,10 @@ public interface Shader {
     int TEX_COORD_LOC = 2;
     int COLOR_LOC = 3;
 
+    int SHADOW_MAP_TEXTURE_UNIT = 8;
+
     // Standard Uniform Names
+    String SHADOW_MAP = "u_shadowMap";
     String PROJECTION_MATRIX = "u_projectionMatrix";
     String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
     String VIEW_MATRIX = "u_viewMatrix";
@@ -35,7 +38,16 @@ public interface Shader {
                 float u_fogHeightFactor;
                 float u_globalTime;
                 int u_fogMode;
+                vec3 u_sunColor;
+                vec3 u_sceneTint;
+                float u_numPointLights;
+                vec4 u_pointLightPos[8];
+                vec4 u_pointLightColor[8];
+                mat4 u_shadowMatrix;
+                mat4 u_viewToShadowMatrix;
+                int u_shadowMode;
             };
+            uniform sampler2DShadow u_shadowMap;
             """;
 
     boolean inUse();

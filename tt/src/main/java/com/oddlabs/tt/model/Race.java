@@ -19,9 +19,10 @@ public final class Race {
     public static final int UNIT_WARRIOR_RUBBER = 2;
     public static final int UNIT_PEON = 3;
     public static final int UNIT_CHIEFTAIN = 4;
+    public static final int NUM_UNITS = 5;
 
     private final @NonNull BuildingTemplate[] buildings = new BuildingTemplate[NUM_BUILDINGS];
-    private final @NonNull UnitTemplate[] units = new UnitTemplate[5];
+    private final @NonNull UnitTemplate[] units = new UnitTemplate[NUM_UNITS];
     private final @NonNull SpriteKey rally_point;
     private final @NonNull RaceIcons icons;
     private final @NonNull Audio attack_notification;

@@ -9,12 +9,16 @@ import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 public class SceneryModel extends Model implements Occupant, ModelToolTip, Animated {
     private final @NonNull SpriteKey sprite_renderer;
     private final float shadow_diameter;
+    private final float shadow_fade;
     private final boolean occupy;
     private final @Nullable String name;
     private final int animation;
+    private final @NonNull List<SpriteKey> attachments;
     private final float seconds_per_animation_cycle;
     private float anim_time = 0;
 
@@ -24,19 +28,48 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
     }
 
     public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
+            @NonNull SpriteKey sprite_renderer, float shadow_diameter, float shadow_fade) {
+        this(world, x, y, dir_x, dir_y, sprite_renderer, shadow_diameter, shadow_fade, false, null, -1, -1, 0);
+    }
+
+    public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
             @NonNull SpriteKey sprite_renderer, float shadow_diameter, boolean occupy, @Nullable String name) {
-        this(world, x, y, dir_x, dir_y, sprite_renderer, shadow_diameter, occupy, name, -1, -1, 0);
+        this(world, x, y, dir_x, dir_y, sprite_renderer, shadow_diameter, 0, occupy, name, -1, -1, 0);
     }
 
     public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
             @NonNull SpriteKey sprite_renderer, float shadow_diameter, boolean occupy, @Nullable String name,
             int animation, float seconds_per_animation_cycle, float anim_offset) {
+        this(world, x, y, dir_x, dir_y, sprite_renderer, shadow_diameter, 0, occupy, name, animation, seconds_per_animation_cycle, anim_offset);
+    }
+
+    public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
+            @NonNull SpriteKey sprite_renderer, float shadow_diameter, float shadow_fade, boolean occupy,
+            @Nullable String name,
+            int animation, float seconds_per_animation_cycle, float anim_offset) {
+        this(world, x, y, dir_x, dir_y, sprite_renderer, shadow_diameter, shadow_fade, occupy, name, animation, seconds_per_animation_cycle, anim_offset, List.of());
+    }
+
+    public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
+            @NonNull SpriteKey sprite_renderer, float shadow_diameter, boolean occupy, @Nullable String name,
+            int animation, float seconds_per_animation_cycle, float anim_offset,
+            @NonNull List<SpriteKey> attachments) {
+        this(world, x, y, dir_x, dir_y, sprite_renderer, shadow_diameter, 0, occupy, name, animation, seconds_per_animation_cycle, anim_offset, attachments);
+    }
+
+    public SceneryModel(@NonNull World world, float x, float y, float dir_x, float dir_y,
+            @NonNull SpriteKey sprite_renderer, float shadow_diameter, float shadow_fade, boolean occupy,
+            @Nullable String name,
+            int animation, float seconds_per_animation_cycle, float anim_offset,
+            @NonNull List<SpriteKey> attachments) {
         super(world);
         this.sprite_renderer = sprite_renderer;
         this.shadow_diameter = shadow_diameter;
+        this.shadow_fade = shadow_fade;
         this.occupy = occupy;
         this.name = name;
         this.animation = animation;
+        this.attachments = attachments;
         this.seconds_per_animation_cycle = seconds_per_animation_cycle;
         anim_time = anim_offset;
         setPosition(x, y);
@@ -54,6 +87,11 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
     @Override
     public final float getShadowDiameter() {
         return shadow_diameter;
+    }
+
+    @Override
+    public final float getShadowFade() {
+        return shadow_fade;
     }
 
     protected void doRegister() {
@@ -129,6 +167,11 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
 
     public final boolean isOccupying() {
         return occupy;
+    }
+
+    /** Render-only sprites drawn with this model's skeleton and clip, such as a held item. */
+    public final @NonNull List<SpriteKey> getAttachments() {
+        return attachments;
     }
 
     @Override

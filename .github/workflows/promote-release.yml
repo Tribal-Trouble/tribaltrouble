@@ -122,7 +122,6 @@ jobs:
             echo "find the build for \`${TAG}\`, and set its branch from \`prerelease\` to \`default\`:"
             echo ""
             echo "- Main game: <https://partner.steamgames.com/apps/builds/${{ vars.STEAM_APP_ID }}>"
-            echo "- Demo:      <https://partner.steamgames.com/apps/builds/${{ vars.STEAM_DEMO_APP_ID }}>"
           } >> "$GITHUB_STEP_SUMMARY"
 
   # Deploys the promoted tag's server build to the prod box and restarts it.

@@ -18,7 +18,7 @@ import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 
 public abstract class AbstractOptionsMenu extends Form {
-    private static final int BUTTON_WIDTH = 100;
+    private static final int BUTTON_WIDTH = 110;
     public static final ResourceBundle bundle = ResourceBundle.getBundle(OptionsMenu.class.getName());
 
     static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull... args) {
@@ -55,6 +55,10 @@ public abstract class AbstractOptionsMenu extends Form {
         button_about.addMouseClickListener((_, _, _, _) -> gui_root.addModalForm(new CreditsForm()));
         addChild(button_about);
 
+        HorizButton button_patch_notes = new HorizButton(i18n("patch_notes"), BUTTON_WIDTH);
+        button_patch_notes.addMouseClickListener((_, _, _, _) -> gui_root.addModalForm(new PatchNotesForm()));
+        addChild(button_patch_notes);
+
         addCloseListener(() -> Settings.getSettings().save());
 
         // Place objects
@@ -62,6 +66,7 @@ public abstract class AbstractOptionsMenu extends Form {
         panel_group.place(label_headline, BOTTOM_LEFT);
         button_close.place(Origin.AT_END);
         button_about.place(button_close, LEFT_MID);
+        button_patch_notes.place(button_about, LEFT_MID);
         compileCanvas();
     }
 

@@ -16,12 +16,53 @@
                                 </attribute>
                             </optional>
                             <optional>
-                                <element name="skeleton">
+                                <attribute name="base">
                                     <text/>
+                                </attribute>
+                            </optional>
+                            <optional>
+                                <attribute name="slot">
+                                    <text/>
+                                </attribute>
+                            </optional>
+                            <optional>
+                                <attribute name="default">
+                                    <data type="boolean"/>
+                                </attribute>
+                            </optional>
+                            <optional>
+                                <attribute name="event">
+                                    <text/>
+                                </attribute>
+                            </optional>
+                            <optional>
+                                <attribute name="skin">
+                                    <text/>
+                                </attribute>
+                            </optional>
+                            <optional>
+                                <attribute name="replaces">
+                                    <text/>
+                                </attribute>
+                            </optional>
+                            <optional>
+                                <attribute name="decoration">
+                                    <text/>
+                                </attribute>
+                            </optional>
+                            <optional>
+                                <attribute name="count">
+                                    <data type="positiveInteger"/>
+                                </attribute>
+                            </optional>
+                            <optional>
+                                <element name="skeleton">
+                                    <attribute name="path"/>
                                 </element>
                             </optional>
                             <oneOrMore>
                                 <element name="model">
+                                    <attribute name="path"/>
                                     <attribute name="r">
                                         <data type="integer"/>
                                     </attribute>
@@ -31,19 +72,37 @@
                                     <attribute name="b">
                                         <data type="integer"/>
                                     </attribute>
-                                    <mixed>
-                                        <zeroOrMore>
-                                            <element name="texture">
-                                                <attribute name="name"/>
-                                                <optional>
-                                                    <attribute name="team"/>
-                                                </optional>
-                                                <optional>
-                                                    <attribute name="normal"/>
-                                                </optional>
-                                            </element>
-                                        </zeroOrMore>
-                                    </mixed>
+                                    <zeroOrMore>
+                                        <element name="texture">
+                                            <attribute name="name"/>
+                                            <optional>
+                                                <attribute name="team"/>
+                                            </optional>
+                                            <optional>
+                                                <attribute name="normal"/>
+                                            </optional>
+                                            <optional>
+                                                <attribute name="emissive">
+                                                    <text/>
+                                                </attribute>
+                                            </optional>
+                                            <optional>
+                                                <attribute name="light_color">
+                                                    <text/>
+                                                </attribute>
+                                            </optional>
+                                            <optional>
+                                                <attribute name="light_strength">
+                                                    <data type="float"/>
+                                                </attribute>
+                                            </optional>
+                                            <optional>
+                                                <attribute name="light_reach">
+                                                    <data type="float"/>
+                                                </attribute>
+                                            </optional>
+                                        </element>
+                                    </zeroOrMore>
                                 </element>
                             </oneOrMore>
                             <zeroOrMore>
@@ -58,7 +117,7 @@
                                             <value>plain</value>
                                         </choice>
                                     </attribute>
-                                    <text/>
+                                    <attribute name="path"/>
                                 </element>
                             </zeroOrMore>
                         </element>

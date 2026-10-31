@@ -16,6 +16,7 @@ public final class WorldParameters implements Serializable {
     private final int map_size;
     private final int max_building_count;
     private final boolean ships;
+    private final boolean night;
 
     public WorldParameters(int initial_game_speed, @NonNull String map_code, int initial_unit_count,
             int max_unit_count) {
@@ -36,6 +37,7 @@ public final class WorldParameters implements Serializable {
         this.map_size = b.map_size;
         this.max_building_count = b.max_building_count;
         this.ships = b.ships;
+        this.night = b.night;
     }
 
     public static @NonNull Builder builder() {
@@ -70,6 +72,10 @@ public final class WorldParameters implements Serializable {
         return ships;
     }
 
+    public boolean isNight() {
+        return night;
+    }
+
     public static final class Builder {
         private @NonNull String mapcode = "";
         private int initial_unit_count;
@@ -78,6 +84,7 @@ public final class WorldParameters implements Serializable {
         private int map_size = Game.SIZE_NONE;
         private int max_building_count = Game.DEFAULT_MAX_BUILDING_COUNT;
         private boolean ships;
+        private boolean night;
 
         private Builder() {
         }
@@ -114,6 +121,11 @@ public final class WorldParameters implements Serializable {
 
         public @NonNull Builder ships(boolean v) {
             this.ships = v;
+            return this;
+        }
+
+        public @NonNull Builder night(boolean v) {
+            this.night = v;
             return this;
         }
 

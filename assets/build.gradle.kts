@@ -225,6 +225,7 @@ val geometry = tasks.register<JavaExec>("geometry") {
     val outDir = layout.buildDirectory.dir("geometry_bin")
     inputs.file("geometry/geometry.xml")
     inputs.dir("geometry")
+    inputs.dir("textures/models")
     outputs.dir(outDir)
     args = listOf("geometry.xml", "geometry", outDir.get().asFile.absolutePath)
     jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true", "--enable-native-access=ALL-UNNAMED")

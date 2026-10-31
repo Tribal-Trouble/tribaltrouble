@@ -153,6 +153,7 @@ public class DefaultInGameInfo implements InGameInfo {
         if (replay_island_flag) {
             TerrainMenu menu = new TerrainMenu(viewer.getNetwork(), viewer.getGUIRoot(), null, false, null);
             menu.parseMapcode(viewer.getParameters().getMapcode());
+            menu.applyWorldParameters(viewer.getParameters());
             if (roster != null)
                 menu.applyRoster(roster);
             menu.startGame();

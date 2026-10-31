@@ -19,8 +19,18 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
                         @NonNull List<IslandInfo> island_infos,
                         float @NonNull [] @NonNull [] starting_locations,
                         float @Nullable [] @NonNull [] ship_starts,
-                        @NonNull BlendInfo @NonNull [] blend_infos) {
-    public record Maps(Texture diffuse, Texture normal) {
+                        @NonNull BlendInfo @NonNull [] blend_infos, byte @NonNull [] @NonNull [] ground,
+                        int seed) {
+    public record Maps(Texture diffuse, Texture normal, @Nullable StructureBlend terrainShadows,
+                       @Nullable StructureBlend supplyShadows) {
+        public Maps(Texture diffuse, Texture normal) {
+            this(diffuse, normal, null, null);
+        }
+
+        public @NonNull Maps withShadows(@NonNull StructureBlend terrainShadows,
+                @NonNull StructureBlend supplyShadows) {
+            return new Maps(diffuse, normal, terrainShadows, supplyShadows);
+        }
     }
 
     public WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap,
@@ -33,7 +43,7 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
             int @NonNull [] @NonNull [] island_ids,
             @NonNull List<IslandInfo> island_infos,
             float @NonNull [] @NonNull [] starting_locations, float @Nullable [] @NonNull [] ship_starts,
-            BlendInfo @NonNull [] blend_infos) {
+            BlendInfo @NonNull [] blend_infos, byte @NonNull [] @NonNull [] ground, int seed) {
         this.texels_per_colormap = texels_per_colormap;
         this.chunks_per_colormap = chunks_per_colormap;
         this.sea_level_meters = sea_level_meters;
@@ -56,5 +66,7 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
         this.starting_locations = starting_locations;
         this.ship_starts = ship_starts;
         this.blend_infos = blend_infos;
+        this.ground = ground;
+        this.seed = seed;
     }
 }

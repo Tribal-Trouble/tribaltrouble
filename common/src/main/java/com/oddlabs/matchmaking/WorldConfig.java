@@ -27,6 +27,7 @@ public final class WorldConfig implements Serializable {
     private final int starting_units;
     private final int max_buildings;
     private final boolean ships;
+    private final boolean night;
 
     private WorldConfig(@NonNull Builder b) {
         this.gamespeed = b.gamespeed;
@@ -39,6 +40,7 @@ public final class WorldConfig implements Serializable {
         this.starting_units = b.starting_units;
         this.max_buildings = b.max_buildings;
         this.ships = b.ships;
+        this.night = b.night;
     }
 
     public static @NonNull Builder builder() {
@@ -89,6 +91,10 @@ public final class WorldConfig implements Serializable {
         return ships;
     }
 
+    public boolean isNight() {
+        return night;
+    }
+
     @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
     public static final class Builder {
         private int gamespeed;
@@ -101,6 +107,7 @@ public final class WorldConfig implements Serializable {
         private int starting_units = Game.DEFAULT_INITIAL_UNIT_COUNT;
         private int max_buildings = Game.DEFAULT_MAX_BUILDING_COUNT;
         private boolean ships;
+        private boolean night;
 
         private Builder() {
         }
@@ -152,6 +159,11 @@ public final class WorldConfig implements Serializable {
 
         public @NonNull Builder ships(boolean ships) {
             this.ships = ships;
+            return this;
+        }
+
+        public @NonNull Builder night(boolean night) {
+            this.night = night;
             return this;
         }
 

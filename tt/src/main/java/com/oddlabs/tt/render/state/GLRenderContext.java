@@ -25,9 +25,11 @@ public final class GLRenderContext implements RenderContext {
     private boolean maskR = true, maskG = true, maskB = true, maskA = true;
 
     private int activeTextureUnit = -1;
-    private final int[] boundTextures = new int[8];
+    private final int[] boundTextures = new int[16];
 
     private int globalUbo = 0;
+    private boolean shadowPass;
+    private boolean reflectionPass;
     private static final int GLOBAL_UBO_BINDING = 0;
 
     public GLRenderContext() {
@@ -39,9 +41,29 @@ public final class GLRenderContext implements RenderContext {
         if (globalUbo != 0) return;
         this.globalUbo = GL15.glGenBuffers();
         GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, globalUbo);
-        GL15.glBufferData(GL31.GL_UNIFORM_BUFFER, 1024, GL15.GL_DYNAMIC_DRAW); // Pre-allocate 1KB
+        GL15.glBufferData(GL31.GL_UNIFORM_BUFFER, GlobalUniforms.SIZE, GL15.GL_DYNAMIC_DRAW);
         GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, GLOBAL_UBO_BINDING, globalUbo);
         GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, 0);
+    }
+
+    @Override
+    public void setShadowPass(boolean shadowPass) {
+        this.shadowPass = shadowPass;
+    }
+
+    @Override
+    public boolean isShadowPass() {
+        return shadowPass;
+    }
+
+    @Override
+    public void setReflectionPass(boolean reflectionPass) {
+        this.reflectionPass = reflectionPass;
+    }
+
+    @Override
+    public boolean isReflectionPass() {
+        return reflectionPass;
     }
 
     @Override

@@ -19,6 +19,7 @@ public final class LandscapeResources {
     private final @NonNull SpriteKey @NonNull [] iron_fragment_sprites;
     private final @NonNull SpriteKey @NonNull [] @NonNull [] plant_sprites;
     private final @NonNull SpriteKey chicken;
+    private final @NonNull Decorations decorations;
     private final @NonNull Audio @NonNull [] bird_idle_sound;
     private final @NonNull Audio bird_peck_sound;
     private final @NonNull Audio bird_death_sound;
@@ -45,6 +46,7 @@ public final class LandscapeResources {
                                                 Globals.NO_MIPMAP_CUTOFF, true, false, true, true, true)).map(
                                                         queues::register).toArray(SpriteKey[]::new)
         };
+        decorations = new Decorations(queues);
         ProgressForm.progress(1f / num_progress);
 
         SpriteFile sprite_list_chicken = new SpriteFile("/geometry/misc/chicken.binsprite",
@@ -69,6 +71,10 @@ public final class LandscapeResources {
 
     public @NonNull SpriteKey @NonNull [] @NonNull [] getPlants() {
         return plant_sprites;
+    }
+
+    public @NonNull Decorations getDecorations() {
+        return decorations;
     }
 
     public @NonNull SpriteKey getChicken() {

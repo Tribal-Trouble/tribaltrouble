@@ -30,6 +30,7 @@ See what we're working on right now on the **[current roadmap](https://github.co
   - [Common Gradle Tasks](#common-gradle-tasks)
   - [Code Formatting](#code-formatting)
 - [🚀 Releasing](#-releasing)
+- [📝 Changelog](#-changelog)
 - [🤝 Contributing](#-contributing)
 - [🌍 Translating](#-translating)
 - [🙏 About this fork](#-about-this-fork)
@@ -165,6 +166,12 @@ Releases happen in two halves: pushing to `release` publishes to every platform'
 
 For the full step-by-step, versioning logic, required secrets, and rollback procedure, see **[docs/releasing.md](./docs/releasing.md)**.
 
+## 📝 Changelog
+
+`CHANGELOG.md` follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). When a PR changes something a player or server operator would notice, add a line under `## [Unreleased]` in the matching section: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed` or `Security`. Write it for players, and put engine, build and server items last with an `Engine:`, `Build:` or `Server:` prefix.
+
+The game bundles the file and shows it under **Patch notes...** in Options, opening it once after each update unless the player turned that off, and the release workflow uses the `[Unreleased]` section as the GitHub Release notes. After each release CI opens a PR that renames the section to that version and date; see [docs/releasing.md](./docs/releasing.md).
+
 ## 🤝 Contributing
 
 Thanks for your interest in contributing. We have a channel in [discord](https://discord.gg/tribaltrouble) that is active with contributors if you have any questions on setup or where to find things. Come chat, play some games!
@@ -172,6 +179,8 @@ Thanks for your interest in contributing. We have a channel in [discord](https:/
 See something you want or could improve upon? Make a PR or an issue! Don't have an idea? There's plenty of work to be done check out the active issues!
 
 > PRs should target `main`; that's where all work lands before being merged into `release` to ship. See [docs/releasing.md](./docs/releasing.md) for the full flow.
+
+Using an AI coding assistant? [AGENTS.md](./AGENTS.md) is the house brief: build commands, code style, and the two hard rules (wire compatibility and simulation determinism) that a well-meaning agent will otherwise break.
 
 There are ways to contribute besides developing. If you have screenshots of the game from back in the day those are welcome.
 

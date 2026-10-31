@@ -16,6 +16,7 @@ import com.oddlabs.tt.render.state.BlendMode;
 import com.oddlabs.tt.render.state.CullMode;
 import com.oddlabs.tt.render.state.DepthMode;
 import com.oddlabs.tt.render.state.RenderContext;
+import com.oddlabs.tt.resource.StructureBlend;
 import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.vbo.FloatVBO;
 import org.joml.Vector4f;
@@ -39,13 +40,16 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
     private final @NonNull World world;
     private final @NonNull Texture diffuseMap;
     private final @NonNull Texture normalMap;
+    private final @Nullable StructureBlend terrainShadows;
+    private final @Nullable StructureBlend supplyShadows;
+    private final float shadowScale;
     private final @NonNull Texture detailMap;
     private final @NonNull PatchMesh patchMesh;
     private final LandscapeShader shader = new LandscapeShader();
     private final Vector4f lightDir = new Vector4f();
     private FloatVBO instanceVBO;
     private FloatBuffer instanceBuffer;
-    private boolean aboveSea = false;
+    private boolean reflectionPass = false;
 
     public @NonNull LandscapeShader getShader() {
         return shader;
@@ -55,6 +59,15 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
         this.world = world;
         this.diffuseMap = world_info.maps().diffuse();
         this.normalMap = world_info.maps().normal();
+        this.terrainShadows = world_info.maps().terrainShadows();
+        this.supplyShadows = world_info.maps().supplyShadows();
+        this.shadowScale = (float) world_info.texels_per_colormap() / Globals.STRUCTURE_SIZE;
+        if (terrainShadows != null) {
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, terrainShadows.getStructureMap().getHandle());
+            GL33.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+        }
         this.detailMap = world_info.detail();
         this.patchMesh = new PatchMesh();
         this.instanceVBO = new FloatVBO(GL15.GL_STREAM_DRAW, 1024 * 2); // Initial capacity
@@ -79,15 +92,16 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
         prepareAll(camera, visible_override, false);
     }
 
-    public void prepareAll(@NonNull CameraState camera, boolean visible_override, boolean aboveSea) {
+    public void prepareAll(@NonNull CameraState camera, boolean visible_override, boolean reflectionPass) {
         render_list.clear();
-        this.aboveSea = aboveSea;
-        doPrepareAll(camera, visible_override, aboveSea, render_list);
+        this.reflectionPass = reflectionPass;
+        doPrepareAll(camera, visible_override, reflectionPass, render_list);
     }
 
-    private void doPrepareAll(@NonNull CameraState camera, final boolean visible_override, boolean aboveSea,
+    private void doPrepareAll(@NonNull CameraState camera, final boolean visible_override, boolean reflectionPass,
             @NonNull Collection<LandscapeLeaf> result) {
-        var patch_visitor = new Visitor(camera, visible_override, aboveSea, aboveSea ? world.getHeightMap() : null,
+        var patch_visitor = new Visitor(camera, visible_override, reflectionPass,
+                reflectionPass ? world.getHeightMap() : null,
                 result);
         world.getPatchRoot().visit(patch_visitor);
     }
@@ -101,7 +115,7 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
             // Set VTF Uniforms
             shader.setUniform(LandscapeShader.Uniforms.WORLD_SIZE, (float) world.getHeightMap().getMetersPerWorld());
             shader.setUniform(LandscapeShader.Uniforms.DETAIL_SCALE, Globals.LANDSCAPE_DETAIL_REPEAT_RATE);
-            float seaLevel = aboveSea ? world.getHeightMap().getSeaLevelMeters() : -100.0f;
+            float seaLevel = reflectionPass ? world.getHeightMap().getSeaLevelMeters() : -100.0f;
             shader.setUniform(LandscapeShader.Uniforms.SEA_LEVEL, seaLevel);
 
             context.setTexture(0, diffuseMap);
@@ -115,6 +129,14 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
 
             context.setTexture(3, world.getHeightMap().getHeightTexture());
             shader.setUniform(LandscapeShader.Uniforms.HEIGHT_MAP, 3);
+
+            context.setTexture(4, supplyShadows != null ? supplyShadows.getAlphaMap() : null);
+            shader.setUniform(LandscapeShader.Uniforms.SUPPLY_SHADOW_ALPHA, 4);
+            context.setTexture(5, terrainShadows != null ? terrainShadows.getStructureMap() : null);
+            shader.setUniform(LandscapeShader.Uniforms.SHADOW_TEXTURE, 5);
+            shader.setUniform(LandscapeShader.Uniforms.SHADOW_SCALE, shadowScale);
+            context.setTexture(6, terrainShadows != null ? terrainShadows.getAlphaMap() : null);
+            shader.setUniform(LandscapeShader.Uniforms.TERRAIN_SHADOW_ALPHA, 6);
 
             if (Globals.draw_landscape && !render_list.isEmpty()) {
                 int instanceCount = render_list.size();
@@ -200,15 +222,15 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
     private static final class Visitor implements PatchGroupVisitor {
         private final @NonNull CameraState camera;
         private boolean visible_override;
-        private final boolean aboveSea;
+        private final boolean reflectionPass;
         private final @Nullable HeightMap heightMap;
         private final @NonNull Collection<LandscapeLeaf> result;
 
-        private Visitor(@NonNull CameraState camera, boolean visible_override, boolean aboveSea,
+        private Visitor(@NonNull CameraState camera, boolean visible_override, boolean reflectionPass,
                 @Nullable HeightMap heightMap, @NonNull Collection<LandscapeLeaf> result) {
             this.camera = camera;
             this.visible_override = visible_override;
-            this.aboveSea = aboveSea;
+            this.reflectionPass = reflectionPass;
             this.heightMap = heightMap;
             this.result = result;
         }
@@ -229,7 +251,12 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
         public void visitLeaf(@NonNull LandscapeLeaf leaf) {
             if (visible_override || RenderTools.inFrustum(leaf,
                     camera.getFrustum()) != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
-                if (!aboveSea || heightMap.isAboveSeaLevel(leaf.getPatchX(), leaf.getPatchY())) {
+                /* During the reflection pass (rendering from the water's point of view), we'll only
+                 * render stuff above the sea level.
+                 * So if it's not the reflectionPass, render everything. Otherwise check if the patch
+                 * has any parts above the sea level.
+                 */
+                if (!reflectionPass || heightMap.isAboveSeaLevel(leaf.getPatchX(), leaf.getPatchY())) {
                     result.add(leaf);
                 }
             }

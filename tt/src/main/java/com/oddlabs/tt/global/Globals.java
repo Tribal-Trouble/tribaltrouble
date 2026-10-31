@@ -1,6 +1,7 @@
 package com.oddlabs.tt.global;
 
 import com.oddlabs.tt.steam.SteamManager;
+import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -11,6 +12,15 @@ public final class Globals {
     public static final int DETAIL_LOW = 0;
     public static final int DETAIL_NORMAL = 1;
     public static final int DETAIL_HIGH = 2;
+
+    public static final int SHADOWS_STATIC = 0;
+    public static final int SHADOWS_DYNAMIC = 1;
+
+    // I want the players to see the rendered Sun/Moon, which is why they'll be low in the sky.
+    // But also I want the dynamic shadows to be shorter. So we have to use 2 positions.
+    // A real one that's actually used for lights and shadows, and a fake one.
+    public static final Vector3f FAKE_SKY_BODY_DIRECTION = new Vector3f(+0.0f, -1.0f, +0.20f).normalize();
+    public static final Vector3f REAL_SKY_BODY_DIRECTION = new Vector3f(+0.0f, -1.0f, +0.99f).normalize();
 
     public static final int[] TEXTURE_MIP_SHIFT = new int[]{0, 0, 0};
     public static final int[] UNIT_HIGH_POLY_COUNT = new int[]{20000, 80000, 200000};

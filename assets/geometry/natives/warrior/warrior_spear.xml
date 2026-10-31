@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!DOCTYPE mesh [
+        <!ELEMENT mesh       (polygons, skeleton?)>
+        <!ELEMENT polygons   (polygon+)>
+        <!ELEMENT polygon    (vertex, vertex, vertex)>
+        <!ELEMENT vertex     (skin+)>
+        <!ELEMENT skin        EMPTY>
+        <!ELEMENT skeleton   (bones, init_pose)>
+        <!ELEMENT bones      (bone+)>
+        <!ELEMENT init_pose  (transform+)>
+        <!ELEMENT bone        EMPTY>
+        <!ELEMENT transform   EMPTY>
+        <!ATTLIST mesh texture CDATA #IMPLIED>
+        <!ATTLIST vertex x CDATA #REQUIRED>
+        <!ATTLIST vertex y CDATA #REQUIRED>
+        <!ATTLIST vertex z CDATA #REQUIRED>
+        <!ATTLIST vertex r CDATA #REQUIRED>
+        <!ATTLIST vertex g CDATA #REQUIRED>
+        <!ATTLIST vertex b CDATA #REQUIRED>
+        <!ATTLIST vertex a CDATA #REQUIRED>
+        <!ATTLIST vertex nx CDATA #REQUIRED>
+        <!ATTLIST vertex ny CDATA #REQUIRED>
+        <!ATTLIST vertex nz CDATA #REQUIRED>
+        <!ATTLIST vertex u CDATA #REQUIRED>
+        <!ATTLIST vertex v CDATA #REQUIRED>
+        <!ATTLIST vertex u2 CDATA #IMPLIED>
+        <!ATTLIST vertex v2 CDATA #IMPLIED>
+        <!ATTLIST skin bone CDATA #REQUIRED>
+        <!ATTLIST skin weight CDATA #REQUIRED>
+        <!ATTLIST transform name CDATA #REQUIRED>
+        <!ATTLIST transform m00 CDATA #REQUIRED>
+        <!ATTLIST transform m01 CDATA #REQUIRED>
+        <!ATTLIST transform m02 CDATA #REQUIRED>
+        <!ATTLIST transform m03 CDATA #REQUIRED>
+        <!ATTLIST transform m10 CDATA #REQUIRED>
+        <!ATTLIST transform m11 CDATA #REQUIRED>
+        <!ATTLIST transform m12 CDATA #REQUIRED>
+        <!ATTLIST transform m13 CDATA #REQUIRED>
+        <!ATTLIST transform m20 CDATA #REQUIRED>
+        <!ATTLIST transform m21 CDATA #REQUIRED>
+        <!ATTLIST transform m22 CDATA #REQUIRED>
+        <!ATTLIST transform m23 CDATA #REQUIRED>
+        <!ATTLIST transform m30 CDATA #REQUIRED>
+        <!ATTLIST transform m31 CDATA #REQUIRED>
+        <!ATTLIST transform m32 CDATA #REQUIRED>
+        <!ATTLIST transform m33 CDATA #REQUIRED>
+        ]>
+
+<mesh texture="native_warrior_spear_rock,native_warrior_spear_iron,native_warrior_spear_rubber">
+    <polygons>
+        <polygon>
+            <vertex x="-0.901914" y="-0.522229" z="1.42694" r="1" g="1" b="1" a="1" nx="0.725578" ny="-0.0301594" nz="0.687479" u="0.461116" v="0.0586073">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+            <vertex x="-0.989794" y="-1.0216" z="1.35977" r="1" g="1" b="1" a="1" nx="-0.000332638" ny="-0.999999" nz="-0.0014197" u="0.6012" v="0.0902444">
+                <skin bone="Prop3" weight="1"/>
+            </vertex>
+            <vertex x="-0.901761" y="-0.522229" z="1.29467" r="1" g="1" b="1" a="1" nx="0.729482" ny="-0.0312039" nz="-0.683288" u="0.457755" v="0.0955945">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.901761" y="-0.522229" z="1.29467" r="1" g="1" b="1" a="1" nx="0.729482" ny="-0.0312039" nz="-0.683288" u="0.457755" v="0.0955945">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+            <vertex x="-0.989794" y="-1.0216" z="1.35977" r="1" g="1" b="1" a="1" nx="-0.000332638" ny="-0.999999" nz="-0.0014197" u="0.6012" v="0.0902444">
+                <skin bone="Prop3" weight="1"/>
+            </vertex>
+            <vertex x="-1.07466" y="-0.52223" z="1.28749" r="1" g="1" b="1" a="1" nx="-0.698272" ny="-0.0384602" nz="-0.714798" u="0.454968" v="0.142414">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-1.02993" y="1.0269" z="1.38999" r="1" g="1" b="1" a="1" nx="-0.470735" ny="0.573406" nz="0.670533" u="0.0272202" v="0.0135239">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+            <vertex x="-0.933755" y="-0.262059" z="1.39231" r="1" g="1" b="1" a="1" nx="0.760843" ny="0.100118" nz="0.641167" u="0.386942" v="0.0616209">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-0.947819" y="1.02692" z="1.35936" r="1" g="1" b="1" a="1" nx="0.819891" ny="0.572519" nz="-0.000655314" u="0.0256483" v="0.0380815">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.947819" y="1.02692" z="1.35936" r="1" g="1" b="1" a="1" nx="0.819891" ny="0.572519" nz="-0.000655314" u="0.0256483" v="0.0380815">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+            <vertex x="-0.933755" y="-0.262059" z="1.39231" r="1" g="1" b="1" a="1" nx="0.760843" ny="0.100118" nz="0.641167" u="0.386942" v="0.0616209">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-0.933678" y="-0.26206" z="1.32618" r="1" g="1" b="1" a="1" nx="0.757676" ny="0.0963555" nz="-0.645478" u="0.385261" v="0.0801143">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-1.04565" y="-0.261832" z="1.30888" r="1" g="1" b="1" a="1" nx="-0.650157" ny="0.0982055" nz="-0.753426" u="0.378386" v="0.111029">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-0.901761" y="-0.522229" z="1.29467" r="1" g="1" b="1" a="1" nx="0.729482" ny="-0.0312039" nz="-0.683288" u="0.457755" v="0.0955945">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+            <vertex x="-1.07466" y="-0.52223" z="1.28749" r="1" g="1" b="1" a="1" nx="-0.698272" ny="-0.0384602" nz="-0.714798" u="0.454968" v="0.142414">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-1.02993" y="1.02684" z="1.32888" r="1" g="1" b="1" a="1" nx="-0.471462" ny="0.572763" nz="-0.670572" u="0.0227832" v="0.0625061">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+            <vertex x="-0.947819" y="1.02692" z="1.35936" r="1" g="1" b="1" a="1" nx="0.819891" ny="0.572519" nz="-0.000655314" u="0.0256483" v="0.0380815">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+            <vertex x="-0.933678" y="-0.26206" z="1.32618" r="1" g="1" b="1" a="1" nx="0.757676" ny="0.0963555" nz="-0.645478" u="0.385261" v="0.0801143">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-1.04565" y="-0.261832" z="1.30888" r="1" g="1" b="1" a="1" nx="-0.650157" ny="0.0982055" nz="-0.753426" u="0.378386" v="0.111029">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-1.07466" y="-0.52223" z="1.28749" r="1" g="1" b="1" a="1" nx="-0.698272" ny="-0.0384602" nz="-0.714798" u="0.454968" v="0.142414">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+            <vertex x="-1.07474" y="-0.52223" z="1.43293" r="1" g="1" b="1" a="1" nx="-0.700359" ny="-0.0378096" nz="0.712789" u="0.454964" v="0.177872">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-1.02993" y="1.02684" z="1.32888" r="1" g="1" b="1" a="1" nx="-0.471462" ny="0.572763" nz="-0.670572" u="0.0227832" v="0.0625061">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+            <vertex x="-1.04565" y="-0.261832" z="1.30888" r="1" g="1" b="1" a="1" nx="-0.650157" ny="0.0982055" nz="-0.753426" u="0.378386" v="0.111029">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-1.04569" y="-0.262255" z="1.41062" r="1" g="1" b="1" a="1" nx="-0.648322" ny="0.102868" nz="0.754385" u="0.369249" v="0.137589">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-1.04569" y="-0.262255" z="1.41062" r="1" g="1" b="1" a="1" nx="-0.648322" ny="0.102868" nz="0.754385" u="0.385748" v="0.0299526">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-1.07474" y="-0.52223" z="1.43293" r="1" g="1" b="1" a="1" nx="-0.700359" ny="-0.0378096" nz="0.712789" u="0.466642" v="0.012161">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+            <vertex x="-0.901914" y="-0.522229" z="1.42694" r="1" g="1" b="1" a="1" nx="0.725578" ny="-0.0301594" nz="0.687479" u="0.461116" v="0.0586073">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-1.02993" y="1.0269" z="1.38999" r="1" g="1" b="1" a="1" nx="-0.470735" ny="0.573406" nz="0.670533" u="0.00750124" v="0.0547028">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+            <vertex x="-0.947819" y="1.02692" z="1.35936" r="1" g="1" b="1" a="1" nx="0.819891" ny="0.572519" nz="-0.000655314" u="0.0256483" v="0.0380815">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+            <vertex x="-1.02993" y="1.02684" z="1.32888" r="1" g="1" b="1" a="1" nx="-0.471462" ny="0.572763" nz="-0.670572" u="0.0227832" v="0.0625061">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.989794" y="-1.0216" z="1.35977" r="1" g="1" b="1" a="1" nx="-0.000332638" ny="-0.999999" nz="-0.0014197" u="0.6012" v="0.0902444">
+                <skin bone="Prop3" weight="1"/>
+            </vertex>
+            <vertex x="-1.07474" y="-0.52223" z="1.43293" r="1" g="1" b="1" a="1" nx="-0.700359" ny="-0.0378096" nz="0.712789" u="0.454964" v="0.177872">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+            <vertex x="-1.07466" y="-0.52223" z="1.28749" r="1" g="1" b="1" a="1" nx="-0.698272" ny="-0.0384602" nz="-0.714798" u="0.454968" v="0.142414">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.901914" y="-0.522229" z="1.42694" r="1" g="1" b="1" a="1" nx="0.725578" ny="-0.0301594" nz="0.687479" u="0.461116" v="0.0586073">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+            <vertex x="-1.07474" y="-0.52223" z="1.43293" r="1" g="1" b="1" a="1" nx="-0.700359" ny="-0.0378096" nz="0.712789" u="0.466642" v="0.012161">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+            <vertex x="-0.989794" y="-1.0216" z="1.35977" r="1" g="1" b="1" a="1" nx="-0.000332638" ny="-0.999999" nz="-0.0014197" u="0.6012" v="0.0902444">
+                <skin bone="Prop3" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-1.04569" y="-0.262255" z="1.41062" r="1" g="1" b="1" a="1" nx="-0.648322" ny="0.102868" nz="0.754385" u="0.369249" v="0.137589">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-1.04565" y="-0.261832" z="1.30888" r="1" g="1" b="1" a="1" nx="-0.650157" ny="0.0982055" nz="-0.753426" u="0.378386" v="0.111029">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-1.07474" y="-0.52223" z="1.43293" r="1" g="1" b="1" a="1" nx="-0.700359" ny="-0.0378096" nz="0.712789" u="0.454964" v="0.177872">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-1.02993" y="1.02684" z="1.32888" r="1" g="1" b="1" a="1" nx="-0.471462" ny="0.572763" nz="-0.670572" u="0.0227832" v="0.0625061">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+            <vertex x="-0.933678" y="-0.26206" z="1.32618" r="1" g="1" b="1" a="1" nx="0.757676" ny="0.0963555" nz="-0.645478" u="0.385261" v="0.0801143">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-1.04565" y="-0.261832" z="1.30888" r="1" g="1" b="1" a="1" nx="-0.650157" ny="0.0982055" nz="-0.753426" u="0.378386" v="0.111029">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.933678" y="-0.26206" z="1.32618" r="1" g="1" b="1" a="1" nx="0.757676" ny="0.0963555" nz="-0.645478" u="0.385261" v="0.0801143">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-0.901914" y="-0.522229" z="1.42694" r="1" g="1" b="1" a="1" nx="0.725578" ny="-0.0301594" nz="0.687479" u="0.461116" v="0.0586073">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+            <vertex x="-0.901761" y="-0.522229" z="1.29467" r="1" g="1" b="1" a="1" nx="0.729482" ny="-0.0312039" nz="-0.683288" u="0.457755" v="0.0955945">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-1.04565" y="-0.261832" z="1.30888" r="1" g="1" b="1" a="1" nx="-0.650157" ny="0.0982055" nz="-0.753426" u="0.378386" v="0.111029">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-0.933678" y="-0.26206" z="1.32618" r="1" g="1" b="1" a="1" nx="0.757676" ny="0.0963555" nz="-0.645478" u="0.385261" v="0.0801143">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-0.901761" y="-0.522229" z="1.29467" r="1" g="1" b="1" a="1" nx="0.729482" ny="-0.0312039" nz="-0.683288" u="0.457755" v="0.0955945">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-1.02993" y="1.0269" z="1.38999" r="1" g="1" b="1" a="1" nx="-0.470735" ny="0.573406" nz="0.670533" u="0.0272202" v="0.0135239">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+            <vertex x="-1.04569" y="-0.262255" z="1.41062" r="1" g="1" b="1" a="1" nx="-0.648322" ny="0.102868" nz="0.754385" u="0.385748" v="0.0299526">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-0.933755" y="-0.262059" z="1.39231" r="1" g="1" b="1" a="1" nx="0.760843" ny="0.100118" nz="0.641167" u="0.386942" v="0.0616209">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.933755" y="-0.262059" z="1.39231" r="1" g="1" b="1" a="1" nx="0.760843" ny="0.100118" nz="0.641167" u="0.386942" v="0.0616209">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-0.901914" y="-0.522229" z="1.42694" r="1" g="1" b="1" a="1" nx="0.725578" ny="-0.0301594" nz="0.687479" u="0.461116" v="0.0586073">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+            <vertex x="-0.933678" y="-0.26206" z="1.32618" r="1" g="1" b="1" a="1" nx="0.757676" ny="0.0963555" nz="-0.645478" u="0.385261" v="0.0801143">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.933755" y="-0.262059" z="1.39231" r="1" g="1" b="1" a="1" nx="0.760843" ny="0.100118" nz="0.641167" u="0.386942" v="0.0616209">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-1.04569" y="-0.262255" z="1.41062" r="1" g="1" b="1" a="1" nx="-0.648322" ny="0.102868" nz="0.754385" u="0.385748" v="0.0299526">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-0.901914" y="-0.522229" z="1.42694" r="1" g="1" b="1" a="1" nx="0.725578" ny="-0.0301594" nz="0.687479" u="0.461116" v="0.0586073">
+                <skin bone="Prop3" weight="0.8"/>
+                <skin bone="Prop1" weight="0.2"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-1.02993" y="1.02684" z="1.32888" r="1" g="1" b="1" a="1" nx="-0.471462" ny="0.572763" nz="-0.670572" u="0.0227832" v="0.0625061">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+            <vertex x="-1.04569" y="-0.262255" z="1.41062" r="1" g="1" b="1" a="1" nx="-0.648322" ny="0.102868" nz="0.754385" u="0.369249" v="0.137589">
+                <skin bone="Prop3" weight="0.7"/>
+                <skin bone="Prop1" weight="0.3"/>
+            </vertex>
+            <vertex x="-1.02993" y="1.0269" z="1.38999" r="1" g="1" b="1" a="1" nx="-0.470735" ny="0.573406" nz="0.670533" u="0.0201692" v="0.0794642">
+                <skin bone="Prop1" weight="0.833333"/>
+                <skin bone="Prop3" weight="0.166667"/>
+            </vertex>
+        </polygon>
+    </polygons>
+</mesh>

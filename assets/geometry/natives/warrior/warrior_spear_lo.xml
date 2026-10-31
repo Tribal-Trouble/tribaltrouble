@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!DOCTYPE mesh [
+        <!ELEMENT mesh       (polygons, skeleton?)>
+        <!ELEMENT polygons   (polygon+)>
+        <!ELEMENT polygon    (vertex, vertex, vertex)>
+        <!ELEMENT vertex     (skin+)>
+        <!ELEMENT skin        EMPTY>
+        <!ELEMENT skeleton   (bones, init_pose)>
+        <!ELEMENT bones      (bone+)>
+        <!ELEMENT init_pose  (transform+)>
+        <!ELEMENT bone        EMPTY>
+        <!ELEMENT transform   EMPTY>
+        <!ATTLIST mesh texture CDATA #IMPLIED>
+        <!ATTLIST vertex x CDATA #REQUIRED>
+        <!ATTLIST vertex y CDATA #REQUIRED>
+        <!ATTLIST vertex z CDATA #REQUIRED>
+        <!ATTLIST vertex r CDATA #REQUIRED>
+        <!ATTLIST vertex g CDATA #REQUIRED>
+        <!ATTLIST vertex b CDATA #REQUIRED>
+        <!ATTLIST vertex a CDATA #REQUIRED>
+        <!ATTLIST vertex nx CDATA #REQUIRED>
+        <!ATTLIST vertex ny CDATA #REQUIRED>
+        <!ATTLIST vertex nz CDATA #REQUIRED>
+        <!ATTLIST vertex u CDATA #REQUIRED>
+        <!ATTLIST vertex v CDATA #REQUIRED>
+        <!ATTLIST vertex u2 CDATA #IMPLIED>
+        <!ATTLIST vertex v2 CDATA #IMPLIED>
+        <!ATTLIST skin bone CDATA #REQUIRED>
+        <!ATTLIST skin weight CDATA #REQUIRED>
+        <!ATTLIST transform name CDATA #REQUIRED>
+        <!ATTLIST transform m00 CDATA #REQUIRED>
+        <!ATTLIST transform m01 CDATA #REQUIRED>
+        <!ATTLIST transform m02 CDATA #REQUIRED>
+        <!ATTLIST transform m03 CDATA #REQUIRED>
+        <!ATTLIST transform m10 CDATA #REQUIRED>
+        <!ATTLIST transform m11 CDATA #REQUIRED>
+        <!ATTLIST transform m12 CDATA #REQUIRED>
+        <!ATTLIST transform m13 CDATA #REQUIRED>
+        <!ATTLIST transform m20 CDATA #REQUIRED>
+        <!ATTLIST transform m21 CDATA #REQUIRED>
+        <!ATTLIST transform m22 CDATA #REQUIRED>
+        <!ATTLIST transform m23 CDATA #REQUIRED>
+        <!ATTLIST transform m30 CDATA #REQUIRED>
+        <!ATTLIST transform m31 CDATA #REQUIRED>
+        <!ATTLIST transform m32 CDATA #REQUIRED>
+        <!ATTLIST transform m33 CDATA #REQUIRED>
+        ]>
+
+<mesh texture="native_warrior_spear_rock,native_warrior_spear_iron,native_warrior_spear_rubber">
+    <polygons>
+        <polygon>
+            <vertex x="-1.15309" y="-0.999139" z="1.36573" r="1" g="1" b="1" a="1" nx="-0.0322709" ny="0.00669491" nz="0.999457" u="0.835524" v="0.0679933">
+                <skin bone="Prop3" weight="1"/>
+            </vertex>
+            <vertex x="-0.801645" y="-0.999453" z="1.37708" r="1" g="1" b="1" a="1" nx="-0.0322709" ny="0.00669491" nz="0.999457" u="0.836943" v="0.0059542">
+                <skin bone="Prop3" weight="1"/>
+            </vertex>
+            <vertex x="-0.984308" y="1.69396" z="1.35314" r="1" g="1" b="1" a="1" nx="0.145596" ny="-0.624324" nz="-0.767478" u="0.517762" v="0.0256758">
+                <skin bone="Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-1.15309" y="-0.999066" z="1.36978" r="1" g="1" b="1" a="1" nx="0.0322699" ny="-0.00819797" nz="-0.999446" u="0.835524" v="0.0679933">
+                <skin bone="Prop3" weight="1"/>
+            </vertex>
+            <vertex x="-0.984308" y="1.69396" z="1.35314" r="1" g="1" b="1" a="1" nx="0.145664" ny="-0.62434" nz="-0.767452" u="0.517762" v="0.0256758">
+                <skin bone="Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.801645" y="-0.99938" z="1.38113" r="1" g="1" b="1" a="1" nx="0.0322699" ny="-0.00819797" nz="-0.999446" u="0.836943" v="0.0059542">
+                <skin bone="Prop3" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.967135" y="-1.00068" z="1.19315" r="1" g="1" b="1" a="1" nx="-0.99947" ny="-0.00445554" nz="-0.0322379" u="0.835524" v="0.0679933">
+                <skin bone="Prop3" weight="1"/>
+            </vertex>
+            <vertex x="-0.978481" y="-0.998008" z="1.54454" r="1" g="1" b="1" a="1" nx="-0.99947" ny="-0.00445554" nz="-0.0322379" u="0.836943" v="0.0059542">
+                <skin bone="Prop3" weight="1"/>
+            </vertex>
+            <vertex x="-0.984308" y="1.69396" z="1.35314" r="1" g="1" b="1" a="1" nx="0.145542" ny="-0.624333" nz="-0.76748" u="0.517762" v="0.0256758">
+                <skin bone="Prop1" weight="1"/>
+            </vertex>
+        </polygon>
+        <polygon>
+            <vertex x="-0.965967" y="-1.00068" z="1.19315" r="1" g="1" b="1" a="1" nx="0.999507" ny="0.00496181" nz="0.0310126" u="0.835524" v="0.0679933">
+                <skin bone="Prop3" weight="1"/>
+            </vertex>
+            <vertex x="-0.984308" y="1.69396" z="1.35314" r="1" g="1" b="1" a="1" nx="0.145577" ny="-0.624386" nz="-0.767431" u="0.517762" v="0.0256758">
+                <skin bone="Prop1" weight="1"/>
+            </vertex>
+            <vertex x="-0.976886" y="-0.998006" z="1.54463" r="1" g="1" b="1" a="1" nx="0.999507" ny="0.00496181" nz="0.0310126" u="0.836943" v="0.0059542">
+                <skin bone="Prop3" weight="1"/>
+            </vertex>
+        </polygon>
+    </polygons>
+</mesh>

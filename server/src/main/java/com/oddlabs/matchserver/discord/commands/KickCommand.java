@@ -30,7 +30,7 @@ public class KickCommand extends DiscordCommand {
         String reason = getStringOption(event, command_option_reason);
         String moderator = event.getInteraction().getUser().getUsername();
 
-        if (!kickOnlineClient(nick, reason, moderator, "kicked"))
+        if (!kickOnlineClient(nick, reason, moderator, "kicked", null))
             return event.reply("No player named '" + nick + "' is online.").withEphemeral(true);
         return event.reply("Kicked '" + nick + "'.").withEphemeral(true);
     }
@@ -39,11 +39,13 @@ public class KickCommand extends DiscordCommand {
      * Disconnects the client with the given profile nick if online. Returns false when no such
      * client is connected.
      */
-    static boolean kickOnlineClient(String nick, String reason, String moderator, String action) {
+    static boolean kickOnlineClient(String nick, String reason, String moderator, String action, String note) {
         Client client = Client.getActiveClients().get(nick.toLowerCase());
         if (client == null)
             return false;
         String message = "You have been " + action + " by a moderator" + (reason != null ? ": " + reason : ".");
+        if (note != null)
+            message += (reason != null ? ". " : " ") + note;
         client.getClientInterface().receivePrivateMessage("Server", message);
         MatchmakingServer.getLogger().info(
                 nick + " " + action + " by Discord moderator " + moderator + (reason != null ? " (" + reason + ")" : ""));

@@ -32,6 +32,9 @@ final class PlantLayer {
         final float dir_x;
         final float dir_y;
         final @NonNull SpriteKey sprite;
+        final float shadow_diameter;
+        final float shadow_fade;
+        final boolean fades;
         @Nullable
         Plants live;
 
@@ -41,6 +44,9 @@ final class PlantLayer {
             dir_x = plant.getDirectionX();
             dir_y = plant.getDirectionY();
             sprite = plant.getSpriteRenderer();
+            shadow_diameter = plant.getShadowDiameter();
+            shadow_fade = plant.getShadowFade();
+            fades = plant.fades();
             live = plant;
         }
     }
@@ -84,7 +90,8 @@ final class PlantLayer {
                 spot.live = null;
             } else if (fit && live == null && Globals.INSERT_PLANTS[Settings.getSettings().graphic_detail]) {
                 // Only while the graphics detail shows plants: one made otherwise is never in the world to remove.
-                spot.live = new Plants(world, spot.x, spot.y, spot.dir_x, spot.dir_y, spot.sprite);
+                spot.live = new Plants(world, spot.x, spot.y, spot.dir_x, spot.dir_y, spot.sprite,
+                        spot.shadow_diameter, spot.shadow_fade, spot.fades);
             }
         }
     }

@@ -12,6 +12,7 @@ import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.SceneryModel;
 import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.model.UnitTemplate;
 import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.player.Player;
@@ -25,6 +26,7 @@ import com.oddlabs.tt.trigger.campaign.VictoryTrigger;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.IntStream;
 
@@ -120,33 +122,35 @@ public final class NativeIsland1 extends Island {
         // insert slaves
         final int captive_start_x = 48 * 2;
         final int captive_start_y = 96 * 2;
-        float shadow_diameter = local_player.getRace().getUnitTemplate(Race.UNIT_PEON).getShadowDiameter();
-        SpriteKey sprite_renderer = local_player.getRace().getUnitTemplate(Race.UNIT_PEON).getSpriteRenderer();
+        UnitTemplate peon = local_player.getRace().getUnitTemplate(Race.UNIT_PEON);
+        float shadow_diameter = peon.getShadowDiameter();
+        SpriteKey sprite_renderer = peon.getSpriteRenderer();
+        List<SpriteKey> attachments = peon.getStartingAttachments();
 
         final float offset = HeightMap.METERS_PER_UNIT_GRID / 2f;
         float dir = (float) Math.sin(Math.PI / 4);
 
         final SceneryModel[] scenery_models = new SceneryModel[10];
         scenery_models[0] = new SceneryModel(getViewer().getWorld(), 48 * 2 + offset, 96 * 2 + offset, 1, 0,
-                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .1f);
+                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .1f, attachments);
         scenery_models[1] = new SceneryModel(getViewer().getWorld(), 48 * 2 + offset, 95 * 2 + offset, dir, dir,
-                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .15f);
+                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .15f, attachments);
         scenery_models[2] = new SceneryModel(getViewer().getWorld(), 48 * 2 + offset, 98 * 2 + offset, dir, -dir,
-                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .75f);
+                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .75f, attachments);
         scenery_models[3] = new SceneryModel(getViewer().getWorld(), 49 * 2 + offset, 98 * 2 + offset, 0, -1,
-                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .54f);
+                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .54f, attachments);
         scenery_models[4] = new SceneryModel(getViewer().getWorld(), 50 * 2 + offset, 97 * 2 + offset, -1, 0,
-                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .47f);
+                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .47f, attachments);
         scenery_models[5] = new SceneryModel(getViewer().getWorld(), 51 * 2 + offset, 96 * 2 + offset, 0, -1,
-                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .9f);
+                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .9f, attachments);
         scenery_models[6] = new SceneryModel(getViewer().getWorld(), 51 * 2 + offset, 94 * 2 + offset, 0, 1,
-                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .23f);
+                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .23f, attachments);
         scenery_models[7] = new SceneryModel(getViewer().getWorld(), 52 * 2 + offset, 96 * 2 + offset, -dir, -dir,
-                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .7f);
+                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .7f, attachments);
         scenery_models[8] = new SceneryModel(getViewer().getWorld(), 52 * 2 + offset, 94 * 2 + offset, -dir, dir,
-                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, 0f);
+                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, 0f, attachments);
         scenery_models[9] = new SceneryModel(getViewer().getWorld(), 50 * 2 + offset, 95 * 2 + offset, 1, 0,
-                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .34f);
+                sprite_renderer, shadow_diameter, true, i18n("captive"), Unit.Animation.THROWING, 1, .34f, attachments);
 
         // Insert guards
         new Unit(guards, 45 * 2, 98 * 2, null, guards.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));

@@ -25,6 +25,10 @@ public abstract class Model extends Element<Model> {
         return 0f;
     }
 
+    public float getShadowFade() {
+        return 0f;
+    }
+
     public float getOffsetZ() {
         return 0f;
     }

@@ -212,7 +212,7 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
                     }
                 }
 
-                vec3 waterColor = baseColor.rgb * 0.7;
+                vec3 waterColor = baseColor.rgb * 0.7 * u_sceneTint;
 
                 vec3 finalRGB = mix(waterColor, reflectionColor, F * 0.9);
                 finalRGB += vec3(specular) * 0.4;

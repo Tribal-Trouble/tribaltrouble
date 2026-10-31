@@ -189,12 +189,17 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Build Server Distribution
-        run: ./gradlew :server:installDist
+        run: ./gradlew :server:installDist :bugserver:installDist
       - name: Upload server
         uses: actions/upload-artifact@v4
         with:
           name: tribal-trouble-server_${{ needs.version.outputs.full }}
           path: server/build/install/server/
+      - name: Upload bug server
+        uses: actions/upload-artifact@v4
+        with:
+          name: tribal-trouble-bugserver_${{ needs.version.outputs.full }}
+          path: bugserver/build/install/bugserver/
 
   build-windows:
     needs: [version]
@@ -268,7 +273,7 @@ jobs:
   steam-prerelease:
     if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: [ version, build-mac-arm64-app, build-mac-x86-app, build-windows, build-linux ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # steamcmd cannot self-update on ubuntu-26.04 runners: https://github.com/game-ci/steam-deploy/issues/99
     environment: release
     steps:
       - name: Download Windows Artifact
@@ -299,21 +304,6 @@ jobs:
           appId: ${{ vars.STEAM_APP_ID }}
           buildDescription: ${{ needs.version.outputs.full }}.${{ github.run_number }}
           firstDepotIdOverride: 3945722
-          rootPath: tt/build/dist/
-          depot1Path: windows
-          depot2Path: macosx-arm64-app
-          depot3Path: macosx-x86-app
-          depot4Path: linux
-          releaseBranch: prerelease
-      - name: Reset BuildOutput between Steam uploads
-        run: sudo rm -rf BuildOutput
-      - name: Upload to steam (demo)
-        uses: game-ci/steam-deploy@8bd9baca6407f9abd210bd1eef3c45f56e12d8d9  # v3
-        with:
-          username: ${{ vars.STEAM_USER }}
-          configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
-          appId: ${{ vars.STEAM_DEMO_APP_ID }}
-          buildDescription: ${{ needs.version.outputs.full }}.${{ github.run_number }}
           rootPath: tt/build/dist/
           depot1Path: windows
           depot2Path: macosx-arm64-app
@@ -450,12 +440,68 @@ jobs:
           git tag -a "$TAG" -m "Release $TAG"
           git push origin "$TAG"
 
+          # Release notes come from the Unreleased section of CHANGELOG.md; fall back to generated notes when it is empty.
+          NOTES_FILE="$RUNNER_TEMP/release-notes.md"
+          awk '/^## \[Unreleased\]/ { found = 1; next } /^## \[/ || /^\[[^]]+\]: / { found = 0 } found' CHANGELOG.md > "$NOTES_FILE"
+          if grep -q '[^[:space:]]' "$NOTES_FILE"; then
+            NOTES=(--notes-file "$NOTES_FILE")
+          else
+            NOTES=(--generate-notes)
+          fi
+
           gh release create "$TAG" \
             --title "$TAG" \
-            --generate-notes \
+            "${NOTES[@]}" \
             --target "${{ github.ref_name }}" \
             --prerelease \
             dist/*
+
+  changelog-cut:
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/release') || github.event_name == 'workflow_dispatch'
+    needs: [ version, github-prerelease ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Open a PR that stamps the Unreleased section with the released version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.version.outputs.full }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+        run: |
+          VERSION="${TAG#v}"
+          VERSION="${VERSION%%-*}"
+          DATE="$(date -u +%Y-%m-%d)"
+          BRANCH="changelog-cut-$VERSION"
+          export VERSION DATE
+
+          if ! awk '/^## \[Unreleased\]/ { found = 1; next } /^## \[/ || /^\[[^]]+\]: / { found = 0 } found' CHANGELOG.md | grep -q '[^[:space:]]'; then
+            echo "Unreleased section is empty; nothing to cut"
+            exit 0
+          fi
+          if [ "$(gh pr list --head "$BRANCH" --state open --json number --jq length)" != "0" ]; then
+            echo "PR for $BRANCH already open"
+            exit 0
+          fi
+
+          # Stamp the section and start an empty Unreleased above it; point the links at the new tag.
+          perl -0pi -e 's/^## \[Unreleased\]\r?\n/## [Unreleased]\n\n## [$ENV{VERSION}] - $ENV{DATE}\n/m' CHANGELOG.md
+          perl -0pi -e 's{^\[Unreleased\]: [^\r\n]*}{[Unreleased]: $ENV{REPO_URL}/compare/$ENV{TAG}...main\n[$ENV{VERSION}]: $ENV{REPO_URL}/releases/tag/$ENV{TAG}}m' CHANGELOG.md
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git commit -am "Cut changelog for $TAG"
+          git push origin "$BRANCH"
+          gh pr create --base main --head "$BRANCH" \
+            --title "Cut changelog for $TAG" \
+            --body "Renames the Unreleased section of CHANGELOG.md to $VERSION ($DATE) now that $TAG is published, and starts an empty Unreleased section for the next release."
 
   website-prerelease:
     if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')

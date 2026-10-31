@@ -1,47 +1,38 @@
 package com.oddlabs.converter;
 
+import com.oddlabs.converter.xml.MeshFile;
+import com.oddlabs.converter.xml.Polygon;
+import com.oddlabs.converter.xml.SkinWeight;
+import com.oddlabs.converter.xml.Vertex;
+import com.oddlabs.converter.xml.Xml;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 public final class MeshLoader {
+    private static final byte STATIC_BONE = 0;
+
     private MeshLoader() {
     }
 
     public static @NonNull ModelInfo loadMesh(@NonNull Path file,
             @Nullable Map<@NonNull String, @NonNull Bone> name_to_bone_map, float scale) {
-        try (var input_stream = Files.newInputStream(file)) {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setValidating(true);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            builder.setErrorHandler(new GeometryErrorHandler());
-            Document document = builder.parse(input_stream);
-            Element root = document.getDocumentElement();
-            return createModelInfo(root, name_to_bone_map, scale);
-        } catch (IOException | ParserConfigurationException | SAXException e) {
-            throw new RuntimeException(e);
+        try {
+            return createModelInfo(Xml.read(file, MeshFile.class), name_to_bone_map, scale);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    private static @NonNull ModelInfo createModelInfo(@NonNull Node node, @Nullable Map<String, Bone> name_to_bone_map,
-            float scale) {
-//		String texture_name = cutTextureName(node.getAttributes().getNamedItem("texture").getNodeValue());
-
-        NodeList polygon_list = ConvertToBinary.getNodeByName("polygons", node).getChildNodes();
-        int num_polygons = countPolys(polygon_list);
-        int num_vertices = num_polygons * 3;
+    // The optimizer takes flat arrays, three corners per triangle in file order.
+    private static @NonNull ModelInfo createModelInfo(@NonNull MeshFile mesh,
+            @Nullable Map<String, Bone> name_to_bone_map, float scale) {
+        int num_vertices = mesh.polygons().triangles().size() * Polygon.CORNERS;
         float[] vertices = new float[num_vertices * 3];
         float[] colors = new float[num_vertices * 3];
         float[] normals = new float[num_vertices * 3];
@@ -50,108 +41,45 @@ public final class MeshLoader {
         byte[][] skin_names = new byte[num_vertices][];
         float[][] skin_weights = new float[num_vertices][];
 
-        int polygon_index = 0;
-        for (int i = 0; i < polygon_list.getLength(); i++) {
-            Node polygon = polygon_list.item(i);
-            if (polygon.getNodeType() == Node.ELEMENT_NODE && polygon.getNodeName().equals("polygon")) {
-                NodeList vertex_list = polygon.getChildNodes();
-                int vertex_index = 0;
-                for (int j = 0; j < vertex_list.getLength(); j++) {
-                    Node vertex = vertex_list.item(j);
-                    if (!vertex.getNodeName().equals("vertex"))
-                        continue;
-                    // vertex data
-                    vertices[polygon_index * 9 + vertex_index * 3 + 0] = getAttrFloat(vertex, "x") * scale;
-                    vertices[polygon_index * 9 + vertex_index * 3 + 1] = getAttrFloat(vertex, "y") * scale;
-                    vertices[polygon_index * 9 + vertex_index * 3 + 2] = getAttrFloat(vertex, "z") * scale;
-                    colors[polygon_index * 9 + vertex_index * 3 + 0] = getAttrFloat(vertex, "r", 1f);
-                    colors[polygon_index * 9 + vertex_index * 3 + 1] = getAttrFloat(vertex, "g", 1f);
-                    colors[polygon_index * 9 + vertex_index * 3 + 2] = getAttrFloat(vertex, "b", 1f);
-                    float nx = getAttrFloat(vertex, "nx", 0f);
-                    float ny = getAttrFloat(vertex, "ny", 0f);
-                    float nz = getAttrFloat(vertex, "nz", 0f);
-                    float len_sq = nx * nx + ny * ny + nz * nz;
-                    if (len_sq > 0f) {
-                        float vec_len_inv = 1f / (float) Math.sqrt(len_sq);
-                        normals[polygon_index * 9 + vertex_index * 3 + 0] = nx * vec_len_inv;
-                        normals[polygon_index * 9 + vertex_index * 3 + 1] = ny * vec_len_inv;
-                        normals[polygon_index * 9 + vertex_index * 3 + 2] = nz * vec_len_inv;
-                    } else {
-                        normals[polygon_index * 9 + vertex_index * 3 + 0] = 0f;
-                        normals[polygon_index * 9 + vertex_index * 3 + 1] = 0f;
-                        normals[polygon_index * 9 + vertex_index * 3 + 2] = 1f;
-                    }
-                    uvs[polygon_index * 6 + vertex_index * 2 + 0] = getAttrFloat(vertex, "u");
-                    uvs[polygon_index * 6 + vertex_index * 2 + 1] = getAttrFloat(vertex, "v");
-                    uvs2[polygon_index * 6 + vertex_index * 2 + 0] = getAttrFloat(vertex, "u2", 0f);
-                    uvs2[polygon_index * 6 + vertex_index * 2 + 1] = getAttrFloat(vertex, "v2", 0f);
-
-                    // skin data
-                    NodeList skins = vertex.getChildNodes();
-                    int skin_count = 0;
-                    for (int skin_index = 0; skin_index < skins.getLength(); skin_index++) {
-                        if (skins.item(skin_index).getNodeName().equals("skin"))
-                            skin_count++;
-                    }
-                    byte[] vertex_skin_names = new byte[skin_count];
-                    float[] vertex_skin_weights = new float[skin_count];
-                    skin_names[polygon_index * 3 + vertex_index] = vertex_skin_names;
-                    skin_weights[polygon_index * 3 + vertex_index] = vertex_skin_weights;
-                    int skin_index = 0;
-                    for (int k = 0; k < skins.getLength(); k++) {
-                        Node skin = skins.item(k);
-                        if (!skin.getNodeName().equals("skin"))
-                            continue;
-                        String skin_name = skin.getAttributes().getNamedItem("bone").getNodeValue();
-                        float skin_weight = getAttrFloat(skin, "weight", 1f);
-                        byte bone_index;
-                        if (name_to_bone_map != null) {
-                            Bone bone = name_to_bone_map.get(skin_name);
-                            bone_index = bone.index();
-                        } else
-                            bone_index = 0;
-                        vertex_skin_names[skin_index] = bone_index;
-                        vertex_skin_weights[skin_index] = skin_weight;
-                        skin_index++;
-                    }
-                    vertex_index++;
+        int corner = 0;
+        for (Polygon polygon : mesh.polygons().triangles()) {
+            for (Vertex vertex : polygon.vertices()) {
+                vertices[corner * 3] = vertex.x() * scale;
+                vertices[corner * 3 + 1] = vertex.y() * scale;
+                vertices[corner * 3 + 2] = vertex.z() * scale;
+                colors[corner * 3] = vertex.r();
+                colors[corner * 3 + 1] = vertex.g();
+                colors[corner * 3 + 2] = vertex.b();
+                float len_sq = vertex.nx() * vertex.nx() + vertex.ny() * vertex.ny() + vertex.nz() * vertex.nz();
+                if (len_sq > 0f) {
+                    float vec_len_inv = 1f / (float) Math.sqrt(len_sq);
+                    normals[corner * 3] = vertex.nx() * vec_len_inv;
+                    normals[corner * 3 + 1] = vertex.ny() * vec_len_inv;
+                    normals[corner * 3 + 2] = vertex.nz() * vec_len_inv;
+                } else {
+                    normals[corner * 3] = 0f;
+                    normals[corner * 3 + 1] = 0f;
+                    normals[corner * 3 + 2] = 1f;
                 }
-                assert vertex_index == 3 : "Mesh not triangulated.";
-                polygon_index++;
+                uvs[corner * 2] = vertex.u();
+                uvs[corner * 2 + 1] = vertex.v();
+                uvs2[corner * 2] = vertex.u2();
+                uvs2[corner * 2 + 1] = vertex.v2();
+
+                List<SkinWeight> skins = vertex.skins();
+                byte[] vertex_skin_names = new byte[skins.size()];
+                float[] vertex_skin_weights = new float[skins.size()];
+                for (int i = 0; i < skins.size(); i++) {
+                    SkinWeight skin = skins.get(i);
+                    vertex_skin_names[i] = name_to_bone_map != null ? name_to_bone_map.get(
+                            skin.bone()).index() : STATIC_BONE;
+                    vertex_skin_weights[i] = skin.weight();
+                }
+                skin_names[corner] = vertex_skin_names;
+                skin_weights[corner] = vertex_skin_weights;
+                corner++;
             }
         }
-        assert polygon_index == num_polygons;
-        return Optimizer.optimize(/*texture_name, */num_vertices, vertices, normals, colors, uvs, uvs2, skin_names,
-                skin_weights);
-    }
-
-    private static @NonNull String cutTextureName(@NonNull String name) {
-        if (name.isEmpty())
-            return name;
-        String result = name.replaceAll("\\\\", "/");
-        int last_slash = result.lastIndexOf('/');
-        int dot_index = result.lastIndexOf('.');
-        if (dot_index != -1)
-            result = result.substring(last_slash + 1, dot_index);
-        return result;
-    }
-
-    private static int countPolys(@NonNull NodeList polygon_list) {
-        int counter = 0;
-        for (int i = 0; i < polygon_list.getLength(); i++) {
-            Node polygon = polygon_list.item(i);
-            if (polygon.getNodeType() == Node.ELEMENT_NODE && polygon.getNodeName().equals("polygon"))
-                counter++;
-        }
-        return counter;
-    }
-
-    private static float getAttrFloat(@NonNull Node node, @NonNull String name) {
-        return Float.parseFloat(node.getAttributes().getNamedItem(name).getNodeValue());
-    }
-
-    private static float getAttrFloat(@NonNull Node node, @NonNull String name, float defaultValue) {
-        Node attr = node.getAttributes().getNamedItem(name);
-        return attr != null ? Float.parseFloat(attr.getNodeValue()) : defaultValue;
+        return Optimizer.optimize(num_vertices, vertices, normals, colors, uvs, uvs2, skin_names, skin_weights);
     }
 }

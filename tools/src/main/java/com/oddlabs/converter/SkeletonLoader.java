@@ -1,14 +1,12 @@
 package com.oddlabs.converter;
 
+import com.oddlabs.converter.xml.BoneEntry;
+import com.oddlabs.converter.xml.SkeletonFile;
+import com.oddlabs.converter.xml.Xml;
 import org.jspecify.annotations.NonNull;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.nio.file.Files;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,34 +18,19 @@ public final class SkeletonLoader {
     }
 
     public static @NonNull Skeleton loadSkeleton(@NonNull Path file) {
-        try (var input_stream = Files.newInputStream(file)) {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setValidating(true);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            builder.setErrorHandler(new GeometryErrorHandler());
-            Document document = builder.parse(input_stream);
-            Element root = document.getDocumentElement();
-            return parseSkeleton(root);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        try {
+            return buildSkeleton(Xml.read(file, SkeletonFile.class));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    private static @NonNull Skeleton parseSkeleton(@NonNull Node skel_node) {
+    private static @NonNull Skeleton buildSkeleton(@NonNull SkeletonFile skeleton) {
         Map<String, Bone> name_to_bone_map = new HashMap<>();
-        Map<String, float[]> initial_pose = AnimationLoader.parseFrame(ConvertToBinary.getNodeByName("init_pose",
-                skel_node));
-        NodeList bone_list = ConvertToBinary.getNodeByName("bones", skel_node).getChildNodes();
+        Map<String, float[]> initial_pose = AnimationLoader.pose(skeleton.initPose().transforms());
         Map<String, String> bone_parent_map = new HashMap<>();
-        for (int i = 0; i < bone_list.getLength(); i++) {
-            Node bone_node = bone_list.item(i);
-            if (bone_node.getNodeName().equals("bone")) {
-                String bone_name = bone_node.getAttributes().getNamedItem("name").getNodeValue();
-                String bone_parent_name = bone_node.getAttributes().getNamedItem("parent").getNodeValue();
-//System.out.println("bone name = " + bone_name + " parent name = " + bone_parent_name);
-                bone_parent_map.put(bone_name, bone_parent_name);
-            }
-        }
+        for (BoneEntry bone : skeleton.bones().entries())
+            bone_parent_map.put(bone.name(), bone.parent());
         Map<String, List<String>> bone_children_map = new HashMap<>();
         String root = null;
         for (String name : bone_parent_map.keySet()) {

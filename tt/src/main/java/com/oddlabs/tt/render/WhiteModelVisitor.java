@@ -20,6 +20,17 @@ class WhiteModelVisitor<M extends Model> extends ModelVisitor<M> {
     }
 
     @Override
+    public void markDetailPolygon(@NonNull ElementRenderState<M> render_state, @NonNull PolyDetail detail) {
+        super.markDetailPolygon(render_state, detail);
+        if (render_state.render_state.isPicking())
+            return;
+        for (SpriteKey prop : render_state.render_state.getRenderQueues().getProps(
+                render_state.model.getSpriteRenderer())) {
+            render_state.getRenderer(prop).addToRenderList(detail, render_state, false);
+        }
+    }
+
+    @Override
     public void getTransform(@NonNull ElementRenderState<M> render_state, @NonNull Matrix4f dest) {
         Model model = render_state.getModel();
         float angle = (float) Math.atan2(model.getDirectionY(), model.getDirectionX());

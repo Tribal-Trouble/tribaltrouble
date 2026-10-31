@@ -5,21 +5,26 @@ import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.audio.EFXManager;
 import com.oddlabs.tt.global.Settings;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.AL11;
 import org.lwjgl.openal.ALC;
 import org.lwjgl.openal.ALCCapabilities;
+import org.lwjgl.openal.ALUtil;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static org.lwjgl.openal.ALC10.ALC_DEFAULT_DEVICE_SPECIFIER;
+import static org.lwjgl.openal.ALC10.ALC_DEVICE_SPECIFIER;
 import static org.lwjgl.openal.ALC10.ALC_FALSE;
 import static org.lwjgl.openal.ALC10.ALC_TRUE;
 import static org.lwjgl.openal.ALC10.alcCloseDevice;
@@ -29,6 +34,7 @@ import static org.lwjgl.openal.ALC10.alcGetString;
 import static org.lwjgl.openal.ALC10.alcIsExtensionPresent;
 import static org.lwjgl.openal.ALC10.alcMakeContextCurrent;
 import static org.lwjgl.openal.ALC10.alcOpenDevice;
+import static org.lwjgl.openal.EnumerateAllExt.ALC_ALL_DEVICES_SPECIFIER;
 import static org.lwjgl.openal.SOFTHRTF.ALC_HRTF_SOFT;
 import static org.lwjgl.openal.SOFTHRTF.alcResetDeviceSOFT;
 
@@ -70,7 +76,11 @@ public final class OpenALManager extends AudioManager {
         String defaultDeviceName = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
         long device = alcOpenDevice(defaultDeviceName);
         if (device == 0) {
-            throw new IllegalStateException("Failed to open default OpenAL device");
+            logger.warning("Could not open the default OpenAL device '" + defaultDeviceName + "', trying the others");
+            device = openAnyDevice(defaultDeviceName);
+        }
+        if (device == 0) {
+            throw new IllegalStateException("Failed to open any OpenAL device");
         }
 
         int[] attributes = {0};
@@ -107,6 +117,25 @@ public final class OpenALManager extends AudioManager {
         } else {
             logger.warning("ALC_SOFT_HRTF not supported");
         }
+    }
+
+    private static long openAnyDevice(@Nullable String skip) {
+        int token = alcIsExtensionPresent(0,
+                "ALC_ENUMERATE_ALL_EXT") ? ALC_ALL_DEVICES_SPECIFIER : ALC_DEVICE_SPECIFIER;
+        List<String> names = ALUtil.getStringList(0, token);
+        if (names != null) {
+            for (String name : names) {
+                if (name.equals(skip))
+                    continue;
+                long device = alcOpenDevice(name);
+                if (device != 0) {
+                    logger.info("Opened OpenAL device '" + name + "'");
+                    return device;
+                }
+                logger.warning("Could not open OpenAL device '" + name + "'");
+            }
+        }
+        return alcOpenDevice((ByteBuffer) null);
     }
 
     private static @NonNull OpenALAudioSource @NonNull [] generateSources(int max) {

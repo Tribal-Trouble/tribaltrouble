@@ -1,0 +1,137 @@
+# Changelog
+
+All notable changes to Tribal Trouble: Resurrected are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project uses the versioning described in [docs/releasing.md](docs/releasing.md).
+Entries are written in English only and are not translated.
+Write entries for players first and put engine, build and server work last.
+The game shows this file under Patch notes in Options and opens it once after
+each update unless the player turned that off. GitHub release notes are taken from the Unreleased
+section when a release is cut.
+
+## [Unreleased]
+
+## [2.2.207] - 2026-10-31
+
+### Added
+
+- Moderators can rename a profile from Discord and lock it so it cannot be deleted.
+- Players from before the Steam release can ask a moderator on Discord to merge their old account into their Steam account, bringing their old profiles along.
+
+### Changed
+
+- Anything you type as a map code now gives you an island, and typing the same thing again gives the same island. The map code box then shows that island's word code, which you can share with friends.
+- Patch notes now open after every update, not only after big ones. Press "Don't show again" in the patch notes window to stop them opening. To turn them back on, open Patch notes in Options and press OK.
+- Chieftain magic activation now starts immediately and takes priority over walking or attacking.
+- Peons rallied into a damaged quarters now enter it instead of repair it.
+- Armories no longer reset weapon production to zero when their stock is full. Production pauses instead, an infinite order stays set, and it resumes when there is room again.
+
+### Fixed
+
+- Pressing a chieftain magic hotkey right after the campaign unlocks that magic no longer crashes the game, and the new magic button now appears without reselecting the chieftain.
+- Fixed a crash that could occur when certain letter codes were used as a map code.
+- Replay island keeps the time of day and the advanced settings of the game you just played. During Halloween it used to switch a daytime game to night.
+- Linking a profile to Discord now accepts a plain "yes" whispered to yourself, and the in-game message explains how to send it.
+
+## [2.2.155] - 2026-10-24
+
+### Fixed
+
+- The game starts without sound instead of crashing when the default audio device cannot be opened, and tries the other audio devices first.
+- Clicking the background of the multiplayer screen after joining a game lobby no longer crashes the game.
+- Opening the key bindings while cheats are enabled no longer crashes the game.
+
+## [2.2.139] - 2026-10-24
+
+### Added
+
+- Night games: pick Day or Night when creating a game
+- Dynamic shadows that follow the sun, with a static or dynamic shadows choice in the graphics settings (default is still static shadows)
+- Seasonal looks by date: autumn leaves on the oak trees through October, and Halloween from October 16 to 31 with pumpkins on native quarters and rally points, pumpkin patches, pumpkin hats and viking pumpkin pants.
+- Adds framework for adding new assets to the game
+- Polish translation, chosen under Options > Language.
+
+### Changed
+
+- Server: simulation version 1010, so this build only plays multiplayer games with players on the same version.
+
+### Fixed
+
+- Spectating from the chat panel while in a game lobby now leaves the lobby first, so you no longer appear twice when you rejoin it.
+- Starting ships no longer spawn on water the pathfinder cannot reach, which left them stuck at the start of the game.
+
+## [2.1.96] - 2026-10-15
+
+Everything since the original Oddlabs source was released on 2014-09-01. Builds before 2.1 were prereleases and are not listed separately.
+
+### Added
+
+- Multiplayer servers are back online. No registration, serial key or demo mode.
+- Steam release with Steam login, campaign achievements, multiplayer stats and rich presence.
+- Up to 12 players per game, with 12 team colors that follow lobby slots.
+- Spectate live games from the game list: follow a player's camera, cursor, selection, orders and building placement, cycle players or use a free camera, and chat with other spectators.
+- Ships for both tribes: build them on the shoreline, crew them, fight other ships and land on other islands. The chieftain can board to speed the ship up.
+- Archipelago map type where everyone starts at sea, with an AI that attacks by ship and lands invasions.
+- Advanced game settings: max units, starting units, max buildings and a boats toggle.
+- Game presets that save and load your favorite setups, with a roster tab in the create game screen.
+- Word-based map codes.
+- Lobby countdown before the game starts and closable player slots.
+- Enormous islands.
+- Units standing in a new building site are moved aside instead of blocking placement.
+- Water reflections, specular highlights, Gerstner waves, transparent shallows and a low-detail water option.
+- Normal mapping and specular on rocks and iron, higher resolution textures, anisotropic filtering and anti-aliasing.
+- Optional team color overlay on units and buildings, with configurable team colors.
+- Full key remapping with categories, conflict detection and swap, a filter box, import and export. Tooltips show the bound key.
+- Camera options: Alt or Option plus arrow keys, invert horizontal and vertical, and a recording camera with HUD toggle, cinematic mode, auto-orbit and auto-pan.
+- Full keyboard navigation of menus and campaign dialogs.
+- UI scaling, high contrast mode, a color vision mode and an option to confine the cursor to the game window.
+- On-screen compass.
+- OpenAL effects, forest reverb and a headphone mode using HRTF, with a classic audio toggle.
+- Brazilian Portuguese translation. Translations are maintained in a shared sheet by community translators.
+- Contributors tab in the credits, GPL notice in the About tab, and Discord and GitHub buttons on the main menu.
+- Patch notes window in Options that shows this changelog and opens once after each new major or minor version.
+- Banned word filter on player names and chat, with Discord moderation commands.
+- Discord bot that bridges lobby chat, posts game embeds and answers /matches, /profile and /streaks.
+- Engine: LWJGL 3, JOML, OpenGL 4.1 core profile with shaders, uniform buffers and hardware instancing.
+- Build: GitHub Actions builds for Windows, Linux AppImage and both Mac architectures, with Steam, itch.io, GitHub Releases and website publishing.
+- Build: Keep a Changelog file bundled into the game and used for GitHub release notes.
+- Server: ported database layer with migrations, Steam Web API stats, web spectator streaming.
+- Server: simulation version reported at login so mismatched clients are kept apart in the game list.
+- Server: OpenSkill skill rating is computed and stored after every game. The leaderboard stays hidden until it is ready for players.
+
+### Changed
+
+- The renderer was rebuilt on modern OpenGL. Terrain cracks are gone and large scenes render faster. Lighting stays close to the original look by default.
+- Fullscreen is now borderless windowed, so it works with OBS and screenshot tools and never changes the desktop resolution.
+- Windowed mode and high-DPI displays are supported properly.
+- The game keeps running when unfocused or minimized.
+- Game speed is remembered and used as the default for single player and multiplayer.
+- Original fonts are kept, with Inter as a fallback for characters they lack.
+- Oddlabs references removed from in-game text.
+- Engine: Java 26, Gradle 9 with a standard source layout, declared dependencies instead of bundled jars, and assets in their own module.
+- Engine: STB image and Vorbis loading, Basis Universal texture compression to standard DDS, Cleaner instead of finalizers.
+- Engine: sources and properties converted to UTF-8 with LF line endings; Spotless formatting enforced in CI; ErrorProne and NullAway in the build.
+- Engine: game and log directories follow platform conventions, with per-run event logs for bug reports.
+- Build: the release version is `v<major>.<minor>.<patch>-<api>.<sim>` and an api-guard check forces an API bump when network code changes.
+
+### Removed
+
+- Registration, serial keys, trial mode, the getdown updater and the old installers.
+- Applet loader, javasvn, PBuffer rendering, software cursors and the StrictMath wrapper classes.
+
+### Fixed
+
+- German umlaut in the localization files.
+
+### Security
+
+- Deserialization is filtered and oversized network events are rejected on both client and server.
+- The server guards against malformed client data.
+- Steam auth tickets are validated through the Steam Web API.
+
+[Unreleased]: https://github.com/Tribal-Trouble/tribaltrouble/compare/v2.2.207-103.1010...main
+[2.2.207]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.207-103.1010
+[2.2.155]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.155-103.1010
+[2.2.139]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.139-103.1010
+[2.1.96]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.1.96-103.1009

@@ -16,6 +16,7 @@ import com.oddlabs.tt.model.behaviour.PlaceBuildingController;
 import com.oddlabs.tt.model.behaviour.RepairController;
 import com.oddlabs.tt.model.behaviour.ShipAttackController;
 import com.oddlabs.tt.model.behaviour.SittingController;
+import com.oddlabs.tt.model.behaviour.StunBehaviour;
 import com.oddlabs.tt.model.behaviour.StunController;
 import com.oddlabs.tt.model.behaviour.WalkBehaviour;
 import com.oddlabs.tt.model.behaviour.WalkController;
@@ -47,6 +48,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable {
 
@@ -71,8 +73,10 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
     }
 
     public static final int SPEAR_RELEASE_FRAME = 29;
+    public static final int NO_ATTACHMENT = -1;
 
     private final @Nullable UnitSupplyContainer supply_container;
+    private final @NonNull List<SpriteKey> attachments = new ArrayList<>(1); // render-only, never part of the sim
     private final @Nullable String name;
     private final @NonNull PathTracker path_tracker;
     private final float[] magic_energy = new float[2];
@@ -127,6 +131,9 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         this.path_tracker = new PathTracker(getUnitGrid(), this);
         UnitSupplyContainerFactory factory = unit_template.getUnitSupplyContainerFactory();
         supply_container = factory != null ? (UnitSupplyContainer) factory.createContainer(this) : null;
+        for (String slot : unit_template.getDefaultAttachments()) {
+            setAttachment(slot, 0);
+        }
 
         if (!imaginary) {
             findInitialPosition(x, y, grid_targets_only, -1);
@@ -186,6 +193,35 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
 
     public final @Nullable UnitSupplyContainer getSupplyContainer() {
         return supply_container;
+    }
+
+    public final @NonNull List<SpriteKey> getAttachments() {
+        return attachments;
+    }
+
+    /**
+     * Position of the item this unit shows in a slot, or {@link #NO_ATTACHMENT}. Render-only.
+     */
+    public final int getAttachment(@NonNull String slot) {
+        int index = 0;
+        for (SpriteKey key : getTemplate().getAttachments().getOrDefault(slot, Map.of()).values()) {
+            if (attachments.contains(key))
+                return index;
+            index++;
+        }
+        return NO_ATTACHMENT;
+    }
+
+    /**
+     * Show the item at that position in a slot; any other position leaves the slot empty. Render-only.
+     */
+    public final void setAttachment(@NonNull String slot, int index) {
+        int i = 0;
+        for (SpriteKey key : getTemplate().getAttachments().getOrDefault(slot, Map.of()).values()) {
+            attachments.remove(key);
+            if (i++ == index)
+                attachments.add(key);
+        }
     }
 
     @Override
@@ -404,7 +440,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
 
     @Override
     public final @NonNull SpriteKey getSpriteRenderer() {
-        return getTemplate().getSpriteRenderer();
+        return getOwner().getSkins().rendererFor(getTemplate());
     }
 
     @Override
@@ -662,10 +698,10 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
                 } else if (canGather(target)) {
                     pushController(new GatherController(this, (Supply) target, ((Supply) target).getClass(),
                             nearestSupplyBuilding((Supply) target)));
-                } else if (canRepair(target, false)) {
-                    pushController(new RepairController(this, (Building) target));
                 } else if (canEnter(target)) {
                     pushController(new EnterController(this, (Building) target));
+                } else if (canRepair(target, false)) {
+                    pushController(new RepairController(this, (Building) target));
                 } else if (canAttack(target, false)) {
                     pushController(new HuntController(this, (Selectable<?>) target));
                 } else {
@@ -723,7 +759,13 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         if (canDoMagic(magic_index)) {
             if (clear_stack)
                 clearControllerStack();
-            pushController(new MagicController(this, getOwner().getRace().getMagicFactory(magic_index)));
+            var ctlr = new MagicController(this, getOwner().getRace().getMagicFactory(magic_index));
+            getControllerStack().add(ctlr);
+            if (getCurrentBehaviour() instanceof StunBehaviour) {
+                setShouldDecide(true);
+            } else {
+                forceDecide();
+            }
             Arrays.fill(magic_energy, 0f);
             last_magic_index = magic_index;
 
@@ -750,6 +792,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         if (this.animation != animation) {
             this.animation = animation;
             this.anim_time = 0f;
+            // Timing reads the template's clips, never a skin's, so skins cannot change how a unit animates.
         } else if (getTemplate().getSpriteRenderer().getAnimationType(
                 animation) == AnimationInfo.AnimationType.PLAIN.ordinal()) {
                     this.anim_time = 0f;

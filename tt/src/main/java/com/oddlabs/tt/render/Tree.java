@@ -3,7 +3,10 @@ package com.oddlabs.tt.render;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public record Tree(@NonNull SpriteList trunk, @NonNull SpriteList crown) {
+import java.util.List;
+
+public record Tree(@NonNull SpriteList trunk, @NonNull SpriteList crown,
+                   @NonNull List<@NonNull SpriteList> props) {
 
 
     @Override

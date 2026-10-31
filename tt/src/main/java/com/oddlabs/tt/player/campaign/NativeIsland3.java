@@ -12,6 +12,7 @@ import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.SceneryModel;
 import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.model.UnitTemplate;
 import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.player.Player;
@@ -210,9 +211,9 @@ public final class NativeIsland3 extends Island {
         float shadow_diameter = 4.5f;
 
         float dir = (float) Math.sin(Math.PI / 4);
-        new SceneryModel(getViewer().getWorld(), thor_x, thor_y, dir, dir, enemy.getRace().getUnitTemplate(
-                Race.UNIT_CHIEFTAIN).getSpriteRenderer(), shadow_diameter, true, i18n("god"), Unit.Animation.THOR, -1f,
-                0f);
+        UnitTemplate thor = enemy.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN);
+        new SceneryModel(getViewer().getWorld(), thor_x, thor_y, dir, dir, thor.getSpriteRenderer(), shadow_diameter,
+                true, i18n("god"), Unit.Animation.THOR, -1f, 0f, thor.getStartingAttachments());
 
 
         // Insert reinforcements

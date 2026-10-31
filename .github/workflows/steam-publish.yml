@@ -9,9 +9,6 @@ name: Steam Publish
 # The regular release pipeline is untouched: `prerelease` and `default` are
 # refused here; pushes to the git release branch remain the only way to publish
 # to Steam prerelease, and promoting to default stays manual on the dashboard.
-#
-# The demo app is intentionally not uploaded here; add a second steam-deploy
-# step with STEAM_DEMO_APP_ID if a matching branch is created on the demo too.
 
 on:
   workflow_dispatch:
@@ -159,7 +156,7 @@ jobs:
 
   steam-publish:
     needs: [version, build-windows, build-linux, build-mac-arm64-app, build-mac-x86-app]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # steamcmd cannot self-update on ubuntu-26.04 runners: https://github.com/game-ci/steam-deploy/issues/99
     environment: release
     steps:
       - name: Download Windows Artifact
