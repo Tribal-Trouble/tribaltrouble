@@ -12,6 +12,10 @@ section when a release is cut.
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed a crash at startup on some graphics cards, right after the game window opened.
+
 ## [2.2.207] - 2026-10-31
 
 ### Added

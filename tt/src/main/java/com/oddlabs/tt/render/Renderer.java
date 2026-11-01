@@ -927,6 +927,8 @@ public final class Renderer implements AutoCloseable {
                     GL30.GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE);
             int stencil = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL30.GL_STENCIL,
                     GL30.GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE);
+            // Some drivers reject these queries on the window's framebuffer, and a leftover error fails the next GL check.
+            GLUtils.checkGLError("Post-dumpWindowInfo");
             logger.info(
                     "Window Info: r=" + r + " g=" + g + " b=" + b + " a=" + a + " depth=" + depth + " stencil=" + stencil);
         } catch (Exception e) {
