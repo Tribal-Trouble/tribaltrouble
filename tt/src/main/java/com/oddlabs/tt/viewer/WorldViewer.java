@@ -230,6 +230,8 @@ public final class WorldViewer implements Animated, AutoCloseable {
         this.selection = new Selection(local_player);
         boolean spectator = ingame_info instanceof SpectatorInGameInfo;
         this.spectator_view = spectator ? new SpectatorView(this) : null;
+        world.getHeightMap().createHeightTexture();
+        render_queues.createGLResources();
         landscape_renderer = new LandscapeRenderer(world, world_info, animation_manager_local);
         this.picker = new Picker(animation_manager_local, local_player, gui_root, render_queues, landscape_renderer,
                 selection);

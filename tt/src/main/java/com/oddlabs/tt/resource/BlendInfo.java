@@ -2,10 +2,15 @@ package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.render.Texture;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
+import java.util.Objects;
+
 public abstract class BlendInfo {
-    private final @NonNull Texture alpha_map;
+    // Uploaded by the texture bake so terrain generation never needs a GL context.
+    private @Nullable Texture alpha_map;
+    private final int format;
     private final @NonNull GLByteImage sourceImage;
 
     private @NonNull Texture createAlphaMap(@NonNull GLByteImage alpha_image, int format) {
@@ -16,11 +21,16 @@ public abstract class BlendInfo {
 
     protected BlendInfo(@NonNull GLByteImage alpha_image, int format) {
         this.sourceImage = alpha_image;
-        alpha_map = createAlphaMap(alpha_image, format);
+        this.format = format;
+    }
+
+    /** Uploads the blend textures. Needs a GL context. */
+    public void createTextures() {
+        alpha_map = createAlphaMap(sourceImage, format);
     }
 
     public @NonNull Texture getAlphaMap() {
-        return alpha_map;
+        return Objects.requireNonNull(alpha_map, "Blend textures were not created by the texture bake");
     }
 
     public @NonNull GLByteImage getSourceImage() {
@@ -32,7 +42,7 @@ public abstract class BlendInfo {
         }
     */
     protected final void bindAlpha() {
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, alpha_map.getHandle());
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, getAlphaMap().getHandle());
     }
 
     public abstract void setup();

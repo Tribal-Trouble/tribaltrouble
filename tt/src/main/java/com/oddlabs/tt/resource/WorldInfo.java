@@ -8,7 +8,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public record WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap,
-                        @NonNull Texture @Nullable [] @NonNull [] colormaps, Maps maps, @NonNull Texture detail,
+                        @NonNull Texture @Nullable [] @NonNull [] colormaps, @Nullable Maps maps,
+                        @Nullable Texture detail, @Nullable GLImage detail_image,
                         float @NonNull [] @NonNull [] heightmap, @NonNull List<int[]> trees,
                         @NonNull List<int[]> palm_trees, @NonNull List<int[]> rocks, @NonNull List<int[]> iron,
                         float @NonNull [] @NonNull [] plants, boolean @NonNull [] @NonNull [] access_grid,
@@ -19,7 +20,8 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
                         @NonNull List<IslandInfo> island_infos,
                         float @NonNull [] @NonNull [] starting_locations,
                         @NonNull BlendInfo @NonNull [] blend_infos, byte @NonNull [] @NonNull [] ground,
-                        int seed) {
+                        int seed, @NonNull StructureBlend terrain_shadows,
+                        @NonNull StructureBlend supply_shadows) {
     public record Maps(Texture diffuse, Texture normal, @Nullable StructureBlend terrainShadows,
                        @Nullable StructureBlend supplyShadows) {
         public Maps(Texture diffuse, Texture normal) {
@@ -32,9 +34,18 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
         }
     }
 
+    /** The same terrain with its baked textures attached. */
+    public @NonNull WorldInfo withTextures(@NonNull Maps maps, @NonNull Texture detail) {
+        return new WorldInfo(meters_per_world, sea_level_meters, texels_per_colormap, chunks_per_colormap, colormaps,
+                maps, detail, detail_image, heightmap, trees, palm_trees, rocks, iron, plants, access_grid, dock_grid,
+                water_grid, build_grid, island_ids, island_infos, starting_locations, blend_infos, ground, seed,
+                terrain_shadows, supply_shadows);
+    }
+
     public WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap,
-            @NonNull Texture @Nullable [] @NonNull [] colormaps, Maps maps, @NonNull Texture detail,
-            float @NonNull [] @NonNull [] heightmap, @NonNull List<int @NonNull []> trees,
+            @NonNull Texture @Nullable [] @NonNull [] colormaps, @Nullable Maps maps, @Nullable Texture detail,
+            @Nullable GLImage detail_image, float @NonNull [] @NonNull [] heightmap,
+            @NonNull List<int @NonNull []> trees,
             @NonNull List<int @NonNull []> palm_trees, @NonNull List<int[]> rocks, @NonNull List<int[]> iron,
             float @NonNull [] @NonNull [] plants, boolean @NonNull [] @NonNull [] access_grid,
             byte @NonNull [] @NonNull [] dock_grid, byte @NonNull [] @NonNull [] water_grid,
@@ -42,7 +53,8 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
             int @NonNull [] @NonNull [] island_ids,
             @NonNull List<IslandInfo> island_infos,
             float @NonNull [] @NonNull [] starting_locations, BlendInfo @NonNull [] blend_infos,
-            byte @NonNull [] @NonNull [] ground, int seed) {
+            byte @NonNull [] @NonNull [] ground, int seed, @NonNull StructureBlend terrain_shadows,
+            @NonNull StructureBlend supply_shadows) {
         this.texels_per_colormap = texels_per_colormap;
         this.chunks_per_colormap = chunks_per_colormap;
         this.sea_level_meters = sea_level_meters;
@@ -50,6 +62,7 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
         this.colormaps = colormaps;
         this.maps = maps;
         this.detail = detail;
+        this.detail_image = detail_image;
         this.heightmap = heightmap;
         this.trees = trees;
         this.rocks = rocks;
@@ -66,5 +79,7 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
         this.blend_infos = blend_infos;
         this.ground = ground;
         this.seed = seed;
+        this.terrain_shadows = terrain_shadows;
+        this.supply_shadows = supply_shadows;
     }
 }
