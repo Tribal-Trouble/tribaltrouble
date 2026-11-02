@@ -155,7 +155,7 @@ form/CreditsForm,3d_artwork_and_animation,3D ARTWORK & ANIMATION,3D GRAFIK & ANI
 form/CreditsForm,audio,AUDIO,LYD,AUDIO,AUDIO,AUDIO,ÁUDIO,DŹWIĘK
 form/CreditsForm,moon_texture,MOON TEXTURE,MÅNETEKSTUR,Mondtextur,TEXTURA LUNA,TEXTURE LUNA,TEXTURA DA LUA,TEKSTURA KSIĘŻYCA
 form/CreditsForm,programming,PROGRAMMING,PROGRAMMERING,PROGRAMMIERUNG,PROGRAMACIÓN,PROGRAMMAZIONE,PROGRAMAÇÃO,PROGRAMOWANIE
-form/CreditsForm,translations,TRANSLATIONS,OVERSÆTTELSER,ÜBERSETZUNGEN,TRADUCCIONES,TRADUZIONI,TRADUÇÕES,TŁUMACZENIA
+form/CreditsForm,translations,TRANSLATIONS,OVERSÆTTELSER,ÜBERSETZUNGEN,TRADUCCIONES,TRADUZIONI,TRADUÇÕES,TŁUMACZENIE
 form/CreditsForm,community,COMMUNITY,FÆLLESSKAB,GEMEINSCHAFT,COMUNIDAD,COMUNITÀ,COMUNIDADE,SPOŁECZNOŚĆ
 form/CreditsForm,contributors_text,Tribal Trouble: Resurrected has been made possible by volunteers since August 2025:,Tribal Trouble: Resurrected har været muliggjort af frivillige siden august 2025:,Tribal Trouble: Resurrected wird seit August 2025 von Freiwilligen ermöglicht:,Tribal Trouble: Resurrected ha sido posible gracias a voluntarios desde agosto de 2025:,Tribal Trouble: Resurrected è stato reso possibile grazie al lavoro di volontari sin dall'agosto 2025:,Tribal Trouble: Resurrected só foi possível graças a voluntários desde agosto de 2025:,Tribal Trouble: Resurrected jest możliwe dzięki pracy wolontariuszy od sierpnia 2025 r.:
 form/CreditsForm,thanks,THANKS,TAK,DANKE,AGRADECIMIENTOS,RINGRAZIAMENTI,OBRIGADO,PODZIĘKOWANIA 
@@ -493,7 +493,7 @@ form/OptionsMenu,action.CHEAT_6,Cheat 6,Snyd 6,Cheat 6,Truco 6,Trucco 6,Trapaça
 form/OptionsMenu,action.CHEAT_7,Cheat 7,Snyd 7,Cheat 7,Truco 7,Trucco 7,Trapaça 7,Kod 7
 form/OptionsMenu,action.CHEAT_8,Cheat 8,Snyd 8,Cheat 8,Truco 8,Trucco 8,Trapaça 8,Kod 8
 form/OptionsMenu,action.CHEAT_9,Cheat 9,Snyd 9,Cheat 9,Truco 9,Trucco 9,Trapaça 9,Kod 9
-form/OptionsMenu,action.CHEAT_10,Cheat 10,Snydekode 10,Cheat 10,Truco 10,Trucco 10,Trapaça 10,Oszustwo 10
+form/OptionsMenu,action.CHEAT_10,Cheat 10,Snydekode 10,Cheat 10,Truco 10,Trucco 10,Trapaça 10,Kod 10
 form/OptionsMenu,action.SPECTATOR_NEXT_PLAYER,Spectator: Follow Next Player,Tilskuer: Følg den næste spiller,Zuschauer: Folge dem nächsten Spieler,Espectador: Sigue al siguiente jugador,Spettatore: Segui il giocatore successivo,Espectador: Seguir o Próximo Jogador,Widz: Obserwuj następnego gracza
 form/OptionsMenu,action.SPECTATOR_PREV_PLAYER,Spectator: Follow Previous Player,Tilskuer: Følg forrige spiller,Zuschauer: Dem vorherigen Spieler folgen,Espectador: Seguir al jugador anterior,Spettatore: Segui il giocatore precedente,Espectador: Seguir Jogador Anterior,Widz: Podążaj za poprzednim graczem
 form/OptionsMenu,action.SPECTATOR_FREE_CAMERA,Spectator: Free Camera,Tilskuer: Gratis kamera,Zuschauer: Kostenlose Kamera,Espectador: Cámara libre,Spettatore: telecamera libera,Espectador: Câmera Livre,Widz: Wolna kamera
