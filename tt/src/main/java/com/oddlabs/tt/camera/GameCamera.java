@@ -9,7 +9,6 @@ import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Target;
-import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -30,7 +29,7 @@ public class GameCamera extends Camera {
     private static final float ORBIT_SPEED = (float) (Math.PI / 8);
     private static final float AUTO_PAN_SPEED = 25f;
 
-    private final @NonNull WorldViewer viewer;
+    private final @NonNull CameraHost viewer;
 
     private float left_dir_x;
     private float left_dir_y;
@@ -58,7 +57,7 @@ public class GameCamera extends Camera {
     private float orbit_x;
     private float orbit_y;
 
-    public GameCamera(@NonNull WorldViewer viewer, @NonNull CameraState camera) {
+    public GameCamera(@NonNull CameraHost viewer, @NonNull CameraState camera) {
         super(viewer.getWorld().getHeightMap(), camera);
         this.default_rotate_radius = viewer.getWorld().getHeightMap().getMetersPerWorld() / 4f;
         this.viewer = viewer;

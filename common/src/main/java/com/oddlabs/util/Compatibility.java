@@ -8,7 +8,7 @@ public final class Compatibility {
      * incompatibly. A bump requires the server to be rebuilt and deployed from
      * the bumped ref, and locks out all older clients.
      */
-    public static final int API_VERSION = 103;
+    public static final int API_VERSION = 104;
 
     /**
      * Client-client gameplay determinism version. Reported to the server after

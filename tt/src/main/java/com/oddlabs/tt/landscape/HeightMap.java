@@ -389,9 +389,12 @@ public final class HeightMap {
         int patch_x0 = (patch_x1 - (x_border ? 1 : 0) + patches_per_world) & (patches_per_world - 1);
         int patch_y0 = (patch_y1 - (y_border ? 1 : 0) + patches_per_world) & (patches_per_world - 1);
 
-        for (int y = patch_y0; y <= patch_y1; y++) {
-            for (int x = patch_x0; x <= patch_x1; x++) {
-                landscape_leaves[y][x].editHeight(height);
+        // A cell on a patch border belongs to the patch before it too, which for the first row or column is the
+        // last one, as the world wraps; counting from patch_x0 keeps that patch instead of looping over none.
+        int mask = patches_per_world - 1;
+        for (int j = 0; j <= (y_border ? 1 : 0); j++) {
+            for (int i = 0; i <= (x_border ? 1 : 0); i++) {
+                landscape_leaves[(patch_y0 + j) & mask][(patch_x0 + i) & mask].editHeight(height);
             }
         }
         world_instance.getNotificationListener().patchesEdited(patch_x0, patch_y0, patch_x1, patch_y1);

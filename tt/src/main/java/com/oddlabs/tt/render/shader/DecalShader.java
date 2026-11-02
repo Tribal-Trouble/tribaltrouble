@@ -9,6 +9,8 @@ public final class DecalShader extends ShaderProgram {
         public static final String HEIGHT_MAP = "u_HeightMap";
         public static final String WORLD_SIZE = "u_WorldSize";
         public static final String DEPTH_BIAS = "u_DepthBias";
+        /** The lowest a decal lies, in meters, so one can float on the sea rather than sink to its floor. */
+        public static final String MIN_HEIGHT = "u_MinHeight";
 
         private Uniforms() {
         }
@@ -35,6 +37,7 @@ public final class DecalShader extends ShaderProgram {
             uniform mat4 u_modelViewMatrix;
             uniform float u_WorldSize;
             uniform float u_DepthBias;
+            uniform float u_MinHeight;
             uniform sampler2D u_HeightMap;
 
             out vec2 v_TexCoord;
@@ -57,6 +60,7 @@ public final class DecalShader extends ShaderProgram {
                 float h = f.x + f.y <= 1.0
                         ? h0 + (h1 - h0) * f.x + (h2 - h0) * f.y
                         : h3 + (h2 - h3) * (1.0 - f.x) + (h1 - h3) * (1.0 - f.y);
+                h = max(h, u_MinHeight);
 
                 vec4 viewPosition = u_modelViewMatrix * vec4(worldPos, h, 1.0);
                 viewPosition.z += u_DepthBias;

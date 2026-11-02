@@ -79,7 +79,7 @@ final class RowCollection<T> extends GUIObject implements Clipped {
         ensureVisible(selectRow(sorted_descending ? rows.getLast() : rows.getFirst()));
     }
 
-    private void ensureVisible(@NonNull Row<T, ?> row) {
+    void ensureVisible(@NonNull Row<T, ?> row) {
         Scrollable scrollable = multi_box;
         int row_top = row.getY() + row.getHeight();
         int row_bottom = row.getY();
@@ -123,6 +123,11 @@ final class RowCollection<T> extends GUIObject implements Clipped {
 
     public int getSize() {
         return rows.size();
+    }
+
+    /** Whether the rows show in sorted order from the top, rather than reversed. */
+    boolean isSortedDescending() {
+        return sorted_descending;
     }
 
     void markChanged(int index, boolean sorted_descending) {

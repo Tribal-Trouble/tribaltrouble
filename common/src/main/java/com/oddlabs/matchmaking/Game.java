@@ -1,6 +1,7 @@
 package com.oddlabs.matchmaking;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -48,6 +49,9 @@ public final class Game implements Serializable {
     private final int max_building_count;
     private final boolean ships;
     private final boolean night;
+    // A shared map to play instead of a generated island: the hash it is downloaded by and its name to show.
+    private final @Nullable String custom_map_hash;
+    private final @Nullable String custom_map_name;
 
     private int database_id;
 
@@ -67,6 +71,8 @@ public final class Game implements Serializable {
         this.max_building_count = b.max_building_count;
         this.ships = b.ships;
         this.night = b.night;
+        this.custom_map_hash = b.custom_map_hash;
+        this.custom_map_name = b.custom_map_name;
         assert isValid() : game_name.length();
     }
 
@@ -142,6 +148,20 @@ public final class Game implements Serializable {
         return night;
     }
 
+    /** The hash of the shared map the game is played on, or null when it plays a generated island. */
+    public @Nullable String getCustomMapHash() {
+        return custom_map_hash;
+    }
+
+    /** The name of the shared map the game is played on, or null when it plays a generated island. */
+    public @Nullable String getCustomMapName() {
+        return custom_map_name;
+    }
+
+    public boolean isCustomMap() {
+        return custom_map_hash != null;
+    }
+
     public void setDatabaseID(int database_id) {
         this.database_id = database_id;
     }
@@ -166,6 +186,8 @@ public final class Game implements Serializable {
         private int max_building_count = DEFAULT_MAX_BUILDING_COUNT;
         private boolean ships;
         private boolean night;
+        private @Nullable String custom_map_hash;
+        private @Nullable String custom_map_name;
 
         private Builder() {
         }
@@ -242,6 +264,13 @@ public final class Game implements Serializable {
 
         public @NonNull Builder night(boolean night) {
             this.night = night;
+            return this;
+        }
+
+        /** Plays a shared map, known by the hash of its file, instead of a generated island. */
+        public @NonNull Builder customMap(@NonNull String hash, @NonNull String name) {
+            this.custom_map_hash = hash;
+            this.custom_map_name = name;
             return this;
         }
 

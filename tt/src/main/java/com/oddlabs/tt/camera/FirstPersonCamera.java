@@ -8,7 +8,6 @@ import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputManager;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.render.Renderer;
-import com.oddlabs.tt.viewer.WorldViewer;
 
 @NullMarked
 public final class FirstPersonCamera extends Camera {
@@ -17,14 +16,14 @@ public final class FirstPersonCamera extends Camera {
     /** Radians of view rotation per second while a look key is held. */
     private static final float KEY_LOOK_SPEED = (float) (Math.PI / 2);
 
-    private final WorldViewer viewer;
+    private final CameraHost viewer;
     private final LocalInput localInput = Renderer.getLocalInput();
 
     /** Cursor position in physical pixels at activation. */
     private final int physicalStartX;
     private final int physicalStartY;
 
-    public FirstPersonCamera(WorldViewer viewer, HeightMap heightmap, CameraState camera) {
+    public FirstPersonCamera(CameraHost viewer, HeightMap heightmap, CameraState camera) {
         super(heightmap, camera);
         this.viewer = viewer;
         physicalStartX = localInput.getMouseX();
@@ -106,6 +105,11 @@ public final class FirstPersonCamera extends Camera {
         getState().setTargetY(getState().getTargetY() + (moveForward * forwardY + moveRight * rightY) * distance);
 
         checkPosition();
+    }
+
+    @Override
+    protected float getMaxZ() {
+        return viewer.getMaxCameraZ();
     }
 
     /** @return true if a text field or modal window has keyboard focus, so camera keys should be ignored. */

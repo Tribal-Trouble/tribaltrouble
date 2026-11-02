@@ -22,3 +22,6 @@ STEAM_ONLY_AUTH=false
 
 # Spectator data directory (defaults to /var/games if not set)
 SPECTATOR_DATA_DIR=/var/games
+
+# Folder for maps players upload from the map editor (defaults to /var/games/maps if not set)
+MAP_DATA_DIR=/var/games/maps

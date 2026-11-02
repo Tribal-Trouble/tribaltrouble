@@ -43,16 +43,17 @@ public final class RubberGroup {
         }
     }
 
+    /** A tree still standing, from a random one on, for the chickens to gather by; null on an island without one. */
     private int[] getGroupPosition() {
         List<int[]> tree_positions = world.getHeightMap().getTrees();
+        if (tree_positions.isEmpty())
+            return null;
         int start_index = world.getRandom().nextInt(tree_positions.size());
-        int index = (start_index + 1) % tree_positions.size();
-        while (index != start_index) {
-            int[] coords = tree_positions.get(index);
+        for (int i = 0; i < tree_positions.size(); i++) {
+            int[] coords = tree_positions.get((start_index + i) % tree_positions.size());
             Occupant occ = world.getUnitGrid().getOccupant(coords[0], coords[1]);
             if (occ instanceof TreeSupply)
                 return coords;
-            index = (index + 1) % tree_positions.size();
         }
         return null;
     }
