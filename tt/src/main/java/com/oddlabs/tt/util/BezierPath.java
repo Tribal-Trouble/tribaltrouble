@@ -135,6 +135,11 @@ public final class BezierPath {
         nextPoint(dt, next_x, next_y);
     }
 
+    /// Mark the current curve complete so the next path starts from the unit's current position.
+    public void finish() {
+        initState();
+    }
+
     public void debugRender(@NonNull HeightMap heightmap) {
         float prev_x = 0, prev_y = 0, prev_z = 0;
         boolean first = true;
