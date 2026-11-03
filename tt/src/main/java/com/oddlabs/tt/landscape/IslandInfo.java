@@ -20,7 +20,7 @@ public class IslandInfo {
     private List<int[]> contour_points = new ArrayList<>();
 
     public IslandInfo(int id, int area, int min_x, int min_y, int max_x, int max_y, int start_x, int start_y,
-            byte[][] dock_grid, Channel island_ids) {
+            boolean[][] edge_grid, Channel island_ids) {
         this.id = id;
         this.area = area;
         this.min_x = min_x;
@@ -32,13 +32,13 @@ public class IslandInfo {
         this.rocks = 0;
         this.iron = 0;
         this.trees = 0;
-        generateContourPoints(dock_grid, island_ids);
+        generateContourPoints(edge_grid, island_ids);
     }
 
-    private void generateContourPoints(byte[][] dock_grid, Channel island_ids) {
+    private void generateContourPoints(boolean[][] edge_grid, Channel island_ids) {
         for (int y = min_y; y <= max_y; y++) {
             for (int x = min_x; x <= max_x; x++) {
-                if (dock_grid[y][x] == 1 && StrictMath.round(island_ids.getPixel(x, y)) == id) {
+                if (edge_grid[y][x] && StrictMath.round(island_ids.getPixel(x, y)) == id) {
                     contour_points.add(new int[]{x, y});
                 }
             }

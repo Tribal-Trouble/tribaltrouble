@@ -108,6 +108,7 @@ public final class Landscape {
     private Channel water_map;
     private Channel deep_water_map;
     private Channel dock_map;
+    private Channel edge_map;
     private Channel island_ids;
     private Channel access;
     private Channel access_exported;
@@ -152,6 +153,7 @@ public final class Landscape {
 
     private byte @NonNull [] @NonNull [] build;
     private byte @NonNull [] @NonNull [] dock;
+    private boolean @NonNull [] @NonNull [] edge;
     private byte @NonNull [] @NonNull [] water;
     private float @NonNull [] @NonNull [] player_locations;
     private int @NonNull [] @NonNull [] supply_locations;
@@ -281,7 +283,7 @@ public final class Landscape {
             island_ids.floodfill(pos[0], pos[1], (float) last_id, 0.01f, count, bounds);
             int area = count[0];
             IslandInfo info = new IslandInfo(last_id, area, bounds[0], bounds[1], bounds[2], bounds[3], pos[0], pos[1],
-                    dock, island_ids);
+                    edge, island_ids);
             island_info.put(last_id, info);
             last_id++;
         }
@@ -1387,6 +1389,7 @@ public final class Landscape {
     private final void generateWaterGrid() {
         this.dock = new byte[unit_grids_per_world][unit_grids_per_world];
         this.water = new byte[unit_grids_per_world][unit_grids_per_world];
+        this.edge = new boolean[unit_grids_per_world][unit_grids_per_world];
         water_map = height.copy().threshold(Globals.SEA_LEVEL - 10.0f, Globals.SEA_LEVEL).floodfill(0, 0, -1.0f, 0.1f,
                 null, null).threshold(-1.01f, -0.99f);
         if (DEBUG) water_map.toLayer().saveAsPNG("water_map");
@@ -1395,12 +1398,14 @@ public final class Landscape {
         Channel beach = height.copy().threshold(
                 Globals.SEA_LEVEL - 0.1f / height_scale,
                 Globals.SEA_LEVEL + 0.1f / height_scale);
+        edge_map = water_map.copy().smooth(1).threshold(0.01f, 0.99f);
         dock_map = water_map.copy().smooth(6).threshold(0.0f, 0.99f).channelMultiply(shore_line);
         Channel near_beach = dock_map.copy().smooth(8);
         deep_water_map = water_map.copy().smooth(4).threshold(0.99f, 1.0f);
         if (DEBUG) deep_water_map.toLayer().saveAsPNG("deep_water");
         if (DEBUG) beach.toLayer().saveAsPNG("beach");
         if (DEBUG) dock_map.toLayer().saveAsPNG("dock_map");
+        if (DEBUG) edge_map.toLayer().saveAsPNG("edge_map");
         for (int y = 0; y < unit_grids_per_world; y++) {
             for (int x = 0; x < unit_grids_per_world; x++) {
                 byte water_val = 0;
@@ -1414,6 +1419,7 @@ public final class Landscape {
                 }
                 this.dock[y][x] = dock_val;
                 this.water[y][x] = water_val;
+                this.edge[y][x] = edge_map.getPixel(x, y) > 0.5f;
             }
         }
     }
