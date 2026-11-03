@@ -26,6 +26,7 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
         String WAVE_AMP_STEEP = "u_waveAmpSteep";
         String WAVE_TIME = "u_waveTime";
         String ANGER = "u_anger";
+        String ENABLE_RIPPLES = "u_enableRipples";
 
         String HEIGHT_MAP = "u_HeightMap";
         String WORLD_SIZE = "u_WorldSize";
@@ -148,6 +149,7 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
             uniform float u_maxAlpha;
             uniform float u_waveTime;
             uniform float u_anger;
+            uniform bool u_enableRipples;
 
             in vec2 v_texCoord0;
             in vec2 v_texCoord1;
@@ -207,7 +209,10 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
                 float depthFade = smoothstep(0.0, 1.0, sqrt(clamp(depth / u_depthScale, 0.0, 1.0)));
                 float finalAlpha = mix(u_minAlpha, u_maxAlpha, depthFade);
 
-                vec2 rippleNormal = calcRippleNormal();
+                vec2 rippleNormal = vec2(0.0, 0.0);
+                if (u_enableRipples) {
+                    rippleNormal = calcRippleNormal();
+                }
                 vec3 normal = normalize(vec3(rippleNormal, 1.0));
 
                 vec3 lightDir = normalize(u_lightDirection);
