@@ -151,6 +151,11 @@ public final class UnitGrid {
     }
 
     public final boolean isWater(int grid_x, int grid_y) {
+        int max = heightmap.getAccessGrid().length - 1;
+        grid_x = Math.max(0, grid_x);
+        grid_x = Math.min(max, grid_x);
+        grid_y = Math.max(0, grid_y);
+        grid_y = Math.min(max, grid_y);
         return heightmap.getWaterGrid()[grid_y][grid_x] != 0;
     }
 
