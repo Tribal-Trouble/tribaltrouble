@@ -302,6 +302,11 @@ public final class Water implements AutoCloseable {
                         waveSteepness[i], 0f, 0f);
             }
             waterShader.setUniform(WaterShader.Uniforms.WAVE_TIME, waveTime * waveSpeed);
+            float seaAnger = switch (terrain) {
+                case VIKING -> 1.0f;
+                case NATIVE -> 0.0f;
+            };
+            waterShader.setUniform(WaterShader.Uniforms.ANGER, seaAnger);
 
             // Render Sky Water (Infinite Plane). u_waterHeight = 0 because Z is baked in.
             waterShader.setUniform(WaterShader.Uniforms.WATER_HEIGHT, heightMap.getSeaLevelMeters());

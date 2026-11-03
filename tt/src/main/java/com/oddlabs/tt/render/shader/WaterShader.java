@@ -25,6 +25,7 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
         String WAVE_DIR_LENGTH = "u_waveDirLength";
         String WAVE_AMP_STEEP = "u_waveAmpSteep";
         String WAVE_TIME = "u_waveTime";
+        String ANGER = "u_anger";
 
         String HEIGHT_MAP = "u_HeightMap";
         String WORLD_SIZE = "u_WorldSize";
@@ -145,6 +146,8 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
             uniform float u_depthScale;
             uniform float u_minAlpha;
             uniform float u_maxAlpha;
+            uniform float u_waveTime;
+            uniform float u_anger;
 
             in vec2 v_texCoord0;
             in vec2 v_texCoord1;
@@ -155,16 +158,42 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
 
             layout(location = 0) out vec4 out_FragColor;
 
-            float getNoise(vec2 uv) {
-                return texture(u_texture0, uv).r;
+            float signedNoise(vec2 uv) {
+                vec2 gb = texture(u_texture0, uv).gb;
+                float ratio = (gb.x - gb.y) / max(gb.x + gb.y, 0.001);
+                return clamp((ratio + 0.07) * 6.0, -1.0, 1.0);
             }
 
-            vec2 getGradient(vec2 uv) {
-                float eps = 0.005;
-                float h = getNoise(uv);
-                float h_x = getNoise(uv + vec2(eps, 0.0));
-                float h_y = getNoise(uv + vec2(0.0, eps));
-                return vec2(h - h_x, h - h_y);
+            vec2 calcRippleNormal() {
+                float time = u_waveTime * (0.5 + u_anger) * 0.5;
+                float scale = 0.04 / (u_anger + 0.5);
+                float offset1 = signedNoise((v_worldPos.xy * scale + vec2(0.6, 0.35) * time) / 3000);
+                float offset2 = signedNoise((v_worldPos.xy * scale - vec2(0.35, 0.6) * time) / 3600);
+                float height = 0.18 + offset1 * 0.04;
+                float angle = offset2 * 0.35;
+                float drag = 0.1 + offset1 * 0.32;
+                vec2 pos = v_worldPos.xy * scale + vec2(offset1, offset2) * 0.1;
+
+                float footprint = length(fwidth(pos));
+                float wavelen = 10.0 / (0.5 + u_anger);
+                const float DETAIL = 75.0;
+                float k = DETAIL / wavelen;
+                float weight = 1.0;
+                vec2 slope = vec2(0.0);
+                const int NUM_SAMPLES = 10;
+                for (int i = 0; i < NUM_SAMPLES; i++) {
+                    vec2 dir = vec2(cos(angle), sin(angle));
+                    float phase = k * dot(dir, pos) - sqrt(9.8 * k) * time;
+                    float wave = exp(sin(phase) - 1.0);
+                    float dWave = wave * cos(phase);
+                    float lod = 1.0 - smoothstep(0.2, 0.45, k * footprint / DETAIL);
+                    slope -= dir * (height * weight * k * dWave * lod);
+                    pos += dir * (dWave * weight * drag / k);
+                    angle += 2.39996323;
+                    k *= 1.18;
+                    weight *= 0.75;
+                }
+                return slope;
             }
 
             void main() {
@@ -178,12 +207,8 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
                 float depthFade = smoothstep(0.0, 1.0, sqrt(clamp(depth / u_depthScale, 0.0, 1.0)));
                 float finalAlpha = mix(u_minAlpha, u_maxAlpha, depthFade);
 
-                vec2 grad1 = getGradient(v_texCoord0);
-                vec2 grad2 = getGradient(v_texCoord1);
-                vec2 combinedGrad = (grad1 + grad2) * 0.5;
-
-                float normalStrength = 0.8;
-                vec3 normal = normalize(vec3(combinedGrad * normalStrength, 0.5));
+                vec2 rippleNormal = calcRippleNormal();
+                vec3 normal = normalize(vec3(rippleNormal, 1.0));
 
                 vec3 lightDir = normalize(u_lightDirection);
                 vec3 viewDir = normalize(u_cameraPos - v_worldPos);
@@ -196,14 +221,9 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
                 float F = F0 + (1.0 - F0) * pow(1.0 - max(dot(normal, viewDir), 0.0), 5.0);
 
                 vec3 reflectionColor = u_fogColor.rgb;
-                vec2 reflectionOffset = vec2(0.0, 0.0);
-                if (u_enableDetail) {
-                    reflectionOffset = texture(u_texture1, v_texCoord0 * 2.0 + 0.01 * vec2(sin(u_globalTime * 4.0), cos(u_globalTime * 0.23))).xy * 0.01;
-                }
                 if (u_hasReflection && v_reflectionClipPos.w > 0.0) {
                     vec2 reflUV = v_reflectionClipPos.xy / v_reflectionClipPos.w * 0.5 + 0.5;
-                    reflUV += combinedGrad * 0.04 + reflectionOffset;
-                    // Fade out near the texture border; the mirrored camera has no data beyond it
+                    reflUV += (mat3(u_viewMatrix) * vec3(rippleNormal, 0.0)).xy * 0.2;
                     vec2 edgeDist = min(reflUV, 1.0 - reflUV);
                     float edgeFade = clamp(min(edgeDist.x, edgeDist.y) / 0.1, 0.0, 1.0);
                     if (edgeFade > 0.0) {
