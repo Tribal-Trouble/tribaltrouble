@@ -312,7 +312,7 @@ public final class ShipTrajectory {
             var island = grid.getIslandInfo(targetIsland);
             var pts = island.contourPoints();
             int best_d2 = -1;
-            var best_pt = pts.get(0);
+            int[] best_pt = null;
             for (int i = 0; i < pts.size(); i++) {
                 var pt = pts.get(i);
                 boolean obstacle = false;
@@ -342,7 +342,7 @@ public final class ShipTrajectory {
                     }
                 }
             }
-            if (best_d2 != -1) {
+            if (best_pt != null) {
                 target = new LandscapeTarget(best_pt[0], best_pt[1]);
             }
         }

@@ -1191,7 +1191,7 @@ public final class Channel {
     }
 
     public @NonNull Channel floodfill(int init_x, int init_y, float value, float tol, int @Nullable [] countResult,
-            int @Nullable [] bounds) {
+            int @Nullable [] bounds, boolean allow_diagonals) {
         assert init_x < width && init_x >= 0 : "x coordinate outside image";
         assert init_y < height && init_y >= 0 : "y coordinate outside image";
         int min_x = init_x;
@@ -1237,6 +1237,31 @@ public final class Channel {
                 marked[x][y + 1] = true;
                 list.add(new int[]{x, y + 1});
                 count++;
+            }
+            if (allow_diagonals) {
+                if (x > 0 && y > 0 && Math.abs(getPixel(x - 1, y - 1) - oldval) < tol && !marked[x - 1][y - 1]) {
+                    marked[x - 1][y - 1] = true;
+                    list.add(new int[]{x - 1, y - 1});
+                    count++;
+                }
+                if (x < width - 1 && y > 0 && Math.abs(getPixel(x + 1, y - 1) - oldval) < tol
+                        && !marked[x + 1][y - 1]) {
+                    marked[x + 1][y - 1] = true;
+                    list.add(new int[]{x + 1, y - 1});
+                    count++;
+                }
+                if (x > 0 && y < height - 1 && Math.abs(getPixel(x - 1, y + 1) - oldval) < tol
+                        && !marked[x - 1][y + 1]) {
+                    marked[x - 1][y + 1] = true;
+                    list.add(new int[]{x - 1, y + 1});
+                    count++;
+                }
+                if (x < width - 1 && y < height - 1 && Math.abs(getPixel(x + 1, y + 1) - oldval) < tol
+                        && !marked[x + 1][y + 1]) {
+                    marked[x + 1][y + 1] = true;
+                    list.add(new int[]{x + 1, y + 1});
+                    count++;
+                }
             }
         }
         if (bounds != null) {

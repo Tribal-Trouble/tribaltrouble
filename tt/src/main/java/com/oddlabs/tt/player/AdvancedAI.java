@@ -603,6 +603,10 @@ public final class AdvancedAI extends AI {
     private void pickSafeLandingPoint(Ship ship, int islandId) {
         var info = getOwner().getWorld().getHeightMap().getIslandInfo(islandId);
         var pts = info.contourPoints();
+        // Don't send the ship if the island has no dockable cells
+        if (pts.isEmpty()) {
+            return;
+        }
         int best_weight = 10000;
         var best_pt = pts.get(0);
         for (int i = 0; i < pts.size(); i++) {
