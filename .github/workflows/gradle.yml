@@ -273,7 +273,7 @@ jobs:
   steam-prerelease:
     if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: [ version, build-mac-arm64-app, build-mac-x86-app, build-windows, build-linux ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # steamcmd cannot self-update on ubuntu-26.04 runners: https://github.com/game-ci/steam-deploy/issues/99
     environment: release
     steps:
       - name: Download Windows Artifact

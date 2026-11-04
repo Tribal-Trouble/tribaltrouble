@@ -12,6 +12,14 @@ section when a release is cut.
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed a crash at startup on some graphics cards, right after the game window opened.
+- Properly calculating the archipelago islands contour points using edges instead of the dock map so that no island no matter how small or steep would have no contour points. All while still guarding against any potential corner case where no contour points are calculated.
+- On Archipelago maps, land connected to an island only diagonally now counts as part of that island, since units can walk across diagonal connections. Ships and computer players no longer treat it as a separate island.
+
+## [2.2.207] - 2026-10-31
+
 ### Added
 
 - Moderators can rename a profile from Discord and lock it so it cannot be deleted.
@@ -21,6 +29,9 @@ section when a release is cut.
 
 - Anything you type as a map code now gives you an island, and typing the same thing again gives the same island. The map code box then shows that island's word code, which you can share with friends.
 - Patch notes now open after every update, not only after big ones. Press "Don't show again" in the patch notes window to stop them opening. To turn them back on, open Patch notes in Options and press OK.
+- Chieftain magic activation now starts immediately and takes priority over walking or attacking.
+- Peons rallied into a damaged quarters now enter it instead of repair it.
+- Armories no longer reset weapon production to zero when their stock is full. Production pauses instead, an infinite order stays set, and it resumes when there is room again.
 
 ### Fixed
 
@@ -125,7 +136,8 @@ Everything since the original Oddlabs source was released on 2014-09-01. Builds 
 - The server guards against malformed client data.
 - Steam auth tickets are validated through the Steam Web API.
 
-[Unreleased]: https://github.com/Tribal-Trouble/tribaltrouble/compare/v2.2.155-103.1010...main
+[Unreleased]: https://github.com/Tribal-Trouble/tribaltrouble/compare/v2.2.207-103.1010...main
+[2.2.207]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.207-103.1010
 [2.2.155]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.155-103.1010
 [2.2.139]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.139-103.1010
 [2.1.96]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.1.96-103.1009
