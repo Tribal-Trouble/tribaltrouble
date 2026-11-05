@@ -303,7 +303,7 @@ public final class Water implements AutoCloseable {
             }
             waterShader.setUniform(WaterShader.Uniforms.WAVE_TIME, waveTime * waveSpeed);
             float seaAnger = switch (terrain) {
-                case VIKING -> 1.0f;
+                case VIKING -> 0.4f;
                 case NATIVE -> 0.0f;
             };
             waterShader.setUniform(WaterShader.Uniforms.ANGER, seaAnger);
