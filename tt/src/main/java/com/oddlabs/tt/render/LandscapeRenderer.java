@@ -7,6 +7,7 @@ import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeLeaf;
+import com.oddlabs.tt.landscape.LandscapeLayers;
 import com.oddlabs.tt.landscape.PatchGroup;
 import com.oddlabs.tt.landscape.PatchGroupVisitor;
 import com.oddlabs.tt.landscape.World;
@@ -16,7 +17,6 @@ import com.oddlabs.tt.render.state.BlendMode;
 import com.oddlabs.tt.render.state.CullMode;
 import com.oddlabs.tt.render.state.DepthMode;
 import com.oddlabs.tt.render.state.RenderContext;
-import com.oddlabs.tt.resource.StructureBlend;
 import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.vbo.FloatVBO;
 import org.joml.Vector4f;
@@ -35,14 +35,19 @@ import java.util.List;
 import java.util.Set;
 
 public final class LandscapeRenderer implements SceneRenderer, Animated {
+    private static final int LAYER_MAPS_UNIT = 0;
+    private static final int LAYER_ALPHAS_UNIT = 6;
+    private static final int OVERLAY_ALPHAS_UNIT = 7;
+    private static final int DETAIL_MAP_UNIT = 9;
+    private static final int HEIGHT_MAP_UNIT = 10;
+    private static final int SUPPLY_SHADOW_ALPHA_UNIT = 11;
+    private static final int SHADOW_TEXTURE_UNIT = 12;
+    private static final int TERRAIN_SHADOW_ALPHA_UNIT = 13;
 
     private final List<@NonNull LandscapeLeaf> render_list = new ArrayList<>();
     private final @NonNull World world;
-    private final @NonNull Texture diffuseMap;
-    private final @NonNull Texture normalMap;
-    private final @Nullable StructureBlend terrainShadows;
-    private final @Nullable StructureBlend supplyShadows;
-    private final float shadowScale;
+    private final @NonNull LandscapeLayers layers;
+    private final float layerScale;
     private final @NonNull Texture detailMap;
     private final @NonNull PatchMesh patchMesh;
     private final LandscapeShader shader = new LandscapeShader();
@@ -57,13 +62,10 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
 
     public LandscapeRenderer(@NonNull World world, @NonNull WorldInfo world_info, @NonNull AnimationManager manager) {
         this.world = world;
-        this.diffuseMap = world_info.maps().diffuse();
-        this.normalMap = world_info.maps().normal();
-        this.terrainShadows = world_info.maps().terrainShadows();
-        this.supplyShadows = world_info.maps().supplyShadows();
-        this.shadowScale = (float) world_info.texels_per_colormap() / Globals.STRUCTURE_SIZE;
-        if (terrainShadows != null) {
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, terrainShadows.getStructureMap().getHandle());
+        this.layers = world_info.layers();
+        this.layerScale = world_info.meters_per_world() / LandscapeLayers.METERS_PER_STRUCTURE_TILE;
+        if (layers.terrainShadows() != null) {
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, layers.terrainShadows().getStructureMap().getHandle());
             GL33.glGenerateMipmap(GL11.GL_TEXTURE_2D);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
@@ -118,25 +120,35 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
             float seaLevel = reflectionPass ? world.getHeightMap().getSeaLevelMeters() : -100.0f;
             shader.setUniform(LandscapeShader.Uniforms.SEA_LEVEL, seaLevel);
 
-            context.setTexture(0, diffuseMap);
-            shader.setUniform(LandscapeShader.Uniforms.DIFFUSE_MAP, 0);
+            for (int i = 0; i < LandscapeLayers.LAYER_COUNT; i++) {
+                context.setTexture(LAYER_MAPS_UNIT + i, layers.getLayer(i));
+                shader.setUniform(LandscapeShader.Uniforms.LAYER_MAPS + "[" + i + "]", LAYER_MAPS_UNIT + i);
+            }
+            context.setTexture(LAYER_ALPHAS_UNIT, layers.getLayerAlphas());
+            shader.setUniform(LandscapeShader.Uniforms.LAYER_ALPHAS, LAYER_ALPHAS_UNIT);
+            context.setTexture(OVERLAY_ALPHAS_UNIT, layers.getOverlayAlphas());
+            shader.setUniform(LandscapeShader.Uniforms.OVERLAY_ALPHAS, OVERLAY_ALPHAS_UNIT);
+            shader.setUniform(LandscapeShader.Uniforms.LAYER_SCALE, layerScale);
+            // g/b swap reproduces the original bug in BlendLighting, which called glColor3f(r, b, g).
+            shader.setUniform(LandscapeShader.Uniforms.LIGHTING_COLOR, layers.getLightingR(), layers.getLightingB(),
+                    layers.getLightingG());
 
-            context.setTexture(1, normalMap);
-            shader.setUniform(LandscapeShader.Uniforms.NORMAL_MAP, 1);
+            context.setTexture(DETAIL_MAP_UNIT, detailMap);
+            shader.setUniform(LandscapeShader.Uniforms.DETAIL_MAP, DETAIL_MAP_UNIT);
 
-            context.setTexture(2, detailMap);
-            shader.setUniform(LandscapeShader.Uniforms.DETAIL_MAP, 2);
+            context.setTexture(HEIGHT_MAP_UNIT, world.getHeightMap().getHeightTexture());
+            shader.setUniform(LandscapeShader.Uniforms.HEIGHT_MAP, HEIGHT_MAP_UNIT);
 
-            context.setTexture(3, world.getHeightMap().getHeightTexture());
-            shader.setUniform(LandscapeShader.Uniforms.HEIGHT_MAP, 3);
-
-            context.setTexture(4, supplyShadows != null ? supplyShadows.getAlphaMap() : null);
-            shader.setUniform(LandscapeShader.Uniforms.SUPPLY_SHADOW_ALPHA, 4);
-            context.setTexture(5, terrainShadows != null ? terrainShadows.getStructureMap() : null);
-            shader.setUniform(LandscapeShader.Uniforms.SHADOW_TEXTURE, 5);
-            shader.setUniform(LandscapeShader.Uniforms.SHADOW_SCALE, shadowScale);
-            context.setTexture(6, terrainShadows != null ? terrainShadows.getAlphaMap() : null);
-            shader.setUniform(LandscapeShader.Uniforms.TERRAIN_SHADOW_ALPHA, 6);
+            context.setTexture(SUPPLY_SHADOW_ALPHA_UNIT,
+                    layers.supplyShadows() != null ? layers.supplyShadows().getAlphaMap() : null);
+            shader.setUniform(LandscapeShader.Uniforms.SUPPLY_SHADOW_ALPHA, SUPPLY_SHADOW_ALPHA_UNIT);
+            context.setTexture(SHADOW_TEXTURE_UNIT,
+                    layers.terrainShadows() != null ? layers.terrainShadows().getStructureMap() : null);
+            shader.setUniform(LandscapeShader.Uniforms.SHADOW_TEXTURE, SHADOW_TEXTURE_UNIT);
+            shader.setUniform(LandscapeShader.Uniforms.SHADOW_SCALE, layerScale);
+            context.setTexture(TERRAIN_SHADOW_ALPHA_UNIT,
+                    layers.terrainShadows() != null ? layers.terrainShadows().getAlphaMap() : null);
+            shader.setUniform(LandscapeShader.Uniforms.TERRAIN_SHADOW_ALPHA, TERRAIN_SHADOW_ALPHA_UNIT);
 
             if (Globals.draw_landscape && !render_list.isEmpty()) {
                 int instanceCount = render_list.size();
