@@ -315,15 +315,16 @@ public final class Landscape {
         if (DEBUG) access.toLayer().saveAsPNG("access_connected");
 
         // create blend infos
-        blend_infos = new BlendInfo[]{new StructureBlend(structures[0], structure_normals[0], new GLByteImage(
-                new Channel(1, 1).fill(1f), GL11.GL_RED)), new StructureBlend(structures[1], structure_normals[1],
-                        alpha_maps[0]), new StructureBlend(structures[2], structure_normals[2],
-                                alpha_maps[1]), new StructureBlend(structures[3], structure_normals[3],
-                                        alpha_maps[2]), new StructureBlend(structures[4], structure_normals[4],
-                                                alpha_maps[3]), new BlendLighting(alpha_maps[4], 1f, 0.9f,
-                                                        0.6f), new StructureBlend(structures[6],
-                                                                structure_normals[6], alpha_maps[6])
-        };
+        var layer0 = new StructureBlend(structures[0], structure_normals[0],
+                new GLByteImage(new Channel(1, 1).fill(1f), GL11.GL_RED));
+        var layer1 = new StructureBlend(structures[1], structure_normals[1], alpha_maps[0]);
+        var layer2 = new StructureBlend(structures[2], structure_normals[2], alpha_maps[1]);
+        var layer3 = new StructureBlend(structures[3], structure_normals[3], alpha_maps[2]);
+        var layer4 = new StructureBlend(structures[4], structure_normals[4], alpha_maps[3]);
+        var layer5 = new BlendLighting(alpha_maps[4], 1f, 0.9f, 0.6f);
+        var layer6 = new StructureBlend(structures[6], structure_normals[6], alpha_maps[6]);
+
+        blend_infos = new BlendInfo[]{layer0, layer1, layer2, layer3, layer4, layer5, layer6};
         terrain_shadows = new StructureBlend(structures[5], structure_normals[5], alpha_maps[5]);
         supply_shadows = new StructureBlend(structures[5], structure_normals[5], alpha_maps[7]);
     }

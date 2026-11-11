@@ -4,6 +4,7 @@ import com.oddlabs.tt.form.ProgressForm;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.landscape.HeightMap;
+import com.oddlabs.tt.landscape.LandscapeLayers;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.Texture;
 import org.jspecify.annotations.NonNull;
@@ -94,15 +95,11 @@ public final class IslandGenerator implements WorldGenerator {
         // int alpha_size = grid_units;
         // Texture[][] chunk_maps = blendTextures(chunks_per_colormap, blend_infos, alpha_size, Globals.STRUCTURE_SIZE, colormap_size/alpha_size);
 
-        com.oddlabs.tt.landscape.LandscapeBaker baker = new com.oddlabs.tt.landscape.LandscapeBaker();
-        // Original tiled structure textures at colormap_size/STRUCTURE_SIZE repeats.
-        float textureScale = (float) colormap_size / Globals.STRUCTURE_SIZE;
-        WorldInfo.Maps maps = baker.bake(colormap_size, textureScale, blend_infos).withShadows(
-                landscape.getTerrainShadows(), landscape.getSupplyShadows());
+        var layers = new LandscapeLayers(blend_infos, landscape.getTerrainShadows(), landscape.getSupplyShadows());
 
         ProgressForm.progress();
         return new WorldInfo(meters_per_world, landscape.getSeaLevelMeters(),
-                colormap_size, chunks_per_colormap, null, maps, detail,
+                colormap_size, chunks_per_colormap, null, layers, detail,
                 landscape.getHeight(),
                 landscape.getTrees(), landscape.getPalmtrees(), landscape.getRock(), landscape.getIron(),
                 landscape.getPlants(),
