@@ -127,6 +127,9 @@ public abstract class Island {
 
     protected final void insertGuardTower(@NonNull Player owner, int warrior_type, int grid_x, int grid_y) {
         Building tower = owner.buildBuilding(Race.BUILDING_TOWER, grid_x, grid_y);
+        if (tower == null) {
+            return;
+        }
         Unit unit = new Unit(owner,
                 UnitGrid.coordinateFromGrid(grid_x),
                 UnitGrid.coordinateFromGrid(grid_y),

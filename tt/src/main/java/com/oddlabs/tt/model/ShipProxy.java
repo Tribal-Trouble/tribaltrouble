@@ -69,11 +69,12 @@ public final class ShipProxy extends Building {
     }
 
     @Override
-    public final void place() {
+    public final boolean place() {
         register();
         occupy();
         getAbilities().addAbilities(getTemplate().getAbilities());
         reinsert();
+        return true;
     }
 
     protected final void removeDying() {
