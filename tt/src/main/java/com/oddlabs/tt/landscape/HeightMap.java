@@ -289,8 +289,8 @@ public final class HeightMap {
     }
 
     public LandscapeLeaf getLeafFromCoordinates(float x_f, float y_f) {
-        int patch_x = coordinateToPatch(x_f);
-        int patch_y = coordinateToPatch(y_f);
+        int patch_x = Math.clamp(coordinateToPatch(x_f), 0, patches_per_world - 1);
+        int patch_y = Math.clamp(coordinateToPatch(y_f), 0, patches_per_world - 1);
         return landscape_leaves[patch_y][patch_x];
     }
 
