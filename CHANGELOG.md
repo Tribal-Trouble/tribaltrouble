@@ -14,21 +14,23 @@ section when a release is cut.
 
 ### Changed
 
+- The sea now ripples instead of looking veiny, with rougher water around Northern islands and calmer water around Tropical ones. Ground detail is also sharper.
 - Chieftain magic activation now starts immediately and takes priority over walking or attacking.
-- Peons rallied into a damaged quarters now enter it instead of repair it.
-- Units displaced by a new building are moved into nearest cell positions instead of into nearest checkerboard cell positions.
-- You can now build on cells your units are walking over.
-- Only own units can be displaced by your own buildings; other players' units block the site instead of being pushed aside.
+- Peons rallied into a damaged quarters now enter it instead of repairing it.
+- You can now place a building on ground your own units are walking over. Units in the way step aside to the nearest free spot.
+- Other players' units, allies included, now block a building spot instead of being pushed aside.
 - Armories no longer reset weapon production to zero when their stock is full. Production pauses instead, an infinite order stays set, and it resumes when there is room again.
-- A unit exiting a tower now comes out in the direction it entered.
+- A unit leaving a tower now comes out on the side it went in.
 - A unit dismounted from a tower is now selected.
+- Units unloading from a boat now step onto the nearest free spot, so they can stand closer together on the shore.
 
 ### Fixed
 
 - Fixed a crash at startup on some graphics cards, right after the game window opened.
-- Properly calculating the archipelago islands contour points using edges instead of the dock map so that no island no matter how small or steep would have no contour points. All while still guarding against any potential corner case where no contour points are calculated.
+- On Archipelago maps, every island now has a shore ships can dock at. Sending a ship to a very small or steep island used to crash the game, and units landed there could get stuck.
 - On Archipelago maps, land connected to an island only diagonally now counts as part of that island, since units can walk across diagonal connections. Ships and computer players no longer treat it as a separate island.
-- Placing a building on a full island no longer crashes the game when not all units can be displaced; the order is ignored.
+- Placing a building on a packed island no longer crashes the game when your units have nowhere to step aside. The building is not placed.
+- Fixed a crash when placing a ship near the edge of the map.
 
 ## [2.2.207] - 2026-10-31
 
