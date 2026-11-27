@@ -31,6 +31,8 @@ section when a release is cut.
 - On Archipelago maps, land connected to an island only diagonally now counts as part of that island, since units can walk across diagonal connections. Ships and computer players no longer treat it as a separate island.
 - Placing a building on a packed island no longer crashes the game when your units have nowhere to step aside. The building is not placed.
 - Fixed a crash when placing a ship near the edge of the map.
+- Fixed a crash in the Native campaign when the chieftain died while Thor was still talking.
+- Fixed a rare crash when a unit walked at the far edge of the map.
 
 ## [2.2.207] - 2026-10-31
 

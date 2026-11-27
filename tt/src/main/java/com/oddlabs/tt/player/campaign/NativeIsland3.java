@@ -137,8 +137,10 @@ public final class NativeIsland3 extends Island {
 
         // Ask for Stinking Stew
         final Runnable dialog8 = () -> {
-            // Winning condition
-            new MagicUsedTrigger(local_player.getChieftain(), thor_x, thor_y, 20, 0, prize);
+            // Winning condition; a dead chieftain means the defeat trigger is already ending the game
+            Unit chieftain = local_player.getChieftain();
+            if (chieftain != null)
+                new MagicUsedTrigger(chieftain, thor_x, thor_y, 20, 0, prize);
             changeObjective(1);
 
             CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header8"),
