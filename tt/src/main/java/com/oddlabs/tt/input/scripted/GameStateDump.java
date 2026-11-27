@@ -115,7 +115,7 @@ public final class GameStateDump {
         int legal = 0;
         for (int gy = Math.max(min, cy - radius); gy <= Math.min(max, cy + radius); gy++) {
             for (int gx = Math.max(min, cx - radius); gx <= Math.min(max, cx + radius); gx++) {
-                if (!template.isPlacingLegal(unit_grid, gx, gy)) {
+                if (!template.isPlacingLegal(local, gx, gy)) {
                     continue;
                 }
                 legal++;
