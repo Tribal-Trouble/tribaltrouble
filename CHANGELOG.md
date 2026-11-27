@@ -12,6 +12,8 @@ section when a release is cut.
 
 ## [Unreleased]
 
+## [2.2.246] - 2026-11-27
+
 ### Changed
 
 - The sea now ripples instead of looking veiny, with rougher water around Northern islands and calmer water around Tropical ones. Ground detail is also sharper.
@@ -149,7 +151,8 @@ Everything since the original Oddlabs source was released on 2014-09-01. Builds 
 - The server guards against malformed client data.
 - Steam auth tickets are validated through the Steam Web API.
 
-[Unreleased]: https://github.com/Tribal-Trouble/tribaltrouble/compare/v2.2.207-103.1010...main
+[Unreleased]: https://github.com/Tribal-Trouble/tribaltrouble/compare/v2.2.246-103.1011...main
+[2.2.246]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.246-103.1011
 [2.2.207]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.207-103.1010
 [2.2.155]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.155-103.1010
 [2.2.139]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.139-103.1010
