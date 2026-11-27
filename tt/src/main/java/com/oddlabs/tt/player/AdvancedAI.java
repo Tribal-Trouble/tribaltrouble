@@ -603,6 +603,10 @@ public final class AdvancedAI extends AI {
     private void pickSafeLandingPoint(Ship ship, int islandId) {
         var info = getOwner().getWorld().getHeightMap().getIslandInfo(islandId);
         var pts = info.contourPoints();
+        // Don't send the ship if the island has no dockable cells
+        if (pts.isEmpty()) {
+            return;
+        }
         int best_weight = 10000;
         var best_pt = pts.get(0);
         for (int i = 0; i < pts.size(); i++) {
@@ -1021,7 +1025,7 @@ public final class AdvancedAI extends AI {
         if (selection.length == 0) {
             return false;
         }
-        BuildingSiteScanFilter filter = new BuildingSiteScanFilter(getUnitGrid(),
+        BuildingSiteScanFilter filter = new BuildingSiteScanFilter(getOwner(),
                 getOwner().getRace().getBuildingTemplate(Race.BUILDING_SHIP), 100, true, selection[0].getIslandId());
         getUnitGrid().scan(filter, grid_x, grid_y);
         List<? extends Target> target_list = filter.getResult();
@@ -1038,7 +1042,7 @@ public final class AdvancedAI extends AI {
         if (selection.length == 0) {
             return false;
         }
-        BuildingSiteScanFilter filter = new BuildingSiteScanFilter(getUnitGrid(),
+        BuildingSiteScanFilter filter = new BuildingSiteScanFilter(getOwner(),
                 getOwner().getRace().getBuildingTemplate(building_type), 40, true, selection[0].getIslandId());
         getUnitGrid().scan(filter, grid_x, grid_y);
         List<? extends Target> target_list = filter.getResult();

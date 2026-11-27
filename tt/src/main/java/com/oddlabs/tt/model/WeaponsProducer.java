@@ -34,7 +34,8 @@ public class WeaponsProducer {
 
     public final void animate(float t) {
         for (var production_container : production_containers) {
-            if (production_container.getNumSupplies() > 0 && production_container.hasEnoughSupplies()) {
+            if (production_container.getNumSupplies() > 0 && production_container.hasEnoughSupplies()
+                    && production_container.destinationHasRoom()) {
                 build_list.add(production_container);
             }
         }

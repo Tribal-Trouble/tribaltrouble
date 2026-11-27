@@ -317,15 +317,17 @@ public final class Player implements PlayerInterface {
     }
 
     public @Nullable Building buildBuilding(int building_type, int grid_x, int grid_y) {
-        BuildingSiteScanFilter filter = new BuildingSiteScanFilter(world.getUnitGrid(), getRace().getBuildingTemplate(
-                building_type), 40, true);
+        BuildingSiteScanFilter filter = new BuildingSiteScanFilter(this, getRace().getBuildingTemplate(building_type),
+                40, true);
         world.getUnitGrid().scan(filter, grid_x, grid_y);
         List<LandscapeTarget> target_list = filter.getResult();
         Building b = null;
         if (!target_list.isEmpty()) {
             Target t = target_list.getFirst();
             b = getRace().getBuildingTemplate(building_type).create(this, t.getGridX(), t.getGridY());
-            b.place();
+            if (!b.place()) {
+                return null;
+            }
             b.repair(1000);
         }
         return b;

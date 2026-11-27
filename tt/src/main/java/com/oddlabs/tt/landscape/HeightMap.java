@@ -295,7 +295,7 @@ public final class HeightMap {
     }
 
     public int coordinateToPatch(float f) {
-        return (int) (f * inv_meters_per_patch);
+        return Math.clamp((int) (f * inv_meters_per_patch), 0, patches_per_world - 1);
     }
 
     public float computeInterpolatedHeight(int lod, float x_f, float y_f) {

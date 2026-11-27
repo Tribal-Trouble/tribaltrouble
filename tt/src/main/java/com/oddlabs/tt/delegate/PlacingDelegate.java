@@ -45,10 +45,9 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
             logger.info("placeObject: Pick failed (off map?)");
             return;
         }
-        UnitGrid unit_grid = getViewer().getWorld().getUnitGrid();
         int placing_grid_x = UnitGrid.toGridCoordinate(landscape_hit.x);
         int placing_grid_y = UnitGrid.toGridCoordinate(landscape_hit.y);
-        if (getTemplate().isPlacingLegal(getViewer().getWorld().getUnitGrid(), placing_grid_x, placing_grid_y)) {
+        if (getTemplate().isPlacingLegal(getViewer().getLocalPlayer(), placing_grid_x, placing_grid_y)) {
             var peons = getViewer().getSelection().getCurrentSelection().filter(Abilities.BUILD);
             if (peons.length > 0) {
                 logger.info("placeObject: Placing building at " + placing_grid_x + "," + placing_grid_y);
@@ -98,7 +97,8 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
     public void render3D(@NonNull LandscapeRenderer renderer, @NonNull RenderQueues queues, @NonNull CameraState state,
             @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         if (!getViewer().getPicker().pickLocation(getCamera().getState(), landscape_hit)) return;
-        ghost.render(getViewer().getWorld(), getTemplate(), UnitGrid.toGridCoordinate(landscape_hit.x),
-                UnitGrid.toGridCoordinate(landscape_hit.y), renderer, queues, modelViewStack, projectionStack);
+        ghost.render(getViewer().getWorld(), getViewer().getLocalPlayer(), getTemplate(),
+                UnitGrid.toGridCoordinate(landscape_hit.x), UnitGrid.toGridCoordinate(landscape_hit.y), renderer,
+                queues, modelViewStack, projectionStack);
     }
 }

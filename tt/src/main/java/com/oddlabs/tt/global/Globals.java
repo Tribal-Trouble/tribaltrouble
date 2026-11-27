@@ -133,8 +133,8 @@ public final class Globals {
 
     public static final int NO_MIPMAP_CUTOFF = 1000;
 
-    public static final int STRUCTURE_SIZE = 256;
-    public static final int DETAIL_SIZE = 256;
+    public static final int STRUCTURE_SIZE = 1024;
+    public static final int DETAIL_SIZE = 1024;
     public static final int TEXELS_PER_GRID_UNIT = 8;
 
     public static final float LANDSCAPE_DETAIL_REPEAT_RATE = 0.25f;

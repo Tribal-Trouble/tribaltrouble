@@ -41,28 +41,26 @@ public class BuildProductionContainer extends BuildSupplyContainer {
         return true;
     }
 
+    public final boolean destinationHasRoom() {
+        return !dest_container.isSupplyFull();
+    }
+
     public final void build(float delta) {
         man_seconds += delta;
         if (man_seconds >= man_seconds_per_production) {
             man_seconds = 0;
-            if (!dest_container.isSupplyFull()) {
+            if (destinationHasRoom()) {
                 for (int i = 0; i < cost.getSupplyTypes().length; i++) {
                     building.getSupplyContainer(cost.getSupplyTypes()[i]).increaseSupply(-cost.getSupplyAmounts()[i]);
                 }
                 if (!infinite)
                     increaseSupply(-1);
                 dest_container.increaseSupply(1);
-            } else {
-                stopProduction();
             }
         }
     }
 
     public final float getBuildProgress() {
         return man_seconds / man_seconds_per_production;
-    }
-
-    private void stopProduction() {
-        increaseSupply(-getNumSupplies());
     }
 }

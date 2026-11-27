@@ -10,6 +10,7 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -72,6 +73,11 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
 
     public final @NonNull Controller getCurrentController() {
         return controller_stack.getLast();
+    }
+
+    @NullMarked
+    protected final List<Controller> getControllerStack() {
+        return controller_stack;
     }
 
     @Override
@@ -181,6 +187,10 @@ public abstract class Selectable<T extends Template> extends Model implements Ta
         current_behaviour.forceInterrupted();
         last = Behaviour.State.INTERRUPTIBLE;
         doDecide();
+    }
+
+    protected final void setShouldDecide(boolean value) {
+        this.should_decide = value;
     }
 
     public final void pushController(@NonNull Controller controller) {

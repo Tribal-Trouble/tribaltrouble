@@ -25,6 +25,7 @@ import com.oddlabs.tt.landscape.NotificationListener;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.pathfinder.UnitGrid;
+import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.Selectable;
@@ -137,6 +138,14 @@ public final class WorldViewer implements Animated, AutoCloseable {
                 Player owner = target.getOwner();
                 if (owner == notifiedPlayer())
                     notification_manager.newSelectableNotification(target, animation_manager_local, owner);
+            }
+
+            @Override
+            public void unitExitedTower(@NonNull Building tower, @NonNull Unit unit) {
+                if (spectator_view == null && tower.getOwner() == getLocalPlayer()) {
+                    getSelection().clearSelection();
+                    getSelection().getCurrentSelection().add(unit);
+                }
             }
 
             @Override

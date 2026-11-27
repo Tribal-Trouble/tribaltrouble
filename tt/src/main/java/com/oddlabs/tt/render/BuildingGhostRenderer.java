@@ -6,25 +6,27 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.BuildingTemplate;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.BuildingSiteScanFilter;
+import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.shader.SpriteShader;
 import com.oddlabs.tt.render.state.BlendMode;
 import com.oddlabs.tt.render.state.CullMode;
 import com.oddlabs.tt.render.state.DepthMode;
 import com.oddlabs.tt.render.state.RenderContext;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.List;
 
 /** The translucent building and the site markers shown while a building is being placed. */
+@NullMarked
 public final class BuildingGhostRenderer {
     private static final int GRID_RADIUS = 20;
 
     private final BuildingSiteRenderer site_renderer = new BuildingSiteRenderer();
     private final SpriteShader spriteShader = new SpriteShader();
 
-    public void render(@NonNull World world, @NonNull BuildingTemplate template, int placing_center_grid_x,
-            int placing_center_grid_y, @NonNull LandscapeRenderer renderer, @NonNull RenderQueues queues,
-            @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public void render(World world, Player owner, BuildingTemplate template, int placing_center_grid_x,
+            int placing_center_grid_y, LandscapeRenderer renderer, RenderQueues queues,
+            MatrixStack modelViewStack, MatrixStack projectionStack) {
         UnitGrid unit_grid = world.getUnitGrid();
         int placing_grid_x = placing_center_grid_x - (template.getPlacingSize() - 1);
         int placing_grid_y = placing_center_grid_y - (template.getPlacingSize() - 1);
@@ -32,7 +34,7 @@ public final class BuildingGhostRenderer {
         float center_x = HeightMap.METERS_PER_UNIT_GRID * (placing_grid_x + (template.getPlacingSize() - .5f));
         float center_y = HeightMap.METERS_PER_UNIT_GRID * (placing_grid_y + (template.getPlacingSize() - .5f));
 
-        BuildingSiteScanFilter filter = new BuildingSiteScanFilter(unit_grid, template, GRID_RADIUS, false);
+        BuildingSiteScanFilter filter = new BuildingSiteScanFilter(owner, template, GRID_RADIUS, false);
         unit_grid.scan(filter, placing_center_grid_x, placing_center_grid_y);
         List<LandscapeTarget> target_list = filter.getResult();
 
@@ -51,7 +53,7 @@ public final class BuildingGhostRenderer {
             spriteShader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, true);
             spriteShader.setUniform(SpriteShader.Uniforms.ALPHA_TEST_VALUE, 0.5f);
 
-            if (template.isPlacingLegal(unit_grid, placing_center_grid_x, placing_center_grid_y))
+            if (template.isPlacingLegal(owner, placing_center_grid_x, placing_center_grid_y))
                 spriteShader.setUniform(SpriteShader.Uniforms.COLOR, 1f, 1f, 1f, .8f);
             else
                 spriteShader.setUniform(SpriteShader.Uniforms.COLOR, 1f, 0f, 0f, .8f);

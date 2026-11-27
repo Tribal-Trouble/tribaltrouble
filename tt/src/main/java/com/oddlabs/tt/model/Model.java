@@ -75,13 +75,6 @@ public abstract class Model extends Element<Model> {
         reinsert();
     }
 
-    /**
-     * update positions related to model position
-     */
-    protected void onReinsert() {
-        // No-op by default
-    }
-
     protected final void reinsert() {
         if (isRegistered()) {
             Element ref = getReference();
@@ -92,7 +85,6 @@ public abstract class Model extends Element<Model> {
                 setPositionZ(ref.getPositionZ() + getOffsetZ());
             }
             updateBounds();
-            onReinsert();
             reregister();
         }
     }

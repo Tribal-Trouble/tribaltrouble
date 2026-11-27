@@ -35,7 +35,7 @@ delegate/GameStatsDelegate,magics_used,Magics used,Specialangreb,Eingesetzte mag
 delegate/GameStatsDelegate,total,Total score,Total score,Gesamtpunktzahl,Puntuación total,Punteggio totale,Pontuação total,Wynik końcowy
 delegate/GameStatsDelegate,observer_mode,Observer mode,Tilskuer,Beobachtermodus,Modo de observación,Modo osservatore,Modo observador,Tryb obserwatora
 delegate/GameStatsDelegate,main_menu,Main menu,Hovedmenu,Hauptmenü,Menú principal,Menu principale,Menu principal,Menu główne
-delegate/GameStatsDelegate,replay_island,Replay island,Genspil ø,Insel erneut spielen,Volver a jugar la isla,Rigioca isola,Repetir ilha,Zagraj ponownie na wyspie
+delegate/GameStatsDelegate,replay_island,Replay island,Genspil ø,Insel erneut spielen,Volver a jugar la isla,Rigioca isola,Repetir ilha,Zagraj ponownie
 delegate/GameStatsDelegate,map_code,Map code: {0},Ø-kode: {0},Kartencode: {0},Código del mapa: {0},Codice mappa: {0},Código do mapa: {0},Kod mapy: {0}
 delegate/GameStatsDelegate,type,Type,Type,Typ,Tipo,Tipo,Tipo,Rodzaj
 delegate/GameStatsDelegate,player_header,Player,Spiller,Spieler,Jugador,Giocatore,Jogador,Gracz
@@ -155,7 +155,7 @@ form/CreditsForm,3d_artwork_and_animation,3D ARTWORK & ANIMATION,3D GRAFIK & ANI
 form/CreditsForm,audio,AUDIO,LYD,AUDIO,AUDIO,AUDIO,ÁUDIO,DŹWIĘK
 form/CreditsForm,moon_texture,MOON TEXTURE,MÅNETEKSTUR,Mondtextur,TEXTURA LUNA,TEXTURE LUNA,TEXTURA DA LUA,TEKSTURA KSIĘŻYCA
 form/CreditsForm,programming,PROGRAMMING,PROGRAMMERING,PROGRAMMIERUNG,PROGRAMACIÓN,PROGRAMMAZIONE,PROGRAMAÇÃO,PROGRAMOWANIE
-form/CreditsForm,translations,TRANSLATIONS,OVERSÆTTELSER,ÜBERSETZUNGEN,TRADUCCIONES,TRADUZIONI,TRADUÇÕES,TŁUMACZENIA
+form/CreditsForm,translations,TRANSLATIONS,OVERSÆTTELSER,ÜBERSETZUNGEN,TRADUCCIONES,TRADUZIONI,TRADUÇÕES,TŁUMACZENIE
 form/CreditsForm,community,COMMUNITY,FÆLLESSKAB,GEMEINSCHAFT,COMUNIDAD,COMUNITÀ,COMUNIDADE,SPOŁECZNOŚĆ
 form/CreditsForm,contributors_text,Tribal Trouble: Resurrected has been made possible by volunteers since August 2025:,Tribal Trouble: Resurrected har været muliggjort af frivillige siden august 2025:,Tribal Trouble: Resurrected wird seit August 2025 von Freiwilligen ermöglicht:,Tribal Trouble: Resurrected ha sido posible gracias a voluntarios desde agosto de 2025:,Tribal Trouble: Resurrected è stato reso possibile grazie al lavoro di volontari sin dall'agosto 2025:,Tribal Trouble: Resurrected só foi possível graças a voluntários desde agosto de 2025:,Tribal Trouble: Resurrected jest możliwe dzięki pracy wolontariuszy od sierpnia 2025 r.:
 form/CreditsForm,thanks,THANKS,TAK,DANKE,AGRADECIMIENTOS,RINGRAZIAMENTI,OBRIGADO,PODZIĘKOWANIA 
@@ -304,7 +304,7 @@ form/NewUserForm,invalid_login,Login is not valid.,Login er ugyldigt.,Ungültige
 form/OptionsMenu,options_caption,Options,Indstillinger,Optionen,Opciones,Opzioni,Opções,Opcje
 form/OptionsMenu,general_settings_caption,General,Generelt,Allgemein,General,Generale,Geral,Informacje ogólne
 form/OptionsMenu,graphics_caption,Graphics,Grafik,Grafik,Gráficos,Grafica,Gráficos,Grafika
-form/OptionsMenu,accessibility_caption,Accessibility,Tilgængelighed,Barrierefreiheit,Accesibilidad,Accessibilità,Acessibilidade,Dostępność
+form/OptionsMenu,accessibility_caption,Accessibility,Tilgængelighed,Barrierefreiheit,Accesibilidad,Accessibilità,Acessibilidade,Kolorystyka
 form/OptionsMenu,sound_caption,Sound,Lyd,Sound,Sonido,Suono,Som,Dźwięk
 form/OptionsMenu,report_bug_caption,Report bug,Fejlrapport,Fehler melden,Informe de Error,Rapporto di errore,Reporte um bug,Zgłoś błąd
 form/OptionsMenu,music,Music,Musik,Musik,Música,Musica,Música,Muzyka
@@ -493,7 +493,7 @@ form/OptionsMenu,action.CHEAT_6,Cheat 6,Snyd 6,Cheat 6,Truco 6,Trucco 6,Trapaça
 form/OptionsMenu,action.CHEAT_7,Cheat 7,Snyd 7,Cheat 7,Truco 7,Trucco 7,Trapaça 7,Kod 7
 form/OptionsMenu,action.CHEAT_8,Cheat 8,Snyd 8,Cheat 8,Truco 8,Trucco 8,Trapaça 8,Kod 8
 form/OptionsMenu,action.CHEAT_9,Cheat 9,Snyd 9,Cheat 9,Truco 9,Trucco 9,Trapaça 9,Kod 9
-form/OptionsMenu,action.CHEAT_10,Cheat 10,Snydekode 10,Cheat 10,Truco 10,Trucco 10,Trapaça 10,Oszustwo 10
+form/OptionsMenu,action.CHEAT_10,Cheat 10,Snydekode 10,Cheat 10,Truco 10,Trucco 10,Trapaça 10,Kod 10
 form/OptionsMenu,action.SPECTATOR_NEXT_PLAYER,Spectator: Follow Next Player,Tilskuer: Følg den næste spiller,Zuschauer: Folge dem nächsten Spieler,Espectador: Sigue al siguiente jugador,Spettatore: Segui il giocatore successivo,Espectador: Seguir o Próximo Jogador,Widz: Obserwuj następnego gracza
 form/OptionsMenu,action.SPECTATOR_PREV_PLAYER,Spectator: Follow Previous Player,Tilskuer: Følg forrige spiller,Zuschauer: Dem vorherigen Spieler folgen,Espectador: Seguir al jugador anterior,Spettatore: Segui il giocatore precedente,Espectador: Seguir Jogador Anterior,Widz: Podążaj za poprzednim graczem
 form/OptionsMenu,action.SPECTATOR_FREE_CAMERA,Spectator: Free Camera,Tilskuer: Gratis kamera,Zuschauer: Kostenlose Kamera,Espectador: Cámara libre,Spettatore: telecamera libera,Espectador: Câmera Livre,Widz: Wolna kamera
@@ -922,7 +922,7 @@ player/campaign/NativeIsland0,name2,Vikings,Vikinger,Wikinger,Vikingos,Vichinghi
 player/campaign/NativeIsland0,name3,Natives,Indfødte,Eingeborene,Indígenas,Nativi,Indígenas,Tubylcy
 player/campaign/NativeIsland0,name4,,,,,,,
 player/campaign/NativeIsland0,name5,,,,,,,
-player/campaign/NativeIsland0,statue,Golden statue,Guldstatue,Goldstatue,Estatua de oro,Statua d''oro,Golden statue,Złota statua
+player/campaign/NativeIsland0,statue,Golden statue,Guldstatue,Goldstatue,Estatua de oro,Statua d''oro,Estatua dourada,Złota statua
 player/campaign/NativeIsland0,objective0,Retreat to the beach and find the reinforcements.,Træk dig tilbage til stranden og find nogle forstærkninger.,"Ziehen Sie sich zum Strand zurück, und suchen Sie nach Verstärkung.",Retrocede hasta la playa y encuentra los refuerzos.,Ritorna alla spiaggia e trova rinforzi.,Recuar à praia e encontrar reforços.,Wycofaj się na plażę i znajdź wsparcie.
 player/campaign/NativeIsland0,objective1,Destroy the Vikings.,Udslet vikingerne.,Vernichten Sie die Wikinger.,Destruye a los Vikingos.,Distruggi i Vichinghi.,Destruir os Vikings.,Zniszcz Wikingów.
 player/campaign/NativeIsland1,header,Völlurströnd,Völlurströnd,Völlurströnd,Völlurströnd,Völlurströnd,Völlurströnd,Völlurströnd

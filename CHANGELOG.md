@@ -12,6 +12,30 @@ section when a release is cut.
 
 ## [Unreleased]
 
+### Changed
+
+- The sea now ripples instead of looking veiny, with rougher water around Northern islands and calmer water around Tropical ones. Ground detail is also sharper.
+- Chieftain magic activation now starts immediately and takes priority over walking or attacking.
+- Peons rallied into a damaged quarters now enter it instead of repairing it.
+- You can now place a building on ground your own units are walking over. Units in the way step aside to the nearest free spot.
+- Other players' units, allies included, now block a building spot instead of being pushed aside.
+- Armories no longer reset weapon production to zero when their stock is full. Production pauses instead, an infinite order stays set, and it resumes when there is room again.
+- A unit leaving a tower now comes out on the side it went in.
+- A unit dismounted from a tower is now selected.
+- Units unloading from a boat now step onto the nearest free spot, so they can stand closer together on the shore.
+
+### Fixed
+
+- Fixed a crash at startup on some graphics cards, right after the game window opened.
+- On Archipelago maps, every island now has a shore ships can dock at. Sending a ship to a very small or steep island used to crash the game, and units landed there could get stuck.
+- On Archipelago maps, land connected to an island only diagonally now counts as part of that island, since units can walk across diagonal connections. Ships and computer players no longer treat it as a separate island.
+- Placing a building on a packed island no longer crashes the game when your units have nowhere to step aside. The building is not placed.
+- Fixed a crash when placing a ship near the edge of the map.
+- Fixed a crash in the Native campaign when the chieftain died while Thor was still talking.
+- Fixed a rare crash when a unit walked at the far edge of the map.
+
+## [2.2.207] - 2026-10-31
+
 ### Added
 
 - Moderators can rename a profile from Discord and lock it so it cannot be deleted.
@@ -125,7 +149,8 @@ Everything since the original Oddlabs source was released on 2014-09-01. Builds 
 - The server guards against malformed client data.
 - Steam auth tickets are validated through the Steam Web API.
 
-[Unreleased]: https://github.com/Tribal-Trouble/tribaltrouble/compare/v2.2.155-103.1010...main
+[Unreleased]: https://github.com/Tribal-Trouble/tribaltrouble/compare/v2.2.207-103.1010...main
+[2.2.207]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.207-103.1010
 [2.2.155]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.155-103.1010
 [2.2.139]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.2.139-103.1010
 [2.1.96]: https://github.com/Tribal-Trouble/tribaltrouble/releases/tag/v2.1.96-103.1009

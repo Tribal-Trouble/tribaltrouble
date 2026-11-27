@@ -1,6 +1,7 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.landscape.IslandInfo;
+import com.oddlabs.tt.landscape.LandscapeLayers;
 import com.oddlabs.tt.render.Texture;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -8,7 +9,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public record WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap,
-                        @NonNull Texture @Nullable [] @NonNull [] colormaps, Maps maps, @NonNull Texture detail,
+                        @NonNull Texture @Nullable [] @NonNull [] colormaps, LandscapeLayers layers,
+                        @NonNull Texture detail,
                         float @NonNull [] @NonNull [] heightmap, @NonNull List<int[]> trees,
                         @NonNull List<int[]> palm_trees, @NonNull List<int[]> rocks, @NonNull List<int[]> iron,
                         float @NonNull [] @NonNull [] plants, boolean @NonNull [] @NonNull [] access_grid,
@@ -20,20 +22,9 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
                         float @NonNull [] @NonNull [] starting_locations,
                         @NonNull BlendInfo @NonNull [] blend_infos, byte @NonNull [] @NonNull [] ground,
                         int seed) {
-    public record Maps(Texture diffuse, Texture normal, @Nullable StructureBlend terrainShadows,
-                       @Nullable StructureBlend supplyShadows) {
-        public Maps(Texture diffuse, Texture normal) {
-            this(diffuse, normal, null, null);
-        }
-
-        public @NonNull Maps withShadows(@NonNull StructureBlend terrainShadows,
-                @NonNull StructureBlend supplyShadows) {
-            return new Maps(diffuse, normal, terrainShadows, supplyShadows);
-        }
-    }
 
     public WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap,
-            @NonNull Texture @Nullable [] @NonNull [] colormaps, Maps maps, @NonNull Texture detail,
+            @NonNull Texture @Nullable [] @NonNull [] colormaps, LandscapeLayers layers, @NonNull Texture detail,
             float @NonNull [] @NonNull [] heightmap, @NonNull List<int @NonNull []> trees,
             @NonNull List<int @NonNull []> palm_trees, @NonNull List<int[]> rocks, @NonNull List<int[]> iron,
             float @NonNull [] @NonNull [] plants, boolean @NonNull [] @NonNull [] access_grid,
@@ -48,7 +39,7 @@ public record WorldInfo(int meters_per_world, float sea_level_meters, int texels
         this.sea_level_meters = sea_level_meters;
         this.meters_per_world = meters_per_world;
         this.colormaps = colormaps;
-        this.maps = maps;
+        this.layers = layers;
         this.detail = detail;
         this.heightmap = heightmap;
         this.trees = trees;
